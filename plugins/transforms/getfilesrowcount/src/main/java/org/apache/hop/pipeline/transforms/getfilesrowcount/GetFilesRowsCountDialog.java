@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
@@ -28,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -118,8 +114,8 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
   private CCombo wFilenameField;
   private FormData fdlFileField, fdFileField, fdlSmartCount;
 
-  public GetFilesRowsCountDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetFilesRowsCountDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetFilesRowsCountMeta) in;
   }
 
@@ -251,10 +247,10 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdFilenameField.right = new FormAttachment( 100, -margin );
     wFilenameField.setLayoutData( fdFilenameField );
     wFilenameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setFileField();
@@ -301,7 +297,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdbaFilename.top = new FormAttachment( wOriginFiles, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     fdFilename = new FormData();
@@ -318,7 +314,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdlFilemask.top = new FormAttachment( wFilename, margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
     fdFilemask = new FormData();
@@ -335,7 +331,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData( fdlExcludeFilemask );
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     fdExcludeFilemask = new FormData();
@@ -412,7 +408,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     wFilenameList =
       new TableView(
-        pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
+        variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
     props.setLook( wFilenameList );
 
     fdFilenameList = new FormData();
@@ -471,7 +467,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdlRowsCountField.left = new FormAttachment( wInclFilesCount, margin );
     fdlRowsCountField.top = new FormAttachment( 0, margin );
     wlRowsCountField.setLayoutData( fdlRowsCountField );
-    wRowsCountField = new TextVar( pipelineMeta, wFilesCountFieldGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowsCountField = new TextVar( variables, wFilesCountFieldGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowsCountField );
     wRowsCountField
       .setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.RowsCountField.Tooltip" ) );
@@ -546,7 +542,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdlRowSeparator.left = new FormAttachment( wInclFilesCount, margin );
     fdlRowSeparator.top = new FormAttachment( wRowSeparatorFormat, margin );
     wlRowSeparator.setLayoutData( fdlRowSeparator );
-    wRowSeparator = new TextVar( pipelineMeta, wRowSeparatorGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowSeparator = new TextVar( variables, wRowSeparatorGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowSeparator );
     wRowSeparator.setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.RowSeparator.Tooltip" ) );
     wRowSeparator.addModifyListener( lsMod );
@@ -626,7 +622,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdlInclFilesCountField.left = new FormAttachment( wInclFilesCount, margin );
     fdlInclFilesCountField.top = new FormAttachment( wRowSeparatorGroup, margin );
     wlInclFilesCountField.setLayoutData( fdlInclFilesCountField );
-    wInclFilesCountField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclFilesCountField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilesCountField );
     wInclFilesCountField.addModifyListener( lsMod );
     fdInclFilesCountField = new FormData();
@@ -772,7 +768,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
         try {
           GetFilesRowsCountMeta tfii = new GetFilesRowsCountMeta();
           getInfo( tfii );
-          FileInputList fileInputList = tfii.getFiles( pipelineMeta );
+          FileInputList fileInputList = tfii.getFiles( variables );
           String[] files = fileInputList.getFileStrings();
 
           if ( files.length > 0 ) {
@@ -810,9 +806,9 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Listen to the Browse... button
     wbbFilename.addListener( SWT.Selection, e-> {
         if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
-          BaseDialog.presentDirectoryDialog( shell, wFilemask, pipelineMeta );
+          BaseDialog.presentDirectoryDialog( shell, wFilemask, variables );
         } else {
-          BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+          BaseDialog.presentFileDialog( shell, wFilename, variables,
             new String[] { "*" },
             new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
             true
@@ -881,7 +877,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
       wFilenameField.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -1039,7 +1035,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
       GetFilesRowsCountMeta oneMeta = new GetFilesRowsCountMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
         oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog =
@@ -1050,7 +1046,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -1068,7 +1064,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 

@@ -173,7 +173,7 @@ public class NoAuthMongoClientWrapperTest {
   public void testGetReplicaSetMembersThatSatisfyTagSets() throws MongoDbException {
     setupMockedReplSet();
 
-    List<DBObject> tagSets = new ArrayList<DBObject>(); // tags to satisfy
+    List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
 
     DBObject tSet = (DBObject) JSON.parse(TAG_SET);
     tagSets.add(tSet);
@@ -199,7 +199,7 @@ public class NoAuthMongoClientWrapperTest {
   @Test
   public void testGetReplicaSetMembersDoesntSatisfyTagSets() throws MongoDbException {
     setupMockedReplSet();
-    List<DBObject> tagSets = new ArrayList<DBObject>(); // tags to satisfy
+    List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
     DBObject tSet = (DBObject) JSON.parse(TAG_SET2);
     tagSets.add(tSet);
     List<String> satisfy = noAuthMongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);
@@ -210,7 +210,7 @@ public class NoAuthMongoClientWrapperTest {
   @Test
   public void testGetReplicaSetMembersThatSatisfyTagSetsThrowsOnDbError() throws MongoDbException {
     setupMockedReplSet();
-    List<DBObject> tagSets = new ArrayList<DBObject>(); // tags to satisfy
+    List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
     DBObject tSet = (DBObject) JSON.parse(TAG_SET);
     tagSets.add(tSet);
     Mockito.doThrow(runtimeException)

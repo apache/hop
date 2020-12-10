@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.ssh;
 
@@ -44,7 +38,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -437,7 +430,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSH
       remarks.add( cr );
     }
     if ( isusePrivateKey() ) {
-      String keyfilename = pipelineMeta.environmentSubstitute( getKeyFileName() );
+      String keyfilename = variables.resolve( getKeyFileName() );
       if ( Utils.isEmpty( keyfilename ) ) {
         errorMessage = BaseMessages.getString( PKG, "SSHMeta.CheckResult.PrivateKeyFileNameMissing" );
         cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
@@ -486,11 +479,11 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSH
       row.clear();
     }
     IValueMeta v =
-      new ValueMetaString( variables.environmentSubstitute( getStdOutFieldName() ) );
+      new ValueMetaString( variables.resolve( getStdOutFieldName() ) );
     v.setOrigin( name );
     row.addValueMeta( v );
 
-    String stderrfield = variables.environmentSubstitute( getStdErrFieldName() );
+    String stderrfield = variables.resolve( getStdErrFieldName() );
     if ( !Utils.isEmpty( stderrfield ) ) {
       v = new ValueMetaBoolean( stderrfield );
       v.setOrigin( name );

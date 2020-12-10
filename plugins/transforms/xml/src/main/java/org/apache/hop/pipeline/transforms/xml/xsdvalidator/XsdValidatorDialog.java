@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -70,8 +65,8 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
   private boolean gotPrevious = false;
 
-  public XsdValidatorDialog(Shell parent, Object in, PipelineMeta transMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, transMeta, sname );
+  public XsdValidatorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (XsdValidatorMeta) in;
   }
 
@@ -230,7 +225,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Output Fieldame
     wResultField =
-        new LabelTextVar( pipelineMeta, wOutputFields, BaseMessages
+        new LabelTextVar( variables, wOutputFields, BaseMessages
             .getString( PKG, "XsdValidatorDialog.ResultField.Label" ), BaseMessages.getString( PKG,
             "XsdValidatorDialog.ResultField.Tooltip" ) );
     props.setLook( wResultField );
@@ -266,7 +261,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Output if XML is valid field
     wIfXMLValid =
-        new LabelTextVar( pipelineMeta, wOutputFields,
+        new LabelTextVar( variables, wOutputFields,
             BaseMessages.getString( PKG, "XsdValidatorDialog.IfXMLValid.Label" ), BaseMessages.getString( PKG,
                 "XsdValidatorDialog.IfXMLValid.Tooltip" ) );
     props.setLook( wIfXMLValid );
@@ -279,7 +274,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Output if XML is not valid field
     wIfXMLUnValid =
-        new LabelTextVar( pipelineMeta, wOutputFields, BaseMessages.getString( PKG,
+        new LabelTextVar( variables, wOutputFields, BaseMessages.getString( PKG,
             "XsdValidatorDialog.IfXMLUnValid.Label" ), BaseMessages.getString( PKG,
             "XsdValidatorDialog.IfXMLUnValid.Tooltip" ) );
     props.setLook( wIfXMLUnValid );
@@ -315,7 +310,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Validation Msg Fieldame
     wValidationMsg =
-        new LabelTextVar( pipelineMeta, wOutputFields, BaseMessages.getString( PKG,
+        new LabelTextVar( variables, wOutputFields, BaseMessages.getString( PKG,
             "XsdValidatorDialog.ValidationMsg.Label" ), BaseMessages.getString( PKG,
             "XsdValidatorDialog.ValidationMsg.Tooltip" ) );
     props.setLook( wValidationMsg );
@@ -417,7 +412,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     fdbFilename.top = new FormAttachment( wXSDSource, margin );
     wbbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, wXSD, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wXSD, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -504,7 +499,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
@@ -513,7 +508,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*xsd;*.XSD", "*" } );
         if ( wFilename.getText() != null ) {
-          String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
+          String fname = variables.resolve( wFilename.getText() );
           dialog.setFileName( fname );
         }
 
@@ -587,7 +582,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
         wXMLStream.removeAll();
         wXSDDefinedColumn.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wXMLStream.setItems( r.getFieldNames() );
           wXSDDefinedColumn.setItems( r.getFieldNames() );

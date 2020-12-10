@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
@@ -499,7 +494,7 @@ public class TextFileOutputMeta
    * @return At how many rows to split into another file.
    */
   public int getSplitEvery( IVariables varSpace ) {
-    return Const.toInt( varSpace == null ? splitEveryRows : varSpace.environmentSubstitute( splitEveryRows ), 0 );
+    return Const.toInt( varSpace == null ? splitEveryRows : varSpace.resolve( splitEveryRows ), 0 );
   }
 
   /**
@@ -817,8 +812,8 @@ public class TextFileOutputMeta
   public String buildFilename( String filename, String extension, IVariables variables, int transformnr, String partnr,
                                int splitnr, boolean ziparchive, TextFileOutputMeta meta ) {
 
-    final String realFileName = variables.environmentSubstitute( filename );
-    final String realExtension = variables.environmentSubstitute( extension );
+    final String realFileName = variables.resolve( filename );
+    final String realExtension = variables.resolve( extension );
     return buildFilename( variables, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
       .toString( splitnr ), new Date(), ziparchive, true, meta );
   }
@@ -988,7 +983,7 @@ public class TextFileOutputMeta
    * Since the exported pipeline that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -1006,7 +1001,7 @@ public class TextFileOutputMeta
       if ( !fileNameInField ) {
 
         if ( !Utils.isEmpty( fileName ) ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
           fileName = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }
@@ -1108,8 +1103,8 @@ public class TextFileOutputMeta
 
   private String[] getFiles( final IVariables variables, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return getFiles( realFileName, realExtension, showSamples );
   }
@@ -1177,8 +1172,8 @@ public class TextFileOutputMeta
     final IVariables variables, final String transformnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return buildFilename( realFileName, realExtension, transformnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }
@@ -1268,12 +1263,12 @@ public class TextFileOutputMeta
     return retval;
   }
 
-  public String[] getFilePaths( final boolean showSamples ) {
+  public String[] getFilePaths( IVariables variables, final boolean showSamples ) {
     final TransformMeta parentTransformMeta = getParentTransformMeta();
     if ( parentTransformMeta != null ) {
       final PipelineMeta parentPipelineMeta = parentTransformMeta.getParentPipelineMeta();
       if ( parentPipelineMeta != null ) {
-        return getFiles( parentPipelineMeta, showSamples );
+        return getFiles( variables, showSamples );
       }
     }
     return new String[] {};

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.copyfiles;
 
@@ -189,7 +183,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       copyEmptyFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copy_empty_folders" ) );
@@ -301,9 +295,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           if ( !Utils.isEmpty( vSourceFileFolderPrevious ) && !Utils.isEmpty( vDestinationFileFolderPrevious ) ) {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "JobCopyFiles.Log.ProcessingRow",
-                HopVfs.getFriendlyURI( environmentSubstitute( vSourceFileFolderPrevious ) ),
-                HopVfs.getFriendlyURI( environmentSubstitute( vDestinationFileFolderPrevious ) ),
-                environmentSubstitute( vWildcardPrevious ) ) );
+                HopVfs.getFriendlyURI( resolve( vSourceFileFolderPrevious ) ),
+                HopVfs.getFriendlyURI( resolve( vDestinationFileFolderPrevious ) ),
+                resolve( vWildcardPrevious ) ) );
             }
 
             if ( !processFileFolder( vSourceFileFolderPrevious, vDestinationFileFolderPrevious, vWildcardPrevious,
@@ -314,8 +308,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "JobCopyFiles.Log.IgnoringRow",
-                HopVfs.getFriendlyURI( environmentSubstitute( vSourceFileFolder[ iteration ] ) ),
-                HopVfs.getFriendlyURI( environmentSubstitute( vDestinationFileFolder[ iteration ] ) ),
+                HopVfs.getFriendlyURI( resolve( vSourceFileFolder[ iteration ] ) ),
+                HopVfs.getFriendlyURI( resolve( vDestinationFileFolder[ iteration ] ) ),
                 vwildcard[ iteration ] ) );
             }
           }
@@ -328,9 +322,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
             if ( isBasic() ) {
               logBasic( BaseMessages.getString( PKG, "JobCopyFiles.Log.ProcessingRow",
-                HopVfs.getFriendlyURI( environmentSubstitute( vSourceFileFolder[ i ] ) ),
-                HopVfs.getFriendlyURI( environmentSubstitute( vDestinationFileFolder[ i ] ) ),
-                environmentSubstitute( vwildcard[ i ] ) ) );
+                HopVfs.getFriendlyURI( resolve( vSourceFileFolder[ i ] ) ),
+                HopVfs.getFriendlyURI( resolve( vDestinationFileFolder[ i ] ) ),
+                resolve( vwildcard[ i ] ) ) );
             }
 
             if ( !processFileFolder( vSourceFileFolder[ i ], vDestinationFileFolder[ i ], vwildcard[ i ], parentWorkflow, result ) ) {
@@ -340,8 +334,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "JobCopyFiles.Log.IgnoringRow",
-                HopVfs.getFriendlyURI( environmentSubstitute( vSourceFileFolder[ i ] ) ),
-                HopVfs.getFriendlyURI( environmentSubstitute( vDestinationFileFolder[ i ] ) ), vwildcard[ i ] ) );
+                HopVfs.getFriendlyURI( resolve( vSourceFileFolder[ i ] ) ),
+                HopVfs.getFriendlyURI( resolve( vDestinationFileFolder[ i ] ) ), vwildcard[ i ] ) );
             }
           }
         }
@@ -374,9 +368,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     listAddResult.clear();
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
-    String realDestinationFilefoldername = environmentSubstitute( destinationfilefoldername );
-    String realWildcard = environmentSubstitute( wildcard );
+    String realSourceFilefoldername = resolve( sourcefilefoldername );
+    String realDestinationFilefoldername = resolve( destinationfilefoldername );
+    String realWildcard = resolve( wildcard );
 
     try {
       sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );

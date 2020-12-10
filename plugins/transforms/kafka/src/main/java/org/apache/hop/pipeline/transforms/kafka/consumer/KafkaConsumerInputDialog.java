@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
@@ -29,6 +24,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -111,8 +107,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
 
   private TextVar wBootstrapServers;
 
-  public KafkaConsumerInputDialog( Shell parent, Object meta, PipelineMeta pipelineMeta, String name ) {
-    super( parent, (BaseTransformMeta) meta, pipelineMeta, name );
+  public KafkaConsumerInputDialog( Shell parent, IVariables variables, Object meta, PipelineMeta pipelineMeta, String name ) {
+    super( parent, variables, (BaseTransformMeta) meta, pipelineMeta, name );
     this.meta = (KafkaConsumerInputMeta) meta;
     hopGui = HopGui.getInstance();
   }
@@ -199,13 +195,13 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
       HopPipelineFileType pipelineFileType = new HopPipelineFileType();
       BaseDialog.presentFileDialog(
         shell,
-        wFilename, pipelineMeta,
+        wFilename, variables,
         pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(),
         true
       );
     } );
 
-    wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
     props.setLook( wFilename );
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( wlFilename, margin );
@@ -348,7 +344,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdlBootstrapServers.top = new FormAttachment( 0, 0 );
     wlBootstrapServers.setLayoutData( fdlBootstrapServers );
 
-    wBootstrapServers = new TextVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBootstrapServers = new TextVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBootstrapServers );
     wBootstrapServers.addModifyListener( lsMod );
     FormData fdBootstrapServers = new FormData();
@@ -366,7 +362,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdlTopic.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
     wlTopic.setLayoutData( fdlTopic );
 
-    wConsumerGroup = new TextVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wConsumerGroup = new TextVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wConsumerGroup );
     wConsumerGroup.addModifyListener( lsMod );
     FormData fdConsumerGroup = new FormData();
@@ -450,7 +446,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     int fieldCount = KafkaConsumerField.Name.values().length;
 
     fieldsTable = new TableView(
-      pipelineMeta,
+      variables,
       parentWidget,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       columns,
@@ -490,7 +486,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     int fieldCount = meta.getConfig().size();
 
     optionsTable = new TableView(
-      pipelineMeta,
+      variables,
       parentWidget,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       columns,
@@ -563,7 +559,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdlBatchDuration.right = new FormAttachment( 50, 0 );
     wlBatchDuration.setLayoutData( fdlBatchDuration );
 
-    wBatchDuration = new TextVar( pipelineMeta, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchDuration = new TextVar( variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchDuration );
     wBatchDuration.addModifyListener( lsMod );
     FormData fdBatchDuration = new FormData();
@@ -581,7 +577,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdlBatchSize.right = new FormAttachment( 50, 0 );
     wlBatchSize.setLayoutData( fdlBatchSize );
 
-    wBatchSize = new TextVar( pipelineMeta, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.addModifyListener( lsMod );
     FormData fdBatchSize = new FormData();
@@ -620,7 +616,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     wlSubTransform.setLayoutData( fdlSubTrans );
     wlSubTransform.setText( BaseMessages.getString( PKG, "KafkaConsumerInputDialog.Pipeline.SubPipelineTransform" ) );
 
-    wSubTransform = new ComboVar( pipelineMeta, wResultsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSubTransform = new ComboVar( variables, wResultsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSubTransform );
     FormData fdSubTransform = new FormData();
     fdSubTransform.left = new FormAttachment( 0, 0 );
@@ -713,12 +709,12 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
       CCombo comboWidget = (CCombo) e.widget;
       ComboVar topicsCombo = (ComboVar) comboWidget.getParent();
 
-      KafkaDialogHelper kdh = new KafkaDialogHelper( pipelineMeta, topicsCombo, wBootstrapServers, kafkaFactory, optionsTable, meta.getParentTransformMeta() );
+      KafkaDialogHelper kdh = new KafkaDialogHelper( variables, topicsCombo, wBootstrapServers, kafkaFactory, optionsTable, meta.getParentTransformMeta() );
       kdh.clusterNameChanged( e );
     };
 
     topicsTable = new TableView(
-      pipelineMeta,
+      variables,
       parentWidget,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       columns,
@@ -870,7 +866,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
   private PipelineMeta loadKafkaPipelineMeta() throws HopException {
     KafkaConsumerInputMeta copyMeta = meta.clone();
     updateMeta( copyMeta );
-    return TransformWithMappingMeta.loadMappingMeta( copyMeta, getMetadataProvider(), pipelineMeta );
+    return TransformWithMappingMeta.loadMappingMeta( copyMeta, getMetadataProvider(), variables );
   }
 
   protected void populateSubTransforms( Event event ) {
@@ -879,8 +875,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
       wSubTransform.removeAll();
 
       ofNullable( loadKafkaPipelineMeta() )
-        .ifPresent( transMeta ->
-          transMeta
+        .ifPresent( pipelineMeta ->
+          pipelineMeta
             .getTransforms()
             .stream()
             .map( TransformMeta::getName )
@@ -897,4 +893,3 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     }
   }
 }
-

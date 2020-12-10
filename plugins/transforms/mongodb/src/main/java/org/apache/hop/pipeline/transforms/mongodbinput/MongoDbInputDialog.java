@@ -116,8 +116,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
   private final MongoDbInputMeta input;
 
-  public MongoDbInputDialog(Shell parent, Object in, PipelineMeta tr, String sname) {
-    super(parent, (BaseTransformMeta) in, tr, sname);
+  public MongoDbInputDialog(Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (MongoDbInputMeta) in;
   }
 
@@ -209,7 +209,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlHostname.right = new FormAttachment(middle, -margin);
     fdlHostname.top = new FormAttachment(0, margin);
     wlHostname.setLayoutData(fdlHostname);
-    wHostname = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHostname = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wHostname);
     wHostname.addModifyListener(lsMod);
     FormData fdHostname = new FormData();
@@ -230,7 +230,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlPort.right = new FormAttachment(middle, -margin);
     fdlPort.top = new FormAttachment(lastControl, margin);
     wlPort.setLayoutData(fdlPort);
-    wPort = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPort = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPort);
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
@@ -300,7 +300,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlAuthUser.right = new FormAttachment(middle, -margin);
     wlAuthDbName.setLayoutData(fdlAuthUser);
 
-    wAuthDbName = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthDbName = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wAuthDbName);
     wAuthDbName.addModifyListener(lsMod);
     FormData fdAuthUser = new FormData();
@@ -350,7 +350,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlAuthUser.right = new FormAttachment(middle, -margin);
     fdlAuthUser.top = new FormAttachment(lastControl, margin);
     wlAuthUser.setLayoutData(fdlAuthUser);
-    wAuthUser = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthUser = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wAuthUser);
     wAuthUser.addModifyListener(lsMod);
     fdAuthUser = new FormData();
@@ -370,7 +370,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlAuthPass.top = new FormAttachment(lastControl, margin);
     fdlAuthPass.right = new FormAttachment(middle, -margin);
     wlAuthPass.setLayoutData(fdlAuthPass);
-    wAuthPass = new PasswordTextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthPass = new PasswordTextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wAuthPass);
     wAuthPass.addModifyListener(lsMod);
     FormData fdAuthPass = new FormData();
@@ -411,7 +411,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fd.top = new FormAttachment(lastControl, 2 * margin);
     fd.right = new FormAttachment(middle, -margin);
     connectTimeoutL.setLayoutData(fd);
-    wConnectionTimeout = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionTimeout = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wConnectionTimeout);
     wConnectionTimeout.addModifyListener(lsMod);
     fd = new FormData();
@@ -432,7 +432,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fd.top = new FormAttachment(lastControl, margin);
     fd.right = new FormAttachment(middle, -margin);
     socketTimeoutL.setLayoutData(fd);
-    wSocketTimeout = new TextVar(pipelineMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSocketTimeout = new TextVar( variables, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSocketTimeout);
     wSocketTimeout.addModifyListener(lsMod);
     fd = new FormData();
@@ -499,7 +499,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
           @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
-            wDbName.setToolTipText(pipelineMeta.environmentSubstitute(wDbName.getText()));
+            wDbName.setToolTipText(variables.resolve(wDbName.getText()));
           }
         });
 
@@ -559,7 +559,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
           public void modifyText(ModifyEvent e) {
             input.setChanged();
             wReadPreference.setToolTipText(
-                pipelineMeta.environmentSubstitute(wReadPreference.getText()));
+                variables.resolve(wReadPreference.getText()));
           }
         });
 
@@ -624,7 +624,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     wTags =
         new TableView(
-            pipelineMeta,
+            variables,
             wInputOptionsComp,
             SWT.FULL_SELECTION | SWT.MULTI,
             tagsColumns,
@@ -669,7 +669,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlFieldsName.right = new FormAttachment(middle, -margin);
     fdlFieldsName.bottom = new FormAttachment(100, -margin);
     wlFieldsName.setLayoutData(fdlFieldsName);
-    wFieldsName = new TextVar(pipelineMeta, wQueryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFieldsName = new TextVar( variables, wQueryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFieldsName);
     wFieldsName.addModifyListener(lsMod);
     FormData fdFieldsName = new FormData();
@@ -728,7 +728,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     wJsonQuery =
         new StyledTextComp(
-            pipelineMeta,
+            variables,
             wQueryComp,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
             "");
@@ -736,7 +736,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     wJsonQuery.addModifyListener(lsMod);
 
     /*
-     * wJsonQuery = new TextVar(pipelineMeta, wQueryComp, SWT.SINGLE | SWT.LEFT |
+     * wJsonQuery = new TextVar( variables, wQueryComp, SWT.SINGLE | SWT.LEFT |
      * SWT.BORDER); props.setLook(wJsonQuery);
      * wJsonQuery.addModifyListener(lsMod);
      */
@@ -805,7 +805,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fdlJsonField.right = new FormAttachment(middle, -margin);
     fdlJsonField.top = new FormAttachment(lastControl, 2 * margin);
     wlJsonField.setLayoutData(fdlJsonField);
-    wJsonField = new TextVar(pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wJsonField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wJsonField);
     wJsonField.addModifyListener(lsMod);
     FormData fdJsonField = new FormData();
@@ -871,7 +871,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     wFields =
         new TableView(
-            pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
+            variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
 
     fd = new FormData();
     fd.top = new FormAttachment(lastControl, margin * 2);
@@ -1018,7 +1018,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     int numNonEmpty = wFields.nrNonEmpty();
     if (numNonEmpty > 0) {
-      List<MongoField> outputFields = new ArrayList<MongoField>();
+      List<MongoField> outputFields = new ArrayList<>();
       for (int i = 0; i < numNonEmpty; i++) {
         TableItem item = wFields.getNonEmpty(i);
         MongoField newField = new MongoField();
@@ -1039,7 +1039,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     numNonEmpty = wTags.nrNonEmpty();
 
-    List<String> tags = new ArrayList<String>();
+    List<String> tags = new ArrayList<>();
     if (numNonEmpty > 0) {
 
       for (int i = 0; i < numNonEmpty; i++) {
@@ -1109,13 +1109,13 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   public void updateFieldTableFields(List<MongoField> fields) {
-    Map<String, MongoField> fieldMap = new HashMap<String, MongoField>(fields.size());
+    Map<String, MongoField> fieldMap = new HashMap<>( fields.size() );
     for (MongoField field : fields) {
       fieldMap.put(field.fieldName, field);
     }
 
     int index = 0;
-    List<Integer> indicesToRemove = new ArrayList<Integer>();
+    List<Integer> indicesToRemove = new ArrayList<>();
     for (TableItem tableItem : wFields.getTable().getItems()) {
       String name = tableItem.getText(1);
       MongoField mongoField = fieldMap.remove(name);
@@ -1178,7 +1178,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
   private boolean checkForUnresolved(MongoDbInputMeta meta, String title) {
 
-    String query = pipelineMeta.environmentSubstitute(meta.getJsonQuery());
+    String query = variables.resolve(meta.getJsonQuery());
 
     boolean notOk = (query.contains("${") || query.contains("?{"));
 
@@ -1237,7 +1237,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
         }
 
         try {
-          discoverFields(meta, pipelineMeta, samples, this);
+          discoverFields(meta, variables, samples, this);
           meta.setExecuteForEachIncomingRow(current);
         } catch (HopException e) {
           new ErrorDialog(
@@ -1296,7 +1296,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta, metadataProvider, oneMeta, wTransformName.getText());
+            variables, metadataProvider, oneMeta, wTransformName.getText());
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
@@ -1308,7 +1308,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     if (previewSize > 0) {
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-              shell, previewMeta, new String[] {wTransformName.getText()}, new int[] {previewSize});
+              shell, variables, previewMeta, new String[] {wTransformName.getText()}, new int[] {previewSize});
       progressDialog.open();
 
       Pipeline pipeline = progressDialog.getPipeline();
@@ -1331,7 +1331,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       PreviewRowsDialog prd =
           new PreviewRowsDialog(
               shell,
-              pipelineMeta,
+              variables,
               SWT.NONE,
               wTransformName.getText(),
               progressDialog.getPreviewRowsMeta(wTransformName.getText()),
@@ -1345,7 +1345,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     String current = wDbName.getText();
     wDbName.removeAll();
 
-    String hostname = pipelineMeta.environmentSubstitute(wHostname.getText());
+    String hostname = variables.resolve(wHostname.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
 
@@ -1353,8 +1353,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       getInfo(meta);
       try {
         MongoClientWrapper wrapper =
-            MongoWrapperUtil.createMongoClientWrapper(meta, pipelineMeta, log);
-        List<String> dbNames = new ArrayList<String>();
+            MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
+        List<String> dbNames = new ArrayList<>();
         try {
           dbNames = wrapper.getDatabaseNames();
         } finally {
@@ -1391,8 +1391,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setupCollectionNamesForDB() {
-    final String hostname = pipelineMeta.environmentSubstitute(wHostname.getText());
-    final String dB = pipelineMeta.environmentSubstitute(wDbName.getText());
+    final String hostname = variables.resolve(wHostname.getText());
+    final String dB = variables.resolve(wDbName.getText());
 
     String current = wCollection.getText();
     wCollection.removeAll();
@@ -1403,8 +1403,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       getInfo(meta);
       try {
         MongoClientWrapper wrapper =
-            MongoWrapperUtil.createMongoClientWrapper(meta, pipelineMeta, log);
-        Set<String> collections = new HashSet<String>();
+            MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
+        Set<String> collections = new HashSet<>();
         try {
           collections = wrapper.getCollectionsNames(dB);
         } finally {
@@ -1451,7 +1451,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setupTagSetComboValues() {
-    String hostname = pipelineMeta.environmentSubstitute(wHostname.getText());
+    String hostname = variables.resolve(wHostname.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
       MongoDbInputMeta meta = new MongoDbInputMeta();
@@ -1459,8 +1459,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
       try {
         MongoClientWrapper wrapper =
-            MongoWrapperUtil.createMongoClientWrapper(meta, pipelineMeta, log);
-        List<String> repSetTags = new ArrayList<String>();
+            MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
+        List<String> repSetTags = new ArrayList<>();
         try {
           repSetTags = wrapper.getAllTags();
         } finally {
@@ -1556,7 +1556,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
   private void testUserSpecifiedTagSetsAgainstReplicaSet() {
     if (wTags.nrNonEmpty() > 0) {
-      List<DBObject> tagSets = new ArrayList<DBObject>();
+      List<DBObject> tagSets = new ArrayList<>();
 
       for (int i = 0; i < wTags.nrNonEmpty(); i++) {
         TableItem item = wTags.getNonEmpty(i);
@@ -1577,18 +1577,18 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       }
 
       if (tagSets.size() > 0) {
-        String hostname = pipelineMeta.environmentSubstitute(wHostname.getText());
+        String hostname = variables.resolve(wHostname.getText());
         try {
           if (!StringUtils.isEmpty(hostname)) {
             MongoDbInputMeta meta = new MongoDbInputMeta();
             getInfo(meta);
             MongoClientWrapper wrapper = null;
             try {
-              wrapper = MongoWrapperUtil.createMongoClientWrapper(meta, pipelineMeta, log);
+              wrapper = MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
             } catch (MongoDbException e) {
               throw new HopException(e);
             }
-            List<String> satisfy = new ArrayList<String>();
+            List<String> satisfy = new ArrayList<>();
             try {
               try {
                 satisfy = wrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);
@@ -1703,10 +1703,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       throws HopException {
     MongoProperties.Builder propertiesBuilder =
         MongoWrapperUtil.createPropertiesBuilder(meta, vars);
-    String db = vars.environmentSubstitute(meta.getDbName());
-    String collection = vars.environmentSubstitute(meta.getCollection());
-    String query = vars.environmentSubstitute(meta.getJsonQuery());
-    String fields = vars.environmentSubstitute(meta.getFieldsName());
+    String db = vars.resolve(meta.getDbName());
+    String collection = vars.resolve(meta.getCollection());
+    String query = vars.resolve(meta.getJsonQuery());
+    String fields = vars.resolve(meta.getFieldsName());
     int numDocsToSample = docsToSample;
     if (numDocsToSample < 1) {
       numDocsToSample = 100; // default
@@ -1760,10 +1760,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     MongoProperties.Builder propertiesBuilder =
         MongoWrapperUtil.createPropertiesBuilder(meta, vars);
     try {
-      String db = vars.environmentSubstitute(meta.getDbName());
-      String collection = vars.environmentSubstitute(meta.getCollection());
-      String query = vars.environmentSubstitute(meta.getJsonQuery());
-      String fields = vars.environmentSubstitute(meta.getFieldsName());
+      String db = vars.resolve(meta.getDbName());
+      String collection = vars.resolve(meta.getCollection());
+      String query = vars.resolve(meta.getJsonQuery());
+      String fields = vars.resolve(meta.getFieldsName());
       int numDocsToSample = docsToSample;
       if (numDocsToSample < 1) {
         numDocsToSample = 100; // default

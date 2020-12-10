@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.deletefiles;
 
@@ -143,7 +137,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
@@ -181,7 +175,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     Multimap<String, String> pathToMaskMap = populateDataForJobExecution( resultRows );
 
     for ( Map.Entry<String, String> pathToMask : pathToMaskMap.entries() ) {
-      final String filePath = environmentSubstitute( pathToMask.getKey() );
+      final String filePath = resolve( pathToMask.getKey() );
       if ( filePath.trim().isEmpty() ) {
         // Relative paths are permitted, and providing an empty path means deleting all files inside a root pdi-folder.
         // It is much more likely to be a mistake than a desirable action, so we don't delete anything (see PDI-15181)
@@ -189,7 +183,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
           logDetailed( BaseMessages.getString( PKG, "ActionDeleteFiles.NoPathProvided" ) );
         }
       } else {
-        final String fileMask = environmentSubstitute( pathToMask.getValue() );
+        final String fileMask = resolve( pathToMask.getValue() );
 
         if ( parentWorkflow.isStopped() ) {
           break;
@@ -428,12 +422,12 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( arguments[ i ] );
+        String filename = resolve( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

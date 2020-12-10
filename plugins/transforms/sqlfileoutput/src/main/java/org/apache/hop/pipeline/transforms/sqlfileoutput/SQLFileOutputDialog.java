@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
@@ -70,6 +64,7 @@ import org.eclipse.swt.widgets.Text;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.variables.IVariables;
 
 public class SQLFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // Needed by Translator
@@ -115,8 +110,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
   private final SQLFileOutputMeta input;
 
-  public SQLFileOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SQLFileOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SQLFileOutputMeta) in;
   }
 
@@ -217,7 +212,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     fdlSchema.top = new FormAttachment( wConnection, margin );
     wlSchema.setLayoutData( fdlSchema );
 
-    wSchema = new TextVar( pipelineMeta, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsMod );
     wSchema.setToolTipText( BaseMessages.getString( PKG, "SQLFileOutputDialog.TargetSchema.Tooltip" ) );
@@ -245,7 +240,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     fdbTable.top = new FormAttachment( wSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
-    wTable = new TextVar( pipelineMeta, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.setToolTipText( BaseMessages.getString( PKG, "SQLFileOutputDialog.TargetTable.Tooltip" ) );
     wTable.addModifyListener( lsMod );
@@ -370,7 +365,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     fdbFilename.top = new FormAttachment( wStartNewLine, 0 );
     wbFilename.setLayoutData( fdbFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -436,7 +431,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData( fdlExtension );
 
-    wExtension = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
     FormData fdExtension = new FormData();
@@ -562,7 +557,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
       public void widgetSelected( SelectionEvent e ) {
         SQLFileOutputMeta tfoi = new SQLFileOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
+        String[] files = tfoi.getFiles( variables, variables.resolve( wFilename.getText() ) );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
             BaseMessages.getString( PKG, "SQLFileOutputDialog.SelectOutputFiles.DialogTitle" ),
@@ -739,7 +734,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     } );
 
 
-    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( true, shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( true, shell, wFilename, variables,
       new String[] { "*.sql", "*" },
       new String[] {
         "SQL File",
@@ -913,7 +908,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
       logDebug( BaseMessages.getString( PKG, "SQLFileOutputDialog.Log.LookingAtConnection", databaseMeta.toString() ) );
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -935,15 +930,15 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     try {
       SQLFileOutputMeta info = new SQLFileOutputMeta();
       getInfo( info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
+      SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
+            new SqlEditor( shell, SWT.NONE, variables,  info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

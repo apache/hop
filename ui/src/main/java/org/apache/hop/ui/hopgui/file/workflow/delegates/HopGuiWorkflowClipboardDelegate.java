@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
@@ -113,7 +108,8 @@ public class HopGuiWorkflowClipboardDelegate {
       // Load the entries...
       for ( int i = 0; i < nr; i++ ) {
         Node actionNode = XmlHandler.getSubNodeByNr( actionsNode, ActionMeta.XML_TAG, i );
-        actions[ i ] = new ActionMeta( actionNode, hopGui.getMetadataProvider() );
+        actions[i] =
+            new ActionMeta(actionNode, hopGui.getMetadataProvider(), workflowGraph.getVariables() );
 
         if ( locaction != null ) {
           Point p = actions[ i ].getLocation();
@@ -221,7 +217,10 @@ public class HopGuiWorkflowClipboardDelegate {
           HopGuiFileOpenedExtension ext =
               new HopGuiFileOpenedExtension(null, hopGui.getVariables(), cleanFilename);
           ExtensionPointHandler.callExtensionPoint(
-              LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+              LogChannel.UI,
+              workflowGraph.getVariables(),
+              HopGuiExtensionPoint.HopGuiFileOpenedDialog.id,
+              ext);
           if (ext.filename != null) {
             cleanFilename = ext.filename;
           }

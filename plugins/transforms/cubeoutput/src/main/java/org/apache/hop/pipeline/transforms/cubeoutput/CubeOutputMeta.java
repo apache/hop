@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
@@ -191,7 +186,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -206,7 +201,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
+      FileObject fileObject = HopVfs.getFileObject( variables.resolve( filename ) );
 
       // If the file doesn't exist, forget about this effort too!
       //

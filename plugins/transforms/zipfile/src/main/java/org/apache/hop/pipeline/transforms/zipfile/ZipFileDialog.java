@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -68,8 +63,8 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
 
   private boolean gotPreviousFields = false;
 
-  public ZipFileDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ZipFileDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ZipFileMeta) in;
   }
 
@@ -218,10 +213,10 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     fdSourceFileNameField.right = new FormAttachment( 100, -margin );
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         get();
       }
     } );
@@ -245,10 +240,10 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     fdTargetFileNameField.right = new FormAttachment( 100, -margin );
     wTargetFileNameField.setLayoutData(fdTargetFileNameField);
     wTargetFileNameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         get();
       }
     } );
@@ -299,10 +294,10 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     fdBaseFolderField.right = new FormAttachment( 100, -margin );
     wBaseFolderField.setLayoutData(fdBaseFolderField);
     wBaseFolderField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         get();
       }
     } );
@@ -353,10 +348,10 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     fdMoveToFolderField.right = new FormAttachment( 100, -margin );
     wMoveToFolderField.setLayoutData(fdMoveToFolderField);
     wMoveToFolderField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         get();
       }
     } );
@@ -483,7 +478,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
         wSourceFileNameField.removeAll();
         wTargetFileNameField.removeAll();
         wBaseFolderField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String[] fields = r.getFieldNames();
           wSourceFileNameField.setItems( fields );

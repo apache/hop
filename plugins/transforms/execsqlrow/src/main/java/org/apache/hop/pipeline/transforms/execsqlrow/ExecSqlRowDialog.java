@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
@@ -28,6 +22,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -68,8 +63,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
 
   private Button wSendOneStatement;
 
-  public ExecSqlRowDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExecSqlRowDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExecSqlRowMeta) in;
   }
 
@@ -179,10 +174,10 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     fdSqlFieldName.right = new FormAttachment( 100, -margin );
     wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -423,7 +418,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
       try {
         String sqlfield = wSqlFieldName.getText();
         wSqlFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wSqlFieldName.removeAll();
           wSqlFieldName.setItems( r.getFieldNames() );

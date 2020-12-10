@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
@@ -127,7 +121,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   private String encoding;
 
   /**
-   * The name space for the XML document: null or empty string means no xmlns is written
+   * The name variables for the XML document: null or empty string means no xmlns is written
    */
   @Injection( name = "NAMESPACE" )
   private String nameSpace;
@@ -336,17 +330,17 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     this.outputFields = outputFields;
   }
 
-  public void allocate( int nrfields ) {
-    outputFields = new XmlField[ nrfields ];
+  public void allocate( int nrFields ) {
+    outputFields = new XmlField[ nrFields ];
   }
 
   public Object clone() {
     XmlOutputMeta retval = (XmlOutputMeta) super.clone();
-    int nrfields = outputFields.length;
+    int nrFields = outputFields.length;
 
-    retval.allocate( nrfields );
+    retval.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       retval.outputFields[ i ] = (XmlField) outputFields[ i ].clone();
     }
 
@@ -389,11 +383,11 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       setSplitEvery( Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 ) );
 
       Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrfields = XmlHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
-      allocate( nrfields );
+      allocate( nrFields );
 
-      for ( int i = 0; i < nrfields; i++ ) {
+      for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new XmlField();
@@ -450,12 +444,12 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     mainElement = "Rows";
     repeatElement = "Row";
 
-    int nrfields = 0;
+    int nrFields = 0;
 
-    allocate( nrfields );
+    allocate( nrFields );
   }
 
-  public String[] getFiles( IVariables space ) {
+  public String[] getFiles( IVariables variables ) {
     int copies = 1;
     int splits = 1;
 
@@ -477,7 +471,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[ i ] = buildFilename( space, copy, split, false );
+        retval[ i ] = buildFilename( variables, copy, split, false );
         i++;
       }
     }
@@ -488,13 +482,13 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return retval;
   }
 
-  public String buildFilename( IVariables space, int stepnr, int splitnr, boolean ziparchive ) {
+  public String buildFilename( IVariables variables, int stepnr, int splitnr, boolean ziparchive ) {
     SimpleDateFormat daf = new SimpleDateFormat();
     DecimalFormat df = new DecimalFormat( "00000" );
 
     // Replace possible environment variables...
-    String retval = space.environmentSubstitute( fileName );
-    String realextension = space.environmentSubstitute( extension );
+    String retval = variables.resolve( fileName );
+    String realextension = variables.resolve( extension );
 
     Date now = new Date();
 
@@ -539,7 +533,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) {
 
     // No values are added to the row in this type of step
     // However, in case of Fixed length records,
@@ -555,7 +549,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
 
   }
 
-  public IRowMeta getRequiredFields( IVariables space ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     RowMeta row = new RowMeta();
     for ( int i = 0; i < outputFields.length; i++ ) {
       XmlField field = outputFields[ i ];
@@ -613,8 +607,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return retval.toString();
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepinfo, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta stepinfo, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check output fields
@@ -740,13 +734,13 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
    * Since the exported transformation that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param resourceNamingInterface The repository to optionally load other resources from (to be converted to XML)
    * @param metadataProvider        the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
@@ -754,8 +748,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( space.environmentSubstitute( fileName ) );
-        fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
+        fileName = resourceNamingInterface.nameResource( fileObject, variables, true );
       }
 
       return null;

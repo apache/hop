@@ -44,7 +44,7 @@ import java.util.Set;
  * Implementation of MongoClientWrapper which uses the MONGO-CR auth mechanism. Should only be
  * instantiated by MongoClientWrapperFactory.
  */
-class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClientWrapper {
+class NoAuthMongoClientWrapper implements MongoClientWrapper {
   private static Class<?> PKG = NoAuthMongoClientWrapper.class;
   public static final int MONGO_DEFAULT_PORT = 27017;
 
@@ -55,7 +55,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   public static final String REPL_SET_MEMBERS = "members";
 
   static MongoClientFactory clientFactory =
-      new org.apache.hop.mongo.wrapper.DefaultMongoClientFactory();
+      new DefaultMongoClientFactory();
 
   private final MongoClient mongo;
   private final MongoUtilLogger log;
@@ -102,7 +102,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
           BaseMessages.getString(PKG, "MongoNoAuthWrapper.Message.Error.EmptyHostsString"));
     }
 
-    List<ServerAddress> serverList = new ArrayList<ServerAddress>();
+    List<ServerAddress> serverList = new ArrayList<>();
 
     String[] parts = hostsPorts.trim().split(",");
     for (String part : parts) {
@@ -145,7 +145,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       // this can only happen if it's been explicitly set to NULL.
       throw new MongoDbException(
           BaseMessages.getString(
-              org.apache.hop.mongo.wrapper.MongoClientWrapper.class,
+              MongoClientWrapper.class,
               "MongoNoAuthWrapper.Message.Error.NoHostSet"));
     }
     return getClientFactory(props)
@@ -201,7 +201,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
    * @throws MongoDbException if a problem occurs
    */
   public List<String> getLastErrorModes() throws MongoDbException {
-    List<String> customLastErrorModes = new ArrayList<String>();
+    List<String> customLastErrorModes = new ArrayList<>();
 
     DB local = getDb(LOCAL_DB);
     if (local != null) {
@@ -262,7 +262,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       }
 
       List<DBObject> collInfo = coll.getIndexInfo();
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
       if (collInfo == null || collInfo.size() == 0) {
         throw new MongoDbException(
             BaseMessages.getString(
@@ -357,7 +357,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   }
 
   protected List<String> setupAllTags(BasicDBList members) {
-    HashSet<String> tempTags = new HashSet<String>();
+    HashSet<String> tempTags = new HashSet<>();
 
     if (members != null && members.size() > 0) {
       for (Object member : members) {
@@ -376,7 +376,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       }
     }
 
-    return new ArrayList<String>(tempTags);
+    return new ArrayList<>( tempTags );
   }
 
   protected static String quote(String string) {
@@ -404,7 +404,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   public List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
       throws MongoDbException {
     try {
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
       for (DBObject object :
           checkForReplicaSetMembersThatSatisfyTagSets(tagSets, getRepSetMemberRecords())) {
         result.add(object.toString());
@@ -424,7 +424,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
 
   protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
       List<DBObject> tagSets, BasicDBList members) {
-    List<DBObject> satisfy = new ArrayList<DBObject>();
+    List<DBObject> satisfy = new ArrayList<>();
     if (members != null && members.size() > 0) {
       for (Object m : members) {
         if (m != null) {
@@ -486,7 +486,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   @Override
   public List<MongoCredential> getCredentialList() {
     // empty cred list
-    return new ArrayList<MongoCredential>();
+    return new ArrayList<>();
   }
 
   protected MongoCollectionWrapper wrap(DBCollection collection) {
@@ -505,7 +505,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
 
   @Override
   public <ReturnType> ReturnType perform(
-      String db, org.apache.hop.mongo.wrapper.MongoDBAction<ReturnType> action)
+      String db, MongoDBAction<ReturnType> action)
       throws MongoDbException {
     return action.perform(getDb(db));
   }

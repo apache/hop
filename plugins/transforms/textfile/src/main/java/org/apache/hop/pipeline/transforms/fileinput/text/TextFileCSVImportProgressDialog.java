@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
@@ -34,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringEvaluationResult;
 import org.apache.hop.core.util.StringEvaluator;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
@@ -68,6 +64,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
   private Shell shell;
 
+  private final IVariables variables;
   private TextFileInputMeta meta;
 
   private int samples;
@@ -92,9 +89,10 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
    * Creates a new dialog that will handle the wait while we're finding out what tables, views etc we can reach in the
    * database.
    */
-  public TextFileCSVImportProgressDialog( Shell shell, TextFileInputMeta meta, PipelineMeta pipelineMeta,
+  public TextFileCSVImportProgressDialog( Shell shell, IVariables variables, TextFileInputMeta meta, PipelineMeta pipelineMeta,
                                           InputStreamReader reader, int samples, boolean replaceMeta ) {
     this.shell = shell;
+    this.variables = variables;
     this.meta = meta;
     this.reader = reader;
     this.samples = samples;
@@ -167,7 +165,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     int nrFields = meta.inputFields.length;
 
     IRowMeta outputRowMeta = new RowMeta();
-    meta.getFields( outputRowMeta, null, null, null, pipelineMeta, null );
+    meta.getFields( outputRowMeta, null, null, null, variables, null );
 
     // Remove the storage meta-data (don't go for lazy conversion during scan)
     for ( IValueMeta valueMeta : outputRowMeta.getValueMetaList() ) {
@@ -278,7 +276,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     }
     int linenr = 1;
 
-    List<StringEvaluator> evaluators = new ArrayList<StringEvaluator>();
+    List<StringEvaluator> evaluators = new ArrayList<>();
 
     // Allocate number and date parsers
     DecimalFormat df2 = (DecimalFormat) NumberFormat.getInstance();
@@ -297,19 +295,19 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
         debug = "convert line #" + linenr + " to row";
       }
       IRowMeta rowMeta = new RowMeta();
-      meta.getFields( rowMeta, "transformName", null, null, pipelineMeta, null );
+      meta.getFields( rowMeta, "transformName", null, null, variables, null );
       // Remove the storage meta-data (don't go for lazy conversion during scan)
       for ( IValueMeta valueMeta : rowMeta.getValueMetaList() ) {
         valueMeta.setStorageMetadata( null );
         valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
-      String delimiter = pipelineMeta.environmentSubstitute( meta.content.separator );
-      String enclosure = pipelineMeta.environmentSubstitute( meta.content.enclosure );
-      String escapeCharacter = pipelineMeta.environmentSubstitute( meta.content.escapeCharacter );
+      String delimiter = variables.resolve( meta.content.separator );
+      String enclosure = variables.resolve( meta.content.enclosure );
+      String escapeCharacter = variables.resolve( meta.content.escapeCharacter );
       Object[] r =
         TextFileInputUtils.convertLineToRow( log, new TextFileLine( line, fileLineNumber, null ), strinfo, null, 0,
-          outputRowMeta, convertRowMeta, FileInputList.createFilePathList( pipelineMeta, meta.inputFiles.fileName,
+          outputRowMeta, convertRowMeta, FileInputList.createFilePathList( variables, meta.inputFiles.fileName,
             meta.inputFiles.fileMask, meta.inputFiles.excludeFileMask, meta.inputFiles.fileRequired, meta
               .inputFiles.includeSubFolderBoolean() )[ 0 ], rownumber, delimiter, enclosure, escapeCharacter, null,
           new BaseFileInputAdditionalField(), null, null, false, null, null, null, null, null, failOnParseError );

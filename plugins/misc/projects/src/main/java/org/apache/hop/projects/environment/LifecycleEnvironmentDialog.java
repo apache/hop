@@ -240,7 +240,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
       if ( StringUtils.isEmpty( configFilename ) ) {
         return;
       }
-      String realConfigFilename = variables.environmentSubstitute(configFilename);
+      String realConfigFilename = variables.resolve(configFilename);
 
       DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realConfigFilename );
 

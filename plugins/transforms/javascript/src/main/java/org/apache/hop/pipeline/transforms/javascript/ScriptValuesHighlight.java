@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
@@ -52,7 +47,7 @@ class ScriptValuesHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
   int[] tokenColors;
   Color[] colors;
-  Vector<int[]> blockComments = new Vector<int[]>();
+  Vector<int[]> blockComments = new Vector<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -135,7 +130,7 @@ class ScriptValuesHighlight implements LineStyleListener {
    * StyleRanges, need to be in order. (output) LineStyleEvent.background line background color (output)
    */
   public void lineGetStyle( LineStyleEvent event ) {
-    Vector<StyleRange> styles = new Vector<StyleRange>();
+    Vector<StyleRange> styles = new Vector<>();
     int token;
     StyleRange lastStyle;
 
@@ -158,7 +153,7 @@ class ScriptValuesHighlight implements LineStyleListener {
           lastStyle = styles.lastElement();
           if ( lastStyle.fontStyle != SWT.NORMAL ) {
             if ( lastStyle.start + lastStyle.length == start ) {
-              // have the white space take on the style before it to minimize font style
+              // have the white variables take on the style before it to minimize font style
               // changes
               lastStyle.length += scanner.getLength();
             }
@@ -191,7 +186,7 @@ class ScriptValuesHighlight implements LineStyleListener {
   }
 
   public void parseBlockComments( String text ) {
-    blockComments = new Vector<int[]>();
+    blockComments = new Vector<>();
     StringReader buffer = new StringReader( text );
     int ch;
     boolean blkComment = false;
@@ -287,7 +282,7 @@ class ScriptValuesHighlight implements LineStyleListener {
      * Initialize the lookup table.
      */
     void initialize() {
-      fgKeys = new Hashtable<String, Integer>();
+      fgKeys = new Hashtable<>();
       Integer k = Integer.valueOf( KEY );
       for ( int i = 0; i < fgKeywords.length; i++ ) {
         fgKeys.put( fgKeywords[ i ], k );
@@ -299,7 +294,7 @@ class ScriptValuesHighlight implements LineStyleListener {
     }
 
     void initializeETLFunctions() {
-      kfKeys = new Hashtable<String, Integer>();
+      kfKeys = new Hashtable<>();
       Integer k = Integer.valueOf( FUNCTIONS );
       for ( int i = 0; i < kfKeywords.length; i++ ) {
         kfKeys.put( kfKeywords[ i ], k );

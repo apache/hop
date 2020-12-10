@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mapping;
 
@@ -175,20 +169,10 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     //
     PipelineMeta mappingPipelineMeta;
     try {
-      mappingPipelineMeta = loadMappingMeta( this, metadataProvider, variables, mappingParameters.isInheritingAllVariables() );
+      mappingPipelineMeta = loadMappingMeta( this, metadataProvider, variables );
     } catch ( HopException e ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "SimpleMappingMeta.Exception.UnableToLoadMappingPipeline" ), e );
-    }
-
-    // The field structure may depend on the input parameters as well
-    //
-    if ( mappingParameters != null && mappingPipelineMeta != null ) {
-      // Just set the variables in the pipeline statically.
-      // This just means: set a number of variables or parameter values:
-      //
-      TransformWithMappingMeta.activateParams( mappingPipelineMeta, mappingPipelineMeta, variables, mappingPipelineMeta.listParameters(),
-        mappingParameters.getVariable(), mappingParameters.getInputField(), mappingParameters.isInheritingAllVariables() );
     }
 
     // Before we ask the mapping outputs anything, we should teach the mapping
@@ -227,7 +211,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     // Now we know wat's going to come out of the mapping pipeline...
     // This is going to be the full row that's being written.
     //
-    IRowMeta mappingOutputRowMeta = mappingPipelineMeta.getTransformFields( mappingOutputTransform );
+    IRowMeta mappingOutputRowMeta = mappingPipelineMeta.getTransformFields( variables, mappingOutputTransform );
 
     // We're renaming some stuff back:
     //
@@ -315,11 +299,10 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     this.mappingParameters = mappingParameters;
   }
 
-  @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    String realFilename = pipelineMeta.environmentSubstitute( filename );
-    ResourceReference reference = new ResourceReference( transformInfo );
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    List<ResourceReference> references = new ArrayList<>( 5 );
+    String realFilename = variables.resolve( filename );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
     if ( StringUtils.isNotEmpty( realFilename ) ) {
@@ -378,7 +361,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
    *
    * @param index     the object index to load
    * @param metadataProvider the MetaStore to use
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

@@ -34,7 +34,7 @@ public class MongoDbInputDiscoverFieldsHolder {
       if (INSTANCE != null) {
         throw new IllegalStateException("This object should only be constructed by the blueprint");
       }
-      mongoDbInputDiscoverFieldsMap = new HashMap<Integer, List<MongoDbInputDiscoverFields>>();
+      mongoDbInputDiscoverFieldsMap = new HashMap<>();
       INSTANCE = this;
     }
   }
@@ -56,7 +56,7 @@ public class MongoDbInputDiscoverFieldsHolder {
       List<MongoDbInputDiscoverFields> mongoDbInputDiscoverFieldsList =
           mongoDbInputDiscoverFieldsMap.get(ranking);
       if (mongoDbInputDiscoverFieldsList == null) {
-        mongoDbInputDiscoverFieldsList = new ArrayList<MongoDbInputDiscoverFields>();
+        mongoDbInputDiscoverFieldsList = new ArrayList<>();
         mongoDbInputDiscoverFieldsMap.put(ranking, mongoDbInputDiscoverFieldsList);
       }
       mongoDbInputDiscoverFieldsList.add(mongoDbInputDiscoverFields);
@@ -83,7 +83,7 @@ public class MongoDbInputDiscoverFieldsHolder {
   }
 
   private void updateField() {
-    List<Integer> keys = new ArrayList<Integer>(mongoDbInputDiscoverFieldsMap.keySet());
+    List<Integer> keys = new ArrayList<>( mongoDbInputDiscoverFieldsMap.keySet() );
     if (keys.size() == 0) {
       mongoDbInputDiscoverFields = null;
     } else {

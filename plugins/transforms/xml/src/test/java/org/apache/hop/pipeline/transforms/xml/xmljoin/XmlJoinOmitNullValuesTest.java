@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
@@ -28,13 +22,18 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -50,14 +49,14 @@ import static org.mockito.Mockito.when;
  */
 @RunWith( MockitoJUnitRunner.class )
 public class XmlJoinOmitNullValuesTest {
-  TransformMockHelper<XmlJoinMeta, XmlJoinData> smh;
+  TransformMockHelper<XmlJoinMeta, XmlJoinData> tmh;
 
   @Before
-  public void init() {
-    smh = new TransformMockHelper<XmlJoinMeta, XmlJoinData>( "XmlJoin", XmlJoinMeta.class, XmlJoinData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        smh.iLogChannel );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
+  public void init() throws Exception {
+    tmh = new TransformMockHelper<>( "XmlJoin", XmlJoinMeta.class, XmlJoinData.class );
+    when( tmh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
+        tmh.iLogChannel );
+    when( tmh.pipeline.isRunning() ).thenReturn( true );
   }
 
   @Test
@@ -70,19 +69,44 @@ public class XmlJoinOmitNullValuesTest {
 
   private void doTest( final String sourceXml, final String targetXml, final String expectedXml )
     throws HopException {
-    XmlJoin spy = spy( new XmlJoin( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
+    XmlJoin spy = spy( new XmlJoin( tmh.transformMeta, tmh.iTransformMeta, tmh.iTransformData, 0, tmh.pipelineMeta, tmh.pipeline ) );
 
-    doReturn( createSourceRowSet( sourceXml ) ).when( spy ).findInputRowSet( "source" );
-    doReturn( createTargetRowSet( targetXml ) ).when( spy ).findInputRowSet( "target" );
+    /*
+    // Find the row sets to read from
+      //
+      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
-    XmlJoinMeta stepMeta = smh.iTransformMeta;
-    when( stepMeta.getSourceXmlTransform() ).thenReturn( "source" );
-    when( stepMeta.getTargetXmlTransform() ).thenReturn( "target" );
-    when( stepMeta.getSourceXmlField() ).thenReturn( "sourceField" );
-    when( stepMeta.getTargetXmlField() ).thenReturn( "targetField" );
-    when( stepMeta.getValueXmlField() ).thenReturn( "resultField" );
-    when( stepMeta.getTargetXPath() ).thenReturn( "//root" );
-    when( stepMeta.isOmitNullValues() ).thenReturn( true );
+      // Get the two input row sets
+      data.TargetRowSet = findInputRowSet( infoStreams.get( 0 ).getTransformName() );
+      data.SourceRowSet = findInputRowSet( infoStreams.get( 1 ).getTransformName() );
+     */
+    ITransformIOMeta transformIOMeta = mock( ITransformIOMeta.class );
+    when(tmh.iTransformMeta.getTransformIOMeta()).thenReturn( transformIOMeta );
+
+    IStream inputStreamTarget = mock(IStream.class);
+    IStream inputStreamSource = mock(IStream.class);
+    List<IStream> inputStreams = mock( List.class );
+    when(transformIOMeta.getInfoStreams()).thenReturn( inputStreams );
+
+    IRowSet sourceRowSet = createSourceRowSet( sourceXml );
+    IRowSet targetRowSet = createTargetRowSet( targetXml );
+    when(inputStreams.get(0)).thenReturn( inputStreamTarget );
+    when(inputStreams.get(1)).thenReturn( inputStreamSource );
+
+    when(inputStreamTarget.getTransformName()).thenReturn("target");
+    when(inputStreamSource.getTransformName()).thenReturn("source");
+
+    doReturn( sourceRowSet ).when( spy ).findInputRowSet( "source" );
+    doReturn( targetRowSet ).when( spy ).findInputRowSet( "target" );
+
+    XmlJoinMeta transformMeta = tmh.iTransformMeta;
+    when( transformMeta.getSourceXmlTransform() ).thenReturn( "source" );
+    when( transformMeta.getTargetXmlTransform() ).thenReturn( "target" );
+    when( transformMeta.getSourceXmlField() ).thenReturn( "sourceField" );
+    when( transformMeta.getTargetXmlField() ).thenReturn( "targetField" );
+    when( transformMeta.getValueXmlField() ).thenReturn( "resultField" );
+    when( transformMeta.getTargetXPath() ).thenReturn( "//root" );
+    when( transformMeta.isOmitNullValues() ).thenReturn( true );
 
     spy.init();
 
@@ -98,7 +122,7 @@ public class XmlJoinOmitNullValuesTest {
   }
 
   private IRowSet createSourceRowSet(String sourceXml ) {
-    IRowSet sourceRowSet = smh.getMockInputRowSet( new String[] { sourceXml } );
+    IRowSet sourceRowSet = tmh.getMockInputRowSet( new String[] { sourceXml } );
     IRowMeta sourceRowMeta = mock( IRowMeta.class );
     when( sourceRowMeta.getFieldNames() ).thenReturn( new String[] { "sourceField" } );
     when( sourceRowSet.getRowMeta() ).thenReturn( sourceRowMeta );
@@ -107,7 +131,7 @@ public class XmlJoinOmitNullValuesTest {
   }
 
   private IRowSet createTargetRowSet( String targetXml ) {
-    IRowSet targetRowSet = smh.getMockInputRowSet( new String[] { targetXml } );
+    IRowSet targetRowSet = tmh.getMockInputRowSet( new String[] { targetXml } );
     IRowMeta targetRowMeta = mock( IRowMeta.class );
     when( targetRowMeta.getFieldNames() ).thenReturn( new String[] { "targetField" } );
     when( targetRowMeta.clone() ).thenReturn( targetRowMeta );

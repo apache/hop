@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.httppost;
 
@@ -369,7 +363,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
 
         // cache the position of the field
         if ( data.indexOfUrlField < 0 ) {
-          String realUrlfieldName = environmentSubstitute( meta.getUrlField() );
+          String realUrlfieldName = resolve( meta.getUrlField() );
           data.indexOfUrlField = data.inputRowMeta.indexOfValue( ( realUrlfieldName ) );
           if ( data.indexOfUrlField < 0 ) {
             // The field is unreachable !
@@ -379,7 +373,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
           }
         }
       } else {
-        data.realUrl = environmentSubstitute( meta.getUrl() );
+        data.realUrl = resolve( meta.getUrl() );
       }
       // set body parameters
       int nrargs = meta.getArgumentField().length;
@@ -415,7 +409,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
           if ( meta.getArgumentHeader()[ i ] ) {
             data.header_parameters_nrs[ posHeader ] = fieldIndex;
             data.headerParameters[ posHeader ] =
-              new BasicNameValuePair( environmentSubstitute( meta.getArgumentParameter()[ i ] ), data.outputRowMeta
+              new BasicNameValuePair( resolve( meta.getArgumentParameter()[ i ] ), data.outputRowMeta
                 .getString( r, data.header_parameters_nrs[ posHeader ] ) );
             posHeader++;
             if ( CONTENT_TYPE.equalsIgnoreCase( meta.getArgumentParameter()[ i ] ) ) {
@@ -424,7 +418,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
           } else {
             data.body_parameters_nrs[ posBody ] = fieldIndex;
             data.bodyParameters[ posBody ] =
-              new BasicNameValuePair( environmentSubstitute( meta.getArgumentParameter()[ i ] ), data.outputRowMeta
+              new BasicNameValuePair( resolve( meta.getArgumentParameter()[ i ] ), data.outputRowMeta
                 .getString( r, data.body_parameters_nrs[ posBody ] ) );
             posBody++;
           }
@@ -445,20 +439,20 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
               .getQueryField()[ i ] ) );
           }
           data.queryParameters[ i ] =
-            new BasicNameValuePair( environmentSubstitute( meta.getQueryParameter()[ i ] ),
+            new BasicNameValuePair( resolve( meta.getQueryParameter()[ i ] ),
               data.outputRowMeta.getString( r,
                 data.query_parameters_nrs[ i ] ) );
         }
       }
       // set request entity?
       if ( !Utils.isEmpty( meta.getRequestEntity() ) ) {
-        data.indexOfRequestEntity = data.inputRowMeta.indexOfValue( environmentSubstitute( meta.getRequestEntity() ) );
+        data.indexOfRequestEntity = data.inputRowMeta.indexOfValue( resolve( meta.getRequestEntity() ) );
         if ( data.indexOfRequestEntity < 0 ) {
           throw new HopTransformException( BaseMessages.getString( PKG,
             "HTTPPOST.Exception.CouldnotFindRequestEntityField", meta.getRequestEntity() ) );
         }
       }
-      data.realEncoding = environmentSubstitute( meta.getEncoding() );
+      data.realEncoding = resolve( meta.getEncoding() );
     } // end if first
 
     try {
@@ -524,15 +518,15 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
 
     if ( super.init() ) {
       // get authentication settings once
-      data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
-      data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
-      data.realHttpLogin = environmentSubstitute( meta.getHttpLogin() );
+      data.realProxyHost = resolve( meta.getProxyHost() );
+      data.realProxyPort = Const.toInt( resolve( meta.getProxyPort() ), 8080 );
+      data.realHttpLogin = resolve( meta.getHttpLogin() );
       data.realHttpPassword = Utils.resolvePassword( variables, meta.getHttpPassword() );
 
-      data.realSocketTimeout = Const.toInt( environmentSubstitute( meta.getSocketTimeout() ), -1 );
-      data.realConnectionTimeout = Const.toInt( environmentSubstitute( meta.getSocketTimeout() ), -1 );
+      data.realSocketTimeout = Const.toInt( resolve( meta.getSocketTimeout() ), -1 );
+      data.realConnectionTimeout = Const.toInt( resolve( meta.getSocketTimeout() ), -1 );
       data.realcloseIdleConnectionsTime =
-        Const.toInt( environmentSubstitute( meta.getCloseIdleConnectionsTime() ), -1 );
+        Const.toInt( resolve( meta.getCloseIdleConnectionsTime() ), -1 );
 
       return true;
     }

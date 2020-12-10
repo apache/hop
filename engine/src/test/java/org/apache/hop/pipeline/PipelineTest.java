@@ -1,36 +1,27 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -46,11 +37,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class PipelineTest {
@@ -168,24 +153,6 @@ public class PipelineTest {
     assertEquals( "All pipeline stop listeners is added", count, adder.c );
     assertEquals( "All stop call success", count, stopper.c );
   }
-
-  @Test
-  public void testPDI12424ParametersFromMetaAreCopiedToPipeline() throws HopException, URISyntaxException, IOException {
-    String testParam = "testParam";
-    String testParamValue = "testParamValue";
-    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    when( mockPipelineMeta.listVariables() ).thenReturn( new String[] {} );
-    when( mockPipelineMeta.listParameters() ).thenReturn( new String[] { testParam } );
-    when( mockPipelineMeta.getParameterValue( testParam ) ).thenReturn( testParamValue );
-    FileObject hpl = HopVfs.createTempFile( "parameters", ".hpl", "ram://" );
-    try ( OutputStream outputStream = hpl.getContent().getOutputStream( true ) ) {
-      InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
-      IOUtils.copy( inputStream, outputStream );
-    }
-    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, hpl.getURL().toURI().toString(), new MemoryMetadataProvider() );
-    assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
-  }
-
 
   @Test
   public void testFirePipelineFinishedListeners() throws Exception {
@@ -376,12 +343,10 @@ public class PipelineTest {
   @Test
   public void testNewPipelineWithContainerObjectId() throws Exception {
     PipelineMeta meta = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta ).listVariables();
+
     doReturn( new String[] { "A", "B", "C" } ).when( meta ).listParameters();
-    doReturn( "XYZ" ).when( meta ).getVariable( anyString() );
     doReturn( "" ).when( meta ).getParameterDescription( anyString() );
     doReturn( "" ).when( meta ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     String carteId = UUID.randomUUID().toString();
     doReturn( carteId ).when( meta ).getContainerId();
@@ -398,12 +363,9 @@ public class PipelineTest {
   @Test
   public void testTwoPipelineGetSameLogChannelId() throws Exception {
     PipelineMeta meta = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta ).listVariables();
     doReturn( new String[] { "A", "B", "C" } ).when( meta ).listParameters();
-    doReturn( "XYZ" ).when( meta ).getVariable( anyString() );
     doReturn( "" ).when( meta ).getParameterDescription( anyString() );
     doReturn( "" ).when( meta ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     IPipelineEngine<PipelineMeta> pipeline1 = new LocalPipelineEngine( meta );
     IPipelineEngine<PipelineMeta> pipeline2 = new LocalPipelineEngine( meta );
@@ -416,7 +378,7 @@ public class PipelineTest {
     Pipeline pipelineTest = new LocalPipelineEngine();
     boolean hasFilename = true;
     boolean hasRepoDir = false;
-    pipelineTest.copyVariablesFrom( null );
+    pipelineTest.copyFrom( null );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineTest.setInternalEntryCurrentDirectory( hasFilename );
@@ -428,7 +390,7 @@ public class PipelineTest {
   @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     Pipeline pipelineTest = new LocalPipelineEngine();
-    pipelineTest.copyVariablesFrom( null );
+    pipelineTest.copyFrom( null );
     boolean hasFilename = false;
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );

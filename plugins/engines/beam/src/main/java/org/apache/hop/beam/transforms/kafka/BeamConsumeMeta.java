@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.transforms.kafka;
 
@@ -115,11 +110,11 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
-    IValueMeta keyValueMeta = new ValueMetaString( variables.environmentSubstitute( keyField ) );
+    IValueMeta keyValueMeta = new ValueMetaString( variables.resolve( keyField ) );
     keyValueMeta.setOrigin( name );
     inputRowMeta.addValueMeta( keyValueMeta );
 
-    IValueMeta messageValueMeta = new ValueMetaString( variables.environmentSubstitute( messageField ) );
+    IValueMeta messageValueMeta = new ValueMetaString( variables.resolve( messageField ) );
     messageValueMeta.setOrigin( name );
     inputRowMeta.addValueMeta( messageValueMeta );
   }

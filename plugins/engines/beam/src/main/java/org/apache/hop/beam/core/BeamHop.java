@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.core;
 
@@ -79,13 +74,13 @@ public class BeamHop {
           if ( exists == null ) {
             // Class should be in the classpath since we put it there
             //
-            Class<?> stepPluginClass = Class.forName( stepPluginClassName );
-            Transform annotation = stepPluginClass.getAnnotation( Transform.class );
+            Class<?> transformPluginClass = Class.forName( stepPluginClassName );
+            Transform annotation = transformPluginClass.getAnnotation( Transform.class );
 
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
-            // LOG.info( "Registering transform plugin class: " + stepPluginClass );
-            stepPluginType.handlePluginAnnotation( stepPluginClass, annotation, new ArrayList<String>(), true, null );
+            // LOG.info( "Registering transform plugin class: " + transformPluginClass );
+            stepPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<>(), true, null );
           } else {
             LOG.debug( "Plugin " + stepPluginClassName + " is already registered" );
           }
@@ -109,7 +104,7 @@ public class BeamHop {
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
             // LOG.info( "Registering transform plugin class: " + xpPluginClass );
-            xpPluginType.handlePluginAnnotation( xpPluginClass, annotation, new ArrayList<String>(), true, null );
+            xpPluginType.handlePluginAnnotation( xpPluginClass, annotation, new ArrayList<>(), true, null );
           } else {
             LOG.debug( "Plugin " + xpPluginClassName + " is already registered" );
           }

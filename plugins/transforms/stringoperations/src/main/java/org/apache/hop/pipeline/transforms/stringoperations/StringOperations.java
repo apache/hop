@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
@@ -269,13 +263,13 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
       // padding char
       data.padChar = new String[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padChar[ i ] = environmentSubstitute( meta.getPadChar()[ i ] );
+        data.padChar[ i ] = resolve( meta.getPadChar()[ i ] );
       }
 
       // padding len
       data.padLen = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padLen[ i ] = Const.toInt( environmentSubstitute( meta.getPadLen()[ i ] ), 0 );
+        data.padLen[ i ] = Const.toInt( resolve( meta.getPadLen()[ i ] ), 0 );
       }
       // InitCap?
       data.initCap = new int[ data.nrFieldsInStream ];

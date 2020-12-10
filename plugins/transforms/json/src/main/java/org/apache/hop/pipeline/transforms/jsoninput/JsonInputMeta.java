@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2016-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
@@ -155,49 +149,49 @@ public class JsonInputMeta
   public static class AdditionalFileOutputFields extends BaseFileInputAdditionalField {
 
     public void getFields( IRowMeta r, String name, IRowMeta[] info,
-                           IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                           IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
       // TextFileInput is the same, this can be refactored further
       if ( shortFilenameField != null ) {
         IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( shortFilenameField ) );
+          new ValueMetaString( variables.resolve( shortFilenameField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( extensionField != null ) {
         IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( extensionField ) );
+          new ValueMetaString( variables.resolve( extensionField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( pathField != null ) {
-        IValueMeta v = new ValueMetaString( space.environmentSubstitute( pathField ) );
+        IValueMeta v = new ValueMetaString( variables.resolve( pathField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( sizeField != null ) {
-        IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( sizeField ) );
+        IValueMeta v = new ValueMetaInteger( variables.resolve( sizeField ) );
         v.setOrigin( name );
         v.setLength( 9 );
         r.addValueMeta( v );
       }
       if ( hiddenField != null ) {
         IValueMeta v =
-          new ValueMetaBoolean( space.environmentSubstitute( hiddenField ) );
+          new ValueMetaBoolean( variables.resolve( hiddenField ) );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
 
       if ( lastModificationField != null ) {
         IValueMeta v =
-          new ValueMetaDate( space.environmentSubstitute( lastModificationField ) );
+          new ValueMetaDate( variables.resolve( lastModificationField ) );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( uriField != null ) {
-        IValueMeta v = new ValueMetaString( space.environmentSubstitute( uriField ) );
+        IValueMeta v = new ValueMetaString( variables.resolve( uriField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
@@ -205,7 +199,7 @@ public class JsonInputMeta
 
       if ( rootUriField != null ) {
         IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( rootUriField ) );
+          new ValueMetaString( variables.resolve( rootUriField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
@@ -770,10 +764,10 @@ public class JsonInputMeta
     initArrayFields( nrFiles, nrFields );
   }
 
-  private void initArrayFields( int nrfiles, int nrfields ) {
-    setInputFields( new JsonInputField[ nrfields ] );
+  private void initArrayFields( int nrfiles, int nrFields ) {
+    setInputFields( new JsonInputField[ nrFields ] );
     inputFiles.allocate( nrfiles );
-    inputFields = new JsonInputField[ nrfields ];
+    inputFields = new JsonInputField[ nrFields ];
   }
 
   @Override
@@ -813,7 +807,7 @@ public class JsonInputMeta
 
   @Override
   public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( inFields && removeSourceField && !Utils.isEmpty( valueField ) ) {
       int index = rowMeta.indexOfValue( valueField );
@@ -824,14 +818,14 @@ public class JsonInputMeta
 
     for ( JsonInputField field : getInputFields() ) {
       try {
-        rowMeta.addValueMeta( field.toValueMeta( name, space ) );
+        rowMeta.addValueMeta( field.toValueMeta( name, variables ) );
       } catch ( Exception e ) {
         throw new HopTransformException( e );
       }
     }
 
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -839,24 +833,24 @@ public class JsonInputMeta
     }
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       rowMeta.addValueMeta( v );
     }
     // Add additional fields
     additionalOutputFields.normalize();
-    additionalOutputFields.getFields( rowMeta, name, info, space, metadataProvider );
+    additionalOutputFields.getFields( rowMeta, name, info, variables, metadataProvider );
   }
 
-  public FileInputList getFiles( IVariables space ) {
+  public FileInputList getFiles( IVariables variables ) {
     return FileInputList.createFileList(
-      space, getFileName(), getFileMask(), getExcludeFileMask(), getFileRequired(), inputFiles.includeSubFolderBoolean() );
+      variables, getFileName(), getFileMask(), getExcludeFileMask(), getFileRequired(), inputFiles.includeSubFolderBoolean() );
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( !isInFields() ) {
@@ -894,7 +888,7 @@ public class JsonInputMeta
         remarks.add( cr );
       }
     } else {
-      FileInputList fileInputList = getFiles( transMeta );
+      FileInputList fileInputList = getFiles( variables );
       // String files[] = getFiles();
       if ( fileInputList == null || fileInputList.getFiles().size() == 0 ) {
         cr =
@@ -932,24 +926,24 @@ public class JsonInputMeta
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param resourceNamingInterface
    * @param metadataProvider               the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      List<String> newFilenames = new ArrayList<String>();
+      List<String> newFilenames = new ArrayList<>();
 
       if ( !isInFields() ) {
-        FileInputList fileList = getFiles( space );
+        FileInputList fileList = getFiles( variables );
         if ( fileList.getFiles().size() > 0 ) {
           for ( FileObject fileObject : fileList.getFiles() ) {
             // From : ${Internal.Transformation.Filename.Directory}/../foo/bar.xml

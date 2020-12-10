@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
@@ -1030,9 +1025,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                      String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     if ( update ) {
-      checkUpdate( remarks, transformMeta, prev );
+      checkUpdate( variables, remarks, transformMeta, prev );
     } else {
-      checkLookup( remarks, transformMeta, prev );
+      checkLookup( variables, remarks, transformMeta, prev );
     }
 
     if ( techKeyCreation != null ) {
@@ -1061,13 +1056,14 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
     }
   }
 
-  private void checkUpdate( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
+  private void checkUpdate( IVariables variables, List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     CheckResult cr;
     String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      // TODO SB: Share IVariables
+      db.shareWith( variables );
+
       try {
         db.connect();
         if ( !Utils.isEmpty( tableName ) ) {
@@ -1249,7 +1245,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
     }
   }
 
-  private void checkLookup( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
+  private void checkLookup( IVariables variables, List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     int i;
     boolean errorFound = false;
     String errorMessage = "";
@@ -1258,7 +1254,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      // TODO SB: share variable space
+      db.shareWith( variables );
+
       try {
         db.connect();
 
@@ -1298,7 +1295,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                       "\t\t" + dimfield
                         + BaseMessages.getString( PKG,
                         "DimensionLookupMeta.CheckResult.KeyNotPresentInDimensiontable" )
-                        + databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName )
+                        + databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName )
                         + ")" + Const.CR;
                   } else {
                     // Is the streamvalue of the same type as the dimension value?
@@ -1313,7 +1310,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                         "\t\t" + strfield + " (" + strvalue.getOrigin() + BaseMessages.getString( PKG,
                           "DimensionLookupMeta.CheckResult.KeyNotTheSameTypeAs" )
                           + dimfield + " ("
-                          + databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName )
+                          + databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName )
                           + ")" + Const.CR;
                       errorMessage +=
                         BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.WarningInfoInDBConversion" );
@@ -1438,7 +1435,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public IRowMeta getTableFields() {
+  public IRowMeta getTableFields( IVariables variables ) {
     IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
@@ -1455,7 +1452,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -1463,10 +1460,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
       logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.Update" ) );
       if ( databaseMeta != null ) {
         if ( prev != null && prev.size() > 0 ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           if ( !Utils.isEmpty( schemaTable ) ) {
             Database db = createDatabaseObject();
-            db.shareVariablesWith( pipelineMeta );
+            db.shareWith( variables );
             try {
               db.connect();
 
@@ -1608,7 +1605,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
               if ( sql.length() == 0 ) {
                 retval.setSql( null );
               } else {
-                retval.setSql( pipelineMeta.environmentSubstitute( sql ) );
+                retval.setSql( variables.resolve( sql ) );
               }
             } catch ( HopDatabaseException dbe ) {
               retval.setError( BaseMessages.getString( PKG, "DimensionLookupMeta.ReturnValue.ErrorOccurred" ) + dbe
@@ -1632,7 +1629,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                              String[] input, String[] output, IRowMeta info, IHopMetadataProvider metadataProvider ) {
     if ( prev != null ) {
       if ( !update ) {

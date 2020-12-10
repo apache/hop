@@ -577,8 +577,8 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
   }
 
-  public void allocate( int nrfields ) {
-    setInputFields( new SalesforceInputField[ nrfields ] );
+  public void allocate( int nrFields ) {
+    setInputFields( new SalesforceInputField[ nrFields ] );
   }
 
   public int getNrFields() {
@@ -613,7 +613,7 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       SalesforceInputField field = inputFields[ i ];
@@ -624,7 +624,7 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
       }
       try {
         IValueMeta v =
-          ValueMetaFactory.createValueMeta( space.environmentSubstitute( field.getName() ), type );
+          ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -639,14 +639,14 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
 
     if ( includeTargetURL && !Utils.isEmpty( targetURLField ) ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( targetURLField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( targetURLField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeModule && !Utils.isEmpty( moduleField ) ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( moduleField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( moduleField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -654,26 +654,26 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
 
     if ( includeSQL && !Utils.isEmpty( sqlField ) ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( sqlField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( sqlField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeTimestamp && !Utils.isEmpty( timestampField ) ) {
-      IValueMeta v = new ValueMetaDate( space.environmentSubstitute( timestampField ) );
+      IValueMeta v = new ValueMetaDate( variables.resolve( timestampField ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( includeRowNumber && !Utils.isEmpty( rowNumberField ) ) {
-      IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeDeletionDate && !Utils.isEmpty( deletionDateField ) ) {
-      IValueMeta v = new ValueMetaDate( space.environmentSubstitute( deletionDateField ) );
+      IValueMeta v = new ValueMetaDate( variables.resolve( deletionDateField ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }

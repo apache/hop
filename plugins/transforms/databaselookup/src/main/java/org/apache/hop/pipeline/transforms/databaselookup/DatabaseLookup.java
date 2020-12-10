@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
@@ -208,8 +203,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     data.keytypes = new int[ keyFields.length ];
 
     String schemaTable =
-      meta.getDatabaseMeta().getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) );
+      meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
     IRowMeta fields = data.db.getTableFields( schemaTable );
     if ( fields != null ) {
@@ -317,7 +311,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.db.setLookup(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ),
+        resolve( meta.getSchemaName() ), resolve( meta.getTableName() ),
         meta.getTableKeyField(), meta.getKeyCondition(), meta.getReturnValueField(),
         meta.getReturnValueNewName(), meta.getOrderByClause(), meta.isFailingOnMultipleResults()
       );
@@ -441,9 +435,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       // The schema/table
       //
       sql += " FROM "
-        + dbMeta.getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ),
-        environmentSubstitute( meta.getTableName() ) );
+        + dbMeta.getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
       // order by?
       if ( meta.getOrderByClause() != null && meta.getOrderByClause().length() != 0 ) {
@@ -612,7 +604,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void connectDatabase( Database database ) throws HopDatabaseException {
-    database.shareVariablesWith( this );
+    database.shareWith( this );
     database.connect( getPartitionId() );
 
     database.setCommit( 100 ); // we never get a commit, but it just turns off auto-commit.

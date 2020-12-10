@@ -379,7 +379,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
           // Check fields in table
           String schemaTable =
-            databaseMeta.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
+            databaseMeta.getQuotedSchemaTableCombination( variables.environmentSubstitute( schemaName ), pipelineMeta
               .environmentSubstitute( tableName ) );
           IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
@@ -488,7 +488,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     }
   }
 
-  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -516,7 +516,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
             db.connect();
 
             String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
+              databaseMeta.getQuotedSchemaTableCombination( variables.environmentSubstitute( schemaName ), pipelineMeta
                 .environmentSubstitute( tableName ) );
             String crTable = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
@@ -543,7 +543,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     return retval;
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {
@@ -554,7 +554,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
         DatabaseImpact ii =
           new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
-            databaseMeta.getDatabaseName(), pipelineMeta.environmentSubstitute( tableName ), fieldTable[ i ],
+            databaseMeta.getDatabaseName(), variables.environmentSubstitute( tableName ), fieldTable[ i ],
             fieldStream[ i ], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }

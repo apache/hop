@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.deleteresultfilenames;
 
@@ -149,7 +143,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdlWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -160,7 +154,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.resolve( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label( shell, SWT.RIGHT );
@@ -172,7 +166,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdlWildcardExclude.top = new FormAttachment( wWildcard, margin );
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
     wlWildcardExclude.setLayoutData(fdlWildcardExclude);
-    wWildcardExclude = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcardExclude = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcardExclude.setToolTipText( BaseMessages.getString(
       PKG, "ActionDeleteResultFilenames.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
@@ -184,7 +178,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcardExclude.getText() ) ) );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.resolve( wWildcardExclude.getText() ) ) );
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

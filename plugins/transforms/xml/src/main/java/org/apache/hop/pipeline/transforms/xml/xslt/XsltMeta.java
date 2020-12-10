@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
@@ -316,9 +310,9 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-      IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+      IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (String)
-    IValueMeta v = new ValueMetaString( space.environmentSubstitute( getResultfieldname() ));
+    IValueMeta v = new ValueMetaString( variables.resolve( getResultfieldname() ));
     v.setOrigin( name );
     inputRowMeta.addValueMeta( v );
   }
@@ -358,31 +352,31 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   }
 
 
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                    String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf( prev.size() ) ), stepMeta );
+              "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf( prev.size() ) ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.NoInputReceived" ), stepMeta );
+              "XsltMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ExpectedInputOk" ), stepMeta );
+              "XsltMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ExpectedInputError" ), stepMeta );
+              "XsltMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
 
@@ -391,7 +385,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
       // Result Field is missing !
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ErrorResultFieldNameMissing" ), stepMeta );
+              "XsltMeta.CheckResult.ErrorResultFieldNameMissing" ), transformMeta );
       remarks.add( cr );
 
     }
@@ -402,13 +396,13 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
         // Result Field is missing !
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing" ), stepMeta );
+                "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing" ), transformMeta );
         remarks.add( cr );
       } else {
         // Result Field is provided !
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK" ), stepMeta );
+                "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK" ), transformMeta );
         remarks.add( cr );
       }
     } else {
@@ -416,30 +410,30 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
         // Result Field is missing !
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorXSLFileNameMissing" ), stepMeta );
+                "XsltMeta.CheckResult.ErrorXSLFileNameMissing" ), transformMeta );
         remarks.add( cr );
 
       } else {
         // Check if it's exist and it's a file
-        String RealFilename = transMeta.environmentSubstitute( xslFilename );
+        String RealFilename = variables.resolve( xslFilename );
         File f = new File( RealFilename );
 
         if ( f.exists() ) {
           if ( f.isFile() ) {
             cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                    "XsltMeta.CheckResult.FileExists", RealFilename ), stepMeta );
+                    "XsltMeta.CheckResult.FileExists", RealFilename ), transformMeta );
             remarks.add( cr );
           } else {
             cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                    "XsltMeta.CheckResult.ExistsButNoFile", RealFilename ), stepMeta );
+                    "XsltMeta.CheckResult.ExistsButNoFile", RealFilename ), transformMeta );
             remarks.add( cr );
           }
         } else {
           cr =
               new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                  "XsltMeta.CheckResult.FileNotExists", RealFilename ), stepMeta );
+                  "XsltMeta.CheckResult.FileNotExists", RealFilename ), transformMeta );
           remarks.add( cr );
         }
       }

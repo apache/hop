@@ -36,10 +36,10 @@ public class VCS implements IVCS {
   protected String directory;
 
   @VisibleForTesting
-  void showMessageBox( String title, String message ) {
-    MessageBox messageBox = new MessageBox( shell, SWT.OK );
-    messageBox.setText( title );
-    messageBox.setMessage( message == null ? "" : message );
+  void showMessageBox(String title, String message) {
+    MessageBox messageBox = new MessageBox(shell, SWT.OK);
+    messageBox.setText(title);
+    messageBox.setMessage(message == null ? "" : message);
     messageBox.open();
   }
 
@@ -49,11 +49,11 @@ public class VCS implements IVCS {
    * @return true on success
    */
   protected boolean promptUsernamePassword() {
-    UsernamePasswordDialog dialog = new UsernamePasswordDialog( shell );
-    if ( dialog.open() == Window.OK ) {
+    UsernamePasswordDialog dialog = new UsernamePasswordDialog(shell);
+    if (dialog.open() == Window.OK) {
       String username = dialog.getUsername();
       String password = dialog.getPassword();
-      setCredential( username, password );
+      setCredential(username, password);
       return true;
     }
     return false;
@@ -70,32 +70,32 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public String getAuthorName( String commitId ) {
+  public String getAuthorName(String commitId) {
     return null;
   }
 
   @Override
-  public String getCommitMessage( String commitId ) {
+  public String getCommitMessage(String commitId) {
     return null;
   }
 
   @Override
-  public String getCommitId( String revstr ) {
+  public String getCommitId(String revstr) {
     return null;
   }
 
   @Override
-  public String getParentCommitId( String revstr ) {
+  public String getParentCommitId(String revstr) {
     return null;
   }
 
   @Override
-  public String getExpandedName( String name, String type ) {
+  public String getExpandedName(String name, String type) {
     return name;
   }
 
   @Override
-  public String getShortenedName( String name, String type ) {
+  public String getShortenedName(String name, String type) {
     return name;
   }
 
@@ -124,7 +124,7 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public void addRemote( String s ) {
+  public void addRemote(String s) {
     // TODO Auto-generated method stub
 
   }
@@ -142,7 +142,7 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public boolean commit( String authorName, String message ) {
+  public boolean commit(String authorName, String message) {
     return false;
   }
 
@@ -153,7 +153,7 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public void setCredential( String username, String password ) {
+  public void setCredential(String username, String password) {
     // TODO Auto-generated method stub
 
   }
@@ -171,7 +171,7 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public List<UIFile> getStagedFiles( String oldCommitId, String newCommitId ) {
+  public List<UIFile> getStagedFiles(String oldCommitId, String newCommitId) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -183,13 +183,13 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public void initRepo( String baseDirectory ) throws Exception {
+  public void initRepo(String baseDirectory) throws Exception {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void openRepo( String baseDirectory ) throws Exception {
+  public void openRepo(String baseDirectory) throws Exception {
     // TODO Auto-generated method stub
 
   }
@@ -201,77 +201,74 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public void add( String filepattern ) {
+  public void add(String filepattern) {}
+
+  @Override
+  public void rm(String filepattern) {}
+
+  @Override
+  public void reset(String name) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
   }
 
   @Override
-  public void rm( String filepattern ) {
-  }
-
-  @Override
-  public void reset( String name ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
-  }
-
-  @Override
-  public void resetPath( String path ) {
-  }
+  public void resetPath(String path) {}
 
   @Override
   public boolean pull() {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
   public boolean push() {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public boolean push( String type ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean push(String type) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public String diff( String oldCommitId, String newCommitId ) throws Exception {
+  public String diff(String oldCommitId, String newCommitId) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public String diff( String oldCommitId, String newCommitId, String file ) {
+  public String diff(String oldCommitId, String newCommitId, String file) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public InputStream open( String file, String commitId ) {
+  public InputStream open(String file, String commitId) {
     return null;
   }
 
   @Override
-  public void checkout( String name ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public void checkout(String name) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
   }
 
   @Override
-  public void revertPath( String path ) {
+  public void revertPath(String path) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public boolean createBranch( String value ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean createBranch(String value) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public boolean deleteBranch( String name, boolean force ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean deleteBranch(String name, boolean force) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
@@ -281,30 +278,30 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public boolean createTag( String name ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean createTag(String name) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public boolean deleteTag( String name ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean deleteTag(String name) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public void setShell( Shell shell ) {
+  public void setShell(Shell shell) {
     this.shell = shell;
   }
 
   @Override
   public boolean merge() {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
 
   @Override
-  public boolean cloneRepo( String directory, String url ) {
+  public boolean cloneRepo(String directory, String url) {
     return false;
   }
 
@@ -314,17 +311,14 @@ public class VCS implements IVCS {
   }
 
   @Override
-  public void checkoutBranch( String name ) {
-  }
+  public void checkoutBranch(String name) {}
 
   @Override
-  public void checkoutTag( String name ) {
-  }
+  public void checkoutTag(String name) {}
 
   @Override
-  public boolean rollback( String name ) {
-    showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "Not supported (yet)" );
+  public boolean rollback(String name) {
+    showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Not supported (yet)");
     return false;
   }
-
 }

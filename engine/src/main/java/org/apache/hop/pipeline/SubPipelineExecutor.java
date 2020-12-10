@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
@@ -134,18 +129,17 @@ public class SubPipelineExecutor {
     subPipeline.setParentPipeline( this.parentPipeline );
     subPipeline.setLogLevel( this.parentPipeline.getLogLevel() );
     if ( this.shareVariables ) {
-      subPipeline.shareVariablesWith( this.parentPipeline );
+      subPipeline.shareWith( this.parentPipeline );
     }
 
     subPipeline.setInternalHopVariables( this.parentPipeline );
-    subPipeline.copyParametersFrom( this.subPipelineMeta );
     subPipeline.setPreview( this.parentPipeline.isPreview() );
     PipelineTransformUtil.initServletConfig( this.parentPipeline, subPipeline );
     return subPipeline;
   }
 
   private void passParametersToPipeline( IPipelineEngine<PipelineMeta> internalPipeline, RowMetaAndData rowMetaAndData ) throws HopException {
-    internalPipeline.clearParameters();
+    internalPipeline.clearParameterValues();
     String[] parameterNames = internalPipeline.listParameters();
 
     for ( int i = 0; i < this.parameters.getVariable().length; ++i ) {
@@ -162,7 +156,7 @@ public class SubPipelineExecutor {
 
         value = rowMetaAndData.getString( idx, "" );
       } else {
-        value = this.parentPipeline.environmentSubstitute( inputValue );
+        value = this.parentPipeline.resolve( inputValue );
       }
 
       if ( Const.indexOfString( variable, parameterNames ) < 0 ) {
@@ -172,7 +166,7 @@ public class SubPipelineExecutor {
       }
     }
 
-    internalPipeline.activateParameters();
+    internalPipeline.activateParameters(internalPipeline);
   }
 
   public void stop() {

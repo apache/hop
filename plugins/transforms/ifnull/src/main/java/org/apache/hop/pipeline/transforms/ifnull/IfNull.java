@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
@@ -32,7 +26,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -94,8 +87,8 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
               throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[ i ]
                 .getFieldName() ) );
             }
-            data.defaultValues[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceValue() );
-            data.defaultMasks[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceMask() );
+            data.defaultValues[ i ] = resolve( meta.getFields()[ i ].getReplaceValue() );
+            data.defaultMasks[ i ] = resolve( meta.getFields()[ i ].getReplaceMask() );
             data.setEmptyString[ i ] = meta.getFields()[ i ].isSetEmptyString();
           }
         } else {
@@ -111,7 +104,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
           data.setEmptyString = new boolean[ typeLength ];
 
           // return all type codes
-          HashSet<String> AlllistTypes = new HashSet<String>();
+          HashSet<String> AlllistTypes = new HashSet<>();
           for ( int i = 0; i < IValueMeta.typeCodes.length; i++ ) {
             AlllistTypes.add( IValueMeta.typeCodes[ i ] );
           }
@@ -123,12 +116,12 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
             }
 
             data.ListTypes.put( meta.getValueTypes()[ i ].getTypeName(), i );
-            data.defaultValues[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceValue() );
-            data.defaultMasks[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceMask() );
+            data.defaultValues[ i ] = resolve( meta.getValueTypes()[ i ].getTypereplaceValue() );
+            data.defaultMasks[ i ] = resolve( meta.getValueTypes()[ i ].getTypereplaceMask() );
             data.setEmptyString[ i ] = meta.getValueTypes()[ i ].isSetTypeEmptyString();
           }
 
-          HashSet<Integer> fieldsSelectedIndex = new HashSet<Integer>();
+          HashSet<Integer> fieldsSelectedIndex = new HashSet<>();
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
             IValueMeta fieldMeta = data.outputRowMeta.getValueMeta( i );
             if ( data.ListTypes.containsKey( fieldMeta.getTypeDesc() ) ) {
@@ -136,7 +129,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
             }
           }
           data.fieldnrs = new int[ fieldsSelectedIndex.size() ];
-          List<Integer> entries = new ArrayList<Integer>( fieldsSelectedIndex );
+          List<Integer> entries = new ArrayList<>( fieldsSelectedIndex );
           Integer[] fieldnr = entries.toArray( new Integer[ entries.size() ] );
           for ( int i = 0; i < fieldnr.length; i++ ) {
             data.fieldnrs[ i ] = fieldnr[ i ];
@@ -146,8 +139,8 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
         }
 
       } else {
-        data.realReplaceByValue = environmentSubstitute( meta.getReplaceAllByValue() );
-        data.realconversionMask = environmentSubstitute( meta.getReplaceAllMask() );
+        data.realReplaceByValue = resolve( meta.getReplaceAllByValue() );
+        data.realconversionMask = resolve( meta.getReplaceAllMask() );
         data.realSetEmptyString = meta.isSetEmptyStringAll();
 
         // Consider all fields in input stream

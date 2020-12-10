@@ -94,7 +94,7 @@ public class ProjectDialog extends Dialog {
     props = PropsUi.getInstance();
 
     this.variables = new Variables();
-    this.variables.initializeVariablesFrom(null);
+    this.variables.initializeFrom(null);
     this.originalName = projectConfig.getProjectName();
     project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
   }

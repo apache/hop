@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
@@ -33,6 +27,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.zipfile.ZipFileMeta;
 import org.junit.Test;
@@ -42,6 +37,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -106,13 +102,13 @@ public class ZipFileMetaTest {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDefault();
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    TransformMeta transformInfo = mock( TransformMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<ICheckResult> remarks = new ArrayList<>();
 
-    zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    zipFileMeta.check( remarks, pipelineMeta, transformMeta, prev, new String[] { "input" }, new String[] { "output" }, info,
       new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
@@ -121,7 +117,7 @@ public class ZipFileMetaTest {
     remarks = new ArrayList<>();
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
-    zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[ 0 ], new String[] { "output" }, info,
+    zipFileMeta.check( remarks, pipelineMeta, transformMeta, prev, new String[ 0 ], new String[] { "output" }, info,
       new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );
@@ -130,16 +126,16 @@ public class ZipFileMetaTest {
 
   @Test
   public void testGetTransform() throws Exception {
-    TransformMeta transformInfo = mock( TransformMeta.class );
-    when( transformInfo.getName() ).thenReturn( "Zip Transform Name" );
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    when( transformMeta.getName() ).thenReturn( "Zip Transform Name" );
     ZipFileData transformData = mock( ZipFileData.class );
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformInfo );
-    Pipeline pipeline = mock( Pipeline.class );
+    when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformMeta );
+    Pipeline pipeline = spy( new LocalPipelineEngine() );
 
     ZipFileMeta zipFileMeta = new ZipFileMeta();
-    ZipFile zipFile = new ZipFile( transformInfo, zipFileMeta,transformData, 0, pipelineMeta, pipeline );
-    assertEquals( transformInfo, zipFile.getTransformMeta() );
+    ZipFile zipFile = new ZipFile( transformMeta, zipFileMeta,transformData, 0, pipelineMeta, pipeline );
+    assertEquals( transformMeta, zipFile.getTransformMeta() );
     assertEquals( transformData, zipFile.getTransformDataInterface() );
     assertEquals( pipelineMeta, zipFile.getPipelineMeta() );
     assertEquals( pipeline, zipFile.getPipeline() );

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
@@ -89,7 +83,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
           }
         } else {
           // Check is keyname is provided
-          data.keyName = environmentSubstitute( meta.getKeyName() );
+          data.keyName = resolve( meta.getKeyName() );
 
           if ( Utils.isEmpty( data.keyName ) ) {
             throw new HopException( BaseMessages.getString( PKG, "PGPEncryptStream.Error.KeyNameMissing" ) );
@@ -173,7 +167,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG( environmentSubstitute( meta.getGPGLocation() ), log );
+        data.gpg = new GPG( resolve( meta.getGPGLocation() ), log );
       } catch ( Exception e ) {
         logError( BaseMessages.getString( PKG, "PGPEncryptStream.Init.Error" ), e );
         return false;

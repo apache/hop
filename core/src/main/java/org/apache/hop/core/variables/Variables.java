@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.variables;
 
@@ -60,11 +55,11 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public void copyVariablesFrom( IVariables variables ) {
+  public void copyFrom( IVariables variables ) {
     if ( variables != null && this != variables ) {
-      // If space is not null and this variable is not already
+      // If variables is not null and this variable is not already
       // the same object as the argument.
-      String[] variableNames = variables.listVariables();
+      String[] variableNames = variables.getVariableNames();
       for ( int idx = 0; idx < variableNames.length; idx++ ) {
         properties.put( variableNames[ idx ], variables.getVariable( variableNames[ idx ] ) );
       }
@@ -72,12 +67,12 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public IVariables getParentVariableSpace() {
+  public IVariables getParentVariables() {
     return parent;
   }
 
   @Override
-  public void setParentVariableSpace( IVariables parent ) {
+  public void setParentVariables( IVariables parent ) {
     this.parent = parent;
   }
 
@@ -96,9 +91,9 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
+      String value = resolve( variableName );
       if ( !Utils.isEmpty( value ) ) {
         return ValueMetaBase.convertStringToBoolean( value );
       }
@@ -107,7 +102,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public void initializeVariablesFrom( IVariables parent ) {
+  public void initializeFrom( IVariables parent ) {
     this.parent = parent;
 
     // Clone the system properties to avoid ConcurrentModificationException while iterating
@@ -124,7 +119,7 @@ public class Variables implements IVariables {
     }
 
     if ( parent != null ) {
-      copyVariablesFrom( parent );
+      copyFrom( parent );
     }
     if ( injection != null ) {
       getProperties().putAll( injection );
@@ -134,7 +129,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public String[] listVariables() {
+  public String[] getVariableNames() {
     Set<String> keySet = properties.keySet();
     return keySet.toArray( new String[ 0 ] );
   }
@@ -149,7 +144,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public synchronized String environmentSubstitute( String aString ) {
+  public synchronized String resolve( String aString ) {
     if ( aString == null || aString.length() == 0 ) {
       return aString;
     }
@@ -169,7 +164,7 @@ public class Variables implements IVariables {
    * @throws HopValueException In case there is a String conversion error
    */
   @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     if ( aString == null || aString.length() == 0 ) {
       return aString;
@@ -179,27 +174,27 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public String[] environmentSubstitute( String[] string ) {
+  public String[] resolve( String[] string ) {
     String[] retval = new String[ string.length ];
     for ( int i = 0; i < string.length; i++ ) {
-      retval[ i ] = environmentSubstitute( string[ i ] );
+      retval[ i ] = resolve( string[ i ] );
     }
     return retval;
   }
 
   @Override
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
     // not implemented in here... done by pointing to the same IVariables
     // implementation
   }
 
   @Override
-  public void injectVariables( Map<String, String> prop ) {
+  public void setVariables( Map<String, String> map ) {
     if ( initialized ) {
       // variables are already initialized
-      if ( prop != null ) {
-        for ( String key : prop.keySet() ) {
-          String value = prop.get( key );
+      if ( map != null ) {
+        for ( String key : map.keySet() ) {
+          String value = map.get( key );
           if ( !Utils.isEmpty( key ) ) {
             properties.put( key, Const.NVL( value, "" ) );
           }
@@ -209,9 +204,9 @@ public class Variables implements IVariables {
     } else {
       // We have our own personal copy, so changes afterwards
       // to the input properties don't affect us.
-      injection = new Hashtable<String, String>();
-      for ( String key : prop.keySet() ) {
-        String value = prop.get( key );
+      injection = new Hashtable<>();
+      for ( String key : map.keySet() ) {
+        String value = map.get( key );
         if ( !Utils.isEmpty( key ) ) {
           injection.put( key, Const.NVL( value, "" ) );
         }
@@ -220,14 +215,14 @@ public class Variables implements IVariables {
   }
 
   /**
-   * Get a default variable space as a placeholder. Every time you will get a new instance.
+   * Get a default variable variables as a placeholder. Every time you will get a new instance.
    *
-   * @return a default variable space.
+   * @return a default variable variables.
    */
   public static synchronized IVariables getADefaultVariableSpace() {
     IVariables variables = new Variables();
 
-    variables.initializeVariablesFrom( null );
+    variables.initializeFrom( null );
 
     return variables;
   }

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
@@ -29,6 +23,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -130,8 +125,8 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
 
   private boolean isReceivingInput;
 
-  public XmlInputStreamDialog(Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public XmlInputStreamDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     inputMeta = (XmlInputStreamMeta) in;
   }
 
@@ -201,7 +196,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
 
       IRowMeta previousFields;
       try {
-        previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
+        previousFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       } catch ( HopTransformException e ) {
         new ErrorDialog( shell,
           BaseMessages.getString( PKG, "XMLInputStreamDialog.ErrorDialog.UnableToGetInputFields.Title" ),
@@ -253,7 +248,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       fdlFilename.left = new FormAttachment( 0, 0 );
       fdlFilename.right = new FormAttachment( middle, -margin );
       wlFilename.setLayoutData( fdlFilename );
-      wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
       props.setLook( wFilename );
       wFilename.addModifyListener( lsMod );
       FormData fdFilename = new FormData();
@@ -331,7 +326,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     fdlRowsToSkip.top = new FormAttachment( lastControl, 2*margin );
     fdlRowsToSkip.right = new FormAttachment( middle, -margin );
     wlRowsToSkip.setLayoutData( fdlRowsToSkip );
-    wRowsToSkip = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowsToSkip = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowsToSkip );
     wRowsToSkip.addModifyListener( lsMod );
     FormData fdRowsToSkip = new FormData();
@@ -353,7 +348,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     fdlLimit.top = new FormAttachment( lastControl, margin );
     fdlLimit.right = new FormAttachment( middle, -margin );
     wlLimit.setLayoutData( fdlLimit );
-    wLimit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimit = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
     FormData fdLimit = new FormData();
@@ -375,7 +370,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     fdlDefaultStringLen.top = new FormAttachment( lastControl, margin );
     fdlDefaultStringLen.right = new FormAttachment( middle, -margin );
     wlDefaultStringLen.setLayoutData( fdlDefaultStringLen );
-    wDefaultStringLen = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDefaultStringLen = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDefaultStringLen );
     wDefaultStringLen.addModifyListener( lsMod );
     FormData fdDefaultStringLen = new FormData();
@@ -397,7 +392,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     fdlEncoding.top = new FormAttachment( lastControl, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData( fdlEncoding );
-    wEncoding = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEncoding = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
     FormData fdEncoding = new FormData();
@@ -979,7 +974,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fname = variables.resolve( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -1023,7 +1018,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       String value = cbSourceField.getText();
       cbSourceField.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         cbSourceField.setItems( r.getFieldNames() );
       }
@@ -1250,7 +1245,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     XmlInputStreamMeta oneMeta = new XmlInputStreamMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,
@@ -1259,7 +1254,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     int previewSize = numberDialog.open();
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
-          new PipelinePreviewProgressDialog( shell, previewMeta, new String[] { wTransformName.getText() },
+          new PipelinePreviewProgressDialog( shell, variables, previewMeta, new String[] { wTransformName.getText() },
               new int[] { previewSize } );
       progressDialog.open();
 
@@ -1277,7 +1272,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       }
 
       PreviewRowsDialog prd =
-          new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog
+          new PreviewRowsDialog( shell, variables, SWT.NONE, wTransformName.getText(), progressDialog
               .getPreviewRowsMeta( wTransformName.getText() ), progressDialog.getPreviewRows( wTransformName.getText() ),
               loggingText );
       prd.open();

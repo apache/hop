@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
@@ -54,9 +48,9 @@ import java.io.OutputStreamWriter;
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> implements ITransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG = JsonOutput.class; // for i18n purposes, needed by Translator2!!
 
-  public JsonOutput( TransformMeta transformMeta, JsonOutputMeta meta, JsonOutputData data, int copyNr, PipelineMeta transMeta,
+  public JsonOutput( TransformMeta transformMeta, JsonOutputMeta meta, JsonOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, transMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     // Here we decide whether or not to build the structure in
     // compatible mode or fixed mode
@@ -197,7 +191,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
           throw new HopException( BaseMessages.getString( PKG, "JsonOutput.Exception.FieldNotFound" ) );
         }
         JsonOutputField field = meta.getOutputFields()[ i ];
-        field.setElementName( environmentSubstitute( field.getElementName() ) );
+        field.setElementName( resolve( field.getElementName() ) );
       }
     }
 
@@ -253,7 +247,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
 
       if ( data.outputValue ) {
         // We need to have output field name
-        if ( Utils.isEmpty( environmentSubstitute( meta.getOutputValue() ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getOutputValue() ) ) ) {
           logError( BaseMessages.getString( PKG, "JsonOutput.Error.MissingOutputFieldName" ) );
           stopAll();
           setErrors( 1 );
@@ -278,8 +272,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
         }
 
       }
-      data.realBlocName = Const.NVL( environmentSubstitute( meta.getJsonBloc() ), "" );
-      data.nrRowsInBloc = Const.toInt( environmentSubstitute( meta.getNrRowsInBloc() ), 0 );
+      data.realBlocName = Const.NVL( resolve( meta.getJsonBloc() ), "" );
+      data.nrRowsInBloc = Const.toInt( resolve( meta.getNrRowsInBloc() ), 0 );
       return true;
     }
 
@@ -356,7 +350,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
 
       if ( !Utils.isEmpty( meta.getEncoding() ) ) {
         data.writer =
-          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), environmentSubstitute( meta
+          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), resolve( meta
             .getEncoding() ) );
       } else {
         data.writer = new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ) );
@@ -379,7 +373,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
   }
 
   public String buildFilename() {
-    return meta.buildFilename( meta.getParentTransformMeta().getParentPipelineMeta(), getCopy() + "", null, data.splitnr + "",
+    return meta.buildFilename( variables, getCopy() + "", null, data.splitnr + "",
       false );
   }
 

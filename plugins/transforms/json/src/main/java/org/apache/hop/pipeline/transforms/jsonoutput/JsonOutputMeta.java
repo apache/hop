@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
@@ -251,17 +245,17 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     readData( transformnode );
   }
 
-  public void allocate( int nrfields ) {
-    outputFields = new JsonOutputField[ nrfields ];
+  public void allocate( int nrFields ) {
+    outputFields = new JsonOutputField[ nrFields ];
   }
 
   public Object clone() {
     JsonOutputMeta retval = (JsonOutputMeta) super.clone();
-    int nrfields = outputFields.length;
+    int nrFields = outputFields.length;
 
-    retval.allocate( nrfields );
+    retval.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       retval.outputFields[ i ] = (JsonOutputField) outputFields[ i ].clone();
     }
 
@@ -295,11 +289,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
       DoNotOpenNewFileInit = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformnode, "file", "DoNotOpenNewFileInit" ) );
 
       Node fields = XmlHandler.getSubNode( transformnode, "fields" );
-      int nrfields = XmlHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
-      allocate( nrfields );
+      allocate( nrFields );
 
-      for ( int i = 0; i < nrfields; i++ ) {
+      for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new JsonOutputField();
@@ -318,11 +312,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     nrRowsInBloc = "1";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     extension = "js";
-    int nrfields = 0;
+    int nrFields = 0;
 
-    allocate( nrfields );
+    allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       outputFields[ i ] = new JsonOutputField();
       outputFields[ i ].setFieldName( "field" + i );
       outputFields[ i ].setElementName( "field" + i );
@@ -330,11 +324,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( getOperationType() != OPERATION_TYPE_WRITE_TO_FILE ) {
       IValueMeta v =
-        new ValueMetaString( space.environmentSubstitute( this.getOutputValue() ) );
+        new ValueMetaString( variables.resolve( this.getOutputValue() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -384,21 +378,21 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     if ( getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE ) {
       // We need to have output field name
-      if ( Utils.isEmpty( transMeta.environmentSubstitute( getOutputValue() ) ) ) {
+      if ( Utils.isEmpty( variables.resolve( getOutputValue() ) ) ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
             "JsonOutput.Error.MissingOutputFieldName" ), transformMeta );
         remarks.add( cr );
       }
     }
-    if ( Utils.isEmpty( transMeta.environmentSubstitute( getFileName() ) ) ) {
+    if ( Utils.isEmpty( variables.resolve( getFileName() ) ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "JsonOutput.Error.MissingTargetFilename" ), transformMeta );
@@ -454,9 +448,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   @Override
-  public JsonOutput createTransform( TransformMeta transformMeta, JsonOutputData data, int cnr, PipelineMeta transMeta,
+  public JsonOutput createTransform( TransformMeta transformMeta, JsonOutputData data, int cnr, PipelineMeta pipelineMeta,
                                      Pipeline pipeline ) {
-    return new JsonOutput( transformMeta, this, data, cnr, transMeta, pipeline );
+    return new JsonOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public JsonOutputData getTransformData() {

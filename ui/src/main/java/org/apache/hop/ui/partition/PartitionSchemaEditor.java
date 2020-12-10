@@ -177,7 +177,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
         };
     wPartitions =
         new TableView(
-            getMetadata(),
+            manager.getVariables(),
             parent,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             partitionColumns,

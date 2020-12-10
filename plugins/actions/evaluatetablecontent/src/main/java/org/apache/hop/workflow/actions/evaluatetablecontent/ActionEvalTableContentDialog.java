@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
@@ -185,7 +179,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ActionEvalTableContent.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -218,7 +212,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       }
     } );
 
-    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.setToolTipText( BaseMessages.getString( PKG, "ActionEvalTableContent.Tablename.Tooltip" ) );
     wTablename.addModifyListener( lsMod );
@@ -277,7 +271,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlLimit.setLayoutData(fdlLimit);
 
     wLimit =
-      new TextVar( getWorkflowMeta(), wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "ActionEvalTableContent.Limit.Tooltip" ) );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
@@ -530,12 +524,12 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   private void getSql() {
     DatabaseMeta inf = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( inf != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, getWorkflowMeta().getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, inf, getWorkflowMeta().getDatabases() );
       if ( std.open() ) {
         String sql =
           "SELECT *"
             + Const.CR + "FROM "
-            + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() ) + Const.CR;
+            + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() ) + Const.CR;
         wSql.setText( sql );
 
         MessageBox yn = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
@@ -566,7 +560,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
                 }
                 sql +=
                   "FROM "
-                    + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() )
+                    + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() )
                     + Const.CR;
                 wSql.setText( sql );
               } else {
@@ -713,7 +707,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     if ( StringUtils.isNotEmpty( databaseName ) ) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wTablename.setText( Const.NVL( std.getTableName(), "" ) );

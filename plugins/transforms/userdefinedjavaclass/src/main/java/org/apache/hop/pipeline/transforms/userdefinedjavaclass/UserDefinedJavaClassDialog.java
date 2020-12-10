@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
@@ -142,9 +136,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private String[] prevTransformNames, nextTransformNames;
 
-  public UserDefinedJavaClassDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public UserDefinedJavaClassDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (UserDefinedJavaClassMeta) in;
     genMeta = null;
     try {
@@ -486,7 +479,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            inputRowMeta = pipelineMeta.getPrevTransformFields( transformMeta );
+            inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
             infoRowMeta = pipelineMeta.getPrevInfoFields( transformMeta );
             outputRowMeta = pipelineMeta.getThisTransformFields( transformMeta, null, inputRowMeta.clone() );
             populateFieldsTree();
@@ -629,7 +622,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wFields =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -683,7 +676,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wInfoTransforms =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -736,7 +729,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wTargetTransforms =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -791,7 +784,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wParameters =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, nrRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -828,7 +821,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         break;
     }
     StyledTextComp wScript =
-      new StyledTextComp( pipelineMeta, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
+      new StyledTextComp( variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
         .getText(), false );
     if ( ( tabCode != null ) && tabCode.length() > 0 ) {
       wScript.setText( tabCode );
@@ -1270,7 +1263,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       }
 
       // What fields are coming into the transform?
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( variables, transformName ).clone();
       if ( rowMeta != null ) {
         // Create a new RowGenerator transform to generate rows for the test
         // data...

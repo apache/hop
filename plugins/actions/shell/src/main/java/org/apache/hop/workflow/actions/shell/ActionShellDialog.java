@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.shell;
 
@@ -233,7 +227,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdbFilename.right = new FormAttachment( 100, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -254,7 +248,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlWorkDirectory.right = new FormAttachment( middle, 0 );
     wlWorkDirectory.setLayoutData(fdlWorkDirectory);
 
-    wWorkDirectory = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWorkDirectory = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWorkDirectory );
     wWorkDirectory.addModifyListener( lsMod );
     FormData fdWorkDirectory = new FormData();
@@ -330,7 +324,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlLogfile.top = new FormAttachment( wAppendLogfile, margin );
     fdlLogfile.right = new FormAttachment( middle, 0 );
     wlLogfile.setLayoutData(fdlLogfile);
-    wLogfile = new TextVar( getWorkflowMeta(), wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogfile = new TextVar( variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLogfile.setText( "" );
     props.setLook( wLogfile );
     FormData fdLogfile = new FormData();
@@ -348,7 +342,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlLogext.top = new FormAttachment( wLogfile, margin );
     fdlLogext.right = new FormAttachment( middle, 0 );
     wlLogext.setLayoutData(fdlLogext);
-    wLogext = new TextVar( getWorkflowMeta(), wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogext = new TextVar( variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLogext.setText( "" );
     props.setLook( wLogext );
     FormData fdLogext = new FormData();
@@ -500,7 +494,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     wFields =
       new TableView(
-    		  getWorkflowMeta(), wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  variables, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -598,7 +592,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wName.addSelectionListener(lsDef);
     wFilename.addSelectionListener(lsDef);
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.sh;*.bat;*.BAT", "*;*.*" }, FILEFORMATS, true ));
 
 

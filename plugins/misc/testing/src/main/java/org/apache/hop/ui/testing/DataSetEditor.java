@@ -17,9 +17,6 @@
 
 package org.apache.hop.ui.testing;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -50,6 +47,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import java.io.File;
+import java.util.List;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
   private static final Class<?> PKG =
@@ -135,7 +135,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlFolderName.left = new FormAttachment(0, 0);
     fdlFolderName.right = new FormAttachment(100, 0);
     wlFolderName.setLayoutData(fdlFolderName);
-    wFolderName = new TextVar(getMetadata(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFolderName = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFolderName);
     FormData fdFolderName = new FormData();
     fdFolderName.top = new FormAttachment(wlFolderName, margin);
@@ -245,12 +245,11 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
       verifySettings();
 
       DataSet set = new DataSet();
-      set.initializeVariablesFrom(HopGui.getInstance().getVariables());
       getWidgetsContent(set);
 
       // get rows from the data set...
       //
-      List<Object[]> rows = set.getAllRows(LogChannel.UI);
+      List<Object[]> rows = set.getAllRows(manager.getVariables(), LogChannel.UI);
 
       IRowMeta fieldsRowMeta = set.getSetRowMeta();
 
@@ -267,7 +266,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
                   rows);
           List<Object[]> newList = editRowsDialog.open();
           if (newList != null) {
-            File setFolder = new File(set.getActualDataSetFolder());
+            File setFolder = new File(set.getActualDataSetFolder(manager.getVariables()));
             boolean folderExists = setFolder.exists();
             if (!folderExists) {
               MessageBox box =
@@ -276,7 +275,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
               box.setMessage(
                   "The data sets folder does not exist. Do you want to create it?"
                       + Const.CR
-                      + set.getActualDataSetFolder());
+                      + set.getActualDataSetFolder(manager.getVariables()));
               int answer = box.open();
               if ((answer & SWT.YES) != 0) {
                 setFolder.mkdirs();
@@ -288,7 +287,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
             // Write the rows back to the data set
             //
             if (folderExists) {
-              DataSetCsvUtil.writeDataSetData(set, fieldsRowMeta, newList);
+              DataSetCsvUtil.writeDataSetData(manager.getVariables(), set, fieldsRowMeta, newList);
               written = true;
             }
           } else {
@@ -299,7 +298,8 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
           new ErrorDialog(
               getShell(),
               "Error",
-              "Error writing data to dataset file " + set.getActualDataSetFilename(),
+              "Error writing data to dataset file "
+                  + set.getActualDataSetFilename(manager.getVariables()),
               e);
         }
       }
@@ -386,11 +386,10 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
   protected void viewData() {
     try {
       DataSet set = new DataSet();
-      set.initializeVariablesFrom(HopGui.getInstance().getVariables());
       getWidgetsContent(set);
       verifySettings();
 
-      List<Object[]> setRows = set.getAllRows(LogChannel.UI);
+      List<Object[]> setRows = set.getAllRows(manager.getVariables(), LogChannel.UI);
       IRowMeta setRowMeta = set.getSetRowMeta();
 
       PreviewRowsDialog previewRowsDialog =

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
@@ -28,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -113,8 +108,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
   private final Map<String, Integer> inputFields;
 
-  public JsonOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public JsonOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (JsonOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -234,7 +229,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdlBlocName.top = new FormAttachment( wOperation, margin );
     fdlBlocName.right = new FormAttachment( middle, -margin );
     wlBlocName.setLayoutData(fdlBlocName);
-    wBlocName = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
+    wBlocName = new TextVar( variables, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wBlocName.setEditable( true );
     props.setLook( wBlocName );
     wBlocName.addModifyListener( lsMod );
@@ -252,7 +247,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdlNrRowsInBloc.top = new FormAttachment( wBlocName, margin );
     fdlNrRowsInBloc.right = new FormAttachment( middle, -margin );
     wlNrRowsInBloc.setLayoutData(fdlNrRowsInBloc);
-    wNrRowsInBloc = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
+    wNrRowsInBloc = new TextVar( variables, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wNrRowsInBloc.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.NrRowsInBloc.ToolTip" ) );
     wNrRowsInBloc.setEditable( true );
     props.setLook( wNrRowsInBloc );
@@ -271,7 +266,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdlOutputValue.top = new FormAttachment( wNrRowsInBloc, margin );
     fdlOutputValue.right = new FormAttachment( middle, -margin );
     wlOutputValue.setLayoutData(fdlOutputValue);
-    wOutputValue = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
+    wOutputValue = new TextVar( variables, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wOutputValue.setEditable( true );
     props.setLook( wOutputValue );
     wOutputValue.addModifyListener( lsMod );
@@ -350,7 +345,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.js", "*.JS", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
           BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
@@ -369,7 +364,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         }
       }
     } );
-    wFilename = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -458,7 +453,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData(fdlExtension);
 
-    wExtension = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
     FormData fdExtension = new FormData();
@@ -475,7 +470,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdlEncoding.top = new FormAttachment( wExtension, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new ComboVar( pipelineMeta, wFileName, SWT.BORDER | SWT.READ_ONLY );
+    wEncoding = new ComboVar( variables, wFileName, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
@@ -485,10 +480,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -576,7 +571,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       public void widgetSelected( SelectionEvent e ) {
         JsonOutputMeta tfoi = new JsonOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd =
               new EnterSelectionDialog( shell, files, BaseMessages.getString( PKG,
@@ -670,7 +665,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
               ColumnInfo.COLUMN_TYPE_TEXT, false ), };
     colinf[1].setUsingVariables( true );
     wFields =
-        new TableView( pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        new TableView( variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
     FormData fdFields = new FormData();
@@ -687,7 +682,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -886,11 +881,11 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     jsometa.setAddToResult( wAddToResult.getSelection() );
     jsometa.setDoNotOpenNewFileInit( wDoNotOpenNewFileInit.getSelection() );
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    jsometa.allocate( nrfields );
+    jsometa.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       JsonOutputField field = new JsonOutputField();
 
       TableItem item = wFields.getNonEmpty( i );
@@ -919,7 +914,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       return;
     }
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] { 3 }, 5, 6,
           ( tableItem, v ) -> {

@@ -96,7 +96,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
   }
 
   /**
-   * Allocate space for stats to compute
+   * Allocate variables for stats to compute
    *
    * @param nrStats the number of UnivariateStatsMetaFunctions to allocate
    */
@@ -270,7 +270,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * Check the settings of this transform and put findings in a remarks list.
    *
    * @param remarks   the list to put the remarks in. see <code>org.apache.hop.core.CheckResult</code>
-   * @param transmeta the transform meta data
+   * @param pipelineMeta the transform meta data
    * @param transformMeta  the transform meta data
    * @param prev      the fields coming from a previous transform
    * @param input     the input transform names
@@ -278,7 +278,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * @param info      the fields that are used as information by the transform
    */
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta, IRowMeta prev,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 

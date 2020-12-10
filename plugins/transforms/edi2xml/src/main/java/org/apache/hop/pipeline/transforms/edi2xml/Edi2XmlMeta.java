@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.edi2xml;
 
@@ -106,12 +101,12 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     IValueMeta extra = null;
 
     if ( !Utils.isEmpty( getOutputField() ) ) {
-      extra = new ValueMetaString( variables.environmentSubstitute( getOutputField() ) );
+      extra = new ValueMetaString( variables.resolve( getOutputField() ) );
       extra.setOrigin( origin );
       r.addValueMeta( extra );
     } else {
       if ( !Utils.isEmpty( getInputField() ) ) {
-        extra = r.searchValueMeta( variables.environmentSubstitute( getInputField() ) );
+        extra = r.searchValueMeta( variables.resolve( getInputField() ) );
       }
     }
 
@@ -137,7 +132,7 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     }
 
     // is the input field there?
-    String realInputField = pipelineMeta.environmentSubstitute( getInputField() );
+    String realInputField = variables.resolve( getInputField() );
     if ( prev.searchValueMeta( realInputField ) != null ) {
       cr = new CheckResult( CheckResult.TYPE_RESULT_OK, "Transform is seeing input field: " + realInputField, transformMeta );
       remarks.add( cr );

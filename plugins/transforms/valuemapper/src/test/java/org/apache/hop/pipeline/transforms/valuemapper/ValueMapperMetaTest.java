@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.valuemapper;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +46,7 @@ public class ValueMapperMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 7 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 7 );
 
     init( stringArrayLoadSaveValidator, stringArrayLoadSaveValidator );
   }
@@ -84,11 +78,11 @@ public class ValueMapperMetaTest implements IInitializer<ITransformMeta> {
       }
     };
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "sourceValue", sourceStringArrayLoadSaveValidator );
     attrValidatorMap.put( "targetValue", targetStringArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -116,9 +110,9 @@ public class ValueMapperMetaTest implements IInitializer<ITransformMeta> {
     String[] targetAttrs = { abc, null, null, abc, null, stringNull, stringNull };
 
     IFieldLoadSaveValidator<String[]> sourceValidator =
-      new ArrayLoadSaveValidator<String>( new CustomStringLoadSaveValidator( sourceAttrs ), sourceAttrs.length );
+      new ArrayLoadSaveValidator<>( new CustomStringLoadSaveValidator( sourceAttrs ), sourceAttrs.length );
     IFieldLoadSaveValidator<String[]> targetValidator =
-      new ArrayLoadSaveValidator<String>( new CustomStringLoadSaveValidator( targetAttrs ), targetAttrs.length );
+      new ArrayLoadSaveValidator<>( new CustomStringLoadSaveValidator( targetAttrs ), targetAttrs.length );
 
     init( sourceValidator, targetValidator );
 

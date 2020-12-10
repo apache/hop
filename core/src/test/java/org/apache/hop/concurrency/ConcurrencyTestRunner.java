@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.concurrency;
 
@@ -100,8 +95,8 @@ class ConcurrencyTestRunner<M, B> {
     this.condition = condition;
     this.timeout = timeout;
 
-    this.monitoredResults = new HashMap<Callable<? extends M>, ExecutionResult<M>>( monitoredTasks.size() );
-    this.backgroundResults = new HashMap<Callable<? extends B>, ExecutionResult<B>>( backgroundTasks.size() );
+    this.monitoredResults = new HashMap<>( monitoredTasks.size() );
+    this.backgroundResults = new HashMap<>( backgroundTasks.size() );
   }
 
   void runConcurrentTest() throws Exception {
@@ -110,12 +105,12 @@ class ConcurrencyTestRunner<M, B> {
     final int tasksAmount = monitoredTasks.size() + backgroundTasks.size();
     final ExecutorService executors = Executors.newFixedThreadPool( tasksAmount );
     try {
-      List<Future<? extends B>> background = new ArrayList<Future<? extends B>>( backgroundTasks.size() );
+      List<Future<? extends B>> background = new ArrayList<>( backgroundTasks.size() );
       for ( Callable<? extends B> task : backgroundTasks ) {
         background.add( executors.submit( task ) );
       }
 
-      List<Future<? extends M>> monitored = new ArrayList<Future<? extends M>>( monitoredTasks.size() );
+      List<Future<? extends M>> monitored = new ArrayList<>( monitoredTasks.size() );
       for ( Callable<? extends M> task : monitoredTasks ) {
         monitored.add( executors.submit( task ) );
       }
@@ -172,14 +167,14 @@ class ConcurrencyTestRunner<M, B> {
   }
 
   List<Throwable> getTasksErrors() {
-    List<Throwable> errors = new ArrayList<Throwable>();
+    List<Throwable> errors = new ArrayList<>();
     errors.addAll( pickupErrors( monitoredResults.values() ) );
     errors.addAll( pickupErrors( backgroundResults.values() ) );
     return errors;
   }
 
   private List<Throwable> pickupErrors( Collection<? extends ExecutionResult<?>> collection ) {
-    List<Throwable> errors = new ArrayList<Throwable>( collection.size() );
+    List<Throwable> errors = new ArrayList<>( collection.size() );
     for ( ExecutionResult<?> result : collection ) {
       if ( result.isError() ) {
         errors.add( result.getThrowable() );
@@ -210,7 +205,7 @@ class ConcurrencyTestRunner<M, B> {
   }
 
   private <T> List<T> pickupResults( Collection<? extends ExecutionResult<T>> collection ) {
-    List<T> errors = new ArrayList<T>( collection.size() );
+    List<T> errors = new ArrayList<>( collection.size() );
     for ( ExecutionResult<T> result : collection ) {
       if ( !result.isError() ) {
         errors.add( result.getResult() );

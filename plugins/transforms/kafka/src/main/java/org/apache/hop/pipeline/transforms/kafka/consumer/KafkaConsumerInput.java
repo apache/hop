@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
@@ -86,13 +81,13 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
       log.logError( "Error determining output row metadata", e );
     }
 
-    data.batch = Const.toInt( environmentSubstitute( meta.getBatchSize() ), -1 );
+    data.batch = Const.toInt( resolve( meta.getBatchSize() ), -1 );
 
     data.consumer = buildKafkaConsumer(this, meta);
 
     // Subscribe to the topics...
     //
-    Set<String> topics = meta.getTopics().stream().map( this::environmentSubstitute ).collect( Collectors.toSet() );
+    Set<String> topics = meta.getTopics().stream().map( this::resolve ).collect( Collectors.toSet() );
     data.consumer.subscribe( topics );
 
     // Load and start the single threader transformation
@@ -111,20 +106,21 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     try {
 
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-      String realFilename = environmentSubstitute( meta.getFilename() );
+      String realFilename = resolve( meta.getFilename() );
       PipelineMeta subTransMeta = new PipelineMeta( realFilename, metadataProvider, true, this);
-      TransformWithMappingMeta.replaceVariableValues( subTransMeta, this );
-      TransformWithMappingMeta.addMissingVariables( subTransMeta, this );
-      subTransMeta.activateParameters();
       subTransMeta.setMetadataProvider( metadataProvider );
       subTransMeta.setFilename( meta.getFilename() );
       subTransMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
       logDetailed( "Loaded sub-pipeline '"+realFilename+"'" );
 
-      LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, getPipeline());
+      LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, this, getPipeline());
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel( getPipeline().getLogLevel() );
       kafkaPipeline.setPreviousResult( new Result(  ) );
+      TransformWithMappingMeta.replaceVariableValues( kafkaPipeline, this );
+      TransformWithMappingMeta.addMissingVariables( kafkaPipeline, this );
+      kafkaPipeline.activateParameters(kafkaPipeline);
+
       logDetailed( "Initialized sub-pipeline '"+realFilename+"'" );
 
       // Find the (first copy of the) "Get Record from Stream" transform
@@ -187,7 +183,7 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     super.dispose();
   }
 
-  public static Consumer buildKafkaConsumer( IVariables space, KafkaConsumerInputMeta meta ) {
+  public static Consumer buildKafkaConsumer( IVariables variables, KafkaConsumerInputMeta meta ) {
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
@@ -196,28 +192,28 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     // Set all the configuration options...
     //
     for (String option : meta.getConfig().keySet()) {
-      String value = space.environmentSubstitute( meta.getConfig().get( option ) );
+      String value = variables.resolve( meta.getConfig().get( option ) );
       if ( StringUtils.isNotEmpty( value ) ) {
-        config.put(option, space.environmentSubstitute( value) );
+        config.put(option, variables.resolve( value) );
       }
     }
 
     // The basics
     //
-    config.put( ConsumerConfig.GROUP_ID_CONFIG, space.environmentSubstitute( Const.NVL(meta.getConsumerGroup(), "kettle") ));
-    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, space.environmentSubstitute( meta.getDirectBootstrapServers() ));
+    config.put( ConsumerConfig.GROUP_ID_CONFIG, variables.resolve( Const.NVL(meta.getConsumerGroup(), "kettle") ));
+    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, variables.resolve( meta.getDirectBootstrapServers() ));
     config.put( ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit() );
 
     // Timeout : max batch wait
     //
-    int timeout = Const.toInt(space.environmentSubstitute( meta.getBatchDuration()), 0);
+    int timeout = Const.toInt(variables.resolve( meta.getBatchDuration()), 0);
     if (timeout>0) {
       config.put( ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, timeout);
     }
 
     // The batch size : max poll size
     //
-    int batch = Const.toInt( space.environmentSubstitute( meta.getBatchSize() ), 0 );
+    int batch = Const.toInt( variables.resolve( meta.getBatchSize() ), 0 );
     if (batch>0) {
       config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batch);
     }

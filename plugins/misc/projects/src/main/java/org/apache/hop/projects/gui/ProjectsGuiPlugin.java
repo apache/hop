@@ -587,7 +587,7 @@ public class ProjectsGuiPlugin {
       //
       IVariables hopGuiVariables = Variables.getADefaultVariableSpace();
       hopGui.setVariables(hopGuiVariables);
-      for (String variable : variables.listVariables()) {
+      for (String variable : variables.getVariableNames()) {
         String value = variables.getVariable(variable);
         if (!variable.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
           hopGuiVariables.setVariable(variable, value);
@@ -638,7 +638,7 @@ public class ProjectsGuiPlugin {
       // Inform the outside world that we're enabled an other project
       //
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project);
+          LogChannel.GENERAL, hopGuiVariables, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project );
 
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);

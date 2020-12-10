@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.pipeline.handler;
 
@@ -41,6 +36,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -51,8 +47,8 @@ import java.util.Map;
 
 public class BeamWindowTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamWindowTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamWindowTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -65,7 +61,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
       throw new HopException( "Please specify a window type in Beam Window transform '" + transformMeta.getName() + "'" );
     }
 
-    String duration = pipelineMeta.environmentSubstitute( beamWindowMeta.getDuration() );
+    String duration = variables.resolve( beamWindowMeta.getDuration() );
     long durationSeconds = Const.toLong( duration, -1L );
 
     PCollection<HopRow> stepPCollection;
@@ -86,7 +82,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
         throw new HopException( "Please specify a valid positive window size (duration) for Beam window transform '" + transformMeta.getName() + "'" );
       }
 
-      String every = pipelineMeta.environmentSubstitute( beamWindowMeta.getEvery() );
+      String every = variables.resolve( beamWindowMeta.getEvery() );
       long everySeconds = Const.toLong( every, -1L );
 
       SlidingWindows slidingWindows = SlidingWindows
@@ -121,9 +117,9 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
 
       WindowInfoFn windowInfoFn = new WindowInfoFn(
         transformMeta.getName(),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getStartWindowField() ),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
+        variables.resolve( beamWindowMeta.getMaxWindowField() ),
+        variables.resolve( beamWindowMeta.getStartWindowField() ),
+        variables.resolve( beamWindowMeta.getMaxWindowField() ),
         JsonRowMeta.toJson( inputRowMeta ),
         transformPluginClasses,
         xpPluginClasses

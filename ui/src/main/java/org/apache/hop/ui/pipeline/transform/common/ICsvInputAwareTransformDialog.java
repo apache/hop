@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.transform.common;
 
@@ -28,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
@@ -35,10 +31,6 @@ import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
-
-//import org.apache.hop.pipeline.transforms.csvinput.CsvInput;
-//import org.apache.hop.pipeline.transforms.fileinput.text.EncodingType;
-//import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputUtils;
 
 /**
  * A common interface for all transform dialogs aware of the csv input format, such as CSV Input and Text File Input Dialog
@@ -71,8 +63,8 @@ public interface ICsvInputAwareTransformDialog {
       logError( BaseMessages.getString( "Dialog.ErrorGettingFields.Message" ) );
       return fieldNames;
     }
-    final String delimiter = getPipelineMeta().environmentSubstitute( meta.getDelimiter() );
-    final String enclosure = getPipelineMeta().environmentSubstitute( meta.getEnclosure() );
+    final String delimiter = getVariables().resolve( meta.getDelimiter() );
+    final String enclosure = getVariables().resolve( meta.getEnclosure() );
 
     final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
 
@@ -127,7 +119,7 @@ public interface ICsvInputAwareTransformDialog {
   default InputStreamReader getReader( final ICsvInputAwareMeta meta, final InputStream inputStream ) {
     InputStreamReader reader = null;
     try {
-      String realEncoding = getPipelineMeta().environmentSubstitute( meta.getEncoding() );
+      String realEncoding = getVariables().resolve( meta.getEncoding() );
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
       } else {
@@ -170,4 +162,6 @@ public interface ICsvInputAwareTransformDialog {
   LogChannel getLogChannel();
 
   PipelineMeta getPipelineMeta();
+
+  IVariables getVariables();
 }

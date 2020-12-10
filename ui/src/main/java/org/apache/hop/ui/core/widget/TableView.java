@@ -1,25 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.widget;
 
@@ -1320,7 +1315,7 @@ public class TableView extends Composite {
     try {
       // First, get all info and put it in a Vector of Rows...
       TableItem[] items = table.getItems();
-      List<Object[]> v = new ArrayList<Object[]>();
+      List<Object[]> v = new ArrayList<>();
 
       // First create the row metadata for the grid
       //
@@ -2641,7 +2636,7 @@ public class TableView extends Composite {
    * @return the number of rows/table-items that are not empty
    */
   public int nrNonEmpty() {
-    nonEmptyIndexes = new ArrayList<Integer>();
+    nonEmptyIndexes = new ArrayList<>();
 
     // Count only non-empty rows
     for ( int i = 0; i < table.getItemCount(); i++ ) {
@@ -2977,7 +2972,7 @@ public class TableView extends Composite {
   }
 
   private void clearUndo() {
-    undo = new ArrayList<ChangeAction>();
+    undo = new ArrayList<>();
     undoPosition = -1;
   }
 
@@ -3020,7 +3015,7 @@ public class TableView extends Composite {
     EnterConditionDialog ecd = new EnterConditionDialog( parent.getShell(), SWT.NONE, f, condition );
     Condition cond = ecd.open();
     if ( cond != null ) {
-      ArrayList<Integer> tokeep = new ArrayList<Integer>();
+      ArrayList<Integer> tokeep = new ArrayList<>();
 
       // Apply the condition to the TableView...
       int nr = table.getItemCount();

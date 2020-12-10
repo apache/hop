@@ -1,24 +1,20 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
+
 package org.apache.hop.databases.vertica;
 
 import org.apache.hop.core.database.IDatabase;
@@ -32,6 +28,8 @@ import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -65,6 +63,8 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private IValueMeta valueMetaBase;
+  private IVariables variables;
+
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -78,6 +78,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   public void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
+    variables = spy( new Variables() );
 
     valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
 
@@ -97,15 +98,15 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
     when( resultSet.getMetaData() ).thenReturn( metaData );
 
-    when( resultSet.getTimestamp( 1 ) ).thenReturn( new java.sql.Timestamp( 65535 ) );
-    when( resultSet.getTime( 2 ) ).thenReturn( new java.sql.Time( 1000 ) );
-    when( resultSet.getDate( 3 ) ).thenReturn( new java.sql.Date( ( 65535 * 2 ) ) );
+    when( resultSet.getTimestamp( 1 ) ).thenReturn( new Timestamp( 65535 ) );
+    when( resultSet.getTime( 2 ) ).thenReturn( new Time( 1000 ) );
+    when( resultSet.getDate( 3 ) ).thenReturn( new Date( ( 65535 * 2 ) ) );
     ValueMetaTimestamp ts = new ValueMetaTimestamp( "FOO" );
-    ts.setOriginalColumnType( java.sql.Types.TIMESTAMP );
+    ts.setOriginalColumnType( Types.TIMESTAMP );
     ValueMetaDate tm = new ValueMetaDate( "BAR" );
-    tm.setOriginalColumnType( java.sql.Types.TIME );
+    tm.setOriginalColumnType( Types.TIME );
     ValueMetaDate dt = new ValueMetaDate( "WIBBLE" );
-    dt.setOriginalColumnType( java.sql.Types.DATE );
+    dt.setOriginalColumnType( Types.DATE );
 
 
     Object rtn = null;
@@ -157,7 +158,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for binary type
     IValueMeta binaryValueMeta =
-      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
+      obj.getValueFromSqlType( variables, dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertNotNull( binaryValueMeta );
     assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == binaryValueMeta.getType() );
@@ -166,7 +167,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for varbinary type
     IValueMeta varbinaryValueMeta =
-      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+      obj.getValueFromSqlType( variables, dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
     assertNotNull( varbinaryValueMeta );
     assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == varbinaryValueMeta.getType() );

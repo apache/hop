@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.stringcut;
 
@@ -144,22 +138,22 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> imple
 
       data.outStreamNrs = new String[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.outStreamNrs[ i ] = environmentSubstitute( meta.getFieldOutStream()[ i ] );
+        data.outStreamNrs[ i ] = resolve( meta.getFieldOutStream()[ i ] );
       }
 
       data.cutFrom = new int[ meta.getFieldInStream().length ];
       data.cutTo = new int[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutFrom()[ i ] ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getCutFrom()[ i ] ) ) ) {
           data.cutFrom[ i ] = 0;
         } else {
-          data.cutFrom[ i ] = Const.toInt( environmentSubstitute( meta.getCutFrom()[ i ] ), 0 );
+          data.cutFrom[ i ] = Const.toInt( resolve( meta.getCutFrom()[ i ] ), 0 );
         }
 
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutTo()[ i ] ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getCutTo()[ i ] ) ) ) {
           data.cutTo[ i ] = 0;
         } else {
-          data.cutTo[ i ] = Const.toInt( environmentSubstitute( meta.getCutTo()[ i ] ), 0 );
+          data.cutTo[ i ] = Const.toInt( resolve( meta.getCutTo()[ i ] ), 0 );
         }
 
       } // end for

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml;
 
@@ -69,7 +63,7 @@ public class PipelineTestFactory {
 
   public static PipelineMeta generateTestTransformation(IVariables parent, ITransformMeta oneMeta,
                                                         String oneTransformName ) {
-    PipelineMeta previewMeta = new PipelineMeta( parent );
+    PipelineMeta previewMeta = new PipelineMeta();
 
     // First the injector step...
     TransformMeta zero = getInjectorTransformMeta();
@@ -97,7 +91,7 @@ public class PipelineTestFactory {
 
   public static PipelineMeta generateTestTransformationError( IVariables parent, ITransformMeta oneMeta,
       String oneTransformName ) {
-    PipelineMeta previewMeta = new PipelineMeta( parent );
+    PipelineMeta previewMeta = new PipelineMeta();
 
     if ( parent == null ) {
       parent = new Variables();
@@ -128,7 +122,7 @@ public class PipelineTestFactory {
     PipelineHopMeta oneTwo = new PipelineHopMeta( one, two );
     previewMeta.addPipelineHop( oneTwo );
 
-    TransformErrorMeta errMeta = new TransformErrorMeta( parent, one, err );
+    TransformErrorMeta errMeta = new TransformErrorMeta( one, err );
     errMeta.setEnabled( true );
 
     errMeta.setNrErrorsValuename( NUMBER_ERRORS_FIELD );
@@ -143,10 +137,10 @@ public class PipelineTestFactory {
     return previewMeta;
   }
 
-  public static List<RowMetaAndData> executeTestTransformation(PipelineMeta transMeta, String injectorTransformName,
+  public static List<RowMetaAndData> executeTestTransformation(PipelineMeta pipelineMeta, String injectorTransformName,
                                                                String testTransformName, String dummyTransformName, List<RowMetaAndData> inputData ) throws HopException {
     // Now execute the transformation...
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
 
     trans.prepareExecution(  );
 
@@ -189,17 +183,17 @@ public class PipelineTestFactory {
     return dummyRc.getRowsRead();
   }
 
-  public static Map<String, RowTransformCollector> executeTestTransformationError( PipelineMeta transMeta, String testTransformName,
+  public static Map<String, RowTransformCollector> executeTestTransformationError( PipelineMeta pipelineMeta, String testTransformName,
       List<RowMetaAndData> inputData ) throws HopException {
-    return executeTestTransformationError( transMeta, INJECTOR_TRANSFORMNAME, testTransformName, DUMMY_TRANSFORMNAME, ERROR_TRANSFORMNAME,
+    return executeTestTransformationError( pipelineMeta, INJECTOR_TRANSFORMNAME, testTransformName, DUMMY_TRANSFORMNAME, ERROR_TRANSFORMNAME,
         inputData );
   }
 
-  public static Map<String, RowTransformCollector> executeTestTransformationError( PipelineMeta transMeta,
+  public static Map<String, RowTransformCollector> executeTestTransformationError( PipelineMeta pipelineMeta,
       String injectorTransformName, String testTransformName, String dummyTransformName, String errorTransformName,
       List<RowMetaAndData> inputData ) throws HopException {
     // Now execute the transformation...
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
 
     trans.prepareExecution(  );
 
@@ -247,7 +241,7 @@ public class PipelineTestFactory {
     }
 
     // Return the result from the dummy step...
-    Map<String, RowTransformCollector> ret = new HashMap<String, RowTransformCollector>();
+    Map<String, RowTransformCollector> ret = new HashMap<>();
     ret.put( dummyTransformName, dummyRc );
     ret.put( errorTransformName, erColl );
     ret.put( testTransformName, dummyJu );

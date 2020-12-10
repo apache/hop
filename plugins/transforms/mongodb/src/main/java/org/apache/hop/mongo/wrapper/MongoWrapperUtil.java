@@ -31,8 +31,8 @@ import java.util.List;
 
 /** Created by bryan on 8/7/14. */
 public class MongoWrapperUtil {
-  private static org.apache.hop.mongo.wrapper.MongoWrapperClientFactory mongoWrapperClientFactory =
-      new org.apache.hop.mongo.wrapper.MongoWrapperClientFactory() {
+  private static MongoWrapperClientFactory mongoWrapperClientFactory =
+      new MongoWrapperClientFactory() {
         @Override
         public MongoClientWrapper createMongoClientWrapper(
             MongoProperties props, MongoUtilLogger log) throws MongoDbException {
@@ -41,11 +41,11 @@ public class MongoWrapperUtil {
       };
 
   public static void setMongoWrapperClientFactory(
-      org.apache.hop.mongo.wrapper.MongoWrapperClientFactory mongoWrapperClientFactory) {
+      MongoWrapperClientFactory mongoWrapperClientFactory) {
     MongoWrapperUtil.mongoWrapperClientFactory = mongoWrapperClientFactory;
   }
 
-  protected static org.apache.hop.mongo.wrapper.MongoWrapperClientFactory
+  protected static MongoWrapperClientFactory
       getMongoWrapperClientFactory() {
     return mongoWrapperClientFactory;
   }
@@ -63,19 +63,19 @@ public class MongoWrapperUtil {
     MongoProperties.Builder propertiesBuilder = new MongoProperties.Builder();
 
     setIfNotNullOrEmpty(
-        propertiesBuilder, MongoProp.HOST, vars.environmentSubstitute(mongoDbMeta.getHostnames()));
+        propertiesBuilder, MongoProp.HOST, vars.resolve(mongoDbMeta.getHostnames()));
     setIfNotNullOrEmpty(
-        propertiesBuilder, MongoProp.PORT, vars.environmentSubstitute(mongoDbMeta.getPort()));
+        propertiesBuilder, MongoProp.PORT, vars.resolve(mongoDbMeta.getPort()));
     setIfNotNullOrEmpty(
-        propertiesBuilder, MongoProp.DBNAME, vars.environmentSubstitute(mongoDbMeta.getDbName()));
+        propertiesBuilder, MongoProp.DBNAME, vars.resolve(mongoDbMeta.getDbName()));
     setIfNotNullOrEmpty(
         propertiesBuilder,
         MongoProp.connectTimeout,
-        vars.environmentSubstitute(mongoDbMeta.getConnectTimeout()));
+        vars.resolve(mongoDbMeta.getConnectTimeout()));
     setIfNotNullOrEmpty(
         propertiesBuilder,
         MongoProp.socketTimeout,
-        vars.environmentSubstitute(mongoDbMeta.getSocketTimeout()));
+        vars.resolve(mongoDbMeta.getSocketTimeout()));
     setIfNotNullOrEmpty(
         propertiesBuilder, MongoProp.readPreference, mongoDbMeta.getReadPreference());
     setIfNotNullOrEmpty(propertiesBuilder, MongoProp.writeConcern, mongoDbMeta.getWriteConcern());
@@ -89,15 +89,15 @@ public class MongoWrapperUtil {
     setIfNotNullOrEmpty(
         propertiesBuilder,
         MongoProp.AUTH_DATABASE,
-        vars.environmentSubstitute(mongoDbMeta.getAuthenticationDatabaseName()));
+        vars.resolve(mongoDbMeta.getAuthenticationDatabaseName()));
     setIfNotNullOrEmpty(
         propertiesBuilder,
         MongoProp.USERNAME,
-        vars.environmentSubstitute(mongoDbMeta.getAuthenticationUser()));
+        vars.resolve(mongoDbMeta.getAuthenticationUser()));
     setIfNotNullOrEmpty(
         propertiesBuilder,
         MongoProp.PASSWORD,
-        vars.environmentSubstitute(mongoDbMeta.getAuthenticationPassword()));
+        vars.resolve(mongoDbMeta.getAuthenticationPassword()));
     setIfNotNullOrEmpty(
         propertiesBuilder, MongoProp.AUTH_MECHA, mongoDbMeta.getAuthenticationMechanism());
     setIfNotNullOrEmpty(

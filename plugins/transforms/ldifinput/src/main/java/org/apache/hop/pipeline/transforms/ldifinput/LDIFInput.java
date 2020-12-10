@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.ldifinput;
 
@@ -135,7 +129,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
       for ( int i = 0; i < meta.getInputFields().length; i++ ) {
         LDIFInputField ldifInputField = meta.getInputFields()[ i ];
         // Get the Attribut to look for
-        String AttributValue = environmentSubstitute( ldifInputField.getAttribut() );
+        String AttributValue = resolve( ldifInputField.getAttribut() );
 
         String Value = GetValue( data.attributes_LDIF, AttributValue );
 
@@ -334,7 +328,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
           }
 
         } // End if first
-        String filename = environmentSubstitute( getInputRowMeta().getString( data.readrow, data.indexOfFilenameField ) );
+        String filename = resolve( getInputRowMeta().getString( data.readrow, data.indexOfFilenameField ) );
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "LDIFInput.Log.FilenameInStream", meta
             .getDynamicFilenameField(), filename ) );
@@ -455,7 +449,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
           data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
           data.nrInputFields = meta.getInputFields().length;
-          data.multiValueSeparator = environmentSubstitute( meta.getMultiValuedSeparator() );
+          data.multiValueSeparator = resolve( meta.getMultiValuedSeparator() );
         } catch ( Exception e ) {
           logError( "Error initializing transform: " + e.toString() );
            e.printStackTrace();

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.xml.xmlwellformed;
 
@@ -256,7 +250,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wSourceFileFolder.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wSourceFileFolder.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -289,7 +283,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin );
     wbaSourceFileFolder.setLayoutData(fdbaSourceFileFolder);
 
-    wSourceFileFolder = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceFileFolder = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSourceFileFolder.setToolTipText( BaseMessages.getString( PKG, "JobXMLWellFormed.SourceFileFolder.Tooltip" ) );
 
     props.setLook( wSourceFileFolder );
@@ -301,14 +295,14 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.resolve( wSourceFileFolder.getText() ) ) );
 
     wbSourceFileFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wSourceFileFolder.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
+          dialog.setFileName( variables.resolve( wSourceFileFolder.getText() ) );
         }
         dialog.setFilterNames( FILETYPES );
         if ( dialog.open() != null ) {
@@ -347,7 +341,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
 
-    wWildcard = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "JobXMLWellFormed.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -384,7 +378,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     colinf[1].setToolTip( BaseMessages.getString( PKG, "JobXMLWellFormed.Fields.Wildcard.Tooltip" ) );
 
     wFields =
-        new TableView( workflowMeta, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        new TableView( variables, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
     FormData fdFields = new FormData();
@@ -519,7 +513,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-        new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString( PKG,
+        new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString( PKG,
             "JobXMLWellFormed.NrBadFormedLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );

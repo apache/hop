@@ -25,12 +25,12 @@ public class UIFile {
   private Boolean isStaged = false;
 
   @Deprecated
-  public UIFile( String name, ChangeType changeType ) {
+  public UIFile(String name, ChangeType changeType) {
     this.name = name;
     this.changeType = changeType;
   }
 
-  public UIFile( String name, ChangeType changeType, Boolean isStaged ) {
+  public UIFile(String name, ChangeType changeType, Boolean isStaged) {
     this.name = name;
     this.changeType = changeType;
     this.isStaged = isStaged;
@@ -40,7 +40,7 @@ public class UIFile {
     return name;
   }
 
-  public void setName( String name ) {
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -48,13 +48,13 @@ public class UIFile {
     return changeType;
   }
 
-  public void setChangeType( ChangeType changeType ) {
+  public void setChangeType(ChangeType changeType) {
     this.changeType = changeType;
   }
 
   public String getImage() {
     final String location = "images/git/";
-    switch ( changeType ) {
+    switch (changeType) {
       case ADD:
       case COPY:
         return location + "added.svg";
@@ -72,7 +72,7 @@ public class UIFile {
     return isStaged;
   }
 
-  public void setIsStaged( Boolean isStaged ) {
+  public void setIsStaged(Boolean isStaged) {
     this.isStaged = isStaged;
   }
 }

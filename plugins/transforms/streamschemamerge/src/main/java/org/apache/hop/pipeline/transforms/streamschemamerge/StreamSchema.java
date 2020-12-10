@@ -71,7 +71,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 		data.infoStreams = meta.getTransformIOMeta().getInfoStreams();
 		data.numTransforms = data.infoStreams.size();
 		data.rowMetas = new IRowMeta[data.numTransforms];
-		data.rowSets = new ArrayList<IRowSet>();
+		data.rowSets = new ArrayList<>();
         data.TransformNames = new String[data.numTransforms];
 
 		return super.init();

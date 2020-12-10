@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
@@ -31,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -139,8 +134,8 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
   ArrayList<String> listpath = new ArrayList<>();
   String precNodeName = null;
 
-  public YamlInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public YamlInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (YamlInputMeta) in;
   }
 
@@ -295,10 +290,10 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdXMLField.right = new FormAttachment( 100, -margin );
     wYAMLLField.setLayoutData( fdXMLField );
     wYAMLLField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setXMLStreamField();
@@ -345,7 +340,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdbaFilename.top = new FormAttachment( wOutputField, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     fdFilename = new FormData();
@@ -362,7 +357,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdlFilemask.top = new FormAttachment( wFilename, margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
     fdFilemask = new FormData();
@@ -435,7 +430,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
 
     wFilenameList =
       new TableView(
-        pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
+        variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
     props.setLook( wFilenameList );
     fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment( middle, 0 );
@@ -585,7 +580,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdlInclFilenameField.left = new FormAttachment( wInclFilename, margin );
     fdlInclFilenameField.top = new FormAttachment( wLimit, 4 * margin );
     wlInclFilenameField.setLayoutData( fdlInclFilenameField );
-    wInclFilenameField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclFilenameField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilenameField );
     wInclFilenameField.addModifyListener( lsMod );
     fdInclFilenameField = new FormData();
@@ -618,7 +613,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     fdInclRownumField = new FormData();
@@ -752,7 +747,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.XPath.Column.Tooltip" ) );
 
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -837,7 +832,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
         try {
           YamlInputMeta tfii = new YamlInputMeta();
           getInfo( tfii );
-          FileInputList fileInputList = tfii.getFiles( pipelineMeta );
+          FileInputList fileInputList = tfii.getFiles( variables );
           String[] files = fileInputList.getFileStrings();
           if ( files != null && files.length > 0 ) {
             EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
@@ -879,7 +874,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     if ( wbbFilename != null ) {
       // Listen to the browse button next to the file name
       //
-      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
               new String[] { "*.yaml;*.YAML;*.yml;*.YML", "*" },
               new String[] {
                       "Yaml files",
@@ -921,7 +916,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
 
       wYAMLLField.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -991,7 +986,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       YamlInputMeta meta = new YamlInputMeta();
       getInfo( meta );
 
-      FileInputList inputList = meta.getFiles( pipelineMeta );
+      FileInputList inputList = meta.getFiles( variables );
 
       if ( inputList.getFiles().size() > 0 ) {
         wFields.removeAll();
@@ -1206,7 +1201,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       YamlInputMeta oneMeta = new YamlInputMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "YamlInputDialog.NumberRows.DialogTitle" ),
@@ -1216,7 +1211,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -1233,7 +1228,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
           }
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
         }

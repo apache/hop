@@ -1,24 +1,20 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
+
 
 package org.apache.hop.beam.metadata;
 
@@ -27,6 +23,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -41,10 +38,7 @@ import java.util.List;
   description = "Describes a file layout in a Beam pipeline",
   iconImage = "ui/images/folder.svg"
 )
-public class FileDefinition extends Variables implements Serializable, IVariables, IHopMetadata {
-
-  @HopMetadataProperty
-  private String name;
+public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
   @HopMetadataProperty
   private String description;
@@ -78,22 +72,6 @@ public class FileDefinition extends Variables implements Serializable, IVariable
     }
 
     return rowMeta;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**

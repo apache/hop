@@ -1,28 +1,20 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.ldapinput;
-
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -33,6 +25,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -76,6 +69,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_NO;
+import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_YES;
 
 public class LdapInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
@@ -150,8 +146,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
   private Button wbbFilename;
 
-  public LdapInputDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, (BaseTransformMeta) in, pipelineMeta, sname);
+  public LdapInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (LdapInputMeta) in;
   }
 
@@ -246,7 +242,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlHost.top = new FormAttachment(wTransformName, margin);
     fdlHost.right = new FormAttachment(middle, -margin);
     wlHost.setLayoutData(fdlHost);
-    wHost = new TextVar(pipelineMeta, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHost = new TextVar(variables, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wHost.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Host.Tooltip"));
     props.setLook(wHost);
     wHost.addModifyListener(lsMod);
@@ -265,7 +261,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPort.top = new FormAttachment(wHost, margin);
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
-    wPort = new TextVar(pipelineMeta, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPort = new TextVar(variables, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPort);
     wPort.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Port.Tooltip"));
     wPort.addModifyListener(lsMod);
@@ -285,7 +281,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlProtocol.top = new FormAttachment(wPort, margin);
     wlProtocol.setLayoutData(fdlProtocol);
 
-    wProtocol = new ComboVar(pipelineMeta, wHostGroup, SWT.BORDER | SWT.READ_ONLY);
+    wProtocol = new ComboVar(variables, wHostGroup, SWT.BORDER | SWT.READ_ONLY);
     wProtocol.setEditable(true);
     props.setLook(wProtocol);
     wProtocol.addModifyListener(lsMod);
@@ -363,7 +359,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlUserName.top = new FormAttachment(wUsingAuthentication, margin);
     fdlUserName.right = new FormAttachment(middle, -margin);
     wlUserName.setLayoutData(fdlUserName);
-    wUserName = new TextVar(pipelineMeta, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUserName = new TextVar(variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wUserName);
     wUserName.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Username.Tooltip"));
     wUserName.addModifyListener(lsMod);
@@ -383,7 +379,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
-        new PasswordTextVar(pipelineMeta, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar( variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassword.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Password.Tooltip"));
     props.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
@@ -470,13 +466,13 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
             BaseDialog.presentFileDialog(
                 shell,
                 wTrustStorePath,
-                pipelineMeta,
+                variables,
                 new String[] {"*"},
                 new String[] {"All files"},
                 true));
 
     wTrustStorePath =
-        new TextVar(pipelineMeta, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePath);
     wTrustStorePath.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePath.Tooltip"));
@@ -498,7 +494,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
     wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
-        new PasswordTextVar(pipelineMeta, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar( variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePassword);
     wTrustStorePassword.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePassword.Tooltip"));
@@ -659,7 +655,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSearchBase.top = new FormAttachment(wSearchBaseField, margin);
     fdlSearchBase.right = new FormAttachment(middle, -2 * margin);
     wlSearchBase.setLayoutData(fdlSearchBase);
-    wSearchBase = new TextVar(pipelineMeta, wSearchGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSearchBase = new TextVar(variables, wSearchGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSearchBase);
     wSearchBase.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.SearchBase.Tooltip"));
     wSearchBase.addModifyListener(lsMod);
@@ -734,7 +730,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wFilterString =
         new StyledTextComp(
-            pipelineMeta,
+            variables,
             wSearchGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
             "");
@@ -748,7 +744,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdFilterString.right = new FormAttachment(100, -2 * margin);
     fdFilterString.bottom = new FormAttachment(100, -margin);
     wFilterString.setLayoutData(fdFilterString);
-    wFilterString.addKeyListener(new ControlSpaceKeyAdapter(pipelineMeta, wFilterString));
+    wFilterString.addKeyListener(new ControlSpaceKeyAdapter(variables, wFilterString));
 
     FormData fdSearchGroup = new FormData();
     fdSearchGroup.left = new FormAttachment(0, margin);
@@ -828,7 +824,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlInclRownumField.top = new FormAttachment(0, margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField =
-        new TextVar(pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
@@ -873,7 +869,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlTimeLimit.top = new FormAttachment(wLimit, margin);
     fdlTimeLimit.right = new FormAttachment(middle, -margin);
     wlTimeLimit.setLayoutData(fdlTimeLimit);
-    wTimeLimit = new TextVar(pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTimeLimit = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTimeLimit);
     wTimeLimit.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TimeLimit.Tooltip"));
     wTimeLimit.addModifyListener(lsMod);
@@ -895,7 +891,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlMultiValuedSeparator.right = new FormAttachment(middle, -margin);
     wlMultiValuedSeparator.setLayoutData(fdlMultiValuedSeparator);
     wMultiValuedSeparator =
-        new TextVar(pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMultiValuedSeparator);
     wMultiValuedSeparator.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.MultiValuedSeparator.Tooltip"));
@@ -936,7 +932,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPageSize.left = new FormAttachment(wSetPaging, margin);
     fdlPageSize.top = new FormAttachment(wMultiValuedSeparator, margin);
     wlPageSize.setLayoutData(fdlPageSize);
-    wPageSize = new TextVar(pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPageSize = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPageSize);
     wPageSize.addModifyListener(lsMod);
     FormData fdPageSize = new FormData();
@@ -1082,7 +1078,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wFields =
         new TableView(
-            pipelineMeta,
+            variables,
             wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
@@ -1178,14 +1174,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       getInfo(meta);
 
       // Defined a LDAP connection
-      connection = new LdapConnection(log, pipelineMeta, meta, null);
+      connection = new LdapConnection(log, variables, meta, null);
 
       // connect...
       if (wUsingAuthentication.getSelection()) {
         connection.connect(
-            pipelineMeta.environmentSubstitute(meta.getUserName()),
+            variables.resolve(meta.getUserName()),
             Encr.decryptPasswordOptionallyEncrypted(
-                pipelineMeta.environmentSubstitute(meta.getPassword())));
+                variables.resolve(meta.getPassword())));
       } else {
         connection.connect();
       }
@@ -1225,14 +1221,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       wFields.removeAll();
 
       // Defined a LDAP connection
-      connection = new LdapConnection(log, pipelineMeta, meta, null);
+      connection = new LdapConnection(log, variables, meta, null);
 
       // connect ...
       if (meta.isUseAuthentication()) {
-        String username = pipelineMeta.environmentSubstitute(meta.getUserName());
+        String username = variables.resolve(meta.getUserName());
         String password =
             Encr.decryptPasswordOptionallyEncrypted(
-                pipelineMeta.environmentSubstitute(meta.getPassword()));
+                variables.resolve(meta.getPassword()));
         connection.connect(username, password);
       } else {
         connection.connect();
@@ -1240,7 +1236,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
       // return fields
       RowMeta listattributes =
-          connection.getFields(pipelineMeta.environmentSubstitute(meta.getSearchBase()));
+          connection.getFields(variables.resolve(meta.getSearchBase()));
       String[] fieldsName = new String[listattributes.size()];
       for (int i = 0; i < listattributes.size(); i++) {
 
@@ -1540,7 +1536,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+            variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
@@ -1553,6 +1549,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,
+              variables,
                 previewMeta,
                 new String[] {wTransformName.getText()},
                 new int[] {previewSize});
@@ -1577,7 +1574,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,
-                  pipelineMeta,
+                variables,
                   SWT.NONE,
                   wTransformName.getText(),
                   progressDialog.getPreviewRowsMeta(wTransformName.getText()),
@@ -1627,7 +1624,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         String filterfield = wFilterField.getText();
         wSearchBaseField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields(transformName);
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           wSearchBaseField.setItems(r.getFieldNames());
           wFilterField.setItems(r.getFieldNames());

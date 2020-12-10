@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline;
 
@@ -27,7 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
@@ -66,17 +61,13 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
 
   protected String filename;
 
-  public static PipelineMeta loadMappingMeta( TransformWithMappingMeta mappingMeta, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
-    return loadMappingMeta( mappingMeta, metadataProvider, variables, true );
-  }
-
   /**
-   * @return new var space with follow vars from parent space or just new space if parent was null
+   * @return new var variables with follow vars from parent variables or just new variables if parent was null
    * <p>
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
+   * {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
+   * {@link Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER}
+   * {@link Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
+   * {@link Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
    */
   private static IVariables getVarSpaceOnlyWithRequiredParentVars( IVariables parentSpace ) {
     Variables tmpSpace = new Variables();
@@ -90,7 +81,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   }
 
   public static synchronized PipelineMeta loadMappingMeta( TransformWithMappingMeta executorMeta,
-                                                           IHopMetadataProvider metadataProvider, IVariables variables, boolean share ) throws HopException {
+                                                           IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     PipelineMeta mappingPipelineMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
@@ -99,10 +90,10 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     IVariables tmpSpace = r.resolveCurrentDirectory( getVarSpaceOnlyWithRequiredParentVars( variables ),
       executorMeta.getParentTransformMeta(), executorMeta.getFilename() );
 
-    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFilename() );
+    String realFilename = tmpSpace.resolve( executorMeta.getFilename() );
     if ( variables != null ) {
-      // This is a parent pipeline and parent variable should work here. A child file name can be resolved via parent space.
-      realFilename = variables.environmentSubstitute( realFilename );
+      // This is a parent pipeline and parent variable should work here. A child file name can be resolved via parent variables.
+      realFilename = variables.resolve( realFilename );
     }
     try {
       // OK, load the meta-data from file...
@@ -119,27 +110,18 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       return null;
     }
 
-
-    if ( share ) {
-      //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
-      // parent parameter.
-      replaceVariableValues( mappingPipelineMeta, variables );
-      // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
-      // variables from the pipeline?' option is checked)
-      addMissingVariables( mappingPipelineMeta, variables );
-    }
     mappingPipelineMeta.setMetadataProvider( metadataProvider );
     mappingPipelineMeta.setFilename( mappingPipelineMeta.getFilename() );
 
     return mappingPipelineMeta;
   }
 
-  public static void activateParams( IVariables childVariableSpace, INamedParams childNamedParams, IVariables parent, String[] listParameters,
+  public static void activateParams( IVariables childVariableSpace, INamedParameters childNamedParams, IVariables parent, String[] listParameters,
                                      String[] mappingVariables, String[] inputFields ) {
     activateParams( childVariableSpace, childNamedParams, parent, listParameters, mappingVariables, inputFields, true );
   }
 
-  public static void activateParams( IVariables childVariableSpace, INamedParams childNamedParams, IVariables parent, String[] listParameters,
+  public static void activateParams( IVariables childVariableSpace, INamedParameters childNamedParams, IVariables parent, String[] listParameters,
                                      String[] mappingVariables, String[] inputFields, boolean isPassingAllParameters ) {
     Map<String, String> parameters = new HashMap<>();
     Set<String> subPipelineParameters = new HashSet<>( Arrays.asList( listParameters ) );
@@ -147,15 +129,15 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( mappingVariables != null ) {
       for ( int i = 0; i < mappingVariables.length; i++ ) {
         String mappingVariable = mappingVariables[ i ];
-        parameters.put( mappingVariable, parent.environmentSubstitute( inputFields[ i ] ) );
+        parameters.put( mappingVariable, parent.resolve( inputFields[ i ] ) );
         //If inputField value is not empty then create it in variables of transform(Parent)
-        if ( !Utils.isEmpty( Const.trim( parent.environmentSubstitute( inputFields[ i ] ) ) ) ) {
-          parent.setVariable( mappingVariable, parent.environmentSubstitute( inputFields[ i ] ) );
+        if ( !Utils.isEmpty( Const.trim( parent.resolve( inputFields[ i ] ) ) ) ) {
+          parent.setVariable( mappingVariable, parent.resolve( inputFields[ i ] ) );
         }
       }
     }
 
-    for ( String variableName : parent.listVariables() ) {
+    for ( String variableName : parent.getVariableNames() ) {
       // When the child parameter does exist in the parent parameters, overwrite the child parameter by the
       // parent parameter.
       if ( parameters.containsKey( variableName ) ) {
@@ -191,7 +173,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       }
     }
 
-    childNamedParams.activateParameters();
+    childNamedParams.activateParameters(childVariableSpace);
   }
 
 
@@ -236,7 +218,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       //
       String proposedNewFilename =
         mappingPipelineMeta.exportResources(
-          mappingPipelineMeta, definitions, iResourceNaming, metadataProvider );
+          variables, definitions, iResourceNaming, metadataProvider );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -261,7 +243,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( toSpace == null ) {
       return;
     }
-    String[] variableNames = toSpace.listVariables();
+    String[] variableNames = toSpace.getVariableNames();
     for ( String variable : variableNames ) {
       if ( fromSpace.getVariable( variable ) == null ) {
         fromSpace.setVariable( variable, toSpace.getVariable( variable ) );
@@ -273,7 +255,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( replaceBy == null ) {
       return;
     }
-    String[] variableNames = replaceBy.listVariables();
+    String[] variableNames = replaceBy.getVariableNames();
     for ( String variableName : variableNames ) {
       if ( childPipelineMeta.getVariable( variableName ) != null && !isInternalVariable( variableName, type ) ) {
         childPipelineMeta.setVariable( variableName, replaceBy.getVariable( variableName ) );

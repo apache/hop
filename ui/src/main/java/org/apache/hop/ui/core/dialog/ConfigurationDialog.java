@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.dialog;
 
@@ -280,8 +275,17 @@ public abstract class ConfigurationDialog extends Dialog {
 
     String[] namedParams = abstractMeta.listParameters();
     int nrParams = namedParams.length;
-    wParams = new TableView( abstractMeta, parametersComposite, SWT.FULL_SELECTION | SWT.MULTI, cParams,
-        nrParams, false, null, props, false );
+    wParams =
+        new TableView(
+            hopGui.getVariables(),
+            parametersComposite,
+            SWT.FULL_SELECTION | SWT.MULTI,
+            cParams,
+            nrParams,
+            false,
+            null,
+            props,
+            false);
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment( 0, 0 );
     fdParams.right = new FormAttachment( 100, 0 );
@@ -308,8 +312,17 @@ public abstract class ConfigurationDialog extends Dialog {
     };
 
     int nrVariables = configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
-    wVariables = new TableView( abstractMeta, variablesComposite, SWT.FULL_SELECTION | SWT.MULTI, cVariables,
-        nrVariables, false, null, props, false );
+    wVariables =
+        new TableView(
+            hopGui.getVariables(),
+            variablesComposite,
+            SWT.FULL_SELECTION | SWT.MULTI,
+            cVariables,
+            nrVariables,
+            false,
+            null,
+            props,
+            false);
 
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment( 0, 0 );

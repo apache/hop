@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.waitforsql;
 
@@ -218,7 +212,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
@@ -280,7 +274,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     Database dbchecked = null;
     try {
       dbchecked = new Database( this, connection );
-      dbchecked.shareVariablesWith( this );
+      dbchecked.shareWith( this );
       dbchecked.connect( null );
     } finally {
       if ( dbchecked != null ) {
@@ -295,8 +289,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     result.setResult( false );
     result.setNrErrors( 1 );
     String realCustomSql = null;
-    String realTablename = environmentSubstitute( tableName );
-    String realSchemaname = environmentSubstitute( schemaName );
+    String realTablename = resolve( tableName );
+    String realSchemaname = resolve( schemaName );
 
     if ( connection == null ) {
       logError( BaseMessages.getString( PKG, "ActionWaitForSQL.NoDbConnection" ) );
@@ -311,7 +305,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
       realCustomSql = customSql;
       if ( isUseVars ) {
-        realCustomSql = environmentSubstitute( realCustomSql );
+        realCustomSql = resolve( realCustomSql );
       }
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql ) );
@@ -337,15 +331,15 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       // starttime (in seconds)
       long timeStart = System.currentTimeMillis() / 1000;
 
-      int nrRowsLimit = Const.toInt( environmentSubstitute( rowsCountValue ), 0 );
+      int nrRowsLimit = Const.toInt( resolve( rowsCountValue ), 0 );
       if ( log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.nrRowsLimit", "" + nrRowsLimit ) );
       }
 
       long iMaximumTimeout =
-        Const.toInt( environmentSubstitute( maximumTimeout ), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
+        Const.toInt( resolve( maximumTimeout ), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
       long iCycleTime =
-        Const.toInt( environmentSubstitute( checkCycleTime ), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
+        Const.toInt( resolve( checkCycleTime ), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
 
       //
       // Sanity check on some values, and complain on insanity
@@ -437,7 +431,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
     Database db = new Database( this, connection );
-    db.shareVariablesWith( this );
+    db.shareWith( this );
     try {
       db.connect();
       if ( isCustomSql ) {
@@ -445,7 +439,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       } else {
         if ( !Utils.isEmpty( realSchemaName ) ) {
           countStatement =
-            selectCount + db.getDatabaseMeta().getQuotedSchemaTableCombination( realSchemaName, realTableName );
+            selectCount + db.getDatabaseMeta().getQuotedSchemaTableCombination( this, realSchemaName, realTableName );
         } else {
           countStatement = selectCount + db.getDatabaseMeta().quoteField( realTableName );
         }
@@ -514,7 +508,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     if ( successOK ) {
       // ad rows to result
       if ( isAddRowsResult && isCustomSql && ar != null ) {
-        List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
+        List<RowMetaAndData> rows = new ArrayList<>();
         for ( int i = 0; i < ar.size(); i++ ) {
           rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );
         }
@@ -533,8 +527,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( connection != null ) {
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );

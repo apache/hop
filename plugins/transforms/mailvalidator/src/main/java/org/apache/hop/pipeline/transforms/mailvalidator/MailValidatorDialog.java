@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mailvalidator;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -80,8 +75,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
 
   private final MailValidatorMeta input;
 
-  public MailValidatorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public MailValidatorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (MailValidatorMeta) in;
   }
 
@@ -145,10 +140,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdemailFieldName.right = new FormAttachment( 100, -margin );
     wEmailFieldName.setLayoutData(fdemailFieldName);
     wEmailFieldName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -203,7 +198,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlTimeOut.top = new FormAttachment( wSMTPCheck, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTimeOut.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.TimeOutField.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -223,7 +218,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdleMailSender.top = new FormAttachment( wTimeOut, margin );
     wleMailSender.setLayoutData(fdleMailSender);
 
-    weMailSender = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    weMailSender = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     weMailSender.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.eMailSenderField.Tooltip" ) );
     props.setLook( weMailSender );
     weMailSender.addModifyListener( lsMod );
@@ -243,7 +238,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlDefaultSMTP.top = new FormAttachment( weMailSender, margin );
     wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
-    wDefaultSMTP = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDefaultSMTP = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultSMTP.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.DefaultSMTPField.Tooltip" ) );
     props.setLook( wDefaultSMTP );
     wDefaultSMTP.addModifyListener( lsMod );
@@ -296,10 +291,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fddefaultSMTPField.right = new FormAttachment( 100, -margin );
     wDefaultSMTPField.setLayoutData(fddefaultSMTPField);
     wDefaultSMTPField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -341,7 +336,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlResult.top = new FormAttachment(wSettingsGroup, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -384,7 +379,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlResultStringTrue.top = new FormAttachment( wResultAsString, margin );
     wlResultStringTrue.setLayoutData(fdlResultStringTrue);
 
-    wResultStringTrue = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultStringTrue = new TextVar( variables, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResultStringTrue.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.ResultStringTrueField.Tooltip" ) );
     props.setLook( wResultStringTrue );
@@ -406,7 +401,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlResultStringFalse.top = new FormAttachment( wResultStringTrue, margin );
     wlResultStringFalse.setLayoutData(fdlResultStringFalse);
 
-    wResultStringFalse = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultStringFalse = new TextVar( variables, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResultStringFalse.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.ResultStringFalseField.Tooltip" ) );
     props.setLook( wResultStringFalse );
@@ -427,7 +422,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlErrorMsg.top = new FormAttachment( wResultStringFalse, margin );
     wlErrorMsg.setLayoutData(fdlErrorMsg);
 
-    wErrorMsg = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorMsg = new TextVar( variables, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wErrorMsg.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ErrorMsgField.Tooltip" ) );
     props.setLook( wErrorMsg );
     wErrorMsg.addModifyListener( lsMod );
@@ -601,7 +596,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
         wEmailFieldName.removeAll();
         wDefaultSMTPField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wEmailFieldName.setItems( r.getFieldNames() );
           wDefaultSMTPField.setItems( r.getFieldNames() );

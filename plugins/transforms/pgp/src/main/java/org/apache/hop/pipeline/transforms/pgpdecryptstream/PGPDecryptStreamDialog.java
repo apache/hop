@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.pgpdecryptstream;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -68,8 +63,8 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "PGPDecryptStreamDialog.Filetype.All" ) };
 
-  public PGPDecryptStreamDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PGPDecryptStreamDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PGPDecryptStreamMeta) in;
   }
 
@@ -158,7 +153,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     if ( wbbGpgExe != null ) {
       // Listen to the browse button next to the file name
       //
-      wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, pipelineMeta,
+      wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, variables,
               new String[] {"*" },
               new String[] {
                       BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
@@ -167,7 +162,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     }
 
 
-    wGPGLocation = new TextVar( pipelineMeta, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGPGLocation = new TextVar( variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wGPGLocation.setToolTipText( BaseMessages.getString( PKG, "PGPDecryptStreamDialog.GPGLocationField.Tooltip" ) );
     props.setLook( wGPGLocation );
     wGPGLocation.addModifyListener( lsMod );
@@ -187,7 +182,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     fdlPassphrase.top = new FormAttachment( wGPGLocation, margin );
     wlPassphrase.setLayoutData(fdlPassphrase);
 
-    wPassphrase = new PasswordTextVar( pipelineMeta, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassphrase = new PasswordTextVar( variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPassphrase.setToolTipText( BaseMessages.getString( PKG, "PGPDecryptStreamDialog.PassphraseField.Tooltip" ) );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
@@ -239,10 +234,10 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     fdPassphraseFieldName.right = new FormAttachment( 100, -margin );
     wPassphraseFieldName.setLayoutData(fdPassphraseFieldName);
     wPassphraseFieldName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -280,10 +275,10 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     fdStreamFieldName.right = new FormAttachment( 100, -margin );
     wStreamFieldName.setLayoutData(fdStreamFieldName);
     wStreamFieldName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -302,7 +297,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     fdlResult.top = new FormAttachment( wStreamFieldName, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "PGPDecryptStreamDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -404,7 +399,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
         String passphrasefieldvalue = wPassphraseFieldName.getText();
         wStreamFieldName.removeAll();
         wPassphraseFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String[] fields = r.getFieldNames();
           wStreamFieldName.setItems( fields );

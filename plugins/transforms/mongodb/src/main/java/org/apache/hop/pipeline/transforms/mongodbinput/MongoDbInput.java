@@ -161,8 +161,8 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
       m_serverDetermined = false;
     }
 
-    String query = environmentSubstitute(meta.getJsonQuery());
-    String fields = environmentSubstitute(meta.getFieldsName());
+    String query = resolve(meta.getJsonQuery());
+    String fields = resolve(meta.getFieldsName());
     if (StringUtils.isEmpty(query) && StringUtils.isEmpty(fields)) {
       if (meta.isQueryIsPipeline()) {
         throw new HopException(
@@ -182,7 +182,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
         if (meta.getExecuteForEachIncomingRow() && m_currentInputRowDrivingQuery != null) {
           // do field value substitution
-          query = fieldSubstitute(query, getInputRowMeta(), m_currentInputRowDrivingQuery);
+          query = resolve(query, getInputRowMeta(), m_currentInputRowDrivingQuery);
         }
 
         logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.QueryPulledDataFrom", query));
@@ -205,9 +205,9 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
       } else {
         if (meta.getExecuteForEachIncomingRow() && m_currentInputRowDrivingQuery != null) {
           // do field value substitution
-          query = fieldSubstitute(query, getInputRowMeta(), m_currentInputRowDrivingQuery);
+          query = resolve(query, getInputRowMeta(), m_currentInputRowDrivingQuery);
 
-          fields = fieldSubstitute(fields, getInputRowMeta(), m_currentInputRowDrivingQuery);
+          fields = resolve(fields, getInputRowMeta(), m_currentInputRowDrivingQuery);
         }
 
         logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.ExecutingQuery", query));
@@ -222,11 +222,11 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
   @Override
   public boolean init() {
     if (super.init()) {
-      String hostname = environmentSubstitute(meta.getHostnames());
+      String hostname = resolve(meta.getHostnames());
       int port =
-          Const.toInt(environmentSubstitute(meta.getPort()), MongoDbInputData.MONGO_DEFAULT_PORT);
-      String db = environmentSubstitute(meta.getDbName());
-      String collection = environmentSubstitute(meta.getCollection());
+          Const.toInt( resolve(meta.getPort()), MongoDbInputData.MONGO_DEFAULT_PORT);
+      String db = resolve(meta.getDbName());
+      String collection = resolve(meta.getCollection());
 
       try {
         if (StringUtils.isEmpty(db)) {
@@ -244,11 +244,11 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
                   ? BaseMessages.getString(
                       PKG,
                       "MongoDbInput.Message.KerberosAuthentication",
-                      environmentSubstitute(meta.getAuthenticationUser()))
+                      resolve(meta.getAuthenticationUser()))
                   : BaseMessages.getString(
                       PKG,
                       "MongoDbInput.Message.NormalAuthentication",
-                      environmentSubstitute(meta.getAuthenticationUser())));
+                      resolve(meta.getAuthenticationUser())));
 
           logBasic(authInfo);
         }

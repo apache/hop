@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.deletefolders;
 
@@ -142,7 +136,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
@@ -177,7 +171,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
-    nrLimitFolders = Const.toInt( environmentSubstitute( getLimitFolders() ), 10 );
+    nrLimitFolders = Const.toInt( resolve( getLimitFolders() ), 10 );
 
     if ( argFromPrevious && log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.FoundPreviousRows", String
@@ -215,7 +209,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
           result.setNrLinesDeleted( nrSuccess );
           return result;
         }
-        String realfilename = environmentSubstitute( arguments[ i ] );
+        String realfilename = resolve( arguments[ i ] );
         if ( !Utils.isEmpty( realfilename ) ) {
           if ( deleteFolder( realfilename ) ) {
             updateSuccess();
@@ -365,12 +359,12 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( arguments[ i ] );
+        String filename = resolve( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

@@ -152,7 +152,7 @@ public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDele
 
   /* This function adds meta data to the rows being pushed out */
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
   }
 

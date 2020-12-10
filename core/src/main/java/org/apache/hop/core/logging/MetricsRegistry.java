@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.logging;
 
@@ -46,8 +41,8 @@ public class MetricsRegistry {
   }
 
   private MetricsRegistry() {
-    snapshotMaps = new ConcurrentHashMap<String, Map<String, IMetricsSnapshot>>();
-    snapshotLists = new ConcurrentHashMap<String, Queue<IMetricsSnapshot>>();
+    snapshotMaps = new ConcurrentHashMap<>();
+    snapshotLists = new ConcurrentHashMap<>();
   }
 
   public void addSnapshot( ILogChannel logChannel, IMetricsSnapshot snapshot ) {
@@ -90,7 +85,7 @@ public class MetricsRegistry {
   public Queue<IMetricsSnapshot> getSnapshotList( String logChannelId ) {
     Queue<IMetricsSnapshot> list = snapshotLists.get( logChannelId );
     if ( list == null ) {
-      list = new ConcurrentLinkedQueue<IMetricsSnapshot>();
+      list = new ConcurrentLinkedQueue<>();
       snapshotLists.put( logChannelId, list );
     }
     return list;
@@ -106,7 +101,7 @@ public class MetricsRegistry {
   public Map<String, IMetricsSnapshot> getSnapshotMap( String logChannelId ) {
     Map<String, IMetricsSnapshot> map = snapshotMaps.get( logChannelId );
     if ( map == null ) {
-      map = new ConcurrentHashMap<String, IMetricsSnapshot>();
+      map = new ConcurrentHashMap<>();
       snapshotMaps.put( logChannelId, map );
     }
     return map;

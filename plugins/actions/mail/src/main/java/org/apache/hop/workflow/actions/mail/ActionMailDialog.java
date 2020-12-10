@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mail;
 
@@ -218,7 +212,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wDestinationGroup.setLayout( destinationgroupLayout );
 
     // Destination line
-    wDestination = new LabelTextVar( workflowMeta, wDestinationGroup,
+    wDestination = new LabelTextVar( variables, wDestinationGroup,
       BaseMessages.getString( PKG, "JobMail.DestinationAddress.Label" ),
       BaseMessages.getString( PKG, "JobMail.DestinationAddress.Tooltip" ) );
     wDestination.addModifyListener( lsMod );
@@ -229,7 +223,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wDestination.setLayoutData(fdDestination);
 
     // Destination Cc
-    wDestinationCc = new LabelTextVar( workflowMeta, wDestinationGroup,
+    wDestinationCc = new LabelTextVar( variables, wDestinationGroup,
       BaseMessages.getString( PKG, "JobMail.DestinationAddressCc.Label" ),
       BaseMessages.getString( PKG, "JobMail.DestinationAddressCc.Tooltip" ) );
     wDestinationCc.addModifyListener( lsMod );
@@ -241,7 +235,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Destination BCc
     wDestinationBCc =
-      new LabelTextVar( workflowMeta, wDestinationGroup,
+      new LabelTextVar( variables, wDestinationGroup,
         BaseMessages.getString( PKG, "JobMail.DestinationAddressBCc.Label" ),
         BaseMessages.getString( PKG, "JobMail.DestinationAddressBCc.Tooltip" ) );
     wDestinationBCc.addModifyListener( lsMod );
@@ -275,7 +269,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wReplyGroup.setLayout( replygroupLayout );
 
     // Reply name
-    wReplyName = new LabelTextVar( workflowMeta, wReplyGroup, BaseMessages.getString( PKG, "JobMail.ReplyName.Label" ),
+    wReplyName = new LabelTextVar( variables, wReplyGroup, BaseMessages.getString( PKG, "JobMail.ReplyName.Label" ),
       BaseMessages.getString( PKG, "JobMail.ReplyName.Tooltip" ) );
     wReplyName.addModifyListener( lsMod );
     FormData fdReplyName = new FormData();
@@ -285,7 +279,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wReplyName.setLayoutData(fdReplyName);
 
     // Reply line
-    wReply = new LabelTextVar( workflowMeta, wReplyGroup, BaseMessages.getString( PKG, "JobMail.ReplyAddress.Label" ),
+    wReply = new LabelTextVar( variables, wReplyGroup, BaseMessages.getString( PKG, "JobMail.ReplyAddress.Label" ),
       BaseMessages.getString( PKG, "JobMail.ReplyAddress.Tooltip" ) );
     wReply.addModifyListener( lsMod );
     FormData fdReply = new FormData();
@@ -305,7 +299,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////////////////////////////
 
     // Reply to
-    wReplyToAddress = new LabelTextVar( workflowMeta, wGeneralComp,
+    wReplyToAddress = new LabelTextVar( variables, wGeneralComp,
       BaseMessages.getString( PKG, "JobMail.ReplyToAddress.Label" ),
       BaseMessages.getString( PKG, "JobMail.ReplyToAddress.Tooltip" ) );
     wReplyToAddress.addModifyListener( lsMod );
@@ -316,7 +310,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wReplyToAddress.setLayoutData(fdReplyToAddress);
 
     // Contact line
-    wPerson = new LabelTextVar( workflowMeta, wGeneralComp, BaseMessages.getString( PKG, "JobMail.ContactPerson.Label" ),
+    wPerson = new LabelTextVar( variables, wGeneralComp, BaseMessages.getString( PKG, "JobMail.ContactPerson.Label" ),
       BaseMessages.getString( PKG, "JobMail.ContactPerson.Tooltip" ) );
     wPerson.addModifyListener( lsMod );
     FormData fdPerson = new FormData();
@@ -326,7 +320,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wPerson.setLayoutData(fdPerson);
 
     // Phone line
-    wPhone = new LabelTextVar( workflowMeta, wGeneralComp, BaseMessages.getString( PKG, "JobMail.ContactPhone.Label" ),
+    wPhone = new LabelTextVar( variables, wGeneralComp, BaseMessages.getString( PKG, "JobMail.ContactPhone.Label" ),
       BaseMessages.getString( PKG, "JobMail.ContactPhone.Tooltip" ) );
     wPhone.addModifyListener( lsMod );
     FormData fdPhone = new FormData();
@@ -379,7 +373,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wServerGroup.setLayout( servergroupLayout );
 
     // Server line
-    wServer = new LabelTextVar( workflowMeta, wServerGroup, BaseMessages.getString( PKG, "JobMail.SMTPServer.Label" ),
+    wServer = new LabelTextVar( variables, wServerGroup, BaseMessages.getString( PKG, "JobMail.SMTPServer.Label" ),
       BaseMessages.getString( PKG, "JobMail.SMTPServer.Tooltip" ) );
     wServer.addModifyListener( lsMod );
     FormData fdServer = new FormData();
@@ -389,7 +383,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wServer.setLayoutData(fdServer);
 
     // Port line
-    wPort = new LabelTextVar( workflowMeta, wServerGroup, BaseMessages.getString( PKG, "JobMail.Port.Label" ), BaseMessages
+    wPort = new LabelTextVar( variables, wServerGroup, BaseMessages.getString( PKG, "JobMail.Port.Label" ), BaseMessages
       .getString( PKG, "JobMail.Port.Tooltip" ) );
     wPort.addModifyListener( lsMod );
     FormData fdPort = new FormData();
@@ -445,7 +439,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     } );
 
     // AuthUser line
-    wAuthUser = new LabelTextVar( workflowMeta, wAuthentificationGroup,
+    wAuthUser = new LabelTextVar( variables, wAuthentificationGroup,
       BaseMessages.getString( PKG, "JobMail.AuthenticationUser.Label" ),
       BaseMessages.getString( PKG, "JobMail.AuthenticationUser.Tooltip" ) );
     wAuthUser.addModifyListener( lsMod );
@@ -456,7 +450,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAuthUser.setLayoutData(fdAuthUser);
 
     // AuthPass line
-    wAuthPass = new LabelTextVar( workflowMeta, wAuthentificationGroup,
+    wAuthPass = new LabelTextVar( variables, wAuthentificationGroup,
       BaseMessages.getString( PKG, "JobMail.AuthenticationPassword.Label" ),
       BaseMessages.getString( PKG, "JobMail.AuthenticationPassword.Tooltip" ), true );
     wAuthPass.addModifyListener( lsMod );
@@ -657,10 +651,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -786,7 +780,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // Subject line
     wSubject =
       new LabelTextVar(
-        workflowMeta, wMessageGroup, BaseMessages.getString( PKG, "JobMail.Subject.Label" ), BaseMessages
+        variables, wMessageGroup, BaseMessages.getString( PKG, "JobMail.Subject.Label" ), BaseMessages
         .getString( PKG, "JobMail.Subject.Tooltip" ) );
     wSubject.addModifyListener( lsMod );
     FormData fdSubject = new FormData();
@@ -805,7 +799,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlComment.right = new FormAttachment( middle, margin );
     wlComment.setLayoutData(fdlComment);
 
-    wComment = new TextVar( workflowMeta, wMessageGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
+    wComment = new TextVar( variables, wMessageGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wComment );
     wComment.addModifyListener( lsMod );
     FormData fdComment = new FormData();
@@ -938,7 +932,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ZipFilename line
     wZipFilename =
       new LabelTextVar(
-        workflowMeta, wResultFilesGroup, BaseMessages.getString( PKG, "JobMail.ZipFilename.Label" ), BaseMessages
+        variables, wResultFilesGroup, BaseMessages.getString( PKG, "JobMail.ZipFilename.Label" ), BaseMessages
         .getString( PKG, "JobMail.ZipFilename.Tooltip" ) );
     wZipFilename.addModifyListener( lsMod );
     FormData fdZipFilename = new FormData();
@@ -998,7 +992,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdbaImageFilename.top = new FormAttachment(wResultFilesGroup, margin );
     wbaImageFilename.setLayoutData( fdbaImageFilename );
 
-    wImageFilename = new TextVar( workflowMeta, wEmbeddedImagesGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wImageFilename = new TextVar( variables, wEmbeddedImagesGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wImageFilename );
     wImageFilename.addModifyListener( lsMod );
     FormData fdImageFilename = new FormData();
@@ -1008,10 +1002,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( workflowMeta.environmentSubstitute( wImageFilename.getText() ) ) );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.resolve( wImageFilename.getText() ) ) );
 
     wbImageFilename.addListener( SWT.Selection, e-> {
-        String filename = BaseDialog.presentFileDialog( shell, wImageFilename, workflowMeta,
+        String filename = BaseDialog.presentFileDialog( shell, wImageFilename, variables,
           new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" },
           IMAGES_FILE_TYPES,
           true);
@@ -1032,7 +1026,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlContentID.right = new FormAttachment( middle, -margin );
     wlContentID.setLayoutData( fdlContentID );
     wContentID =
-      new TextVar( workflowMeta, wEmbeddedImagesGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wEmbeddedImagesGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobMail.ContentID.Tooltip" ) );
     props.setLook( wContentID );
     wContentID.addModifyListener( lsMod );
@@ -1091,7 +1085,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     wFields =
       new TableView(
-        workflowMeta, wEmbeddedImagesGroup, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        variables, wEmbeddedImagesGroup, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
         props );
 
     FormData fdFields = new FormData();

@@ -1,28 +1,24 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -57,8 +53,8 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
   private Group wOptionsGroup;
   private Label hSpacer;
 
-  public AbortDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public AbortDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (AbortMeta) in;
   }
 
@@ -240,7 +236,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdlRowThreshold.top = new FormAttachment( wSafeStopButton, 10 );
     wlRowThreshold.setLayoutData(fdlRowThreshold);
 
-    wRowThreshold = new TextVar( pipelineMeta, wOptionsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowThreshold = new TextVar( variables, wOptionsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wRowThreshold.setText( "" );
     props.setLook( wRowThreshold );
     wRowThreshold.addModifyListener( lsMod );
@@ -276,7 +272,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdlMessage.top = new FormAttachment( 0, 0 );
     wlMessage.setLayoutData(fdlMessage);
 
-    wMessage = new TextVar( pipelineMeta, wLoggingGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMessage = new TextVar( variables, wLoggingGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wMessage.setText( "" );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );

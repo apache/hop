@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
@@ -574,7 +569,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareWith( variables );
       databases = new Database[] { db }; // Keep track of this one for cancelQuery
 
       try {
@@ -586,8 +581,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
           errorMessage = "";
 
           String schemaTable =
-            databaseMeta.getQuotedSchemaTableCombination( db.environmentSubstitute( schemaName ), db
-              .environmentSubstitute( tableName ) );
+            databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           IRowMeta r = db.getTableFields( schemaTable );
 
           if ( r != null ) {
@@ -713,7 +707,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override
-  public IRowMeta getTableFields() {
+  public IRowMeta getTableFields(IVariables variables) {
     IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -721,8 +715,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
       try {
         db.connect();
-        String realTableName = databaseMeta.environmentSubstitute( tableName );
-        String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, realTableName );
+        String realTableName = variables.resolve( tableName );
+        String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, realTableName );
         fields = db.getTableFields( schemaTable );
 
       } catch ( HopDatabaseException dbe ) {
@@ -747,7 +741,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transforminfo,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) {
     // The keys are read-only...

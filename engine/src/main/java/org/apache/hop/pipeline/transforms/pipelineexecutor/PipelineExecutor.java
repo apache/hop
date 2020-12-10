@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
@@ -258,8 +253,8 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   @VisibleForTesting
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
-    String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
-    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
+    String runConfigurationName = resolve( meta.getRunConfigurationName() );
+    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel( getLogLevel() );
@@ -282,7 +277,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     PipelineExecutorParameters parameters = meta.getParameters();
 
     // A map where the final parameters and values are stored.
-    Map<String, String> resolvingValuesMap = new LinkedHashMap<String, String>();
+    Map<String, String> resolvingValuesMap = new LinkedHashMap<>();
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
       resolvingValuesMap.put( parameters.getVariable()[ i ], null );
     }
@@ -455,17 +450,17 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
         // Do we have a pipeline at all?
         if ( pipelineExecutorData.getExecutorPipelineMeta() != null ) {
-          pipelineExecutorData.groupBuffer = new ArrayList<RowMetaAndData>();
+          pipelineExecutorData.groupBuffer = new ArrayList<>();
 
           // How many rows do we group together for the pipeline?
           if ( !Utils.isEmpty( meta.getGroupSize() ) ) {
-            pipelineExecutorData.groupSize = Const.toInt( environmentSubstitute( meta.getGroupSize() ), -1 );
+            pipelineExecutorData.groupSize = Const.toInt( resolve( meta.getGroupSize() ), -1 );
           } else {
             pipelineExecutorData.groupSize = -1;
           }
           // Is there a grouping time set?
           if ( !Utils.isEmpty( meta.getGroupTime() ) ) {
-            pipelineExecutorData.groupTime = Const.toInt( environmentSubstitute( meta.getGroupTime() ), -1 );
+            pipelineExecutorData.groupTime = Const.toInt( resolve( meta.getGroupTime() ), -1 );
           } else {
             pipelineExecutorData.groupTime = -1;
           }
@@ -473,7 +468,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
           // Is there a grouping field set?
           if ( !Utils.isEmpty( meta.getGroupField() ) ) {
-            pipelineExecutorData.groupField = environmentSubstitute( meta.getGroupField() );
+            pipelineExecutorData.groupField = resolve( meta.getGroupField() );
           }
           // That's all for now...
           return true;
@@ -491,7 +486,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   PipelineMeta loadExecutorPipelineMeta() throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetadataProvider(), this, meta.getParameters().isInheritingAllVariables() );
+    return PipelineExecutorMeta.loadMappingMeta( meta, metadataProvider, this );
   }
 
   public void dispose(){

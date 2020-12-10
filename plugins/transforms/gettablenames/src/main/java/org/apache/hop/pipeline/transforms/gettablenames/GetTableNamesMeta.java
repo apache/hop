@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.gettablenames;
 
@@ -323,7 +318,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    String realtablename = variables.environmentSubstitute( tablenamefieldname );
+    String realtablename = variables.resolve( tablenamefieldname );
     if ( !Utils.isEmpty( realtablename ) ) {
       IValueMeta v = new ValueMetaString( realtablename );
       v.setLength( 500 );
@@ -332,7 +327,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
       r.addValueMeta( v );
     }
 
-    String realObjectType = variables.environmentSubstitute( objecttypefieldname );
+    String realObjectType = variables.resolve( objecttypefieldname );
     if ( !Utils.isEmpty( realObjectType ) ) {
       IValueMeta v = new ValueMetaString( realObjectType );
       v.setLength( 500 );
@@ -340,14 +335,14 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
       v.setOrigin( name );
       r.addValueMeta( v );
     }
-    String sysobject = variables.environmentSubstitute( issystemobjectfieldname );
+    String sysobject = variables.resolve( issystemobjectfieldname );
     if ( !Utils.isEmpty( sysobject ) ) {
       IValueMeta v = new ValueMetaBoolean( sysobject );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
-    String realSqlCreation = variables.environmentSubstitute( sqlcreationfieldname );
+    String realSqlCreation = variables.resolve( sqlcreationfieldname );
     if ( !Utils.isEmpty( realSqlCreation ) ) {
       IValueMeta v = new ValueMetaString( realSqlCreation );
       v.setLength( 500 );

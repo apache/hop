@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.ifnull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -76,8 +70,8 @@ public class IfNullMetaTest {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 3 );
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "replaceValue", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "typeName", stringArrayLoadSaveValidator );
@@ -85,7 +79,7 @@ public class IfNullMetaTest {
     attrValidatorMap.put( "typereplaceMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "replaceMask", stringArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator(
       new BooleanLoadSaveValidator(), 3 ) );
 
@@ -94,7 +88,7 @@ public class IfNullMetaTest {
     field.setReplaceValue( "replaceValue" );
     field.setReplaceMask( "replaceMask" );
     field.setEmptyString( true );
-    typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<Fields>(
+    typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new FieldsLoadSaveValidator( field ), 3 ) );
 
     ValueTypes type = new ValueTypes();
@@ -102,7 +96,7 @@ public class IfNullMetaTest {
     type.setTypereplaceValue( "typereplaceValue" );
     type.setTypereplaceMask( "typereplaceMask" );
     type.setTypeEmptyString( true );
-    typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<ValueTypes>(
+    typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new ValueTypesLoadSaveValidator( type ), 3 ) );
 
     loadSaveTester =

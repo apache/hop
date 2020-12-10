@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.propertyoutput;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -89,8 +84,8 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
   private final PropertyOutputMeta input;
 
-  public PropertyOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PropertyOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PropertyOutputMeta) in;
   }
 
@@ -311,7 +306,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     fdbFilename.top = new FormAttachment(wFields, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -400,7 +395,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     fdlFileNameField.top = new FormAttachment( wFileNameInField, margin );
     wlFileNameField.setLayoutData(fdlFileNameField);
 
-    wFileNameField = new ComboVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileNameField = new ComboVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFileNameField );
     wFileNameField.addModifyListener( lsMod );
     FormData fdFileNameField = new FormData();
@@ -421,7 +416,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData(fdlExtension);
 
-    wExtension = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
     FormData fdExtension = new FormData();
@@ -506,7 +501,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
       public void widgetSelected( SelectionEvent e ) {
         PropertyOutputMeta tfoi = new PropertyOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
             BaseMessages.getString( PKG, "PropertyOutputDialog.SelectOutputFiles.DialogTitle" ),
@@ -616,7 +611,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.txt", "*.TXT", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] {
           BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
@@ -691,7 +686,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
   private void getFields() {
     if ( !gotPreviousFields ) {
       try {
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           fieldNames = r.getFieldNames();
         }

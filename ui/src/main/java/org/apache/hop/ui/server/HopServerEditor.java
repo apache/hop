@@ -171,7 +171,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlHostname.right = new FormAttachment(middle, -margin);
     wlHostname.setLayoutData(fdlHostname);
 
-    wHostname = new TextVar(hopServer, wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHostname =
+        new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wHostname);
     FormData fdHostname = new FormData();
@@ -190,7 +191,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
 
-    wPort = new TextVar(hopServer, wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPort = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wPort);
     FormData fdPort = new FormData();
@@ -209,7 +210,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlWebAppName.right = new FormAttachment(middle, -margin);
     wlWebAppName.setLayoutData(fdlWebAppName);
 
-    wWebAppName = new TextVar(hopServer, wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wWebAppName = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wWebAppName);
     FormData fdWebAppName = new FormData();
@@ -228,7 +229,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlUsername.right = new FormAttachment(middle, -margin);
     wlUsername.setLayoutData(fdlUsername);
 
-    wUsername = new TextVar(hopServer, wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUsername = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wUsername);
     FormData fdUsername = new FormData();
@@ -247,7 +248,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
 
-    wPassword = new PasswordTextVar(hopServer, wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPassword = new PasswordTextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wPassword);
     FormData fdPassword = new FormData();
@@ -320,7 +321,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlProxyHost.right = new FormAttachment(middle, -margin);
     wlProxyHost.setLayoutData(fdlProxyHost);
 
-    wProxyHost = new TextVar(hopServer, wProxyComp, SWT.BORDER | SWT.LEFT | SWT.SINGLE);
+    wProxyHost = new TextVar(manager.getVariables(), wProxyComp, SWT.BORDER | SWT.LEFT | SWT.SINGLE);
 
     props.setLook(wProxyHost);
     FormData fdProxyHost = new FormData();
@@ -339,7 +340,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlProxyPort.right = new FormAttachment(middle, -margin);
     wlProxyPort.setLayoutData(fdlProxyPort);
 
-    wProxyPort = new TextVar(hopServer, wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyPort = new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wProxyPort);
     FormData fdProxyPort = new FormData();
     fdProxyPort.top = new FormAttachment(wProxyHost, margin);
@@ -358,7 +359,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlNonProxyHosts.right = new FormAttachment(middle, -margin);
     wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
 
-    wNonProxyHosts = new TextVar(hopServer, wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonProxyHosts = new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wNonProxyHosts);
     FormData fdNonProxyHosts = new FormData();
     fdNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
@@ -422,11 +423,11 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     try {
       String xml = "<sample/>";
-      String reply = server.sendXml(xml, RegisterPipelineServlet.CONTEXT_PATH);
+      String reply = server.sendXml(manager.getVariables(), xml, RegisterPipelineServlet.CONTEXT_PATH);
 
       String message =
           BaseMessages.getString(PKG, "HopServer.Replay.Info1")
-              + server.constructUrl(RegisterPipelineServlet.CONTEXT_PATH)
+              + server.constructUrl(manager.getVariables(), RegisterPipelineServlet.CONTEXT_PATH)
               + Const.CR
               + BaseMessages.getString(PKG, "HopServer.Replay.Info2")
               + Const.CR

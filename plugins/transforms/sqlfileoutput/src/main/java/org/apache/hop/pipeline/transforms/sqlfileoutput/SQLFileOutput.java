@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
@@ -35,10 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -179,7 +171,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
   }
 
   public String buildFilename() {
-    return meta.buildFilename( environmentSubstitute( meta.getFileName() ), getCopy(), data.splitnr );
+    return meta.buildFilename( this, resolve( meta.getFileName() ), getCopy(), data.splitnr );
   }
 
   public boolean openNewFile() {
@@ -216,7 +208,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           logDetailed( "Opening output stream in encoding: " + meta.getEncoding() );
         }
         data.writer =
-          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), environmentSubstitute( meta
+          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), resolve( meta
             .getEncoding() ) );
       } else {
         if ( log.isBasic() ) {
@@ -285,7 +277,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           return false;
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareVariablesWith( this );
+        data.db.shareWith( this );
 
         logBasic( "Connected to database [" + meta.getDatabaseMeta() + "]" );
 
@@ -294,7 +286,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           FileObject parentfolder = null;
           try {
             // Get parent folder
-            String filename = environmentSubstitute( meta.getFileName() );
+            String filename = resolve( meta.getFileName() );
             parentfolder = HopVfs.getFileObject( filename).getParent();
             if ( !parentfolder.exists() ) {
               log.logBasic( "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !" );
@@ -323,14 +315,14 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           }
         }
 
-        tableName = environmentSubstitute( meta.getTablename() );
-        schemaName = environmentSubstitute( meta.getSchemaName() );
+        tableName = resolve( meta.getTablename() );
+        schemaName = resolve( meta.getSchemaName() );
 
         if ( Utils.isEmpty( tableName ) ) {
           throw new HopTransformException( "The tablename is not defined (empty)" );
         }
 
-        schemaTable = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
+        schemaTable = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, schemaName, tableName );
 
       } catch ( Exception e ) {
         logError( "An error occurred intialising this transform: " + e.getMessage() );

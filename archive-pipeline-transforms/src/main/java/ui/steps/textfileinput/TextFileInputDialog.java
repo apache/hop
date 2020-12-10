@@ -437,7 +437,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
   private FormData fdBadFileMessageField;
 
-  public TextFileInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public TextFileInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TextFileInputMeta) in;
     firstClickOnDateLocale = true;
@@ -665,7 +665,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
         if ( wFilemask.getText() != null && wFilemask.getText().length() > 0 ) { // A mask: a directory!
           DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
           if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fpath = variables.environmentSubstitute( wFilename.getText() );
             dialog.setFilterPath( fpath );
           }
 
@@ -697,7 +697,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           dialog.setFilterExtensions( filterExtensions.toArray( new String[ filterExtensions.size() ] ) );
 
           if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fname = variables.environmentSubstitute( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -797,7 +797,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdbaFilename.top = new FormAttachment( 0, 0 );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     fdFilename = new FormData();
@@ -816,7 +816,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wlFilemask.setLayoutData( fdlFilemask );
 
     // PDI-8664
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
 
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
@@ -834,7 +834,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData( fdlExcludeFilemask );
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     fdExcludeFilemask = new FormData();
@@ -1019,7 +1019,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
-      new TableView( pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 4, lsMod, props );
+      new TableView( variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 4, lsMod, props );
     props.setLook( wFilenameList );
     fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment( middle, 0 );
@@ -1107,7 +1107,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdbSeparator.right = new FormAttachment( 100, 0 );
     fdbSeparator.top = new FormAttachment( wFiletype, 0 );
     wbSeparator.setLayoutData( fdbSeparator );
-    wSeparator = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     fdSeparator = new FormData();
@@ -1831,7 +1831,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlWarnDestExt.right = new FormAttachment( wWarnExt, -margin );
     wlWarnExt.setLayoutData( fdlWarnDestExt );
 
-    wWarnDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWarnDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWarnDestDir );
     wWarnDestDir.addModifyListener( lsMod );
     fdBadDestDir = new FormData();
@@ -1887,7 +1887,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlErrorDestExt.right = new FormAttachment( wErrorExt, -margin );
     wlErrorExt.setLayoutData( fdlErrorDestExt );
 
-    wErrorDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorDestDir );
     wErrorDestDir.addModifyListener( lsMod );
     fdErrorDestDir = new FormData();
@@ -1942,7 +1942,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlLineNrDestExt.right = new FormAttachment( wLineNrExt, -margin );
     wlLineNrExt.setLayoutData( fdlLineNrDestExt );
 
-    wLineNrDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineNrDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineNrDestDir );
     wLineNrDestDir.addModifyListener( lsMod );
     fdLineNrDestDir = new FormData();
@@ -2013,7 +2013,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     colinf[ 2 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.StopOnFilterColumn.Tooltip" ) );
     colinf[ 3 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositiveColumn.Tooltip" ) );
 
-    wFilter = new TableView( pipelineMeta, wFilterComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FilterRows, lsMod, props );
+    wFilter = new TableView( variables, wFilterComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FilterRows, lsMod, props );
 
     fdFilter = new FormData();
     fdFilter.left = new FormAttachment( 0, 0 );
@@ -2098,7 +2098,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
     colinf[ 12 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Tooltip" ) );
 
-    wFields = new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    wFields = new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -2622,9 +2622,9 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     StringBuilder lineStringBuilder = new StringBuilder( 256 );
     int fileFormatType = meta.getFileFormatTypeNr();
 
-    String delimiter = pipelineMeta.environmentSubstitute( meta.getSeparator() );
-    String enclosure = pipelineMeta.environmentSubstitute( meta.getEnclosure() );
-    String escapeCharacter = pipelineMeta.environmentSubstitute( meta.getEscapeCharacter() );
+    String delimiter = variables.environmentSubstitute( meta.getSeparator() );
+    String enclosure = variables.environmentSubstitute( meta.getEnclosure() );
+    String escapeCharacter = variables.environmentSubstitute( meta.getEscapeCharacter() );
 
     if ( textFileList.nrOfFiles() > 0 ) {
       int clearFields = meta.hasHeader() ? SWT.YES : SWT.NO;
@@ -2818,7 +2818,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     int previewSize = numberDialog.open();
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
-        new PipelinePreviewProgressDialog( shell, previewMeta, new String[] { wTransformName.getText() },
+        new PipelinePreviewProgressDialog( shell, variables, previewMeta, new String[] { wTransformName.getText() },
           new int[] { previewSize } );
       progressDialog.open();
 
@@ -2836,7 +2836,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       }
 
       PreviewRowsDialog prd =
-        new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog
+        new PreviewRowsDialog( shell, variables, SWT.NONE, wTransformName.getText(), progressDialog
           .getPreviewRowsMeta( wTransformName.getText() ), progressDialog.getPreviewRows( wTransformName.getText() ),
           loggingText );
       prd.open();
@@ -3172,7 +3172,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlShortFileFieldName.right = new FormAttachment( middle, -margin );
     wlShortFileFieldName.setLayoutData( fdlShortFileFieldName );
 
-    wShortFileFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wShortFileFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wShortFileFieldName );
     wShortFileFieldName.addModifyListener( lsMod );
     fdShortFileFieldName = new FormData();
@@ -3191,7 +3191,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlExtensionFieldName.right = new FormAttachment( middle, -margin );
     wlExtensionFieldName.setLayoutData( fdlExtensionFieldName );
 
-    wExtensionFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtensionFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtensionFieldName );
     wExtensionFieldName.addModifyListener( lsMod );
     fdExtensionFieldName = new FormData();
@@ -3210,7 +3210,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlPathFieldName.right = new FormAttachment( middle, -margin );
     wlPathFieldName.setLayoutData( fdlPathFieldName );
 
-    wPathFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPathFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPathFieldName );
     wPathFieldName.addModifyListener( lsMod );
     fdPathFieldName = new FormData();
@@ -3229,7 +3229,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlSizeFieldName.right = new FormAttachment( middle, -margin );
     wlSizeFieldName.setLayoutData( fdlSizeFieldName );
 
-    wSizeFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSizeFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSizeFieldName );
     wSizeFieldName.addModifyListener( lsMod );
     fdSizeFieldName = new FormData();
@@ -3248,7 +3248,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlIsHiddenName.right = new FormAttachment( middle, -margin );
     wlIsHiddenName.setLayoutData( fdlIsHiddenName );
 
-    wIsHiddenName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIsHiddenName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIsHiddenName );
     wIsHiddenName.addModifyListener( lsMod );
     fdIsHiddenName = new FormData();
@@ -3268,7 +3268,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlLastModificationTimeName.right = new FormAttachment( middle, -margin );
     wlLastModificationTimeName.setLayoutData( fdlLastModificationTimeName );
 
-    wLastModificationTimeName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLastModificationTimeName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastModificationTimeName );
     wLastModificationTimeName.addModifyListener( lsMod );
     fdLastModificationTimeName = new FormData();
@@ -3287,7 +3287,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlUriName.right = new FormAttachment( middle, -margin );
     wlUriName.setLayoutData( fdlUriName );
 
-    wUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUriName );
     wUriName.addModifyListener( lsMod );
     fdUriName = new FormData();
@@ -3306,7 +3306,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlRootUriName.right = new FormAttachment( middle, -margin );
     wlRootUriName.setLayoutData( fdlRootUriName );
 
-    wRootUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRootUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRootUriName );
     wRootUriName.addModifyListener( lsMod );
     fdRootUriName = new FormData();

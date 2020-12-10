@@ -311,9 +311,9 @@ public class TextFileCSVImportProgressDialog implements CsvInputAwareImportProgr
         valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
-      String delimiter = pipelineMeta.environmentSubstitute( meta.getSeparator() );
-      String enclosure = pipelineMeta.environmentSubstitute( meta.getEnclosure() );
-      String escapeCharacter = pipelineMeta.environmentSubstitute( meta.getEscapeCharacter() );
+      String delimiter = variables.environmentSubstitute( meta.getSeparator() );
+      String enclosure = variables.environmentSubstitute( meta.getEnclosure() );
+      String escapeCharacter = variables.environmentSubstitute( meta.getEscapeCharacter() );
       Object[] r =
         TextFileInput.convertLineToRow(
           log, new TextFileLine( line, fileLineNumber, null ), strinfo, null, 0, outputRowMeta,

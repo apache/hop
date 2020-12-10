@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.util;
 
@@ -43,7 +38,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    */
   private static final long serialVersionUID = 925133158112717153L;
 
-  private final Map<String, KeyValue<?>> entries = new TreeMap<String, KeyValue<?>>();
+  private final Map<String, KeyValue<?>> entries = new TreeMap<>();
 
   /**
    * Add key value(s).
@@ -64,7 +59,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   /**
    * {@inheritDoc}
    *
-   * @see java.lang.Iterable#iterator()
+   * @see Iterable#iterator()
    */
   public Iterator<KeyValue<?>> iterator() {
     return this.keyValues().iterator();
@@ -87,7 +82,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @throws IllegalArgumentException if filter is null.
    */
   public List<KeyValue<?>> get( final Predicate filter ) throws IllegalArgumentException {
-    final AddClosureArrayList<KeyValue<?>> result = new AddClosureArrayList<KeyValue<?>>();
+    final AddClosureArrayList<KeyValue<?>> result = new AddClosureArrayList<>();
     this.walk( result, filter );
     return result;
   }
@@ -115,14 +110,14 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @return key values/entries.
    */
   public List<KeyValue<?>> keyValues() {
-    return new ArrayList<KeyValue<?>>( this.entries.values() );
+    return new ArrayList<>( this.entries.values() );
   }
 
   /**
    * @return values.
    */
   public List<Object> values() {
-    final List<Object> result = new ArrayList<Object>();
+    final List<Object> result = new ArrayList<>();
     for ( KeyValue<?> keyValue : this.entries.values() ) {
       result.add( keyValue.getValue() );
     }
@@ -133,7 +128,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @return entries as map.
    */
   public Map<String, Object> toMap() {
-    final Map<String, Object> map = new TreeMap<String, Object>();
+    final Map<String, Object> map = new TreeMap<>();
     for ( KeyValue<?> keyValue : this.entries.values() ) {
       map.put( keyValue.getKey(), keyValue.getValue() );
     }
@@ -227,7 +222,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   /**
    * {@inheritDoc}
    *
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {

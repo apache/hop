@@ -91,19 +91,19 @@ public class MongoArrayExpansion {
   /**
    * Reset this field. Should be called prior to processing a new field value from the avro file
    *
-   * @param space environment variables (values that environment variables resolve to cannot contain
+   * @param variables environment variables (values that environment variables resolve to cannot contain
    *     "."s)
    */
-  public void reset(IVariables space) {
+  public void reset(IVariables variables) {
     tempParts.clear();
 
     for (String part : pathParts) {
-      tempParts.add(space.environmentSubstitute(part));
+      tempParts.add(variables.resolve(part));
     }
 
     // reset sub fields
     for (MongoField f : subFields) {
-      f.reset(space);
+      f.reset(variables);
     }
   }
 
@@ -113,7 +113,7 @@ public class MongoArrayExpansion {
     return result;
   }
 
-  public Object[][] convertToHopValue(BasicDBObject mongoObject, IVariables space)
+  public Object[][] convertToHopValue(BasicDBObject mongoObject, IVariables variables)
       throws HopException {
 
     if (mongoObject == null) {
@@ -148,11 +148,11 @@ public class MongoArrayExpansion {
     }
 
     if (fieldValue instanceof BasicDBObject) {
-      return convertToHopValue(((BasicDBObject) fieldValue), space);
+      return convertToHopValue(((BasicDBObject) fieldValue), variables);
     }
 
     if (fieldValue instanceof BasicDBList) {
-      return convertToHopValue(((BasicDBList) fieldValue), space);
+      return convertToHopValue(((BasicDBList) fieldValue), variables);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -160,7 +160,7 @@ public class MongoArrayExpansion {
     return nullResult();
   }
 
-  public Object[][] convertToHopValue(BasicDBList mongoList, IVariables space) throws HopException {
+  public Object[][] convertToHopValue(BasicDBList mongoList, IVariables variables) throws HopException {
 
     if (mongoList == null) {
       return nullResult();
@@ -196,7 +196,7 @@ public class MongoArrayExpansion {
 
         for (int j = 0; j < subFields.size(); j++) {
           MongoField sf = subFields.get(j);
-          sf.reset(space);
+          sf.reset(variables);
 
           // what have we got?
           if (element instanceof BasicDBObject) {
@@ -233,11 +233,11 @@ public class MongoArrayExpansion {
       }
 
       if (element instanceof BasicDBObject) {
-        return convertToHopValue(((BasicDBObject) element), space);
+        return convertToHopValue(((BasicDBObject) element), variables);
       }
 
       if (element instanceof BasicDBList) {
-        return convertToHopValue(((BasicDBList) element), space);
+        return convertToHopValue(((BasicDBList) element), variables);
       }
 
       // must mean we have a primitive here, but we're expecting to process
