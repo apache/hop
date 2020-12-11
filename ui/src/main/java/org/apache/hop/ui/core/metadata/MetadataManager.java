@@ -89,7 +89,7 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       List<GuiAction> actions = new ArrayList<>();
       for ( final String name : names ) {
-        GuiAction action = new GuiAction( name, GuiActionType.Modify, name, name + " : " + hopMetadata.description(), hopMetadata.iconImage(),
+        GuiAction action = new GuiAction( name, GuiActionType.Modify, name, name + " : " + hopMetadata.description(), hopMetadata.image(),
           ( shiftAction, controlAction, t ) -> editMetadata( name ) );
         action.setClassLoader( getClassLoader() );
         actions.add( action );
@@ -118,7 +118,7 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       List<GuiAction> actions = new ArrayList<>();
       for ( final String name : names ) {
-        GuiAction action = new GuiAction( name, GuiActionType.Delete, name, name + " : " + hopMetadata.description(), hopMetadata.iconImage(),
+        GuiAction action = new GuiAction( name, GuiActionType.Delete, name, name + " : " + hopMetadata.description(), hopMetadata.image(),
           ( shiftAction, controlAction, t ) -> deleteMetadata( name ) );
         action.setClassLoader( getClassLoader() );
         actions.add( action );

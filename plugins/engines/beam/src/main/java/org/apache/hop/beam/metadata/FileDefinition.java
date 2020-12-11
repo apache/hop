@@ -36,7 +36,7 @@ import java.util.List;
   key = "file-definition",
   name = "Beam File Definition",
   description = "Describes a file layout in a Beam pipeline",
-  iconImage = "ui/images/folder.svg"
+  image = "ui/images/folder.svg"
 )
 public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
