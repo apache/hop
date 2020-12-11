@@ -1087,7 +1087,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                         prefix = "First ";
                         break;
                       case Last:
-                        prefix = "Last ";
+                        prefix = "Last (REVERSE ORDER!) ";
                         break;
                       case Random:
                         prefix += "Random ";
