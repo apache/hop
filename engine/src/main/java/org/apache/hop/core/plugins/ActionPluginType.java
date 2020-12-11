@@ -62,24 +62,6 @@ public class ActionPluginType extends BasePluginType<Action> implements IPluginT
   }
 
   @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_WORKFLOW_ACTIONS;
-  }
-
-  @Override
-  protected String getAlternativePluginFile() {
-    return Const.HOP_CORE_WORKFLOW_ACTIONS_FILE;
-  }
-
-  @Override public String getMainTag() {
-    return "workflow-actions";
-  }
-
-  @Override public String getSubTag() {
-    return "workflow-action";
-  }
-
-  @Override
   protected String extractCategory( Action annotation ) {
     return annotation.categoryDescription();
   }

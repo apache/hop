@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.config.plugin;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -51,30 +49,6 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IP
       pluginType = new ConfigPluginType();
     }
     return pluginType;
-  }
-
-  protected void registerPluginJars() throws HopPluginException {
-    super.registerPluginJars();
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_CONFIG_PLUGINS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "config-plugins";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "config-plugin";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

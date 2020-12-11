@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 
@@ -43,30 +41,6 @@ public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnaly
       pluginType = new SearchableAnalyserPluginType();
     }
     return pluginType;
-  }
-
-  protected void registerPluginJars() throws HopPluginException {
-    super.registerPluginJars();
-  }
-
-  @Override
-  public String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "search-analysers";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "search-analyser";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

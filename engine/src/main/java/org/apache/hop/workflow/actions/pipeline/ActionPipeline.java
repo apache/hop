@@ -71,13 +71,13 @@ import java.util.Map;
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
 @Action(
-        id = "WORKFLOW",
-        image = "workflow3.svg",
-        i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
-        name = "Action.Pipeline.TypeDesc",
-        description = "Action.Pipeline.Tooltip",
-        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
+  id = "PIPELINE",
+  image = "PPL.svg",
+  i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
+  name = "ActionPipeline.Name",
+  description = "ActionPipeline.Description",
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class; // Needed by Translator

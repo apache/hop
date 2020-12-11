@@ -18,6 +18,7 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -49,6 +50,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
+@HopServerServlet(id="registerPackage", name = "Upload a resources export file")
 public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   public static final String CONTEXT_PATH = "/hop/registerPackage";

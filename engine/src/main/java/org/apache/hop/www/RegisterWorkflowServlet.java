@@ -17,6 +17,7 @@
 package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.WorkflowConfiguration;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@HopServerServlet(id="registerWorkflow", name = "Add a workflow to the server")
 public class RegisterWorkflowServlet extends BaseWorkflowServlet {
 
   private static final long serialVersionUID = 7416802722393075758L;

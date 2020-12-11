@@ -85,7 +85,7 @@ import org.eclipse.swt.widgets.TreeItem;
     name = "Metadata",
     description = "The Hop Metatada Perspective",
     image = "ui/images/metadata.svg")
-@GuiPlugin
+@GuiPlugin(description="This perspective allows you to see and edit all available metadata")
 public class MetadataPerspective implements IHopPerspective {
 
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";

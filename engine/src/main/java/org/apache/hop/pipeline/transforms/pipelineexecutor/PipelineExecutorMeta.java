@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -62,6 +63,15 @@ import java.util.List;
  * @author Matt
  * @since 18-mar-2013
  */
+@Transform(
+  id = "PipelineExecutor",
+  image = "ui/images/TRNEx.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.PipelineExecutor",
+  description = "BaseTransform.TypeTooltipDesc.PipelineExecutor",
+  categoryDescription = "BaseTransform.Category.Flow",
+  keywords = ""
+)
 public class PipelineExecutorMeta
   extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
   implements ITransformMeta<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {

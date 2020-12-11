@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.www.IHopServerPlugin;
 
@@ -49,26 +48,6 @@ public class HopServerPluginType extends BasePluginType<HopServerServlet> implem
       hopServerPluginType = new HopServerPluginType();
     }
     return hopServerPluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_SERVLETS;
-  }
-
-  @Override
-  protected String getAlternativePluginFile() {
-    return Const.HOP_CORE_SERVLETS_FILE;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "servlets";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "servlet";
   }
 
   @Override

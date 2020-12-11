@@ -25,7 +25,6 @@ package org.apache.hop.core.database;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 
@@ -54,32 +53,6 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> imple
       pluginType = new DatabasePluginType();
     }
     return pluginType;
-  }
-
-
-
-  protected void registerPluginJars() throws HopPluginException {
-    super.registerPluginJars();
-  }
-
-  @Override
-  public String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_DATABASE_TYPES;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "database-types";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "database-type";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

@@ -18,6 +18,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -41,6 +42,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.UUID;
 
+@HopServerServlet(id="addPipeline", name = "Add a pipeline for execution")
 public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = -6850701762586992604L;
 

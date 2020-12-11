@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@GuiPlugin
+@GuiPlugin(description = "Remote workflow run configuration widgets")
 public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration implements IWorkflowEngineRunConfiguration {
 
   @GuiWidgetElement(

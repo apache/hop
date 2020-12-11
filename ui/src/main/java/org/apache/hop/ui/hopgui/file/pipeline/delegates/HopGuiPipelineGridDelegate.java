@@ -59,7 +59,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
-@GuiPlugin
+@GuiPlugin(description = "Pipeline Graph Grid Delegate")
 public class HopGuiPipelineGridDelegate {
   private static final Class<?> PKG = HopGui.class; // Needed by Translator
 

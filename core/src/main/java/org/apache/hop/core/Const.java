@@ -639,39 +639,14 @@ public class Const {
   public static final String VERSION_COMMENT_EDIT_VERSION = "Modification by user";
 
   /**
-   * The XML file that contains the list of native Hop transforms
-   */
-  public static final String XML_FILE_HOP_TRANSFORMS = "hop-transforms.xml";
-
-  /**
    * The name of the environment variable that will contain the alternative location of the hop-transforms.xml file
    */
   public static final String HOP_CORE_TRANSFORMS_FILE = "HOP_CORE_TRANSFORMS_FILE";
 
   /**
-   * The XML file that contains the list of native partition plugins
-   */
-  public static final String XML_FILE_HOP_PARTITION_PLUGINS = "hop-partition-plugins.xml";
-
-  /**
    * The name of the environment variable that will contain the alternative location of the hop-workflow-actions.xml file
    */
   public static final String HOP_CORE_WORKFLOW_ACTIONS_FILE = "HOP_CORE_WORKFLOW_ACTIONS_FILE";
-
-  /**
-   * The XML file that contains the list of native Hop Carte Servlets
-   */
-  public static final String XML_FILE_HOP_SERVLETS = "hop-servlets.xml";
-
-  /**
-   * The XML file that contains the list of native Hop value metadata plugins
-   */
-  public static final String XML_FILE_HOP_VALUEMETA_PLUGINS = "hop-valuemeta-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop two-way password encoder plugins
-   */
-  public static final String XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS = "hop-password-encoder-plugins.xml";
 
   /**
    * The name of the environment variable that will contain the alternative location of the hop-valuemeta-plugins.xml
@@ -694,11 +669,6 @@ public class Const {
    * The name of the Hop encryption seed environment variable for the HopTwoWayPasswordEncoder class
    */
   public static final String HOP_TWO_WAY_PASSWORD_ENCODER_SEED = "HOP_TWO_WAY_PASSWORD_ENCODER_SEED";
-
-  /**
-   * The XML file that contains the list of native Hop logging plugins
-   */
-  public static final String XML_FILE_HOP_LOGGING_PLUGINS = "hop-logging-plugins.xml";
 
   /**
    * The name of the environment variable that will contain the alternative location of the hop-logging-plugins.xml
@@ -742,81 +712,6 @@ public class Const {
    * Set this variable to Y to disable standard Hop logging to the console. (stdout)
    */
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
-
-  /**
-   * The XML file that contains the list of native Hop actions
-   */
-  public static final String XML_FILE_HOP_WORKFLOW_ACTIONS = "hop-workflow-actions.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS = "hop-search-analyser-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_VFS_PLUGINS = "hop-vfs-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop metadata plugins (DatabaseMeta, HopServer, ...)
-   */
-  public static final String XML_FILE_HOP_METADATA_PLUGINS = "hop-metadata-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native config plugins
-   */
-  public static final String XML_FILE_HOP_CONFIG_PLUGINS = "hop-config-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_GUI_PLUGINS = "hop-gui-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_PERSPECTIVE_PLUGINS = "hop-perspective-plugins.xml";
-
-  /**
-   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
-   */
-  public static final String XML_FILE_HOP_FILE_TYPES = "hop-file-types.xml";
-
-  /**
-   * The XML file that contains the list of native Hop compression providers (None, ZIP, GZip, etc.)
-   */
-  public static final String XML_FILE_HOP_COMPRESSION_PROVIDERS = "hop-compression-providers.xml";
-
-  /**
-   * The XML file that contains the list of native Hop compression providers (None, ZIP, GZip, etc.)
-   */
-  public static final String XML_FILE_HOP_AUTHENTICATION_PROVIDERS = "hop-authentication-providers.xml";
-
-  /**
-   * The XML file that contains the list of native extension points (None by default, this is mostly for OEM purposes)
-   */
-  public static final String XML_FILE_HOP_EXTENSION_POINTS = "hop-extension-points.xml";
-
-  /**
-   * The XML file that contains the list of lifecycle listeners
-   */
-  public static final String XML_FILE_HOP_LIFECYCLE_LISTENERS = "hop-lifecycle-listeners.xml";
-
-  /**
-   * The XML file that contains the list of native pipeline engines
-   */
-  public static final String XML_FILE_HOP_PIPELINE_ENGINES = "hop-pipeline-engines.xml";
-
-  /**
-   * The XML file that contains the list of native workflow engines
-   */
-  public static final String XML_FILE_HOP_WORKFLOW_ENGINES = "hop-workflow-engines.xml";
 
   /**
    * the value the Pan JVM should return on exit.

@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.core.annotations.HopServerServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+@HopServerServlet(id="status", name = "Get the status of the server")
 public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetStatusServlet.class; // Needed by Translator
 

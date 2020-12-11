@@ -79,7 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@GuiPlugin
+@GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
 
   public static final String CATEGORY_OTHER = "Other";

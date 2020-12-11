@@ -22,19 +22,15 @@
 
 package org.apache.hop.workflow.engines.local;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.empty.EmptyWorkflowRunConfiguration;
 
-@GuiPlugin
+@GuiPlugin(description = "Local workflow run configuration widgets")
 public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration implements IWorkflowEngineRunConfiguration {
 
   @GuiWidgetElement(

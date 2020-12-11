@@ -60,6 +60,7 @@ import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
 import org.apache.hop.www.HopServerWorkflowStatus;
@@ -74,6 +75,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@WorkflowEnginePlugin(
+  id = "Remote",
+  name = "Hop remote workflow engine",
+  description = "Executes your workflow on a remote hop server"
+)
 public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<WorkflowMeta> {
 
   private static final Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator

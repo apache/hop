@@ -36,8 +36,7 @@
     <jsch.version>0.1.54</jsch.version>
     <jzlib.version>1.0.7</jzlib.version>
     <ognl.version>2.6.9</ognl.version>
-    <scannotation.version>1.0.2</scannotation.version>
-     <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
+    <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
     <xmlunit.version>1.5</xmlunit.version>
@@ -45,6 +44,7 @@
     <json-simple.version>1.1.1</json-simple.version>
     <gson.version>2.8.5</gson.version>
     <jackson.version>2.10.2</jackson.version>
+    <jandex.version>2.2.2.Final</jandex.version>
   </properties>
 
   <dependencies>
@@ -364,6 +364,11 @@
       <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
     </dependency>
+   <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jandex</artifactId>
+        <version>${jandex.version}</version>
+    </dependency>    
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
@@ -408,18 +413,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.scannotation</groupId>
-      <artifactId>scannotation</artifactId>
-      <version>${scannotation.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    </dependency>   
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
@@ -540,7 +534,8 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> 
     </plugins>
   </build>
+    
 </project>

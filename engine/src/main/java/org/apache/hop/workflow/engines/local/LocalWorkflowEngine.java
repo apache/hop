@@ -23,7 +23,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 
+@WorkflowEnginePlugin(
+  id = "Local",
+  name = "Hop local workflow engine",
+  description = "Executes your workflow locally"
+)
 public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<WorkflowMeta> {
 
   public LocalWorkflowEngine() {

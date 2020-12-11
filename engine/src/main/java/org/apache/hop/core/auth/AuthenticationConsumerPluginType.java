@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -39,7 +38,7 @@ public class AuthenticationConsumerPluginType extends BasePluginType<Authenticat
   protected static AuthenticationConsumerPluginType pluginType = new AuthenticationConsumerPluginType();
 
   private AuthenticationConsumerPluginType() {
-    super( AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "IAuthenticationConsumer" );
+    super( AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "Authentication Consumer" );
     populateFolders( "authentication" );
   }
 
@@ -104,10 +103,5 @@ public class AuthenticationConsumerPluginType extends BasePluginType<Authenticat
   @Override
   protected String extractImageFile( AuthenticationConsumerPlugin annotation ) {
     return "";
-  }
-
-  @Override
-  protected void registerNatives() throws HopPluginException {
-
   }
 }

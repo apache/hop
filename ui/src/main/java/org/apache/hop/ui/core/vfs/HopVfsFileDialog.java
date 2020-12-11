@@ -90,7 +90,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@GuiPlugin
+@GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private static final Class<?> PKG = HopVfsFileDialog.class; // Needed by Translator

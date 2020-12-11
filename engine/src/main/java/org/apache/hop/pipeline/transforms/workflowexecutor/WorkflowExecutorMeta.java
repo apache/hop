@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.workflowexecutor;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -71,7 +72,15 @@ import java.util.Map;
  * @author Matt
  * @since 29-AUG-2011
  */
-
+@Transform(
+  id = "WorkflowExecutor",
+  image = "ui/images/JOBEx.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.WorkflowExecutor",
+  description = "BaseTransform.TypeTooltipDesc.WorkflowExecutor",
+  categoryDescription = "BaseTransform.Category.Flow",
+  keywords = ""
+)
 public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // Needed by Translator

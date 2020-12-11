@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.vfs.plugin;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -51,31 +49,6 @@ public class VfsPluginType extends BasePluginType<VfsPlugin> implements IPluginT
       pluginType = new VfsPluginType();
     }
     return pluginType;
-  }
-
-
-  protected void registerPluginJars() throws HopPluginException {
-    super.registerPluginJars();
-  }
-
-  @Override
-  public String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_DATABASE_TYPES;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "vfs-plugins";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "vfs-plugin";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

@@ -20,6 +20,7 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -32,7 +33,11 @@ import java.util.Map;
  * @author Matt
  * @since 11-mrt-2005
  */
-
+@DatabaseMetaPlugin(
+  type = "GENERIC",
+  typeDescription = "Generic database"
+)
+@GuiPlugin(description="Generic database GUI Plugin")
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
   public static final String DATABASE_DIALECT_ID = "DATABASE_DIALECT_ID";

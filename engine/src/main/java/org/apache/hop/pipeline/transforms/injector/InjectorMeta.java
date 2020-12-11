@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.injector;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -54,6 +55,15 @@ import java.util.List;
  *
  * @since 22-jun-2006
  */
+@Transform(
+  id = "Injector",
+  image = "ui/images/INJ.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.Injector",
+  description = "BaseTransform.TypeTooltipDesc.Injector",
+  categoryDescription = "BaseTransform.Category.Inline",
+  keywords = ""
+)
 public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<Injector, InjectorData> {
 
   private static final Class<?> PKG = InjectorMeta.class; // Needed by Translator

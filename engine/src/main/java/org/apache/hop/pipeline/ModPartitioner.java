@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline;
 
+import org.apache.hop.core.annotations.PartitionerPlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -28,6 +29,11 @@ import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
+@PartitionerPlugin (
+  id = "ModPartitioner",
+  name = "Remainder of division",
+  description = "Mod"
+)   
 public class ModPartitioner extends BasePartitioner implements IXml {
 
   private String fieldName;

@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.groupby;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -51,7 +52,15 @@ import java.util.List;
 /**
  * Created on 02-jun-2003
  */
-
+@Transform(
+  id = "GroupBy",
+  image = "ui/images/GRP.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.GroupBy",
+  description = "BaseTransform.TypeTooltipDesc.GroupBy",
+  categoryDescription = "BaseTransform.Category.Statistics",
+  keywords = ""
+)
 public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class; // Needed by Translator

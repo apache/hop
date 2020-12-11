@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.dummy;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -44,6 +45,15 @@ import java.util.List;
  * Created on 02-jun-2003
  *
  */
+@Transform(
+  id = "Dummy",
+  image = "ui/images/DUM.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.Dummy",
+  description = "BaseTransform.TypeTooltipDesc.Dummy",
+  categoryDescription = "BaseTransform.Category.Flow",
+  keywords = ""
+)
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
   private static final Class<?> PKG = DummyMeta.class; // Needed by Translator

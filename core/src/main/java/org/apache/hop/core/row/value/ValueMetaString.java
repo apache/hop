@@ -27,6 +27,12 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Comparator;
 
+@ValueMetaPlugin(
+  id = "2",
+  name = "String",
+  description = "String",
+  image = "images/string.svg"
+)
 public class ValueMetaString extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaString() {

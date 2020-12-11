@@ -19,6 +19,7 @@ package org.apache.hop.www;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -58,6 +59,7 @@ import java.util.UUID;
  *
  * @author matt
  */
+@HopServerServlet(id="addExport", name = "Upload a resources export file")
 public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugin {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";

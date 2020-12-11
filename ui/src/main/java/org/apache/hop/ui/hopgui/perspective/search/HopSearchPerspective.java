@@ -71,7 +71,7 @@ import java.util.Map;
   description = "The Hop Search Perspective",
   image = "ui/images/search.svg"
 )
-@GuiPlugin
+@GuiPlugin(description="Hop Search Perspective GUI")
 public class HopSearchPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";

@@ -27,6 +27,12 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Date;
 
+@ValueMetaPlugin(
+  id = "3",
+  name = "Date",
+  description = "Date",
+  image = "images/date.svg"
+)
 public class ValueMetaDate extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaDate() {
