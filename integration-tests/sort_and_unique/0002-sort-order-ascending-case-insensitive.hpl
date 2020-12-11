@@ -35,7 +35,7 @@
     <hop>
       <from>concat values</from>
       <to>SORT_RESULT</to>
-      <enabled>N</enabled>
+      <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
