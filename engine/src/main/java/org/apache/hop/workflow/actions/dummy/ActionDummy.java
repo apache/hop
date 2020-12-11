@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.hop.workflow.actions.empty;
+package org.apache.hop.workflow.actions.dummy;
 
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
@@ -30,19 +31,40 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-public class ActionEmpty extends ActionBase implements IAction {
-  public Result execute( Result prevResult, int nr ) throws HopException {
-    return null;
+@Action(
+    id = "DUMMY",
+    image = "ui/images/dummy.svg",
+    i18nPackageName = "org.apache.hop.workflow.actions.dummy",
+    name = "ActionDummy.Name",
+    description = "ActionDummy.Description",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dummy.html")
+public class ActionDummy extends ActionBase implements IAction {
+
+  public ActionDummy() {
+    this("");
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public ActionDummy(String name) {
+     super(name, "");
+  }
+  
+  public Result execute(Result prevResult, int nr) throws HopException {
+    prevResult.setResult(true);
+    prevResult.setNrErrors(0);
 
+    return prevResult;
   }
 
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-
+  public String getXml() {
+    return super.getXml();
   }
 
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables) throws HopXmlException {     
+    super.loadXml(actionNode);
+  }
+
+  public void check(List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider) {
+      
+  }
 }

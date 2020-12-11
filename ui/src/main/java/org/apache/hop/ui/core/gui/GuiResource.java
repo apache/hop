@@ -852,10 +852,10 @@ public class GuiResource {
     // "ui/images/Calendar.svg"
     imageCalendar = loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUi.SMALL_ICON_SIZE ); // ,
 
-    // "ui/images/STR.svg"
+    // "ui/images/start.svg"
     imageStart = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "STR_image" ) );
 
-    // "ui/images/DUM.svg"
+    // "ui/images/dummy.svg"
     imageDummy = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "DUM_image" ) );
 
     //ui/images/missing_entry.svg
@@ -1130,10 +1130,6 @@ public class GuiResource {
     List<IPlugin> plugins = registry.getPlugins( ActionPluginType.class );
     for ( int i = 0; i < plugins.size(); i++ ) {
       IPlugin plugin = plugins.get( i );
-
-      if ( "SPECIAL".equals( plugin.getIds()[ 0 ] ) ) {
-        continue;
-      }
 
       SwtUniversalImage image = null;
       Image small_image = null;
@@ -1656,27 +1652,6 @@ public class GuiResource {
    */
   public Image getImageFolder() {
     return getZoomedImaged( imageFolder, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
-  }
-
-  /**
-   * @return the imageDummySmall
-   */
-  public Image getImageDummySmall() {
-    return getZoomedImaged( imageDummy, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  /**
-   * @return the imageStartSmall
-   */
-  public Image getImageStartSmall() {
-    return getZoomedImaged( imageStart, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  /**
-   * @return the imageDummyMedium
-   */
-  public Image getImageDummyMedium() {
-    return getZoomedImaged( imageDummy, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**

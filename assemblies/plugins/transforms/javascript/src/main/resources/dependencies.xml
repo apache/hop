@@ -1,0 +1,5 @@
+<dependencies>
+  <folder>../fieldsplitter</folder>
+  <folder>../rowgenerator</folder>
+  <folder>../loadfileinput</folder>
+</dependencies>

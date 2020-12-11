@@ -425,22 +425,16 @@ public class SwtGc implements IGc {
     int w = Math.round( iconSize * magnification );
     int h = Math.round( iconSize * magnification );
 
-    if ( actionMeta.isSpecial() ) {
-      if ( actionMeta.isStart() ) {
-        swtImage = GuiResource.getInstance().getSwtImageStart();
-      }
-      if ( actionMeta.isDummy() ) {
-        swtImage = GuiResource.getInstance().getSwtImageDummy();
-      }
-    } else {
+    if ( actionMeta.isMissing() ) {
+	swtImage = GuiResource.getInstance().getSwtImageMissing();
+    }
+    else {
       String configId = actionMeta.getAction().getPluginId();
       if ( configId != null ) {
         swtImage = GuiResource.getInstance().getImagesActions().get( configId );
       }
     }
-    if ( actionMeta.isMissing() ) {
-      swtImage = GuiResource.getInstance().getSwtImageMissing();
-    }
+
     if ( swtImage == null ) {
       return;
     }

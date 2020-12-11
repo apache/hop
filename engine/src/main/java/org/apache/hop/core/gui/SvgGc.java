@@ -85,10 +85,6 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageUnconditionalHop;
 
-  private static SvgFile imageStart;
-
-  private static SvgFile imageDummy;
-
   private static SvgFile imageBusy;
 
   private static SvgFile imageInject;
@@ -223,8 +219,6 @@ public class SvgGc implements IGc {
     imageDatabase = new SvgFile( BasePropertyHandler.getProperty( "Database_image" ), this.getClass().getClassLoader() );
     imageParallelHop = new SvgFile( BasePropertyHandler.getProperty( "ParallelHop_image" ), this.getClass().getClassLoader() );
     imageUnconditionalHop = new SvgFile( BasePropertyHandler.getProperty( "UnconditionalHop_image" ), this.getClass().getClassLoader() );
-    imageStart = new SvgFile( BasePropertyHandler.getProperty( "STR_image" ), this.getClass().getClassLoader() );
-    imageDummy = new SvgFile( BasePropertyHandler.getProperty( "DUM_image" ), this.getClass().getClassLoader() );
     imageBusy = new SvgFile( BasePropertyHandler.getProperty( "Busy_image" ), this.getClass().getClassLoader() );
     imageInject = new SvgFile( BasePropertyHandler.getProperty( "Inject_image" ), this.getClass().getClassLoader() );
     imageData = new SvgFile( BasePropertyHandler.getProperty( "Data_image" ), this.getClass().getClassLoader() );
@@ -613,19 +607,11 @@ public class SvgGc implements IGc {
 
     SvgFile svgFile = null;
 
-    if ( actionMeta.isSpecial() ) {
-      if ( actionMeta.isStart() ) {
-        svgFile = imageStart;
-      }
-      if ( actionMeta.isDummy() ) {
-        svgFile = imageDummy;
-      }
-    } else {
-      String configId = actionMeta.getAction().getPluginId();
-      if ( configId != null ) {
-        svgFile = actionImages.get( configId );
-      }
+    String configId = actionMeta.getAction().getPluginId();
+    if ( configId != null ) {
+       svgFile = actionImages.get( configId );
     }
+
     if ( svgFile == null ) {
       return;
     }

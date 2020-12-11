@@ -55,7 +55,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.workflow.actions.special.ActionSpecial;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
@@ -112,21 +112,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * The log channel interface.
    */
   protected ILogChannel log;
-
-  /**
-   * Constant = "SPECIAL"
-   **/
-  public static final String STRING_SPECIAL = "SPECIAL";
-
-  /**
-   * Constant = "START"
-   **/
-  public static final String STRING_SPECIAL_START = "START";
-
-  /**
-   * Constant = "DUMMY"
-   **/
-  public static final String STRING_SPECIAL_DUMMY = "DUMMY";
 
   /**
    * Constant = "OK"
@@ -196,34 +181,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     clearChanged();
   }
 
-  /**
-   * Creates the start action.
-   *
-   * @return the action copy
-   */
-  public static final ActionMeta createStartAction() {
-    ActionSpecial jobEntrySpecial = new ActionSpecial( BaseMessages.getString( PKG, "WorkflowMeta.StartAction.Name" ), true, false );
-    ActionMeta action = new ActionMeta();
-    action.setAction( jobEntrySpecial );
-    action.setLocation( 50, 50 );
-    action.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.StartAction.Description" ) );
-    return action;
 
-  }
-
-  /**
-   * Creates the dummy action.
-   *
-   * @return the action copy
-   */
-  public static final ActionMeta createDummyAction() {
-    ActionSpecial actionSpecial = new ActionSpecial( BaseMessages.getString( PKG, "WorkflowMeta.DummyAction.Name" ), false, true );
-    ActionMeta action = new ActionMeta();
-    action.setAction( actionSpecial );
-    action.setLocation( 50, 50 );
-    action.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.DummyAction.Description" ) );
-    return action;
-  }
 
   /**
    * Gets the start.
@@ -234,21 +192,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionMeta cge = getAction( i );
       if ( cge.isStart() ) {
-        return cge;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Gets the dummy.
-   *
-   * @return the dummy
-   */
-  public ActionMeta getDummy() {
-    for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta cge = getAction( i );
-      if ( cge.isDummy() ) {
         return cge;
       }
     }
@@ -607,7 +550,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       for ( Node actionNode : actionNodes ) {
         ActionMeta ac = new ActionMeta( actionNode, metadataProvider, variables);
 
-        if ( ac.isSpecial() && ac.isMissing() ) {
+        if ( ac.isMissing() ) {
           addMissingAction( (MissingAction) ac.getAction() );
         }
         ActionMeta prev = findAction( ac.getName(), 0 );

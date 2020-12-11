@@ -62,7 +62,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
-import org.apache.hop.workflow.actions.special.ActionSpecial;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -393,7 +393,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       Result res = null;
 
       if ( startActionMeta == null ) {
-        startpoint = workflowMeta.findAction( WorkflowMeta.STRING_SPECIAL_START, 0 );
+        startpoint = workflowMeta.findStart();
       } else {
         startpoint = startActionMeta;
         res = startActionResult;
@@ -410,7 +410,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         // long iteration = 0;
 
         boolean isFirst = true;
-        ActionSpecial jes = (ActionSpecial) startpoint.getAction();
+        ActionStart jes = (ActionStart) startpoint.getAction();
         while ( ( jes.isRepeat() || isFirst ) && !isStopped() ) {
           isFirst = false;
           res = executeFromStart( 0, null, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.Started" ) );
@@ -462,12 +462,12 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       result.setRows( getSourceRows() );
     }
 
-    startpoint = workflowMeta.findAction( WorkflowMeta.STRING_SPECIAL_START, 0 );
+    startpoint = workflowMeta.findStart();
     if ( startpoint == null ) {
       throw new HopWorkflowException( BaseMessages.getString( PKG, "Workflow.Log.CounldNotFindStartingPoint" ) );
     }
 
-    ActionSpecial jes = (ActionSpecial) startpoint.getAction();
+    ActionStart jes = (ActionStart) startpoint.getAction();
     Result res;
     do {
       res = executeFromStart( nr, result, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.StartOfAction" ) );

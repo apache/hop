@@ -25,12 +25,14 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.workflow.actions.missing.MissingActionDialog;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.special.ActionSpecial;
+import org.apache.hop.workflow.actions.missing.MissingAction;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -67,14 +69,6 @@ public class HopGuiWorkflowActionDelegate {
         actionPlugin =
             PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, pluginId);
       }
-      if (actionPlugin == null) {
-        // Check if it's not START or DUMMY
-        if (WorkflowMeta.STRING_SPECIAL_START.equalsIgnoreCase(pluginName)
-            || WorkflowMeta.STRING_SPECIAL_DUMMY.equalsIgnoreCase(pluginName)) {
-          actionPlugin =
-              registry.findPluginWithId(ActionPluginType.class, WorkflowMeta.STRING_SPECIAL);
-        }
-      }
 
       if (actionPlugin != null) {
         // Determine name & number for this entry.
@@ -94,17 +88,11 @@ public class HopGuiWorkflowActionDelegate {
         action.setPluginId(actionPlugin.getIds()[0]);
         action.setName(actionName);
 
-        if (action.isSpecial()) {
-          if (WorkflowMeta.STRING_SPECIAL_START.equalsIgnoreCase(pluginName)) {
-            // Check if start is already on the canvas...
-            if (workflowMeta.findStart() != null) {
-              HopGuiWorkflowGraph.showOnlyStartOnceMessage(hopGui.getShell());
-              return null;
-            }
-            ((ActionSpecial) action).setStart(true);
-          }
-          if (WorkflowMeta.STRING_SPECIAL_DUMMY.equalsIgnoreCase(pluginName)) {
-            ((ActionSpecial) action).setDummy(true);
+        if ( action.isStart() ) {
+          // Check if start is already on the canvas...
+          if (workflowMeta.findStart() != null) {
+            HopGuiWorkflowGraph.showOnlyStartOnceMessage(hopGui.getShell());
+            return null;
           }
         }
 
@@ -166,6 +154,10 @@ public class HopGuiWorkflowActionDelegate {
     Class<?>[] paramClasses = new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class};
     Object[] paramArgs = new Object[] {hopGui.getShell(), action, workflowMeta};
 
+    if ( MissingAction.ID.equals(action.getPluginId())) {
+	return new MissingActionDialog(hopGui.getShell(), action, workflowMeta);
+    }
+  
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin(ActionPluginType.class, action);
     String dialogClassName = action.getDialogClassName();
