@@ -963,7 +963,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     if (workflowMeta==null) {
       setInternalHopVariables( this, null, null );
     } else {
-      setInternalHopVariables( this, workflowMeta.getFilename(), workflowMeta.getName() );
+      workflowMeta.setInternalHopVariables( this );
     }
   }
 
