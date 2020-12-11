@@ -47,7 +47,7 @@ import java.util.List;
  */
 @Transform(
   id = "Dummy",
-  image = "ui/images/DUM.svg",
+  image = "ui/images/dummy.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.Dummy",
   description = "BaseTransform.TypeTooltipDesc.Dummy",
