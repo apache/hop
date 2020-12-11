@@ -33,7 +33,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
-import org.apache.hop.workflow.WorkflowMeta;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -83,10 +82,6 @@ public class SwingGUIResource {
 
     for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( ActionPluginType.class ) ) {
       try {
-        if ( WorkflowMeta.STRING_SPECIAL.equals( plugin.getIds()[ 0 ] ) ) {
-          continue;
-        }
-
         SwingUniversalImageSvg image = getUniversalImageIcon( plugin );
         if ( image == null ) {
           throw new HopException( "Unable to find image file: " + plugin.getImageFile() + " for plugin: " + plugin );
@@ -118,7 +113,7 @@ public class SwingGUIResource {
         if ( inputStream == null ) {
           inputStream = classLoader.getResourceAsStream( "/" + filename );
         }
-        // Try to use the PDI class loader to get access to the icon
+        // Try to use the Hop class loader to get access to the icon
         //
         if ( inputStream == null ) {
           inputStream = registry.getClass().getResourceAsStream( filename );

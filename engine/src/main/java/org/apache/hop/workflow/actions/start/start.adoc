@@ -1,0 +1,10 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/actions/start/src/main/doc/start.adoc
+= Pipeline
+
+== Description
+
+The start action is starting point for workflow execution.
+
+NOTE: You can have only one start action in a workflow.

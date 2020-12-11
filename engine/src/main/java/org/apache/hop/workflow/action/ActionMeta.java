@@ -109,17 +109,17 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     try {
       String stype = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
-      IPlugin jobPlugin = registry.findPluginWithId( ActionPluginType.class, stype, true );
-      if ( jobPlugin == null ) {
+      IPlugin actionPlugin = registry.findPluginWithId( ActionPluginType.class, stype, true );
+      if ( actionPlugin == null ) {
         String name = XmlHandler.getTagValue( actionNode, "name" );
         action = new MissingAction( name, stype );
       } else {
-        action = registry.loadClass( jobPlugin, IAction.class );
+        action = registry.loadClass( actionPlugin, IAction.class );
       }
       // Get an empty Action of the appropriate class...
       if ( action != null ) {
-        if ( jobPlugin != null ) {
-          action.setPluginId( jobPlugin.getIds()[ 0 ] );
+        if ( actionPlugin != null ) {
+          action.setPluginId( actionPlugin.getIds()[ 0 ] );
         }
         action.setMetadataProvider( metadataProvider ); // inject metadata
         action.loadXml( actionNode, metadataProvider, variables);
@@ -305,11 +305,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   public boolean isStart() {
     return action.isStart();
   }
-
-  public boolean isDummy() {
-    return action.isDummy();
-  }
-
+  
   public boolean isMissing() {
     return action instanceof MissingAction;
   }
@@ -342,10 +338,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
 
   public boolean isMail() {
     return action.isMail();
-  }
-
-  public boolean isSpecial() {
-    return action.isSpecial();
   }
 
   public String toString() {

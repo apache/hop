@@ -79,17 +79,12 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
       }
     }
 
-    // Add the special entries : Start and Dummy first
-    //
-    guiActions.add(createStartGuiAction());
-    guiActions.add(createDummyGuiAction());
-
     // Also add all the entry creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
     List<IPlugin> actionPlugins = registry.getPlugins( ActionPluginType.class );
     for ( IPlugin actionPlugin : actionPlugins ) {
-      if (!actionPlugin.getIds()[0].equals( WorkflowMeta.STRING_SPECIAL )) {
+     
         GuiAction createActionGuiAction =
           new GuiAction( "workflow-graph-create-workflow-action-" + actionPlugin.getIds()[ 0 ], GuiActionType.Create, actionPlugin.getName(), actionPlugin.getDescription(), actionPlugin.getImageFile(),
             (shiftClicked, controlClicked, t) -> {
@@ -106,32 +101,9 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
       }
       createActionGuiAction.getKeywords().add( actionPlugin.getCategory() );
       guiActions.add( createActionGuiAction );
-      }
     }
 
     return guiActions;
-  }
-
-  private GuiAction createStartGuiAction() {
-    GuiAction guiAction = new GuiAction( "workflow-graph-create-workflow-action-start", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_START, null, "ui/images/STR.svg",
-      ( shiftClicked, controlClicked, t ) -> {
-        workflowGraph.workflowActionDelegate.newAction( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_START, controlClicked, click );
-      }
-    );
-    guiAction.setCategory( "Basic" );
-    guiAction.setCategoryOrder( "1" );
-    return guiAction;
-  }
-
-  private GuiAction createDummyGuiAction() {
-    GuiAction guiAction = new GuiAction( "workflow-graph-create-workflow-action-dummy", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_DUMMY, null, "ui/images/DUM.svg",
-      ( shiftClicked, controlClicked, t ) -> {
-        workflowGraph.workflowActionDelegate.newAction( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_DUMMY, controlClicked, click );
-      }
-    );
-    guiAction.setCategory( "Basic" );
-    guiAction.setCategoryOrder( "1" );
-    return guiAction;
   }
 
   /**

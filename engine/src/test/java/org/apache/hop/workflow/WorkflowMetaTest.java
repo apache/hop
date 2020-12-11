@@ -26,8 +26,8 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.actions.empty.ActionEmpty;
 import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
@@ -82,21 +82,21 @@ public class WorkflowMetaTest {
   }
 
   private boolean testPath( String branch ) {
-    ActionEmpty je1 = new ActionEmpty();
+    ActionDummy je1 = new ActionDummy();
     je1.setName( "je1" );
 
-    ActionEmpty je2 = new ActionEmpty();
+    ActionDummy je2 = new ActionDummy();
     je2.setName( "je2" );
 
     WorkflowHopMeta hop = new WorkflowHopMeta( new ActionMeta( je1 ), new ActionMeta( je2 ) );
     workflowMeta.addWorkflowHop( hop );
 
-    ActionEmpty je3 = new ActionEmpty();
+    ActionDummy je3 = new ActionDummy();
     je3.setName( "je3" );
     hop = new WorkflowHopMeta( new ActionMeta( je1 ), new ActionMeta( je3 ) );
     workflowMeta.addWorkflowHop( hop );
 
-    ActionEmpty je4 = new ActionEmpty();
+    ActionDummy je4 = new ActionDummy();
     je4.setName( "je4" );
     hop = new WorkflowHopMeta( new ActionMeta( je3 ), new ActionMeta( je4 ) );
     workflowMeta.addWorkflowHop( hop );
