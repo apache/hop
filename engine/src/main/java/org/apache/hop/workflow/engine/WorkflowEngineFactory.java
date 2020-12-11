@@ -62,6 +62,8 @@ public class WorkflowEngineFactory {
     //
     workflowEngine.initializeFrom(variables);
 
+    workflowEngine.setInternalHopVariables();
+
     // Copy the parameters from the metadata...
     //
     workflowEngine.copyParametersFromDefinitions( workflowMeta );

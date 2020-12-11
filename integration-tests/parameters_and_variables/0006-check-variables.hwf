@@ -28,8 +28,6 @@
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
       <intervalSeconds>0</intervalSeconds>

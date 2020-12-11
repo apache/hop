@@ -162,10 +162,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     workflowStatus = -1;
     workflowVersion = null;
 
-    // setInternalHopVariables(); Don't clear the internal variables for
-    // ad-hoc workflows, it's ruins the previews
-    // etc.
-
     log = LogChannel.GENERAL;
   }
 

@@ -67,6 +67,10 @@ public class PipelineEngineFactory {
     //
     pipelineEngine.initializeFrom( variables );
 
+    // Set internal variables...
+    //
+    pipelineMeta.setInternalHopVariables( pipelineEngine );
+
     // Copy over the parameter definitions
     //
     pipelineEngine.copyParametersFromDefinitions( pipelineMeta );
