@@ -41,7 +41,7 @@ import java.util.List;
 
 @Action(
   id = ActionStart.ID,
-  image = "ui/images/start.sv",
+  image = "ui/images/start.svg",
   i18nPackageName = "org.apache.hop.workflow.actions.start",
   name = "ActionStart.Name",
   description = "ActionStart.Description",
