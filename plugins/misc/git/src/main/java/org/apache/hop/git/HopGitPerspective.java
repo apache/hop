@@ -86,10 +86,11 @@ import java.util.Date;
 import java.util.List;
 
 @HopPerspectivePlugin(
-    id = "HopGitPerspective",
+    id = "400-HopGitPerspective",
     name = "Git",
     image = "git_icon.svg",
-    description = "The git perspective")
+    description = "The git perspective"
+)
 @GuiPlugin
 public class HopGitPerspective implements IHopPerspective {
 

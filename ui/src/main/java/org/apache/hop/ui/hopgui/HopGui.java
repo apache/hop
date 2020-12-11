@@ -389,9 +389,9 @@ public class HopGui
       boolean first = true;
       List<Plugin> perspectivePlugins = pluginRegistry.getPlugins(HopPerspectivePluginType.class);
 
-      // Sort by ID
+      // Sort by id
       //
-      Collections.sort(perspectivePlugins, Comparator.comparing(p -> p.getIds()[0]));
+      Collections.sort(perspectivePlugins, Comparator.comparing( p -> p.getIds()[ 0 ] ));
 
       for (Plugin perspectivePlugin : perspectivePlugins) {
         Class<IHopPerspective> perspectiveClass =
