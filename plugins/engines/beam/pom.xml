@@ -10,7 +10,7 @@
       <url>https://repo.maven.apache.org/maven2</url>
       <layout>default</layout>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
     </repository>
     <repository>
@@ -32,8 +32,8 @@
   </parent>
 
   <properties>
-    <apache-beam-version>2.24.0</apache-beam-version>
-    <spark-version>2.4.6</spark-version>
+    <apache-beam-version>2.26.0</apache-beam-version>
+    <spark-version>2.4.7</spark-version>
     <flink-version>1.9.3</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
   </properties>
@@ -121,6 +121,7 @@
         <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId></exclusion>
         <exclusion><groupId>com.fasterxml.jackson.module</groupId><artifactId>jackson-module-scala_2.11</artifactId></exclusion>
         <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></exclusion>
+        <exclusion><groupId>io.grpc</groupId><artifactId>grpc-core</artifactId></exclusion>
       </exclusions>
     </dependency>
     <dependency>
