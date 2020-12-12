@@ -49,7 +49,7 @@ import java.util.List;
  */
 @Transform(
     id = "MongoDbOutput",
-    image = "MongoDB.svg",
+    image = "mongodb-output.svg",
     name = "MongoDB output",
     description = "Writes to a Mongo DB collection",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mongodboutput.html",
