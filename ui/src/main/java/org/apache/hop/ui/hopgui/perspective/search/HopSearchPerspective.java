@@ -66,7 +66,7 @@ import java.util.List;
 import java.util.Map;
 
 @HopPerspectivePlugin(
-  id = "HopSearchPerspective",
+  id = "300-HopSearchPerspective",
   name = "Search",
   description = "The Hop Search Perspective",
   image = "ui/images/search.svg"

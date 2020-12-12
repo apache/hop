@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
-  id = "HopDataOrchestrationPerspective",
+  id = "100-HopDataOrchestrationPerspective",
   name = "Data Orchestration",
   image = "ui/images/pipeline.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"

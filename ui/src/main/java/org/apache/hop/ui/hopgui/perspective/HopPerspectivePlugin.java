@@ -44,4 +44,6 @@ public @interface HopPerspectivePlugin {
   String description() default "";
   
   String image() default "";
+  
+  String category() default "";
 }
