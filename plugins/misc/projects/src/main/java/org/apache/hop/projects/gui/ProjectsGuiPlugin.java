@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
@@ -382,7 +383,7 @@ public class ProjectsGuiPlugin {
         ProjectsConfigSingleton.saveConfig();
 
         refreshEnvironmentsList();
-        ;
+
         selectEnvironmentInList(environmentName);
       }
     } catch (Exception e) {
@@ -528,7 +529,7 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  public static final void enableHopGuiProject(
+  public static void enableHopGuiProject(
       String projectName, Project project, LifecycleEnvironment environment) throws HopException {
     try {
       HopGui hopGui = HopGui.getInstance();
@@ -553,8 +554,6 @@ public class ProjectsGuiPlugin {
       //
       IVariables variables = Variables.getADefaultVariableSpace();
 
-      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
       // See if there's an environment associated with the current project
       // In that case, apply the variables in those files
       //
@@ -563,7 +562,7 @@ public class ProjectsGuiPlugin {
         configurationFiles.addAll(environment.getConfigurationFiles());
       }
 
-      // Set the variables and so on...
+      // Set the variables and give HopGui the new metadata provider(s) for the project.
       //
       String environmentName = environment == null ? null : environment.getName();
       ProjectsUtil.enableProject(
@@ -574,6 +573,17 @@ public class ProjectsGuiPlugin {
           configurationFiles,
           environmentName,
           hopGui);
+
+      // HopGui now has a new metadata provider set.
+      // Only now we can get the variables from the defined run configs.
+      // Set them with default values just to make them show up.
+      //
+      IHopMetadataSerializer<PipelineRunConfiguration> runConfigSerializer = hopGui.getMetadataProvider().getSerializer( PipelineRunConfiguration.class );
+      for (PipelineRunConfiguration runConfig : runConfigSerializer.loadAll()) {
+        for ( VariableValueDescription variableValueDescription : runConfig.getConfigurationVariables()) {
+          variables.setVariable( variableValueDescription.getName(), "<see your pipeline run configurations>" );
+        }
+      }
 
       // We need to change the currently set variables in the newly loaded files
       //

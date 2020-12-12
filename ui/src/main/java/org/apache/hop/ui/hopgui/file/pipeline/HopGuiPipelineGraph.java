@@ -3969,13 +3969,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
 
-          // Set the variables that where specified...
-          //
-          for (String varName : executionConfiguration.getVariablesMap().keySet()) {
-            String varValue = executionConfiguration.getVariablesMap().get(varName);
-            pipeline.setVariable(varName, varValue);
-          }
-
           // Set the named parameters
           //
           Map<String, String> paramMap = executionConfiguration.getParametersMap();
