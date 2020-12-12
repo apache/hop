@@ -377,8 +377,6 @@ public class Const {
    * at the bottom of the variables dropdown when pressing ctrl+space
    * */
   public static final String[] DEPRECATED_VARIABLES = new String[] {
-    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
-    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, Const.INTERNAL_VARIABLE_PIPELINE_NAME,
   };
 
   /**
@@ -931,6 +929,17 @@ public class Const {
    */
   public static final String HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING =
     String.valueOf( HOP_ZIP_MAX_TEXT_SIZE_DEFAULT );
+
+  public static final String[] HOP_SYSTEM_SETTING_VARIABLES = new String[] {
+    HOP_METADATA_FOLDER,
+    HOP_PLATFORM_OS,
+    HOP_PLATFORM_RUNTIME,
+    HOP_SHARED_JDBC_FOLDER,
+    HOP_CONFIG_FOLDER,
+    HOP_AUDIT_FOLDER,
+    HOP_SIMPLE_STACK_TRACES,
+  };
+
 
   /**
    * <p>A variable to configure if the S3 input / output transforms should use the Amazon Default Credentials Provider Chain

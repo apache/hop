@@ -18,6 +18,8 @@
 package org.apache.hop.ui.core.metadata;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -134,4 +136,13 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
+
+ /**
+  * Metadata doesn't have it's own variables.  It should take it elsewhere.
+  *
+  * @return An empty variables set
+  */
+ @Override public IVariables getVariables() {
+  return new Variables();
+ }
 }

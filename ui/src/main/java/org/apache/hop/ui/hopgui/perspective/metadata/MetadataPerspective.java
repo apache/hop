@@ -81,10 +81,11 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 @HopPerspectivePlugin(
-    id = "Hop-Metadata-Perspective",
+    id = "200-HopMetadataPerspective",
     name = "Metadata",
     description = "The Hop Metatada Perspective",
-    image = "ui/images/metadata.svg")
+    image = "ui/images/metadata.svg"
+)
 @GuiPlugin(description="This perspective allows you to see and edit all available metadata")
 public class MetadataPerspective implements IHopPerspective {
 

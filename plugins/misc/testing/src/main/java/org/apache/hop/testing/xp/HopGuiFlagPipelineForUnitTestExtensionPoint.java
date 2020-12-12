@@ -25,6 +25,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
@@ -42,10 +43,10 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
  *
  * These can then be picked up later by the other XP plugins.
  */
-public class HopGuiFlagPipelineForUnitTestExtensionPoint implements IExtensionPoint<Pipeline> {
+public class HopGuiFlagPipelineForUnitTestExtensionPoint implements IExtensionPoint<IPipelineEngine> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, Pipeline pipeline ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine pipeline ) throws HopException {
 
     PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipeline.getPipelineMeta() );
     if ( unitTest == null ) {

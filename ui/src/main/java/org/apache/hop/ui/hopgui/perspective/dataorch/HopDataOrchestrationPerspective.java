@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
-  id = "HopDataOrchestrationPerspective",
+  id = "100-HopDataOrchestrationPerspective",
   name = "Data Orchestration",
   image = "ui/images/pipeline.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
@@ -348,6 +348,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     //
     updateTabLabel( tabItem, pipelineMeta.getFilename(), pipelineMeta.getName() );
 
+    // Update the internal variables (file specific) in the pipeline graph variables
+    //
+    pipelineMeta.setInternalHopVariables( pipelineGraph.getVariables() );
+
+    // Update the variables using the list of parameters
+    //
+    hopGui.setParametersAsVariablesInUI( pipelineMeta, pipelineGraph.getVariables() );
+
     // Switch to the tab
     tabFolder.setSelection( tabItem );
     activeItem = new TabItemHandler( tabItem, pipelineGraph );
@@ -391,6 +399,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabItem.setImage( GuiResource.getInstance().getImageToolbarWorkflow() );
     HopGuiWorkflowGraph workflowGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
     tabItem.setControl( workflowGraph );
+
+    // Update the internal variables (file specific) in the workflow graph variables
+    //
+    workflowMeta.setInternalHopVariables( workflowGraph.getVariables() );
+
+    // Update the variables using the list of parameters
+    //
+    hopGui.setParametersAsVariablesInUI( workflowMeta, workflowGraph.getVariables() );
 
     // Set the tab name
     //

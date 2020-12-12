@@ -66,4 +66,9 @@ public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugi
   protected String extractImageFile(HopPerspectivePlugin annotation) {
 	return annotation.image();
   }
+
+  @Override
+  protected String extractCategory(HopPerspectivePlugin annotation) {   
+    return annotation.category();
+  }
 }

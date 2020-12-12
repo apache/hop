@@ -127,7 +127,9 @@ public enum HopExtensionPoint {
 
   HopEnvironmentAfterInit("Called after HopEnvironment.init() was called.  It allows you to add your own plugins and so on at this time."),
 
-  HopGuiProjectAfterEnabled( "Called after a project is enabled in Hop GUI" )
+  HopGuiProjectAfterEnabled( "Called after a project is enabled in Hop GUI" ),
+
+  HopGuiGetControlSpaceSortOrderPrefix("Gets a prefix to steer the sort order of variables when using CTRL-SPACE.  Defaults range from 900_ to 400_. Set prefixes in Map<String,String>"),
   ;
 
   public String id;
