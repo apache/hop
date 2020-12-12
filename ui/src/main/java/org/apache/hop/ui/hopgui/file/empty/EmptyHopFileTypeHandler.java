@@ -23,6 +23,8 @@
 package org.apache.hop.ui.hopgui.file.empty;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -137,5 +139,13 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
+  }
+
+  /**
+   * The empty hop file type handler doesn't have its own variable
+   * @return An empty variables set
+   */
+  @Override public IVariables getVariables() {
+    return new Variables();
   }
 }

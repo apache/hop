@@ -33,7 +33,11 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class HopVariablesList {
 
@@ -97,6 +101,14 @@ public class HopVariablesList {
       }
     }
     return null;
+  }
+
+  public Set<String> getVariablesSet() {
+    Set<String> variablesSet = new HashSet<>();
+    for (DescribedVariable describedVariable : defaultVariables) {
+      variablesSet.add(describedVariable.getName());
+    }
+    return variablesSet;
   }
 
   /**

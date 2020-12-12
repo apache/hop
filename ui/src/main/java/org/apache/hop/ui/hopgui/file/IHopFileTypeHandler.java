@@ -23,6 +23,7 @@
 package org.apache.hop.ui.hopgui.file;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 
 import java.util.Map;
@@ -186,4 +187,10 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
   Map<String, Object> getStateProperties();
 
   void applyStateProperties(Map<String, Object> stateProperties);
+
+  /**
+   * The variables associated with the file. It's usually keeping internal variables and other file specific settings like active unit test settings.
+   * @return The variables associated with the loaded file
+   */
+  IVariables getVariables();
 }
