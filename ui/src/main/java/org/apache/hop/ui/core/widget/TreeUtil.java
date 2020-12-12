@@ -51,6 +51,9 @@ public class TreeUtil {
 
   private static final void getMaxWidths( TreeItem[] items, int[] max, GC gc ) {
     for ( int i = 0; i < items.length; i++ ) {
+
+      if (items[i].isDisposed()) break;
+
       gc.setFont( items[i].getFont() );
       for ( int c = 0; c < max.length; c++ ) {
         String string = items[ i ].getText( c );
