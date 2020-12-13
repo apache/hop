@@ -31,7 +31,7 @@ public class HopProjectInformation implements IExtensionPoint<HashMap<String,Obj
 
     @Override
 //    public void callExtensionPoint(ILogChannel iLogChannel, ProjectConfig importConfig) throws HopException{
-    public void callExtensionPoint(ILogChannel iLogChannel, HashMap<String,Object> importProjectMap) throws HopException{
+    public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, HashMap<String,Object> importProjectMap) throws HopException{
 
 //        System.out.println("#######################################################");
 //        System.out.println("######### project information extension point called.");
@@ -61,7 +61,7 @@ public class HopProjectInformation implements IExtensionPoint<HashMap<String,Obj
 
             try {
                 Project project = projectConfig.loadProject( hopGui.getVariables() );
-                IVariables variables = Variables.getADefaultVariableSpace();
+//                IVariables variables = Variables.getADefaultVariableSpace();
                 ProjectsUtil.enableProject(iLogChannel, importProject, project, variables, null, null, hopGui);
                 hopGui.setVariables(variables);
 //                if ( project != null ) {
@@ -77,7 +77,7 @@ public class HopProjectInformation implements IExtensionPoint<HashMap<String,Obj
         if(!StringUtil.isEmpty(importPath)){
             ProjectConfig projectConfig = new ProjectConfig("Hop Import Project", importPath, ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
             Project project = new Project();
-            IVariables variables = (IVariables) importProjectMap.get("variables");
+//            IVariables variables = (IVariables) importProjectMap.get("variables");
 
             project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
 
