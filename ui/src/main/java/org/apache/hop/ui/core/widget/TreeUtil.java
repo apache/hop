@@ -27,11 +27,13 @@ public class TreeUtil {
     if (tree.isDisposed()) return;
     // Compute size in UI Thread to avoid NPE 
     tree.getDisplay().asyncExec(() -> {
+      tree.setRedraw(false);
       for (TreeColumn column : tree.getColumns()) {
         if (column.isDisposed()) break;
         column.pack();
         column.setWidth(column.getWidth() + (int) (40 * PropsUi.getInstance().getZoomFactor()));
-      }      
+      }
+      tree.setRedraw(true);      
     });
   }
 
