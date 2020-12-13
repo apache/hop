@@ -23,12 +23,16 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class TreeUtil {
-  public static final void setOptimalWidthOnColumns(Tree tree) {
-    for (TreeColumn column : tree.getColumns()) {
-      if (column.isDisposed()) break;
-      column.pack();
-      column.setWidth(column.getWidth() + (int) (40 * PropsUi.getInstance().getZoomFactor()));
-    }
+  public static final void setOptimalWidthOnColumns(final Tree tree) {
+    if (tree.isDisposed()) return;
+    // Compute size in UI Thread to avoid NPE 
+    tree.getDisplay().asyncExec(() -> {
+      for (TreeColumn column : tree.getColumns()) {
+        if (column.isDisposed()) break;
+        column.pack();
+        column.setWidth(column.getWidth() + (int) (40 * PropsUi.getInstance().getZoomFactor()));
+      }      
+    });
   }
 
   public static final TreeItem findTreeItem(Tree tree, String[] path) {
