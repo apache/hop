@@ -48,7 +48,8 @@ import java.util.Properties;
 
 @HopFileTypePlugin(
   id = "HopFile-Workflow-Plugin",
-  description = "The workflow file information for the Hop GUI"
+  description = "The workflow file information for the Hop GUI",
+  image="ui/images/workflow3.svg"
 )
 public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
