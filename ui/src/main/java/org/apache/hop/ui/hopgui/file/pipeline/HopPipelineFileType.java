@@ -49,7 +49,8 @@ import java.util.Properties;
 
 @HopFileTypePlugin(
   id = "HopFile-Pipeline-Plugin",
-  description = "The pipeline file information for the Hop GUI"
+  description = "The pipeline file information for the Hop GUI",
+  image="ui/images/PPL.svg"
 )
 public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 

@@ -188,6 +188,8 @@ public class GuiResource {
   private SwtUniversalImage imageArrow;
 
   private SwtUniversalImage imageFolder;
+  
+  private SwtUniversalImage imageFile;
 
   private Image imageWizard;
 
@@ -554,6 +556,7 @@ public class GuiResource {
       imageCalendar.dispose();
       imageServer.dispose();
       imageArrow.dispose();
+      imageFile.dispose();
       imageFolder.dispose();
       imageWizard.dispose();
       imageStart.dispose();
@@ -1074,6 +1077,10 @@ public class GuiResource {
     // "ui/images/folder.svg"
     imageFolder = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Folder_image" ) );
 
+    // "ui/images/file.svg"
+    imageFile = SwtSvgImageUtil.getImageAsResource( display, "ui/images/file.svg" );
+    
+    
     // Makes transparent images "on the fly"
     //
 
@@ -1654,6 +1661,13 @@ public class GuiResource {
     return getZoomedImaged( imageFolder, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
+  /**
+   * @return the imageFile
+   */
+  public Image getImageFile() {
+    return getZoomedImaged( imageFile, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+  }  
+  
   /**
    * @return the imageStartSmall
    */

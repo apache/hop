@@ -42,4 +42,6 @@ public @interface HopFileTypePlugin {
   String name() default "";
 
   String description() default "";
+  
+  String image() default "";
 }
