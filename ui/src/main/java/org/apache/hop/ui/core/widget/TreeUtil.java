@@ -27,6 +27,7 @@ public class TreeUtil {
     if (tree.isDisposed()) return;
     // Compute size in UI Thread to avoid NPE 
     tree.getDisplay().asyncExec(() -> {
+      if(tree.isDisposed()) return;
       tree.setRedraw(false);
       for (TreeColumn column : tree.getColumns()) {
         if (column.isDisposed()) break;
