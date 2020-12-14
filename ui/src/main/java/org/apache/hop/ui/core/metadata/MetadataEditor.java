@@ -76,7 +76,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     this.setTitleImage(
         GuiResource.getInstance()
             .getImage(
-                annotation.iconImage(),
+                annotation.image(),
                 managedClass.getClassLoader(),
                 ConstUi.SMALL_ICON_SIZE,
                 ConstUi.SMALL_ICON_SIZE));
@@ -86,7 +86,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
         SwtSvgImageUtil.getImage(
             hopGui.getDisplay(),
             managedClass.getClassLoader(),
-            annotation.iconImage(),
+            annotation.image(),
             ConstUi.LARGE_ICON_SIZE,
             ConstUi.LARGE_ICON_SIZE));
   }

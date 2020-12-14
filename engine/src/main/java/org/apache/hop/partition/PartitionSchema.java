@@ -37,7 +37,7 @@ import java.util.List;
   key = "partition",
   name = "Partition Schema",
   description = "Describes a partition schema",
-  iconImage = "ui/images/partition_schema.svg"
+  image = "ui/images/partition_schema.svg"
 )
 public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {
 

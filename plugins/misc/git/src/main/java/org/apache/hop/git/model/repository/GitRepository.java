@@ -29,7 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "git",
     name = "Git Repository",
     description = "This defines a Git repository",
-    iconImage = "git_icon.svg")
+    image = "git_icon.svg")
 public class GitRepository extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION = "GitRepositoryCreate";

@@ -69,7 +69,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       GuiActionType.Create,
       hopMetadata.name(),
       "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
-      hopMetadata.iconImage(),
+      hopMetadata.image(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadataWithEditor() );
     newAction.setClassLoader( metadataObjectClass.getClassLoader() );
     newAction.setCategory( "Metadata" );
@@ -81,7 +81,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       GuiActionType.Modify,
       hopMetadata.name(),
       "Edits a " + hopMetadata.name() + " : " + hopMetadata.description(),
-      hopMetadata.iconImage(),
+      hopMetadata.image(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.editMetadata() );
     editAction.setClassLoader( metadataObjectClass.getClassLoader() );
     editAction.setCategory( "Metadata" );
@@ -93,7 +93,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       GuiActionType.Delete,
       hopMetadata.name(),
       "After confirmation this deletes a " + hopMetadata.name() + " : " + hopMetadata.description(),
-      hopMetadata.iconImage(),
+      hopMetadata.image(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.deleteMetadata() );
     deleteAction.setClassLoader( metadataObjectClass.getClassLoader() );
     deleteAction.setCategory( "Metadata" );

@@ -711,7 +711,7 @@ public class MetadataPerspective implements IHopPerspective {
         Image image =
             GuiResource.getInstance()
                 .getImage(
-                    annotation.iconImage(),
+                    annotation.image(),
                     metadataClass.getClassLoader(),
                     ConstUi.SMALL_ICON_SIZE,
                     ConstUi.SMALL_ICON_SIZE);

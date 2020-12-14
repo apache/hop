@@ -41,7 +41,7 @@ import java.util.List;
   key = "dataset",
   name = "Data Set",
   description = "This defines a data set, a static pre-defined collection of rows",
-  iconImage = "dataset.svg"
+  image = "dataset.svg"
 )
 public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata {
 

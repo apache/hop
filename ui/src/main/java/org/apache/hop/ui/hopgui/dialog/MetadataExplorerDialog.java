@@ -413,7 +413,7 @@ public class MetadataExplorerDialog {
             SwtSvgImageUtil.getImage(
                 shell.getDisplay(),
                 metadataClass.getClassLoader(),
-                hopMetadata.iconImage(),
+                hopMetadata.image(),
                 ConstUi.ICON_SIZE,
                 ConstUi.ICON_SIZE);
 
