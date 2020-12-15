@@ -37,35 +37,44 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
   private IHopMetadata searchableObject;
   private Class<IHopMetadata> managedClass;
 
-  public HopGuiMetadataSearchable( IHopMetadataProvider metadataProvider, IHopMetadataSerializer<IHopMetadata> serializer, IHopMetadata searchableObject, Class<IHopMetadata> managedClass ) {
+  public HopGuiMetadataSearchable(
+      IHopMetadataProvider metadataProvider,
+      IHopMetadataSerializer<IHopMetadata> serializer,
+      IHopMetadata searchableObject,
+      Class<IHopMetadata> managedClass) {
     this.metadataProvider = metadataProvider;
     this.serializer = serializer;
     this.searchableObject = searchableObject;
     this.managedClass = managedClass;
   }
 
-  @Override public String getLocation() {
+  @Override
+  public String getLocation() {
     return metadataProvider.getDescription();
   }
 
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return searchableObject.getName();
   }
 
-  @Override public String getType() {
+  @Override
+  public String getType() {
     return serializer.getDescription();
   }
 
-  @Override public String getFilename() {
+  @Override
+  public String getFilename() {
     return null;
   }
 
-  @Override public ISearchableCallback getSearchCallback() {
-    return ( searchable, searchResult ) -> {
+  @Override
+  public ISearchableCallback getSearchCallback() {
+    return (searchable, searchResult) -> {
       // Open the metadata object...
       //
-      new MetadataManager( HopGui.getInstance().getVariables(), HopGui.getInstance().getMetadataProvider(), searchable.getClass() )
-        .editMetadata(searchable.getName());
+      new MetadataManager(HopGui.getInstance().getVariables(), metadataProvider, managedClass)
+          .editMetadata(searchable.getName());
     };
   }
 
@@ -74,14 +83,13 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
    *
    * @return value of searchableObject
    */
-  @Override public IHopMetadata getSearchableObject() {
+  @Override
+  public IHopMetadata getSearchableObject() {
     return searchableObject;
   }
 
-  /**
-   * @param searchableObject The searchableObject to set
-   */
-  public void setSearchableObject( IHopMetadata searchableObject ) {
+  /** @param searchableObject The searchableObject to set */
+  public void setSearchableObject(IHopMetadata searchableObject) {
     this.searchableObject = searchableObject;
   }
 
@@ -94,10 +102,8 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
     return managedClass;
   }
 
-  /**
-   * @param managedClass The managedClass to set
-   */
-  public void setManagedClass( Class<IHopMetadata> managedClass ) {
+  /** @param managedClass The managedClass to set */
+  public void setManagedClass(Class<IHopMetadata> managedClass) {
     this.managedClass = managedClass;
   }
 }
