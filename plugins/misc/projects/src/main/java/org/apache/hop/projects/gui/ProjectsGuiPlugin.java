@@ -730,8 +730,11 @@ public class ProjectsGuiPlugin {
     //
     Collections.sort( names, new Comparator<String>() {
       @Override public int compare( String name1, String name2 ) {
-
-        return -lastUsedMap.get( name1 ).compareTo( lastUsedMap.get( name2 ) );
+        int cmp = -lastUsedMap.get( name1 ).compareTo( lastUsedMap.get( name2 ) );
+        if (cmp==0) {
+          cmp = name1.compareToIgnoreCase( name2 );
+        }
+        return cmp;
       }
     } );
 
