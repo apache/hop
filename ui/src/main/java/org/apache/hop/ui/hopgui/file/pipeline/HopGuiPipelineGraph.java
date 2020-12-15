@@ -2753,6 +2753,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   Const.CR));
           tipImage = GuiResource.getInstance().getImageTransformError();
           break;
+        case HOP_INFO_TRANSFORMS_PARTITIONED:
+          from = (TransformMeta) areaOwner.getParent();
+          to = (TransformMeta) areaOwner.getOwner();
+          tip.append(
+            BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Hop.Tooltip.InfoTransformsPartitioned",
+              from.getName(),
+              to.getName(),
+              Const.CR));
+          tipImage = GuiResource.getInstance().getImageTransformError();
+          break;
         case TRANSFORM_INPUT_HOP_ICON:
           // TransformMeta subjectTransform = (TransformMeta) (areaOwner.getParent());
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.TransformInputConnector.Tooltip"));

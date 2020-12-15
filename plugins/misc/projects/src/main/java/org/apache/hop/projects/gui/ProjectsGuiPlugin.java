@@ -60,8 +60,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
@@ -578,10 +584,13 @@ public class ProjectsGuiPlugin {
       // Only now we can get the variables from the defined run configs.
       // Set them with default values just to make them show up.
       //
-      IHopMetadataSerializer<PipelineRunConfiguration> runConfigSerializer = hopGui.getMetadataProvider().getSerializer( PipelineRunConfiguration.class );
+      IHopMetadataSerializer<PipelineRunConfiguration> runConfigSerializer =
+          hopGui.getMetadataProvider().getSerializer(PipelineRunConfiguration.class);
       for (PipelineRunConfiguration runConfig : runConfigSerializer.loadAll()) {
-        for ( VariableValueDescription variableValueDescription : runConfig.getConfigurationVariables()) {
-          variables.setVariable( variableValueDescription.getName(), "<see your pipeline run configurations>" );
+        for (VariableValueDescription variableValueDescription :
+            runConfig.getConfigurationVariables()) {
+          variables.setVariable(
+              variableValueDescription.getName(), "<see your pipeline run configurations>");
         }
       }
 
@@ -624,9 +633,12 @@ public class ProjectsGuiPlugin {
               new Date());
       AuditManager.getActive().storeEvent(prjUsedEvent);
 
-      if (environment != null) {
-        ProjectsGuiPlugin.selectProjectInList(projectName);
+      // Now use that event to refresh the list...
+      //
+      refreshProjectsList();
+      ProjectsGuiPlugin.selectProjectInList(projectName);
 
+      if (environment != null) {
         // Also add this as an event so we know what the project usage history is
         //
         AuditEvent envUsedEvent =
@@ -648,7 +660,10 @@ public class ProjectsGuiPlugin {
       // Inform the outside world that we're enabled an other project
       //
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, hopGuiVariables, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project );
+          LogChannel.GENERAL,
+          hopGuiVariables,
+          HopExtensionPoint.HopGuiProjectAfterEnabled.name(),
+          project);
 
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
@@ -692,6 +707,37 @@ public class ProjectsGuiPlugin {
   public List<String> getProjectsList(ILogChannel log, IHopMetadataProvider metadataProvider)
       throws Exception {
     List<String> names = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    Map<String, Date> lastUsedMap = new HashMap<>();
+    names.stream()
+        .forEach(
+            name ->
+                lastUsedMap.put(name, new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime()));
+
+    // Get the list of events from the Audit Manager...
+    //
+    List<AuditEvent> projectOpenEvents = AuditManager.findEvents(
+      ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+      ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+      "open",
+      100,
+      true );
+
+    for (AuditEvent projectOpenEvent : projectOpenEvents) {
+      lastUsedMap.put(projectOpenEvent.getName(), projectOpenEvent.getDate());
+    }
+
+    // Reverse sort by last used date of a project...
+    //
+    Collections.sort( names, new Comparator<String>() {
+      @Override public int compare( String name1, String name2 ) {
+        int cmp = -lastUsedMap.get( name1 ).compareTo( lastUsedMap.get( name2 ) );
+        if (cmp==0) {
+          cmp = name1.compareToIgnoreCase( name2 );
+        }
+        return cmp;
+      }
+    } );
+
     return names;
   }
 
