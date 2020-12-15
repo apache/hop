@@ -520,6 +520,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       if ( meta.getSecureConnectionType().equals( "TLS" ) ) {
         // Allow TLS authentication
         data.props.put( "mail.smtp.starttls.enable", "true" );
+      } else if (meta.getSecureConnectionType().equals("TLS 1.2")) {
+        // Allow TLS 1.2 authentication
+        data.props.put("mail.smtp.starttls.enable", "true");
+        data.props.put("mail.smtp.ssl.protocols", "TLSv1.2");
       } else {
         protocol = "smtps";
         // required to get rid of a SSL exception :

@@ -794,6 +794,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSecureConnectionType.setLayoutData(fdSecureConnectionType);
     wSecureConnectionType.add( "SSL" );
     wSecureConnectionType.add( "TLS" );
+    // Add support for TLS 1.2
+    wSecureConnectionType.add( "TLS 1.2" );
     wSecureConnectionType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setSecureConnectiontype();

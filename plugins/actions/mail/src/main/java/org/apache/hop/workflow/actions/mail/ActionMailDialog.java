@@ -504,6 +504,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wSecureConnectionType.setLayoutData(fdSecureConnectionType);
     wSecureConnectionType.add( "SSL" );
     wSecureConnectionType.add( "TLS" );
+    // Add support for TLS 1.2
+    wSecureConnectionType.add( "TLS 1.2" );
     wSecureConnectionType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setSecureConnectiontype();
