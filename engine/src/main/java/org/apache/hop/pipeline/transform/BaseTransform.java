@@ -1933,6 +1933,30 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         PKG, "BaseTransform.Exception.SourceTransformToReadFromDoesntExist", sourceTransformName ) );
     }
 
+    // If this transform is partitioned but the source isn't, throw an error
+    //
+    if (transformMeta.isPartitioned() && !sourceTransformMeta.isPartitioned()) {
+      throw new HopTransformException("When reading from info transforms and running partitioned the source transform needs to be partitioned in the same way");
+    }
+
+    // If the source transform is partitioned but this one isn't, throw an error
+    //
+    if (transformMeta.isPartitioned() && !sourceTransformMeta.isPartitioned()) {
+      throw new HopTransformException("The info transform to read data from called ["+sourceTransformMeta.getName()+"] is partitioned when transform ["+getTransformName()+"] isn't.  Make sure both are partitioned or neither.");
+    }
+
+    // If both transforms are partitioned it's OK to run in parallel...
+    //
+    if (sourceTransformMeta.isPartitioned() && !sourceTransformMeta.isRepartitioning() &&
+        transformMeta.isPartitioned()) {
+      if (!sourceTransformMeta.getTransformPartitioningMeta().equals( transformMeta.getTransformPartitioningMeta() )) {
+        throw new HopTransformException("When reading from info transforms and running partitioned the source transform needs to be partitioned in the same way");
+      }
+      return findInputRowSet( sourceTransformName, getCopy(), getTransformName(), getCopy() );
+    }
+
+
+
     if ( sourceTransformMeta.getCopies(this) > 1 ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "BaseTransform.Exception.SourceTransformToReadFromCantRunInMultipleCopies", sourceTransformName, Integer

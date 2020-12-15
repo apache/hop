@@ -942,7 +942,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if (fs.getName().equalsIgnoreCase(stream.getTransformName())) {
           // This is the info transform over this hop!
           //
-          if (fs.getCopies(variables) > 1) {
+
+          // Only valid if both transforms are partitioned
+          //
+          if (fs.isPartitioned() && ts.isPartitioned()) {
+            //
+          } else if (fs.getCopies(variables) > 1) {
             // This is not a desirable situation, it will always end in error.
             // As such, it's better not to give feedback on it.
             // We do this by drawing an error icon over the hop...
@@ -1120,7 +1125,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           if (fs.getName().equalsIgnoreCase(infoTransform)) {
             // This is the info transform over this hop!
             //
-            if (fs.getCopies(variables) > 1) {
+            // Only valid if both transforms are partitioned
+            //
+            if (fs.isPartitioned() && ts.isPartitioned()) {
+              // TODO explain in the UI what's going on.
+              //
+              gc.drawImage(EImage.PARALLEL, mx, my, magnification);
+              areaOwners.add(
+                new AreaOwner(
+                  AreaType.HOP_INFO_TRANSFORMS_PARTITIONED,
+                  mx,
+                  my,
+                  miniIconSize,
+                  miniIconSize,
+                  offset,
+                  fs,
+                  ts));
+              mx += 16;
+            } else if (fs.getCopies(variables) > 1) {
               // This is not a desirable situation, it will always end in error.
               // As such, it's better not to give feedback on it.
               // We do this by drawing an error icon over the hop...

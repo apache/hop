@@ -17,8 +17,6 @@
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
       <intervalSeconds>0</intervalSeconds>
@@ -103,7 +101,7 @@ var expectedValues = [
 
 for (var i = 0 ; i&lt;expectedValues.length ; i++) {
   var expectedValue = expectedValues[i];
-  if ( !txt.contains(expectedValue[1])) {
+  if ( !txt.contains(expectedValue)) {
     ok = false;
     log.logError("Value logged as '"+expectedValue+"' was not logged at least once");
   }
