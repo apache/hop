@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
+import org.apache.hop.core.Counters;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.DbCacheEntry;
 import org.apache.hop.core.IProgressMonitor;
@@ -3616,12 +3617,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   public synchronized Long getNextValue(
-      Map<String, Counter> counters, String tableName, String valKey) throws HopDatabaseException {
-    return getNextValue(counters, null, tableName, valKey);
-  }
-
-  public synchronized Long getNextValue(
-      Map<String, Counter> counters, String schemaName, String tableName, String valKey)
+    String schemaName, String tableName, String valKey )
       throws HopDatabaseException {
     Long nextValue = null;
 
@@ -3630,11 +3626,8 @@ public class Database implements IVariables, ILoggingObject {
     String lookup = schemaTable + "." + databaseMeta.quoteField(valKey);
 
     // Try to find the previous sequence value...
-    Counter counter = null;
-    if (counters != null) {
-      counter = counters.get(lookup);
-    }
-
+    //
+    Counter counter = Counters.getInstance().getCounter( lookup );
     if (counter == null) {
       RowMetaAndData rmad =
           getOneRow("SELECT MAX(" + databaseMeta.quoteField(valKey) + ") FROM " + schemaTable);
@@ -3656,15 +3649,14 @@ public class Database implements IVariables, ILoggingObject {
                   + schemaTable);
         }
         counter = new Counter(previous + 1, 1);
-        nextValue = Long.valueOf(counter.next());
-        if (counters != null) {
-          counters.put(lookup, counter);
-        }
+        nextValue = Long.valueOf(counter.getAndNext());
+
+        Counters.getInstance().setCounter( lookup, counter );
       } else {
         throw new HopDatabaseException("Couldn't find maximum key value from table " + schemaTable);
       }
     } else {
-      nextValue = Long.valueOf(counter.next());
+      nextValue = Long.valueOf(counter.getAndNext());
     }
 
     return nextValue;

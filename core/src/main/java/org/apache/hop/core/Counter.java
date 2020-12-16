@@ -22,8 +22,11 @@
 
 package org.apache.hop.core;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
- * Is used to keep the state of sequences / counters throughout a single session of a Pipeline, but across transforms.
+ * Is used to keep the state of sequences / counters throughout a single session of a Pipeline, but
+ * across transforms.
  *
  * @author Matt
  * @since 13-05-2003
@@ -35,102 +38,101 @@ public class Counter {
   private long maximum;
   private boolean loop;
 
+  private ReentrantLock lock;
+
   public Counter() {
     start = 1L;
     increment = 1L;
     maximum = 0L;
     loop = false;
     counter = start;
+    lock = new ReentrantLock();
   }
 
-  public Counter( long start ) {
+  public Counter(long start) {
     this();
     this.start = start;
     counter = start;
+    lock = new ReentrantLock();
   }
 
-  public Counter( long start, long increment ) {
-    this( start );
+  public Counter(long start, long increment) {
+    this(start);
     this.increment = increment;
   }
 
-  public Counter( long start, long increment, long maximum ) {
-    this( start, increment );
+  public Counter(long start, long increment, long maximum) {
+    this(start, increment);
     this.loop = true;
     this.maximum = maximum;
   }
 
-  /**
-   * @return Returns the counter.
-   */
+  /** @return Returns the counter. */
   public long getCounter() {
     return counter;
   }
 
-  /**
-   * @return Returns the increment.
-   */
+  /** @return Returns the increment. */
   public long getIncrement() {
     return increment;
   }
 
-  /**
-   * @return Returns the maximum.
-   */
+  /** @return Returns the maximum. */
   public long getMaximum() {
     return maximum;
   }
 
-  /**
-   * @return Returns the start.
-   */
+  /** @return Returns the start. */
   public long getStart() {
     return start;
   }
 
-  /**
-   * @return Returns the loop.
-   */
+  /** @return Returns the loop. */
   public boolean isLoop() {
     return loop;
   }
 
-  /**
-   * @param counter The counter to set.
-   */
-  public void setCounter( long counter ) {
+  /** @param counter The counter to set. */
+  public void setCounter(long counter) {
     this.counter = counter;
   }
 
-  /**
-   * @param increment The increment to set.
-   */
-  public void setIncrement( long increment ) {
+  /** @param increment The increment to set. */
+  public void setIncrement(long increment) {
     this.increment = increment;
   }
 
-  /**
-   * @param loop The loop to set.
-   */
-  public void setLoop( boolean loop ) {
+  /** @param loop The loop to set. */
+  public void setLoop(boolean loop) {
     this.loop = loop;
   }
 
-  /**
-   * @param maximum The maximum to set.
-   */
-  public void setMaximum( long maximum ) {
+  /** @param maximum The maximum to set. */
+  public void setMaximum(long maximum) {
     this.maximum = maximum;
   }
 
-  public long next() {
-    long retval = counter;
+  public long getAndNext() {
 
-    counter += increment;
-    if ( loop && counter > maximum ) {
-      counter = start;
+    lock.lock();
+    try {
+      long value = counter;
+      long nextValue = counter + increment;
+
+      if (increment < 0) {
+        if (maximum < start && nextValue < maximum) {
+          nextValue = start;
+        }
+      } else if (increment > 0) {
+        if (maximum > start && nextValue > maximum) {
+          nextValue = start;
+        }
+      }
+      counter = nextValue;
+
+      return value;
+    } finally {
+      lock.unlock();
     }
-
-    return retval;
   }
 }
