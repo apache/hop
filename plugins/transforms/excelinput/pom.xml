@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.50-SNAPSHOT</version>
+        <version>0.60-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-excelinput</artifactId>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
-            <version>0.50-SNAPSHOT</version>
+            <version>0.60-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
