@@ -45,9 +45,9 @@ Change into the clone repository and build:
 After a successful build, the Hop UI can be started.
 
     $ cd assemblies/client/target
-    $ unzip hop-assemblies-client-*.zip
+    $ unzip hop-client-*.zip
     $ cd hop 
 
-On Windows, run `hop-ui.bat`, on Mac and Linux, run `hop-ui.sh` 
+On Windows, run `hop-gui.bat`, on Mac and Linux, run `hop-gui.sh` 
 
 Help us to improve Hop by logging issues in the [Hop JIRA](https://issues.apache.org/jira/projects/HOP)
