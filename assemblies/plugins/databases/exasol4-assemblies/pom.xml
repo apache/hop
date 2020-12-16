@@ -22,6 +22,14 @@
         <exasol.version>6.2.1</exasol.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>exasol</id>
+            <name>Exasol Repository</name>
+            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -35,11 +43,4 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>exasol</id>
-            <name>Exasol Repository</name>
-            <url>    https://maven.exasol.com/artifactory/exasol-releases/</url>
-        </repository>
-    </repositories>
 </project>
