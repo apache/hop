@@ -18,11 +18,21 @@
     <name>Hop Assemblies Plugins Transforms Janino</name>
     <description></description>
 
+    <properties>
+        <janino-version>3.1.2</janino-version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-janino</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino-version}</version>
         </dependency>
     </dependencies>
 </project>

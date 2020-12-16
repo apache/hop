@@ -15,4 +15,15 @@
 
     <name>Hop Plugins Transforms Janino</name>
 
+    <properties>
+        <janino-version>3.1.2</janino-version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino-version}</version>
+        </dependency></dependencies>
+
 </project>
