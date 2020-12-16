@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.50-SNAPSHOT</version>
+        <version>0.60-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-javascript</artifactId>
-    <version>0.50-SNAPSHOT</version>
+    <version>0.60-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Javascript</name>
@@ -27,19 +27,19 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-fieldsplitter</artifactId>
-            <version>0.50-SNAPSHOT</version>
+            <version>0.60-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowgenerator</artifactId>
-            <version>0.50-SNAPSHOT</version>
+            <version>0.60-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-loadfileinput</artifactId>
-            <version>0.50-SNAPSHOT</version>
+            <version>0.60-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

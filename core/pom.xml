@@ -6,7 +6,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-core</artifactId>
-  <version>0.50-SNAPSHOT</version>
+  <version>0.60-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Core</name>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.50-SNAPSHOT</version>
+    <version>0.60-SNAPSHOT</version>
   </parent>
 
   <properties>

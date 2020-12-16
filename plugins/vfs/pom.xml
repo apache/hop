@@ -5,7 +5,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-vfs</artifactId>
-  <version>0.50-SNAPSHOT</version>
+  <version>0.60-SNAPSHOT</version>
   <modules>
   </modules>
   <packaging>pom</packaging>
@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.50-SNAPSHOT</version>
+    <version>0.60-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -68,7 +68,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.50-SNAPSHOT</version>
+      <version>0.60-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
