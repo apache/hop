@@ -7,11 +7,11 @@
 	<parent>
 		<artifactId>hop-assemblies-plugins-databases</artifactId>
 		<groupId>org.apache.hop</groupId>
-		<version>0.50-SNAPSHOT</version>
+		<version>0.50</version>
 	</parent>
 
 	<artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
-	<version>0.50-SNAPSHOT</version>
+	<version>0.50</version>
 	<packaging>pom</packaging>
 	<name>Hop Assemblies Plugins Databases Snowflake</name>
 	<description></description>

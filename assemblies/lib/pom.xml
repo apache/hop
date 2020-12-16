@@ -11,7 +11,7 @@
   <parent>
     <artifactId>hop-assemblies</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.50-SNAPSHOT</version>
+    <version>0.50</version>
   </parent>
 
   <properties>
