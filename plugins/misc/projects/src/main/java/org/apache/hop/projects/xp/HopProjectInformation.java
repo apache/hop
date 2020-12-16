@@ -30,19 +30,7 @@ import java.util.List;
 public class HopProjectInformation implements IExtensionPoint<HashMap<String,Object>> {
 
     @Override
-//    public void callExtensionPoint(ILogChannel iLogChannel, ProjectConfig importConfig) throws HopException{
     public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, HashMap<String,Object> importProjectMap) throws HopException{
-
-//        System.out.println("#######################################################");
-//        System.out.println("######### project information extension point called.");
-//        System.out.println("######### " + importProjectMap.get("importFromFolder"));
-//        System.out.println("######### " + importProjectMap.get("importToProject"));
-//        System.out.println("######### " + importProjectMap.get("importToFolder"));
-//        System.out.println("######### " + importProjectMap.get("kettlePropertiesPath"));
-//        System.out.println("######### " + importProjectMap.get("sharedXmlPath"));
-//        System.out.println("######### " + importProjectMap.get("jdbcPropsPath"));
-//        System.out.println("#######################################################");
-
 
         HopGui hopGui = HopGui.getInstance();
         ProjectsConfig config = ProjectsConfigSingleton.getConfig();
@@ -61,14 +49,8 @@ public class HopProjectInformation implements IExtensionPoint<HashMap<String,Obj
 
             try {
                 Project project = projectConfig.loadProject( hopGui.getVariables() );
-//                IVariables variables = Variables.getADefaultVariableSpace();
                 ProjectsUtil.enableProject(iLogChannel, importProject, project, variables, null, null, hopGui);
                 hopGui.setVariables(variables);
-//                if ( project != null ) {
-//                    enableHopGuiProject( projectName, project, environment );
-//                } else {
-//                    hopGui.getLog().logError( "Unable to find project '" + projectName + "'" );
-//                }
             } catch ( Exception e ) {
                 new ErrorDialog( hopGui.getShell(), "Error", "Error changing project to '" + importProject, e );
             }
@@ -77,33 +59,13 @@ public class HopProjectInformation implements IExtensionPoint<HashMap<String,Obj
         if(!StringUtil.isEmpty(importPath)){
             ProjectConfig projectConfig = new ProjectConfig("Hop Import Project", importPath, ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
             Project project = new Project();
-//            IVariables variables = (IVariables) importProjectMap.get("variables");
 
             project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
-
             project.setConfigFilename(importPath + System.getProperty("file.separator") + "project-config.json");
-//            project.setMetadataBaseFolder("");
             config.addProjectConfig(projectConfig);
             HopConfig.getInstance().saveToFile();
             project.saveToFile();
             ProjectsUtil.enableProject(hopGui.getLog(), "Hop Import Project", project, variables, null, null, hopGui);
-//            hopGui.setVariables(variables);
-
-
         }
-
-/*
-        if(config.findProjectConfig(importConfig.getProjectName()) != null){
-            importConfig = config.findProjectConfig(importConfig.getProjectName());
-            System.out.println("######### existing project loaded: " + importConfig.getProjectHome());
-        }else{
-            config.addProjectConfig(importConfig);
-            project = importConfig.loadProject(hopGui.getVariables());
-            System.out.println("######### new project created: " + importConfig.getProjectHome());
-        }
-        project.saveToFile();
-*/
-
-
     }
 }
