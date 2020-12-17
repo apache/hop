@@ -14,39 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.pipeline.transforms.janino;
+package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.codehaus.janino.ExpressionEvaluator;
 
-import java.util.List;
+import java.util.Map;
 
-/**
- * @author Matt
- * @since 8-sep-2005
- */
-public class JaninoData extends BaseTransformData implements ITransformData {
-  public static final int RETURN_TYPE_STRING = 0;
-  public static final int RETURN_TYPE_NUMBER = 1;
-  public static final int RETURN_TYPE_INTEGER = 2;
-  public static final int RETURN_TYPE_LONG = 3;
-  public static final int RETURN_TYPE_DATE = 4;
-  public static final int RETURN_TYPE_BIGDECIMAL = 5;
-  public static final int RETURN_TYPE_BYTE_ARRAY = 6;
-  public static final int RETURN_TYPE_BOOLEAN = 7;
-
+public class UserDefinedJavaClassData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
-  public IValueMeta[] returnType;
-  public int[] replaceIndex;
+  public Map<String, String> parameterMap;
+  public Map<String, String> infoMap;
+  public Map<String, String> targetMap;
 
-  public ExpressionEvaluator[] expressionEvaluators;
-  public List<List<Integer>> argumentIndexes;
-
-  public JaninoData() {
+  public UserDefinedJavaClassData() {
     super();
   }
-
 }

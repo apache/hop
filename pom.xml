@@ -864,6 +864,7 @@
                         <exclude>**/maven-compiler-plugin/</exclude>
                         <exclude>archive-samples/</exclude>
                         <exclude>pom.xml</exclude>
+                        <exclude>licenses/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -36,40 +36,53 @@ public class Counters {
   private static Counters counters = null;
   private Map<String, Counter> counterMap = null;
 
+  private static final Object lock = new Object();
+
   private Counters() {
     counterMap = Collections.synchronizedMap(new HashMap<>());
   }
 
   public static final Counters getInstance() {
-    if ( counters != null ) {
+    if (counters != null) {
       return counters;
     }
     counters = new Counters();
     return counters;
   }
 
-  public Counter getCounter( String name ) {
-    return counterMap.get( name );
+  public void setCounter(String name, Counter counter) {
+    counterMap.put(name, counter);
   }
 
-  public void setCounter( String name, Counter counter ) {
-    counterMap.put( name, counter );
-  }
-
-  public void clearCounter( String name ) {
-    counterMap.remove( name );
+  public void clearCounter(String name) {
+    counterMap.remove(name);
   }
 
   public void clear() {
     counterMap.clear();
   }
 
-  /**
-   * Gets counterTable
-   *
-   * @return value of counterTable
-   */
-  public Map<String, Counter> getCounterMap() {
-    return counterMap;
+  public Counter getCounter(String name) {
+    synchronized (lock) {
+      Counter found = counterMap.get(name);
+      return found;
+    }
+  }
+
+  public synchronized Counter getOrUpdateCounter(String name, Counter counter) {
+    synchronized (counterMap) {
+      Counter found = counterMap.get(name);
+      if (found == null) {
+        found = counter;
+        counterMap.put(name, counter);
+      }
+      return found;
+    }
+  }
+
+  public Counter removeCounter(String name) {
+    synchronized (lock) {
+      return counterMap.remove(name);
+    }
   }
 }

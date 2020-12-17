@@ -104,7 +104,6 @@
         <module>ifnull</module>
         <module>insertupdate</module>
         <module>janino</module>
-        <module>javafilter</module>
         <module>javascript</module>
         <module>joinrows</module>
         <module>json</module>
@@ -166,7 +165,6 @@
         <module>uniquerows</module>
         <module>uniquerowsbyhashset</module>
         <module>update</module>
-<!--        <module>userdefinedjavaclass</module>-->
         <module>valuemapper</module>
         <module>webserviceavailable</module>
         <module>webservices</module>

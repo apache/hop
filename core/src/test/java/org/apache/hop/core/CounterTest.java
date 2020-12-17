@@ -87,42 +87,42 @@ public class CounterTest extends TestCase {
   public void testNext() {
     Counter cnt1 = new Counter();
     cnt1.setCounter( 2L );
-    assertEquals( 2L, cnt1.next() );
-    assertEquals( 3L, cnt1.next() );
-    assertEquals( 4L, cnt1.next() );
-    assertEquals( 5L, cnt1.next() );
-    assertEquals( 6L, cnt1.next() );
-    assertEquals( 7L, cnt1.next() );
-    assertEquals( 8L, cnt1.next() );
-    assertEquals( 9L, cnt1.next() );
-    assertEquals( 10L, cnt1.next() );
+    assertEquals( 2L, cnt1.getAndNext() );
+    assertEquals( 3L, cnt1.getAndNext() );
+    assertEquals( 4L, cnt1.getAndNext() );
+    assertEquals( 5L, cnt1.getAndNext() );
+    assertEquals( 6L, cnt1.getAndNext() );
+    assertEquals( 7L, cnt1.getAndNext() );
+    assertEquals( 8L, cnt1.getAndNext() );
+    assertEquals( 9L, cnt1.getAndNext() );
+    assertEquals( 10L, cnt1.getAndNext() );
 
     Counter cnt2 = new Counter();
     cnt2.setCounter( 1L );
     cnt2.setIncrement( 3L );
     cnt2.setMaximum( 10L );
-    assertEquals( 1L, cnt2.next() );
-    assertEquals( 4L, cnt2.next() );
-    assertEquals( 7L, cnt2.next() );
-    assertEquals( 10L, cnt2.next() );
-    assertEquals( 13L, cnt2.next() );
+    assertEquals( 1L, cnt2.getAndNext() );
+    assertEquals( 4L, cnt2.getAndNext() );
+    assertEquals( 7L, cnt2.getAndNext() );
+    assertEquals( 10L, cnt2.getAndNext() );
+    assertEquals( 13L, cnt2.getAndNext() );
 
     Counter cnt3 = new Counter();
     cnt3.setCounter( 1L );
     cnt3.setIncrement( 3L );
     cnt3.setMaximum( 11L );
     cnt3.setLoop( true );
-    assertEquals( 1L, cnt3.next() );
-    assertEquals( 4L, cnt3.next() );
-    assertEquals( 7L, cnt3.next() );
-    assertEquals( 10L, cnt3.next() );
-    assertEquals( 1L, cnt3.next() );
-    assertEquals( 4L, cnt3.next() );
-    assertEquals( 7L, cnt3.next() );
-    assertEquals( 10L, cnt3.next() );
-    assertEquals( 1L, cnt3.next() );
+    assertEquals( 1L, cnt3.getAndNext() );
+    assertEquals( 4L, cnt3.getAndNext() );
+    assertEquals( 7L, cnt3.getAndNext() );
+    assertEquals( 10L, cnt3.getAndNext() );
+    assertEquals( 1L, cnt3.getAndNext() );
+    assertEquals( 4L, cnt3.getAndNext() );
+    assertEquals( 7L, cnt3.getAndNext() );
+    assertEquals( 10L, cnt3.getAndNext() );
+    assertEquals( 1L, cnt3.getAndNext() );
 
     cnt3.setCounter( 10L );
-    assertEquals( 10L, cnt3.next() );
+    assertEquals( 10L, cnt3.getAndNext() );
   }
 }

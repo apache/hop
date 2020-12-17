@@ -2,17 +2,68 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.60-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-plugins-transforms</artifactId>
+    <version>0.60-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>hop-transform-janino</artifactId>
-    <packaging>jar</packaging>
+  <artifactId>hop-transform-janino</artifactId>
+  <packaging>jar</packaging>
 
-    <name>Hop Plugins Transforms Janino</name>
+  <name>Hop Plugins Transforms Janino</name>
+
+  <properties>
+    <janino-version>3.1.2</janino-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>${janino-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>1.7.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>1.7.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+          <include>**/*.svg</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
 
 </project>

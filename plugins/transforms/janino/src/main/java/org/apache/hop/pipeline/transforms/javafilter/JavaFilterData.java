@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.pipeline.transforms.janino;
+package org.apache.hop.pipeline.transforms.javafilter;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.codehaus.janino.ExpressionEvaluator;
+
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class JaninoData extends BaseTransformData implements ITransformData {
+public class JavaFilterData extends BaseTransformData implements ITransformData {
   public static final int RETURN_TYPE_STRING = 0;
   public static final int RETURN_TYPE_NUMBER = 1;
   public static final int RETURN_TYPE_INTEGER = 2;
@@ -39,13 +40,19 @@ public class JaninoData extends BaseTransformData implements ITransformData {
   public static final int RETURN_TYPE_BOOLEAN = 7;
 
   public IRowMeta outputRowMeta;
-  public IValueMeta[] returnType;
+  public int[] returnType;
   public int[] replaceIndex;
 
-  public ExpressionEvaluator[] expressionEvaluators;
-  public List<List<Integer>> argumentIndexes;
+  public ExpressionEvaluator expressionEvaluator;
+  public List<Integer> argumentIndexes;
+  public String trueTransformName;
+  public String falseTransformName;
+  public boolean chosesTargetTransforms;
+  public IRowSet trueRowSet;
+  public IRowSet falseRowSet;
+  public Object[] argumentData;
 
-  public JaninoData() {
+  public JavaFilterData() {
     super();
   }
 
