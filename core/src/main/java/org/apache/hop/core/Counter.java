@@ -119,13 +119,15 @@ public class Counter {
       long value = counter;
       long nextValue = counter + increment;
 
-      if (increment < 0) {
-        if (maximum < start && nextValue < maximum) {
-          nextValue = start;
-        }
-      } else if (increment > 0) {
-        if (maximum > start && nextValue > maximum) {
-          nextValue = start;
+      if (loop) {
+        if (increment < 0) {
+          if (maximum < start && nextValue < maximum) {
+            nextValue = start;
+          }
+        } else if (increment > 0) {
+          if (maximum > start && nextValue > maximum) {
+            nextValue = start;
+          }
         }
       }
       counter = nextValue;
