@@ -20,19 +20,22 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.pipeline.transforms.fieldsplitter;
+package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.injection.InjectionTypeConverter;
-import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * Converter for field types.
- */
-public class DataTypeConverter extends InjectionTypeConverter {
+import java.util.Map;
 
-  @Override
-  public int string2intPrimitive( String v ) throws HopValueException {
-    return ValueMetaFactory.getIdForValueMeta( v );
+public class UserDefinedJavaClassData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public Map<String, String> parameterMap;
+  public Map<String, String> infoMap;
+  public Map<String, String> targetMap;
+
+  public UserDefinedJavaClassData() {
+    super();
   }
 }
