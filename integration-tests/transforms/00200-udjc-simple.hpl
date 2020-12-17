@@ -23,7 +23,7 @@
   </notepads>
   <order>
     <hop>
-      <from>1M rows</from>
+      <from>10k rows</from>
       <to>name</to>
       <enabled>Y</enabled>
     </hop>
@@ -34,12 +34,17 @@
     </hop>
     <hop>
       <from>values</from>
+      <to>name &lt;&gt; "Apache Hop"</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>name &lt;&gt; "Apache Hop"</from>
       <to>More than 1 row</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>1M rows</name>
+    <name>10k rows</name>
     <type>RowGenerator</type>
     <description/>
     <distribute>Y</distribute>
@@ -75,7 +80,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <limit>1000000</limit>
+    <limit>10000</limit>
     <never_ending>N</never_ending>
     <interval_in_ms>5000</interval_in_ms>
     <row_time_field>now</row_time_field>
@@ -221,10 +226,46 @@ public boolean processRow() throws HopException
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <row_threshold>2</row_threshold>
+    <row_threshold>1</row_threshold>
     <message>More than one value found</message>
     <always_log_rows>Y</always_log_rows>
     <abort_option>ABORT</abort_option>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>name &lt;&gt; "Apache Hop"</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>name</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>Apache Hop</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
       <xloc>432</xloc>
