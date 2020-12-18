@@ -277,7 +277,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     RowMetaAndData add =
-      ExecSql.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
+      ExecSqlRow.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
     r.mergeRowMeta( add.getRowMeta() );
   }
