@@ -135,6 +135,7 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_OPEN_RECENT = "10025-menu-file-open-recent";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
+  public static final String ID_MAIN_MENU_FILE_EXPORT_TO_SVG = "10050-menu-file-export-to-svg";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
@@ -571,6 +572,18 @@ public class HopGui
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
+
+  @GuiMenuElement(
+    root = ID_MAIN_MENU,
+    id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
+    separator = true,
+    label = "Export to SVG",
+    image = "ui/images/svg-logo.svg",
+    parentId = ID_MAIN_MENU_FILE)
+  public void menuFileExportToSvg() {
+    fileDelegate.exportToSvg();
+  }
+
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
