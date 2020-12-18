@@ -246,6 +246,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private static final int HOP_SEL_MARGIN = 9;
 
+  private static final int TOOLTIP_HIDE_DELAY_FLASH = 2000;
+
   private static final int TOOLTIP_HIDE_DELAY_SHORT = 5000;
 
   private static final int TOOLTIP_HIDE_DELAY_LONG = 10000;
@@ -869,14 +871,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (selectionRegion != null) {
       selectionRegion.width = real.x - selectionRegion.x;
       selectionRegion.height = real.y - selectionRegion.y;
-      if (selectionRegion.width == 0 && selectionRegion.height == 0) {
+      if (selectionRegion.isEmpty()) {
         singleClick = true;
         singleClickType = SingleClickType.Pipeline;
+      } else {
+        pipelineMeta.unselectAll();
+        selectInRect(pipelineMeta, selectionRegion);
+        selectionRegion = null;
+        updateGui();
       }
-      pipelineMeta.unselectAll();
-      selectInRect(pipelineMeta, selectionRegion);
-      selectionRegion = null;
-      updateGui();
     } else {
       // Clicked on an icon?
       //
@@ -1130,6 +1133,32 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       TransformMeta fSingleClickTransform,
       NotePadMeta fSingleClickNote,
       PipelineHopMeta fSingleClickHop) {
+
+    // In any case clear the selection region...
+    //
+    selectionRegion=null;
+
+    // See if there are transforms selected.
+    // If we get a background single click then simply clear selection...
+    //
+    if (fSingleClickType==SingleClickType.Pipeline) {
+      if (pipelineMeta.getSelectedTransforms().size()>0 || pipelineMeta.getSelectedNotes().size()>0) {
+        pipelineMeta.unselectAll();
+        selectionRegion=null;
+        updateGui();
+
+        // Show a short tooltip
+        //
+        toolTip.hide();
+        toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
+        toolTip.setImage( GuiResource.getInstance().getImageInfoHop() );
+        toolTip.setText( Const.CR+"  Selection cleared "+Const.CR );
+        toolTip.show( new org.eclipse.swt.graphics.Point(e.x, e.y) );
+
+        return;
+      }
+    }
+
     if (!doubleClick) {
       // Just a single click on the background:
       // We have a bunch of possible actions for you...

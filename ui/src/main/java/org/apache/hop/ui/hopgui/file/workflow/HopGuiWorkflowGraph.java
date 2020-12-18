@@ -76,6 +76,7 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
@@ -201,6 +202,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private static final String STRING_PARALLEL_WARNING_PARAMETER = "ParallelActionsWarning";
 
   private static final int HOP_SEL_MARGIN = 9;
+
+  private static final int TOOLTIP_HIDE_DELAY_FLASH = 2000;
+
   private final HopDataOrchestrationPerspective perspective;
 
   protected ILogChannel log;
@@ -698,15 +702,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectionRegion.width = real.x - selectionRegion.x;
         selectionRegion.height = real.y - selectionRegion.y;
 
-        if (selectionRegion.width == 0 && selectionRegion.height == 0) {
+        if (selectionRegion.isEmpty()) {
           singleClick = true;
           singleClickType = SingleClickType.Workflow;
+        } else {
+          workflowMeta.unselectAll();
+          selectInRect(workflowMeta, selectionRegion);
+          selectionRegion = null;
+          stopActionMouseOverDelayTimers();
+          updateGui();
         }
-        workflowMeta.unselectAll();
-        selectInRect(workflowMeta, selectionRegion);
-        selectionRegion = null;
-        stopActionMouseOverDelayTimers();
-        updateGui();
       } else {
         // Clicked on an icon?
         //
@@ -964,6 +969,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       ActionMeta fSingleClickAction,
       NotePadMeta fSingleClickNote,
       WorkflowHopMeta fSingleClickHop) {
+
+    // In any case clear the selection region...
+    //
+    selectionRegion=null;
+
+    // See if there are transforms selected.
+    // If we get a background single click then simply clear selection...
+    //
+    if (fSingleClickType== SingleClickType.Workflow) {
+      if (workflowMeta.getSelectedActions().size()>0 || workflowMeta.getSelectedNotes().size()>0) {
+        workflowMeta.unselectAll();
+        selectionRegion=null;
+        updateGui();
+
+        // Show a short tooltip
+        //
+        toolTip.hide();
+        toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
+        toolTip.setImage( GuiResource.getInstance().getImageInfoHop() );
+        toolTip.setText( Const.CR+"  Selection cleared "+Const.CR );
+        toolTip.show( new org.eclipse.swt.graphics.Point(e.x, e.y) );
+
+        return;
+      }
+    }
+
     if (!doubleClick) {
 
       // Just a single click on the background:
