@@ -334,7 +334,7 @@ public class Translator {
     shell = new Shell( display );
     shell.setLayout( new FillLayout() );
     shell.setText( APP_NAME );
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     try {
       readFiles();

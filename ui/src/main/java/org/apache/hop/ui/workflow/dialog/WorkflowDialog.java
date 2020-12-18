@@ -150,7 +150,7 @@ public class WorkflowDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageWorkflowGraph() );
+    shell.setImage( GuiResource.getInstance().getImageWorkflow() );
 
     lsMod = e -> changed = true;
 
@@ -675,7 +675,6 @@ public class WorkflowDialog extends Dialog {
     workflowMeta.setDescription( wDescription.getText() );
     workflowMeta.setExtendedDescription( wExtendedDescription.getText() );
     workflowMeta.setWorkflowVersion( wVersion.getText() );
-    workflowMeta.setNameSynchronizedWithFilename(wNameFilenameSync.getSelection());
     if ( wWorkflowStatus.getSelectionIndex() != 2 ) {
       // Saving the index as meta data is in fact pretty bad, but since
       // it was already in ...

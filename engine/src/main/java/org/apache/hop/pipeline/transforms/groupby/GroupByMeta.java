@@ -54,7 +54,7 @@ import java.util.List;
  */
 @Transform(
   id = "GroupBy",
-  image = "ui/images/GRP.svg",
+  image = "ui/images/groupby.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.GroupBy",
   description = "BaseTransform.TypeTooltipDesc.GroupBy",

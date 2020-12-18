@@ -159,9 +159,9 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
       imageInactiveScript = guiresource.getImage("ui/images/inactive-script.svg");
       imageActiveStartScript = guiresource.getImage("ui/images/start-script.svg");
       imageActiveEndScript = guiresource.getImage("ui/images/end-script.svg");
-      imageDeleteScript = guiresource.getImage("ui/images/generic-delete.svg");
+      imageDeleteScript = guiresource.getImage("ui/images/delete.svg");
       imageAddScript = guiresource.getImage("ui/images/addSmall.svg");
-      imageDuplicateScript = guiresource.getImage("ui/images/copy-hop.svg");
+      imageDuplicateScript = guiresource.getImage("ui/images/copy-rows.svg");
     } catch ( Exception e ) {
       imageActiveScript = guiresource.getImageEmpty16x16();
       imageInactiveScript = guiresource.getImageEmpty16x16();

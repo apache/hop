@@ -74,7 +74,7 @@ import java.util.Map;
  */
 @Transform(
   id = "WorkflowExecutor",
-  image = "ui/images/JOBEx.svg",
+  image = "ui/images/workflowexecutor.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.WorkflowExecutor",
   description = "BaseTransform.TypeTooltipDesc.WorkflowExecutor",

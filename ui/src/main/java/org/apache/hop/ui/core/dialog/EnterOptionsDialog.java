@@ -175,7 +175,7 @@ public class EnterOptionsDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE);
     props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageLogoSmall());
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -1257,7 +1257,7 @@ public class EnterOptionsDialog extends Dialog {
    */
   private FormData layoutResetOptionButton(Button button) {
     FormData fd = new FormData();
-    Image editButton = GuiResource.getInstance().getResetOptionButton();
+    Image editButton = GuiResource.getInstance().getImageResetOption();
     if (editButton != null) {
       button.setImage(editButton);
       button.setBackground(GuiResource.getInstance().getColorWhite());

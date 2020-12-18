@@ -75,7 +75,7 @@ public class EnterConditionDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
     shell.setText( BaseMessages.getString( PKG, "EnterConditionDialog.Title" ) );
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

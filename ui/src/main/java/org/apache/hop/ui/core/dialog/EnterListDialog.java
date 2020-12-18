@@ -98,7 +98,7 @@ public class EnterListDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipeline() );
     shell.setText( BaseMessages.getString( PKG, "EnterListDialog.Title" ) );
 
     shell.setLayout( new FormLayout() );

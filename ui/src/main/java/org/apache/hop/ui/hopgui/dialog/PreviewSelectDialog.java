@@ -90,7 +90,7 @@ public class PreviewSelectDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Dialog.PreviewSelection.Title" ) ); // Preview
     // selection
     // screen
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     int margin = props.getMargin();
 

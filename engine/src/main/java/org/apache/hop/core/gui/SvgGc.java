@@ -32,7 +32,6 @@ import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
-import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Document;
@@ -61,19 +60,19 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageFalse;
 
-  private static SvgFile imageErrorHop;
+  private static SvgFile imageError;
 
-  private static SvgFile imageInfoHop;
+  private static SvgFile imageInfo;
 
-  private static SvgFile imageHopTarget;
+  private static SvgFile imageTarget;
 
-  private static SvgFile imageHopInput;
+  private static SvgFile imageInput;
 
-  private static SvgFile imageHopOutput;
+  private static SvgFile imageOutput;
 
   private static SvgFile imageArrow;
 
-  private static SvgFile imageCopyHop;
+  private static SvgFile imageCopyRows;
 
   private static SvgFile imageLoadBalance;
 
@@ -81,9 +80,9 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageDatabase;
 
-  private static SvgFile imageParallelHop;
+  private static SvgFile imageParallel;
 
-  private static SvgFile imageUnconditionalHop;
+  private static SvgFile imageUnconditional;
 
   private static SvgFile imageBusy;
 
@@ -91,10 +90,10 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageData;
 
-  private static SvgFile defaultArrow;
-  private static SvgFile okArrow;
-  private static SvgFile errorArrow;
-  private static SvgFile disabledArrow;
+  private static SvgFile imageArrowDefault;
+  private static SvgFile imageArrowOk;
+  private static SvgFile imageArrowError;
+  private static SvgFile imageArrowDisabled;
 
   protected Color background;
 
@@ -200,34 +199,36 @@ public class SvgGc implements IGc {
     this.crystal = new Color( 61, 99, 128 );
     this.hopDefault = new Color( 61, 99, 128 );
     this.hopOK = new Color( 12, 178, 15 );
-
-    imageLocked = new SvgFile( BasePropertyHandler.getProperty( "Locked_image" ), this.getClass().getClassLoader() );
-    imageTransformError = new SvgFile( BasePropertyHandler.getProperty( "TransformErrorLines_image" ), this.getClass().getClassLoader() );
-    imageEdit = new SvgFile( BasePropertyHandler.getProperty( "EditSmall_image" ), this.getClass().getClassLoader() );
-    imageContextMenu = new SvgFile( BasePropertyHandler.getProperty( "ContextMenu_image" ), this.getClass().getClassLoader() );
-    imageTrue = new SvgFile( BasePropertyHandler.getProperty( "True_image" ), this.getClass().getClassLoader() );
-    imageFalse = new SvgFile( BasePropertyHandler.getProperty( "False_image" ), this.getClass().getClassLoader() );
-    imageErrorHop = new SvgFile( BasePropertyHandler.getProperty( "ErrorHop_image" ), this.getClass().getClassLoader() );
-    imageInfoHop = new SvgFile( BasePropertyHandler.getProperty( "InfoHop_image" ), this.getClass().getClassLoader() );
-    imageHopTarget = new SvgFile( BasePropertyHandler.getProperty( "HopTarget_image" ), this.getClass().getClassLoader() );
-    imageHopInput = new SvgFile( BasePropertyHandler.getProperty( "HopInput_image" ), this.getClass().getClassLoader() );
-    imageHopOutput = new SvgFile( BasePropertyHandler.getProperty( "HopOutput_image" ), this.getClass().getClassLoader() );
-    imageArrow = new SvgFile( BasePropertyHandler.getProperty( "ArrowIcon_image" ), this.getClass().getClassLoader() );
-    imageCopyHop = new SvgFile( BasePropertyHandler.getProperty( "CopyHop_image" ), this.getClass().getClassLoader() );
-    imageLoadBalance = new SvgFile( BasePropertyHandler.getProperty( "LoadBalance_image" ), this.getClass().getClassLoader() );
-    imageCheckpoint = new SvgFile( BasePropertyHandler.getProperty( "CheckeredFlag_image" ), this.getClass().getClassLoader() );
-    imageDatabase = new SvgFile( BasePropertyHandler.getProperty( "Database_image" ), this.getClass().getClassLoader() );
-    imageParallelHop = new SvgFile( BasePropertyHandler.getProperty( "ParallelHop_image" ), this.getClass().getClassLoader() );
-    imageUnconditionalHop = new SvgFile( BasePropertyHandler.getProperty( "UnconditionalHop_image" ), this.getClass().getClassLoader() );
-    imageBusy = new SvgFile( BasePropertyHandler.getProperty( "Busy_image" ), this.getClass().getClassLoader() );
-    imageInject = new SvgFile( BasePropertyHandler.getProperty( "Inject_image" ), this.getClass().getClassLoader() );
-    imageData = new SvgFile( BasePropertyHandler.getProperty( "Data_image" ), this.getClass().getClassLoader() );
-
-    defaultArrow = new SvgFile( BasePropertyHandler.getProperty( "defaultArrow_image" ), this.getClass().getClassLoader() );
-    okArrow = new SvgFile( BasePropertyHandler.getProperty( "okArrow_image" ), this.getClass().getClassLoader() );
-    errorArrow = new SvgFile( BasePropertyHandler.getProperty( "errorArrow_image" ), this.getClass().getClassLoader() );
-    disabledArrow = new SvgFile( BasePropertyHandler.getProperty( "disabledArrow_image" ), this.getClass().getClassLoader() );
-
+    
+    imageLocked = new SvgFile("ui/images/lock.svg", this.getClass().getClassLoader() );
+    imageTransformError = new SvgFile("ui/images/transform-error.svg", this.getClass().getClassLoader() );
+    imageEdit = new SvgFile("ui/images/edit.svg", this.getClass().getClassLoader() );
+    imageContextMenu = new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader() ); // Used ?
+    imageTrue = new SvgFile("ui/images/true.svg", this.getClass().getClassLoader() );
+    imageFalse = new SvgFile("ui/images/false.svg", this.getClass().getClassLoader() );
+    imageError = new SvgFile( "ui/images/error.svg", this.getClass().getClassLoader() );
+    imageInfo = new SvgFile("ui/images/info.svg", this.getClass().getClassLoader() );
+    imageTarget = new SvgFile("ui/images/target.svg", this.getClass().getClassLoader() );
+    imageInput = new SvgFile("ui/images/input.svg", this.getClass().getClassLoader() );
+    imageOutput = new SvgFile("ui/images/output.svg", this.getClass().getClassLoader() );
+    imageArrow = new SvgFile("ui/images/arrow.svg", this.getClass().getClassLoader() );
+    imageCopyRows = new SvgFile("ui/images/copy-rows.svg", this.getClass().getClassLoader() );
+    imageLoadBalance = new SvgFile("ui/images/scales.svg", this.getClass().getClassLoader() );
+    imageCheckpoint = new SvgFile("ui/images/checkpoint.svg" , this.getClass().getClassLoader() );
+    imageDatabase = new SvgFile("ui/images/database.svg", this.getClass().getClassLoader() );
+    imageParallel = new SvgFile("ui/images/parallel.svg", this.getClass().getClassLoader() );
+    imageUnconditional = new SvgFile("ui/images/unconditional-hop.svg", this.getClass().getClassLoader() );
+    imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader() );
+    imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader() );
+       
+    // Hop arrow
+    //
+    imageArrowDefault = new SvgFile("ui/images/hop-arrow-default.svg", this.getClass().getClassLoader() );
+    imageArrowOk = new SvgFile("ui/images/hop-arrow-ok.svg", this.getClass().getClassLoader() );
+    imageArrowError = new SvgFile("ui/images/hop-arrow-error.svg", this.getClass().getClassLoader() );
+    imageArrowDisabled = new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader() );
+   
+    
     fontGraph = new Font( "FreeSans", Font.PLAIN, 10 );
     fontNote = new Font( "FreeSans", Font.PLAIN, 10 );
     fontSmall = new Font( "FreeSans", Font.PLAIN, 8 );
@@ -533,19 +534,19 @@ public class SvgGc implements IGc {
       case FALSE:
         return imageFalse;
       case ERROR:
-        return imageErrorHop;
+        return imageError;
       case INFO:
-        return imageInfoHop;
+        return imageInfo;
       case TARGET:
-        return imageHopTarget;
+        return imageTarget;
       case INPUT:
-        return imageHopInput;
+        return imageInput;
       case OUTPUT:
-        return imageHopOutput;
+        return imageOutput;
       case ARROW:
         return imageArrow;
       case COPY_ROWS:
-        return imageCopyHop;
+        return imageCopyRows;
       case LOAD_BALANCE:
         return imageLoadBalance;
       case CHECKPOINT:
@@ -553,21 +554,21 @@ public class SvgGc implements IGc {
       case DB:
         return imageDatabase;
       case PARALLEL:
-        return imageParallelHop;
+        return imageParallel;
       case UNCONDITIONAL:
-        return imageUnconditionalHop;
+        return imageUnconditional;
       case BUSY:
         return imageBusy;
       case INJECT:
         return imageInject;
       case ARROW_DEFAULT:
-        return defaultArrow;
+        return imageArrowDefault;
       case ARROW_OK:
-        return okArrow;
+        return imageArrowOk;
       case ARROW_ERROR:
-        return errorArrow;
+        return imageArrowError;
       case ARROW_DISABLED:
-        return disabledArrow;
+        return imageArrowDisabled;
       case DATA:
         return imageData;
       default:

@@ -339,7 +339,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
         getClass().getClassLoader(),
-        "TRNEx.svg",
+        "ui/images/pipelineexecutor.svg",
         ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE);
   }

@@ -206,7 +206,7 @@ public class EnterSelectionDialog extends Dialog {
       wbRegex.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.useRegEx.Tooltip" ) );
 
       goSearch = new ToolItem( treeTb, SWT.PUSH );
-      goSearch.setImage( GuiResource.getInstance().getImageSearchSmall() );
+      goSearch.setImage( GuiResource.getInstance().getImageHopUi() );
       goSearch.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.refresh.Label" ) );
 
       goSearch.addSelectionListener( new SelectionAdapter() {

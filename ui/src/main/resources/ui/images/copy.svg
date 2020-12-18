@@ -1,1 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4.75 3A1.75 1.75 0 003 4.75v9.5c0 .966.784 1.75 1.75 1.75h1.5a.75.75 0 000-1.5h-1.5a.25.25 0 01-.25-.25v-9.5a.25.25 0 01.25-.25h9.5a.25.25 0 01.25.25v1.5a.75.75 0 001.5 0v-1.5A1.75 1.75 0 0014.25 3h-9.5zm5 5A1.75 1.75 0 008 9.75v9.5c0 .966.784 1.75 1.75 1.75h9.5A1.75 1.75 0 0021 19.25v-9.5A1.75 1.75 0 0019.25 8h-9.5zM9.5 9.75a.25.25 0 01.25-.25h9.5a.25.25 0 01.25.25v9.5a.25.25 0 01-.25.25h-9.5a.25.25 0 01-.25-.25v-9.5z"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="copy.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2275"
+     inkscape:window-height="1230"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="42"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4" />
+  <path
+     fill-rule="evenodd"
+     d="M 3.9642856,2.2142858 A 1.9166665,1.9212962 0 0 0 2.0476191,4.135582 v 10.429894 c 0,1.060555 0.8586666,1.921296 1.9166665,1.921296 h 1.6428573 a 0.82142878,0.82341292 0 0 0 0,-1.646825 H 3.9642856 A 0.27380952,0.2744709 0 0 1 3.6904762,14.565476 V 4.135582 A 0.27380952,0.2744709 0 0 1 3.9642856,3.8611111 H 14.369048 a 0.27380952,0.2744709 0 0 1 0.273809,0.2744709 v 1.6468255 a 0.82142878,0.82341292 0 0 0 1.642857,0 V 4.135582 A 1.9166665,1.9212962 0 0 0 14.369048,2.2142858 Z M 9.4404761,7.7037037 A 1.9166665,1.9212962 0 0 0 7.5238096,9.625 v 10.429894 c 0,1.060556 0.8586666,1.921296 1.9166665,1.921296 H 19.845237 a 1.9166665,1.9212962 0 0 0 1.916668,-1.921296 V 9.625 A 1.9166665,1.9212962 0 0 0 19.845237,7.7037037 Z M 9.1666667,9.625 A 0.27380952,0.2744709 0 0 1 9.4404761,9.3505291 H 19.845237 A 0.27380952,0.2744709 0 0 1 20.119048,9.625 v 10.429894 a 0.27380952,0.2744709 0 0 1 -0.273811,0.274471 H 9.4404761 A 0.27380952,0.2744709 0 0 1 9.1666667,20.054894 Z"
+     id="path2"
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.09656" />
+</svg>

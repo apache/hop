@@ -640,6 +640,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_UNDO,
       label = "Undo",
+      image = "ui/images/undo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, key = 'z')
@@ -651,6 +652,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_REDO,
       label = "Redo",
+      image = "ui/images/redo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
@@ -685,6 +687,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_FIND,
       label = "Find...",
+      image = "ui/images/search.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(key = 'f', control = true)
   @GuiOsxKeyboardShortcut(key = 'f', command = true)
@@ -733,6 +736,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_DELETE,
       label = "Delete selected",
+      image = "ui/images/delete.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = false, key = SWT.DEL)
   @GuiOsxKeyboardShortcut(command = false, key = SWT.DEL)
@@ -774,7 +778,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_START,
       label = "Start execution",
-      image = "ui/images/toolbar/run.svg",
+      image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   @GuiKeyboardShortcut(key = SWT.F8)
   public void menuRunStart() {
@@ -785,7 +789,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_STOP,
       label = "Stop execution",
-      image = "ui/images/toolbar/stop.svg",
+      image = "ui/images/stop.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunStop() {
     getActiveFileTypeHandler().stop();
@@ -795,7 +799,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PAUSE,
       label = "Pause execution",
-      image = "ui/images/toolbar/pause.svg",
+      image = "ui/images/pause.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPause() {
@@ -806,7 +810,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_RESUME,
       label = "Resume execution",
-      image = "ui/images/toolbar/run.svg",
+      image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunResume() {
     getActiveFileTypeHandler().pause();
@@ -816,6 +820,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PREVIEW,
       label = "Preview",
+      image = "ui/images/preview.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPreview() {
@@ -826,6 +831,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_DEBUG,
       label = "Debug",
+      image = "ui/images/debug.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunDebug() {
     getActiveFileTypeHandler().debug();

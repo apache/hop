@@ -103,7 +103,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
   public boolean open() {
     String shellTitle = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.Shell.Title" );
-    mainLayout( shellTitle, GuiResource.getInstance().getImagePipelineGraph() );
+    mainLayout( shellTitle, GuiResource.getInstance().getImagePipeline() );
 
     String alwaysShowOptionLabel = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.AlwaysOption.Value" );
     String alwaysShowOptionTooltip = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.alwaysShowOption" );

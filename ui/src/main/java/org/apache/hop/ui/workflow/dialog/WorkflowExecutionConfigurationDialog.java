@@ -128,7 +128,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   public boolean open() {
 
     String shellTitle = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.Shell.Title" );
-    mainLayout( shellTitle, GuiResource.getInstance().getImageWorkflowGraph() );
+    mainLayout( shellTitle, GuiResource.getInstance().getImageWorkflow() );
 
     addRunConfigurationSectionLayout();
 
