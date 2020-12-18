@@ -26,6 +26,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
+import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.ServletException;
@@ -92,7 +93,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
         // Generate workflow SVG image
         //
-        String svgXml = generateWorkflowSvgImage( workflow.getWorkflowMeta() );
+        String svgXml = WorkflowSvgPainter.generateWorkflowSvg( workflow.getWorkflowMeta(), 1.0f, variables );
         svgStream = new ByteArrayOutputStream();
         try {
           svgStream.write( svgXml.getBytes("UTF-8") );
@@ -111,23 +112,6 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
         svgStream.close();
       }
     }
-  }
-
-  private String generateWorkflowSvgImage( WorkflowMeta workflowMeta ) throws Exception {
-    float magnification = ZOOM_FACTOR;
-    Point maximum = workflowMeta.getMaximum();
-    maximum.multiply( magnification );
-
-    HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
-
-    SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x,maximum.y), 32, 0, 0 );
-    WorkflowPainter workflowPainter = new WorkflowPainter( gc, variables, workflowMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
-    workflowPainter.setMagnification( magnification );
-    workflowPainter.drawWorkflow();
-
-    // convert to SVG XML
-    //
-    return graphics2D.toXml();
   }
 
   public String toString() {

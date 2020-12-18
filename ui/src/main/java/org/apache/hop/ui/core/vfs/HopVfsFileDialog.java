@@ -51,7 +51,6 @@ import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -906,22 +905,25 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       }
     }
   }
-  
+
   private Image getFileImage(FileObject file) {
-  try {
-    IHopFileType<?> fileType = HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
-    if ( fileType!=null ) {
-      IPlugin plugin = PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
-      if ( plugin!=null && plugin.getImageFile()!=null )  {
-        return GuiResource.getInstance().getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    try {
+      IHopFileType<?> fileType =
+          HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
+      if (fileType != null) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
+        if (plugin != null && plugin.getImageFile() != null) {
+          return GuiResource.getInstance()
+              .getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        }
       }
-    }
-  } catch (HopException e) {
+    } catch (HopException e) {
       // Ignore
+    }
+
+    return fileImage;
   }
-  
-  return fileImage;
-}
 
   private String getFileSize(FileObject child) {
     try {
@@ -1060,13 +1062,21 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         // Save the "saveFilename" entered text by the user?
         //
         String oldFull = wFilename.getText();
-        try {
-          FileObject oldFullObject = HopVfs.getFileObject(oldFull);
-          if (!oldFullObject.isFolder()) {
-            saveFilename = oldFullObject.getName().getBaseName();
+        if (StringUtils.isNotEmpty(oldFull)) {
+          try {
+            FileObject oldFullObject = HopVfs.getFileObject(oldFull);
+            if (!oldFullObject.isFolder()) {
+              saveFilename = oldFullObject.getName().getBaseName();
+            }
+          } catch (Exception e) {
+            // This wasn't a valid filename, ignore the error to reduce spamming
           }
-        } catch (Exception e) {
-          // I guess it wasn't a valid filename, ignore the error to reduce spamming
+        } else {
+          // First call, set to filter path plus saveFilename
+          //
+          if (StringUtils.isNotEmpty(filterPath)) {
+            wFilename.setText(filterPath + "/" + saveFilename);
+          }
         }
 
         if (HopVfs.getFileObject(filename).isFolder()) {
