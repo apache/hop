@@ -52,7 +52,8 @@ public class PipelineSvgPainter {
               0,
               "Arial",
               10,
-              1.0d);
+              1.0d,
+              false);
       pipelinePainter.setMagnification(magnification);
       pipelinePainter.drawPipelineImage();
 

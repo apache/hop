@@ -48,6 +48,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   public static final int CORNER_RADIUS_3 = 6;
   public static final int CORNER_RADIUS_2 = 4;
 
+  protected boolean drawingEditIcons;
+
   protected double zoomFactor;
 
   protected Point area;
@@ -80,7 +82,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public BasePainter( IGc gc, IVariables variables, Object subject, Point area, IScrollBar hori,
                       IScrollBar vert, Point dropCandidate, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
-                      int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
+                      int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor, boolean drawingEditIcons ) {
     this.gc = gc;
     this.variables = variables;
     this.subject = subject;
@@ -102,6 +104,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     this.magnification = 1.0f;
     this.zoomFactor = zoomFactor;
+    this.drawingEditIcons = drawingEditIcons;
 
     gc.setAntialias( true );
 
@@ -498,5 +501,35 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.zoomFactor = zoomFactor;
   }
 
+  /**
+   * Gets drawingEditIcons
+   *
+   * @return value of drawingEditIcons
+   */
+  public boolean isDrawingEditIcons() {
+    return drawingEditIcons;
+  }
 
+  /**
+   * @param drawingEditIcons The drawingEditIcons to set
+   */
+  public void setDrawingEditIcons( boolean drawingEditIcons ) {
+    this.drawingEditIcons = drawingEditIcons;
+  }
+
+  /**
+   * Gets miniIconSize
+   *
+   * @return value of miniIconSize
+   */
+  public int getMiniIconSize() {
+    return miniIconSize;
+  }
+
+  /**
+   * @param miniIconSize The miniIconSize to set
+   */
+  public void setMiniIconSize( int miniIconSize ) {
+    this.miniIconSize = miniIconSize;
+  }
 }

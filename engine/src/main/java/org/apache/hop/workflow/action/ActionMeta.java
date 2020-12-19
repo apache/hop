@@ -152,7 +152,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
   public void clear() {
-    location = null;
+    location = new Point(0,0);
     action = null;
     nr = 0;
     launchingInParallel = false;
