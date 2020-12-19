@@ -147,13 +147,13 @@ public class EnterOptionsDialog extends Dialog {
 
   private int margin;
 
-  private Button wbToolTip;
+  private Button wToolTip;
 
-  private Button wbHelpTip;
+  private Button wHelpTip;
 
   private Button wbUseDoubleClick;
 
-  private Button wbAutoCollapse;
+  private Button wAutoCollapse;
 
   /** @deprecated Use CT without <i>props</i> parameter instead */
   @Deprecated
@@ -884,7 +884,7 @@ public class EnterOptionsDialog extends Dialog {
     wlFilename.setLayoutData(fdlFilename);
     wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilename.setText(Const.NVL(HopConfig.getInstance().getConfigFilename(), ""));
-    wlFilename.setEnabled(false);
+    wFilename.setEditable(false);
     props.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -930,7 +930,7 @@ public class EnterOptionsDialog extends Dialog {
     fdUseCache.top = new FormAttachment(wlUseCache, 0, SWT.CENTER);
     fdUseCache.right = new FormAttachment(100, 0);
     wUseCache.setLayoutData(fdUseCache);
-    lastControl = wUseCache;
+    lastControl = wlUseCache;
 
     // Auto load last file at startup?
     Label wlOpenLast = new Label(wGeneralComp, SWT.RIGHT);
@@ -938,7 +938,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook(wlOpenLast);
     FormData fdlOpenLast = new FormData();
     fdlOpenLast.left = new FormAttachment(0, 0);
-    fdlOpenLast.top = new FormAttachment(lastControl, 0, SWT.CENTER);
+    fdlOpenLast.top = new FormAttachment(lastControl, margin);
     fdlOpenLast.right = new FormAttachment(middle, -margin);
     wlOpenLast.setLayoutData(fdlOpenLast);
     wOpenLast = new Button(wGeneralComp, SWT.CHECK);
@@ -949,7 +949,7 @@ public class EnterOptionsDialog extends Dialog {
     fdOpenLast.top = new FormAttachment(wlOpenLast, 0, SWT.CENTER);
     fdOpenLast.right = new FormAttachment(100, 0);
     wOpenLast.setLayoutData(fdOpenLast);
-    lastControl = wOpenLast;
+    lastControl = wlOpenLast;
 
     // Auto save changed files?
     Label wlAutoSave = new Label(wGeneralComp, SWT.RIGHT);
@@ -968,7 +968,7 @@ public class EnterOptionsDialog extends Dialog {
     fdAutoSave.top = new FormAttachment(wlAutoSave, 0, SWT.CENTER);
     fdAutoSave.right = new FormAttachment(100, 0);
     wAutoSave.setLayoutData(fdAutoSave);
-    lastControl = wAutoSave;
+    lastControl = wlAutoSave;
 
     // Automatically split hops?
     Label wlAutoSplit = new Label(wGeneralComp, SWT.RIGHT);
@@ -989,7 +989,7 @@ public class EnterOptionsDialog extends Dialog {
     fdAutoSplit.top = new FormAttachment(wlAutoSplit, 0, SWT.CENTER);
     fdAutoSplit.right = new FormAttachment(100, 0);
     wAutoSplit.setLayoutData(fdAutoSplit);
-    lastControl = wAutoSplit;
+    lastControl = wlAutoSplit;
 
     // Show warning for copy / distribute...
     Label wlCopyDistrib = new Label(wGeneralComp, SWT.RIGHT);
@@ -1011,7 +1011,7 @@ public class EnterOptionsDialog extends Dialog {
     fdCopyDistrib.top = new FormAttachment(wlCopyDistrib, 0, SWT.CENTER);
     fdCopyDistrib.right = new FormAttachment(100, 0);
     wCopyDistrib.setLayoutData(fdCopyDistrib);
-    lastControl = wCopyDistrib;
+    lastControl = wlCopyDistrib;
 
     // Show exit warning?
     Label wlExitWarning = new Label(wGeneralComp, SWT.RIGHT);
@@ -1030,7 +1030,7 @@ public class EnterOptionsDialog extends Dialog {
     fdExitWarning.top = new FormAttachment(wlExitWarning, 0, SWT.CENTER);
     fdExitWarning.right = new FormAttachment(100, 0);
     wExitWarning.setLayoutData(fdExitWarning);
-    lastControl = wExitWarning;
+    lastControl = wlExitWarning;
 
     // Clear custom parameters. (from transform)
     Label wlClearCustom = new Label(wGeneralComp, SWT.RIGHT);
@@ -1087,15 +1087,15 @@ public class EnterOptionsDialog extends Dialog {
     fdlAutoCollapse.top = new FormAttachment(lastControl, 2 * margin);
     fdlAutoCollapse.right = new FormAttachment(middle, -margin);
     wlAutoCollapse.setLayoutData(fdlAutoCollapse);
-    wbAutoCollapse = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook(wbAutoCollapse);
-    wbAutoCollapse.setSelection(props.getAutoCollapseCoreObjectsTree());
+    wAutoCollapse = new Button(wGeneralComp, SWT.CHECK);
+    props.setLook( wAutoCollapse );
+    wAutoCollapse.setSelection(props.getAutoCollapseCoreObjectsTree());
     FormData fdAutoCollapse = new FormData();
     fdAutoCollapse.left = new FormAttachment(middle, 0);
     fdAutoCollapse.top = new FormAttachment(wlAutoCollapse, 0, SWT.CENTER);
     fdAutoCollapse.right = new FormAttachment(100, 0);
-    wbAutoCollapse.setLayoutData(fdAutoCollapse);
-    lastControl = wbAutoCollapse;
+    wAutoCollapse.setLayoutData(fdAutoCollapse);
+    lastControl = wlAutoCollapse;
 
     // Tooltips
     Label wlToolTip = new Label(wGeneralComp, SWT.RIGHT);
@@ -1106,15 +1106,15 @@ public class EnterOptionsDialog extends Dialog {
     fdlToolTip.top = new FormAttachment(lastControl, margin);
     fdlToolTip.right = new FormAttachment(middle, -margin);
     wlToolTip.setLayoutData(fdlToolTip);
-    wbToolTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook(wbToolTip);
-    wbToolTip.setSelection(props.showToolTips());
+    wToolTip = new Button(wGeneralComp, SWT.CHECK);
+    props.setLook( wToolTip );
+    wToolTip.setSelection(props.showToolTips());
     FormData fdbToolTip = new FormData();
     fdbToolTip.left = new FormAttachment(middle, 0);
     fdbToolTip.top = new FormAttachment(wlToolTip, 0, SWT.CENTER);
     fdbToolTip.right = new FormAttachment(100, 0);
-    wbToolTip.setLayoutData(fdbToolTip);
-    lastControl = wbToolTip;
+    wToolTip.setLayoutData(fdbToolTip);
+    lastControl = wlToolTip;
 
     // Help tool tips
     Label wlHelpTip = new Label(wGeneralComp, SWT.RIGHT);
@@ -1125,15 +1125,15 @@ public class EnterOptionsDialog extends Dialog {
     fdlHelpTip.top = new FormAttachment(lastControl, margin);
     fdlHelpTip.right = new FormAttachment(middle, -margin);
     wlHelpTip.setLayoutData(fdlHelpTip);
-    wbHelpTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook(wbHelpTip);
-    wbHelpTip.setSelection(props.isShowingHelpToolTips());
+    wHelpTip = new Button(wGeneralComp, SWT.CHECK);
+    props.setLook( wHelpTip );
+    wHelpTip.setSelection(props.isShowingHelpToolTips());
     FormData fdbHelpTip = new FormData();
     fdbHelpTip.left = new FormAttachment(middle, 0);
     fdbHelpTip.top = new FormAttachment(wlHelpTip, 0, SWT.CENTER);
     fdbHelpTip.right = new FormAttachment(100, 0);
-    wbHelpTip.setLayoutData(fdbHelpTip);
-    lastControl = wbHelpTip;
+    wHelpTip.setLayoutData(fdbHelpTip);
+    lastControl = wlHelpTip;
 
     // Help tool tips
     Label wlUseDoubleClick = new Label(wGeneralComp, SWT.RIGHT);
@@ -1360,9 +1360,9 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
-    props.setShowToolTips(wbToolTip.getSelection());
-    props.setAutoCollapseCoreObjectsTree(wbAutoCollapse.getSelection());
-    props.setShowingHelpToolTips(wbHelpTip.getSelection());
+    props.setShowToolTips( wToolTip.getSelection());
+    props.setAutoCollapseCoreObjectsTree( wAutoCollapse.getSelection());
+    props.setShowingHelpToolTips( wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
