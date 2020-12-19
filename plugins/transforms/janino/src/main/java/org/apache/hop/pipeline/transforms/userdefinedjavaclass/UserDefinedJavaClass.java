@@ -250,7 +250,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public List<IRowSet> getInputRowSets() {
-    return child.getInputRowSets();
+    return child==null ? getInputRowSetsImpl() : child.getInputRowSets();
   }
 
   public List<IRowSet> getInputRowSetsImpl() {
