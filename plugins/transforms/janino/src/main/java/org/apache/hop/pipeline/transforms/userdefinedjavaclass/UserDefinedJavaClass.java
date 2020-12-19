@@ -353,14 +353,18 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getOutputRowSets();
   }
 
-//  public String getPartitionID() {
-//    if ( child == null ) {
-//      return getPartitionIDImpl();
-//    } else {
-//      return child.getPartitionID();
-//    }
-//  }
-//
+  public String getPartitionId() {
+    if ( child == null ) {
+      return getPartitionIdImpl();
+    } else {
+      return child.getPartitionId();
+    }
+  }
+
+  public String getPartitionIdImpl() {
+    return super.getPartitionId();
+  }
+
 
   public Map<String, BlockingRowSet> getPartitionTargets() {
     if ( child == null ) {
@@ -494,18 +498,6 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getStatus();
   }
 
-  public ITransformData getTransformDataInterface() {
-    if ( child == null ) {
-      return getTransformDataInterfaceImpl();
-    } else {
-      return child.getTransformDataInterface();
-    }
-  }
-
-  public ITransformData getTransformDataInterfaceImpl() {
-    return super.getTransformDataInterface();
-  }
-
   public String getTransformPluginId() {
     if ( child == null ) {
       return getTransformPluginIdImpl();
@@ -517,18 +509,6 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   public String getTransformPluginIdImpl() {
     return super.getTransformPluginId();
   }
-
-//  public List<TransformListener> getTransformListeners() {
-//    if ( child == null ) {
-//      return getTransformListenersImpl();
-//    } else {
-//      return child.getTransformListeners();
-//    }
-//  }
-
-//  public List<TransformListener> getTransformListenersImpl() {
-//    return super.getTransformListeners();
-//  }
 
   public TransformMeta getTransformMeta() {
     if ( child == null ) {
@@ -554,7 +534,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getTransformName();
   }
 
-  public IPipelineEngine getTransImpl() {
+  public IPipelineEngine getPipelineImpl() {
     return super.getPipeline();
   }
 
@@ -569,42 +549,6 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   public PipelineMeta getPipelineMetaImpl() {
     return super.getPipelineMeta();
   }
-
-//  public String getTypeId() {
-//    if ( child == null ) {
-//      return getTypeIdImpl();
-//    } else {
-//      return child.getTypeId();
-//    }
-//  }
-
-//  public String getTypeIdImpl() {
-//    return super.getTypeId();
-//  }
-
-//  public int getUniqueTransformCountAcrossServers() {
-//    if ( child == null ) {
-//      return getUniqueTransformCountAcrossServersImpl();
-//    } else {
-//      return child.getUniqueTransformCountAcrossServers();
-//    }
-//  }
-
-//  public int getUniqueTransformCountAcrossServersImpl() {
-//    return super.getUniqueTransformCountAcrossServers();
-//  }
-
-//  public int getUniqueTransformNrAcrossServers() {
-//    if ( child == null ) {
-//      return getUniqueTransformNrAcrossServersImpl();
-//    } else {
-//      return child.getUniqueTransformNrAcrossServers();
-//    }
-//  }
-
-//  public int getUniqueTransformNrAcrossServersImpl() {
-//    return super.getUniqueTransformNrAcrossServers();
-//  }
 
   public String getVariable( String variableName ) {
     if ( child == null ) {
