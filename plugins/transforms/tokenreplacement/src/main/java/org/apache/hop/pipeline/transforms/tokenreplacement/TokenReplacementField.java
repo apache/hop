@@ -24,9 +24,6 @@ import org.apache.hop.core.injection.Injection;
 /**
  * Describes a single field in a text file
  *
- * @author Chris
- * @since 06-10-2014
- *
  */
 public class TokenReplacementField implements Cloneable {
   @Injection(name="TOKEN_FIELDNAME")

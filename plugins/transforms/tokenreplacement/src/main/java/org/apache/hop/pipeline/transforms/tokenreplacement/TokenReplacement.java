@@ -47,10 +47,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
-/**
- * @author Chris
- * @since 1-nov-2014
- */
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData>
         implements ITransform<TokenReplacementMeta, TokenReplacementData> {
   private static Class<?> PKG = TokenReplacementMeta.class; // for i18n purposes, needed by Translator2!!

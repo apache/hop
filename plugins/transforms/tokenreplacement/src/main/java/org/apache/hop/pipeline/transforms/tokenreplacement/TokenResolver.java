@@ -20,9 +20,7 @@ package org.apache.hop.pipeline.transforms.tokenreplacement;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by openbi on 10/31/2014.
- */
+
 public class TokenResolver {
 
   Map<String, String> tokenMap;

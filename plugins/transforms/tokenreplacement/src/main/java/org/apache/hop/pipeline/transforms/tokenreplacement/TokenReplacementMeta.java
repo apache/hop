@@ -48,10 +48,6 @@ import java.util.Date;
 import java.util.List;
 
 
-/*
- * Created on 4-apr-2003
- *
- */
 @Transform( id = "TokenReplacementPlugin",
         image = "token.svg",
         name = "BaseTransform.TypeLongDesc.TokenReplacement",
