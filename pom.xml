@@ -841,8 +841,6 @@
                         <exclude>**/*.kjb</exclude>
                         <exclude>**/*.hpl</exclude>
                         <exclude>**/*.hwf</exclude>
-                        <exclude>**/*.sh</exclude>
-                        <exclude>**/*.bat</exclude>
                         <exclude>**/*.yaml</exclude>
                         <exclude>**/*.csv</exclude>
                         <exclude>**/*.csv.bz2</exclude>
