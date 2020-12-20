@@ -856,7 +856,6 @@
                         <exclude>**/*.ods</exclude>
                         <exclude>**/*.xls</exclude>
                         <exclude>**/*.xlsx</exclude>
-                        <exclude>**/*.properties</exclude>
                         <exclude>**/PUT_JDBC_HERE</exclude>
                         <exclude>**/hop.pwd</exclude>
                         <exclude>**/*.list</exclude>
