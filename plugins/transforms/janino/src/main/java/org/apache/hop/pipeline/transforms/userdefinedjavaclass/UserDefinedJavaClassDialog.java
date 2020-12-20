@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaCl
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -50,6 +51,7 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.dnd.*;
@@ -95,8 +97,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private TreeItem wTreeClassesItem;
   private Listener lsTree;
 
-  private Image imageActiveScript, imageInactiveScript, imageInputFields, imageOutputFields;
-  private Image imageArrowOrange, imageArrowGreen, imageUnderGreen;
+  private Image imageActiveScript, imageInactiveScript;
+  
 
   private CTabFolder folder, wTabFolder;
   private Menu cMenu, tMenu;
@@ -141,26 +143,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (UserDefinedJavaClassMeta) in;
     genMeta = null;
-    try {
-      // ImageLoader xl = new ImageLoader();
-      imageUnderGreen = guiResource.getImage("ui/images/paper-clip.svg");
-      imageArrowGreen = guiResource.getImage("ui/images/OK_Arrow.svg");
-      imageArrowOrange = guiResource.getImage("ui/images/Error_Arrow.svg");
-      imageInputFields = guiResource.getImage("ui/images/hop-input.svg");
-      imageOutputFields = guiResource.getImage("ui/images/hop-output.svg");
-      //imageActiveScript = guiResource.getImage("ui/images/faScript.png");
-      //imageInactiveScript = guiResource.getImage("ui/images/fScript.png");
-      //TODO: Find new SVG images
-      imageActiveScript = guiResource.getImageEmpty16x16();
-      imageInactiveScript = guiResource.getImageEmpty16x16();
+    try {      
+      imageActiveScript = SwtSvgImageUtil.getImage(parent.getDisplay(), getClass().getClassLoader(), "userdefinedjavaclass.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+      imageInactiveScript = SwtSvgImageUtil.getImage(parent.getDisplay(), getClass().getClassLoader(), "userdefinedjavaclass.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
     } catch ( Exception e ) {
-      imageActiveScript = guiResource.getImageEmpty16x16();
-      imageInactiveScript = guiResource.getImageEmpty16x16();
-      imageInputFields = guiResource.getImageEmpty16x16();
-      imageOutputFields = guiResource.getImageEmpty16x16();
-      imageArrowOrange = guiResource.getImageEmpty16x16();
-      imageArrowGreen = guiResource.getImageEmpty16x16();
-      imageUnderGreen = guiResource.getImageEmpty16x16();
+      imageActiveScript = guiResource.getImageEmpty();
+      imageInactiveScript = guiResource.getImageEmpty();
     }
 
     try {
@@ -427,7 +415,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     // Adding the Default Transform Class Item to the Tree
     wTreeClassesItem = new TreeItem( wTree, SWT.NULL );
-    wTreeClassesItem.setImage( guiResource.getImageBol() );
+    wTreeClassesItem.setImage( guiResource.getImageFolder() );
     wTreeClassesItem.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Classes.Label" ) );
 
     // Set the shell size, based upon previous time...
@@ -439,17 +427,17 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     // Input Fields
     itemInput = new TreeItem( wTree, SWT.NULL );
-    itemInput.setImage( imageInputFields );
+    itemInput.setImage( guiResource.getImageInput() );
     itemInput.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.InputFields.Label" ) );
     itemInput.setData( "Field Helpers" );
     // Info Fields
     itemInfo = new TreeItem( wTree, SWT.NULL );
-    itemInfo.setImage( imageInputFields );
+    itemInfo.setImage( guiResource.getImageInput() );
     itemInfo.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.InfoFields.Label" ) );
     itemInfo.setData( "Field Helpers" );
     // Output Fields
     itemOutput = new TreeItem( wTree, SWT.NULL );
-    itemOutput.setImage( imageOutputFields );
+    itemOutput.setImage( guiResource.getImageOutput() );
     itemOutput.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.OutputFields.Label" ) );
     itemOutput.setData( "Field Helpers" );
 
@@ -1401,13 +1389,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private void buildSnippitsTree() {
 
     TreeItem item = new TreeItem( wTree, SWT.NULL );
-    item.setImage( guiResource.getImageBol() );
+    item.setImage( guiResource.getImageFolder() );
     item.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Snippits.Label" ) );
 
     Map<Category, TreeItem> categoryTreeItems = new EnumMap<Category, TreeItem>( Category.class );
     for ( Category cat : Category.values() ) {
       TreeItem itemGroup = new TreeItem( item, SWT.NULL );
-      itemGroup.setImage( imageUnderGreen );
+      itemGroup.setImage( guiResource.getImageFolder() );
       itemGroup.setText( cat.getDescription() );
       itemGroup.setData( "Snippits Category" );
       categoryTreeItems.put( cat, itemGroup );
@@ -1418,7 +1406,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       TreeItem itemGroup = categoryTreeItems.get( snippit.category );
       TreeItem itemSnippit = new TreeItem( itemGroup, SWT.NULL );
       itemSnippit.setText( snippit.name );
-      itemSnippit.setImage( imageArrowGreen );
+      itemSnippit.setImage( GuiResource.getInstance().getImageLabel() );
       itemSnippit.setData( snippit.code );
     }
   }
@@ -1449,7 +1437,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInput, SWT.NULL );
-            itemField.setImage( imageArrowOrange );
+            itemField.setImage( guiResource.getImageLabel() );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );
@@ -1466,7 +1454,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInfo, SWT.NULL );
-            itemField.setImage( imageArrowOrange );
+            itemField.setImage( guiResource.getImageLabel() );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );
@@ -1483,7 +1471,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( false, itemName );
             TreeItem itemField = new TreeItem( itemOutput, SWT.NULL );
-            itemField.setImage( imageArrowOrange );
+            itemField.setImage( guiResource.getImageLabel() );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );

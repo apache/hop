@@ -95,7 +95,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Title" ) ); // Select the
     // preview transform:
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();

@@ -324,7 +324,7 @@ public class MetadataExplorerDialog {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EDIT,
       toolTip = "Edit",
-      image = "ui/images/generic-edit.svg")
+      image = "ui/images/edit.svg")
   public void editMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
     if (manager != null && manager.editMetadata(activeObjectName)) {
@@ -336,7 +336,7 @@ public class MetadataExplorerDialog {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
       toolTip = "Delete",
-      image = "ui/images/generic-delete.svg")
+      image = "ui/images/delete.svg")
   public void deleteMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
     if (manager != null && manager.deleteMetadata(activeObjectName)) {

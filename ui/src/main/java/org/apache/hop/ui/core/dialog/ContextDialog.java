@@ -626,7 +626,7 @@ public class ContextDialog extends Dialog {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_COLLAPSE_ALL,
     toolTip = "Collapse all categories",
-    image = "ui/images/CollapseAll.svg"
+    image = "ui/images/collapse-all.svg"
   )
   public void collapseAll() {
     for ( CategoryAndOrder category : categories ) {
@@ -639,7 +639,7 @@ public class ContextDialog extends Dialog {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_EXPAND_ALL,
     toolTip = "Expand all categories",
-    image = "ui/images/ExpandAll.svg"
+    image = "ui/images/expand-all.svg"
   )
   public void expandAll() {
     for ( CategoryAndOrder category : categories ) {
@@ -673,7 +673,7 @@ public class ContextDialog extends Dialog {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_CLEAR_SEARCH,
     toolTip = "Clear search filter",
-    image = "ui/images/ClearText.svg",
+    image = "ui/images/clear-text.svg",
     separator = true
   )
   public void clearSearchFilter() {

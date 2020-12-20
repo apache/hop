@@ -837,7 +837,7 @@ public class HopGitPerspective implements IHopPerspective {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "Refresh",
-      image = "ui/images/refresh-enabled.svg",
+      image = "ui/images/refresh.svg",
       separator = true)
   public void refresh() {
     refreshContents();

@@ -202,11 +202,11 @@ public class EnterSelectionDialog extends Dialog {
       wfilter.setWidth( 120 );
 
       wbRegex = new ToolItem( treeTb, SWT.CHECK );
-      wbRegex.setImage( GuiResource.getInstance().getImageRegexSmall() );
+      wbRegex.setImage( GuiResource.getInstance().getImageRegex() );
       wbRegex.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.useRegEx.Tooltip" ) );
 
       goSearch = new ToolItem( treeTb, SWT.PUSH );
-      goSearch.setImage( GuiResource.getInstance().getImageSearchSmall() );
+      goSearch.setImage( GuiResource.getInstance().getImageRefresh() );
       goSearch.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.refresh.Label" ) );
 
       goSearch.addSelectionListener( new SelectionAdapter() {

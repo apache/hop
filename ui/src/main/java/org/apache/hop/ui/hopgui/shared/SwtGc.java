@@ -182,19 +182,19 @@ public class SwtGc implements IGc {
       case FALSE:
         return GuiResource.getInstance().getSwtImageFalse();
       case ERROR:
-        return GuiResource.getInstance().getSwtImageErrorHop();
+        return GuiResource.getInstance().getSwtImageError();
       case INFO:
-        return GuiResource.getInstance().getSwtImageInfoHop();
+        return GuiResource.getInstance().getSwtImageInfo();
       case TARGET:
-        return GuiResource.getInstance().getSwtImageHopTarget();
+        return GuiResource.getInstance().getSwtImageTarget();
       case INPUT:
-        return GuiResource.getInstance().getSwtImageHopInput();
+        return GuiResource.getInstance().getSwtImageInput();
       case OUTPUT:
-        return GuiResource.getInstance().getSwtImageHopOutput();
+        return GuiResource.getInstance().getSwtImageOutput();
       case ARROW:
         return GuiResource.getInstance().getSwtImageArrow();
       case COPY_ROWS:
-        return GuiResource.getInstance().getSwtImageCopyHop();
+        return GuiResource.getInstance().getSwtImageCopyRows();
       case LOAD_BALANCE:
         return GuiResource.getInstance().getSwtImageBalance();
       case CHECKPOINT:
@@ -210,15 +210,15 @@ public class SwtGc implements IGc {
       case INJECT:
         return GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT:
-        return GuiResource.getInstance().getDefaultArrow();
+        return GuiResource.getInstance().getSwtImageArrowDefault();
       case ARROW_OK:
-        return GuiResource.getInstance().getOkArrow();
+        return GuiResource.getInstance().getSwtImageArrowOk();
       case ARROW_ERROR:
-        return GuiResource.getInstance().getErrorArrow();
+        return GuiResource.getInstance().getSwtImageArrowError();
       case ARROW_DISABLED:
-        return GuiResource.getInstance().getDisabledArrow();
+        return GuiResource.getInstance().getSwtImageArrowDisabled();
       case ARROW_CANDIDATE:
-        return GuiResource.getInstance().getCandidateArrow();
+        return GuiResource.getInstance().getSwtImageArrowCandidate();
       case DATA:
         return GuiResource.getInstance().getSwtImageData();
       default:
@@ -399,20 +399,29 @@ public class SwtGc implements IGc {
 
   public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
     String transformType = transformMeta.getTransformPluginId();
-    Image im = null;
+    SwtUniversalImage swtImage = null;
+    
     if ( transformMeta.isMissing() ) {
-      im = GuiResource.getInstance().getImageMissing();
+      swtImage = GuiResource.getInstance().getSwtImageMissing();
     } else if ( transformMeta.isDeprecated() ) {
-      im = GuiResource.getInstance().getImageDeprecated();
+      swtImage = GuiResource.getInstance().getSwtImageDeprecated();
     } else {
-      im =
-        images.get( transformType ).getAsBitmapForSize( gc.getDevice(), Math.round( iconSize * magnification ),
-          Math.round( iconSize * magnification ) );
+      String pluginId = transformMeta.getPluginId();
+      if ( pluginId != null ) {
+        swtImage = GuiResource.getInstance().getImagesTransforms().get( pluginId );
+      }
     }
-    if ( im != null ) { // Draw the icon!
-      org.eclipse.swt.graphics.Rectangle bounds = im.getBounds();
-      gc.drawImage( im, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
+
+    if ( swtImage == null ) {
+      return;
     }
+
+    int w = Math.round( iconSize * magnification );
+    int h = Math.round( iconSize * magnification );
+    Image image = swtImage.getAsBitmapForSize( gc.getDevice(), w, h );
+
+    org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
+    gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
   }
 
   public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) {
@@ -426,12 +435,12 @@ public class SwtGc implements IGc {
     int h = Math.round( iconSize * magnification );
 
     if ( actionMeta.isMissing() ) {
-	swtImage = GuiResource.getInstance().getSwtImageMissing();
+	  swtImage = GuiResource.getInstance().getSwtImageMissing();
     }
     else {
-      String configId = actionMeta.getAction().getPluginId();
-      if ( configId != null ) {
-        swtImage = GuiResource.getInstance().getImagesActions().get( configId );
+      String pluginId = actionMeta.getAction().getPluginId();
+      if ( pluginId != null ) {
+        swtImage = GuiResource.getInstance().getImagesActions().get( pluginId );
       }
     }
 

@@ -2403,7 +2403,7 @@ public class TableView extends Composite {
     if ( buttonText != null ) {
       button.setText( buttonText );
     }
-    button.setImage( GuiResource.getInstance().getImage( "ui/images/edittext.svg" ) );
+    button.setImage( GuiResource.getInstance().getImage( "ui/images/edit.svg" ) );
 
     SelectionListener selAdpt = colinfo.getSelectionAdapter();
     if ( selAdpt != null ) {

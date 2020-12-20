@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.MenuItem;
 @HopPerspectivePlugin(
   id = "100-HopDataOrchestrationPerspective",
   name = "Data Orchestration",
-  image = "ui/images/pipeline.svg",
+  image = "ui/images/data_orch.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
 @GuiPlugin (description="Hop Data Orchestration Perspective GUI" )
@@ -340,7 +340,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public IHopFileTypeHandler addPipeline( HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GuiResource.getInstance().getImageToolbarPipeline() );
+    tabItem.setImage( GuiResource.getInstance().getImagePipeline() );
     HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
     tabItem.setControl( pipelineGraph );
 
@@ -396,7 +396,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public IHopFileTypeHandler addWorkflow( HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GuiResource.getInstance().getImageToolbarWorkflow() );
+    tabItem.setImage( GuiResource.getInstance().getImageWorkflow() );
     HopGuiWorkflowGraph workflowGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
     tabItem.setControl( workflowGraph );
 

@@ -5,11 +5,15 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   id="svg4"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   viewBox="0 0 24 24"
+   width="24"
    height="24"
-   width="24">
+   viewBox="0 0 24 24"
+   id="svg4"
+   sodipodi:docname="bookmark-add.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -18,36 +22,34 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs8" />
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1909"
+     inkscape:window-height="1378"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="42"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="450"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4" />
   <path
-     style="fill-rule:evenodd;stroke-width:0.85961586"
+     d="M 18.135758,0.71428569 A 2.4525114,2.5132275 0 0 1 20.588271,3.2275132 V 23.333333 L 12.004479,19.513227 3.4206899,23.333333 V 3.2275132 c 0,-1.4074074 1.1036301,-2.51322751 2.4525113,-2.51322751 H 18.135758 M 10.778224,5.7407406 V 8.2539681 H 8.3257128 v 2.5132269 h 2.4525112 v 2.513228 h 2.452513 v -2.513228 h 2.452512 V 8.2539681 H 13.230737 V 5.7407406 Z"
      id="path2"
-     d="m 2.3068237,2.9920434 c 0,-0.8346312 0.6705133,-1.512013 1.4966815,-1.512013 h 8.9800888 c 0.826168,0 1.496682,0.6773818 1.496682,1.512013 V 18.112174 a 0.6414349,0.6480056 0 0 1 -1.041691,0.506309 L 8.2935495,14.621584 3.3493693,18.617619 A 0.6414349,0.6480056 0 0 1 2.3068237,18.112174 Z M 3.8035052,2.7760416 A 0.21381163,0.21600187 0 0 0 3.5896935,2.9920434 V 16.764323 l 4.302745,-3.478494 a 0.6414349,0.6480056 0 0 1 0.802222,0 l 4.3027455,3.478494 V 2.9920434 A 0.21381163,0.21600187 0 0 0 12.783594,2.7760416 Z" />
-  <g
-     transform="matrix(0.26379294,0,0,0.26379294,14.944862,14.506287)"
-     id="Layer_2">
-    <g
-       id="Layer_2_1_">
-      <rect
-         id="rect2"
-         height="32"
-         width="32"
-         x="0"
-         y="0"
-         style="fill:none" />
-    </g>
-  </g>
-  <g
-     transform="matrix(0.26379294,0,0,0.26379294,14.944862,14.506287)"
-     id="art">
-    <polygon
-       id="polygon6"
-       points="18.2,18.2 32,18.2 32,13.8 18.2,13.8 18.2,0 13.8,0 13.8,13.8 0,13.8 0,18.2 13.8,18.2 13.8,32 18.2,32 "
-       style="fill:#3d6380" />
-  </g>
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.24134" />
 </svg>
