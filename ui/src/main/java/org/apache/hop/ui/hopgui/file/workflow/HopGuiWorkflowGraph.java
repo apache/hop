@@ -286,8 +286,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private List<AreaOwner> areaOwners;
 
-  private Map<ActionMeta, DelayTimer> delayTimers;
-
   private HopWorkflowFileType<WorkflowMeta> fileType;
 
   private ActionMeta startHopAction;
@@ -321,7 +319,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     this.props = PropsUi.getInstance();
     this.areaOwners = new ArrayList<>();
-    this.delayTimers = new HashMap<>();
 
     workflowLogDelegate = new HopGuiWorkflowLogDelegate(hopGui, this);
     workflowGridDelegate = new HopGuiWorkflowGridDelegate(hopGui, this);
@@ -559,7 +556,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           case ACTION_MINI_ICON_EDIT:
             clearSettings();
             currentAction = (ActionMeta) areaOwner.getOwner();
-            stopActionMouseOverDelayTimer(currentAction);
             editAction(currentAction);
             break;
 
@@ -719,10 +715,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       } else {
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
-        selectionRegion = null;
-        stopActionMouseOverDelayTimers();
-        updateGui();
       }
+      selectionRegion = null;
+      updateGui();
     } else {
       // Clicked on an icon?
       //
@@ -1081,11 +1076,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       switch (areaOwner.getAreaType()) {
         case ACTION_ICON:
           actionCopy = (ActionMeta) areaOwner.getOwner();
-          resetDelayTimer(actionCopy);
           break;
         case MINI_ICONS_BALLOON: // Give the timer a bit more time
           actionCopy = (ActionMeta) areaOwner.getOwner();
-          resetDelayTimer(actionCopy);
           break;
         default:
           break;
@@ -1158,7 +1151,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ActionMeta actionCopy = selectedActions.get(i);
           PropsUi.setLocation(
               actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
-          stopActionMouseOverDelayTimer(actionCopy);
         }
       }
       // Adjust location of selected hops...
@@ -1349,26 +1341,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
     return null;
-  }
-
-  private void stopActionMouseOverDelayTimer(final ActionMeta actionMeta) {
-    DelayTimer delayTimer = delayTimers.get(actionMeta);
-    if (delayTimer != null) {
-      delayTimer.stop();
-    }
-  }
-
-  private void stopActionMouseOverDelayTimers() {
-    for (DelayTimer timer : delayTimers.values()) {
-      timer.stop();
-    }
-  }
-
-  private void resetDelayTimer(ActionMeta actionMeta) {
-    DelayTimer delayTimer = delayTimers.get(actionMeta);
-    if (delayTimer != null) {
-      delayTimer.reset();
-    }
   }
 
   protected void asyncRedraw() {
@@ -1623,8 +1595,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     for (int i = 0; i < workflowMeta.nrWorkflowHops(); i++) {
       workflowMeta.getWorkflowHop(i).setSplit(false);
     }
-
-    stopActionMouseOverDelayTimers();
   }
 
   public Point getRealPosition(Composite canvas, int x, int y) {
@@ -2373,25 +2343,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         case ACTION_MINI_ICON_INPUT:
           tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EntryInputConnector.Tooltip"));
           tipImage = GuiResource.getInstance().getImageHopInput();
-          resetDelayTimer((ActionMeta) areaOwner.getOwner());
           break;
 
         case ACTION_MINI_ICON_OUTPUT:
           tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EntryOutputConnector.Tooltip"));
           tipImage = GuiResource.getInstance().getImageHopOutput();
-          resetDelayTimer((ActionMeta) areaOwner.getOwner());
           break;
 
         case ACTION_MINI_ICON_EDIT:
           tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EditTransform.Tooltip"));
           tipImage = GuiResource.getInstance().getImageEdit();
-          resetDelayTimer((ActionMeta) areaOwner.getOwner());
           break;
 
         case ACTION_MINI_ICON_CONTEXT:
           tip.append(BaseMessages.getString(PKG, "WorkflowGraph.ShowMenu.Tooltip"));
           tipImage = GuiResource.getInstance().getImageContextMenu();
-          resetDelayTimer((ActionMeta) areaOwner.getOwner());
           break;
 
         case ACTION_RESULT_FAILURE:

@@ -896,9 +896,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       } else {
         pipelineMeta.unselectAll();
         selectInRect(pipelineMeta, selectionRegion);
-        selectionRegion = null;
-        updateGui();
       }
+      selectionRegion = null;
+      updateGui();
     } else {
       // Clicked on an icon?
       //
@@ -1033,6 +1033,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (avoidContextDialog) {
       avoidContextDialog = false;
+      selectionRegion=null;
       return;
     }
 
