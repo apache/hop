@@ -57,7 +57,7 @@ public class HopGuiWorkflowClipboardDelegate {
   private static final Class<?> PKG = HopGui.class; // Needed by Translator
   
   public static final String XML_TAG_WORKFLOW_ACTIONS = "workflow-actions";
-  private static final String XML_TAG_ACTIONS = "actions";
+  public static final String XML_TAG_ACTIONS = "actions";
 
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;
@@ -204,7 +204,7 @@ public class HopGuiWorkflowClipboardDelegate {
     try {
       // Are we pasting filenames?
       //
-      if (clipboardContent.startsWith( "file:///" )) {
+      if (clipboardContent.startsWith( "file:///" ) || clipboardContent.startsWith( "/" )) {
         String[] filenames = clipboardContent.split( Const.CR );
 
         for (String filename : filenames) {

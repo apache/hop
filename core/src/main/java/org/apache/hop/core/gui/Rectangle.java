@@ -69,4 +69,8 @@ public class Rectangle {
     double deltaY = getCentreY()-r.getCentreY();
     return Math.sqrt( deltaX*deltaX + deltaY*deltaY );
   }
+
+  public boolean isEmpty() {
+    return width==0 && height==0;
+  }
 }

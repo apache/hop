@@ -169,6 +169,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private int sortIndex = 0;
   private boolean ascending = true;
 
+  public HopVfsFileDialog() {
+  }
+
   public HopVfsFileDialog(
       Shell parent,
       IVariables variables,
@@ -208,6 +211,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fileImage = GuiResource.getInstance().getImageFile();
     folderImage = GuiResource.getInstance().getImageFolder();
   }
+
 
   /**
    * Gets the active instance of this dialog
