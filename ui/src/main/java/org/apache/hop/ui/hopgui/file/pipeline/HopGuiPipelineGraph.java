@@ -5089,7 +5089,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Copy as pipeline action",
     tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
-    image = "ui/images/CPY.svg",
+    image = "ui/images/copy.svg",
     category = "Basic",
     categoryOrder = "1")
   public void copyAsActionToClipboard(HopGuiPipelineContext context) {
