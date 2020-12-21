@@ -686,7 +686,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             currentAction = (ActionMeta) areaOwner.getOwner();
             hopCandidate = new WorkflowHopMeta(startHopAction, currentAction);
             addCandidateAsHop();
-            startHopAction=null;
+            // startHopAction=null;
             redraw();
           }
           break;
