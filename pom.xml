@@ -864,6 +864,10 @@
                         <exclude>archive-samples/</exclude>
                         <exclude>pom.xml</exclude>
                         <exclude>licenses/</exclude>
+
+                        <!-- Unit Test Exclusions -->
+                        <exclude>**/plugins/transforms/json/src/test/resources/transform_default.xml</exclude>
+                        <exclude>**/plugins/transforms/json/src/test/resources/transform_defaultPathLeafToNull_N.xml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
