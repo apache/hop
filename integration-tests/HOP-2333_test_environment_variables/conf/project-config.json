@@ -1,0 +1,10 @@
+{
+  "description" : "HOP-2333 Test Environment Variables",
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "config" : {
+    "variables" : [ ]
+  }
+}
