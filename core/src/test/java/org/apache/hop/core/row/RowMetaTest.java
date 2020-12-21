@@ -104,7 +104,7 @@ public class RowMetaTest {
       testXmlNode = IOUtils.toString( in );
     }
     Document xmlDoc = XmlHandler.loadXmlString( testXmlNode );
-    RowMeta rowMeta = spy( new RowMeta( xmlDoc.getFirstChild() ) );
+    RowMeta rowMeta = spy( new RowMeta( XmlHandler.getSubNode( xmlDoc, RowMeta.XML_META_TAG  ) ));
     assertEquals( 2, rowMeta.getValueMetaList().size() );
     IValueMeta valueMeta = rowMeta.getValueMeta( 0 );
     assertTrue( valueMeta instanceof ValueMetaDate );

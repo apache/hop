@@ -933,20 +933,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * @return Returns the iTransformData.
-   */
-  public ITransformData getTransformDataInterface() {
-    return data;
-  }
-
-  /**
-   * @param iTransformData The iTransformData to set.
-   */
-  public void setTransformDataInterface( Data iTransformData ) {
-    this.data = iTransformData;
-  }
-
-  /**
    * @return Returns the transformMeta.
    */
   @Override

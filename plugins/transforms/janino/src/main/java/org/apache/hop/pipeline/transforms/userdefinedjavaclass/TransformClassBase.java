@@ -29,9 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -198,9 +196,9 @@ public abstract class TransformClassBase {
     return parent.getOutputRowSetsImpl();
   }
 
-//  public String getPartitionID() {
-//    return parent.getPartitionIDImpl();
-//  }
+  public String getPartitionId() {
+    return parent.getPartitionId();
+  }
 
   public Map<String, BlockingRowSet> getPartitionTargets() {
     return parent.getPartitionTargetsImpl();
@@ -242,14 +240,6 @@ public abstract class TransformClassBase {
     return parent.getRowListenersImpl();
   }
 
-//  public long getRuntime() {
-//    return parent.getRuntimeImpl();
-//  }
-//
-//  public int getServerNr() {
-//    return parent.getServerNrImpl();
-//  }
-
   public ComponentExecutionStatus getStatus() {
     return parent.getStatusImpl();
   }
@@ -258,17 +248,9 @@ public abstract class TransformClassBase {
     return parent.getStatusDescriptionImpl();
   }
 
-  public ITransformData getTransformDataInterface() {
-    return parent.getTransformDataInterfaceImpl();
-  }
-
   public String getTransformPluginId() {
     return parent.getTransformPluginIdImpl();
   }
-
-//  public List<TransformListener> getTransformListeners() {
-//    return parent.getTransformListenersImpl();
-//  }
 
   public TransformMeta getTransformMeta() {
     return parent.getTransformMetaImpl();
@@ -279,24 +261,12 @@ public abstract class TransformClassBase {
   }
 
   public IPipelineEngine getPipeline() {
-    return parent.getTransImpl();
+    return parent.getPipelineImpl();
   }
 
   public PipelineMeta getPipelineMeta() {
     return parent.getPipelineMetaImpl();
   }
-
-//  public String getTypeId() {
-//    return parent.getTypeIdImpl();
-//  }
-//
-//  public int getUniqueTransformCountAcrossServers() {
-//    return parent.getUniqueTransformCountAcrossServersImpl();
-//  }
-//
-//  public int getUniqueTransformNrAcrossServers() {
-//    return parent.getUniqueTransformNrAcrossServersImpl();
-//  }
 
   public String getVariable( String variableName ) {
     return parent.getVariableImpl( variableName );
@@ -406,14 +376,6 @@ public abstract class TransformClassBase {
     parent.markStopImpl();
   }
 
-//  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
-//    parent.openRemoteInputTransformSocketsOnceImpl();
-//  }
-
-//  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
-//    parent.openRemoteOutputTransformSocketsOnceImpl();
-//  }
-
   public boolean outputIsDone() {
     return parent.outputIsDoneImpl();
   }
@@ -496,10 +458,6 @@ public abstract class TransformClassBase {
   public void setOutputRowSets( List<IRowSet> outputRowSets ) {
     parent.setOutputRowSetsImpl( outputRowSets );
   }
-
-//  public void setTransformListeners( List<TransformListener> transformListeners ) {
-//    parent.setTransformListenersImpl( transformListeners );
-//  }
 
   public void setVariable( String variableName, String variableValue ) {
     parent.setVariableImpl( variableName, variableValue );
@@ -657,5 +615,32 @@ public abstract class TransformClassBase {
     } else {
       return RowDataUtil.createResizedCopy( inputRow, outputRowSize );
     }
+  }
+
+  /**
+   * Gets parent
+   *
+   * @return value of parent
+   */
+  public UserDefinedJavaClass getParent() {
+    return parent;
+  }
+
+  /**
+   * Gets meta
+   *
+   * @return value of meta
+   */
+  public UserDefinedJavaClassMeta getMeta() {
+    return meta;
+  }
+
+  /**
+   * Gets data
+   *
+   * @return value of data
+   */
+  public UserDefinedJavaClassData getData() {
+    return data;
   }
 }

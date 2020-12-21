@@ -38,6 +38,8 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -155,6 +157,13 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       //
       workflowMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
+      // Add a Start action by default...
+      //
+      ActionStart start = new ActionStart("Start");
+      ActionMeta startMeta = new ActionMeta(start);
+      startMeta.setLocation( 50, 50 );
+      workflowMeta.addAction( startMeta );
+
       // Show it in the perspective
       //
       return perspective.addWorkflow( hopGui, workflowMeta, this );
@@ -191,7 +200,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
     GuiAction newAction = new GuiAction( ACTION_ID_NEW_WORKFLOW, GuiActionType.Create, "Workflow",
       "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
-      BasePropertyHandler.getProperty( "Workflow_image" ),
+      "ui/images/workflow.svg",
       ( shiftClicked, controlClicked, parameters ) -> {
         try {
           HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );

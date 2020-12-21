@@ -341,26 +341,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     setButtonPositions( new Button[] { wOk, wCancel, wTest /* , wCreatePlugin */ }, margin, null );
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTree = new Listener() {
-      public void handleEvent( Event e ) {
-        treeDblClick( e );
-      }
-    };
+    lsCancel = e -> cancel();
+    lsTest = e -> test();
+    lsOk = e -> ok();
+    lsTree = e -> treeDblClick( e );
     /*
      * lsCreatePlugin = new Listener() { public void handleEvent(Event e) { createPlugin(); } };
      */

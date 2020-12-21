@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
@@ -25,19 +26,45 @@ import org.apache.hop.core.variables.IVariables;
 import java.util.ArrayList;
 
 public class WorkflowSvgPainter {
-  public static String generateWorkflowSvg( WorkflowMeta workflowMeta, float magnification, IVariables variables ) throws Exception {
-    Point maximum = workflowMeta.getMaximum();
-    maximum.multiply( magnification );
 
-    HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
+  public static final String generateWorkflowSvg(
+      WorkflowMeta workflowMeta, float magnification, IVariables variables) throws HopException {
+    try {
+      Point maximum = workflowMeta.getMaximum();
+      maximum.multiply(magnification);
 
-    SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x,maximum.y), 32, 0, 0 );
-    WorkflowPainter workflowPainter = new WorkflowPainter( gc, variables, workflowMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
-    workflowPainter.setMagnification( magnification );
-    workflowPainter.drawWorkflow();
+      HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
 
-    // convert to SVG XML
-    //
-    return graphics2D.toXml();
+      SvgGc gc = new SvgGc(graphics2D, new Point(maximum.x, maximum.y), 32, 0, 0);
+      WorkflowPainter workflowPainter =
+          new WorkflowPainter(
+              gc,
+              variables,
+              workflowMeta,
+              maximum,
+              null,
+              null,
+              null,
+              null,
+              null,
+              new ArrayList<>(),
+              32,
+              1,
+              0,
+              "Arial",
+              10,
+              1.0d,
+              false
+          );
+      workflowPainter.setMagnification(magnification);
+      workflowPainter.drawWorkflow();
+
+      // convert to SVG XML
+      //
+      return graphics2D.toXml();
+
+    } catch (Exception e) {
+      throw new HopException("Unable to generate SVG for workflow " + workflowMeta.getName(), e);
+    }
   }
 }

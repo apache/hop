@@ -136,7 +136,7 @@ public class ZipFileMetaTest {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     ZipFile zipFile = new ZipFile( transformMeta, zipFileMeta,transformData, 0, pipelineMeta, pipeline );
     assertEquals( transformMeta, zipFile.getTransformMeta() );
-    assertEquals( transformData, zipFile.getTransformDataInterface() );
+    assertEquals( transformData, zipFile.getData() );
     assertEquals( pipelineMeta, zipFile.getPipelineMeta() );
     assertEquals( pipeline, zipFile.getPipeline() );
     assertEquals( 0, zipFile.getCopy() );

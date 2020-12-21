@@ -83,7 +83,7 @@ public class RowGeneratorUnitTest {
 
   @Test
   public void testReadRowLimitAsPipelineVar() throws HopException {
-    long rowLimit = ( (RowGeneratorData) rowGenerator.getTransformDataInterface() ).rowLimit;
+    long rowLimit = rowGenerator.getData().rowLimit;
     assertEquals( rowLimit, 1440 );
   }
 
