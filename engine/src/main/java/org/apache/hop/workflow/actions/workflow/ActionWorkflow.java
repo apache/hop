@@ -71,7 +71,7 @@ import java.util.UUID;
  */
 @Action(
   id = "WORKFLOW",
-  image = "ui/images/workflow3.svg",
+  image = "ui/images/workflow.svg",
   i18nPackageName = "org.apache.hop.workflow.actions.workflow",
   name = "ActionWorkflow.Name",
   description = "ActionWorkflow.Description",

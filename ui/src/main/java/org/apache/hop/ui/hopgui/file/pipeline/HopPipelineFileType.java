@@ -50,7 +50,7 @@ import java.util.Properties;
 @HopFileTypePlugin(
   id = "HopFile-Pipeline-Plugin",
   description = "The pipeline file information for the Hop GUI",
-  image="ui/images/PPL.svg"
+  image="ui/images/pipeline.svg"
 )
 public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
@@ -193,7 +193,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     List<IGuiContextHandler> handlers = new ArrayList<>();
 
     GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Pipeline", "Creates a new pipeline. Process your data using a network of transforms running in parallel",
-      BasePropertyHandler.getProperty( "Pipeline_image" ),
+        "ui/images/pipeline.svg",
       ( shiftClicked, controlClicked, parameters ) -> {
         try {
           HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );

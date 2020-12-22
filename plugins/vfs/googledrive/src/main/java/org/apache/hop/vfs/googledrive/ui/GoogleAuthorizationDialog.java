@@ -54,7 +54,7 @@ public class GoogleAuthorizationDialog extends Dialog {
   protected Display display;
 
   private static final int OPTIONS = SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM;
-  private static final Image LOGO = GuiResource.getInstance().getImageLogoSmall();
+  private static final Image LOGO = GuiResource.getInstance().getImageHopUi();
   private VerificationCodeReceiver receiver;
 
   public GoogleAuthorizationDialog(Shell shell, VerificationCodeReceiver receiver) {

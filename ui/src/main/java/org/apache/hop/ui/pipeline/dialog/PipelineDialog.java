@@ -154,7 +154,7 @@ public class PipelineDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipeline() );
 
     lsMod = e -> changed = true;
     lsModSel = new SelectionAdapter() {

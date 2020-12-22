@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generator: Adobe Illustrator 19.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -8,78 +6,58 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   id="Layer_1"
-   x="0px"
-   y="0px"
-   viewBox="0 0 24 24"
-   style="enable-background:new 0 0 24 24;"
-   xml:space="preserve"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    sodipodi:docname="partition_schema.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"><metadata
-   id="metadata26"><rdf:RDF><cc:Work
-       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
-   id="defs24">
-	
-    
-
-		
-	
-			
-      
-      
-      
-		</defs><sodipodi:namedview
-   pagecolor="#ffffff"
-   bordercolor="#666666"
-   borderopacity="1"
-   objecttolerance="10"
-   gridtolerance="10"
-   guidetolerance="10"
-   inkscape:pageopacity="0"
-   inkscape:pageshadow="2"
-   inkscape:window-width="640"
-   inkscape:window-height="480"
-   id="namedview22"
-   showgrid="false"
-   inkscape:zoom="45.254834"
-   inkscape:cx="-0.78033121"
-   inkscape:cy="11.703124"
-   inkscape:current-layer="Layer_1" />
-<style
-   type="text/css"
-   id="style2">
-	.st0{fill:none;}
-	.st1{fill:#1CB24B;}
-</style>
-  <g
-   id="Layer_2">
-		<g
-   id="Layer_2_1_">
-			<rect
-   style="fill:none"
-   id="rect4"
-   height="16"
-   width="16"
-   class="st0"
-   y="4"
-   x="4" />
-		</g>
-	</g><polygon
-   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
-   id="polygon10"
-   points="9.4,16 5.3,20 4.1,18.8 8.1,14.7 6.2,14.7 6.2,13 11.1,13 11.1,17.9 9.4,17.9 "
-   class="st1"
-   transform="rotate(75,8.3208332,19.780427)" /><polygon
-   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
-   id="polygon14"
-   points="6.2,9.3 8.1,9.3 4.1,5.2 5.3,4 9.4,8 9.4,6.1 11.1,6.1 11.1,11 6.2,11 "
-   class="st1"
-   transform="rotate(-75,7.8832501,3.9973663)" />
-<polygon
-   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
-   id="polygon14-3"
-   points="11.1,6.1 11.1,11 6.2,11 6.2,9.3 8.1,9.3 4.1,5.2 5.3,4 9.4,8 9.4,6.1 "
-   class="st1"
-   transform="rotate(-45,14.53231,5.1348391)" /></svg>
+   id="svg4"
+   viewBox="0 0 24 24"
+   height="24"
+   width="24"
+   version="1.1">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg4"
+     inkscape:window-maximized="0"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
+     inkscape:cy="13.179743"
+     inkscape:cx="2.8570141"
+     inkscape:zoom="2.625"
+     showguides="false"
+     showgrid="false"
+     id="namedview6"
+     inkscape:window-height="1098"
+     inkscape:window-width="1766"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     style="stroke-width:0.761551;fill:#0e3a5a;fill-opacity:1"
+     d="m 7.809907,1.8427453 v 1.5231025 h 2.735338 L 7.1182638,6.7928283 8.1906829,7.8667344 11.617664,4.4397539 V 7.173604 h 1.5231 V 1.8427453 Z"
+     id="path2-1-3" />
+  <path
+     style="stroke-width:0.727495;fill:#0e3a5a;fill-opacity:1"
+     id="path2-1-3-4"
+     d="m 13.079566,16.438258 h -1.454993 v 2.613018 L 8.3508423,15.777544 7.3249595,16.802006 10.598691,20.075738 H 7.9870944 v 1.45499 h 5.0924716 z" />
+  <path
+     style="stroke-width:0.794478;fill:#0e3a5a;fill-opacity:1"
+     id="path2-1-3-46"
+     d="m 14.248748,15.614046 -1.128173,-1.118932 2.009489,-2.026083 -5.055986,0.02079 -0.0077,-1.583283 5.055986,-0.02079 -2.024983,-2.0083941 1.118933,-1.1281716 3.948603,3.9162617 z" />
+</svg>

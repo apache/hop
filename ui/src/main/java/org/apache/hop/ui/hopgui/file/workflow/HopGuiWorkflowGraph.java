@@ -76,7 +76,6 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
-import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
@@ -143,7 +142,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -967,7 +965,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         //
         toolTip.hide();
         toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
-        toolTip.setImage(GuiResource.getInstance().getImageInfoHop());
+        toolTip.setImage(GuiResource.getInstance().getImageInfo());
         toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
         toolTip.show(new org.eclipse.swt.graphics.Point(e.x, e.y));
 
@@ -1390,7 +1388,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_START,
       // label = "Start",
       toolTip = "Start the execution of the pipeline",
-      image = "ui/images/toolbar/run.svg")
+      image = "ui/images/run.svg")
   @Override
   public void start() {
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
@@ -1422,7 +1420,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_STOP,
       // label = "Stop",
       toolTip = "Stop the execution of the workflow",
-      image = "ui/images/toolbar/stop.svg")
+      image = "ui/images/stop.svg")
   @Override
   public void stop() {
 
@@ -1669,7 +1667,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Create,
       name = "Create hop",
       tooltip = "Create a new hop between 2 actions",
-      image = "ui/images/HOP.svg",
+      image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
   public void newHopCandidate(HopGuiWorkflowActionContext context) {
@@ -1684,7 +1682,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit action description",
       tooltip = "Modify the action description",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editActionDescription(HopGuiWorkflowActionContext context) {
@@ -1767,7 +1765,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "Delete this action",
       tooltip = "Delete the selected action from the workflow",
-      image = "ui/images/generic-delete.svg",
+      image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void deleteAction(HopGuiWorkflowActionContext context) {
@@ -1838,7 +1836,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Paste from the clipboard",
       tooltip = "Paste actions, notes or a whole workflow from the clipboard",
-      image = "ui/images/CPY.svg",
+      image = "ui/images/paste.svg",
       category = "Basic",
       categoryOrder = "1")
   public void pasteFromClipboard(HopGuiWorkflowContext context) {
@@ -1852,7 +1850,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit workflow",
       tooltip = "Edit the workflow properties",
-      image = "ui/images/toolbar/workflow3.svg",
+      image = "ui/images/workflow.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editWorkflowProperties(HopGuiWorkflowContext context) {
@@ -1869,7 +1867,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Create,
       name = "Create a note",
       tooltip = "Create a new note",
-      image = "ui/images/new.svg",
+      image = "ui/images/note-add.svg",
       category = "Basic",
       categoryOrder = "1")
   public void newNote(HopGuiWorkflowContext context) {
@@ -1918,7 +1916,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit",
       tooltip = "Edit the note",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editNote(HopGuiWorkflowNoteContext context) {
@@ -1932,7 +1930,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "Delete",
       tooltip = "Delete the note",
-      image = "ui/images/generic-delete.svg",
+      image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void deleteNote(HopGuiWorkflowNoteContext context) {
@@ -1972,7 +1970,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Enable hop",
       tooltip = "Enable the hop",
-      image = "ui/images/HOP.svg",
+      image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
   public void enableHop(HopGuiWorkflowHopContext context) {
@@ -2309,7 +2307,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           String message = (String) areaOwner.getOwner();
           tip.append(message);
           tipImage = null;
-          GuiResource.getInstance().getImagePipelineGraph();
+          GuiResource.getInstance().getImagePipeline();
           break;
 
         case ACTION_RESULT_FAILURE:
@@ -2639,7 +2637,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit the action",
       tooltip = "Edit the action properties",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editAction(HopGuiWorkflowActionContext context) {
@@ -2794,8 +2792,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_SNAP_TO_GRID,
       // label = "Snap to grid",
       toolTip = "Align the selected actions to the specified grid size",
-      image = "ui/images/toolbar/snap-to-grid.svg",
-      disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg")
+      image = "ui/images/snap-to-grid.svg",
+      disabledImage = "ui/images/snap-to-grid-disabled.svg")
   public void snapToGrid() {
     snapToGrid(ConstUi.GRID_SIZE);
   }
@@ -2808,8 +2806,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_LEFT,
       toolTip = "Align the actions with the left-most action in your selection",
-      image = "ui/images/toolbar/align-left.svg",
-      disabledImage = "ui/images/toolbar/align-left-disabled.svg")
+      image = "ui/images/align-left.svg",
+      disabledImage = "ui/images/align-left-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
   public void alignLeft() {
@@ -2820,8 +2818,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
       toolTip = "Align the actions with the right-most action in your selection",
-      image = "ui/images/toolbar/align-right.svg",
-      disabledImage = "ui/images/toolbar/align-right-disabled.svg")
+      image = "ui/images/align-right.svg",
+      disabledImage = "ui/images/align-right-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
   public void alignRight() {
@@ -2832,8 +2830,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_TOP,
       toolTip = "Align the actions with the top-most action in your selection",
-      image = "ui/images/toolbar/align-top.svg",
-      disabledImage = "ui/images/toolbar/align-top-disabled.svg")
+      image = "ui/images/align-top.svg",
+      disabledImage = "ui/images/align-top-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
   public void alignTop() {
@@ -2844,8 +2842,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_BOTTOM,
       toolTip = "Align the actions with the bottom-most action in your selection",
-      image = "ui/images/toolbar/align-bottom.svg",
-      disabledImage = "ui/images/toolbar/align-bottom-disabled.svg")
+      image = "ui/images/align-bottom.svg",
+      disabledImage = "ui/images/align-bottom-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
   public void alignBottom() {
@@ -2857,8 +2855,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
       toolTip =
           "Distribute the selected actions evenly between the left-most and right-most action in your selection",
-      image = "ui/images/toolbar/distribute-horizontally.svg",
-      disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg")
+      image = "ui/images/distribute-horizontally.svg",
+      disabledImage = "ui/images/distribute-horizontally-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
@@ -2870,8 +2868,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
       toolTip =
           "Distribute the selected actions evenly between the top-most and bottom-most action in your selection",
-      image = "ui/images/toolbar/distribute-vertically.svg",
-      disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg")
+      image = "ui/images/distribute-vertically.svg",
+      disabledImage = "ui/images/distribute-vertically-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
@@ -2957,8 +2955,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_UNDO_ID,
       // label = "Undo",
       toolTip = "Undo an operation",
-      image = "ui/images/toolbar/Antu_edit-undo.svg",
-      disabledImage = "ui/images/toolbar/Antu_edit-undo-disabled.svg",
+      image = "ui/images/undo.svg",
+      disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'z')
   @Override
@@ -2972,8 +2970,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
       toolTip = "Redo an operation",
-      image = "ui/images/toolbar/Antu_edit-redo.svg",
-      disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg")
+      image = "ui/images/redo.svg",
+      disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @Override
   public void redo() {

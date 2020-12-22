@@ -302,16 +302,16 @@ public class HopGuiPipelineGridDelegate {
       id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
       toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
       i18nPackageClass = HopGui.class,
-      image = "ui/images/show-inactive.svg")
+      image = "ui/images/show.svg")
   public void showHideInactive() {
     hideInactiveTransforms = !hideInactiveTransforms;
 
     ToolItem toolItem = toolbarWidget.findToolItem(TOOLBAR_ICON_SHOW_HIDE_INACTIVE);
     if (toolItem != null) {
       if (hideInactiveTransforms) {
-        toolItem.setImage(GuiResource.getInstance().getImageHideInactive());
+        toolItem.setImage(GuiResource.getInstance().getImageHide());
       } else {
-        toolItem.setImage(GuiResource.getInstance().getImageShowInactive());
+        toolItem.setImage(GuiResource.getInstance().getImageShow());
       }
     }
     refreshView();
@@ -322,7 +322,7 @@ public class HopGuiPipelineGridDelegate {
       id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
       toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
       i18nPackageClass = HopGui.class,
-      image = "ui/images/toolbar/show-all.svg")
+      image = "ui/images/show-all.svg")
   public void showHideSelected() {
     showSelectedTransforms = !showSelectedTransforms;
 

@@ -110,7 +110,7 @@ public class SelectRowDialog extends Dialog {
     }
 
     shell.setLayout( formLayout );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipeline() );
     shell.setText( title );
 
     int margin = props.getMargin();

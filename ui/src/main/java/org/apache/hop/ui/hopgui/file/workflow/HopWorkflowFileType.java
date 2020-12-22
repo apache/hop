@@ -51,7 +51,7 @@ import java.util.Properties;
 @HopFileTypePlugin(
   id = "HopFile-Workflow-Plugin",
   description = "The workflow file information for the Hop GUI",
-  image="ui/images/workflow3.svg"
+  image="ui/images/workflow.svg"
 )
 public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
@@ -200,7 +200,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
     GuiAction newAction = new GuiAction( ACTION_ID_NEW_WORKFLOW, GuiActionType.Create, "Workflow",
       "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
-      BasePropertyHandler.getProperty( "Workflow_image" ),
+      "ui/images/workflow.svg",
       ( shiftClicked, controlClicked, parameters ) -> {
         try {
           HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
