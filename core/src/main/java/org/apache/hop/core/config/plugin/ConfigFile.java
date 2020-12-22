@@ -44,6 +44,7 @@ import java.util.Map;
 public abstract class ConfigFile implements IConfigFile {
 
   public static final String HOP_VARIABLES_KEY = "variables";
+  public static final String HOP_CONFIG_KEY = "config";
 
   @JsonProperty( "config" )
   protected Map<String, Object> configMap;
@@ -98,6 +99,12 @@ public abstract class ConfigFile implements IConfigFile {
   @Override
   public List<DescribedVariable> getDescribedVariables() {
     List<DescribedVariable> variables = new ArrayList<>();
+
+    Map<String, Object> configObj = (Map<String, Object>) configMap.get(HOP_CONFIG_KEY);
+    if (configObj != null) {
+      configMap = configObj;
+    }
+
     Object variablesObject = configMap.get( HOP_VARIABLES_KEY );
     if ( variablesObject != null ) {
       try {

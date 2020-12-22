@@ -147,6 +147,7 @@
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
+        <module>tokenreplacement</module>
         <module>uniquerows</module>
         <module>uniquerowsbyhashset</module>
         <module>update</module>
