@@ -18,8 +18,6 @@
 
 package org.apache.hop.workflow.config;
 
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -29,7 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
   key = "workflow-run-configuration",
   name = "Workflow Run Configuration",
   description = "Describes how to execute a workflow",
-  iconImage = "ui/images/run.svg"
+  image = "ui/images/run.svg"
 )
 public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 

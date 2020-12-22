@@ -55,9 +55,9 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   public WorkflowPainter( IGc gc, IVariables variables, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
                           IScrollBar vert, WorkflowHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
-                          String noteFontName, int noteFontHeight, double zoomFactor ) {
+                          String noteFontName, int noteFontHeight, double zoomFactor, boolean drawingEditIcons ) {
     super( gc, variables, workflowMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconSize, lineWidth, gridSize,
-      noteFontName, noteFontHeight, zoomFactor );
+      noteFontName, noteFontHeight, zoomFactor, drawingEditIcons );
     this.workflowMeta = workflowMeta;
 
     this.candidate = candidate;
@@ -230,11 +230,45 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setBackground( EColor.BACKGROUND );
     gc.setLineWidth( 1 );
 
-    int xpos = x + ( iconSize / 2 ) - ( textsize.x / 2 );
-    int ypos = y + iconSize + 5;
+    int xPos = x + ( iconSize / 2 ) - ( textsize.x / 2 );
+    int yPos = y + iconSize + 5;
 
     gc.setForeground( EColor.BLACK );
-    gc.drawText( name, xpos, ypos, true );
+
+    // Help out the user working in single-click mode by allowing the name to be clicked to edit
+    //
+    if (isDrawingEditIcons()) {
+
+      Point nameExtent = gc.textExtent( name );
+
+      int tmpAlpha = gc.getAlpha();
+      gc.setAlpha(230);
+
+      gc.drawImage( EImage.EDIT, xPos - 6, yPos-2, magnification );
+
+      gc.setBackground(240, 240, 240);
+      gc.fillRoundRectangle(
+        xPos - 8,
+        yPos - 2,
+        nameExtent.x + 15,
+        nameExtent.y + 8,
+        BasePainter.CORNER_RADIUS_5 + 15,
+        BasePainter.CORNER_RADIUS_5 + 15);
+      gc.setAlpha(tmpAlpha);
+
+      areaOwners.add(
+        new AreaOwner(
+          AreaType.ACTION_NAME,
+          xPos - 8,
+          yPos - 2,
+          nameExtent.x + 15,
+          nameExtent.y + 4,
+          offset,
+          actionMeta,
+          name));
+    }
+
+    gc.drawText( name, xPos, yPos, true );
 
     if ( activeActions != null && activeActions.contains( actionMeta ) ) {
       gc.setForeground( EColor.BLUE );

@@ -201,7 +201,7 @@
    limitations under the License.
 
     =======================================================================================
-    Eclipse Public License 1.0 (EPL)
+    Eclipse Public License 1.0 (EPL) For details, see licenses/LICENCE-EPL10
     =======================================================================================
     plugins/transforms/userdefinedjavaclass/src/main/java/org/apache/hop/pipeline/transforms/userdefinedjavaclass/UserDefinedJavaClassHighlight.java
     plugins/transforms/javascript/src/main/java/org/apache/hop/pipeline/transforms/javascript/ScriptValuesHighlight.java

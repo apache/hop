@@ -18,13 +18,19 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
@@ -33,10 +39,17 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 
+import java.io.File;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,7 +60,7 @@ public class HopGuiFileDelegate {
 
   private HopGui hopGui;
 
-  public HopGuiFileDelegate( HopGui hopGui ) {
+  public HopGuiFileDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
   }
 
@@ -63,26 +76,36 @@ public class HopGuiFileDelegate {
       //
       HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-      String filename = BaseDialog.presentFileDialog(hopGui.getShell(), fileRegistry.getFilterExtensions(), fileRegistry.getFilterNames(), true);
-      if ( filename == null ) {
+      String filename =
+          BaseDialog.presentFileDialog(
+              hopGui.getShell(),
+              fileRegistry.getFilterExtensions(),
+              fileRegistry.getFilterNames(),
+              true);
+      if (filename == null) {
         return;
       }
-      fileOpen( hopGui.getVariables().resolve( filename ) );
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
+      fileOpen(hopGui.getVariables().resolve(filename));
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error opening file", e);
     }
   }
 
-  public IHopFileTypeHandler fileOpen( String filename ) throws Exception {
+  public IHopFileTypeHandler fileOpen(String filename) throws Exception {
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-    IHopFileType<?> hopFile = fileRegistry.findHopFileType( filename );
-    if ( hopFile == null ) {
-      throw new HopException( "We looked at " + fileRegistry.getFileTypes().size() + " different Hop GUI file types but none know how to open file '" + filename + "'" );
+    IHopFileType<?> hopFile = fileRegistry.findHopFileType(filename);
+    if (hopFile == null) {
+      throw new HopException(
+          "We looked at "
+              + fileRegistry.getFileTypes().size()
+              + " different Hop GUI file types but none know how to open file '"
+              + filename
+              + "'");
     }
 
-    IHopFileTypeHandler fileTypeHandler = hopFile.openFile( hopGui, filename, hopGui.getVariables() );
-    hopGui.handleFileCapabilities( hopFile, false, false );
+    IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
+    hopGui.handleFileCapabilities(hopFile, false, false);
 
     return fileTypeHandler;
   }
@@ -100,22 +123,28 @@ public class HopGuiFileDelegate {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType<?> fileType = typeHandler.getFileType();
-      if ( !fileType.hasCapability( IHopFileType.CAPABILITY_SAVE_AS ) ) {
+      if (!fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS)) {
         return null;
       }
 
-      String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
-      if ( filename == null ) {
+      String filename =
+          BaseDialog.presentFileDialog(
+              true,
+              hopGui.getShell(),
+              fileType.getFilterExtensions(),
+              fileType.getFilterNames(),
+              true);
+      if (filename == null) {
         return null;
       }
 
-      filename = hopGui.getVariables().resolve( filename );
-            
-      typeHandler.saveAs( filename );
+      filename = hopGui.getVariables().resolve(filename);
+
+      typeHandler.saveAs(filename);
 
       return filename;
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error saving file", e);
       return null;
     }
   }
@@ -124,8 +153,8 @@ public class HopGuiFileDelegate {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType<?> fileType = typeHandler.getFileType();
-      if ( fileType.hasCapability( IHopFileType.CAPABILITY_SAVE ) ) {
-        if ( StringUtils.isEmpty( typeHandler.getFilename() ) ) {
+      if (fileType.hasCapability(IHopFileType.CAPABILITY_SAVE)) {
+        if (StringUtils.isEmpty(typeHandler.getFilename())) {
           // Ask for the filename: saveAs
           //
           fileSaveAs();
@@ -133,8 +162,8 @@ public class HopGuiFileDelegate {
           typeHandler.save();
         }
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error saving file", e);
     }
   }
 
@@ -143,11 +172,11 @@ public class HopGuiFileDelegate {
       IHopPerspective perspective = hopGui.getActivePerspective();
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType<?> fileType = typeHandler.getFileType();
-      if ( fileType.hasCapability( IHopFileType.CAPABILITY_CLOSE ) ) {
-        perspective.remove( typeHandler );
+      if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
+        perspective.remove(typeHandler);
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error saving/closing file", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error saving/closing file", e);
     }
     return false;
   }
@@ -155,15 +184,15 @@ public class HopGuiFileDelegate {
   /**
    * Go over all files and ask to save the ones who have changed.
    *
-   *  @return True if all files are saveguarded (or changes are ignored)
+   * @return True if all files are saveguarded (or changes are ignored)
    */
   public boolean saveGuardAllFiles() {
-    for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
+    for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
       List<TabItemHandler> tabItemHandlers = perspective.getItems();
-      if ( tabItemHandlers != null ) {
-        for ( TabItemHandler tabItemHandler : tabItemHandlers ) {
+      if (tabItemHandlers != null) {
+        for (TabItemHandler tabItemHandler : tabItemHandlers) {
           IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
-          if ( !typeHandler.isCloseable() ) {
+          if (!typeHandler.isCloseable()) {
             return false;
           }
         }
@@ -173,13 +202,13 @@ public class HopGuiFileDelegate {
   }
 
   public void closeAllFiles() {
-    for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
+    for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
       List<TabItemHandler> tabItemHandlers = perspective.getItems();
-      if ( tabItemHandlers != null ) {
+      if (tabItemHandlers != null) {
         // Copy the list to avoid changing the list we're editing (closing items)
         //
-        List<TabItemHandler> handlers = new ArrayList<>( tabItemHandlers );
-        for ( TabItemHandler tabItemHandler : handlers ) {
+        List<TabItemHandler> handlers = new ArrayList<>(tabItemHandlers);
+        for (TabItemHandler tabItemHandler : handlers) {
           IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
           typeHandler.close();
         }
@@ -187,10 +216,7 @@ public class HopGuiFileDelegate {
     }
   }
 
-
-  /**
-   * When the app exits we need to see if all open files are saved in all perspectives...
-   */
+  /** When the app exits we need to see if all open files are saved in all perspectives... */
   public boolean fileExit() {
 
     if (!saveGuardAllFiles()) {
@@ -203,9 +229,7 @@ public class HopGuiFileDelegate {
     return true;
   }
 
-  /**
-   * Show all the recent files in a new dialog...
-   */
+  /** Show all the recent files in a new dialog... */
   public void fileOpenRecent() {
     // Get the recent files for the active perspective...
     //
@@ -213,33 +237,113 @@ public class HopGuiFileDelegate {
     try {
       // Let's limit ourselves to 100 operations...
       //
-      List<AuditEvent> events = AuditManager.findEvents( HopNamespace.getNamespace(), "file", "open", 100, true );
+      List<AuditEvent> events =
+          AuditManager.findEvents(HopNamespace.getNamespace(), "file", "open", 100, true);
       Set<String> filenames = new HashSet<>();
       List<RowMetaAndData> rows = new ArrayList<>();
       IRowMeta rowMeta = new RowMeta();
-      rowMeta.addValueMeta( new ValueMetaString( "filename" ) );
-      rowMeta.addValueMeta( new ValueMetaString( "operation" ) );
-      rowMeta.addValueMeta( new ValueMetaString( "date" ) );
+      rowMeta.addValueMeta(new ValueMetaString("filename"));
+      rowMeta.addValueMeta(new ValueMetaString("operation"));
+      rowMeta.addValueMeta(new ValueMetaString("date"));
 
-      for ( AuditEvent event : events ) {
+      for (AuditEvent event : events) {
         String filename = event.getName();
-        if (!filenames.contains( filename )) {
-          filenames.add( filename );
+        if (!filenames.contains(filename)) {
+          filenames.add(filename);
           String operation = event.getOperation();
-          String dateString = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" ).format( event.getDate() );
-          rows.add( new RowMetaAndData( rowMeta, new Object[] { filename, operation, dateString } ) );
+          String dateString = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(event.getDate());
+          rows.add(new RowMetaAndData(rowMeta, new Object[] {filename, operation, dateString}));
         }
       }
 
-      SelectRowDialog rowDialog = new SelectRowDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, rows );
-      rowDialog.setTitle( "Select the file to open" );
+      SelectRowDialog rowDialog =
+          new SelectRowDialog(hopGui.getShell(), hopGui.getVariables(), SWT.NONE, rows);
+      rowDialog.setTitle("Select the file to open");
       RowMetaAndData row = rowDialog.open();
-      if ( row != null ) {
-        String filename = row.getString( "filename", null );
-        hopGui.fileDelegate.fileOpen( filename );
+      if (row != null) {
+        String filename = row.getString("filename", null);
+        hopGui.fileDelegate.fileOpen(filename);
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error getting list of recently opened files", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error getting list of recently opened files", e);
+    }
+  }
+
+  public void exportToSvg() {
+    try {
+
+      String svgXml = null;
+      IVariables variables = null;
+      String proposedName = null;
+
+      HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+      if (pipelineGraph != null) {
+        PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
+        variables = pipelineGraph.getVariables();
+
+        svgXml =
+            PipelineSvgPainter.generatePipelineSvg(
+                pipelineMeta, 1.0f, pipelineGraph.getVariables());
+
+        proposedName = pipelineMeta.getName() + ".svg";
+      }
+
+      HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
+      if (workflowGraph != null) {
+        WorkflowMeta workflowMeta = workflowGraph.getWorkflowMeta();
+        variables = workflowGraph.getVariables();
+
+        svgXml =
+            WorkflowSvgPainter.generateWorkflowSvg(
+                workflowMeta, 1.0f, workflowGraph.getVariables());
+
+        proposedName = workflowMeta.getName() + ".svg";
+      }
+
+      if (svgXml != null) {
+
+        String proposedFilename =
+            variables.getVariable("user.home") + File.separator + proposedName;
+        FileObject proposedFile = HopVfs.getFileObject(proposedFilename);
+
+        String filename =
+            BaseDialog.presentFileDialog(
+                true,
+                hopGui.getShell(),
+                null,
+                variables,
+                proposedFile,
+                new String[] {"*.svg"},
+                new String[] {"SVG Files"},
+                true);
+        if (filename != null) {
+          String realFilename = variables.resolve(filename);
+
+          FileObject file = HopVfs.getFileObject(realFilename);
+          if (file.exists()) {
+            MessageBox box =
+                new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            box.setText("File exists");
+            box.setMessage("This file already exists. Do you want to overwrite it?");
+            int answer = box.open();
+            if ((answer & SWT.YES) == 0) {
+              return;
+            }
+          }
+          OutputStream outputStream = null;
+          try {
+            outputStream = HopVfs.getOutputStream(file, true);
+            outputStream.write(svgXml.getBytes(Const.XML_ENCODING));
+          } finally {
+            if (outputStream != null) {
+              outputStream.close();
+            }
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error exporting to SVG", e);
     }
   }
 }

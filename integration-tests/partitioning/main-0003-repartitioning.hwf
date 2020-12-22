@@ -23,8 +23,6 @@
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
       <intervalSeconds>0</intervalSeconds>
@@ -100,16 +98,16 @@ for (var i = 0 ; i&lt;expectedVariables.length ; i++) {
 }
 
 var expectedValues = [ 
-   "partitioned.1 - id = 1",
-   "partitioned.2 - id = 2",
-   "partitioned.0 - id = 3",
-   "partitioned.1 - id = 4",
-   "partitioned.2 - id = 5",
-   "partitioned.0 - id = 6",
-   "partitioned.1 - id = 7",
-   "partitioned.2 - id = 8",
-   "partitioned.0 - id = 9",
-   "partitioned.1 - id = 10",
+   "partitioned.1 - 1",
+   "partitioned.2 - 2",
+   "partitioned.0 - 3",
+   "partitioned.1 - 4",
+   "partitioned.2 - 5",
+   "partitioned.0 - 6",
+   "partitioned.1 - 7",
+   "partitioned.2 - 8",
+   "partitioned.0 - 9",
+   "partitioned.1 - 10",
    "repartitioned.1 - 1",
    "repartitioned.2 - 2",
    "repartitioned.3 - 3",
@@ -124,7 +122,7 @@ var expectedValues = [
 
 for (var i = 0 ; i&lt;expectedValues.length ; i++) {
   var expectedValue = expectedValues[i];
-  if ( !txt.contains(expectedValue[1])) {
+  if ( !txt.contains(expectedValue)) {
     ok = false;
     log.logError("Value logged as '"+expectedValue+"' was not logged at least once");
   }

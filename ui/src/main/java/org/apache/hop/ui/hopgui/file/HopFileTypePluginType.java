@@ -61,4 +61,9 @@ public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> imp
   protected String extractName( HopFileTypePlugin annotation ) {
     return  annotation.name();
   }
+  
+  @Override
+  protected String extractImageFile( HopFileTypePlugin annotation ) {
+    return annotation.image();
+  }  
 }

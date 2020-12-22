@@ -62,7 +62,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -90,7 +89,6 @@ import org.eclipse.swt.widgets.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -821,7 +819,7 @@ public class TableView extends Composite {
           if ( activeTableItem != null ) {
             activeTableItem.setText( activeTableColumn, beforeEdit[ activeTableColumn - 1 ] );
           }
-          combo.dispose();
+          safelyDisposeControl(combo);
           table.setFocus();
           e.doit = false;
         }
@@ -1238,6 +1236,18 @@ public class TableView extends Composite {
 
     layout();
     pack();
+  }
+
+  private void safelyDisposeControl( Control combo ) {
+    if (combo==null) {
+      return;
+    }
+    synchronized ( combo ) {
+      if (combo.isDisposed()) {
+        return;
+      }
+      combo.dispose();
+    }
   }
 
   protected String getTextWidgetValue( int colNr ) {

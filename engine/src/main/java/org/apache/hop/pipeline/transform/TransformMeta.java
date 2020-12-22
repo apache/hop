@@ -553,14 +553,14 @@ public class TransformMeta implements
    * @return true is the transform is partitioned
    */
   public boolean isPartitioned() {
-    return transformPartitioningMeta.isPartitioned();
+    return transformPartitioningMeta!=null && transformPartitioningMeta.isPartitioned();
   }
 
   /**
    * @return true is the transform is partitioned
    */
   public boolean isTargetPartitioned() {
-    return targetTransformPartitioningMeta.isPartitioned();
+    return targetTransformPartitioningMeta!=null && targetTransformPartitioningMeta.isPartitioned();
   }
 
   /**

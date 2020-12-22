@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
   id = "ExecuteTests",
   description = "Execute Unit Tests",
   name = "Execute Unit Tests",
-  image = "ui/images/TRNEx.svg",
+  image = "executetests.svg",
   categoryDescription = "Flow"
 )
 public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMeta<ExecuteTests, ExecuteTestsData> {

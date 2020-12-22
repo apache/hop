@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.LogChannel;
@@ -147,6 +148,11 @@ public abstract class BaseDialog extends Dialog {
       if (save) {
         if ( fileObject != null ) {
           vfsDialog.setSaveFilename( fileObject.getName().getBaseName() );
+          try {
+          vfsDialog.setFilterPath( HopVfs.getFilename(fileObject.getParent() ) );
+          } catch ( FileSystemException fse ) {
+            // This wasn't a valid filename, ignore the error to reduce spamming
+          }
         } else {
           // Take the first extension with "filename" prepended
           //

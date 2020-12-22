@@ -28,16 +28,20 @@ import java.util.Objects;
 
 public class SvgCacheEntry {
 
-  private String filename;
   private SVGDocument svgDocument;
   private float width;
   private float height;
+  private int x;
+  private int y;
+  private String filename;
 
-  public SvgCacheEntry( String filename, SVGDocument svgDocument, int width, int height ) {
+  public SvgCacheEntry( String filename, SVGDocument svgDocument, int width, int height, int x, int y ) {
     this.filename = filename;
     this.svgDocument = svgDocument;
     this.width = width;
     this.height = height;
+    this.x = x;
+    this.y = y;
   }
 
   @Override public boolean equals( Object o ) {
@@ -117,5 +121,37 @@ public class SvgCacheEntry {
    */
   public void setHeight( float height ) {
     this.height = height;
+  }
+
+  /**
+   * Gets x
+   *
+   * @return value of x
+   */
+  public int getX() {
+    return x;
+  }
+
+  /**
+   * @param x The x to set
+   */
+  public void setX( int x ) {
+    this.x = x;
+  }
+
+  /**
+   * Gets y
+   *
+   * @return value of y
+   */
+  public int getY() {
+    return y;
+  }
+
+  /**
+   * @param y The y to set
+   */
+  public void setY( int y ) {
+    this.y = y;
   }
 }

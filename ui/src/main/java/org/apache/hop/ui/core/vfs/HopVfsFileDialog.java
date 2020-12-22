@@ -24,9 +24,12 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditList;
@@ -44,8 +47,10 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -140,6 +145,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private FileObject activeFileObject;
   private FileObject activeFolder;
 
+  private Image folderImage;
   private Image fileImage;
 
   private static HopVfsFileDialog instance;
@@ -162,6 +168,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private int sortIndex = 0;
   private boolean ascending = true;
+
+  public HopVfsFileDialog() {
+  }
 
   public HopVfsFileDialog(
       Shell parent,
@@ -199,14 +208,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
     navigationIndex = navigationHistory.size() - 1;
 
-    fileImage =
-        SwtSvgImageUtil.getImage(
-            parent.getDisplay(),
-            getClass().getClassLoader(),
-            "ui/images/file.svg",
-            ConstUi.ICON_SIZE,
-            ConstUi.ICON_SIZE);
+    fileImage = GuiResource.getInstance().getImageFile();
+    folderImage = GuiResource.getInstance().getImageFolder();
   }
+
 
   /**
    * Gets the active instance of this dialog
@@ -443,7 +448,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wBrowser = new Tree(browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     props.setLook(wBrowser);
     wBrowser.setHeaderVisible(true);
-    wBrowser.setLinesVisible(true); // TODO needed?
+    wBrowser.setLinesVisible(false); // TODO needed?
 
     TreeColumn folderColumn = new TreeColumn(wBrowser, SWT.LEFT);
     folderColumn.setText("Name");
@@ -763,7 +768,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       fileObjectsMap = new HashMap<>();
 
       TreeItem parentFolderItem = new TreeItem(wBrowser, SWT.NONE);
-      parentFolderItem.setImage(GuiResource.getInstance().getImageFolder());
+      parentFolderItem.setImage(folderImage);
       parentFolderItem.setText(activeFolder.getName().getBaseName());
       fileObjectsMap.put(getTreeItemPath(parentFolderItem), activeFolder);
 
@@ -853,7 +858,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           continue;
         }
         TreeItem childFolderItem = new TreeItem(folderItem, SWT.NONE);
-        childFolderItem.setImage(GuiResource.getInstance().getImageFolder());
+        childFolderItem.setImage(folderImage);
         childFolderItem.setText(child.getName().getBaseName());
         fileObjectsMap.put(getTreeItemPath(childFolderItem), child);
       }
@@ -882,7 +887,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           //
           if (selectFile) {
             TreeItem childFileItem = new TreeItem(folderItem, SWT.NONE);
-            childFileItem.setImage(fileImage);
+            childFileItem.setImage(getFileImage(child));
             childFileItem.setFont(GuiResource.getInstance().getFontBold());
             childFileItem.setText(0, child.getName().getBaseName());
             childFileItem.setText(1, getFileDate(child));
@@ -903,6 +908,25 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         }
       }
     }
+  }
+
+  private Image getFileImage(FileObject file) {
+    try {
+      IHopFileType<?> fileType =
+          HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
+      if (fileType != null) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
+        if (plugin != null && plugin.getImageFile() != null) {
+          return GuiResource.getInstance()
+              .getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        }
+      }
+    } catch (HopException e) {
+      // Ignore
+    }
+
+    return fileImage;
   }
 
   private String getFileSize(FileObject child) {
@@ -1042,13 +1066,21 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         // Save the "saveFilename" entered text by the user?
         //
         String oldFull = wFilename.getText();
-        try {
-          FileObject oldFullObject = HopVfs.getFileObject(oldFull);
-          if (!oldFullObject.isFolder()) {
-            saveFilename = oldFullObject.getName().getBaseName();
+        if (StringUtils.isNotEmpty(oldFull)) {
+          try {
+            FileObject oldFullObject = HopVfs.getFileObject(oldFull);
+            if (!oldFullObject.isFolder()) {
+              saveFilename = oldFullObject.getName().getBaseName();
+            }
+          } catch (Exception e) {
+            // This wasn't a valid filename, ignore the error to reduce spamming
           }
-        } catch (Exception e) {
-          // I guess it wasn't a valid filename, ignore the error to reduce spamming
+        } else {
+          // First call, set to filter path plus saveFilename
+          //
+          if (StringUtils.isNotEmpty(filterPath)) {
+            wFilename.setText(filterPath + "/" + saveFilename);
+          }
         }
 
         if (HopVfs.getFileObject(filename).isFolder()) {

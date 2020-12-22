@@ -100,7 +100,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IPipelineEngine<PipelineMeta> pipeline,
       boolean slowTransformIndicatorEnabled,
       double zoomFactor,
-      Map<String, RowBuffer> outputRowsMap) {
+      Map<String, RowBuffer> outputRowsMap,
+      boolean drawingEditIcons) {
     super(
         gc,
         variables,
@@ -116,7 +117,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         gridSize,
         noteFontName,
         noteFontHeight,
-        zoomFactor);
+        zoomFactor,
+        drawingEditIcons);
     this.pipelineMeta = pipelineMeta;
 
     this.candidate = candidate;
@@ -145,7 +147,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       int gridSize,
       String noteFontName,
       int noteFontHeight,
-      double zoomFactor) {
+      double zoomFactor,
+      boolean drawingEditIcons) {
 
     this(
         gc,
@@ -166,7 +169,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         null,
         false,
         zoomFactor,
-        new HashMap<>());
+        new HashMap<>(),
+      drawingEditIcons);
   }
 
   private static String[] getPeekTitles() {
@@ -222,7 +226,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterStart.id, this );
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterStart.id, this);
     } catch (HopException e) {
       LogChannel.GENERAL.logError("Error in PipelinePainterStart extension point", e);
     }
@@ -353,7 +357,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterEnd.id, this );
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterEnd.id, this);
     } catch (HopException e) {
       LogChannel.GENERAL.logError("Error in PipelinePainterEnd extension point", e);
     }
@@ -810,7 +814,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     if (transformMeta.isSelected()) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(192);
-      gc.setBackground(216, 230, 241);
+      gc.setBackground(201, 232, 251);
       gc.fillRoundRectangle(
           namePosition.x - 8,
           namePosition.y - 2,
@@ -819,6 +823,39 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           BasePainter.CORNER_RADIUS_5 + 15,
           BasePainter.CORNER_RADIUS_5 + 15);
       gc.setAlpha(tmpAlpha);
+    }
+
+    // Help out the user working in single-click mode by allowing the name to be clicked to edit
+    //
+    if (isDrawingEditIcons()) {
+
+      Point nameExtent = gc.textExtent( name );
+
+      int tmpAlpha = gc.getAlpha();
+      gc.setAlpha(230);
+
+      gc.drawImage( EImage.EDIT, namePosition.x - 6, namePosition.y-2, magnification );
+
+      gc.setBackground(240, 240, 240);
+      gc.fillRoundRectangle(
+        namePosition.x - 8,
+        namePosition.y - 2,
+        nameExtent.x + 15,
+        nameExtent.y + 8,
+        BasePainter.CORNER_RADIUS_5 + 15,
+        BasePainter.CORNER_RADIUS_5 + 15);
+      gc.setAlpha(tmpAlpha);
+
+      areaOwners.add(
+        new AreaOwner(
+          AreaType.TRANSFORM_NAME,
+          namePosition.x - 8,
+          namePosition.y - 2,
+          nameExtent.x+15,
+          nameExtent.y+8,
+          offset,
+          transformMeta,
+          name));
     }
 
     gc.setForeground(EColor.BLACK);
@@ -878,7 +915,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             gc, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconSize);
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterTransform.id, extension );
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterTransform.id, extension);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
           "Error calling extension point(s) for the pipeline painter transform", e);
@@ -942,7 +979,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if (fs.getName().equalsIgnoreCase(stream.getTransformName())) {
           // This is the info transform over this hop!
           //
-          if (fs.getCopies(variables) > 1) {
+
+          // Only valid if both transforms are partitioned
+          //
+          if (fs.isPartitioned() && ts.isPartitioned()) {
+            //
+          } else if (fs.getCopies(variables) > 1) {
             // This is not a desirable situation, it will always end in error.
             // As such, it's better not to give feedback on it.
             // We do this by drawing an error icon over the hop...
@@ -1120,7 +1162,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           if (fs.getName().equalsIgnoreCase(infoTransform)) {
             // This is the info transform over this hop!
             //
-            if (fs.getCopies(variables) > 1) {
+            // Only valid if both transforms are partitioned
+            //
+            if (fs.isPartitioned() && ts.isPartitioned()) {
+              // TODO explain in the UI what's going on.
+              //
+              gc.drawImage(EImage.PARALLEL, mx, my, magnification);
+              areaOwners.add(
+                  new AreaOwner(
+                      AreaType.HOP_INFO_TRANSFORMS_PARTITIONED,
+                      mx,
+                      my,
+                      miniIconSize,
+                      miniIconSize,
+                      offset,
+                      fs,
+                      ts));
+              mx += 16;
+            } else if (fs.getCopies(variables) > 1) {
               // This is not a desirable situation, it will always end in error.
               // As such, it's better not to give feedback on it.
               // We do this by drawing an error icon over the hop...
@@ -1160,7 +1219,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             iconSize);
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterArrow.id, extension );
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterArrow.id, extension);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
           "Error calling extension point(s) for the pipeline painter arrow", e);

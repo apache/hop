@@ -646,6 +646,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       if ( secureConnectionType.equals( "TLS" ) ) {
         // Allow TLS authentication
         props.put( "mail.smtp.starttls.enable", "true" );
+      } else if (secureConnectionType.equals("TLS 1.2")) {
+        // Allow TLS 1.2 authentication
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
       } else {
 
         protocol = "smtps";

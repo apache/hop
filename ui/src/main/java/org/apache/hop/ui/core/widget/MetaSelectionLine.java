@@ -124,7 +124,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wLabel.requestLayout(); // Avoid GTK error in log
 
     HopMetadata hopMetadata = HopMetadataUtil.getHopMetadataAnnotation( managedClass );
-    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), hopMetadata.iconImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), hopMetadata.image(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
     
     final Menu menu = new Menu (getShell(), SWT.POP_UP);
     

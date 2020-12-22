@@ -59,7 +59,8 @@ import java.util.Map;
     name = "Repeat",
     description = "Repeat execution of a workflow or a transformation",
     categoryDescription = "General",
-    image = "ui/images/JOBEx.svg")
+    image = "repeat.svg"
+)
 public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public static final String REPEAT_END_LOOP = "_REPEAT_END_LOOP_";

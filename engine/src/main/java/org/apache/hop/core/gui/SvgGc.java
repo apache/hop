@@ -25,6 +25,7 @@ package org.apache.hop.core.gui;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -171,7 +172,7 @@ public class SvgGc implements IGc {
     Map<String, SvgFile> map = new HashMap<>();
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    for ( IPlugin plugin : registry.getPlugins( TransformPluginType.class ) ) {
+    for ( IPlugin plugin : registry.getPlugins( ActionPluginType.class ) ) {
       for ( String id : plugin.getIds() ) {
         map.put( id, new SvgFile( plugin.getImageFile(), registry.getClassLoader( plugin ) ) );
       }
@@ -601,22 +602,11 @@ public class SvgGc implements IGc {
   }
 
   public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) throws HopException {
-    if ( actionMeta == null ) {
-      return; // Don't draw anything
+    String actionType = actionMeta.getAction().getPluginId();
+    SvgFile svgFile = actionImages.get( actionType );
+    if ( svgFile != null ) { // Draw the icon!
+      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
     }
-
-    SvgFile svgFile = null;
-
-    String configId = actionMeta.getAction().getPluginId();
-    if ( configId != null ) {
-       svgFile = actionImages.get( configId );
-    }
-
-    if ( svgFile == null ) {
-      return;
-    }
-
-    drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
   }
 
 
@@ -639,11 +629,16 @@ public class SvgGc implements IGc {
       float xScaleFactor = magnification * desiredWidth / cacheEntry.getWidth();
       float yScaleFactor = magnification * desiredHeight / cacheEntry.getHeight();
 
+      // We want to scale evenly so what's the lowest magnification?
+      //
+      xScaleFactor = Math.min(xScaleFactor, yScaleFactor);
+      yScaleFactor = Math.min(xScaleFactor, yScaleFactor);
+
       gc.embedSvg(
         svgDocument.getRootElement(),
         svgFile.getFilename(),
-        x,
-        y,
+        x-cacheEntry.getX(),
+        y-cacheEntry.getY(),
         cacheEntry.getWidth(),
         cacheEntry.getHeight(),
         xScaleFactor,

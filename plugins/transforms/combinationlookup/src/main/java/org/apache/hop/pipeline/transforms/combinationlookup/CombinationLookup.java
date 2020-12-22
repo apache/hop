@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Counters;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -258,7 +257,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         switch ( getTechKeyCreation() ) {
           case CREATION_METHOD_TABLEMAX:
             // Use our own counter: what's the next value for the technical key?
-            valKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
+            valKey = data.db.getNextValue( data.realSchemaName, data.realTableName,
               meta.getTechnicalKeyField() );
             break;
           case CREATION_METHOD_AUTOINC:

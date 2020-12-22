@@ -675,6 +675,7 @@ public class WorkflowDialog extends Dialog {
     workflowMeta.setDescription( wDescription.getText() );
     workflowMeta.setExtendedDescription( wExtendedDescription.getText() );
     workflowMeta.setWorkflowVersion( wVersion.getText() );
+    workflowMeta.setNameSynchronizedWithFilename(wNameFilenameSync.getSelection());
     if ( wWorkflowStatus.getSelectionIndex() != 2 ) {
       // Saving the index as meta data is in fact pretty bad, but since
       // it was already in ...

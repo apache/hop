@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
     name = "End Repeat",
     description = "End repeated execution of a workflow or a transformation",
     categoryDescription = "General",
-    image = "ui/images/SUC.svg")
+    image = "endrepeat.svg")
 public class EndRepeat extends ActionBase implements IAction, Cloneable {
 
   public EndRepeat(String name, String description) {

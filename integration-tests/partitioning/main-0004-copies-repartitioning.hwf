@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow>
+  <name>main-0004-copies-repartitioning</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <workflow_status>0</workflow_status>
+  <created_user>-</created_user>
+  <created_date>2020/12/08 22:48:28.325</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2020/12/08 22:48:28.325</modified_date>
+  <parameters>
+    <parameter>
+      <name>NR_PARTITIONS</name>
+      <default_value/>
+      <description/>
+    </parameter>
+  </parameters>
+  <actions>
+    <action>
+      <name>START</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>128</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0004-copies-repartitioning.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0004-copies-repartitioning.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>NR_PARTITIONS</name>
+          <stream_name/>
+          <value>3</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>272</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check pipeline log</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>
+var txt = previous_result.getLogText();
+
+
+var ok = true;
+
+var expectedVariables = [ 
+   "partitioned.0 - Internal.Transform.Partition.ID = Partition-1",
+   "partitioned.1 - Internal.Transform.Partition.ID = Partition-2",
+   "partitioned.2 - Internal.Transform.Partition.ID = Partition-3"
+ ];
+
+for (var i = 0 ; i&lt;expectedVariables.length ; i++) {
+  var expectedVariable = expectedVariables[i];
+  if ( !txt.contains(expectedVariable)) {
+    ok = false;
+    log.logError("Expected variable expression '"+expectedVariable+"' was not logged at least once");
+  }
+}
+
+var expectedValues = [ 
+   "partitioned.1 - 1",
+   "partitioned.2 - 2",
+   "partitioned.0 - 3",
+   "partitioned.1 - 4",
+   "partitioned.2 - 5",
+   "partitioned.0 - 6",
+   "partitioned.1 - 7",
+   "partitioned.2 - 8",
+   "partitioned.0 - 9",
+   "partitioned.1 - 10",
+   "repartitioned.1 - 1",
+   "repartitioned.2 - 2",
+   "repartitioned.3 - 3",
+   "repartitioned.0 - 4",
+   "repartitioned.1 - 5",
+   "repartitioned.2 - 6",
+   "repartitioned.3 - 7",
+   "repartitioned.0 - 8",
+   "repartitioned.1 - 9",
+   "repartitioned.2 - 10",
+ ];
+
+for (var i = 0 ; i&lt;expectedValues.length ; i++) {
+  var expectedValue = expectedValues[i];
+  if ( !txt.contains(expectedValue)) {
+    ok = false;
+    log.logError("Value logged as '"+expectedValue+"' was not logged at least once");
+  }
+}
+
+
+ok;</script>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>432</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>START</from>
+      <to>0004-copies-repartitioning.hpl</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0004-copies-repartitioning.hpl</from>
+      <to>Check pipeline log</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

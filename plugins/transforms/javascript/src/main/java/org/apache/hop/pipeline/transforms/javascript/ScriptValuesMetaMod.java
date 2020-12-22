@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
+import org.apache.hop.core.injection.DataTypeConverter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.JavaScriptException;

@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Counters;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -496,7 +495,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         switch ( getTechKeyCreation() ) {
           case CREATION_METHOD_TABLEMAX:
             // What's the next value for the technical key?
-            technicalKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName, meta
+            technicalKey = data.db.getNextValue( data.realSchemaName, data.realTableName, meta
               .getKeyField() );
             break;
           case CREATION_METHOD_AUTOINC:
@@ -718,7 +717,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           } else {
             // Use our own sequence here...
             // What's the next value for the technical key?
-            technicalKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
+            technicalKey = data.db.getNextValue( data.realSchemaName, data.realTableName,
               meta.getKeyField() );
           }
 

@@ -38,6 +38,8 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -48,7 +50,8 @@ import java.util.Properties;
 
 @HopFileTypePlugin(
   id = "HopFile-Workflow-Plugin",
-  description = "The workflow file information for the Hop GUI"
+  description = "The workflow file information for the Hop GUI",
+  image="ui/images/workflow3.svg"
 )
 public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
@@ -153,6 +156,13 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Pass the MetaStore for reference lookups
       //
       workflowMeta.setMetadataProvider( hopGui.getMetadataProvider() );
+
+      // Add a Start action by default...
+      //
+      ActionStart start = new ActionStart("Start");
+      ActionMeta startMeta = new ActionMeta(start);
+      startMeta.setLocation( 50, 50 );
+      workflowMeta.addAction( startMeta );
 
       // Show it in the perspective
       //
