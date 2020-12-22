@@ -193,7 +193,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
         getClass().getClassLoader(),
-        "PPL.svg",
+        "ui/images/pipeline.svg",
         ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE);
   }
