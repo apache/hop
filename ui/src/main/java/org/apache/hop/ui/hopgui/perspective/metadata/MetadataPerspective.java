@@ -558,7 +558,7 @@ public class MetadataPerspective implements IHopPerspective {
 	      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
 	      id = TOOLBAR_ITEM_EDIT,
 	      toolTip = "Edit",
-	      image = "ui/images/generic-edit.svg")
+	      image = "ui/images/edit.svg")
   public void onRenameMetadata() {
 
     if ( tree.getSelectionCount() < 1) {
@@ -609,7 +609,7 @@ public class MetadataPerspective implements IHopPerspective {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
       toolTip = "Delete",
-      image = "ui/images/generic-delete.svg")
+      image = "ui/images/delete.svg")
   public void onDeleteMetadata() {
 
     if (tree.getSelectionCount() != 1) {
@@ -637,7 +637,7 @@ public class MetadataPerspective implements IHopPerspective {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DUPLICATE,
       toolTip = "Create a copy",
-      image = "ui/images/copy.svg")
+      image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
 
     if (tree.getSelectionCount() != 1) {

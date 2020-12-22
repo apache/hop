@@ -1171,7 +1171,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         toolTip.hide();
         toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
-        toolTip.setImage(GuiResource.getInstance().getImageInfoHop());
+        toolTip.setImage(GuiResource.getInstance().getImageInfo());
         toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
         toolTip.show(new org.eclipse.swt.graphics.Point(e.x, e.y));
 
@@ -2146,7 +2146,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Error handling",
       tooltip = "Specify how error handling is behaving for this transform",
-      image = "ui/images/transform_error.svg",
+      image = "ui/images/transform-error.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void errorHandling(HopGuiPipelineTransformContext context) {
@@ -2164,7 +2164,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit",
       tooltip = "Edit the transform properties",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editTransform(HopGuiPipelineTransformContext context) {
@@ -2182,7 +2182,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit description",
       tooltip = "Modify the transform description",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editDescription(HopGuiPipelineTransformContext context) {
@@ -2195,7 +2195,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Distribute rows",
       tooltip = "Make the transform distribute rows to next transforms",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/distribute.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void setDistributes(HopGuiPipelineTransformContext context) {
@@ -2210,7 +2210,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Copy rows",
       tooltip = "Make the transform copy rows to all next transforms",
-      image = "ui/images/copy-hop.svg",
+      image = "ui/images/copy-rows.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void setCopies(HopGuiPipelineTransformContext context) {
@@ -2309,7 +2309,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "Delete",
       tooltip = "Delete the selected transform from the pipeline",
-      image = "ui/images/generic-delete.svg",
+      image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void delTransform(HopGuiPipelineTransformContext context) {
@@ -2322,7 +2322,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "Show input fields",
       tooltip = "Show all the input fields entering this transform",
-      image = "ui/images/info-hop.svg",
+      image = "ui/images/input.svg",
       category = "Basic",
       categoryOrder = "1")
   public void fieldsBefore(HopGuiPipelineTransformContext context) {
@@ -2336,7 +2336,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "Show output fields",
       tooltip = "Show all the output fields resulting from this transform",
-      image = "ui/images/info-hop.svg",
+      image = "ui/images/output.svg",
       category = "Basic",
       categoryOrder = "1")
   public void fieldsAfter(HopGuiPipelineTransformContext context) {
@@ -2359,7 +2359,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Enable hop",
       tooltip = "Enable the hop",
-      image = "ui/images/HOP.svg",
+      image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
   public void enableHop(HopGuiPipelineHopContext context) {
@@ -2559,7 +2559,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit",
       tooltip = "Edit the note",
-      image = "ui/images/Edit.svg",
+      image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editNote(HopGuiPipelineNoteContext context) {
@@ -2573,7 +2573,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "Delete",
       tooltip = "Delete the note",
-      image = "ui/images/generic-delete.svg",
+      image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void deleteNote(HopGuiPipelineNoteContext context) {
@@ -2593,7 +2593,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Create,
       name = "Create a note",
       tooltip = "Create a new note",
-      image = "ui/images/new.svg",
+      image = "ui/images/note-add.svg",
       category = "Basic",
       categoryOrder = "1")
   public void newNote(HopGuiPipelineContext context) {
@@ -2635,7 +2635,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Edit pipeline",
       tooltip = "Edit pipeline properties",
-      image = "ui/images/toolbar/pipeline.svg",
+      image = "ui/images/pipeline.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editPipelineProperties(HopGuiPipelineContext context) {
@@ -2751,7 +2751,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   to.getName(),
                   from.getName(),
                   Const.CR));
-          tipImage = GuiResource.getInstance().getImageInfoHop();
+          tipImage = GuiResource.getInstance().getImageInfo();
           break;
         case HOP_ERROR_ICON:
           from = (TransformMeta) areaOwner.getParent();
@@ -2793,12 +2793,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case TRANSFORM_INPUT_HOP_ICON:
           // TransformMeta subjectTransform = (TransformMeta) (areaOwner.getParent());
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.TransformInputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageHopInput();
+          tipImage = GuiResource.getInstance().getImageInput();
           break;
         case TRANSFORM_OUTPUT_HOP_ICON:
           // subjectTransform = (TransformMeta) (areaOwner.getParent());
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.TransformOutputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageOutput();
           break;
         case TRANSFORM_INFO_HOP_ICON:
           // subjectTransform = (TransformMeta) (areaOwner.getParent());
@@ -2808,12 +2808,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               BaseMessages.getString(PKG, "PipelineGraph.TransformMetaConnector.Tooltip")
                   + Const.CR
                   + ioMeta.toString());
-          tipImage = GuiResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageOutput();
           break;
         case TRANSFORM_TARGET_HOP_ICON:
           IStream stream = (IStream) areaOwner.getOwner();
           tip.append(stream.getDescription());
-          tipImage = GuiResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageOutput();
           break;
         case TRANSFORM_ERROR_HOP_ICON:
           TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
@@ -2826,7 +2826,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 BaseMessages.getString(
                     PKG, "PipelineGraph.TransformDoesNotSupportsErrorHandling.Tooltip"));
           }
-          tipImage = GuiResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageOutput();
           break;
         case TRANSFORM_EDIT_ICON:
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.EditTransform.Tooltip"));
@@ -3277,7 +3277,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Create,
       name = "Create hop",
       tooltip = "Create a new hop between 2 transforms",
-      image = "ui/images/HOP.svg",
+      image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
   public void newHopCandidate(HopGuiPipelineTransformContext context) {
@@ -3336,8 +3336,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_SNAP_TO_GRID,
       // label = "Snap to grid",
       toolTip = "Align the selected transforms to the specified grid size",
-      image = "ui/images/toolbar/snap-to-grid.svg",
-      disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg")
+      image = "ui/images/snap-to-grid.svg",
+      disabledImage = "ui/images/snap-to-grid-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.HOME)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
   public void snapToGrid() {
@@ -3352,8 +3352,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_LEFT,
       toolTip = "Align the transforms with the left-most transform in your selection",
-      image = "ui/images/toolbar/align-left.svg",
-      disabledImage = "ui/images/toolbar/align-left-disabled.svg")
+      image = "ui/images/align-left.svg",
+      disabledImage = "ui/images/align-left-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
   public void alignLeft() {
@@ -3364,8 +3364,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
       toolTip = "Align the transforms with the right-most transform in your selection",
-      image = "ui/images/toolbar/align-right.svg",
-      disabledImage = "ui/images/toolbar/align-right-disabled.svg")
+      image = "ui/images/align-right.svg",
+      disabledImage = "ui/images/align-right-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
   public void alignRight() {
@@ -3376,8 +3376,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_TOP,
       toolTip = "Align the transforms with the top-most transform in your selection",
-      image = "ui/images/toolbar/align-top.svg",
-      disabledImage = "ui/images/toolbar/align-top-disabled.svg")
+      image = "ui/images/align-top.svg",
+      disabledImage = "ui/images/align-top-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
   public void alignTop() {
@@ -3389,8 +3389,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_ALIGN_BOTTOM,
       // label = "Bottom-align selected transforms",
       toolTip = "Align the transforms with the bottom-most transform in your selection",
-      image = "ui/images/toolbar/align-bottom.svg",
-      disabledImage = "ui/images/toolbar/align-bottom-disabled.svg")
+      image = "ui/images/align-bottom.svg",
+      disabledImage = "ui/images/align-bottom-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
   public void alignBottom() {
@@ -3403,8 +3403,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Horizontally distribute selected transforms",
       toolTip =
           "Distribute the selected transforms evenly between the left-most and right-most transform in your selection",
-      image = "ui/images/toolbar/distribute-horizontally.svg",
-      disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg")
+      image = "ui/images/distribute-horizontally.svg",
+      disabledImage = "ui/images/distribute-horizontally-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
@@ -3417,8 +3417,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Vertically distribute selected transforms",
       toolTip =
           "Distribute the selected transforms evenly between the top-most and bottom-most transform in your selection",
-      image = "ui/images/toolbar/distribute-vertically.svg",
-      disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg")
+      image = "ui/images/distribute-vertically.svg",
+      disabledImage = "ui/images/distribute-vertically-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
@@ -3742,7 +3742,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_START,
       toolTip = "Start the execution of the pipeline",
-      image = "ui/images/toolbar/run.svg")
+      image = "ui/images/run.svg")
   @Override
   public void start() {
     try {
@@ -3780,7 +3780,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_PAUSE,
       // label = "Pause",
       toolTip = "Pause the execution of the pipeline",
-      image = "ui/images/toolbar/pause.svg")
+      image = "ui/images/pause.svg")
   public void pause() {
     pauseResume();
   }
@@ -4347,7 +4347,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_STOP,
       // label = "Stop",
       toolTip = "Stop the execution of the pipeline",
-      image = "ui/images/toolbar/stop.svg")
+      image = "ui/images/stop.svg")
   @Override
   public void stop() {
     if (safeStopping) {
@@ -4897,8 +4897,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_UNDO_ID,
       // label = "Undo",
       toolTip = "Undo an operation",
-      image = "ui/images/toolbar/Antu_edit-undo.svg",
-      disabledImage = "ui/images/toolbar/Antu_edit-undo-disabled.svg",
+      image = "ui/images/undo.svg",
+      disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'z')
   @Override
@@ -4912,8 +4912,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
       toolTip = "Redo an operation",
-      image = "ui/images/toolbar/Antu_edit-redo.svg",
-      disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg")
+      image = "ui/images/redo.svg",
+      disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @Override
   public void redo() {
@@ -5038,7 +5038,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Paste from the clipboard",
       tooltip = "Paste transforms, notes or a whole pipeline from the clipboard",
-      image = "ui/images/CPY.svg",
+      image = "ui/images/paste.svg",
       category = "Basic",
       categoryOrder = "1")
   public void pasteFromClipboard(HopGuiPipelineContext context) {
@@ -5065,7 +5065,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Copy as pipeline action",
     tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
-    image = "ui/images/CPY.svg",
+    image = "ui/images/copy.svg",
     category = "Basic",
     categoryOrder = "1")
   public void copyAsActionToClipboard(HopGuiPipelineContext context) {

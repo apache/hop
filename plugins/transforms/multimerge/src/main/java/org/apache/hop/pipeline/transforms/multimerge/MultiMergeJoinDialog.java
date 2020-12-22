@@ -328,7 +328,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     subShell.setLayout( formLayout );
     subShell.setSize( 200, 150 );
     subShell.setText( BaseMessages.getString( PKG, "MultiMergeJoinMeta.JoinKeys" ) );
-    subShell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    subShell.setImage( GuiResource.getInstance().getImagePipeline() );
     Label wlKeys = new Label( subShell, SWT.NONE );
     wlKeys.setText( BaseMessages.getString( PKG, "MultiMergeJoinDialog.Keys" ) );
     FormData fdlKeys = new FormData();

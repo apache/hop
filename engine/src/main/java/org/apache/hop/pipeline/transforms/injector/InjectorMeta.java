@@ -57,7 +57,7 @@ import java.util.List;
  */
 @Transform(
   id = "Injector",
-  image = "ui/images/INJ.svg",
+  image = "ui/images/injector.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.Injector",
   description = "BaseTransform.TypeTooltipDesc.Injector",

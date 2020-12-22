@@ -339,7 +339,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
         getClass().getClassLoader(),
-        "JOBEx.svg",
+        "ui/images/workflowexecutor.svg",
         ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE);
   }

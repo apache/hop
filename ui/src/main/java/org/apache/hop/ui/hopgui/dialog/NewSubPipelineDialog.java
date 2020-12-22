@@ -80,7 +80,7 @@ public class NewSubPipelineDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "NewSubPipelineDialog.Title" ) );
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     wiInfo = new Label( shell, SWT.NONE );
     wiInfo.setImage( display.getSystemImage( SWT.ICON_INFORMATION ) );

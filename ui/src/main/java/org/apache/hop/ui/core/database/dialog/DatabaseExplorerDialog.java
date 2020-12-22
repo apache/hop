@@ -517,7 +517,7 @@ public class DatabaseExplorerDialog extends Dialog {
       Catalog[] catalogs = dmi.getCatalogs();
       if (catalogs != null) {
         TreeItem tiCat = new TreeItem(tiTree, SWT.NONE);
-        tiCat.setImage(GuiResource.getInstance().getImageBol());
+        tiCat.setImage(GuiResource.getInstance().getImageFolder());
         tiCat.setText(STRING_CATALOG);
 
         for (int i = 0; i < catalogs.length; i++) {
@@ -539,7 +539,7 @@ public class DatabaseExplorerDialog extends Dialog {
       Schema[] schemas = dmi.getSchemas();
       if (schemas != null) {
         TreeItem tiSch = new TreeItem(tiTree, SWT.NONE);
-        tiSch.setImage(GuiResource.getInstance().getImageBol());
+        tiSch.setImage(GuiResource.getInstance().getImageFolder());
         tiSch.setText(STRING_SCHEMAS);
 
         for (int i = 0; i < schemas.length; i++) {
@@ -562,7 +562,7 @@ public class DatabaseExplorerDialog extends Dialog {
       String tabnames[] = dmi.getTables();
       if (tabnames != null) {
         tiTab = new TreeItem(tiTree, SWT.NONE);
-        tiTab.setImage(GuiResource.getInstance().getImageBol());
+        tiTab.setImage(GuiResource.getInstance().getImageFolder());
         tiTab.setText(STRING_TABLES);
         tiTab.setExpanded(true);
 
@@ -578,7 +578,7 @@ public class DatabaseExplorerDialog extends Dialog {
       String views[] = dmi.getViews();
       if (views != null) {
         tiView = new TreeItem(tiTree, SWT.NONE);
-        tiView.setImage(GuiResource.getInstance().getImageBol());
+        tiView.setImage(GuiResource.getInstance().getImageFolder());
         tiView.setText(STRING_VIEWS);
         for (int i = 0; i < views.length; i++) {
           TreeItem newView = new TreeItem(tiView, SWT.NONE);
@@ -592,7 +592,7 @@ public class DatabaseExplorerDialog extends Dialog {
       String[] syn = dmi.getSynonyms();
       if (syn != null) {
         tiSyn = new TreeItem(tiTree, SWT.NONE);
-        tiSyn.setImage(GuiResource.getInstance().getImageBol());
+        tiSyn.setImage(GuiResource.getInstance().getImageFolder());
         tiSyn.setText(STRING_SYNONYMS);
         for (int i = 0; i < syn.length; i++) {
           TreeItem newSyn = new TreeItem(tiSyn, SWT.NONE);

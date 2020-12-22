@@ -84,15 +84,15 @@ public class ShowHelpDialog extends Dialog {
   private ToolItem tltmPrint;
 
   private Image imageBackEnabled;
-  private Image imageBackDisabled;
+  //private Image imageBackDisabled;
   private Image imageForwardEnabled;
-  private Image imageForwardDisabled;
+  //private Image imageForwardDisabled;
   private Image imageRefreshEnabled;
-  private Image imageRefreshDisabled;
+  //private Image imageRefreshDisabled;
   private Image imageHomeEnabled;
-  private Image imageHomeDisabled;
+  //private Image imageHomeDisabled;
   private Image imagePrintEnabled;
-  private Image imagePrintDisabled;
+  //private Image imagePrintDisabled;
   private Text textURL;
 
   private Cursor cursorEnabled;
@@ -152,15 +152,13 @@ public class ShowHelpDialog extends Dialog {
     FormData fdtoolBarBack = new FormData();
     fdtoolBarBack.top = new FormAttachment( 0, MARGIN );
     fdtoolBarBack.right = new FormAttachment( 0, 27 );
-    fdtoolBarBack.bottom = new FormAttachment( 0, TOOLBAR_HEIGHT );
-    fdtoolBarBack.left = new FormAttachment( 0, MARGIN + 1 );
     toolBarBack.setLayoutData( fdtoolBarBack );
     toolBarBack.setCursor( cursorDisabled );
     toolBarBack.setBackground( toolBarBack.getParent().getBackground() );
 
     tltmBack = new ToolItem( toolBarBack, SWT.NONE );
     tltmBack.setImage( imageBackEnabled );
-    tltmBack.setDisabledImage( imageBackDisabled );
+   // tltmBack.setDisabledImage( imageBackDisabled );
     tltmBack.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Back" ) );
     tltmBack.setEnabled( false );
 
@@ -168,15 +166,13 @@ public class ShowHelpDialog extends Dialog {
     FormData fdtoolBarForward = new FormData();
     fdtoolBarForward.top = new FormAttachment( 0, MARGIN );
     fdtoolBarForward.right = new FormAttachment( toolBarBack, TOOL_ITEM_WIDTH );
-    fdtoolBarForward.bottom = new FormAttachment( 0, TOOLBAR_HEIGHT );
-    fdtoolBarForward.left = new FormAttachment( toolBarBack, TOOL_ITEM_SPACING );
     toolBarForward.setLayoutData( fdtoolBarForward );
     toolBarForward.setCursor( cursorDisabled );
     toolBarForward.setBackground( toolBarForward.getParent().getBackground() );
 
     tltmForward = new ToolItem( toolBarForward, SWT.NONE );
     tltmForward.setImage( imageForwardEnabled );
-    tltmForward.setDisabledImage( imageForwardDisabled );
+    //tltmForward.setDisabledImage( imageForwardDisabled );
     tltmForward.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Forward" ) );
     tltmForward.setEnabled( false );
 
@@ -184,15 +180,13 @@ public class ShowHelpDialog extends Dialog {
     FormData fdtoolBarRefresh = new FormData();
     fdtoolBarRefresh.top = new FormAttachment( 0, MARGIN );
     fdtoolBarRefresh.right = new FormAttachment( toolBarForward, TOOL_ITEM_WIDTH );
-    fdtoolBarRefresh.bottom = new FormAttachment( 0, TOOLBAR_HEIGHT );
-    fdtoolBarRefresh.left = new FormAttachment( toolBarForward, TOOL_ITEM_SPACING - 1 );
     toolBarRefresh.setLayoutData( fdtoolBarRefresh );
     toolBarRefresh.setCursor( cursorEnabled );
     toolBarRefresh.setBackground( toolBarRefresh.getParent().getBackground() );
 
     tltmRefresh = new ToolItem( toolBarRefresh, SWT.NONE );
     tltmRefresh.setImage( imageRefreshEnabled );
-    tltmRefresh.setDisabledImage( imageRefreshDisabled );
+   // tltmRefresh.setDisabledImage( imageRefreshDisabled );
     tltmRefresh.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Refresh" ) );
     tltmRefresh.setEnabled( true );
 
@@ -200,15 +194,13 @@ public class ShowHelpDialog extends Dialog {
     FormData fdtoolBarHome = new FormData();
     fdtoolBarHome.top = new FormAttachment( 0, MARGIN );
     fdtoolBarHome.right = new FormAttachment( toolBarRefresh, TOOL_ITEM_WIDTH );
-    fdtoolBarHome.bottom = new FormAttachment( 0, TOOLBAR_HEIGHT );
-    fdtoolBarHome.left = new FormAttachment( toolBarRefresh, TOOL_ITEM_SPACING );
     toolBarHome.setLayoutData( fdtoolBarHome );
     toolBarHome.setCursor( cursorEnabled );
     toolBarHome.setBackground( toolBarHome.getParent().getBackground() );
 
     tltmHome = new ToolItem( toolBarHome, SWT.NONE );
     tltmHome.setImage( imageHomeEnabled );
-    tltmHome.setDisabledImage( imageHomeDisabled );
+ //  tltmHome.setDisabledImage( imageHomeDisabled );
     tltmHome.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Home" ) );
     tltmHome.setEnabled( true );
 
@@ -216,14 +208,13 @@ public class ShowHelpDialog extends Dialog {
     FormData fdtoolBarPrint = new FormData();
     fdtoolBarPrint.top = new FormAttachment( 0, MARGIN );
     fdtoolBarPrint.right = new FormAttachment( 100, -7 );
-    fdtoolBarPrint.bottom = new FormAttachment( 0, TOOLBAR_HEIGHT );
     toolBarPrint.setLayoutData( fdtoolBarPrint );
     toolBarPrint.setCursor( cursorEnabled );
     toolBarPrint.setBackground( toolBarPrint.getParent().getBackground() );
 
     tltmPrint = new ToolItem( toolBarPrint, SWT.NONE );
     tltmPrint.setImage( imagePrintEnabled );
-    tltmPrint.setDisabledImage( imagePrintDisabled );
+  //  tltmPrint.setDisabledImage( imagePrintDisabled );
     tltmPrint.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Print" ) );
     tltmPrint.setEnabled( true );
 
@@ -254,16 +245,16 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void setImages() {
-    imageBackEnabled = GuiResource.getInstance().getImageBackEnabled();
-    imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
-    imageForwardEnabled = GuiResource.getInstance().getImageForwardEnabled();
-    imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
-    imageRefreshEnabled = GuiResource.getInstance().getImageRefreshEnabled();
-    imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
-    imageHomeEnabled = GuiResource.getInstance().getImageHomeEnabled();
-    imageHomeDisabled = GuiResource.getInstance().getImageHomeDisabled();
-    imagePrintEnabled = GuiResource.getInstance().getImagePrintEnabled();
-    imagePrintDisabled = GuiResource.getInstance().getImagePrintDisabled();
+    imageBackEnabled = GuiResource.getInstance().getImageBack();
+    //imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
+    imageForwardEnabled = GuiResource.getInstance().getImageForward();
+    //imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
+    imageRefreshEnabled = GuiResource.getInstance().getImageRefresh();
+    //imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
+    imageHomeEnabled = GuiResource.getInstance().getImageHome();
+    //imageHomeDisabled = GuiResource.getInstance().getImageHomeDisabled();
+    imagePrintEnabled = GuiResource.getInstance().getImagePrint();
+    //imagePrintDisabled = GuiResource.getInstance().getImagePrintDisabled();
     cursorEnabled = new Cursor( display, SWT.CURSOR_HAND );
     cursorDisabled = new Cursor( display, SWT.CURSOR_ARROW );
   }

@@ -186,7 +186,7 @@ public class HopGuiWorkflowLogDelegate {
     // label = "WorkflowLog.Button.LogSettings",
     toolTip = "WorkflowLog.Button.LogSettings",
     i18nPackageClass = HopGui.class,
-    image = "ui/images/log-settings.svg"
+    image = "ui/images/settings.svg"
   )
   public void showLogSettings() {
     // TODO: implement or rethink
@@ -198,7 +198,7 @@ public class HopGuiWorkflowLogDelegate {
     // label = "WorkflowLog.Button.ShowErrorLines",
     toolTip = "WorkflowLog.Button.ShowErrorLines",
     i18nPackageClass = HopGui.class,
-    image = "ui/images/show-error-lines.svg"
+    image = "ui/images/filter.svg"
   )
   public void showErrors() {
     String all = jobLogText.getText();
@@ -266,17 +266,17 @@ public class HopGuiWorkflowLogDelegate {
     // label = "WorkflowLog.Button.Pause",
     toolTip = "WorkflowLog.Button.Pause",
     i18nPackageClass = HopGui.class,
-    image = "ui/images/pause-log.svg",
+    image = "ui/images/pause.svg",
     separator = true
   )
   public void pauseLog() {
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ICON_LOG_PAUSE_RESUME );
     if ( logBrowser.isPaused() ) {
       logBrowser.setPaused( false );
-      item.setImage( GuiResource.getInstance().getImageContinueLog() );
+      item.setImage( GuiResource.getInstance().getImageRun() );
     } else {
       logBrowser.setPaused( true );
-      item.setImage( GuiResource.getInstance().getImagePauseLog() );
+      item.setImage( GuiResource.getInstance().getImagePause() );
     }
   }
 

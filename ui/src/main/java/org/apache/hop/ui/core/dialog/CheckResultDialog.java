@@ -103,7 +103,7 @@ public class CheckResultDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImagePipelineGraph());
+    shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

@@ -165,7 +165,7 @@ public class NotePadDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE );
     props.setLook( shell );
-    shell.setImage( guiresource.getImageNoteSmall() );
+    shell.setImage( guiresource.getImageNote() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

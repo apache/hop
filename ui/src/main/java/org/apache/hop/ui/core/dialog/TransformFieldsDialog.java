@@ -104,7 +104,7 @@ public class TransformFieldsDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipeline() );
     shell.setText( shellText );
 
     int margin = props.getMargin();

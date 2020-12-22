@@ -61,7 +61,7 @@ import java.util.List;
  */
 @Transform(
   id = "TableInput",
-  image = "ui/images/TIP.svg",
+  image = "ui/images/tableinput.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.TableInput",
   description = "BaseTransform.TypeTooltipDesc.TableInput",

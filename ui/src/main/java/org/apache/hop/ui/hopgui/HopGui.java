@@ -500,12 +500,12 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_NEW,
       label = "New",
-      image = "ui/images/new.svg",
+      image = "ui/images/add.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_NEW,
-      image = "ui/images/new.svg",
+      image = "ui/images/add.svg",
       toolTip = "New")
   @GuiKeyboardShortcut(control = true, key = 'n')
   @GuiOsxKeyboardShortcut(command = true, key = 'n')
@@ -562,12 +562,12 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_SAVE_AS,
       label = "Save As...",
-      image = "ui/images/saveas.svg",
+      image = "ui/images/save-as.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_SAVE_AS,
-      image = "ui/images/saveas.svg",
+      image = "ui/images/save-as.svg",
       toolTip = "Save as...")
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
@@ -578,7 +578,7 @@ public class HopGui
     id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
     separator = true,
     label = "Export to SVG",
-    image = "ui/images/svg-logo.svg",
+    image = "ui/images/image.svg",
     parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
     fileDelegate.exportToSvg();
@@ -640,6 +640,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_UNDO,
       label = "Undo",
+      image = "ui/images/undo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, key = 'z')
@@ -651,6 +652,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_REDO,
       label = "Redo",
+      image = "ui/images/redo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
@@ -685,6 +687,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_FIND,
       label = "Find...",
+      image = "ui/images/search.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(key = 'f', control = true)
   @GuiOsxKeyboardShortcut(key = 'f', command = true)
@@ -699,6 +702,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_COPY,
       label = "Copy selected to clipboard",
+      image = "ui/images/copy.svg",      
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'c')
@@ -711,6 +715,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_PASTE,
       label = "Paste from clipboard",
+      image = "ui/images/paste.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'v')
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
@@ -722,6 +727,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_CUT,
       label = "Cut selected to clipboard",
+      image = "ui/images/cut.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'x')
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
@@ -733,6 +739,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_DELETE,
       label = "Delete selected",
+      image = "ui/images/delete.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = false, key = SWT.DEL)
   @GuiOsxKeyboardShortcut(command = false, key = SWT.DEL)
@@ -774,7 +781,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_START,
       label = "Start execution",
-      image = "ui/images/toolbar/run.svg",
+      image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   @GuiKeyboardShortcut(key = SWT.F8)
   public void menuRunStart() {
@@ -785,7 +792,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_STOP,
       label = "Stop execution",
-      image = "ui/images/toolbar/stop.svg",
+      image = "ui/images/stop.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunStop() {
     getActiveFileTypeHandler().stop();
@@ -795,7 +802,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PAUSE,
       label = "Pause execution",
-      image = "ui/images/toolbar/pause.svg",
+      image = "ui/images/pause.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPause() {
@@ -806,7 +813,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_RESUME,
       label = "Resume execution",
-      image = "ui/images/toolbar/run.svg",
+      image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunResume() {
     getActiveFileTypeHandler().pause();
@@ -816,6 +823,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PREVIEW,
       label = "Preview",
+      image = "ui/images/preview.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPreview() {
@@ -826,6 +834,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_DEBUG,
       label = "Debug",
+      image = "ui/images/debug.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunDebug() {
     getActiveFileTypeHandler().debug();

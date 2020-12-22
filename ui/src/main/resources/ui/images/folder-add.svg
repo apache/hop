@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,18 +7,27 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   id="Layer_1"
-   x="0px"
-   y="0px"
+   width="24"
+   height="24"
    viewBox="0 0 24 24"
-   enable-background="new 0 0 24 24"
-   xml:space="preserve"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="folder-add.svg"><metadata
-     id="metadata15"><rdf:RDF><cc:Work
-         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
-     id="defs13" /><sodipodi:namedview
+   id="svg4"
+   sodipodi:docname="folder-add.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1"
@@ -29,23 +36,19 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1151"
-     inkscape:window-height="1355"
-     id="namedview11"
+     inkscape:window-width="2691"
+     inkscape:window-height="1022"
+     id="namedview6"
      showgrid="false"
-     inkscape:zoom="9.8333333"
+     inkscape:zoom="42"
      inkscape:cx="12"
-     inkscape:cy="12"
+     inkscape:cy="13.904762"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="Layer_1" /><g
-     transform="matrix(0.26379294,0,0,0.26379294,14.796262,14.796262)"
-     id="art"><polygon
-       id="polygon6"
-       points="13.8,13.8 0,13.8 0,18.2 13.8,18.2 13.8,32 18.2,32 18.2,18.2 32,18.2 32,13.8 18.2,13.8 18.2,0 13.8,0 "
-       style="fill:#3d6380" /></g><path
-     style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero"
-     d="m 1.3220339,11.308475 0,-6.4067801 2.7004202,0 2.7004202,0 0.9956145,0.966102 0.9956145,0.966101 4.3887107,0 4.388711,0 0,5.4406781 0,5.440678 -8.0847453,0 -8.0847458,0 0,-6.406779 z m 14.7457631,0.966101 0,-4.0169491 -6.6610173,0 -6.661017,0 0,4.0169491 0,4.01695 6.661017,0 6.6610173,0 0,-4.01695 z M 6.8899787,6.9101699 6.3298918,6.2745759 l -1.7920645,-0.02777 -1.7920646,-0.02777 0,0.663364 0,0.663363 2.3521514,0 2.3521514,0 -0.5600868,-0.635593 z"
-     id="path4151"
-     inkscape:connector-curvature="0" /></svg>
+     inkscape:current-layer="svg4" />
+  <path
+     d="m 9.6310027,2.5 2.3948323,2.4530856 h 9.579332 A 2.3948329,2.4530856 0 0 1 24,7.4061712 V 19.671599 a 2.3948329,2.4530856 0 0 1 -2.394833,2.453085 H 2.446504 c -1.3291323,0 -2.39483293,-1.103888 -2.39483293,-2.453085 V 4.9530856 C 0.05167107,3.5916231 1.1173717,2.5 2.446504,2.5 h 7.1844987 m 5.9870823,6.132714 v 3.679628 h -3.59225 v 2.453085 h 3.59225 v 3.679629 h 2.394833 v -3.679629 h 3.592249 V 12.312342 H 18.012918 V 8.632714 Z"
+     id="path2"
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.2119" />
+</svg>

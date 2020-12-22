@@ -93,7 +93,7 @@ public class TreeToolbar extends Composite {
 
     ToolItem clearSelectionFilter = new ToolItem( selectionFilterTb, SWT.PUSH );
     clearSelectionFilter.setImage( GuiResource.getInstance().getImageClearText() );
-    clearSelectionFilter.setDisabledImage( GuiResource.getInstance().getImageClearTextDisabled() );
+    //clearSelectionFilter.setDisabledImage( GuiResource.getInstance().getImageClearTextDisabled() );
 
     FormData fdSelectionFilterToolbar = new FormData();
     if ( Const.isLinux() ) {
@@ -106,9 +106,9 @@ public class TreeToolbar extends Composite {
 
     selectionFilter = new Text( this, SWT.SINGLE | SWT.BORDER | SWT.LEFT | SWT.SEARCH );
     FormData fdSelectionFilter = new FormData();
-    int offset = -( GuiResource.getInstance().getImageClearTextDisabled().getBounds().height + 6 );
+    int offset = -( GuiResource.getInstance().getImageClearText().getBounds().height + 6 );
     if ( Const.isLinux() ) {
-      offset = -( GuiResource.getInstance().getImageClearTextDisabled().getBounds().height + 13 );
+      offset = -( GuiResource.getInstance().getImageClearText().getBounds().height + 13 );
     }
 
     fdSelectionFilter.top = new FormAttachment( selectionFilterTb, offset );

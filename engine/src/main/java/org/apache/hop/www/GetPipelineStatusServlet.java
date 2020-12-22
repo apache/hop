@@ -262,7 +262,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.print( "<a target=\"_blank\" href=\""
             + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "&xml=y\">"
-            + "<img src=\"" + prefix + "/images/view-as-xml.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>" );
+            + "<img src=\"" + prefix + "/images/download.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>" );
           out.print( "</div>" );
           out.println( "<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">" );
           out.print( "<a target=\"_blank\" href=\""
