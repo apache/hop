@@ -370,8 +370,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private StreamType candidateHopType;
 
-  private Map<TransformMeta, DelayTimer> delayTimers;
-
   Timer redrawTimer;
 
   private HopPipelineFileType<PipelineMeta> fileType;
@@ -424,8 +422,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.areaOwners = new ArrayList<>();
 
     this.log = hopGui.getLog();
-
-    this.delayTimers = new HashMap<>();
 
     pipelineLogDelegate = new HopGuiPipelineLogDelegate(hopGui, this);
     pipelineGridDelegate = new HopGuiPipelineGridDelegate(hopGui, this);
@@ -870,13 +866,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
           break;
         case TRANSFORM_NAME:
-          // This is available only in single click mode...
-          //
-          startHopTransform=null;
-          selectionRegion=null;
+          if (startHopTransform == null && selectionRegion == null &&
+              selectedTransforms==null && selectedNotes==null) {
+            // This is available only in single click mode...
+            //
+            startHopTransform = null;
+            selectionRegion = null;
 
-          TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
-          editTransform(transformMeta);
+            TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
+            editTransform(transformMeta);
+          }
           return;
 
         default:
@@ -1365,23 +1364,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
-      switch (areaOwner.getAreaType()) {
-        case TRANSFORM_ICON:
-          TransformMeta transformMeta = (TransformMeta) areaOwner.getOwner();
-          resetDelayTimer(transformMeta);
-          break;
-
-        case MINI_ICONS_BALLOON: // Give the timer a bit more time
-          transformMeta = (TransformMeta) areaOwner.getParent();
-          resetDelayTimer(transformMeta);
-          break;
-
-        default:
-          break;
-      }
-    }
-
+    
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
@@ -1415,7 +1398,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } else if (selectionRegion != null && startHopTransform == null) {
       // Did we select a region...?
       //
-
       selectionRegion.width = real.x - selectionRegion.x;
       selectionRegion.height = real.y - selectionRegion.y;
       redraw();
@@ -1769,12 +1751,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     candidate.getFromTransform().setTransformErrorMeta(errorMeta);
   }
 
-  private void resetDelayTimer(TransformMeta transformMeta) {
-    DelayTimer delayTimer = delayTimers.get(transformMeta);
-    if (delayTimer != null) {
-      delayTimer.reset();
-    }
-  }
 
   @Override
   public void mouseEnter(MouseEvent arg0) {}

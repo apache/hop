@@ -534,39 +534,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (e.button == 1 || e.button == 2) {
       if (areaOwner != null && areaOwner.getAreaType() != null) {
         switch (areaOwner.getAreaType()) {
-          case ACTION_MINI_ICON_OUTPUT:
-            // Click on the output icon means: start of drag
-            // Action: We show the input icons on the other transforms...
-            //
-            selectedAction = null;
-            startHopAction = (ActionMeta) areaOwner.getOwner();
-            // stopEntryMouseOverDelayTimer(startHopEntry);
-            break;
-
-          case ACTION_MINI_ICON_INPUT:
-            // Click on the input icon means: start to a new hop
-            // In this case, we set the end hop transform...
-            //
-            selectedAction = null;
-            startHopAction = null;
-            endHopAction = (ActionMeta) areaOwner.getOwner();
-            // stopEntryMouseOverDelayTimer(endHopEntry);
-            break;
-
-          case ACTION_MINI_ICON_EDIT:
-            clearSettings();
-            currentAction = (ActionMeta) areaOwner.getOwner();
-            editAction(currentAction);
-            break;
-
-          case ACTION_MINI_ICON_CONTEXT:
-            clearSettings();
-            ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
-            setMenu(actionCopy.getLocation().x, actionCopy.getLocation().y);
-            break;
 
           case ACTION_ICON:
-            actionCopy = (ActionMeta) areaOwner.getOwner();
+            ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
             currentAction = actionCopy;
 
             if (hopCandidate != null) {
@@ -686,18 +656,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             currentAction = (ActionMeta) areaOwner.getOwner();
             hopCandidate = new WorkflowHopMeta(startHopAction, currentAction);
             addCandidateAsHop();
-            startHopAction=null;
+            // startHopAction=null;
             redraw();
           }
           break;
         case ACTION_NAME:
-          // This is available only in single click mode...
-          //
-          startHopAction = null;
-          selectionRegion = null;
-          ActionMeta actionMeta = (ActionMeta) areaOwner.getParent();
-          editAction(actionMeta);
-          return;
+          if (startHopAction == null
+              && selectionRegion == null
+              && selectedActions == null
+              && selectedNotes == null) {
+            // This is available only in single click mode...
+            //
+            startHopAction = null;
+            selectionRegion = null;
+            ActionMeta actionMeta = (ActionMeta) areaOwner.getParent();
+            editAction(actionMeta);
+            return;
+          }
         default:
           break;
       }
@@ -1075,9 +1050,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       ActionMeta actionCopy = null;
       switch (areaOwner.getAreaType()) {
         case ACTION_ICON:
-          actionCopy = (ActionMeta) areaOwner.getOwner();
-          break;
-        case MINI_ICONS_BALLOON: // Give the timer a bit more time
           actionCopy = (ActionMeta) areaOwner.getOwner();
           break;
         default:
@@ -2338,26 +2310,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           tip.append(message);
           tipImage = null;
           GuiResource.getInstance().getImagePipelineGraph();
-          break;
-
-        case ACTION_MINI_ICON_INPUT:
-          tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EntryInputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageHopInput();
-          break;
-
-        case ACTION_MINI_ICON_OUTPUT:
-          tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EntryOutputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageHopOutput();
-          break;
-
-        case ACTION_MINI_ICON_EDIT:
-          tip.append(BaseMessages.getString(PKG, "WorkflowGraph.EditTransform.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageEdit();
-          break;
-
-        case ACTION_MINI_ICON_CONTEXT:
-          tip.append(BaseMessages.getString(PKG, "WorkflowGraph.ShowMenu.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
 
         case ACTION_RESULT_FAILURE:
