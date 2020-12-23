@@ -72,7 +72,7 @@ import java.util.Map;
   i18nPackageName = "org.apache.hop.workflow.actions.shell",
   name = "ActionShell.Name",
   description = "ActionShell.Description",
-  image = "Shell.svg",
+  image = "shell.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/shell.html"
 )
