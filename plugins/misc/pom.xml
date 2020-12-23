@@ -43,10 +43,11 @@
       </property>
     </activation>
     <modules>
-      <module>projects</module>
       <module>debug</module>
-      <module>testing</module>
       <module>git</module>
+      <module>import</module>
+      <module>projects</module>
+      <module>testing</module>
     </modules>
   </profile>
   </profiles>
