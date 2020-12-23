@@ -112,6 +112,8 @@ public class ProjectDialog extends Dialog {
     middle = Const.MIDDLE_PCT;
 
     FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = Const.FORM_MARGIN;
+    formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
     shell.setText("Project dialog");
