@@ -37,7 +37,7 @@ pipeline {
     environment {
         MAVEN_SKIP_RC = true
         BRANCH_NAME ='docker-implementation'
-        DOCKER_REPO='dockerhub.io/apache/incubator-hop'
+        DOCKER_REPO='docker.io/apache/incubator-hop'
 
     }
 
