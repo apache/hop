@@ -37,7 +37,7 @@ pipeline {
     environment {
         MAVEN_SKIP_RC = true
         BRANCH_NAME ='docker-implementation'
-        DOCKER_REPO='apache/incubator-hop'
+        DOCKER_REPO='dockerhub.io/apache/incubator-hop'
 
     }
 
@@ -50,7 +50,6 @@ pipeline {
 
     parameters {
         booleanParam(name: 'CLEAN', defaultValue: true, description: 'Perform the build in clean workspace')
-        string(name: 'PR_NUMBER', defaultValue: '482', description: 'PR number')
     }
 
     stages {
@@ -109,9 +108,9 @@ pipeline {
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO find the version from maven pom
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
-                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}/hop:0.50-snapshot'
-                    sh 'docker push ${DOCKER_REPO}/hop:0.50-snapshot'
-                    sh 'docker rmi ${DOCKER_REPO}/hop:0.50-snapshot'
+                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}:0.50-snapshot'
+                    sh 'docker push ${DOCKER_REPO}:0.50-snapshot'
+                    sh 'docker rmi ${DOCKER_REPO}:0.50-snapshot'
                   }
             }
         }
