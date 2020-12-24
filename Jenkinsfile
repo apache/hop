@@ -102,6 +102,9 @@ pipeline {
             }
         }
         stage('Build Docker Image') {
+            when {
+                branch 'docker-implementation'
+            }
             steps {
                 echo 'Building Docker Image'
 
