@@ -700,7 +700,7 @@ public class GuiResource {
 
     // Svg image
     //
-    imageLogo = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop_logo.svg" );
+    imageLogo = SwtSvgImageUtil.getImageAsResource( display, "ui/images/logo_icon.svg" );
     imagePipeline = SwtSvgImageUtil.getImageAsResource( display, "ui/images/pipeline.svg" );
     imageWorkflow = SwtSvgImageUtil.getImageAsResource( display, "ui/images/workflow.svg" );
     imageServer = SwtSvgImageUtil.getImageAsResource( display, "ui/images/server.svg" );
