@@ -1,5 +1,6 @@
 package org.apache.hop.imports;
 
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
 
 import java.io.File;
@@ -18,4 +19,6 @@ public interface IHopImport {
 
     IVariables importVars(String varPath, HopVarImport varType, IVariables variables) throws IOException;
     void importConnections(String dbConnPath, HopDbConnImport connType);
+
+    void addDatabaseMeta(String filename, DatabaseMeta databaseMeta);
 }

@@ -1,17 +1,10 @@
 package org.apache.hop.imports.gui;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.imports.kettle.KettleImport;
 import org.apache.hop.imports.kettle.KettleImportDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @GuiPlugin
 public class HopImportGuiPlugin {
@@ -43,6 +36,7 @@ public class HopImportGuiPlugin {
 
     }
 
+/*
     public static final List<String> findKettleFilenames(){
         Set<File> kettleFiles = new HashSet<>();
         kettleFiles.addAll(FileUtils.listFiles(new File("/home/bart/Projects/ABN AMRO"), new String[]{"ktr", "kjb"}, true));
@@ -50,4 +44,5 @@ public class HopImportGuiPlugin {
         kettleFiles.forEach(file -> kettleFilenames.add(file.toString()));
         return kettleFilenames;
     }
+*/
 }

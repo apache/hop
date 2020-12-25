@@ -22,7 +22,6 @@ public class KettleConst {
             {"job_version", "workflow_version"},
             {"entries","actions"},
             {"entry","action"},
-//            {"job-log-table","workflow-log-table"},
             {"source_step", "source_transform"},
             {"target_step", "target_transform"}
     }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
@@ -58,7 +57,8 @@ public class KettleConst {
     public static final Map<String, String> kettleReplaceContent = Stream.of(new Object[][]{
             {"JOB", "WORKFLOW"},
             {"TRANS", "PIPELINE"},
-            {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"}
+            {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
+            {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"}
     }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
 
     public static final Map<String, String> kettleReplaceInContent = Stream.of(new Object[][]{
@@ -80,20 +80,5 @@ public class KettleConst {
     public static final List<String> transTypes = Arrays.asList(new String[]{"TRANS"});
 
     public KettleConst(){
-/*
-        HashMap<String, String> kettleElementReplacements = new HashMap<String, String>();
-        // ktr elements
-        replacements.put("transformation", "pipeline");
-        replacements.put("trans_type", "pipeline_type");
-        replacements.put("trans_status", "pipeline_status");
-        replacements.put("step", "transform");
-        replacements.put("step_error_handling", "transform_error_handling");
-        // kjb elements
-        replacements.put("job", "workflow");
-        replacements.put("job_version", "workflow_version");
-        replacements.put("entries", "actions");
-        replacements.put("entry", "action");
-        replacements.put("job-log-table", "workflow-log-table");
-*/
     }
 }

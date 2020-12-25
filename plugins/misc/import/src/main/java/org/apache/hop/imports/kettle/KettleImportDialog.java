@@ -4,11 +4,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.util.SingletonUtil;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imports.HopDbConnImport;
-import org.apache.hop.imports.HopVarImport;
-import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -21,8 +20,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.hibernate.annotations.Check;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class KettleImportDialog extends Dialog {
@@ -126,6 +125,7 @@ public class KettleImportDialog extends Dialog {
         fdcbImportInExisting.right = new FormAttachment(100, 0);
         fdcbImportInExisting.top = new FormAttachment(wlImportInExisting, 0, SWT.CENTER);
         wcbimportInExisting.setLayoutData(fdcbImportInExisting);
+        wcbimportInExisting.setSelection(true);
         wcbimportInExisting.addListener(SWT.Selection, this::showHideProjectFields);
         lastControl = wlImportInExisting;
 
@@ -166,6 +166,7 @@ public class KettleImportDialog extends Dialog {
         fdbImportPath.right = new FormAttachment(100, 0);
         fdbImportPath.top = new FormAttachment(wlImportPath, 0, SWT.CENTER);
         wbImportPath.setLayoutData(fdbImportPath);
+        wbImportPath.setEnabled(false);
         wbImportPath.addListener(SWT.Selection, this::browseTargetFolder);
 
         wImportPath = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
@@ -175,6 +176,7 @@ public class KettleImportDialog extends Dialog {
         fdImportPath.right = new FormAttachment(wbImportPath, -margin);
         fdImportPath.top = new FormAttachment(wlImportPath, 0, SWT.CENTER);
         wImportPath.setLayoutData(fdImportPath);
+        wImportPath.setEditable(false);
         lastControl = wImportPath;
 
         // Kettle properties path
@@ -317,15 +319,6 @@ public class KettleImportDialog extends Dialog {
 
     private void browseHomeFolder( Event event ) {
         String homeFolder = BaseDialog.presentDirectoryDialog( shell, wImportFrom, variables );
-
-        // Set the name to the base folder if the name is empty
-        //
-/*
-        if (homeFolder!=null && StringUtils.isEmpty(wName.getText())) {
-            File file = new File(homeFolder);
-            wName.setText(Const.NVL(file.getName(), ""));
-        }
-*/
     }
 
     private void browseTargetFolder( Event event ) {
@@ -346,30 +339,68 @@ public class KettleImportDialog extends Dialog {
 
     private void doImport(){
 
-        // Add gui option to delete everything in import folder.
-        // Delete only ktr, kjb, definitely don't delete the entire folder
+        String projectName = "";
 
-        HashMap<String, Object> importMap = new HashMap<String, Object>();
-        importMap.put("importFromFolder", wImportFrom.getText());
-        importMap.put("importToProject", "");
-        importMap.put("importToFolder", wImportPath.getText());
-        importMap.put("kettlePropertiesPath", wKettleProps.getText());
-        importMap.put("sharedXmlPath", wShared.getText());
-        importMap.put("jdbcPropsPath", wJdbcProps.getText());
-        importMap.put("variables", variables);
+        // we're importing to a new project, create by path
+        if(!wcbimportInExisting.getSelection()){
+            projectName = "Hop Import Project";
+            try{
+                ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopImportCreateProject", wImportPath.getText());
+            }catch(HopException e){
+                e.printStackTrace();
+            }
+        }else{
+            projectName = wComboImportTo.getText();
+        }
 
+        // import kettle properties to project variables
+        if(!StringUtil.isEmpty(wKettleProps.getText())){
+            variables = kettleImport.importVars(wKettleProps.getText(), org.apache.hop.imports.HopVarImport.PROPERTIES, variables);
+            try{
+                ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopImportVariables", projectName);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        // import jobs and transformations
         kettleImport.setInputFolder(wImportFrom.getText());
         kettleImport.setOutputFolder(wImportPath.getText());
         kettleImport.importHopFolder();
-        variables = kettleImport.importVars(wKettleProps.getText(), HopVarImport.PROPERTIES, variables);
-        kettleImport.importConnections(wShared.getText(), HopDbConnImport.XML);
-        kettleImport.importConnections(wJdbcProps.getText(), HopDbConnImport.PROPERTIES);
+        try{
+            Object migrationObject = new Object[] {projectName, kettleImport.migratedFilesMap};
+            ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopImportMigratedFiles", migrationObject);
+        }catch(HopException e){
+            e.printStackTrace();
+        }
 
+        // import connections
+        if(!StringUtil.isEmpty(wShared.getText())){
+            kettleImport.importConnections(wShared.getText(), HopDbConnImport.XML);
+        }
+        if(!StringUtil.isEmpty(wJdbcProps.getText())){
+            kettleImport.importConnections(wJdbcProps.getText(), HopDbConnImport.PROPERTIES);
+        }
+        Object[] connectionsObject = new Object[]{projectName, kettleImport.connectionsList, kettleImport.connectionFileList};
         try {
-            ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopProjectInformation", importMap);
+            ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopImportConnections", connectionsObject);
         } catch (HopException e) {
             e.printStackTrace();
         }
+
+        String eol = System.getProperty("line.separator");
+        String messageString = "Imported: " + eol;
+        messageString += kettleImport.migratedFilesMap.size() + " jobs and transformations" + eol;
+        messageString += variables.getVariableNames().length + " variables" + eol;
+        messageString += kettleImport.connectionsList.size() + " database connections" + eol + eol;
+        messageString += "Connections with the same name and different configurations have only been saved once." + eol;
+        messageString += "Check 'connections.csv' in your project folder for a list of connections that need extra attention";
+        MessageBox box =
+                new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
+        box.setText("Import summary");
+        box.setMessage(messageString);
+        box.open();
+
     }
 
     private void showHideProjectFields(Event event){
