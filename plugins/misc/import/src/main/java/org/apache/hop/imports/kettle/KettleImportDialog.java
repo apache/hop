@@ -37,7 +37,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-import org.hibernate.annotations.Check;
 
 import java.util.List;
 
@@ -322,11 +321,11 @@ public class KettleImportDialog extends Dialog {
     }
 
     private void ok(){
-
+        dispose();
     }
 
     private void cancel(){
-
+        dispose();
     }
 
     public void dispose(){

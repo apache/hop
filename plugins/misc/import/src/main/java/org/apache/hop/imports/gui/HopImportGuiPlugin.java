@@ -52,14 +52,4 @@ public class HopImportGuiPlugin {
         dialog.open();
 
     }
-
-/*
-    public static final List<String> findKettleFilenames(){
-        Set<File> kettleFiles = new HashSet<>();
-        kettleFiles.addAll(FileUtils.listFiles(new File("/home/bart/Projects/ABN AMRO"), new String[]{"ktr", "kjb"}, true));
-        List<String> kettleFilenames = new ArrayList<>();
-        kettleFiles.forEach(file -> kettleFilenames.add(file.toString()));
-        return kettleFilenames;
-    }
-*/
 }
