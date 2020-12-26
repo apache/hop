@@ -5,13 +5,13 @@
     <parent>
         <artifactId>hop-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.50</version>
+        <version>0.60-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-vertica</artifactId>
-    <version>0.50</version>
+    <version>0.60-SNAPSHOT</version>
 
     <name>Hop Plugins Databases Vertica</name>
 

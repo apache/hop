@@ -26,7 +26,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.50</version>
+    <version>0.60-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>

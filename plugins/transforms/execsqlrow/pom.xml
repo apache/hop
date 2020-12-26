@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.50</version>
+        <version>0.60-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-execsqlrow</artifactId>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-sql</artifactId>
-            <version>0.50</version>
+            <version>0.60-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
