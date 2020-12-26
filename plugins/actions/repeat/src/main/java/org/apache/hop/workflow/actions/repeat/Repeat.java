@@ -59,8 +59,8 @@ import java.util.Map;
     name = "Repeat",
     description = "Repeat execution of a workflow or a transformation",
     categoryDescription = "General",
-    image = "repeat.svg"
-)
+    image = "repeat.svg",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public static final String REPEAT_END_LOOP = "_REPEAT_END_LOOP_";

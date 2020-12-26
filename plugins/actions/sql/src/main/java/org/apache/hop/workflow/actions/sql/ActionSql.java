@@ -61,7 +61,7 @@ import java.util.List;
   i18nPackageName = "org.apache.hop.workflow.actions.sql",
   name = "ActionSQL.Name",
   description = "ActionSQL.Description",
-  image = "SQL.svg",
+  image = "sql.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sql.html"
 )

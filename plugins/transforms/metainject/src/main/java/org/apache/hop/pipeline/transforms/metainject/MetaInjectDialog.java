@@ -614,7 +614,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wFilter.setWidth(120);
 
     wSearch = new ToolItem(treeTb, SWT.PUSH);
-    wSearch.setImage(GuiResource.getInstance().getImageSearchSmall());
+    wSearch.setImage(GuiResource.getInstance().getImageSearch());
     wSearch.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.refresh.Label"));
 

@@ -72,7 +72,7 @@ import java.util.Map;
  */
 @Action(
   id = "PIPELINE",
-  image = "PPL.svg",
+  image = "ui/images/pipeline.svg",
   i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
   name = "ActionPipeline.Name",
   description = "ActionPipeline.Description",

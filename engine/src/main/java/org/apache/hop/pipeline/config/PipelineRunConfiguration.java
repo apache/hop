@@ -32,7 +32,7 @@ import java.util.List;
   key = "pipeline-run-configuration",
   name = "Pipeline Run Configuration",
   description = "Describes how and with which engine a pipeline is to be executed",
-  image = "ui/images/run.svg"
+  image = "ui/images/pipeline_run_config.svg"
 )
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 

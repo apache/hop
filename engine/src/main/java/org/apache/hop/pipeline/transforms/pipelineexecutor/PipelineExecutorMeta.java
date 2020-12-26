@@ -65,7 +65,7 @@ import java.util.List;
  */
 @Transform(
   id = "PipelineExecutor",
-  image = "ui/images/TRNEx.svg",
+  image = "ui/images/pipelineexecutor.svg",
   i18nPackageName = "org.apache.hop.pipeline.transform",
   name = "BaseTransform.TypeLongDesc.PipelineExecutor",
   description = "BaseTransform.TypeTooltipDesc.PipelineExecutor",

@@ -51,7 +51,6 @@ import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -170,6 +169,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private int sortIndex = 0;
   private boolean ascending = true;
 
+  public HopVfsFileDialog() {
+  }
+
   public HopVfsFileDialog(
       Shell parent,
       IVariables variables,
@@ -209,6 +211,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fileImage = GuiResource.getInstance().getImageFile();
     folderImage = GuiResource.getInstance().getImageFolder();
   }
+
 
   /**
    * Gets the active instance of this dialog
@@ -556,7 +559,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   //    root = BOOKMARKS_TOOLBAR_PARENT_ID,
   //    id = BOOKMARKS_ITEM_ID_BOOKMARK_GOTO,
   //    toolTip = "Browse to the selected bookmark",
-  //    image = "ui/images/toolbar/arrow-right.svg"
+  //    image = "ui/images/arrow-right.svg"
   //  )
   public void browseToSelectedBookmark() {
     String name = getSelectedBookmark();
@@ -906,22 +909,25 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       }
     }
   }
-  
+
   private Image getFileImage(FileObject file) {
-  try {
-    IHopFileType<?> fileType = HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
-    if ( fileType!=null ) {
-      IPlugin plugin = PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
-      if ( plugin!=null && plugin.getImageFile()!=null )  {
-        return GuiResource.getInstance().getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    try {
+      IHopFileType<?> fileType =
+          HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
+      if (fileType != null) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
+        if (plugin != null && plugin.getImageFile() != null) {
+          return GuiResource.getInstance()
+              .getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        }
       }
-    }
-  } catch (HopException e) {
+    } catch (HopException e) {
       // Ignore
+    }
+
+    return fileImage;
   }
-  
-  return fileImage;
-}
 
   private String getFileSize(FileObject child) {
     try {
@@ -1017,7 +1023,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = BOOKMARKS_TOOLBAR_PARENT_ID,
       id = BOOKMARKS_ITEM_ID_BOOKMARK_REMOVE,
       toolTip = "Remove the selected bookmark",
-      image = "ui/images/deleteSmall.svg")
+      image = "ui/images/delete.svg")
   public void removeBookmark() {
     String name = getSelectedBookmark();
     if (name != null) {
@@ -1060,13 +1066,21 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         // Save the "saveFilename" entered text by the user?
         //
         String oldFull = wFilename.getText();
-        try {
-          FileObject oldFullObject = HopVfs.getFileObject(oldFull);
-          if (!oldFullObject.isFolder()) {
-            saveFilename = oldFullObject.getName().getBaseName();
+        if (StringUtils.isNotEmpty(oldFull)) {
+          try {
+            FileObject oldFullObject = HopVfs.getFileObject(oldFull);
+            if (!oldFullObject.isFolder()) {
+              saveFilename = oldFullObject.getName().getBaseName();
+            }
+          } catch (Exception e) {
+            // This wasn't a valid filename, ignore the error to reduce spamming
           }
-        } catch (Exception e) {
-          // I guess it wasn't a valid filename, ignore the error to reduce spamming
+        } else {
+          // First call, set to filter path plus saveFilename
+          //
+          if (StringUtils.isNotEmpty(filterPath)) {
+            wFilename.setText(filterPath + "/" + saveFilename);
+          }
         }
 
         if (HopVfs.getFileObject(filename).isFolder()) {
@@ -1092,7 +1106,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_HOME,
       toolTip = "Navigate to the user home directory",
-      image = "ui/images/home-enabled.svg")
+      image = "ui/images/home.svg")
   public void navigateHome() {
     navigateTo(System.getProperty("user.home"), true);
   }
@@ -1101,7 +1115,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_REFRESH_ALL,
       toolTip = "Refresh",
-      image = "ui/images/refresh-enabled.svg")
+      image = "ui/images/refresh.svg")
   public void refreshAll() {
     refreshBookmarks();
     refreshBrowser();
@@ -1111,7 +1125,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_UP,
       toolTip = "Navigate to the parent folder",
-      image = "ui/images/toolbar/arrow-up.svg")
+      image = "ui/images/up.svg")
   public void navigateUp() {
     try {
       FileObject fileObject = HopVfs.getFileObject(wFilename.getText());
@@ -1161,7 +1175,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS,
       toolTip = "Navigate to previous path from your history",
-      image = "ui/images/toolbar/arrow-left.svg",
+      image = "ui/images/back.svg",
       separator = true)
   public void navigateHistoryPrevious() {
     if (navigationIndex - 1 >= 0) {
@@ -1174,7 +1188,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_NEXT,
       toolTip = "Navigate to next path from your history",
-      image = "ui/images/toolbar/arrow-right.svg")
+      image = "ui/images/forward.svg")
   public void navigateHistoryNext() {
     if (navigationIndex + 1 < navigationHistory.size() - 1) {
       navigationIndex++;
@@ -1186,10 +1200,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = BROWSER_TOOLBAR_PARENT_ID,
       id = BROWSER_ITEM_ID_SHOW_HIDDEN,
       toolTip = "Show or hide hidden files and directories",
-      image = "ui/images/toolbar/view.svg",
+      image = "ui/images/show.svg",
       separator = true)
   public void showHideHidden() {
     showingHiddenFiles = !showingHiddenFiles;
+        
     refreshBrowser();
   }
 

@@ -1,11 +1,60 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-     viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
-<g>
-	<rect x="4.7" y="8.7" fill="#FFFFFF" width="14.7" height="8.9"/>
-  <polygon fill="#FFFFFF" points="9.1,6.9 4.9,6.9 4.9,8.3 10.5,8.3 	"/>
-  <path fill="#3E6481" d="M11.4,7.5l-2-1.9H3.9v12.9h16.3v-11H11.4z M5.4,17V9h13.3v8H5.4z M5.4,8.2V7h3.5L10,8.2H5.4z"/>
-</g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="24"
+   viewBox="0 0 24 24"
+   width="24"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="folder.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2010"
+     inkscape:window-height="1276"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="42"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg6" />
+  <path
+     d="M0 0h24v24H0z"
+     fill="none"
+     id="path2" />
+  <path
+     d="m 21.581913,4.8876829 h -9.57711 L 9.6105256,2.4285715 H 2.4276932 c -1.3168526,0 -2.38230606,1.1066001 -2.38230606,2.4591114 L 0.03341569,19.642352 c 0,1.352511 1.07742491,2.459112 2.39427751,2.459112 H 21.581913 c 1.316853,0 2.394278,-1.106601 2.394278,-2.459112 V 7.3467946 c 0,-1.3525114 -1.077425,-2.4591117 -2.394278,-2.4591117 z m 0,14.7546691 H 2.4276932 V 7.3467946 H 21.581913 Z"
+     id="path4"
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.21323" />
 </svg>

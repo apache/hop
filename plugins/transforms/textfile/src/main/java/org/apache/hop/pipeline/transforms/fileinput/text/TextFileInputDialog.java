@@ -2666,7 +2666,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       wizard.addPage( page2 );
 
       WizardDialog wd = new WizardDialog( shell, wizard );
-      WizardDialog.setDefaultImage( GuiResource.getInstance().getImageWizard() );
+      WizardDialog.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       wd.setMinimumPageSize( 700, 375 );
       wd.updateSize();
       wd.open();

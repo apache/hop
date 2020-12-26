@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="delete.svg"
+   id="svg4"
+   version="1.1"
+   viewBox="0 0 16 16"
+   class="bi bi-x"
+   fill="currentColor"
+   height="16"
+   width="16">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg4"
+     inkscape:window-maximized="0"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
+     inkscape:cy="8"
+     inkscape:cx="8"
+     inkscape:zoom="63"
+     showgrid="false"
+     id="namedview6"
+     inkscape:window-height="1205"
+     inkscape:window-width="2286"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.61094"
+     id="path2"
+     d="m 2.4644089,2.4991521 a 0.80038795,0.81058992 0 0 1 1.1333494,0 l 4.235653,4.2912632 4.2356527,-4.2912632 a 0.80139949,0.81161435 0 0 1 1.13335,1.1477954 L 8.9651599,7.9365893 13.202414,12.226231 a 0.80140003,0.8116149 0 0 1 -1.13335,1.147797 L 7.8334113,9.0827635 3.5977583,13.374028 A 0.80139961,0.81161447 0 0 1 2.4644089,12.226231 L 6.7016629,7.9365893 2.4644089,3.6469475 a 0.80038795,0.81058992 0 0 1 0,-1.1477954 z"
+     fill-rule="evenodd" />
+</svg>

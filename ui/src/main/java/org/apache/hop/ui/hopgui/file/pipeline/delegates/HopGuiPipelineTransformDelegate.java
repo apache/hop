@@ -274,12 +274,6 @@ public class HopGuiPipelineTransformDelegate {
 
           info.setDefault();
 
-          if (openit) {
-            ITransformDialog dialog = this.getTransformDialog(info, pipelineMeta, name);
-            if (dialog != null) {
-              name = dialog.open();
-            }
-          }
           transformMeta = new TransformMeta(transformPlugin.getIds()[0], name, info);
 
           if (name != null) {
@@ -314,6 +308,12 @@ public class HopGuiPipelineTransformDelegate {
             // Also store the event in the plugin history list...
             AuditManager.registerEvent(
                 HopNamespace.getNamespace(), "transform", transformPlugin.getIds()[0], "create");
+
+            // See if we need to open the transform
+            //
+            if (openit) {
+              pipelineGraph.editTransform(pipelineMeta, transformMeta);
+            }
           } else {
             return null; // Cancel pressed in dialog.
           }

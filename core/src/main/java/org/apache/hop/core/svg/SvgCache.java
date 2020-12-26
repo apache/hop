@@ -85,14 +85,22 @@ public class SvgCache {
 
       float width=-1;
       float height=-1;
+      float x = 0;
+      float y = 0;
 
       // See if the element has a "width" and a "height" attribute...
       //
       String widthAttribute = elSVG.getAttribute( "width" );
       String heightAttribute = elSVG.getAttribute( "height" );
       if (widthAttribute!=null && heightAttribute!=null) {
-        width = (float) Const.toDouble( widthAttribute.replace( "px", "" ), -1.0d );
-        height = (float) Const.toDouble( heightAttribute.replace( "px", "" ), -1.0d );
+        width = (float) Const.toDouble( widthAttribute.replace( "px", "" ).replace("mm", ""), -1.0d );
+        height = (float) Const.toDouble( heightAttribute.replace( "px", "" ).replace("mm", ""), -1.0d );
+      }
+      String xAttribute = elSVG.getAttribute( "x" );
+      String yAttribute = elSVG.getAttribute( "y" );
+      if (xAttribute!=null && yAttribute!=null) {
+        x = (float) Const.toDouble( xAttribute.replace( "px", "" ).replace("mm", ""), 0d );
+        y = (float) Const.toDouble( yAttribute.replace( "px", "" ).replace("mm", ""), 0d );
       }
 
       // If we don't have width and height we'll have to calculate it...
@@ -114,13 +122,15 @@ public class SvgCache {
 
         width = (float) primitiveBounds.getWidth();
         height = (float) primitiveBounds.getHeight();
+        x = (float) primitiveBounds.getX();
+        y = (float) primitiveBounds.getY();
       }
 
       if (width<=1 || height<=1) {
         throw new HopException("Couldn't determine width or height of file : "+ svgFile.getFilename());
       }
 
-      cacheEntry = new SvgCacheEntry( svgFile.getFilename(), svgDocument, Math.round(width), Math.round(height) );
+      cacheEntry = new SvgCacheEntry( svgFile.getFilename(), svgDocument, Math.round(width), Math.round(height), Math.round( x ), Math.round( y ) );
       getInstance().fileDocumentMap.put( svgFile.getFilename(), cacheEntry );
       return cacheEntry;
     } catch ( Exception e ) {
@@ -128,8 +138,8 @@ public class SvgCache {
     }
   }
 
-  public synchronized static void addSvg( String filename, SVGDocument svgDocument, int width, int height ) {
-    getInstance().fileDocumentMap.put( filename, new SvgCacheEntry( filename, svgDocument, width, height ) );
+  public synchronized static void addSvg( String filename, SVGDocument svgDocument, int width, int height, int x, int y ) {
+    getInstance().fileDocumentMap.put( filename, new SvgCacheEntry( filename, svgDocument, width, height, x, y ) );
   }
 
 }

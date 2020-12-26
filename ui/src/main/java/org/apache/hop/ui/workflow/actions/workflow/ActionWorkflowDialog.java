@@ -213,7 +213,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
         getClass().getClassLoader(),
-        BasePropertyHandler.getProperty("Workflow_image"),
+        "ui/images/workflow.svg",
         ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE);
   }

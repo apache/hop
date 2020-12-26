@@ -115,7 +115,7 @@ public class TransformErrorMetaDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setText( BaseMessages.getString( PKG, "BaseTransformDialog.ErrorHandling.Title.Label" ) );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipeline() );
     shell.setLayout( formLayout );
 
     // First, add the buttons...

@@ -55,7 +55,7 @@ import java.util.List;
 
 @Transform(
         id = "ExecSql",
-        image = "SQL.svg",
+        image = "sql.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
         name = "ExecSql.Name",
         description = "ExecSql.Description",

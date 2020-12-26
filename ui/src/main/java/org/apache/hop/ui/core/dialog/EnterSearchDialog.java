@@ -82,7 +82,7 @@ public class EnterSearchDialog {
   public boolean open() {
     shell = new Shell( parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
     shell.setText( BaseMessages.getString( PKG, "EnterSearchDialog.Shell.Title" ) );
 
     FormLayout formLayout = new FormLayout();

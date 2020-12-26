@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <info>
+    <name>00200-udjc-simple</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2020/12/16 22:56:13.155</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2020/12/16 22:56:13.155</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>10k rows</from>
+      <to>name</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>name</from>
+      <to>values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>values</from>
+      <to>name &lt;&gt; "Apache Hop"</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>name &lt;&gt; "Apache Hop"</from>
+      <to>More than 1 row</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>10k rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>first</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>Apache</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>last</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>Hop</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <limit>10000</limit>
+    <never_ending>N</never_ending>
+    <interval_in_ms>5000</interval_in_ms>
+    <row_time_field>now</row_time_field>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>name</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <definitions>
+      <definition>
+        <classType>TRANSFORM_CLASS</classType>
+        <className>Processor</className>
+        <class_source>
+String firstnameField;
+String lastnameField;
+String nameField;
+
+public boolean processRow() throws HopException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      firstnameField = getParameter("FIRSTNAME_FIELD");
+      lastnameField = getParameter("LASTNAME_FIELD");
+      nameField = getParameter("NAME_FIELD");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this transform.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String firstname = get(Fields.In, firstnameField).getString(r);
+    String lastname = get(Fields.In, lastnameField).getString(r);
+
+    // Set the value in the output field
+    //
+    String name = firstname+" "+lastname;
+    get(Fields.Out, nameField).setValue(outputRow, name);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}
+
+</class_source>
+      </definition>
+    </definitions>
+    <fields>
+      <field>
+        <fieldName>name</fieldName>
+        <fieldType>String</fieldType>
+        <fieldLength>-1</fieldLength>
+        <fieldPrecision>-1</fieldPrecision>
+      </field>
+    </fields>
+    <clearResultFields>N</clearResultFields>
+    <infoTransforms/>
+    <target_transforms/>
+    <usage_parameters>
+      <usage_parameter>
+        <parameter_tag>FIRSTNAME_FIELD</parameter_tag>
+        <parameterValue>first</parameterValue>
+        <parameterDescription>First name field</parameterDescription>
+      </usage_parameter>
+      <usage_parameter>
+        <parameter_tag>LASTNAME_FIELD</parameter_tag>
+        <parameterValue>last</parameterValue>
+        <parameterDescription>Last name field</parameterDescription>
+      </usage_parameter>
+      <usage_parameter>
+        <parameter_tag>NAME_FIELD</parameter_tag>
+        <parameterValue>name</parameterValue>
+        <parameterDescription>The name field as output</parameterDescription>
+      </usage_parameter>
+    </usage_parameters>
+    <attributes/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>values</name>
+    <type>UniqueRowsByHashSet</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <store_values>N</store_values>
+    <reject_duplicate_row>N</reject_duplicate_row>
+    <error_description/>
+    <fields>
+      <field>
+        <name>name</name>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>More than 1 row</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <row_threshold>1</row_threshold>
+    <message>More than one value found</message>
+    <always_log_rows>Y</always_log_rows>
+    <abort_option>ABORT</abort_option>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>name &lt;&gt; "Apache Hop"</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>name</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>Apache Hop</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
