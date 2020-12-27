@@ -47,7 +47,7 @@ import java.util.List;
   description = "ActionAbort.Description",
   image = "Abort.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/abord.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/abort.html"
 )
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAbort.class; // Needed by Translator

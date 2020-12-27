@@ -76,7 +76,7 @@ public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> impleme
 
   @Override
   protected String extractImageFile( ValueMetaPlugin annotation ) {
-    return null;
+    return annotation.image();
   }
 
   @Override

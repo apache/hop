@@ -51,7 +51,7 @@ import java.util.List;
   i18nPackageName = "org.apache.hop.workflow.actions.eval",
   name = "ActionEval.Name",
   description = "ActionEval.Description",
-  image = "Eval.svg",
+  image = "eval.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/eval.html"
 )

@@ -826,6 +826,7 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>0.13</version>
                 <configuration>
+                    <consoleOutput>true</consoleOutput>
                     <excludes>
                         <exclude>**/README.md</exclude>
                         <exclude>LICENSE</exclude>

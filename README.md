@@ -1,4 +1,4 @@
-# Hop
+# Apache Hop (incubating)
 
 The Hop Orchestration Platform aims to facilitate all aspects of data and metadata orchestration.
 
@@ -11,7 +11,7 @@ The Hop Orchestration Platform aims to facilitate all aspects of data and metada
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/hop-project/)
 
 
-## Trying Hop 
+## Trying Apache Hop 
 
 Hop is work in progress. After building, the UI can be started, but a lot of things may be broken. 
 
@@ -24,8 +24,9 @@ There are various things you can do to help Hop moving forward as fast as possib
 
 Check our [Contribution Guide](http://www.project-hop.org/community/contributing/) and the [Hop website](http://www.project-hop.org/) for more information on how to contribute.  
 
-## Build Hop 
+## Building Apache Hop
 
+### From source repository
 
 Required: 
 - [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
@@ -40,7 +41,25 @@ Change into the clone repository and build:
     $ cd incubator-hop 
     $ mvn clean install 
 
-## Run Hop 
+### From release archive
+
+You can download a source release [here](https://downloads.apache.org/incubator/hop/)
+
+Required: 
+- [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
+- [Maven](http://maven.apache.org/)
+
+Unzip the archive
+
+    $ tar -xf apache-hop*.tar.gz
+
+Change into the extracted folder and build
+
+    $ cd apache-hop-*-incubating
+    $ mvn clean install
+
+
+## Run Apache Hop 
 
 After a successful build, the Hop UI can be started.
 

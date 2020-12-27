@@ -1173,19 +1173,6 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
-    wDevelopedBy = new Link( shell, SWT.PUSH );
-    wDevelopedBy.setText("Developed by Inquidia Consulting (<a href=\"http://www.inquidia.com\">www.inquidia.com</a>)");
-    fdDevelopedBy = new FormData();
-    fdDevelopedBy.right = new FormAttachment( 100, margin );
-    fdDevelopedBy.bottom = new FormAttachment( 100, margin );
-    wDevelopedBy.setLayoutData( fdDevelopedBy );
-    wDevelopedBy.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        Program.launch("http://www.inquidia.com");
-      }
-    } );
-
     // Add listeners
     lsOk = new Listener() {
       public void handleEvent( Event e ) {
