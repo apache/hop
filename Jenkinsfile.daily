@@ -101,7 +101,6 @@ pipeline {
                     sh docker wait integration-tests_integration_test_1
                     sh docker logs integration-tests_integration_test_1
                 }
-            }
             post {
                 always {
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
