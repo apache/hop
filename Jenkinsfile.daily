@@ -97,7 +97,7 @@ pipeline {
         // }
         stage('Create Docker image & Run Tests'){
             steps {
-                    sh "docker-compose build -f 'docker/integration-tests/docker-compose-ci.yaml' --build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid}"
+                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' build --build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid}"
                     sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' up -d"
                     sh "docker wait integration-tests_integration_test_1"
                     sh "docker logs integration-tests_integration_test_1"
