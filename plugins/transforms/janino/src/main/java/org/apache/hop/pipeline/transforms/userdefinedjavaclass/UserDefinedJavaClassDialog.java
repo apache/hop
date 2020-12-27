@@ -1421,7 +1421,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInput, SWT.NULL );
-            itemField.setImage( guiResource.getImageLabel() );
+            itemField.setImage( guiResource.getImage(v) );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );
@@ -1438,7 +1438,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInfo, SWT.NULL );
-            itemField.setImage( guiResource.getImageLabel() );
+            itemField.setImage( guiResource.getImage(v) );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );
@@ -1455,7 +1455,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( false, itemName );
             TreeItem itemField = new TreeItem( itemOutput, SWT.NULL );
-            itemField.setImage( guiResource.getImageLabel() );
+            itemField.setImage( guiResource.getImage(v) );
             itemField.setText( itemName );
             itemField.setData( itemData );
             TreeItem itemFieldGet = new TreeItem( itemField, SWT.NULL );

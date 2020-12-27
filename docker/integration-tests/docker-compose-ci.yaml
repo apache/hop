@@ -21,6 +21,11 @@ services:
       build:
           context: ../../.
           dockerfile: docker/integration-tests/Dockerfile.unit-tests
+          args:                                                                     
+            - JENKINS_USER=jenkins
+            - JENKINS_UID=1000
+            - JENKINS_GROUP=jenkins
+            - JENKINS_GID=1000
       volumes:
         - ../../integration-tests/:/files
       depends_on:
@@ -29,9 +34,7 @@ services:
         - postgres
       environment:
         - FLASK_ENV=docker
-      #command: ["bash", "-c", "ls -al /files/scripts/"]
       command: ["bash", "-c", "/files/scripts/run-tests.sh"]
-      #command: ["bash", "-c", "PGPASSWORD=hop_password psql --host=postgres --username=hop_user --dbname=hop_database"]
     postgres:
         image: postgres:latest
         env_file:
