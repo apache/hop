@@ -27,6 +27,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -48,7 +50,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -150,6 +151,9 @@ public class GuiResource {
   private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
 
   private Map<String, SwtUniversalImage> imagesActions;
+
+  private Map<String, Image> imagesValueMeta;
+  
 
   private SwtUniversalImage imageLogo;
   private SwtUniversalImage imageDisabledHop;
@@ -366,6 +370,7 @@ public class GuiResource {
     loadCommonImages();
     loadTransformImages();
     loadWorkflowActionImages();
+    loadValueMetaImages();
   }
 
   private void dispose( boolean reload ) {
@@ -521,6 +526,8 @@ public class GuiResource {
 
       // Dispose of the images in the map
       disposeImages( imageMap.values() );
+      
+      disposeImages (imagesValueMeta.values() );
     }
   }
 
@@ -700,7 +707,7 @@ public class GuiResource {
 
     // Svg image
     //
-    imageLogo = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop_logo.svg" );
+    imageLogo = SwtSvgImageUtil.getImageAsResource( display, "ui/images/logo_icon.svg" );
     imagePipeline = SwtSvgImageUtil.getImageAsResource( display, "ui/images/pipeline.svg" );
     imageWorkflow = SwtSvgImageUtil.getImageAsResource( display, "ui/images/workflow.svg" );
     imageServer = SwtSvgImageUtil.getImageAsResource( display, "ui/images/server.svg" );
@@ -793,6 +800,40 @@ public class GuiResource {
       }
 
       imagesActions.put( plugin.getIds()[ 0 ], image );
+    }
+  }
+
+  /** 
+   * Load all IValueMeta images from files.
+   */
+  private void loadValueMetaImages() {
+
+    imagesValueMeta = new HashMap<>();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<IPlugin> plugins = registry.getPlugins(ValueMetaPluginType.class);
+    for (IPlugin plugin : plugins) {
+        Image image = null;
+        try {
+          ClassLoader classLoader = registry.getClassLoader( plugin );
+          image = SwtSvgImageUtil.getImage(
+                  Display.getCurrent(),
+                  classLoader,
+                  plugin.getImageFile(),
+                  ConstUi.SMALL_ICON_SIZE,
+                  ConstUi.SMALL_ICON_SIZE);
+        } catch (Throwable t) {
+          log.logError(
+              "Error occurred loading image [" + plugin.getImageFile() + "] for plugin " + plugin.getIds()[0],
+              t);
+        } finally {
+          if (image == null) {
+            log.logError(
+                "Unable to load image [" + plugin.getImageFile() + "] for plugin " + plugin.getIds()[0]);
+            image = this.imageLabel;
+          }
+        }
+
+        imagesValueMeta.put(plugin.getIds()[ 0 ], image);
     }
   }
 
@@ -1076,6 +1117,16 @@ public class GuiResource {
    */
   public Map<String, SwtUniversalImage> getImagesActions() {
     return imagesActions;
+  }
+  
+  /**
+   *   Return the image of the IValueMeta from plugin
+   *   
+   *   @return image
+   */
+  public Image getImage(IValueMeta valueMeta) {
+    if ( valueMeta==null ) return this.imageLabel; 
+    return imagesValueMeta.get(String.valueOf(valueMeta.getType()));
   }
 
   /**

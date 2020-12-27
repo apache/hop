@@ -1526,20 +1526,13 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
         // String strItemToAdd="";
 
         for ( int i = 0; i < rowPrevTransformFields.size(); i++ ) {
-          IValueMeta v = rowPrevTransformFields.getValueMeta( i );
-          strItemToAddOut = v.getName() + ".setValue(var)";
-          strItemInToAdd = v.getName();
+          IValueMeta valueMeta = rowPrevTransformFields.getValueMeta( i );
+          strItemToAddOut = valueMeta.getName() + ".setValue(var)";
+          strItemInToAdd = valueMeta.getName();
           TreeItem itemFields = new TreeItem( iteminput, SWT.NULL );
-          itemFields.setImage( GuiResource.getInstance().getImageLabel() ); // TODO: Replace me with value meta image
+          itemFields.setImage( GuiResource.getInstance().getImage(valueMeta) );
           itemFields.setText( strItemInToAdd );
           itemFields.setData( strItemInToAdd );
-
-          /*
-           * switch(v.getType()){ case IValueMeta.TYPE_STRING : case IValueMeta.TYPE_NUMBER : case
-           * IValueMeta.TYPE_INTEGER: case IValueMeta.TYPE_DATE : case
-           * IValueMeta.TYPE_BOOLEAN: strItemToAdd=v.getName()+".setValue(var)"; break; default:
-           * strItemToAdd=v.getName(); break; }
-           */
         }
         TreeItem itemFields = new TreeItem( itemoutput, SWT.NULL );
         itemFields.setData( "" );

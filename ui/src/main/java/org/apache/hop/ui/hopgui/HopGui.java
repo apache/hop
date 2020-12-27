@@ -75,6 +75,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -165,6 +166,10 @@ public class HopGui
   public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
   public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
 
+  public static final String ID_MAIN_MENU_HELP_PARENT_ID = "90000-menu-help";
+  public static final String ID_MAIN_MENU_HELP_ABOUT = "90009-menu-help-about";
+  
+  
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
   public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
@@ -895,6 +900,27 @@ public class HopGui
       }
     }
   }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_HELP_PARENT_ID,
+      label = "&Help",
+      parentId = ID_MAIN_MENU)
+  public void menuHelp() {
+    // Nothing is done here.
+  }  
+
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_HELP_ABOUT,
+      label = "About...",
+      parentId = ID_MAIN_MENU_HELP_PARENT_ID)
+  public void menuHelpAbout() {
+    AboutDialog dialog = new AboutDialog(hopGui.getShell());
+    dialog.open();
+  }
+  
 
   protected void addMainToolbar() {
     mainToolbar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);

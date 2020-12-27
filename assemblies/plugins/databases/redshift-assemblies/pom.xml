@@ -47,11 +47,6 @@
             <artifactId>hop-databases-redshift</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.amazon.redshift</groupId>
-            <artifactId>redshift-jdbc42</artifactId>
-            <version>${redshift.version}</version>
-        </dependency>
     </dependencies>
 
     <repositories>

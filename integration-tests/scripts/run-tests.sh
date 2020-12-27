@@ -24,6 +24,29 @@ if [ -z "${HOP_LOCATION}" ]; then
     HOP_LOCATION=/opt/hop
 fi
 
+
+# Get database parameters
+if [ -z "${POSTGRES_HOST}" ]; then
+    POSTGRES_HOST=postgres
+fi
+
+if [ -z "${POSTGRES_DATABASE}" ]; then
+    POSTGRES_DATABASE=hop_database
+fi
+
+if [ -z "${POSTGRES_PORT}" ]; then
+    POSTGRES_PORT=5432
+fi
+
+if [ -z "${POSTGRES_USER}" ]; then
+    POSTGRES_USER=hop_user
+fi
+
+if [ -z "${POSTGRES_PASSWORD}" ]; then
+    POSTGRES_PASSWORD=hop_password
+fi
+
+
 #set global variables
 SPACER="==========================================="
 
@@ -99,7 +122,15 @@ for d in "${CURRENT_DIR}"/../*/ ; do
             start_time_test=$SECONDS
 
             #Run Test
-            $HOP_LOCATION/hop-run.sh -j ${PROJECT_NAME} -r "local" -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+            $HOP_LOCATION/hop-run.sh \
+                -j ${PROJECT_NAME} \
+                -r "local" \
+                -p POSTGRES_HOST=${POSTGRES_HOST} \
+                -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
+                -p POSTGRES_PORT=${POSTGRES_PORT} \
+                -p POSTGRES_USER=${POSTGRES_USER} \
+                -p POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+                -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
 
             #Capture exit code
             exit_code=${PIPESTATUS[0]}
