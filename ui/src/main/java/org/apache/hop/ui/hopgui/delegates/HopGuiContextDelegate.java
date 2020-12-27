@@ -43,7 +43,7 @@ public class HopGuiContextDelegate {
     int x = 50 + hopGui.getShell().getLocation().x;
     int y = 50 + hopGui.getShell().getLocation().y;
 
-    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the item to create", new Point( x, y ), hopGui, GuiActionType.Create, "FileNew", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the item to create", new Point( x, y ), hopGui, GuiActionType.Create, "FileNew", true );
   }
 
   /**
@@ -51,7 +51,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetadataEdit() {
 
-    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopGui, GuiActionType.Modify, "FileMetadataEdit", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopGui, GuiActionType.Modify, "FileMetadataEdit", true );
   }
 
   /**
@@ -59,7 +59,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetadataDelete() {
 
-    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopGui, GuiActionType.Delete, "FileMetadataDelete", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopGui, GuiActionType.Delete, "FileMetadataDelete", true );
   }
 
   /**

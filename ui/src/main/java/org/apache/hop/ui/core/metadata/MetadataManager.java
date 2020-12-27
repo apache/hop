@@ -94,7 +94,7 @@ public class MetadataManager<T extends IHopMetadata> {
         action.setClassLoader( getClassLoader() );
         actions.add( action );
       }
-      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to edit", new GuiContextHandler( "HopGuiMetadataContext", actions ) );
+      return GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to edit", new GuiContextHandler( "HopGuiMetadataContext", actions ) );
 
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error editing metadata", e );
@@ -123,7 +123,7 @@ public class MetadataManager<T extends IHopMetadata> {
         action.setClassLoader( getClassLoader() );
         actions.add( action );
       }
-      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to delete after confirmation", new GuiContextHandler( "HopGuiMetadaContext", actions ) );
+      return GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to delete after confirmation", new GuiContextHandler( "HopGuiMetadaContext", actions ) );
 
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error deleting metadata", e );
