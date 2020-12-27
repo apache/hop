@@ -141,10 +141,10 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     input = (ScriptValuesMetaMod) in;
     genMeta = null;
     try {
-      imageActiveScript = guiresource.getImage("ui/images/active-script.svg");
-      imageInactiveScript = guiresource.getImage("ui/images/inactive-script.svg");
-      imageActiveStartScript = guiresource.getImage("ui/images/start-script.svg");
-      imageActiveEndScript = guiresource.getImage("ui/images/end-script.svg");
+      imageActiveScript = guiresource.getImage("ui/images/script-active.svg");
+      imageInactiveScript = guiresource.getImage("ui/images/script-inactive.svg");
+      imageActiveStartScript = guiresource.getImage("ui/images/script-start.svg");
+      imageActiveEndScript = guiresource.getImage("ui/images/script-end.svg");
     } catch ( Exception e ) {
       imageActiveScript = guiresource.getImageEmpty();
       imageInactiveScript = guiresource.getImageEmpty();
