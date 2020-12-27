@@ -97,14 +97,14 @@ pipeline {
         // }
         stage('Create Docker image & Run Tests'){
             steps {
-                    sh docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' up -d
-                    sh docker wait integration-tests_integration_test_1
-                    sh docker logs integration-tests_integration_test_1
+                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' up -d"
+                    sh "docker wait integration-tests_integration_test_1"
+                    sh "docker logs integration-tests_integration_test_1"
                 }
             post {
                 always {
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
-                    sh docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' down --rmi all
+                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' down --rmi all"
                 }
             }
         }
