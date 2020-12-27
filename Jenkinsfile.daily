@@ -102,24 +102,22 @@ pipeline {
         stage('Create Docker image & Run Tests'){
             steps {
                 script {
-                    dockerImage = docker.build(imagename, "--build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid} -f Dockerfile.unit-tests .")
-                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
-                        echo 'Run tests'
-                        sh 'cd /files/scripts && ./run-tests.sh'
+                        docker-compose -f docker/integration-tests/docker-compose-ci.yaml up -d
+                        docker wait integration-tests_integration_test_1
+                        docker logs integration-tests_integration_test_1
                     }
                 }
             }
             post {
                 always {
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
+                    script{
+                        docker-compose -f docker/integration-tests/docker-compose-ci.yaml down --rmi all
+                    }
                 }
             }
         }
-        stage('Remove docker image'){
-            steps {
-                sh "docker rmi $imagename:latest"
-            }
-        }       
+
     }
     post {
         always {
