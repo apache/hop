@@ -22,7 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import org.apache.poi.ss.SpreadsheetVersion;
 
@@ -64,7 +63,7 @@ public class StaxUtil {
     for ( int i = columnIndicator.length() - 1; i >= 0; i-- ) {
       char c = columnIndicator.charAt( i );
       int offset = 1 + Character.getNumericValue( c ) - Character.getNumericValue( 'A' );
-      col += Math.pow( 26, columnIndicator.length() - i - 1 ) * offset;
+      col += Math.pow( 26, columnIndicator.length() - i - 1.0D ) * offset;
     }
 
     return col;
@@ -72,9 +71,9 @@ public class StaxUtil {
   
   public static final XMLInputFactory safeXMLInputFactory() {
     XMLInputFactory factory = XMLInputFactory.newInstance();
-    // To prevent from XXE attacks
-    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    // To prevent from XXE attacks   
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);    
     return factory;
   }
 
