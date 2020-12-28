@@ -523,6 +523,9 @@ public class ContextDialog extends Dialog {
     //
     activeInstance = this;
 
+    // Manually set canvas size otherwise canvas never gets drawn.
+    wCanvas.setSize(10, 10);
+
     // Show the dialog now
     //
     shell.open();
@@ -874,6 +877,7 @@ public class ContextDialog extends Dialog {
 
     if ( previousTotalContentHeight != totalContentHeight ) {
       previousTotalContentHeight = totalContentHeight;
+      wCanvas.setSize(wScrolledComposite.getClientArea().width, totalContentHeight);
       updateVerticalBar();
     }
 
