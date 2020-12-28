@@ -436,14 +436,6 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   /**
-   * @return Returns the excludeFileMask. Deprecated due to typo
-   */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return getExcludeFileMask();
-  }
-
-  /**
    * @return Returns the excludeFileMask.
    */
   public String[] getExcludeFileMask() {
@@ -783,7 +775,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
       try {
         spreadSheetType = SpreadSheetType.valueOf( XmlHandler.getTagValue( transformNode, "spreadsheet_type" ) );
       } catch ( Exception e ) {
-        spreadSheetType = SpreadSheetType.JXL;
+        spreadSheetType = SpreadSheetType.POI;
       }
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to read transform information from XML", e );
@@ -882,7 +874,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
     lineNumberFilesDestinationDirectory = null;
     lineNumberFilesExtension = "line";
 
-    spreadSheetType = SpreadSheetType.JXL; // default.
+    spreadSheetType = SpreadSheetType.POI; // default.
   }
 
   @Override

@@ -146,24 +146,24 @@ public class ExcelInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol( String symbol ) {
+    this.groupSymbol = symbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol( String symbol ) {
+    this.decimalSymbol = symbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol( String symbol ) {
+    this.currencySymbol = symbol;
   }
 
   public int getPrecision() {
