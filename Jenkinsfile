@@ -116,7 +116,7 @@ pipeline {
                 branch "${BRANCH_NAME}"
             }
             steps{
-                sh "unzip assemblies/client/target/hop-client-*.zip"
+                sh "cd assemblies/client/target/ && unzip hop-client-*.zip"
             }
         }
         stage('Build Docker Image') {
