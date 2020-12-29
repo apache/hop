@@ -38,6 +38,7 @@ pipeline {
         MAVEN_SKIP_RC = true
         BRANCH_NAME ='docker-implementation'
         DOCKER_REPO='docker.io/apache/incubator-hop'
+        POM_VERSION = ''
     }
 
     options {
@@ -82,7 +83,7 @@ pipeline {
         }
         stage('Get POM Version') {
             steps{
-                POM_VERSION=sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim() 
+                POM_VERSION = sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim() 
                 echo "The version fo the pom is: ${POM_VERSION}"
             }
         }
