@@ -93,7 +93,7 @@ pipeline {
         }
         stage('Test & Build') {
             when {
-                branch 'master'
+                branch "${BRANCH_NAME}"
             }
             steps {
                 echo 'Test & Build'
@@ -128,9 +128,9 @@ pipeline {
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
-                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}:${env.POM_VERSION}'
-                    sh 'docker push ${DOCKER_REPO}:${env.POM_VERSION}'
-                    sh 'docker rmi ${DOCKER_REPO}:${env.POM_VERSION}'
+                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}:${env.POM_VERSION}-test'
+                    sh 'docker push ${DOCKER_REPO}:${env.POM_VERSION}-test'
+                    sh 'docker rmi ${DOCKER_REPO}:${env.POM_VERSION}-test'
                   }
             }
         }
