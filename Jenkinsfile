@@ -36,6 +36,8 @@ pipeline {
 
     environment {
         MAVEN_SKIP_RC = true
+        BRANCH_NAME ='master'
+        DOCKER_REPO='docker.io/apache/incubator-hop'
     }
 
     options {
@@ -78,9 +80,20 @@ pipeline {
                 build job: 'Hop/Hop-Documentation/asf-site', wait: false
             }
         }
+        stage('Get POM Version') {
+            when {
+                branch "${BRANCH_NAME}"
+            }
+            steps{
+                script {
+                    env.POM_VERSION = sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim()
+                }
+                echo "The version fo the pom is: ${env.POM_VERSION}"
+            }
+        }
         stage('Test & Build') {
             when {
-                branch 'master'
+                branch "${BRANCH_NAME}"
             }
             steps {
                 echo 'Test & Build'
@@ -98,6 +111,30 @@ pipeline {
                 }
             }
         }
+        stage('Unzip Apache Hop'){
+            when {
+                branch "${BRANCH_NAME}"
+            }
+            steps{
+                sh "cd assemblies/client/target/ && unzip hop-client-*.zip"
+            }
+        }
+        stage('Build Docker Image') {
+            when {
+                branch "${BRANCH_NAME}"
+            }
+            steps {
+                echo 'Building Docker Image'
+
+                withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
+                    //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
+                    sh "docker build . -f docker/Dockerfile -t ${DOCKER_REPO}:${env.POM_VERSION}"
+                    sh "docker push ${DOCKER_REPO}:${env.POM_VERSION}"
+                    sh "docker rmi ${DOCKER_REPO}:${env.POM_VERSION}"
+                  }
+            }
+        }
+
         stage('Deploy'){
             when {
                 branch 'master'
