@@ -81,6 +81,9 @@ pipeline {
             }
         }
         stage('Get POM Version') {
+            when {
+                branch ${BRANCH_NAME}
+            }
             steps{
                 script {
                     env.POM_VERSION = sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim()
@@ -108,19 +111,26 @@ pipeline {
                 }
             }
         }
+        stage('Unzip Apache Hop'){
+            when {
+                branch ${BRANCH_NAME}
+            }
+            steps{
+                sh "unzip assemblies/client/target/hop-client-*.zip"
+            }
+        }
         stage('Build Docker Image') {
             when {
-                branch 'docker-implementation'
+                branch ${BRANCH_NAME}
             }
             steps {
                 echo 'Building Docker Image'
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
-                    //TODO find the version from maven pom
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
-                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}:0.50-snapshot'
-                    sh 'docker push ${DOCKER_REPO}:0.50-snapshot'
-                    sh 'docker rmi ${DOCKER_REPO}:0.50-snapshot'
+                    sh 'docker build docker --build-arg BRANCH_NAME=master -t ${DOCKER_REPO}:${env.POM_VERSION}'
+                    sh 'docker push ${DOCKER_REPO}:${env.POM_VERSION}'
+                    sh 'docker rmi ${DOCKER_REPO}:${env.POM_VERSION}'
                   }
             }
         }
