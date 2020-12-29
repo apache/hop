@@ -17,9 +17,6 @@
 
 FROM openjdk:8-alpine
 LABEL maintainer="Apache Hop Team"
-# Argument Branch name, used to download correct version
-ARG BRANCH_NAME
-ENV BRANCH_NAME=$BRANCH_NAME
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/opt/hop
 # volume mount point
@@ -77,14 +74,13 @@ RUN apk update \
 
 
 # copy the hop package from the local resources folder to the container image directory
-COPY --chown=hop:hop ./resources/get-hop.sh ${DEPLOYMENT_PATH}/get-hop.sh
-COPY --chown=hop:hop ./resources/run.sh ${DEPLOYMENT_PATH}/run.sh
-COPY --chown=hop:hop ./resources/load-and-execute.sh ${DEPLOYMENT_PATH}/load-and-execute.sh
+COPY --chown=hop:hop ./assemblies/client/target/hop/ ${DEPLOYMENT_PATH}/hop
+COPY --chown=hop:hop ./docker/resources/run.sh ${DEPLOYMENT_PATH}/run.sh
+COPY --chown=hop:hop ./docker/resources/load-and-execute.sh ${DEPLOYMENT_PATH}/load-and-execute.sh
 
 
 # Fetch the specified hop version 
-RUN ${DEPLOYMENT_PATH}/get-hop.sh \
-  && chown -R hop:hop ${DEPLOYMENT_PATH}/hop \
+RUN chown -R hop:hop ${DEPLOYMENT_PATH}/hop \
   && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh
 
 EXPOSE 8080
