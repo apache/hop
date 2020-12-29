@@ -981,18 +981,15 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         String[] extentions;
         SpreadSheetType type = SpreadSheetType.getStpreadSheetTypeByDescription( wSpreadSheetType.getText() );
         switch ( type ) {
-          case POI:
-            extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX", "*" };
-            break;
           case SAX_POI:
             extentions = new String[] { "*.xlsx;*.XLSX", "*" };
             break;
           case ODS:
             extentions = new String[] { "*.ods;*.ODS;", "*" };
             break;
-          case JXL:
+          case POI:
           default:
-            extentions = new String[] { "*.xls;*.XLS", "*" };
+            extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX", "*" };
             break;
         }
 
@@ -1109,7 +1106,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
       for ( int i = 0; i < meta.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          meta.getFileName()[ i ], meta.getFileMask()[ i ], meta.getExludeFileMask()[ i ],
+          meta.getFileName()[ i ], meta.getFileMask()[ i ], meta.getExcludeFileMask()[ i ],
           meta.getRequiredFilesDesc( meta.getFileRequired()[ i ] ),
           meta.getRequiredFilesDesc( meta.getIncludeSubFolders()[ i ] ) } );
       }

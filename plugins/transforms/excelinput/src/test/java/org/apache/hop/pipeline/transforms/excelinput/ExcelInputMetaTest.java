@@ -69,7 +69,7 @@ public class ExcelInputMetaTest {
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
-        put( "excludeFileMask", "getExludeFileMask" );
+        put( "excludeFileMask", "getExcludeFileMask" );
         put( "shortFileFieldName", "getShortFileNameField" );
         put( "extensionFieldName", "getExtensionField" );
         put( "pathFieldName", "getPathField" );
@@ -174,7 +174,7 @@ public class ExcelInputMetaTest {
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
-        put( "excludeFileMask", "getExludeFileMask" );
+        put( "excludeFileMask", "getExcludeFileMask" );
         put( "shortFileFieldName", "getShortFileNameField" );
         put( "extensionFieldName", "getExtensionField" );
         put( "pathFieldName", "getPathField" );

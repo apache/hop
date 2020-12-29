@@ -7,7 +7,7 @@
 
 The Microsoft Excel Input transform provides you with the ability to read data from Microsoft Excel. The following sections describe each of the available features for configuring this transform.
 
-The default spreadsheet type (engine) is set to Excel 97-2003 XLS. When you are reading other file types like OpenOffice ODS or Excel 2007 and using special functions like protected worksheets, you need to change the Spread sheet type (engine) in the Content tab accordingly.
+The default spreadsheet type (engine) is set to Excel XLSX, XLS. When you are reading other file types like OpenOffice ODS and using special functions like protected worksheets, you need to change the Spread sheet type (engine) in the Content tab accordingly.
 
 == Options
 
@@ -17,11 +17,10 @@ The default spreadsheet type (engine) is set to Excel 97-2003 XLS. When you are 
 |===
 |Option|Description
 |transform Name|Name of the transform; the name has to be unique in a single transform.
-|Spread sheet type (engine) a|This field allows you to specify the spreadsheet type. (since version 4.1.0)  Currently the following are supported:
+|Spread sheet type (engine) a|This field allows you to specify the spreadsheet type. Currently the following are supported:
 
-* Excel 97-2003 XLS: this is the default, backward compatible type provided for by the JXL software backend.
-* Excel 2007 XLSX (Apache POI): If you select this spread sheet type you can read all known Excel file types.  Functionality provided by the Apache POI project.
-* Excel 2007 XLSX (Apache POI Streaming): This spread sheet type allows to read in large Excel files (Experimental in 5.1).
+* Excel XLSX, XLS: This is the default, if you select this spread sheet type you can read all known Excel file types.  Functionality provided by the Apache POI project.
+* Excel XLSX (Streaming): This spread sheet type allows to read in large Excel files.
 * Open Office ODS: By selecting this type you can read OpenOffice spreadsheet using the ODFDOM engine.
 |File or directory|Specifies the location and/or name of the input text file. Note: Click Add to add the file/directory/wildcard combination to the list of selected files (grid) below.
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option. For example, you want to process all files that have a .txt extension. (For further details see the Text File Input transform and the section "Selecting file using Regular Expressions")

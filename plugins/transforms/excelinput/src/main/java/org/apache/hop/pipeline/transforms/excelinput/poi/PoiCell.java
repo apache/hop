@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.excelinput.poi;
 
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.sql.Date;
@@ -40,39 +40,45 @@ public class PoiCell implements IKCell {
   }
 
   public KCellType getType() {
-    int type = cell.getCellType();
-    if ( type == Cell.CELL_TYPE_BOOLEAN ) {
-      return KCellType.BOOLEAN;
-    } else if ( type == Cell.CELL_TYPE_NUMERIC ) {
-      if ( HSSFDateUtil.isCellDateFormatted( cell ) ) {
-        return KCellType.DATE;
-      } else {
+    switch ( cell.getCellType() ) {
+      case BOOLEAN:
+        return KCellType.BOOLEAN;
+        
+      case NUMERIC:
+        if ( DateUtil.isCellDateFormatted( cell ) ) {
+          return KCellType.DATE;
+        }
         return KCellType.NUMBER;
-      }
-    } else if ( type == Cell.CELL_TYPE_STRING ) {
-      return KCellType.LABEL;
-    } else if ( type == Cell.CELL_TYPE_BLANK || type == Cell.CELL_TYPE_ERROR ) {
-      return KCellType.EMPTY;
-    } else if ( type == Cell.CELL_TYPE_FORMULA ) {
-      switch ( cell.getCachedFormulaResultType() ) {
-        case Cell.CELL_TYPE_BLANK:
-        case Cell.CELL_TYPE_ERROR:
-          return KCellType.EMPTY;
-        case Cell.CELL_TYPE_BOOLEAN:
-          return KCellType.BOOLEAN_FORMULA;
-        case Cell.CELL_TYPE_STRING:
-          return KCellType.STRING_FORMULA;
-        case Cell.CELL_TYPE_NUMERIC:
-          if ( HSSFDateUtil.isCellDateFormatted( cell ) ) {
-            return KCellType.DATE_FORMULA;
-          } else {
-            return KCellType.NUMBER_FORMULA;
-          }
-        default:
-          break;
-      }
+              
+      case STRING:
+        return KCellType.LABEL;
+        
+      case BLANK:
+      case ERROR:
+        return KCellType.EMPTY;
+      
+      case FORMULA: 
+        switch ( cell.getCachedFormulaResultType() ) {
+          case BLANK:
+          case ERROR:
+            return KCellType.EMPTY;
+          case BOOLEAN:
+            return KCellType.BOOLEAN_FORMULA;
+          case STRING:
+            return KCellType.STRING_FORMULA;
+          case NUMERIC:
+            if ( DateUtil.isCellDateFormatted( cell ) ) {
+              return KCellType.DATE_FORMULA;
+            } else {
+              return KCellType.NUMBER_FORMULA;
+            }
+          default:
+            break;
+        }
+      default:
+        return null;
     }
-    return null;
+        
   }
 
   public Object getValue() {

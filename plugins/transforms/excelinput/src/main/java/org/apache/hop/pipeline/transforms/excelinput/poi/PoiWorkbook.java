@@ -31,7 +31,7 @@ import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -48,7 +48,7 @@ public class PoiWorkbook implements IKWorkbook {
   private String encoding;
   // for PDI-10251 we need direct access to streams
   private InputStream internalIS;
-  private NPOIFSFileSystem npoifs;
+  private POIFSFileSystem npoifs;
   private OPCPackage opcpkg;
 
   public PoiWorkbook( String filename, String encoding ) throws HopException {
@@ -63,7 +63,7 @@ public class PoiWorkbook implements IKWorkbook {
         String localFilename = HopVfs.getFilename( fileObject );
         File excelFile = new File( localFilename );
         try {
-          npoifs = new NPOIFSFileSystem( excelFile );
+          npoifs = new POIFSFileSystem( excelFile );
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( npoifs );
         } catch ( Exception ofe ) {
           try {
