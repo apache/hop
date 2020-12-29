@@ -77,12 +77,19 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   private boolean handleKey( Object parentObject, KeyEvent event, KeyboardShortcut shortcut ) {
     int keyCode = ( event.keyCode & SWT.KEY_MASK );
+
     boolean alt = ( event.stateMask & SWT.ALT ) != 0;
     boolean shift = ( event.stateMask & SWT.SHIFT ) != 0;
     boolean control = ( event.stateMask & SWT.CONTROL ) != 0;
     boolean command = ( event.stateMask & SWT.COMMAND ) != 0;
 
     boolean matchOS = Const.isOSX() == shortcut.isOsx();
+
+    if ( keyCode == SWT.KEYPAD_ADD ) keyCode = '+';
+    else if ( keyCode == SWT.KEYPAD_SUBTRACT ) keyCode = '-';
+    else if ( keyCode == SWT.KEYPAD_MULTIPLY ) keyCode = '*';
+    else if ( keyCode == SWT.KEYPAD_DIVIDE ) keyCode = '/';
+    else if ( keyCode == SWT.KEYPAD_EQUAL ) keyCode = '=';
 
     boolean keyMatch = keyCode == shortcut.getKeyCode();
     boolean altMatch = shortcut.isAlt() == alt;
