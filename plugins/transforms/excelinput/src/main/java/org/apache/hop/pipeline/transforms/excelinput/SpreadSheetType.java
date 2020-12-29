@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 public enum SpreadSheetType {
-  JXL( "Excel 97-2003 XLS (JXL)" ), POI( "Excel 2007 XLSX (Apache POI)" ),
-  SAX_POI( "Excel 2007 XLSX (Apache POI Streaming)" ),
-  ODS( "Open Office ODS (ODFDOM)" );
+  POI( "Excel XLSX, XLS" ),
+  SAX_POI( "Excel XLSX (Streaming)" ),
+  ODS( "Open Office ODS" );
 
   private String description;
 

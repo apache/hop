@@ -52,7 +52,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
   @Test
   public void testXLS() throws Exception {
-    meta.setSpreadSheetType( SpreadSheetType.JXL );
+    meta.setSpreadSheetType( SpreadSheetType.POI );
     init( "sample.xls" );
 
     setFields( new ExcelInputField( "f1", -1, -1 ), new ExcelInputField( "f2", -1, -1 ) );

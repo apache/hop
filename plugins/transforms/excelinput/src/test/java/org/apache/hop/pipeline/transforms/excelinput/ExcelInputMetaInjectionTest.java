@@ -61,7 +61,7 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
     check( "SHEET_START_COL", () -> meta.getStartColumn()[ 0 ] );
     check( "FILENAME", () -> meta.getFileName()[ 0 ] );
     check( "FILEMASK", () -> meta.getFileMask()[ 0 ] );
-    check( "EXCLUDE_FILEMASK", () -> meta.getExludeFileMask()[ 0 ] );
+    check( "EXCLUDE_FILEMASK", () -> meta.getExcludeFileMask()[ 0 ] );
     check( "FILE_REQUIRED", () -> meta.getFileRequired()[ 0 ] );
     check( "INCLUDE_SUBFOLDERS", () -> meta.getIncludeSubFolders()[ 0 ] );
     check( "SPREADSHEET_TYPE", () -> meta.getSpreadSheetType(), SpreadSheetType.class );

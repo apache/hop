@@ -32,13 +32,13 @@ import java.util.TimeZone;
 
 public class OdfCell implements IKCell {
 
-  public static String TYPE_BOOLEAN = "boolean";
-  public static String TYPE_CURRENCY = "currency";
-  public static String TYPE_DATE = "date";
-  public static String TYPE_FLOAT = "float";
-  public static String TYPE_PERCENTAGE = "percentage";
-  public static String TYPE_STRING = "string";
-  public static String TYPE_TIME = "time";
+  public static final String TYPE_BOOLEAN = "boolean";
+  public static final String TYPE_CURRENCY = "currency";
+  public static final String TYPE_DATE = "date";
+  public static final String TYPE_FLOAT = "float";
+  public static final String TYPE_PERCENTAGE = "percentage";
+  public static final String TYPE_STRING = "string";
+  public static final String TYPE_TIME = "time";
 
   private OdfTableCell cell;
 
@@ -89,7 +89,7 @@ public class OdfCell implements IKCell {
       switch ( getType() ) {
         case BOOLEAN_FORMULA:
         case BOOLEAN:
-          return Boolean.valueOf( cell.getBooleanValue() );
+          return cell.getBooleanValue();
         case DATE_FORMULA:
         case DATE:
           // Timezone conversion needed since POI doesn't support this apparently

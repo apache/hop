@@ -33,10 +33,9 @@
 
     <name>Hop Plugins Transforms Excel Input</name>
 
-    <properties>
-        <jxl.version>2.6.12</jxl.version>
+    <properties>       
         <odfdom-java.version>0.8.7</odfdom-java.version>
-        <poi.version>3.17</poi.version>
+        <poi.version>4.1.2</poi.version>
         <xerces.version>2.12.0</xerces.version>
         <xmlbeans.version>3.1.0</xmlbeans.version>
     </properties>
@@ -47,18 +46,6 @@
             <artifactId>hop-transform-textfile</artifactId>
             <version>0.60-SNAPSHOT</version>
             <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.sourceforge.jexcelapi</groupId>
-            <artifactId>jxl</artifactId>
-            <version>${jxl.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.odftoolkit</groupId>

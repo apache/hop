@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
-import org.apache.hop.pipeline.transforms.excelinput.jxl.XLSWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.poi.PoiWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.staxpoi.StaxPoiWorkbook;
@@ -39,8 +38,7 @@ public class WorkbookFactory {
 
   public static IKWorkbook getWorkbook( SpreadSheetType type, String filename, String encoding ) throws HopException {
     switch ( type ) {
-      case JXL:
-        return new XLSWorkbook( filename, encoding );
+
       case POI:
         return new PoiWorkbook( filename, encoding ); // encoding is not used, perhaps detected automatically?
       case SAX_POI:
@@ -55,8 +53,7 @@ public class WorkbookFactory {
 
   public static IKWorkbook getWorkbook( SpreadSheetType type, InputStream inputStream, String encoding ) throws HopException {
     switch ( type ) {
-      case JXL:
-        return new XLSWorkbook( inputStream, encoding );
+
       case POI:
         return new PoiWorkbook( inputStream, encoding ); // encoding is not used, perhaps detected automatically?
       case SAX_POI:
