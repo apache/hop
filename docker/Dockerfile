@@ -78,11 +78,7 @@ COPY --chown=hop:hop ./assemblies/client/target/hop/ ${DEPLOYMENT_PATH}/hop
 COPY --chown=hop:hop ./docker/resources/run.sh ${DEPLOYMENT_PATH}/run.sh
 COPY --chown=hop:hop ./docker/resources/load-and-execute.sh ${DEPLOYMENT_PATH}/load-and-execute.sh
 
-
-# Fetch the specified hop version 
-RUN chown -R hop:hop ${DEPLOYMENT_PATH}/hop \
-  && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh
-
+# expose 8080 for Hop Server
 EXPOSE 8080
 
 # make volume available so that hop pipeline and workflow files can be provided easily
