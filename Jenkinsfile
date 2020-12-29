@@ -38,7 +38,6 @@ pipeline {
         MAVEN_SKIP_RC = true
         BRANCH_NAME ='docker-implementation'
         DOCKER_REPO='docker.io/apache/incubator-hop'
-
     }
 
     options {
@@ -79,6 +78,12 @@ pipeline {
             steps {
                 echo 'Trigger Documentation Build'
                 build job: 'Hop/Hop-Documentation/asf-site', wait: false
+            }
+        }
+        stage('Get POM Version') {
+            steps{
+                POM_VERSION=`mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\[.*\]/ !{ /^[0-9]/ { p; q } }'`
+                echo "The version fo the pom is: ${POM_VERSION}"
             }
         }
         stage('Test & Build') {
