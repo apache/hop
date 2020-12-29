@@ -83,7 +83,7 @@ pipeline {
         stage('Get POM Version') {
             steps{
                 script {
-                    env.POM_VERSION = "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'" 
+                    env.POM_VERSION = "$(mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }')" 
                 }
                 echo "The version fo the pom is: ${env.POM_VERSION}"
             }
