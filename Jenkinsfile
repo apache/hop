@@ -82,7 +82,7 @@ pipeline {
         }
         stage('Get POM Version') {
             when {
-                branch ${BRANCH_NAME}
+                branch "${BRANCH_NAME}"
             }
             steps{
                 script {
@@ -113,7 +113,7 @@ pipeline {
         }
         stage('Unzip Apache Hop'){
             when {
-                branch ${BRANCH_NAME}
+                branch "${BRANCH_NAME}"
             }
             steps{
                 sh "unzip assemblies/client/target/hop-client-*.zip"
@@ -121,7 +121,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             when {
-                branch ${BRANCH_NAME}
+                branch "${BRANCH_NAME}"
             }
             steps {
                 echo 'Building Docker Image'
