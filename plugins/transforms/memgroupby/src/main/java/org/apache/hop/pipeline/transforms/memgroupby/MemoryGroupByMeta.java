@@ -403,11 +403,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
             break;
         }
 
-        if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
-          || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
-          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
-          precision = 0;
-        } else if ( aggregateType[ i ] == TYPE_GROUP_SUM
+        if ( aggregateType[ i ] == TYPE_GROUP_SUM
           && valueType != IValueMeta.TYPE_INTEGER && valueType != IValueMeta.TYPE_NUMBER
           && valueType != IValueMeta.TYPE_BIGNUMBER ) {
           // If it ain't numeric, we change it to Number

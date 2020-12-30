@@ -168,17 +168,26 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   public abstract void setZoomLabel();
 
+  @GuiKeyboardShortcut( control = true, key = '+' )
+  public void zoomInShortcut1() {
+    zoomIn();
+  }
+
   @GuiKeyboardShortcut( control = true, key = '=' )
+  public void zoomInShortcut2() {
+    zoomIn();
+  }
+
   public void zoomIn() {
-    magnification += 0.1f;               
-	// Minimum 1000%
+    magnification += 0.1f;
+    // Minimum 1000%
     if ( magnification > 10f ) {
-    	magnification = 10f;
+      magnification = 10f;
     }
-   	setZoomLabel();
-   	redraw();    
-   }
-  
+    setZoomLabel();
+    redraw();
+  }
+
   @GuiKeyboardShortcut( control = true, key = '-' )
   public void zoomOut() {
 	magnification -= 0.1f;
