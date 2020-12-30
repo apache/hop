@@ -524,7 +524,6 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TAB:
         background = GuiResource.getInstance().getColorWhite();
         CTabFolder tabFolder = (CTabFolder) control;
-        tabFolder.setSimple( false );
         tabFolder.setBorderVisible( true );
         // need to make a copy of the tab selection background color to get around PDI-13940
         Color c = GuiResource.getInstance().getColorTab();

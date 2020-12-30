@@ -260,7 +260,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
-    wTabFolder.setSimple(false);
 
     Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdhSpacer = new FormData();

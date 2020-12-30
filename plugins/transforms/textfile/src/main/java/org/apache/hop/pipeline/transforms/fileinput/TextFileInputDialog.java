@@ -463,7 +463,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
-    wTabFolder.setSimple( false );
 
     addFilesTab();
     addContentTab();
