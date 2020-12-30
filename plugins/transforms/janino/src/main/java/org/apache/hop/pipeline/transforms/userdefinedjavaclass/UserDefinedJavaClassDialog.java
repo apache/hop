@@ -247,7 +247,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlScript.setLayoutData( fdlScript );
 
     folder = new CTabFolder( wTop, SWT.BORDER | SWT.RESIZE );
-    folder.setSimple( false );
     folder.setUnselectedImageVisible( true );
     folder.setUnselectedCloseVisible( true );
     FormData fdScript = new FormData();
@@ -291,7 +290,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     //
     wTabFolder = new CTabFolder( wSash, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
-    wTabFolder.setSimple( false );
     wTabFolder.setUnselectedCloseVisible( false );
 
     FormData fdTabFolder = new FormData();

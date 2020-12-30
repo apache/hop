@@ -274,7 +274,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     //
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
-    wTabFolder.setSimple(false);
     wTabFolder.setUnselectedCloseVisible(true);
 
     Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);

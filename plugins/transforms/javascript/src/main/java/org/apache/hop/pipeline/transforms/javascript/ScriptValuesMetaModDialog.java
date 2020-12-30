@@ -243,7 +243,6 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     wlScript.setLayoutData(fdlScript);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE );
-    folder.setSimple( false );
     folder.setUnselectedImageVisible( true );
     folder.setUnselectedCloseVisible( true );
     FormData fdScript = new FormData();

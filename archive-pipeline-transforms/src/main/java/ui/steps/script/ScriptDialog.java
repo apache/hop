@@ -343,7 +343,6 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
     wlScript.setLayoutData( fdlScript );
 
     folder = new CTabFolder( wTop, SWT.BORDER | SWT.RESIZE );
-    folder.setSimple( false );
     folder.setUnselectedImageVisible( true );
     folder.setUnselectedCloseVisible( true );
     fdScript = new FormData();
