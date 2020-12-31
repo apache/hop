@@ -139,7 +139,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     CTabFolder wTabFolder = new CTabFolder( parent, SWT.BORDER );
     props.setLook( wTabFolder );
-    wTabFolder.setSimple( false );
 
     CTabItem wMainTab = new CTabItem( wTabFolder, SWT.NONE );
     wMainTab.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.MainTab.TabTitle" ) );

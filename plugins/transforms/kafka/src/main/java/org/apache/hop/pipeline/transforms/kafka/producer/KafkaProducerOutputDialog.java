@@ -140,7 +140,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     // Start of tabbed display
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
-    wTabFolder.setSimple( false );
     wTabFolder.setUnselectedCloseVisible( true );
 
     wOk = new Button( shell, SWT.PUSH );

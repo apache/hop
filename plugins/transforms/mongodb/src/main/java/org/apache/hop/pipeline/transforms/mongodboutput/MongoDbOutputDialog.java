@@ -192,7 +192,6 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // The tabs of the dialog
     CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB);
-    wTabFolder.setSimple(false);
 
     // Start of the config tab
     CTabItem wConfigTab = new CTabItem( wTabFolder, SWT.NONE );
