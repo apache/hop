@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckBoxToolTip extends ToolTip {
-  private String message;
+  private String message = "";
   private String title;
   private Image image;
   private String checkBoxMessage;
