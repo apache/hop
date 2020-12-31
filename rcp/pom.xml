@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.apache.hop</groupId>
+  <artifactId>hop-ui-rcp</artifactId>
+  <packaging>jar</packaging>
+  <version>0.60-SNAPSHOT</version>
+
+  <name>Hop GUI (RCP fragment)</name>
+
+  <parent>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop</artifactId>
+    <version>0.60-SNAPSHOT</version>
+  </parent>
+
+  <dependencies>
+    <!-- Hop dependencies -->
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Third-party dependencies -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>${org.eclipse.platform.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${org.eclipse.jface.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+</project>
