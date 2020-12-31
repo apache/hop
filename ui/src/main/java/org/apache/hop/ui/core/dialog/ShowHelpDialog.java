@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -339,7 +340,10 @@ public class ShowHelpDialog extends Dialog {
           wBrowser.execute( PRINT_SCRIPT );
           fromPrint = false;
         }
-        setForwardBackEnable();
+        if (!EnvironmentUtils.getInstance().isWeb()) {
+          // Browser in RAP does not implement back() and forward()
+          setForwardBackEnable();
+        }
       }
     };
 

@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -51,7 +50,6 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     System.clearProperty( Const.HOP_ZIP_MIN_INFLATE_RATIO );
   }
 
-  @Ignore
   @Test
   public void testXLS() throws Exception {
     meta.setSpreadSheetType( SpreadSheetType.POI );

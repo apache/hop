@@ -35,6 +35,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -96,17 +97,21 @@ public class PropsUi extends Props {
   private PropsUi() {
     super();
 
-    // Calculate the native default zoom factor...
-    // We take the default font and render it, calculate the height.
-    // Compare that to the standard small icon size of 16
-    //
-    Image image = new Image( Display.getCurrent(), 500, 500 );
-    GC gc = new GC( image );
-    org.eclipse.swt.graphics.Point extent = gc.textExtent( "The quick brown fox jumped over the lazy dog!" );
-    nativeZoomFactor = (double) extent.y / (double) ConstUi.SMALL_ICON_SIZE;
-    gc.dispose();
-    image.dispose();
-    
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      nativeZoomFactor = 1.0;
+    } else {
+      // Calculate the native default zoom factor...
+      // We take the default font and render it, calculate the height.
+      // Compare that to the standard small icon size of 16
+      //
+      Image image = new Image(Display.getCurrent(), 500, 500);
+      GC gc = new GC(image);
+      org.eclipse.swt.graphics.Point extent = gc.textExtent("The quick brown fox jumped over the lazy dog!");
+      nativeZoomFactor = (double) extent.y / (double) ConstUi.SMALL_ICON_SIZE;
+      gc.dispose();
+      image.dispose();
+    }
+
     setDefault();
   }
 
