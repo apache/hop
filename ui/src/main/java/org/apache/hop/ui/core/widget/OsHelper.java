@@ -96,7 +96,7 @@ public class OsHelper {
     if ( isMac() ) {
       // Sets the app name in main menu (so it works even when launching
       // from shell script)
-      String appName = "Data Integration";
+      String appName = "Hop";
       Display.setAppName( appName );
     }
 
