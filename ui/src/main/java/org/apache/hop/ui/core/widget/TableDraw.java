@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.widget;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -54,8 +55,6 @@ public class TableDraw extends Canvas {
   private Point offset;
   private ScrollBar hori;
   private ScrollBar vert;
-  private Image dummy_image;
-  private GC dummy_gc;
   private int maxlen;
 
   private int fontheight;
@@ -106,11 +105,8 @@ public class TableDraw extends Canvas {
     vert = getVerticalBar();
 
     // Determine font width...
-    dummy_image = new Image( display, 1, 1 );
-    dummy_gc = new GC( dummy_image );
-    // dummy_gc.setFont(font);
     String teststring = "ABCDEF";
-    fontwidth = Math.round( dummy_gc.textExtent( teststring ).x / teststring.length() );
+    fontwidth = Math.round( TextSizeUtilFacade.textExtent(teststring ).x / teststring.length());
 
     setBackground( bg );
     // setFont(font);
@@ -118,9 +114,6 @@ public class TableDraw extends Canvas {
     addPaintListener( e -> TableDraw.this.paintControl( e ) );
 
     addDisposeListener( arg0 -> {
-      dummy_gc.dispose();
-      dummy_image.dispose();
-
       if ( cache_image != null ) {
         cache_image.dispose();
       }

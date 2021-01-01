@@ -39,6 +39,8 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -160,9 +162,6 @@ public class TableView extends Composite {
   private ModifyListener lsMod, lsUndo, lsContent;
   private Clipboard clipboard;
 
-  private Image dummyImage;
-  private GC dummyGC;
-
   // private int last_carret_position;
 
   private ArrayList<ChangeAction> undo;
@@ -264,8 +263,6 @@ public class TableView extends Composite {
 
     lsUndo = arg0 -> fieldChanged = true;
 
-    dummyImage = new Image( parent.getDisplay(), 50, 10 );
-    dummyGC = new GC( dummyImage );
 
     FormLayout controlLayout = new FormLayout();
     controlLayout.marginLeft = 0;
@@ -1203,8 +1200,6 @@ public class TableView extends Composite {
         clipboard.dispose();
         clipboard = null;
       }
-      dummyImage.dispose();
-      dummyGC.dispose();
     } );
 
     // Drag & drop source!
@@ -2230,11 +2225,13 @@ public class TableView extends Composite {
     }
     String str = getTextWidgetValue( colnr );
 
-    int strmax = dummyGC.textExtent( str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x + 20;
+    int strmax = TextSizeUtilFacade.textExtent(str).x + 20;
     int colmax = tablecolumn[ colnr ].getWidth();
     if ( strmax > colmax ) {
-      if ( Const.isOSX() || Const.isLinux() ) {
-        strmax *= 1.4;
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if ( Const.isOSX() || Const.isLinux() ) {
+          strmax *= 1.4;
+        }
       }
       tablecolumn[ colnr ].setWidth( strmax + 30 );
 
@@ -2478,7 +2475,7 @@ public class TableView extends Composite {
       TableColumn tc = table.getColumn( c );
       int max = 0;
       if ( header ) {
-        max = dummyGC.textExtent( tc.getText(), SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        max = TextSizeUtilFacade.textExtent(tc.getText()).x;
 
         // Check if the column has a sorted mark set. In that case, we need the
         // header to be a bit wider...
@@ -2528,7 +2525,7 @@ public class TableView extends Composite {
       }
 
       for ( String str : columnStrings ) {
-        int len = dummyGC.textExtent( str == null ? "" : str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
         if ( len > max ) {
           max = len;
         }
