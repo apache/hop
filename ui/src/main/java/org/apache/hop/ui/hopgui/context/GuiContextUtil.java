@@ -28,6 +28,8 @@ import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.ArrayList;
@@ -41,12 +43,12 @@ public class GuiContextUtil {
 
   private final Map<String, ContextDialog> shellDialogMap = new HashMap<>();
 
-  private static GuiContextUtil guiContextUtil;
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( GuiContextUtil.class );
+  }
   public static final GuiContextUtil getInstance() {
-    if (guiContextUtil == null) {
-      guiContextUtil = new GuiContextUtil();
-    }
-    return guiContextUtil;
+    return (GuiContextUtil) PROVIDER.getInstanceInternal();
   }
 
   public final List<GuiAction> getContextActions( IActionContextHandlersProvider provider, GuiActionType actionType, String contextId ) {
