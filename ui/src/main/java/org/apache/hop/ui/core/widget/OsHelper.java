@@ -96,7 +96,7 @@ public class OsHelper {
     if ( isMac() ) {
       // Sets the app name in main menu (so it works even when launching
       // from shell script)
-      String appName = "Data Integration";
+      String appName = "Hop";
       Display.setAppName( appName );
     }
 
@@ -128,15 +128,13 @@ public class OsHelper {
         switch ( item.getID() ) {
           case SWT.ID_ABOUT:
             item.addListener( SWT.Selection, event -> {
-
-              // HopGui.getInstance().menuHelpAbout(); // TODO: add about dialog
+              HopGui.getInstance().menuHelpAbout();
             } );
 
             break;
           case SWT.ID_PREFERENCES:
             item.addListener( SWT.Selection, event -> {
-              // HopGui.getInstance().menuToolsOptions(); TODO: add options dialog
-
+              HopGui.getInstance().menuToolsOptions();
             } );
 
             break;
