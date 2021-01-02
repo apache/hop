@@ -263,7 +263,7 @@ public class GuiResource {
    * GuiResource also contains the clipboard as it has to be allocated only once! I don't want to put it in a separate
    * singleton just for this one member.
    */
-  private static Clipboard clipboard;
+  private Clipboard clipboard;
 
   protected GuiResource() {
     this(Display.getCurrent());
