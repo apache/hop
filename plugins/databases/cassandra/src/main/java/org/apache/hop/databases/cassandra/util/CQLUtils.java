@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/** @author Tatsiana_Kasiankova */
+
 /** Utilities for CQL processing. */
 public class CQLUtils {
 
