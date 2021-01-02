@@ -70,7 +70,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
-      <artifactId>hop-ui-swt</artifactId>
+      <artifactId>hop-ui</artifactId>
       <version>0.60-SNAPSHOT</version>
     </dependency>
     <dependency>
