@@ -24,9 +24,7 @@ package org.apache.hop.databases.cassandra.spi;
 import java.util.Map;
 
 /**
- * Interface for something that implements a connection to Cassandra
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Interface for something that implements a connection to Cassandra.
  */
 public interface Connection {
 

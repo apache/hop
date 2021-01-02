@@ -28,8 +28,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Interface to something that can process rows (read and write) via CQL.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
 public interface CQLRowHandler {
   /**

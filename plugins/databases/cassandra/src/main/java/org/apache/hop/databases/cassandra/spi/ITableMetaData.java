@@ -27,9 +27,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.cassandra.util.Selector;
 
 /**
- * Interface to something that can fetch and represent meta data on a Cassandra table
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Interface to something that can fetch and represent meta data on a Cassandra table.
  */
 public interface ITableMetaData {
 
