@@ -29,12 +29,10 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -201,20 +199,13 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   }
 
   private int calculateComboWidth( Combo combo ) {
-    Image image = new Image( HopGui.getInstance().getDisplay(), 10, 10 );
-    GC gc = new GC( image );
-
     int maxWidth = combo.getSize().x;
     for ( String item : combo.getItems() ) {
-      int width = gc.textExtent( item ).x;
+      int width = TextSizeUtilFacade.textExtent(item).x;
       if ( width > maxWidth ) {
         maxWidth = width;
       }
     }
-
-    gc.dispose();
-    image.dispose();
-
     return maxWidth;
   }
 

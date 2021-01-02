@@ -46,13 +46,13 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -1863,9 +1863,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
               String newText = text.getText();
               String leftText = newText.substring( 0, e.start );
               String rightText = newText.substring( e.end, newText.length() );
-              GC gc = new GC( text );
-              Point size = gc.textExtent( leftText + e.text + rightText );
-              gc.dispose();
+              Point size = TextSizeUtilFacade.textExtent( leftText + e.text + rightText );
               size = text.computeSize( size.x, SWT.DEFAULT );
               editor.horizontalAlignment = SWT.LEFT;
               Rectangle itemRect = item.getBounds(),
