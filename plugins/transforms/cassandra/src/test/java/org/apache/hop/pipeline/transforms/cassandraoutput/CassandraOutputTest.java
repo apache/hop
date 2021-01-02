@@ -86,12 +86,12 @@ public class CassandraOutputTest {
     co.m_meta = mock(CassandraOutputMeta.class);
     co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue =
+    String ttlresolveValue =
         "1"; // none option, this value is ignored default will be -1
     String ttlOption = "None";
     int expectedValue = -1;
 
-    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.resolve(anyString())).thenReturn(ttlresolveValue);
     when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
     when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
@@ -107,11 +107,11 @@ public class CassandraOutputTest {
     co.m_meta = mock(CassandraOutputMeta.class);
     co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue = "1"; // 1 second
+    String ttlresolveValue = "1"; // 1 second
     String ttlOption = "Seconds";
     int expectedValue = 1;
 
-    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.resolve(anyString())).thenReturn(ttlresolveValue);
     when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
     when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
@@ -127,11 +127,11 @@ public class CassandraOutputTest {
     co.m_meta = mock(CassandraOutputMeta.class);
     co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue = "1"; // 1 minute
+    String ttlresolveValue = "1"; // 1 minute
     String ttlOption = "Minutes";
     int expectedValue = 60;
 
-    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.resolve(anyString())).thenReturn(ttlresolveValue);
     when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
     when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
@@ -147,11 +147,11 @@ public class CassandraOutputTest {
     co.m_meta = mock(CassandraOutputMeta.class);
     co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue = "1"; // 1 hour
+    String ttlresolveValue = "1"; // 1 hour
     String ttlOption = "Hours";
     int expectedValue = 3600;
 
-    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.resolve(anyString())).thenReturn(ttlresolveValue);
     when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
     when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
@@ -167,11 +167,11 @@ public class CassandraOutputTest {
     co.m_meta = mock(CassandraOutputMeta.class);
     co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue = "1"; // 1 day
+    String ttlresolveValue = "1"; // 1 day
     String ttlOption = "Days";
     int expectedValue = 86400;
 
-    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.resolve(anyString())).thenReturn(ttlresolveValue);
     when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
     when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 

@@ -24,8 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * Data class for the CassandraOutput step. Contains methods for obtaining a connection to
  * cassandra, creating a new table, updating a table's meta data and constructing a batch insert CQL
  * statement.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
 public class CassandraOutputData extends BaseTransformData implements ITransformData {
 

@@ -16,7 +16,7 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
-/** Created by mracine on 2/6/2018. */
+
 public enum CFMetaDataElements {
   KEYSPACE_NAME("keyspace_name"),
   TABLE_NAME("table_name"),

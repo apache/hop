@@ -36,9 +36,6 @@ import org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.SSTableW
 
 /**
  * Output step for writing Cassandra SSTables (sorted-string tables).
- *
- * @author Rob Turner (robert{[at]}robertturner{[dot]}com{[dot]}au)
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
 public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutputData>
     implements ITransform<SSTableOutputMeta, SSTableOutputData> {
@@ -70,12 +67,12 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
     rowsSeen = 0;
     inputMetadata = getInputRowMeta();
 
-    String yamlPath = environmentSubstitute(smi.getYamlPath());
-    String directory = environmentSubstitute(smi.getDirectory());
-    String keyspace = environmentSubstitute(smi.getCassandraKeyspace());
-    String table = environmentSubstitute(smi.getTableName());
-    String keyField = environmentSubstitute(smi.getKeyField());
-    String bufferSize = environmentSubstitute(smi.getBufferSize());
+    String yamlPath = resolve(smi.getYamlPath());
+    String directory = resolve(smi.getDirectory());
+    String keyspace = resolve(smi.getCassandraKeyspace());
+    String table = resolve(smi.getTableName());
+    String keyField = resolve(smi.getKeyField());
+    String bufferSize = resolve(smi.getBufferSize());
 
     if (Utils.isEmpty(yamlPath)) {
       throw new Exception(

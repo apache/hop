@@ -16,7 +16,6 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
-/** @author Tatsiana_Kasiankova */
 public enum Partitioners {
   MURMUR3("Murmur3Partitioner", "org.apache.cassandra.db.marshal.LongType"),
   RANDOM("RandomPartitioner", "org.apache.cassandra.db.marshal.IntegerType"),

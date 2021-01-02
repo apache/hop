@@ -23,9 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 /**
  * Data class for the CassandraInput step. Contains some utility methods for obtaining a connection
  * to cassandra, translating a row from cassandra to Kettle and for compressing a query.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision$
  */
 public class CassandraInputData extends BaseTransformData implements ITransformData {
 

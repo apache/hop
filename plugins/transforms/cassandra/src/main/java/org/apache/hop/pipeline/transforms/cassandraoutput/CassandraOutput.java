@@ -40,8 +40,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /**
  * Class providing an output step for writing data to a cassandra table. Can create the specified
  * table (if it doesn't already exist) and can update table meta data.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
 public class CassandraOutput extends BaseTransform<CassandraOutputMeta, CassandraOutputData>
     implements ITransform<CassandraOutputMeta, CassandraOutputData> {
@@ -112,14 +110,14 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     m_rowsSeen = 0;
 
     // Get the connection to Cassandra
-    String hostS = environmentSubstitute(m_meta.getCassandraHost());
-    String portS = environmentSubstitute(m_meta.getCassandraPort());
+    String hostS = resolve(m_meta.getCassandraHost());
+    String portS = resolve(m_meta.getCassandraPort());
     String userS = m_meta.getUsername();
     String passS = m_meta.getPassword();
-    String batchTimeoutS = environmentSubstitute(m_meta.getCQLBatchInsertTimeout());
-    String batchSplitFactor = environmentSubstitute(m_meta.getCQLSubBatchSize());
-    String schemaHostS = environmentSubstitute(m_meta.getSchemaHost());
-    String schemaPortS = environmentSubstitute(m_meta.getSchemaPort());
+    String batchTimeoutS = resolve(m_meta.getCQLBatchInsertTimeout());
+    String batchSplitFactor = resolve(m_meta.getCQLSubBatchSize());
+    String schemaHostS = resolve(m_meta.getSchemaHost());
+    String schemaPortS = resolve(m_meta.getSchemaPort());
     if (Utils.isEmpty(schemaHostS)) {
       schemaHostS = hostS;
     }
@@ -128,14 +126,14 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     }
 
     if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-      userS = environmentSubstitute(userS);
-      passS = environmentSubstitute(passS);
+      userS = resolve(userS);
+      passS = resolve(passS);
     }
-    m_keyspaceName = environmentSubstitute(m_meta.getCassandraKeyspace());
-    m_tableName = CassandraUtils.cql3MixedCaseQuote(environmentSubstitute(m_meta.getTableName()));
-    m_consistencyLevel = environmentSubstitute(m_meta.getConsistency());
+    m_keyspaceName = resolve(m_meta.getCassandraKeyspace());
+    m_tableName = CassandraUtils.cql3MixedCaseQuote(resolve(m_meta.getTableName()));
+    m_consistencyLevel = resolve(m_meta.getConsistency());
 
-    String keyField = environmentSubstitute(m_meta.getKeyField());
+    String keyField = resolve(m_meta.getKeyField());
 
     try {
 
@@ -221,7 +219,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
         // Try to execute any apriori CQL commands?
         if (!Utils.isEmpty(m_meta.getAprioriCQL())) {
-          String aprioriCQL = environmentSubstitute(m_meta.getAprioriCQL());
+          String aprioriCQL = resolve(m_meta.getAprioriCQL());
           List<String> statements = CassandraUtils.splitCQLStatements(aprioriCQL);
 
           logBasic(
@@ -256,7 +254,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
                     m_tableName,
                     getInputRowMeta(),
                     m_keyIndexes,
-                    environmentSubstitute(m_meta.getCreateTableWithClause()),
+                    resolve(m_meta.getCreateTableWithClause()),
                     log);
 
             if (!result) {
@@ -292,7 +290,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         // output (downstream) is the same as input
         m_data.setOutputRowMeta(getInputRowMeta());
 
-        String batchSize = environmentSubstitute(m_meta.getBatchSize());
+        String batchSize = resolve(m_meta.getBatchSize());
         if (!Utils.isEmpty(batchSize)) {
           try {
             m_batchSize = Integer.parseInt(batchSize);
@@ -320,7 +318,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         }
       }
 
-      m_consistency = environmentSubstitute(m_meta.getConsistency());
+      m_consistency = resolve(m_meta.getConsistency());
       m_batchInsertCQL = CassandraUtils.newCQLBatch(m_batchSize, m_meta.getUseUnloggedBatch());
 
       m_batch = new ArrayList<Object[]>();
@@ -519,13 +517,13 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
   protected Connection openConnection(boolean forSchemaChanges) throws HopException {
     // Get the connection to Cassandra
-    String hostS = environmentSubstitute(m_meta.getCassandraHost());
-    String portS = environmentSubstitute(m_meta.getCassandraPort());
+    String hostS = resolve(m_meta.getCassandraHost());
+    String portS = resolve(m_meta.getCassandraPort());
     String userS = m_meta.getUsername();
     String passS = m_meta.getPassword();
-    String timeoutS = environmentSubstitute(m_meta.getSocketTimeout());
-    String schemaHostS = environmentSubstitute(m_meta.getSchemaHost());
-    String schemaPortS = environmentSubstitute(m_meta.getSchemaPort());
+    String timeoutS = resolve(m_meta.getSocketTimeout());
+    String schemaHostS = resolve(m_meta.getSchemaHost());
+    String schemaPortS = resolve(m_meta.getSchemaPort());
     if (Utils.isEmpty(schemaHostS)) {
       schemaHostS = hostS;
     }
@@ -534,8 +532,8 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     }
 
     if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-      userS = environmentSubstitute(userS);
-      passS = environmentSubstitute(passS);
+      userS = resolve(userS);
+      passS = resolve(passS);
     }
 
     m_opts = new HashMap<String, String>();
@@ -595,7 +593,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
   @VisibleForTesting
   void setTTLIfSpecified() {
     String ttl = m_meta.getTTL();
-    ttl = environmentSubstitute(ttl);
+    ttl = resolve(ttl);
     if (!Utils.isEmpty(ttl) && !ttl.startsWith("-")) {
       String ttlUnit = m_meta.getTTLUnit();
       CassandraOutputMeta.TTLUnits theUnit = CassandraOutputMeta.TTLUnits.NONE;

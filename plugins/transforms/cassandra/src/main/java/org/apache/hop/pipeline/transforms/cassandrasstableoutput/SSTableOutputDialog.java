@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -53,10 +54,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Dialog class for the SSTableOutput step
- *
- * @author Rob Turner (robert{[at]}robertturner{[dot]}com{[dot]}au)
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Dialog class for the SSTableOutput step.
  */
 public class SSTableOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -92,9 +90,9 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
   private Button m_getFieldsBut;
 
-  public SSTableOutputDialog(Shell parent, Object in, PipelineMeta tr, String name) {
+  public SSTableOutputDialog(Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
 
-    super(parent, (BaseTransformMeta) in, tr, name);
+    super(parent, variables, (BaseTransformMeta) in, tr, name);
 
     m_currentMeta = (SSTableOutputMeta) in;
     m_originalMeta = (SSTableOutputMeta) m_currentMeta.clone();
@@ -202,12 +200,12 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
           }
         });
 
-    m_yamlText = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_yamlText = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_yamlText);
     m_yamlText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
-            m_yamlText.setToolTipText(pipelineMeta.environmentSubstitute(m_yamlText.getText()));
+            m_yamlText.setToolTipText(variables.resolve(m_yamlText.getText()));
           }
         });
     m_yamlText.addModifyListener(lsMod);
@@ -249,13 +247,13 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
           }
         });
 
-    m_directoryText = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_directoryText = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_directoryText);
     m_directoryText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
             m_directoryText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_directoryText.getText()));
+                variables.resolve(m_directoryText.getText()));
           }
         });
     m_directoryText.addModifyListener(lsMod);
@@ -275,13 +273,13 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     m_keyspaceLab.setLayoutData(fd);
 
-    m_keyspaceText = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_keyspaceText = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_keyspaceText);
     m_keyspaceText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
             m_keyspaceText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_keyspaceText.getText()));
+                variables.resolve(m_keyspaceText.getText()));
           }
         });
     m_keyspaceText.addModifyListener(lsMod);
@@ -301,12 +299,12 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     m_tableLab.setLayoutData(fd);
 
-    m_tableText = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_tableText = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_tableText);
     m_tableText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
-            m_tableText.setToolTipText(pipelineMeta.environmentSubstitute(m_tableText.getText()));
+            m_tableText.setToolTipText(variables.resolve(m_tableText.getText()));
           }
         });
     m_tableText.addModifyListener(lsMod);
@@ -348,7 +346,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
             m_keyFieldCombo.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_keyFieldCombo.getText()));
+                variables.resolve(m_keyFieldCombo.getText()));
           }
         });
     m_keyFieldCombo.addModifyListener(lsMod);
@@ -368,13 +366,13 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     m_bufferSizeLab.setLayoutData(fd);
 
-    m_bufferSizeText = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_bufferSizeText = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_bufferSizeText);
     m_bufferSizeText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
             m_bufferSizeText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_bufferSizeText.getText()));
+                variables.resolve(m_bufferSizeText.getText()));
           }
         });
     m_bufferSizeText.addModifyListener(lsMod);
@@ -458,7 +456,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     if (stepMeta != null) {
       try {
-        IRowMeta row = pipelineMeta.getPrevTransformFields(stepMeta);
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
 
         if (row.size() == 0) {
           MessageDialog.openError(
@@ -546,7 +544,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     String[] choices = null;
     if (stepMeta != null) {
       try {
-        IRowMeta row = pipelineMeta.getPrevTransformFields(stepMeta);
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
 
         if (row.size() == 0) {
           MessageDialog.openError(

@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databases.cassandra.ConnectionFactory;
 import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
@@ -65,9 +66,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Dialog class for the CassandraOutput step
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Dialog class for the CassandraOutput step.
  */
 public class CassandraOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -158,9 +157,9 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   private CCombo m_ttlUnitsCombo;
   private TextVar m_ttlValueText;
 
-  public CassandraOutputDialog(Shell parent, Object in, PipelineMeta tr, String name) {
+  public CassandraOutputDialog(Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
 
-    super(parent, (BaseTransformMeta) in, tr, name);
+    super(parent, variables, (BaseTransformMeta) in, tr, name);
 
     m_currentMeta = (CassandraOutputMeta) in;
     m_originalMeta = (CassandraOutputMeta) m_currentMeta.clone();
@@ -249,13 +248,13 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_hostLab.setLayoutData(fd);
 
-    m_hostText = new TextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_hostText = new TextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_hostText);
     m_hostText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
-            m_hostText.setToolTipText(pipelineMeta.environmentSubstitute(m_hostText.getText()));
+            m_hostText.setToolTipText(variables.resolve(m_hostText.getText()));
           }
         });
     m_hostText.addModifyListener(lsMod);
@@ -276,13 +275,13 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_portLab.setLayoutData(fd);
 
-    m_portText = new TextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_portText = new TextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_portText);
     m_portText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
-            m_portText.setToolTipText(pipelineMeta.environmentSubstitute(m_portText.getText()));
+            m_portText.setToolTipText(variables.resolve(m_portText.getText()));
           }
         });
     m_portText.addModifyListener(lsMod);
@@ -304,14 +303,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     m_socketTimeoutLab.setLayoutData(fd);
 
     m_socketTimeoutText =
-        new TextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_socketTimeoutText);
     m_socketTimeoutText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_socketTimeoutText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_socketTimeoutText.getText()));
+                    variables.resolve(m_socketTimeoutText.getText()));
           }
         });
     m_socketTimeoutText.addModifyListener(lsMod);
@@ -332,7 +331,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_userLab.setLayoutData(fd);
 
-    m_userText = new TextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_userText = new TextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_userText);
     m_userText.addModifyListener(lsMod);
     fd = new FormData();
@@ -353,7 +352,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     m_passLab.setLayoutData(fd);
 
     m_passText =
-        new PasswordTextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_passText);
     m_passText.addModifyListener(lsMod);
 
@@ -374,14 +373,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_keyspaceLab.setLayoutData(fd);
 
-    m_keyspaceText = new TextVar(pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_keyspaceText = new TextVar(variables, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_keyspaceText);
     m_keyspaceText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_keyspaceText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_keyspaceText.getText()));
+                    variables.resolve(m_keyspaceText.getText()));
           }
         });
     m_keyspaceText.addModifyListener(lsMod);
@@ -446,7 +445,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
-            m_tableCombo.setToolTipText(pipelineMeta.environmentSubstitute(m_tableCombo.getText()));
+            m_tableCombo.setToolTipText(variables.resolve(m_tableCombo.getText()));
           }
         });
     m_tableCombo.addModifyListener(lsMod);
@@ -470,14 +469,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(
             PKG, "CassandraOutputDialog.Consistency.Label.TipText")); // $NON-NLS-1$
 
-    m_consistencyText = new TextVar(pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_consistencyText = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_consistencyText);
     m_consistencyText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_consistencyText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_consistencyText.getText()));
+                    variables.resolve(m_consistencyText.getText()));
           }
         });
     m_consistencyText.addModifyListener(lsMod);
@@ -500,14 +499,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     m_batchSizeLab.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.BatchSize.TipText")); // $NON-NLS-1$
 
-    m_batchSizeText = new TextVar(pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_batchSizeText = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_batchSizeText);
     m_batchSizeText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_batchSizeText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_batchSizeText.getText()));
+                    variables.resolve(m_batchSizeText.getText()));
           }
         });
     m_batchSizeText.addModifyListener(lsMod);
@@ -533,14 +532,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
             PKG, "CassandraOutputDialog.BatchInsertTimeout.TipText")); // $NON-NLS-1$
 
     m_batchInsertTimeoutText =
-        new TextVar(pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_batchInsertTimeoutText);
     m_batchInsertTimeoutText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_batchInsertTimeoutText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_batchInsertTimeoutText.getText()));
+                    variables.resolve(m_batchInsertTimeoutText.getText()));
           }
         });
     m_batchInsertTimeoutText.addModifyListener(lsMod);
@@ -563,14 +562,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_subBatchSizeLab.setLayoutData(fd);
 
-    m_subBatchSizeText = new TextVar(pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_subBatchSizeText = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_subBatchSizeText);
     m_subBatchSizeText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_subBatchSizeText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_subBatchSizeText.getText()));
+                    variables.resolve(m_subBatchSizeText.getText()));
           }
         });
     m_subBatchSizeText.addModifyListener(lsMod);
@@ -638,7 +637,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
           }
         });
 
-    m_ttlValueText = new TextVar(pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_ttlValueText = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_ttlValueText);
     fd = new FormData();
     fd.right = new FormAttachment(m_ttlUnitsCombo, -margin);
@@ -651,7 +650,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
           @Override
           public void modifyText(ModifyEvent e) {
             m_ttlValueText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_ttlValueText.getText()));
+                variables.resolve(m_ttlValueText.getText()));
           }
         });
 
@@ -691,7 +690,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
           @Override
           public void modifyText(ModifyEvent e) {
             m_keyFieldCombo.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_keyFieldCombo.getText()));
+                variables.resolve(m_keyFieldCombo.getText()));
           }
         });
     m_keyFieldCombo.addModifyListener(lsMod);
@@ -754,14 +753,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_schemaHostLab.setLayoutData(fd);
 
-    m_schemaHostText = new TextVar(pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_schemaHostText = new TextVar(variables, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_schemaHostText);
     m_schemaHostText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_schemaHostText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_schemaHostText.getText()));
+                variables.resolve(m_schemaHostText.getText()));
           }
         });
     m_schemaHostText.addModifyListener(lsMod);
@@ -782,14 +781,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_schemaPortLab.setLayoutData(fd);
 
-    m_schemaPortText = new TextVar(pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_schemaPortText = new TextVar(variables, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_schemaPortText);
     m_schemaPortText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_schemaPortText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_schemaPortText.getText()));
+                variables.resolve(m_schemaPortText.getText()));
           }
         });
     m_schemaPortText.addModifyListener(lsMod);
@@ -844,14 +843,14 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fd.right = new FormAttachment(middle, -margin);
     m_withClauseLab.setLayoutData(fd);
 
-    m_withClauseText = new TextVar(pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    m_withClauseText = new TextVar(variables, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(m_withClauseText);
     m_withClauseText.addModifyListener(
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
             m_withClauseText.setToolTipText(
-                pipelineMeta.environmentSubstitute(m_withClauseText.getText()));
+                variables.resolve(m_withClauseText.getText()));
           }
         });
     m_withClauseText.addModifyListener(lsMod);
@@ -1089,15 +1088,15 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     Keyspace kSpace = null;
 
     try {
-      String hostS = pipelineMeta.environmentSubstitute(m_hostText.getText());
-      String portS = pipelineMeta.environmentSubstitute(m_portText.getText());
+      String hostS = variables.resolve(m_hostText.getText());
+      String portS = variables.resolve(m_portText.getText());
       String userS = m_userText.getText();
       String passS = m_passText.getText();
       if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-        userS = pipelineMeta.environmentSubstitute(userS);
-        passS = pipelineMeta.environmentSubstitute(passS);
+        userS = variables.resolve(userS);
+        passS = variables.resolve(passS);
       }
-      String keyspaceS = pipelineMeta.environmentSubstitute(m_keyspaceText.getText());
+      String keyspaceS = variables.resolve(m_keyspaceText.getText());
 
       try {
         Map<String, String> opts = new HashMap<String, String>();
@@ -1177,7 +1176,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     String[] choices = null;
     if (stepMeta != null) {
       try {
-        IRowMeta row = pipelineMeta.getPrevTransformFields(stepMeta);
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
 
         if (row.size() == 0) {
           MessageDialog.openError(
@@ -1254,7 +1253,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     if (stepMeta != null) {
       try {
-        IRowMeta row = pipelineMeta.getPrevTransformFields(stepMeta);
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
 
         if (row.size() == 0) {
           MessageDialog.openError(
@@ -1336,6 +1335,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     EnterCQLDialog ecd =
         new EnterCQLDialog(
             shell,
+            variables,
             pipelineMeta,
             lsMod,
             BaseMessages.getString(PKG, "CassandraOutputDialog.CQL.Button"), // $NON-NLS-1$
@@ -1351,15 +1351,15 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     Connection conn = null;
     Keyspace kSpace = null;
     try {
-      String hostS = pipelineMeta.environmentSubstitute(m_hostText.getText());
-      String portS = pipelineMeta.environmentSubstitute(m_portText.getText());
+      String hostS = variables.resolve(m_hostText.getText());
+      String portS = variables.resolve(m_portText.getText());
       String userS = m_userText.getText();
       String passS = m_passText.getText();
       if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-        userS = pipelineMeta.environmentSubstitute(userS);
-        passS = pipelineMeta.environmentSubstitute(passS);
+        userS = variables.resolve(userS);
+        passS = variables.resolve(passS);
       }
-      String keyspaceS = pipelineMeta.environmentSubstitute(m_keyspaceText.getText());
+      String keyspaceS = variables.resolve(m_keyspaceText.getText());
 
       try {
         Map<String, String> opts = new HashMap<String, String>();
@@ -1403,7 +1403,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         return;
       }
 
-      String table = pipelineMeta.environmentSubstitute(m_tableCombo.getText());
+      String table = variables.resolve(m_tableCombo.getText());
       if (Utils.isEmpty(table)) {
         throw new Exception("No table name specified!"); // $NON-NLS-1$
       }

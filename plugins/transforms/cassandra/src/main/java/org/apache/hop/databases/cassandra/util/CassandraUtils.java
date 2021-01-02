@@ -53,9 +53,7 @@ import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * Static utility routines for various stuff
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Static utility routines for various stuff.
  */
 public class CassandraUtils {
 

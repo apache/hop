@@ -16,7 +16,6 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
-/** @author Tatsiana_Kasiankova */
 public enum CQLFunctions {
   TOKEN(false, "org.apache.cassandra.db.marshal.LongType"),
   COUNT(false, "org.apache.cassandra.db.marshal.LongType"),

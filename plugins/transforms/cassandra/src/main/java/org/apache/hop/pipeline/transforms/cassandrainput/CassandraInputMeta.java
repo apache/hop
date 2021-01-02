@@ -449,7 +449,7 @@ public class CassandraInputMeta extends BaseTransformMeta
 
     String tableName = null;
     if (!Utils.isEmpty(m_cqlSelectQuery)) {
-      String subQ = space.environmentSubstitute(m_cqlSelectQuery);
+      String subQ = space.resolve(m_cqlSelectQuery);
 
       if (!subQ.toLowerCase().startsWith("select")) { // $NON-NLS-1$
         // not a select statement!
@@ -563,15 +563,15 @@ public class CassandraInputMeta extends BaseTransformMeta
       }
 
       // try and connect to get meta data
-      String hostS = space.environmentSubstitute(m_cassandraHost);
-      String portS = space.environmentSubstitute(m_cassandraPort);
+      String hostS = space.resolve(m_cassandraHost);
+      String portS = space.resolve(m_cassandraPort);
       String userS = m_username;
       String passS = m_password;
       if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-        userS = space.environmentSubstitute(m_username);
-        passS = space.environmentSubstitute(m_password);
+        userS = space.resolve(m_username);
+        passS = space.resolve(m_password);
       }
-      String keyspaceS = space.environmentSubstitute(m_cassandraKeyspace);
+      String keyspaceS = space.resolve(m_cassandraKeyspace);
       Connection conn = null;
       Keyspace kSpace;
       try {
@@ -659,9 +659,9 @@ public class CassandraInputMeta extends BaseTransformMeta
    * @return a <code>ITransformDialog</code> value
    */
   public ITransformDialog getDialog(
-      Shell shell, ITransformMeta meta, PipelineMeta transMeta, String name) {
+      Shell shell, IVariables variables, ITransformMeta meta, PipelineMeta transMeta, String name) {
 
-    return new CassandraInputDialog(shell, meta, transMeta, name);
+    return new CassandraInputDialog(shell, variables, meta, transMeta, name);
   }
 
   @Override

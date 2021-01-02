@@ -16,7 +16,6 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
-/** @author Tatsiana_Kasiankova */
 /** A representation of a selector in a selection list of a select clause. */
 public class Selector {
 

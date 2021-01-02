@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -46,9 +47,6 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * Provides a popup dialog for editing CQL commands.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision$
  */
 public class EnterCQLDialog extends Dialog {
 
@@ -81,15 +79,18 @@ public class EnterCQLDialog extends Dialog {
 
   protected boolean m_dontComplain;
 
+  private IVariables variables;
+
   public EnterCQLDialog(
       Shell parent,
+      IVariables variables,
       PipelineMeta transMeta,
       ModifyListener lsMod,
       String title,
       String cql,
       boolean dontComplain) {
     super(parent, SWT.NONE);
-
+    this.variables = variables;
     m_parent = parent;
     m_props = PropsUi.getInstance();
     m_title = title;
@@ -148,7 +149,7 @@ public class EnterCQLDialog extends Dialog {
 
     m_cqlText =
         new StyledTextComp(
-            m_transMeta,
+            variables,
             m_shell,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
             ""); //$NON-NLS-1$
@@ -167,7 +168,7 @@ public class EnterCQLDialog extends Dialog {
     m_cqlText.addModifyListener(
         new ModifyListener() {
           public void modifyText(ModifyEvent e) {
-            m_cqlText.setToolTipText(m_transMeta.environmentSubstitute(m_cqlText.getText()));
+            m_cqlText.setToolTipText(variables.resolve(m_cqlText.getText()));
           }
         });
 

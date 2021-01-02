@@ -38,9 +38,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /**
  * Class providing an input step for reading data from a table in Cassandra. Accesses the schema
  * information stored in Cassandra for type information.
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision$
  */
 public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraInputData>
     implements ITransform<CassandraInputMeta, CassandraInputData> {
@@ -108,17 +105,17 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
         first = false;
 
         // Get the connection to Cassandra
-        String hostS = environmentSubstitute(m_meta.getCassandraHost());
-        String portS = environmentSubstitute(m_meta.getCassandraPort());
-        String timeoutS = environmentSubstitute(m_meta.getSocketTimeout());
-        String maxLength = environmentSubstitute(m_meta.getMaxLength());
+        String hostS = resolve(m_meta.getCassandraHost());
+        String portS = resolve(m_meta.getCassandraPort());
+        String timeoutS = resolve(m_meta.getSocketTimeout());
+        String maxLength = resolve(m_meta.getMaxLength());
         String userS = m_meta.getUsername();
         String passS = m_meta.getPassword();
         if (!Utils.isEmpty(userS) && !Utils.isEmpty(passS)) {
-          userS = environmentSubstitute(userS);
-          passS = environmentSubstitute(passS);
+          userS = resolve(userS);
+          passS = resolve(passS);
         }
-        String keyspaceS = environmentSubstitute(m_meta.getCassandraKeyspace());
+        String keyspaceS = resolve(m_meta.getCassandraKeyspace());
 
         if (Utils.isEmpty(hostS) || Utils.isEmpty(portS) || Utils.isEmpty(keyspaceS)) {
           throw new HopException("Some connection details are missing!!"); // $NON-NLS-1$
@@ -177,7 +174,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
         // check the source table first
         m_tableName =
             CassandraUtils.getTableNameFromCQLSelectQuery(
-                environmentSubstitute(m_meta.getCQLSelectQuery()));
+                resolve(m_meta.getCQLSelectQuery()));
 
         if (Utils.isEmpty(m_tableName)) {
           throw new HopException(
@@ -280,9 +277,9 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
   }
 
   protected void initQuery() throws HopException {
-    String queryS = environmentSubstitute(m_meta.getCQLSelectQuery());
+    String queryS = resolve(m_meta.getCQLSelectQuery());
     if (m_meta.getExecuteForEachIncomingRow()) {
-      queryS = fieldSubstitute(queryS, getInputRowMeta(), m_currentInputRowDrivingQuery);
+      queryS = resolve(queryS, getInputRowMeta(), m_currentInputRowDrivingQuery);
     }
     Compression compression = m_meta.getUseCompression() ? Compression.GZIP : Compression.NONE;
     try {

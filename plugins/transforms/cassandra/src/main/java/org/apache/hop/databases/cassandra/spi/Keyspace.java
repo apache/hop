@@ -22,9 +22,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 
 /**
- * Interface to something that can represent a keyspace in Cassandra
- *
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * Interface to something that can represent a keyspace in Cassandra.
  */
 public interface Keyspace {
 
