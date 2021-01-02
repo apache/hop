@@ -66,7 +66,7 @@ public class BaseGuiWidgets {
   }
 
   public void dispose() {
-    String hopGuiId = HopGui.getInstance().getId();
+    String hopGuiId = HopGui.getId();
     GuiRegistry.getInstance().removeGuiPluginObjects( hopGuiId, instanceId );
   }
 
@@ -75,7 +75,7 @@ public class BaseGuiWidgets {
       // This is the class that owns the listener method
       // It's a GuiPlugin class in other words
       //
-      String hopGuiId = HopGui.getInstance().getId();
+      String hopGuiId = HopGui.getId();
       Object guiPluginObject = GuiRegistry.getInstance().findGuiPluginObject( hopGuiId, listenerClassName, instanceId );
       if ( guiPluginObject == null ) {
         // Create a new instance
