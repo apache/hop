@@ -22,7 +22,7 @@ import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -222,11 +222,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
   }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode( trimtype );
+    return ValueMetaBase.getTrimTypeCode( trimtype );
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc( trimtype );
+    return ValueMetaBase.getTrimTypeDesc( trimtype );
   }
 
   public void setTrimType( int trimtype ) {
