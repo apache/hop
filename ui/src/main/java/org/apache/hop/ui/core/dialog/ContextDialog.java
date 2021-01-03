@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -499,14 +500,17 @@ public class ContextDialog extends Dialog {
         }
       }
     } );
-    wCanvas.addMouseMoveListener( ( MouseEvent event ) -> {
-      // Do we mouse over an action?
-      //
-      Item item = findItem( event.x, event.y );
-      if ( item != null ) {
-        selectItem( item, false );
-      }
-    } );
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      wCanvas.addMouseMoveListener(
+          (MouseEvent event) -> {
+            // Do we mouse over an action?
+            //
+            Item item = findItem(event.x, event.y);
+            if (item != null) {
+              selectItem(item, false);
+            }
+          });
+    }
     wCanvas.addKeyListener( keyAdapter );
 
     // Layout all the widgets in the shell.
@@ -1163,8 +1167,10 @@ public class ContextDialog extends Dialog {
       //
       int percentage = (int) ( (double) 100 * scrolledCompositeBounds.height / totalContentHeight );
       verticalBar.setThumb( percentage );
-      verticalBar.setPageIncrement( percentage / 2 );
-      verticalBar.setIncrement( percentage / 10 );
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        verticalBar.setPageIncrement(percentage / 2);
+        verticalBar.setIncrement(percentage / 10);
+      }
 
       // Set the selection as well...
       //
