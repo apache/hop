@@ -24,8 +24,6 @@
 		<apache.commons.lang3.version>3.0</apache.commons.lang3.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<jface.version>3.3.0-I20070606-0010</jface.version>
-		<commons-xul.version>9.2.0.0-SNAPSHOT</commons-xul.version>
-		<guava.version>17.0</guava.version>
 		<snakeyaml.version>1.11</snakeyaml.version>
 		<netty.version>4.0.44.Final</netty.version>
 		<clearspring-stream.version>2.8.0</clearspring-stream.version>
@@ -45,11 +43,10 @@
 
 	<dependencyManagement>
 		<dependencies>
-
 			<dependency>
-				<groupId>org.eclipse</groupId>
-				<artifactId>jface</artifactId>
-				<version>${jface.version}</version>
+				<groupId>org.eclipse.swt</groupId>
+				<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+				<version>${swt.version}</version>
 				<scope>compile</scope>
 				<exclusions>
 					<exclusion>
@@ -58,25 +55,11 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-
 			<dependency>
 				<groupId>org.apache.cassandra</groupId>
 				<artifactId>cassandra-all</artifactId>
 				<version>${cassandra.version}</version>
 				<scope>compile</scope>
-
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.datastax.cassandra</groupId>
@@ -90,19 +73,6 @@
 				<version>${cassandra-driver.version}</version>
 				<scope>compile</scope>
 			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>${commons-lang.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-
 			<dependency>
 				<groupId>org.yaml</groupId>
 				<artifactId>snakeyaml</artifactId>
@@ -332,10 +302,7 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- compile dependencies -->
-		<dependency>
-			<groupId>org.eclipse</groupId>
-			<artifactId>jface</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.cassandra</groupId>
 			<artifactId>cassandra-all</artifactId>
@@ -347,14 +314,6 @@
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-extras</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
 		</dependency>
 
 		<!-- test dependencies -->
