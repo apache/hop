@@ -97,7 +97,7 @@ public class HopGuiLogBrowser {
     final Timer logRefreshTimer = new Timer( "log sniffer Timer" );
     TimerTask timerTask = new TimerTask() {
       public void run() {
-        if ( text.isDisposed() ) {
+        if ( text.isDisposed() || text.getDisplay().isDisposed() ) {
           return;
         }
 
@@ -219,6 +219,15 @@ public class HopGuiLogBrowser {
     // Make sure the timer goes down when the widget is disposed
     //
     text.addDisposeListener( event -> logRefreshTimer.cancel() );
+
+    // Make sure the timer goes down when the Display is disposed
+    // Lambda expression cannot be used here as it causes SecurityException in RAP.
+    text.getDisplay().disposeExec( new Runnable() {
+      @Override
+      public void run() {
+        logRefreshTimer.cancel();
+      }
+    } );
 
     final Menu menu = new Menu( text );
     MenuItem item = new MenuItem( menu, SWT.NONE );

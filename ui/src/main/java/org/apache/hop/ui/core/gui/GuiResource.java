@@ -31,6 +31,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -66,8 +68,6 @@ import java.util.Map;
 public class GuiResource {
 
   private static ILogChannel log = LogChannel.UI;
-
-  private static GuiResource guiResource;
 
   private Display display;
 
@@ -263,7 +263,11 @@ public class GuiResource {
    * GuiResource also contains the clipboard as it has to be allocated only once! I don't want to put it in a separate
    * singleton just for this one member.
    */
-  private static Clipboard clipboard;
+  private Clipboard clipboard;
+
+  protected GuiResource() {
+    this(Display.getCurrent());
+  }
 
   private GuiResource( Display display ) {
     this.display = display;
@@ -309,12 +313,12 @@ public class GuiResource {
 
   }
 
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( GuiResource.class );
+  }
   public static final GuiResource getInstance() {
-    if ( guiResource != null ) {
-      return guiResource;
-    }
-    guiResource = new GuiResource( Display.getCurrent() );
-    return guiResource;
+    return (GuiResource) PROVIDER.getInstanceInternal();
   }
 
   /**

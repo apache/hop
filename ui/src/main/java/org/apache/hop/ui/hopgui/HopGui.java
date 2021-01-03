@@ -91,6 +91,7 @@ import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.DeviceData;
@@ -188,7 +189,6 @@ public class HopGui
 
   public static final String APP_NAME = "Hop";
 
-  private static HopGui hopGui;
   private String id;
 
   private IHopMetadataProvider metadataProvider;
@@ -230,6 +230,10 @@ public class HopGui
 
   private boolean openingLastFiles;
 
+  protected HopGui() {
+    this(Display.getCurrent());
+  }
+
   private HopGui(Display display) {
     this.display = display;
     this.id = UUID.randomUUID().toString();
@@ -256,6 +260,7 @@ public class HopGui
     updateMetadataManagers();
 
     HopNamespace.setNamespace(DEFAULT_HOP_GUI_NAMESPACE);
+    shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
   }
 
   private void updateMetadataManagers() {
@@ -264,8 +269,12 @@ public class HopGui
     partitionManager = new MetadataManager<>(variables, metadataProvider, PartitionSchema.class);
   }
 
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( HopGui.class );
+  }
   public static final HopGui getInstance() {
-    return hopGui;
+    return (HopGui) PROVIDER.getInstanceInternal();
   }
 
   public static void main(String[] arguments) {
@@ -284,7 +293,7 @@ public class HopGui
       HopLogStore.init();
       Locale.setDefault(LanguageChoice.getInstance().getDefaultLocale());
 
-      hopGui = new HopGui(display);
+      HopGui hopGui = HopGui.getInstance();
       hopGui.getCommandLineArguments().addAll(Arrays.asList(arguments));
       hopGui.setProps(PropsUi.getInstance());
 
@@ -322,7 +331,6 @@ public class HopGui
 
   /** Build the shell */
   protected void open() {
-    shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
@@ -345,6 +353,9 @@ public class HopGui
     //
     // shell.pack();
     shell.open();
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      shell.setMaximized(true);
+    }
 
     openingLastFiles = true; // TODO: make this configurable.
 
@@ -361,6 +372,10 @@ public class HopGui
     //
     if (openingLastFiles) {
       auditDelegate.openLastFiles();
+    }
+    // On RAP, return here otherwise UIThread doesn't get terminated properly.
+    if ( EnvironmentUtils.getInstance().isWeb() ) {
+      return;
     }
     boolean retry = true;
     while (retry) {
@@ -487,6 +502,10 @@ public class HopGui
     mainMenuWidgets = new GuiMenuWidgets();
     mainMenuWidgets.registerGuiPluginObject(this);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
+
+    if ( EnvironmentUtils.getInstance().isWeb() ) {
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
+    }
 
     shell.setMenuBar(mainMenu);
     setUndoMenu(null);
@@ -860,12 +879,12 @@ public class HopGui
       label = "Options...",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID)
   public void menuToolsOptions() {
-    if (new EnterOptionsDialog(hopGui.getShell()).open() != null) {
+    if (new EnterOptionsDialog(getShell()).open() != null) {
       try {
         HopConfig.getInstance().saveToFile();
       } catch (Exception e) {
         new ErrorDialog(
-            hopGui.getShell(),
+            getShell(),
             "Error",
             "Error saving the configuration file '"
                 + HopConfig.getInstance().getConfigFilename()
@@ -891,7 +910,7 @@ public class HopGui
         HopConfig.getInstance().saveToFile();
       } catch (Exception e) {
         new ErrorDialog(
-            hopGui.getShell(),
+            getShell(),
             "Error",
             "Error saving config variables to configuration file '"
                 + HopConfig.getInstance().getConfigFilename()
@@ -917,7 +936,7 @@ public class HopGui
       label = "About...",
       parentId = ID_MAIN_MENU_HELP_PARENT_ID)
   public void menuHelpAbout() {
-    AboutDialog dialog = new AboutDialog(hopGui.getShell());
+    AboutDialog dialog = new AboutDialog(getShell());
     dialog.open();
   }
   
@@ -1123,6 +1142,10 @@ public class HopGui
    */
   public Shell getShell() {
     return shell;
+  }
+
+  public void setShell( Shell shell ) {
+    this.shell = shell;
   }
 
   /**
@@ -1552,8 +1575,8 @@ public class HopGui
    *
    * @return value of id
    */
-  public static String getId() {
-    return getInstance().id;
+  public String getId() {
+    return id;
   }
 
   /**

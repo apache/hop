@@ -58,11 +58,11 @@ public class BaseGuiWidgets {
   public void registerGuiPluginObject( Object guiPluginObject ) {
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     String guiPluginClassName = guiPluginObject.getClass().getName();
-    guiRegistry.registerGuiPluginObject( HopGui.getId(), guiPluginClassName, instanceId, guiPluginObject);
+    guiRegistry.registerGuiPluginObject( HopGui.getInstance().getId(), guiPluginClassName, instanceId, guiPluginObject);
   }
 
   protected void addDeRegisterGuiPluginObjectListener(Control control) {
-    control.addDisposeListener( e -> GuiRegistry.getInstance().removeGuiPluginObjects( HopGui.getId(), instanceId ) );
+    control.addDisposeListener( e -> GuiRegistry.getInstance().removeGuiPluginObjects( HopGui.getInstance().getId(), instanceId ) );
   }
 
   public void dispose() {

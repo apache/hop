@@ -18,6 +18,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -39,6 +40,8 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -115,6 +118,10 @@ public class TableView extends Composite {
 
   private static final Class<?> PKG = TableView.class; // Needed by Translator
 
+  // define CANCEL_KEYS here so that RWT needs not to be imported.
+  // HiromuHota/pentaho-kettle#123
+  private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
+
   private Composite parent;
   private ColumnInfo[] columns;
   private int rows;
@@ -159,9 +166,6 @@ public class TableView extends Composite {
 
   private ModifyListener lsMod, lsUndo, lsContent;
   private Clipboard clipboard;
-
-  private Image dummyImage;
-  private GC dummyGC;
 
   // private int last_carret_position;
 
@@ -264,8 +268,6 @@ public class TableView extends Composite {
 
     lsUndo = arg0 -> fieldChanged = true;
 
-    dummyImage = new Image( parent.getDisplay(), 50, 10 );
-    dummyGC = new GC( dummyImage );
 
     FormLayout controlLayout = new FormLayout();
     controlLayout.marginLeft = 0;
@@ -1196,6 +1198,7 @@ public class TableView extends Composite {
 
     lsTraverse = e -> e.doit = false;
     table.addTraverseListener( lsTraverse );
+    table.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
 
     // Clean up the clipboard
     addDisposeListener( e -> {
@@ -1203,8 +1206,6 @@ public class TableView extends Composite {
         clipboard.dispose();
         clipboard = null;
       }
-      dummyImage.dispose();
-      dummyGC.dispose();
     } );
 
     // Drag & drop source!
@@ -1799,6 +1800,12 @@ public class TableView extends Composite {
       return null;
     }
 
+    // Table.getSelection() of RWT are ordered reversely.
+    // HiromuHota/pentaho-kettle#156
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      ArrayUtils.reverse(items);
+    }
+
     for ( int r = 0; r < items.length; r++ ) {
       TableItem ti = items[ r ];
       for ( int c = 1; c < table.getColumnCount(); c++ ) {
@@ -2183,6 +2190,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText( "" );
       }
       textWidget.addTraverseListener( lsTraverse );
+      textWidget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       textWidget.addFocusListener( lsFocusText );
     } else {
       Text textWidget = new Text( table, SWT.NONE );
@@ -2206,6 +2214,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText( "" );
       }
       textWidget.addTraverseListener( lsTraverse );
+      textWidget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       textWidget.addFocusListener( lsFocusText );
     }
     props.setLook( text, Props.WIDGET_STYLE_TABLE );
@@ -2230,11 +2239,13 @@ public class TableView extends Composite {
     }
     String str = getTextWidgetValue( colnr );
 
-    int strmax = dummyGC.textExtent( str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x + 20;
+    int strmax = TextSizeUtilFacade.textExtent(str).x + 20;
     int colmax = tablecolumn[ colnr ].getWidth();
     if ( strmax > colmax ) {
-      if ( Const.isOSX() || Const.isLinux() ) {
-        strmax *= 1.4;
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if ( Const.isOSX() || Const.isLinux() ) {
+          strmax *= 1.4;
+        }
       }
       tablecolumn[ colnr ].setWidth( strmax + 30 );
 
@@ -2326,6 +2337,7 @@ public class TableView extends Composite {
       }
       props.setLook( widget, Props.WIDGET_STYLE_TABLE );
       widget.addTraverseListener( lsTraverse );
+      widget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       widget.addModifyListener( lsModCombo );
       widget.addFocusListener( lsFocusCombo );
 
@@ -2354,6 +2366,7 @@ public class TableView extends Composite {
       CCombo widget = (CCombo) combo;
       props.setLook( widget, Props.WIDGET_STYLE_TABLE );
       widget.addTraverseListener( lsTraverse );
+      widget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       widget.addModifyListener( lsModCombo );
       widget.addFocusListener( lsFocusCombo );
 
@@ -2423,6 +2436,7 @@ public class TableView extends Composite {
       button.setToolTipText( "" );
     }
     button.addTraverseListener( lsTraverse ); // hop to next field
+    button.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
     button.addTraverseListener( arg0 -> closeActiveButton() );
 
     editor.horizontalAlignment = SWT.LEFT;
@@ -2478,7 +2492,7 @@ public class TableView extends Composite {
       TableColumn tc = table.getColumn( c );
       int max = 0;
       if ( header ) {
-        max = dummyGC.textExtent( tc.getText(), SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        max = TextSizeUtilFacade.textExtent(tc.getText()).x;
 
         // Check if the column has a sorted mark set. In that case, we need the
         // header to be a bit wider...
@@ -2528,7 +2542,7 @@ public class TableView extends Composite {
       }
 
       for ( String str : columnStrings ) {
-        int len = dummyGC.textExtent( str == null ? "" : str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
         if ( len > max ) {
           max = len;
         }

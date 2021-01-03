@@ -90,6 +90,13 @@
       </exclusions>
     </dependency>
 
+    <!-- RCP fragment -->
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-ui-rcp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- swt -->
     <dependency>
       <groupId>org.eclipse.platform</groupId>
