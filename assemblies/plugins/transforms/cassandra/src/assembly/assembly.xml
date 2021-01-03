@@ -52,8 +52,6 @@
 				<include>org.yaml:snakeyaml</include>
 				<include>com.clearspring.analytics:stream</include>
 				<include>net.sf.supercsv:super-csv</include>
-				<include>org.codehaus.jackson:jackson-core-asl</include>
-				<include>org.codehaus.jackson:jackson-mapper-asl</include>
 			</includes>
 		</dependencySet>
     </dependencySets>
