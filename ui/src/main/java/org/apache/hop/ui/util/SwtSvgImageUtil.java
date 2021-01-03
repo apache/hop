@@ -79,13 +79,16 @@ public class SwtSvgImageUtil {
    */
   public static SwtUniversalImage getMissingImage( Display display ) {
     Image img = new Image( display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
-    GC gc = new GC( img );
-    gc.setForeground( new Color( display, 0, 0, 0 ) );
-    gc.drawRectangle( 4, 4, ConstUi.ICON_SIZE - 8, ConstUi.ICON_SIZE - 8 );
-    gc.setForeground( new Color( display, 255, 0, 0 ) );
-    gc.drawLine( 4, 4, ConstUi.ICON_SIZE - 4, ConstUi.ICON_SIZE - 4 );
-    gc.drawLine( ConstUi.ICON_SIZE - 4, 4, 4, ConstUi.ICON_SIZE - 4 );
-    gc.dispose();
+    // RAP only allows painting on the Canvas widget
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      GC gc = new GC(img);
+      gc.setForeground(new Color(display, 0, 0, 0));
+      gc.drawRectangle(4, 4, ConstUi.ICON_SIZE - 8, ConstUi.ICON_SIZE - 8);
+      gc.setForeground(new Color(display, 255, 0, 0));
+      gc.drawLine(4, 4, ConstUi.ICON_SIZE - 4, ConstUi.ICON_SIZE - 4);
+      gc.drawLine(ConstUi.ICON_SIZE - 4, 4, 4, ConstUi.ICON_SIZE - 4);
+      gc.dispose();
+    }
     return new SwtUniversalImageBitmap( img, zoomFactor );
   }
 
