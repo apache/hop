@@ -75,6 +75,7 @@
     </dependencySet>
     <dependencySet>
       <includes>
+        <include>org.eclipse.platform:org.eclipse.jface</include>
         <include>org.apache.hop:hop-ui-rcp:jar</include>
       </includes>
       <outputDirectory>lib</outputDirectory>
