@@ -48,7 +48,7 @@ public class PoiWorkbook implements IKWorkbook {
   private String encoding;
   // for PDI-10251 we need direct access to streams
   private InputStream internalIS;
-  private POIFSFileSystem npoifs;
+  private POIFSFileSystem poifs;
   private OPCPackage opcpkg;
 
   public PoiWorkbook( String filename, String encoding ) throws HopException {
@@ -63,8 +63,8 @@ public class PoiWorkbook implements IKWorkbook {
         String localFilename = HopVfs.getFilename( fileObject );
         File excelFile = new File( localFilename );
         try {
-          npoifs = new POIFSFileSystem( excelFile );
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( npoifs );
+          poifs = new POIFSFileSystem( excelFile );
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( poifs );
         } catch ( Exception ofe ) {
           try {
             opcpkg = OPCPackage.open( excelFile );
@@ -97,8 +97,8 @@ public class PoiWorkbook implements IKWorkbook {
       if ( internalIS != null ) {
         internalIS.close();
       }
-      if ( npoifs != null ) {
-        npoifs.close();
+      if ( poifs != null ) {
+        poifs.close();
       }
       if ( opcpkg != null ) {
         //We should not save change in xls because it is input transform.
