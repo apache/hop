@@ -40,10 +40,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+@Ignore
 public class DriverConnectionTest {
 
   @Test
