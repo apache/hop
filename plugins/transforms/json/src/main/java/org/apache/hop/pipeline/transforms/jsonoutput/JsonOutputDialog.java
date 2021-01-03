@@ -718,6 +718,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         ok();
       }
     };
+    wGet.addListener( SWT.Selection, e -> get() );
 
     wTransformName.addSelectionListener( lsDef );
     // Detect X or ALT-F4 or something that kills this window...
