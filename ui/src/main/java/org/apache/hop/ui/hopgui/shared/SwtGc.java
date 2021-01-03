@@ -35,6 +35,7 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -361,25 +362,37 @@ public class SwtGc implements IGc {
   }
 
   public void setLineStyle( ELineStyle lineStyle ) {
-    switch ( lineStyle ) {
-      case DASHDOT:
-        gc.setLineStyle( SWT.LINE_DASHDOT );
-        break;
-      case SOLID:
-        gc.setLineStyle( SWT.LINE_SOLID );
-        break;
-      case DOT:
-        gc.setLineStyle( SWT.LINE_DOT );
-        break;
-      case DASH:
-        gc.setLineStyle( SWT.LINE_DASH );
-        break;
-      case PARALLEL:
-        gc.setLineAttributes( new LineAttributes(
-          gc.getLineWidth(), SWT.CAP_FLAT, SWT.JOIN_MITER, SWT.LINE_CUSTOM, new float[] { 5, 3, }, 0, 10 ) );
-        break;
-      default:
-        break;
+    // RAP does not implement LineStyle and LineAttributes
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      switch (lineStyle) {
+        case DASHDOT:
+          gc.setLineStyle(SWT.LINE_DASHDOT);
+          break;
+        case SOLID:
+          gc.setLineStyle(SWT.LINE_SOLID);
+          break;
+        case DOT:
+          gc.setLineStyle(SWT.LINE_DOT);
+          break;
+        case DASH:
+          gc.setLineStyle(SWT.LINE_DASH);
+          break;
+        case PARALLEL:
+          gc.setLineAttributes(
+              new LineAttributes(
+                  gc.getLineWidth(),
+                  SWT.CAP_FLAT,
+                  SWT.JOIN_MITER,
+                  SWT.LINE_CUSTOM,
+                  new float[] {
+                    5, 3,
+                  },
+                  0,
+                  10));
+          break;
+        default:
+          break;
+      }
     }
   }
 
