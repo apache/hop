@@ -3048,27 +3048,31 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(hopShell());
 
       // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run =
-          () -> {
-            IProgressMonitor monitor = pmd.getProgressMonitor();
-            while (pmd.getShell() == null
-                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-              try {
-                Thread.sleep(250);
-              } catch (InterruptedException e) {
-                // Ignore
-              }
+      // TODO: make this runnable a Lambda expression in a way that does not
+      // raise java.lang.SecurityException even on RAP/RWT.
+      Runnable run = new Runnable() {
+        @Override
+        public void run() {
+          IProgressMonitor monitor = pmd.getProgressMonitor();
+          while (pmd.getShell() == null
+              || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+            try {
+              Thread.sleep(250);
+            } catch (InterruptedException e) {
+              // Ignore
             }
+          }
 
-            if (monitor.isCanceled()) { // Disconnect and see what happens!
+          if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-              try {
-                pipelineMeta.cancelQueries();
-              } catch (Exception e) {
-                // Ignore
-              }
+            try {
+              pipelineMeta.cancelQueries();
+            } catch (Exception e) {
+              // Ignore
             }
-          };
+          }
+        }
+      };
       // Dump the cancel looker in the background!
       new Thread(run).start();
 
