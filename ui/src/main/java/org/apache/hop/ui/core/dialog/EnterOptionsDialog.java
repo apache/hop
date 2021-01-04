@@ -36,8 +36,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -1379,18 +1377,15 @@ public class EnterOptionsDialog extends Dialog {
           new MessageDialogWithToggle(
               shell,
               BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.DialogTitle"),
-              null,
               BaseMessages.getString(
                       PKG, "EnterOptionsDialog.RestartWarning.DialogMessage", Const.CR)
                   + Const.CR,
-              MessageDialog.WARNING,
+              SWT.ICON_WARNING,
               new String[] {
                 BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.Option1")
               },
-              0,
               BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.Option2"),
               "N".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_WARNING_PARAMETER, "Y")));
-      MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
       md.open();
       props.setCustomParameter(STRING_USAGE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y");
     }

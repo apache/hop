@@ -34,8 +34,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -1324,38 +1322,6 @@ public class GuiResource {
       gc.setBackground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
       gc.fillGradientRectangle( rect.x, rect.y + 2 * rect.height / 3, rect.width, rect.height / 3 + 1, vertical );
     }
-  }
-
-  /**
-   * Generic popup with a toggle option
-   *
-   * @param dialogTitle
-   * @param image
-   * @param message
-   * @param dialogImageType
-   * @param buttonLabels
-   * @param defaultIndex
-   * @param toggleMessage
-   * @param toggleState
-   * @return
-   */
-  public Object[] messageDialogWithToggle( Shell shell, String dialogTitle, Image image, String message,
-                                           int dialogImageType, String[] buttonLabels, int defaultIndex,
-                                           String toggleMessage, boolean toggleState ) {
-    int imageType = 0;
-    switch ( dialogImageType ) {
-      case Const.WARNING:
-        imageType = MessageDialog.WARNING;
-        break;
-      default:
-        break;
-    }
-
-    MessageDialogWithToggle md =
-      new MessageDialogWithToggle( shell, dialogTitle, image, message, imageType, buttonLabels, defaultIndex,
-        toggleMessage, toggleState );
-    int idx = md.open();
-    return new Object[] { Integer.valueOf( idx ), Boolean.valueOf( md.getToggleState() ) };
   }
 
   public static Point calculateControlPosition( Control control ) {

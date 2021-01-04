@@ -975,7 +975,7 @@ public class BaseTransformDialog extends Dialog {
                 "BaseTransformDialog.GetFieldsChoice.Message",
                 "" + existingFields,
                 "" + newFields),
-            MessageDialog.WARNING,
+            SWT.ICON_WARNING,
             new String[] {
               BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Add"),

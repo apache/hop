@@ -100,6 +100,7 @@ import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.IFileDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -142,8 +143,6 @@ import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
@@ -1231,19 +1230,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           new MessageDialogWithToggle(
               hopShell(),
               BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Title"),
-              null,
               BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Message")
                   + Const.CR
                   + hi.toString(),
-              MessageDialog.QUESTION,
+              SWT.ICON_QUESTION,
               new String[] {
                 BaseMessages.getString(PKG, "System.Button.Yes"),
                 BaseMessages.getString(PKG, "System.Button.No")
               },
-              0,
               BaseMessages.getString(PKG, "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
               hopGui.getProps().getAutoSplit());
-      MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
       id = md.open();
       hopGui.getProps().setAutoSplit(md.getToggleState());
     }
@@ -4719,20 +4715,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             new MessageDialogWithToggle(
                 hopShell(),
                 BaseMessages.getString(PKG, "PipelineLog.Dialog.FileHasChanged.Title"),
-                null,
                 BaseMessages.getString(PKG, "PipelineLog.Dialog.FileHasChanged1.Message")
                     + Const.CR
                     + BaseMessages.getString(PKG, "PipelineLog.Dialog.FileHasChanged2.Message")
                     + Const.CR,
-                MessageDialog.QUESTION,
+                SWT.ICON_QUESTION,
                 new String[] {
                   BaseMessages.getString(PKG, "System.Button.Yes"),
                   BaseMessages.getString(PKG, "System.Button.No")
                 },
-                0,
                 BaseMessages.getString(PKG, "PipelineLog.Dialog.Option.AutoSavePipeline"),
                 hopGui.getProps().getAutoSave());
-        MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
         int answer = md.open();
         if ((answer & 0xFF) == 0) {
           if (StringUtils.isEmpty(pipelineMeta.getFilename())) {
