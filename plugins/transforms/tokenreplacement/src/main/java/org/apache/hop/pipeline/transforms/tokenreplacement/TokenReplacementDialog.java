@@ -1635,7 +1635,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 		          BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Title" ), // "Warning!"
 		          null,
 		          BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Message", "" + keys.size(), "" + row.size() ),
-		          MessageDialog.WARNING, new String[] {
+		          SWT.ICON_WARNING, new String[] {
 		            BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
 		            BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
 		            BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),

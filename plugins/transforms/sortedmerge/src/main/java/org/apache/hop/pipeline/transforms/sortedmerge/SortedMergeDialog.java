@@ -29,12 +29,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
@@ -276,14 +275,11 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       MessageDialogWithToggle md =
         new MessageDialogWithToggle( shell,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.DialogTitle" ),
-          null,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.DialogMessage", Const.CR ) + Const.CR,
-          MessageDialog.WARNING,
+          SWT.ICON_WARNING,
           new String[] { BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.Option1" ) },
-          0,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.Option2" ),
           "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
     }
