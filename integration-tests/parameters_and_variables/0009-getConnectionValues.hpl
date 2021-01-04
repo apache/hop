@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>getConnectionValues</name>
+    <name>0009-getConnectionValues</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -217,7 +217,7 @@ com (for direct db connection)
     <encoding/>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/tenantconfig.txt</name>
+      <name>${HOP_DATASETS_FOLDER}/tenantconfig.txt</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
