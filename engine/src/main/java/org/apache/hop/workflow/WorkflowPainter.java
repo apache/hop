@@ -294,11 +294,11 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
           miniIconSize, offset, actionMeta, actionResult ) );
       } else {
         if ( result.getResult() ) {
-          gc.drawImage( EImage.TRUE, iconX, iconY, magnification );
+          gc.drawImage( EImage.SUCCESS, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.ACTION_RESULT_SUCCESS, iconX, iconY, miniIconSize,
             miniIconSize, offset, actionMeta, actionResult ) );
         } else {
-          gc.drawImage( EImage.FALSE, iconX, iconY, magnification );
+          gc.drawImage( EImage.FAILURE, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.ACTION_RESULT_FAILURE, iconX, iconY, miniIconSize,
             miniIconSize, offset, actionMeta, actionResult ) );
         }
@@ -346,13 +346,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   /**
    * Calculates line coordinates from center to center.
    */
-  protected void drawLine( WorkflowHopMeta jobHop, boolean is_candidate ) throws HopException {
-    int[] line = getLine( jobHop.getFromAction(), jobHop.getToAction() );
+  protected void drawLine( WorkflowHopMeta workflowHop, boolean is_candidate ) throws HopException {
+    int[] line = getLine( workflowHop.getFromAction(), workflowHop.getToAction() );
 
     gc.setLineWidth( lineWidth );
-    EColor col;
+    EColor color;
 
-    if ( jobHop.getFromAction().isLaunchingInParallel() ) {
+    if ( workflowHop.getFromAction().isLaunchingInParallel() ) {
       gc.setLineStyle( ELineStyle.PARALLEL );
     } else {
       gc.setLineStyle( ELineStyle.SOLID );
@@ -360,34 +360,34 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     EImage arrow;
     if ( is_candidate ) {
-      col = EColor.BLUE;
+      color = EColor.BLUE;
       arrow = EImage.ARROW_CANDIDATE;
-    } else if ( jobHop.isEnabled() ) {
-      if ( jobHop.isUnconditional() ) {
-        col = EColor.HOP_DEFAULT;
+    } else if ( workflowHop.isEnabled() ) {
+      if ( workflowHop.isUnconditional() ) {
+        color = EColor.HOP_DEFAULT;
         arrow = EImage.ARROW_DEFAULT;
       } else {
-        if ( jobHop.getEvaluation() ) {
-          col = EColor.HOP_OK;
-          arrow = EImage.ARROW_OK;
+        if ( workflowHop.getEvaluation() ) {
+          color = EColor.HOP_TRUE;
+          arrow = EImage.ARROW_TRUE;
         } else {
-          col = EColor.RED;
-          arrow = EImage.ARROW_ERROR;
-          gc.setLineStyle( ELineStyle.DASH );
+          color = EColor.HOP_FALSE;
+          arrow = EImage.ARROW_FALSE;
+          //gc.setLineStyle( ELineStyle.DASH );
         }
       }
     } else {
-      col = EColor.GRAY;
+      color = EColor.GRAY;
       arrow = EImage.ARROW_DISABLED;
     }
 
-    gc.setForeground( col );
+    gc.setForeground( color );
 
-    if ( jobHop.isSplit() ) {
+    if ( workflowHop.isSplit() ) {
       gc.setLineWidth( lineWidth + 2 );
     }
-    drawArrow( arrow, line, jobHop );
-    if ( jobHop.isSplit() ) {
+    drawArrow( arrow, line, workflowHop );
+    if ( workflowHop.isSplit() ) {
       gc.setLineWidth( lineWidth );
     }
 
@@ -396,13 +396,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setLineStyle( ELineStyle.SOLID );
   }
 
-  private void drawArrow( EImage arrow, int[] line, WorkflowHopMeta jobHop ) throws HopException {
-    drawArrow( arrow, line, jobHop, jobHop.getFromAction(), jobHop.getToAction() );
+  private void drawArrow( EImage arrow, int[] line, WorkflowHopMeta workflowHop ) throws HopException {
+    drawArrow( arrow, line, workflowHop, workflowHop.getFromAction(), workflowHop.getToAction() );
   }
 
   @Override
   protected void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-                            WorkflowHopMeta jobHop, Object startObject, Object endObject ) throws HopException {
+                            WorkflowHopMeta workflowHop, Object startObject, Object endObject ) throws HopException {
     int mx, my;
     int a, b, dist;
     double angle;
@@ -434,16 +434,17 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     // calculate points for arrowhead
     angle = Math.atan2( y2 - y1, x2 - x1 ) + ( Math.PI / 2 );
 
-    boolean q1 = Math.toDegrees( angle ) >= 0 && Math.toDegrees( angle ) <= 90;
-    boolean q2 = Math.toDegrees( angle ) > 90 && Math.toDegrees( angle ) <= 180;
-    boolean q3 = Math.toDegrees( angle ) > 180 && Math.toDegrees( angle ) <= 270;
-    boolean q4 = Math.toDegrees( angle ) > 270 || Math.toDegrees( angle ) < 0;
+    boolean q1 = Math.toDegrees(angle) >= 0 && Math.toDegrees(angle) < 90;
+    boolean q2 = Math.toDegrees(angle) >= 90 && Math.toDegrees(angle) < 180;
+    boolean q3 = Math.toDegrees(angle) >= 180 && Math.toDegrees(angle) < 270;
+    boolean q4 = Math.toDegrees(angle) >= 270 || Math.toDegrees(angle) < 0;
 
     if ( q1 || q3 ) {
-      gc.drawImage( arrow, mx + 1, my, magnification, angle );
+      gc.drawImage( arrow, mx , my+1, magnification, angle );
     } else if ( q2 || q4 ) {
       gc.drawImage( arrow, mx, my, magnification, angle );
     }
+
     // Display an icon above the hop...
     //
     factor = 0.8;
@@ -452,35 +453,34 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 ) - 8;
     my = (int) ( y1 + factor * ( y2 - y1 ) / 2 ) - 8;
 
-    if ( jobHop != null ) {
-      EImage hopsIcon;
-      if ( jobHop.isUnconditional() ) {
-        hopsIcon = EImage.UNCONDITIONAL;
-      } else {
-        if ( jobHop.getEvaluation() ) {
-          hopsIcon = EImage.TRUE;
+    if ( workflowHop != null ) {
+
+      if ( workflowHop.getFromAction().isLaunchingInParallel() ) {
+
+         // in between 2 points
+         mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 );
+         my = (int) ( y1 + factor * ( y2 - y1 ) / 2 );
+
+         gc.drawImage( EImage.PARALLEL, mx, my, magnification, angle );
+         areaOwners.add( new AreaOwner( AreaType.WORKFLOW_HOP_PARALLEL_ICON, mx, my, miniIconSize, miniIconSize, offset, subject, workflowHop ) );
+       }
+      else {
+        EImage hopsIcon;
+        if ( workflowHop.isUnconditional() ) {
+          hopsIcon = EImage.UNCONDITIONAL;
         } else {
-          hopsIcon = EImage.FALSE;
+          if ( workflowHop.getEvaluation() ) {
+            hopsIcon = EImage.TRUE;
+          } else {
+            hopsIcon = EImage.FALSE;
+          }
         }
-      }
-
-      gc.drawImage( hopsIcon, mx, my, magnification );
-      areaOwners.add( new AreaOwner( AreaType.WORKFLOW_HOP_ICON, mx, my, miniIconSize, miniIconSize, offset, subject, jobHop ) );
-
-      if ( jobHop.getFromAction().isLaunchingInParallel() ) {
-
-        factor = 1;
-
-        // in between 2 points
-        mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 ) - 8;
-        my = (int) ( y1 + factor * ( y2 - y1 ) / 2 ) - 8;
-
-        hopsIcon = EImage.PARALLEL;
+        
         gc.drawImage( hopsIcon, mx, my, magnification );
-        areaOwners.add( new AreaOwner( AreaType.WORKFLOW_HOP_PARALLEL_ICON, mx, my, miniIconSize, miniIconSize, offset, subject, jobHop ) );
+        areaOwners.add( new AreaOwner( AreaType.WORKFLOW_HOP_ICON, mx, my, miniIconSize, miniIconSize, offset, subject, workflowHop ) );
       }
 
-      WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, jobHop, null, x1, y1, x2, y2, mx, my, offset, iconSize );
+      WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, workflowHop, null, x1, y1, x2, y2, mx, my, offset, iconSize );
       try {
         ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterArrow.id, extension );

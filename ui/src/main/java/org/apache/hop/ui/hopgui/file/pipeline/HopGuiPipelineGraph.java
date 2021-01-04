@@ -34,6 +34,8 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.IGc.EColor;
+import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
@@ -99,20 +101,17 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
@@ -132,7 +131,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegat
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
-import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
@@ -195,7 +193,6 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -1988,7 +1985,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     endHopLocation = null;
     pipelineMeta.unselectAll();
     for (int i = 0; i < pipelineMeta.nrPipelineHops(); i++) {
-      pipelineMeta.getPipelineHop(i).split = false;
+      pipelineMeta.getPipelineHop(i).setSplit(false);
     }
   }
 
@@ -2142,7 +2139,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Error handling",
       tooltip = "Specify how error handling is behaving for this transform",
-      image = "ui/images/transform-error.svg",
+      image = "ui/images/error.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void errorHandling(HopGuiPipelineTransformContext context) {
@@ -2261,7 +2258,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Specify copies",
       tooltip = "Set the number of transform copies to use during execution",
-      image = "ui/images/parallel-hop.svg",
+      image = "ui/images/exponent.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void copies(HopGuiPipelineTransformContext context) {
@@ -2709,13 +2706,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
         case TRANSFORM_ERROR_ICON:
           String log = (String) areaOwner.getParent();
-          tip.append(log);
-          tipImage = GuiResource.getInstance().getImageTransformError();
+          tip.append(log);          
+          tipImage = GuiResource.getInstance().getImageError();
           break;
-        case TRANSFORM_ERROR_RED_ICON:
+        case TRANSFORM_FAILURE_ICON:
           String redLog = (String) areaOwner.getParent();
           tip.append(redLog);
-          tipImage = GuiResource.getInstance().getImageRedTransformError();
+          tipImage = GuiResource.getInstance().getImageFailure();
           break;
         case HOP_COPY_ICON:
           transform = (TransformMeta) areaOwner.getParent();
@@ -2760,7 +2757,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   from.getName(),
                   to.getName(),
                   Const.CR));
-          tipImage = GuiResource.getInstance().getImageErrorHop();
+          tipImage = GuiResource.getInstance().getImageError();
           break;
         case HOP_INFO_TRANSFORM_COPIES_ERROR:
           from = (TransformMeta) areaOwner.getParent();
@@ -2772,7 +2769,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   from.getName(),
                   to.getName(),
                   Const.CR));
-          tipImage = GuiResource.getInstance().getImageTransformError();
+          tipImage = GuiResource.getInstance().getImageError();
           break;
         case HOP_INFO_TRANSFORMS_PARTITIONED:
           from = (TransformMeta) areaOwner.getParent();
@@ -2784,7 +2781,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   from.getName(),
                   to.getName(),
                   Const.CR));
-          tipImage = GuiResource.getInstance().getImageTransformError();
+          tipImage = GuiResource.getInstance().getImageError();
           break;
         case TRANSFORM_INPUT_HOP_ICON:
           // TransformMeta subjectTransform = (TransformMeta) (areaOwner.getParent());
@@ -2804,12 +2801,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               BaseMessages.getString(PKG, "PipelineGraph.TransformMetaConnector.Tooltip")
                   + Const.CR
                   + ioMeta.toString());
-          tipImage = GuiResource.getInstance().getImageOutput();
+          tipImage = GuiResource.getInstance().getImageInfo();
           break;
         case TRANSFORM_TARGET_HOP_ICON:
           IStream stream = (IStream) areaOwner.getOwner();
           tip.append(stream.getDescription());
-          tipImage = GuiResource.getInstance().getImageOutput();
+          
+          if ( stream.getStreamIcon()==StreamIcon.TRUE ) {
+            tipImage = GuiResource.getInstance().getImageTrue();
+          } 
+          else if ( stream.getStreamIcon()==StreamIcon.FALSE ) {
+            tipImage = GuiResource.getInstance().getImageFalse();
+          }             
+          else {
+            tipImage = GuiResource.getInstance().getImageTarget();
+          }
           break;
         case TRANSFORM_ERROR_HOP_ICON:
           TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
@@ -2822,7 +2828,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 BaseMessages.getString(
                     PKG, "PipelineGraph.TransformDoesNotSupportsErrorHandling.Tooltip"));
           }
-          tipImage = GuiResource.getInstance().getImageOutput();
+          tipImage = GuiResource.getInstance().getImageError();
           break;
         case TRANSFORM_EDIT_ICON:
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.EditTransform.Tooltip"));
