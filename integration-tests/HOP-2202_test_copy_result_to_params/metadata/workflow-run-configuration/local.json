@@ -1,9 +1,0 @@
-{
-  "engineRunConfiguration": {
-    "Local": {
-      "safe_mode": false
-    }
-  },
-  "name": "local",
-  "description": "Runs your workflows locally with the standard local Hop workflow engine"
-}
