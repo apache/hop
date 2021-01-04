@@ -32,11 +32,11 @@
       <attributes_hac/>
     </action>
     <action>
-      <name>0002-dynamic-partitioning.hpl.hpl</name>
+      <name>0002-dynamic-partitioning.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0002-dynamic-partitioning.hpl.hpl</filename>
+      <filename>${PROJECT_HOME}/0002-dynamic-partitioning.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -124,7 +124,7 @@ ok;</script>
   <hops>
     <hop>
       <from>START</from>
-      <to>0002-dynamic-partitioning.hpl.hpl</to>
+      <to>0002-dynamic-partitioning.hpl</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -132,7 +132,7 @@ ok;</script>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0002-dynamic-partitioning.hpl.hpl</from>
+      <from>0002-dynamic-partitioning.hpl</from>
       <to>Check pipeline log</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
