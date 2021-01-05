@@ -34,8 +34,6 @@
     <name>Hop Plugins Transforms Excel Writer</name>
 
     <properties>
-        <jxl.version>2.6.12</jxl.version>
-        <odfdom-java.version>0.8.7</odfdom-java.version>
         <poi.version>3.17</poi.version>
         <xerces.version>2.12.0</xerces.version>
         <xmlbeans.version>3.1.0</xmlbeans.version>
@@ -43,28 +41,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>net.sourceforge.jexcelapi</groupId>
-            <artifactId>jxl</artifactId>
-            <version>${jxl.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.odftoolkit</groupId>
-            <artifactId>odfdom-java</artifactId>
-            <version>${odfdom-java.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
