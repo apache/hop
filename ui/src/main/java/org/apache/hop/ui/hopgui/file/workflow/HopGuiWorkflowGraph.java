@@ -1702,7 +1702,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Parallel execution",
       tooltip = "Enable of disable parallel execution of next actions",
-      image = "ui/images/parallel-hop.svg",
+      image = "ui/images/parallel.svg",
       category = "Advanced",
       categoryOrder = "3")
   public void editActionParallel(HopGuiWorkflowActionContext context) {
@@ -2310,10 +2310,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           Result result = actionResult.getResult();
           tip.append("'").append(actionCopy.getName()).append("' ");
           if (result.getResult()) {
-            tipImage = GuiResource.getInstance().getImageTrue();
+            tipImage = GuiResource.getInstance().getImageSuccess();
             tip.append("finished successfully.");
           } else {
-            tipImage = GuiResource.getInstance().getImageFalse();
+            tipImage = GuiResource.getInstance().getImageFailure();
             tip.append("failed.");
           }
           tip.append(Const.CR).append("------------------------").append(Const.CR).append(Const.CR);

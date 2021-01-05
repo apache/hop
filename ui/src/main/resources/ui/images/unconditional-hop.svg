@@ -1,27 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-    xmlns="http://www.w3.org/2000/svg"
-    xml:space="preserve"
-    enable-background="new 0 0 16 16"
-    viewBox="0 0 16 16"
-    y="0px"
-    x="0px"
-    height="16px"
-    width="16px"
-    version="1.1">
-<g id="Layer_2">
-	<g id="Layer_2_1_">
-		<rect fill="none" width="16" height="16"/>
-	</g>
-</g>
-  <g id="art">
-	<g>
-		<path fill="#FE9C04" d="M12.5,6V4.6C12.5,1.9,10.6,0,8,0S3.5,1.9,3.5,4.6V6H2v10h12V6H12.5z M12.3,14.3L12.3,14.3H3.7l0,0V7.7l0,0
-			h8.6l0,0V14.3z M5.2,4.6c0-1.7,1.2-2.9,2.8-2.9s2.8,1.2,2.8,2.9V6H5.2V4.6z"/>
-    <path fill="#FFFFFF" d="M3.7,7.7L3.7,7.7v6.6l0,0h8.6l0,0V7.7l0,0H3.7z M7.4,12L7.4,12v-2l0,0h1.2v2H7.4z"/>
-    <polygon fill="#FE9C04" points="7.4,10 7.4,10 7.4,12 7.4,12 8.6,12 8.6,10 		"/>
-	</g>
-</g>
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="unconditional-hop.svg"
+   id="svg4"
+   viewBox="0 0 24 24"
+   height="24"
+   width="24"
+   version="1.1">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg4"
+     inkscape:window-maximized="0"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
+     inkscape:cy="12"
+     inkscape:cx="12"
+     inkscape:zoom="42"
+     showgrid="false"
+     id="namedview6"
+     inkscape:window-height="1152"
+     inkscape:window-width="1955"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <ellipse
+     ry="8.4880953"
+     rx="8.6071424"
+     cy="11.964286"
+     cx="11.940476"
+     id="path835"
+     style="fill:#ffffff;fill-opacity:1;stroke-width:2.33922;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     style="fill:#0e3a5a;fill-opacity:1"
+     id="path2"
+     d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
 </svg>

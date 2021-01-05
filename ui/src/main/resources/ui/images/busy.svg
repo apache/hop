@@ -1,26 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-    xmlns="http://www.w3.org/2000/svg"
-    xml:space="preserve"
-    enable-background="new 0 0 16 16"
-    viewBox="0 0 16 16"
-    y="0px"
-    x="0px"
-    height="16px"
-    width="16px"
-    version="1.1">
-<g>
-	<path fill="#FFFFFF" d="M3.2,2C3.2,3.1,5,7.4,5,8c0,0.6-1.8,4.9-1.8,6v1h9.5v-1c0-1.1-1.8-5.5-1.8-6c0-0.6,1.8-4.9,1.8-6V1H3.2V2z"
-  />
-  <path fill="#3D6380" d="M13.1,2.1h0.8v-2H2.1v2h0.8v0.7c0,1.3,1.3,4.6,1.5,5.2c-0.2,0.5-1.5,3.9-1.5,5.2v0.7H2.1v2h11.9v-2h-0.8
-		v-0.7c0-1.3-1.3-4.6-1.5-5.2c0.3-0.6,1.5-3.9,1.5-5.2V2.1z"/>
-  <path fill="#FFFFFF" d="M12.1,2.8c0,0.9-1.6,4.7-1.6,5.2c0,0.5,1.6,4.2,1.6,5.2v0.9H3.9v-0.9c0-0.9,1.6-4.7,1.6-5.2
-		c0-0.5-1.6-4.2-1.6-5.2V1.9h8.2V2.8z"/>
-  <path fill="#FFFFFF" d="M9.5,5.5C9.2,6,8.8,6.6,8.3,7.2v1.2c0,0,1.2,1.5,1.9,3.8v0.5H5.9v-0.5c0.5-2,1.9-3.8,1.9-3.8V7.2
-		C7.2,6.8,6.9,6.1,6.6,5.5H9.5z"/>
-  <path fill="#3D6380" d="M10.3,12.1c-0.6-2-1.7-3.5-1.8-3.8V7.3c0.5-0.5,0.9-1.1,1.2-1.7l0.1-0.2H6.3l0.1,0.2
-		c0.4,0.8,0.8,1.3,1.2,1.7v1.1c-0.2,0.3-1.4,1.9-1.8,3.8l0,0.7h4.5L10.3,12.1L10.3,12.1z"/>
-</g>
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="busy.svg"
+   id="svg4"
+   viewBox="0 0 24 24"
+   height="24"
+   width="24"
+   version="1.1">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg4"
+     inkscape:window-maximized="0"
+     inkscape:window-y="4"
+     inkscape:window-x="-7"
+     inkscape:cy="12"
+     inkscape:cx="12"
+     inkscape:zoom="42"
+     showgrid="false"
+     id="namedview6"
+     inkscape:window-height="1262"
+     inkscape:window-width="1838"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.15471"
+     id="path2"
+     d="M 4,2 H 20 V 8 8 8 L 14.666666,12 20,16 v 0 0 6 H 4 v -6 0 0 L 9.3333334,12 4,8 V 8 8 2 M 17.333334,16.5 12,12.5 6.6666666,16.5 V 20 H 17.333334 V 16.5 M 12,11.5 17.333334,7.5 V 4 H 6.6666666 V 7.5 L 12,11.5 M 9.3333334,6 H 14.666666 V 6.75 L 12,8.75 9.3333334,6.75 Z" />
 </svg>

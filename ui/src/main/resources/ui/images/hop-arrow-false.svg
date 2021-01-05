@@ -14,10 +14,10 @@
    viewBox="0 0 16 16"
    enable-background="new 0 0 12 16"
    xml:space="preserve"
-   sodipodi:docname="hop-arrow-disabled.svg"
+   sodipodi:docname="hop-arrow-false.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    width="16"
    height="16"><path
-     fill="#d7d7d7"
+     fill="#fe9c04"
      id="path834"
      d="m 8,0 -4,16 4,-2 4,2" /></svg>

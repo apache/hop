@@ -8,7 +8,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="false.svg"
+   sodipodi:docname="parallel-hop.svg"
    id="svg4"
    viewBox="0 0 24 24"
    height="24"
@@ -18,16 +18,16 @@
      id="defs8" />
   <sodipodi:namedview
      inkscape:current-layer="svg4"
-     inkscape:window-maximized="0"
-     inkscape:window-y="0"
-     inkscape:window-x="0"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
      inkscape:cy="12"
      inkscape:cx="12"
      inkscape:zoom="42"
      showgrid="false"
      id="namedview6"
-     inkscape:window-height="1153"
-     inkscape:window-width="2550"
+     inkscape:window-height="1387"
+     inkscape:window-width="3440"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      guidetolerance="10"
@@ -37,14 +37,21 @@
      bordercolor="#666666"
      pagecolor="#ffffff" />
   <rect
-     y="5.7142854"
-     x="5.7328043"
-     height="12.142858"
-     width="12.248677"
-     id="rect835"
-     style="fill:#ffffff;fill-opacity:1;stroke-width:0.766362;stroke-linecap:round;stroke-linejoin:round" />
-  <path
-     style="fill:#fe9c04;fill-opacity:1"
-     id="path2"
-     d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z" />
+     ry="1.6092727"
+     transform="matrix(-0.71016877,0.70403148,0.7091068,0.70510109,0,0)"
+     y="10.816286"
+     x="-10.007269"
+     height="3.2185454"
+     width="20.000172"
+     id="rect837"
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke" />
+  <rect
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+     id="rect837-5"
+     width="20.000172"
+     height="3.2185454"
+     x="-9.9819508"
+     y="19.754385"
+     transform="matrix(-0.71016877,0.70403148,0.7091068,0.70510109,0,0)"
+     ry="1.6092727" />
 </svg>
