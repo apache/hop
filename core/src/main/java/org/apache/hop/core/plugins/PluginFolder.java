@@ -28,6 +28,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import java.util.Set;
  */
 public class PluginFolder implements IPluginFolder {
 
+  public static final String VAR_HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
   private String folder;
   private boolean pluginXmlFolder;
   private boolean pluginAnnotationsFolder;
@@ -70,11 +72,6 @@ public class PluginFolder implements IPluginFolder {
     this.searchLibDir = searchLibDir;
   }
 
-  @Override
-  public String toString() {
-    return folder;
-  }
-
   /**
    * Create a list of plugin folders based on the specified xml sub folder
    *
@@ -83,7 +80,8 @@ public class PluginFolder implements IPluginFolder {
    */
   public static List<IPluginFolder> populateFolders( String xmlSubfolder ) {
     List<IPluginFolder> pluginFolders = new ArrayList<>();
-    String folderPaths = EnvUtil.getSystemProperty( "HOP_PLUGIN_BASE_FOLDERS" );
+
+    String folderPaths = Const.NVL( Variables.getADefaultVariableSpace().getVariable( VAR_HOP_PLUGIN_BASE_FOLDERS ), EnvUtil.getSystemProperty( VAR_HOP_PLUGIN_BASE_FOLDERS ) );
     if ( folderPaths == null ) {
       folderPaths = Const.DEFAULT_PLUGIN_BASE_FOLDERS;
     }
@@ -99,6 +97,11 @@ public class PluginFolder implements IPluginFolder {
       }
     }
     return pluginFolders;
+  }
+
+  @Override
+  public String toString() {
+    return folder;
   }
 
   @Override
