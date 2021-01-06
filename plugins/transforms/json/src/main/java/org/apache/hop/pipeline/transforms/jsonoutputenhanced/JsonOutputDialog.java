@@ -120,9 +120,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     private Label wlOperation;
     private CCombo wOperation;
 
-    private Label wlGeneration;
-    private CCombo wGeneration;
-
     private Label wlJSONSizeFieldname;
     private TextVar wJSONSizeFieldname;
 
@@ -470,6 +467,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
                 ok();
             }
         };
+        wGet.addListener( SWT.Selection, e -> get() );
 
         wTransformName.addSelectionListener( lsDef );
         // Detect X or ALT-F4 or something that kills this window...
@@ -519,38 +517,12 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         groupFileLayout.marginHeight = 10;
         wSettings.setLayout(groupFileLayout);
 
-        // Generation
-        wlGeneration = new Label(wSettings, SWT.RIGHT);
-        wlGeneration.setText(BaseMessages.getString(PKG, "JsonOutputDialog.Generation.Label"));
-        props.setLook(wlGeneration);
-        FormData fdlGeneration = new FormData();
-        fdlGeneration.left = new FormAttachment(0, 0);
-        fdlGeneration.right = new FormAttachment(middle, -margin);
-        fdlGeneration.top = new FormAttachment(wlOperation, margin);
-        wlGeneration.setLayoutData(fdlGeneration);
-
-        wGeneration = new CCombo(wSettings, SWT.BORDER | SWT.READ_ONLY);
-        props.setLook(wGeneration);
-        wGeneration.addModifyListener(lsMod);
-        FormData fdGeneration = new FormData();
-        fdGeneration.left = new FormAttachment(middle, 0);
-        fdGeneration.top = new FormAttachment(wlOperation, margin);
-        fdGeneration.right = new FormAttachment(100, -margin);
-        wGeneration.setLayoutData(fdGeneration);
-        wGeneration.setItems(JsonOutputMeta.generationTypeDesc);
-        wGeneration.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                updateGeneration();
-
-            }
-        });
-
         wlBlocName = new Label(wSettings, SWT.RIGHT);
         wlBlocName.setText(BaseMessages.getString(PKG, "JsonOutputDialog.BlocName.Label"));
         props.setLook(wlBlocName);
         FormData fdlBlocName = new FormData();
         fdlBlocName.left = new FormAttachment(0, 0);
-        fdlBlocName.top = new FormAttachment(wGeneration, margin);
+        fdlBlocName.top = new FormAttachment(wlOperation, margin);
         fdlBlocName.right = new FormAttachment(middle, -margin);
         wlBlocName.setLayoutData(fdlBlocName);
         wBlocName = new TextVar(variables, wSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -559,7 +531,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         wBlocName.addModifyListener(lsMod);
         FormData fdBlocName = new FormData();
         fdBlocName.left = new FormAttachment(middle, 0);
-        fdBlocName.top = new FormAttachment(wGeneration, margin);
+        fdBlocName.top = new FormAttachment(wOperation, margin);
         fdBlocName.right = new FormAttachment(100, 0);
         wBlocName.setLayoutData(fdBlocName);
 
@@ -621,29 +593,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         fdJSONPrittified.right = new FormAttachment(100, 0);
         wJSONPrittified.setLayoutData(fdJSONPrittified);
         wJSONPrittified.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                input.setChanged();
-            }
-        });
-
-        wlSplitOutputAfter = new Label(wSettings, SWT.RIGHT);
-        wlSplitOutputAfter.setText(BaseMessages.getString(PKG, "JsonOutputDialog.splitOutputAfter.Label"));
-        props.setLook(wlSplitOutputAfter);
-        FormData fdlSplitOutputAfter = new FormData();
-        fdlSplitOutputAfter.left = new FormAttachment(0, 0);
-        fdlSplitOutputAfter.top = new FormAttachment(wJSONPrittified, margin);
-        fdlSplitOutputAfter.right = new FormAttachment(middle, -margin);
-        wlSplitOutputAfter.setLayoutData(fdlSplitOutputAfter);
-        wSplitOutputAfter = new TextVar(variables, wSettings, SWT.BORDER | SWT.READ_ONLY);
-        wSplitOutputAfter.setEditable(true);
-        wSplitOutputAfter.setToolTipText("JsonOutputDialog.splitOutputAfter.Tooltip");
-        props.setLook(wSplitOutputAfter);
-        FormData fdSplitOutputAfter = new FormData();
-        fdSplitOutputAfter.left = new FormAttachment(middle, 0);
-        fdSplitOutputAfter.top = new FormAttachment(wJSONPrittified, margin);
-        fdSplitOutputAfter.right = new FormAttachment(100, 0);
-        wSplitOutputAfter.setLayoutData(fdSplitOutputAfter);
-        wSplitOutputAfter.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 input.setChanged();
             }
@@ -751,13 +700,36 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
             }
         });
 
+        wlSplitOutputAfter = new Label(wFileName, SWT.RIGHT);
+        wlSplitOutputAfter.setText(BaseMessages.getString(PKG, "JsonOutputDialog.splitOutputAfter.Label"));
+        props.setLook(wlSplitOutputAfter);
+        FormData fdlSplitOutputAfter = new FormData();
+        fdlSplitOutputAfter.left = new FormAttachment(0, 0);
+        fdlSplitOutputAfter.top = new FormAttachment(wAppend, margin);
+        fdlSplitOutputAfter.right = new FormAttachment(middle, -margin);
+        wlSplitOutputAfter.setLayoutData(fdlSplitOutputAfter);
+        wSplitOutputAfter = new TextVar(variables, wFileName, SWT.BORDER | SWT.READ_ONLY);
+        wSplitOutputAfter.setEditable(true);
+        wSplitOutputAfter.setToolTipText("JsonOutputDialog.splitOutputAfter.Tooltip");
+        props.setLook(wSplitOutputAfter);
+        FormData fdSplitOutputAfter = new FormData();
+        fdSplitOutputAfter.left = new FormAttachment(middle, 0);
+        fdSplitOutputAfter.top = new FormAttachment(wlAppend, margin);
+        fdSplitOutputAfter.right = new FormAttachment(100, 0);
+        wSplitOutputAfter.setLayoutData(fdSplitOutputAfter);
+        wSplitOutputAfter.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                input.setChanged();
+            }
+        });
+
         // Create Parent Folder
         wlCreateParentFolder = new Label(wFileName, SWT.RIGHT);
         wlCreateParentFolder.setText(BaseMessages.getString(PKG, "JsonOutputDialog.CreateParentFolder.Label"));
         props.setLook(wlCreateParentFolder);
         FormData fdlCreateParentFolder = new FormData();
         fdlCreateParentFolder.left = new FormAttachment(0, 0);
-        fdlCreateParentFolder.top = new FormAttachment(wAppend, margin);
+        fdlCreateParentFolder.top = new FormAttachment(wSplitOutputAfter, margin);
         fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
         wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
         wCreateParentFolder = new Button(wFileName, SWT.CHECK);
@@ -821,6 +793,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
                 input.setChanged();
             }
         });
+
         // Create multi-part file?
         wlAddTime = new Label(wFileName, SWT.RIGHT);
         wlAddTime.setText(BaseMessages.getString(PKG, "JsonOutputDialog.AddTime.Label"));
@@ -1010,7 +983,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         wJSONPrittified.setSelection(input.isJsonPrittified());
         wSplitOutputAfter.setText(Integer.toString(input.getSplitOutputAfter()));
         wOperation.setText(JsonOutputMeta.getOperationTypeDesc(input.getOperationType()));
-        wGeneration.setText(JsonOutputMeta.getGenerationTypeDesc(input.getGenerationType()));
         wFilename.setText(Const.NVL(input.getFileName(), ""));
         wCreateParentFolder.setSelection(input.isCreateParentFolder());
         wExtension.setText(Const.NVL(input.getExtension(), "js"));
@@ -1081,13 +1053,11 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         jsometa.setUseArrayWithSingleInstance(wUseArrayWithSingleInstance.getSelection());
         jsometa.setOperationType(JsonOutputMeta.getOperationTypeByDesc(wOperation.getText()));
         jsometa.setJsonPrittified(wJSONPrittified.getSelection());
-        jsometa.setSplitOutputAfter(Integer.parseInt(wSplitOutputAfter.getText()));
-        jsometa.setGenerationType(JsonOutputMeta.getGenerationTypeByDesc(wGeneration.getText()));
+        jsometa.setSplitOutputAfter(Integer.parseInt(wSplitOutputAfter.getText().length() == 0 ? "0" : wSplitOutputAfter.getText()));
         jsometa.setCreateParentFolder(wCreateParentFolder.getSelection());
         jsometa.setFileName(wFilename.getText());
         jsometa.setExtension(wExtension.getText());
         jsometa.setFileAppended(wAppend.getSelection());
-
         jsometa.setDateInFilename(wAddDate.getSelection());
         jsometa.setTimeInFilename(wAddTime.getSelection());
 
@@ -1180,12 +1150,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         }
     }
 
-    private void updateGeneration() {
-        int generationType = JsonOutputMeta.getGenerationTypeByDesc(wGeneration.getText());
-        //boolean activeFile = opType != JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE;
-
-    }
-
     private void updateOperation() {
 
         int opType = JsonOutputMeta.getOperationTypeByDesc(wOperation.getText());
@@ -1200,6 +1164,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         wEncoding.setEnabled(activeFile);
         wlAppend.setEnabled(activeFile);
         wAppend.setEnabled(activeFile);
+        wlSplitOutputAfter.setEnabled(activeFile);
+        wSplitOutputAfter.setEnabled(activeFile);
         wlCreateParentFolder.setEnabled(activeFile);
         wCreateParentFolder.setEnabled(activeFile);
         wlDoNotOpenNewFileInit.setEnabled(activeFile);

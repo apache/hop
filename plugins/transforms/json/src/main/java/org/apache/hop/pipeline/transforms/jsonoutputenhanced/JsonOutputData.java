@@ -17,11 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JsonOutputData extends BaseTransformData implements ITransformData {
 
@@ -34,11 +37,11 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
     public int[] fieldIndexes;
     public int[] keysGroupIndexes;
     public int nrRow;
+    public List<ObjectNode> jsonItems;
+    public List<ObjectNode> jsonKeyGroupItems;
 
     private boolean outputValue;
     private boolean writeToFile;
-    private boolean genFlat;
-    private boolean genLoopOverKey;
 
     public String realBlocName;
     public int splitnr;
@@ -53,25 +56,9 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
         this.nrRow = 0;
         this.outputValue = false;
         this.writeToFile = false;
-        this.genFlat = false;
-        this.genLoopOverKey = false;
         this.writer = null;
-    }
-
-    public boolean isGenFlat() {
-        return genFlat;
-    }
-
-    public void setGenFlat(boolean genFlat) {
-        this.genFlat = genFlat;
-    }
-
-    public boolean isGenLoopOverKey() {
-        return genLoopOverKey;
-    }
-
-    public void setGenLoopOverKey(boolean genLoopOverKey) {
-        this.genLoopOverKey = genLoopOverKey;
+        this.jsonKeyGroupItems = new ArrayList<>();
+        this.jsonItems = new ArrayList<>();
     }
 
     public boolean isOutputValue() {

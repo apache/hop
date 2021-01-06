@@ -77,31 +77,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     public static final String[] operationTypeCode = {"outputvalue", "writetofile", "both"};
 
     public static final int OPERATION_TYPE_OUTPUT_VALUE = 0;
-
     public static final int OPERATION_TYPE_WRITE_TO_FILE = 1;
-
     public static final int OPERATION_TYPE_BOTH = 2;
-
-    public static final int GENERATON_TYPE_FLAT = 0;
-    public static final int GENERATON_TYPE_LOOP_OVER_KEY = 1;
-
-    /**
-     * The generation type description
-     */
-    public static final String[] generationTypeDesc = {
-            BaseMessages.getString(PKG, "JsonOutputMeta.generationType.Flat"),
-            BaseMessages.getString(PKG, "JsonOutputMeta.generationType.LoopOverKey")};
-
-    /**
-     * Generations type
-     */
-    @Injection(name = "GENERATION", group = "GENERAL")
-    private int generationType;
-
-    /**
-     * The generations type codes
-     */
-    public static final String[] generationTypeCode = {"flat", "loopOverKey"};
 
     /**
      * The encoding to use for reading: null or empty string means system default encoding
@@ -127,12 +104,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     @Injection(name = "PRITTIFY", group = "GENERAL")
     private boolean jsonPrittified;
 
-    /**
-     * Choose if you want the output prittyfied
-     */
-    @Injection(name = "SPLIT_OUTPUT_AFTER", group = "GENERAL")
-    private int splitOutputAfter;
-
 
   /* THE FIELD SPECIFICATIONS ... */
 
@@ -150,17 +121,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
     @Injection(name = "ADD_TO_RESULT", group = "GENERAL")
     private boolean addToResult;
-    /**
-     * The base name of the output file
-     */
-    @Injection(name = "FILE_NAME", group = "GENERAL")
-    private String fileName;
-
-    /**
-     * The file extention in case of a generated filename
-     */
-    @Injection(name = "EXTENSION", group = "GENERAL")
-    private String extension;
 
     /**
      * Flag to indicate the we want to append to the end of an existing file (if it exists)
@@ -173,26 +133,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
      */
     @Injection(name = "FORCE_JSON_ARRAYS", group = "GENERAL")
     private boolean useArrayWithSingleInstance;
-
-    /**
-     * Flag: add the stepnr in the filename
-     */
-    private boolean stepNrInFilename;
-
-    /**
-     * Flag: add the partition number in the filename
-     */
-    private boolean partNrInFilename;
-
-    /**
-     * Flag: add the date in the filename
-     */
-    private boolean dateInFilename;
-
-    /**
-     * Flag: add the time in the filename
-     */
-    private boolean timeInFilename;
 
     /**
      * Flag: create parent folder if needed
@@ -233,7 +173,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     }
 
     public JsonOutputMeta() {
-        super(); // allocate BaseStepMeta
+        super();
     }
 
     public boolean isDoNotOpenNewFileInit() {
@@ -384,66 +324,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         this.operationType = operationType;
     }
 
-    public static String getGenerationTypeDesc(int i) {
-        if (i < 0 || i >= generationTypeDesc.length) {
-            return generationTypeDesc[0];
-        }
-        return generationTypeDesc[i];
-    }
-
-    private static int getGenerationTypeByCode(String tt) {
-        if (tt == null) {
-            return 0;
-        }
-
-        for (int i = 0; i < generationTypeCode.length; i++) {
-            if (generationTypeCode[i].equalsIgnoreCase(tt)) {
-                return i;
-            }
-        }
-        return 0;
-    }
-
-    public int getGenerationType() {
-        return generationType;
-    }
-
-    public static int getGenerationTypeByDesc(String tt) {
-        if (tt == null) {
-            return 0;
-        }
-
-        for (int i = 0; i < generationTypeDesc.length; i++) {
-            if (generationTypeDesc[i].equalsIgnoreCase(tt)) {
-                return i;
-            }
-        }
-        // If this fails, try to match using the code.
-        return getGenerationTypeByCode(tt);
-    }
-
-    public void setGenerationType(int generationType) {
-        this.generationType = generationType;
-    }
-
-    /**
-     *
-     *
-     * @return
-     */
-
-    public int getSplitOutputAfter() {
-        return splitOutputAfter;
-    }
-
-    /**
-     *
-     * @param splitOutputAfter
-     */
-    public void setSplitOutputAfter(int splitOutputAfter) {
-        this.splitOutputAfter = splitOutputAfter;
-    }
-
     /**
      * @return Returns the outputFields.
      */
@@ -467,7 +347,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         this.keyFields = keyFields;
     }
 
-    public void loadXML(Node transformnode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+    public void loadXml(Node transformnode, IHopMetadataProvider metadataProvider) throws HopXmlException {
         readData(transformnode);
     }
 
@@ -518,18 +398,17 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             outputValue = XmlHandler.getTagValue(transformnode, "outputValue");
             jsonBloc = XmlHandler.getTagValue(transformnode, "jsonBloc");
             operationType = getOperationTypeByCode(Const.NVL(XmlHandler.getTagValue(transformnode, "operation_type"), ""));
-            generationType = getGenerationTypeByCode(Const.NVL(XmlHandler.getTagValue(transformnode, "generation_type"), ""));
             useArrayWithSingleInstance = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "use_arrays_with_single_instance"));
             jsonPrittified = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "json_prittified"));
-            splitOutputAfter = Integer.parseInt(XmlHandler.getTagValue(transformnode, "split_output_after"));
 
             encoding = XmlHandler.getTagValue(transformnode, "encoding");
             addToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "addToResult"));
             fileName = XmlHandler.getTagValue(transformnode, "file", "name");
+            splitOutputAfter = Integer.parseInt(XmlHandler.getTagValue(transformnode, "file", "split_output_after"));
             createparentfolder = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "create_parent_folder"));
             extension = XmlHandler.getTagValue(transformnode, "file", "extention");
             fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "append"));
-            stepNrInFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "split"));
+            transformNrInFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "split"));
             partNrInFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "haspartno"));
             dateInFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_date"));
             timeInFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_time"));
@@ -567,7 +446,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             jsonSizeFieldname = XmlHandler.getTagValue(transformnode, "additional_fields", "json_size_field");
 
         } catch (Exception e) {
-            throw new HopXmlException("Unable to load step info from XML", e);
+            throw new HopXmlException("Unable to load Transform info from XML", e);
         }
     }
 
@@ -578,7 +457,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         jsonBloc = "result";
         splitOutputAfter = 0;
         operationType = OPERATION_TYPE_WRITE_TO_FILE;
-        generationType = GENERATON_TYPE_FLAT;
         extension = "js";
 
         int nrfields = 0;
@@ -589,6 +467,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             outputFields[i] = new JsonOutputField();
             outputFields[i].setFieldName("field" + i);
             outputFields[i].setElementName("field" + i);
+            outputFields[i].setJSONFragment(false);
+            outputFields[i].setRemoveIfBlank(false);
         }
 
         int nrKeyFields = 0;
@@ -633,23 +513,22 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         }
     }
 
-    public String getXML() {
+    public String getXml() {
         StringBuffer retval = new StringBuffer(500);
 
         retval.append("    ").append(XmlHandler.addTagValue("outputValue", outputValue));
         retval.append("    ").append(XmlHandler.addTagValue("jsonBloc", jsonBloc));
         retval.append("    ").append(XmlHandler.addTagValue("operation_type", getOperationTypeCode(operationType)));
-        retval.append("    ").append(XmlHandler.addTagValue("generation_type", getGenerationTypeCode(generationType)));
         retval.append("    ").append(XmlHandler.addTagValue("use_arrays_with_single_instance", useArrayWithSingleInstance));
         retval.append("    ").append(XmlHandler.addTagValue("json_prittified", jsonPrittified));
-        retval.append("    ").append(XmlHandler.addTagValue("split_output_after", Integer.toString(splitOutputAfter)));
         retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
         retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));
         retval.append("    <file>" + Const.CR);
         retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
+        retval.append("      ").append(XmlHandler.addTagValue("split_output_after", Integer.toString(splitOutputAfter)));
         retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
         retval.append("      ").append(XmlHandler.addTagValue("append", fileAppended));
-        retval.append("      ").append(XmlHandler.addTagValue("split", stepNrInFilename));
+        retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
         retval.append("      ").append(XmlHandler.addTagValue("haspartno", partNrInFilename));
         retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
         retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
@@ -696,78 +575,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             return operationTypeCode[0];
         }
         return operationTypeCode[i];
-    }
-
-    private static String getGenerationTypeCode(int i) {
-        if (i < 0 || i >= generationTypeCode.length) {
-            return generationTypeCode[0];
-        }
-        return generationTypeCode[i];
-    }
-
-    public String[] getFiles(String fileName) {
-        int copies = 1;
-        int splits = 1;
-        int parts = 1;
-
-        if (stepNrInFilename) {
-            copies = 3;
-        }
-
-        if (partNrInFilename) {
-            parts = 3;
-        }
-
-        int nr = copies * parts * splits;
-        if (nr > 1) {
-            nr++;
-        }
-
-        String[] retval = new String[nr];
-
-        int i = 0;
-        for (int copy = 0; copy < copies; copy++) {
-            for (int part = 0; part < parts; part++) {
-                for (int split = 0; split < splits; split++) {
-                    retval[i] = buildFilename(fileName, copy, split);
-                    i++;
-                }
-            }
-        }
-        if (i < nr) {
-            retval[i] = "...";
-        }
-
-        return retval;
-    }
-
-    public String buildFilename(String fileName, int stepnr, int splitnr) {
-        SimpleDateFormat daf = new SimpleDateFormat();
-
-        // Replace possible environment variables...
-        String retval = fileName;
-
-        Date now = new Date();
-
-        if (dateInFilename) {
-            daf.applyPattern("yyyMMdd");
-            String d = daf.format(now);
-            retval += "_" + d;
-        }
-        if (timeInFilename) {
-            daf.applyPattern("HHmmss.SSS");
-            String t = daf.format(now);
-            retval += "_" + t;
-        }
-        if (stepNrInFilename) {
-            retval += "_" + stepnr;
-        }
-
-        if (extension != null && extension.length() != 0) {
-            retval += "." + extension;
-        }
-
-        return retval;
     }
 
     public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
@@ -820,7 +627,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             }
         }
 
-        // See if we have input streams leading to this step!
+        // See if we have input streams leading to this transform!
         if (input.length > 0) {
             cr =
                     new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG,
@@ -837,10 +644,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
                 new CheckResult(CheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString(PKG,
                         "JsonOutputMeta.CheckResult.FilesNotChecked"), transformMeta);
         remarks.add(cr);
-    }
-
-    public JsonOutputData getStepData() {
-        return new JsonOutputData();
     }
 
     public String getEncoding() {

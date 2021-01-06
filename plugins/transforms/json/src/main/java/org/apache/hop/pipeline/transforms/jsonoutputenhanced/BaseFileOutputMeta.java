@@ -34,7 +34,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
    * Flag: add the stepnr in the filename
    */
   @Injection( name = "INC_TRANSFORMNR_IN_FILENAME" )
-  protected boolean stepNrInFilename;
+  protected boolean transformNrInFilename;
 
   /**
    * Flag: add the partition number in the filename
@@ -85,10 +85,28 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   private String dateTimeFormat;
 
   /**
+   * Choose if you want the output prittyfied
+   */
+  @Injection(name = "SPLIT_OUTPUT_AFTER", group = "GENERAL")
+  protected int splitOutputAfter;
+
+  /**
    * The file compression: None, Zip or Gzip
    */
   @Injection( name = "COMPRESSION" )
   private String fileCompression;
+
+  public int getSplitOutputAfter() {
+    return splitOutputAfter;
+  }
+
+  public int getSplitOutputAfter( IVariables variables ) {
+    return getSplitOutputAfter();
+  }
+
+  public void setSplitOutputAfter(int splitOutputAfter) {
+    this.splitOutputAfter = splitOutputAfter;
+  }
 
   public String getExtension() {
     return extension;
@@ -143,7 +161,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
   public boolean isTransformNrInFilename() {
-    return stepNrInFilename;
+    return transformNrInFilename;
   }
 
   public String getFileCompression() {
@@ -287,6 +305,10 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
         }
       }
     }
+    if ( meta.getSplitOutputAfter() > 0 ) {
+      retval += "_" + splitnr;
+    }
+
     if ( meta.isTransformNrInFilename() ) {
       retval += "_" + stepnr;
     }
