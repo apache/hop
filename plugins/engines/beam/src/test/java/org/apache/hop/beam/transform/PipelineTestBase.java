@@ -127,7 +127,7 @@ public class PipelineTestBase {
   public void createRunPipeline( IVariables variables, PipelineMeta pipelineMeta ) throws Exception {
 
     /*
-    FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".ktr" );
+    FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".hpl" );
     fos.write( pipelineMeta.getXml().getBytes() );
     fos.close();
     */

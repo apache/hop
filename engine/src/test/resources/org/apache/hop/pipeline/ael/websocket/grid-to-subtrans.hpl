@@ -512,7 +512,7 @@
     <specification_method>filename</specification_method>
     <trans_object_id />
     <trans_name />
-    <filename>${Internal.Entry.Current.Directory}/get-and-log.ktr</filename>
+    <filename>${Internal.Entry.Current.Directory}/get-and-log.hpl</filename>
     <directory_path />
     <group_size>1</group_size>
     <group_field />

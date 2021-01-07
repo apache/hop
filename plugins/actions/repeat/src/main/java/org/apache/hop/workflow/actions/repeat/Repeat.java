@@ -577,12 +577,12 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     String referenceDescription;
     if (StringUtils.isEmpty(filename)) {
       referenceDescription="";
-    } else if (filename.toLowerCase().endsWith(".ktr")) {
-      referenceDescription = "The repeating transformation";
-    } else if (filename.toLowerCase().endsWith(".kjb")) {
+    } else if (filename.toLowerCase().endsWith(".hpl")) {
+      referenceDescription = "The repeating pipeline";
+    } else if (filename.toLowerCase().endsWith(".hwf")) {
       referenceDescription = "The repeating workflow";
     } else {
-      referenceDescription = "The repeating workflow or transformation";
+      referenceDescription = "The repeating workflow or pipeline";
     }
 
     return new String[] {referenceDescription};
@@ -609,7 +609,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   public boolean isPipeline(String realFilename) throws HopException {
-    if (realFilename.toLowerCase().endsWith(".ktr")) {
+    if (realFilename.toLowerCase().endsWith(".hpl")) {
       return true;
     }
     // See in the file
@@ -623,7 +623,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   public boolean isWorkflow(String realFilename) {
-    if (realFilename.toLowerCase().endsWith(".kjb")) {
+    if (realFilename.toLowerCase().endsWith(".hwf")) {
       return true;
     }
 
