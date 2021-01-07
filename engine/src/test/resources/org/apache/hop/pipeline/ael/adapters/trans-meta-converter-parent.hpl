@@ -495,7 +495,7 @@
     <specification_method>filename</specification_method>
     <trans_object_id />
     <trans_name />
-    <filename>${Internal.Entry.Current.Directory}/pipeline-meta-converter-sub.ktr</filename>
+    <filename>${Internal.Entry.Current.Directory}/pipeline-meta-converter-sub.hpl</filename>
     <directory_path />
     <group_size>2</group_size>
     <group_field />

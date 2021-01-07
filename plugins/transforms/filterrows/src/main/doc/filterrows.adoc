@@ -78,10 +78,10 @@ All fields of this transform support metadata injection. You can use this transf
 
 == Special considerations for the condition field
 
-The Filter Rows transform is a special MDI scenario, since it has a nested structure of filter conditions. The condition is given in XML format. The condition XML has the same format as we store the pipeline metadata in a .KTR file in XML format. We do not have a DTD (Document Type Definition) for the .KTR XML format, nor the condition.
+The Filter Rows transform is a special MDI scenario, since it has a nested structure of filter conditions. The condition is given in XML format. The condition XML has the same format as we store the pipeline metadata in a .HPL file in XML format. We do not have a DTD (Document Type Definition) for the .HPL XML format, nor the condition.
 
 It is easy to get to an XML condition:
 
 1. Create a sample Filter transform with the different conditions you need. This sample transform gives you all the information, such as the values for the functions you use.
-2. Select the transform, copy it to the clipboard, and then paste it into a text editor. Alternatively, you can store the .KTR, and then open the .KTR in a text editor.
+2. Select the transform, copy it to the clipboard, and then paste it into a text editor. Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 3. Find the <condition> element and its nested elements and modify it accordingly to use it in your MDI scenario.

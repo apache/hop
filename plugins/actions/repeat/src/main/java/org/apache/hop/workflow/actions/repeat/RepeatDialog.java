@@ -142,7 +142,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     Control lastControl = wName;
 
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText("File to repeat (.ktr or .kjb) ");
+    wlFilename.setText("File to repeat (.hpl or .hwf) ");
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
