@@ -18,7 +18,6 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -79,7 +78,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private static final String TAB_FLAG = "!";
 
   private static final String[] YES_NO_COMBO = new String[] {
-    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
+    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
   private CTabFolder wTabFolder;
 
@@ -850,8 +849,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         new ColumnInfo(
           BaseMessages.getString( PKG, "ExcelInputDialog.Repeat.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           new String[] {
-            BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-            BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ),
+            BaseMessages.getString( PKG, "System.Combo.Yes" ),
+            BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "ExcelInputDialog.Format.Column" ), ColumnInfo.COLUMN_TYPE_FORMAT, 2 ),
         new ColumnInfo(
@@ -1155,8 +1154,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       String prec = "" + meta.getField()[ i ].getPrecision();
       String trim = meta.getField()[ i ].getTrimTypeDesc();
       String rep =
-        meta.getField()[ i ].isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
-          .getString( PKG, SYSTEM_COMBO_NO );
+        meta.getField()[ i ].isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+          .getString( PKG, "System.Combo.No" );
       String format = meta.getField()[ i ].getFormat();
       String currency = meta.getField()[ i ].getCurrencySymbol();
       String decimal = meta.getField()[ i ].getDecimalSymbol();
@@ -1348,7 +1347,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       String slength = item.getText( 3 );
       String sprec = item.getText( 4 );
       meta.getField()[ i ].setTrimType( ExcelInputMeta.getTrimTypeByDesc( item.getText( 5 ) ) );
-      meta.getField()[ i ].setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase(
+      meta.getField()[ i ].setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
         item.getText( 6 ) ) );
 
       meta.getField()[ i ].setLength( Const.toInt( slength, -1 ) );

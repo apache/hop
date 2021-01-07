@@ -42,9 +42,8 @@ import java.util.List;
 
 @Transform(
   id = "SalesforceInsert",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceinsert",
-  name = "SalesforceInsert.TypeLongDesc.SalesforceInsert",
-  description = "SalesforceInsert.TypeTooltipDesc.SalesforceInsert",
+  name = "i18n::SalesforceInsert.TypeLongDesc.SalesforceInsert",
+  description = "i18n::SalesforceInsert.TypeTooltipDesc.SalesforceInsert",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
   image = "FFO.svg",
   documentationUrl = "Products/Salesforce_Insert" )

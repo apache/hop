@@ -109,8 +109,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -286,7 +284,6 @@ public class HopGui
 
       // Note: this needs to be done before the look and feel is set
       OsHelper.initOsHandlers(display);
-      UIManager.setLookAndFeel(new MetalLookAndFeel());
 
       // Initialize the logging backend
       //

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
@@ -291,7 +292,13 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       if ( parts.length != 3 ) {
         return string;
       } else {
-        return BaseMessages.getString( parts[ 1 ], parts[ 2 ] );
+        String i18nPackage = parts[1];
+        if ( StringUtils.isEmpty( i18nPackage )) {
+          i18nPackage = Const.NVL(packageName, altPackageName);
+        }
+        String i18nKey = parts[2];
+
+        return BaseMessages.getString( i18nPackage, i18nKey );
       }
     } else {
       // Try the default package name

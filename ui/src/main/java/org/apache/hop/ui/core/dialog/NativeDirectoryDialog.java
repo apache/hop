@@ -23,27 +23,32 @@ public class NativeDirectoryDialog implements IDirectoryDialog {
 
   private DirectoryDialog dialog;
 
-  public NativeDirectoryDialog( DirectoryDialog dialog ) {
+  public NativeDirectoryDialog(DirectoryDialog dialog) {
     this.dialog = dialog;
   }
 
-  @Override public void setText( String text ) {
-    dialog.setText( text );
+  @Override
+  public void setText(String text) {
+    dialog.setText(text);
   }
 
-  @Override public String open() {
+  @Override
+  public String open() {
     return dialog.open();
   }
 
-  @Override public void setMessage( String message ) {
-    dialog.setMessage( message );
+  @Override
+  public void setMessage(String message) {
+    dialog.setMessage(message);
   }
 
-  @Override public void setFilterPath( String filterPath ) {
-    dialog.setFilterPath( filterPath );
+  @Override
+  public void setFilterPath(String filterPath) {
+    dialog.setFilterPath(filterPath);
   }
 
-  @Override public String getFilterPath() {
+  @Override
+  public String getFilterPath() {
     return dialog.getFilterPath();
   }
 }

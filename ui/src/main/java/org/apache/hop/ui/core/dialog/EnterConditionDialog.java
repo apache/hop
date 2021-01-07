@@ -34,8 +34,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -58,8 +56,8 @@ public class EnterConditionDialog extends Dialog {
   private Condition condition;
   private IRowMeta fields;
 
-  public EnterConditionDialog( Shell parent, int style, IRowMeta fields, Condition condition ) {
-    super( parent, style );
+  public EnterConditionDialog(Shell parent, int style, IRowMeta fields, Condition condition) {
+    super(parent, style);
     this.props = PropsUi.getInstance();
     this.fields = fields;
     this.condition = condition;
@@ -67,58 +65,60 @@ public class EnterConditionDialog extends Dialog {
 
   public Condition open() {
     Shell parent = getParent();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setText( BaseMessages.getString( PKG, "EnterConditionDialog.Title" ) );
-    shell.setImage( GuiResource.getInstance().getImageHopUi() );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    props.setLook(shell);
+    shell.setText(BaseMessages.getString(PKG, "EnterConditionDialog.Title"));
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
+    shell.setLayout(formLayout);
 
     // Condition widget
-    wCond = new ConditionEditor( shell, SWT.NONE, condition, fields );
-    props.setLook( wCond, Props.WIDGET_STYLE_FIXED );
+    wCond = new ConditionEditor(shell, SWT.NONE, condition, fields);
+    props.setLook(wCond, Props.WIDGET_STYLE_FIXED);
 
-    if ( !getData() ) {
+    if (!getData()) {
       return null;
     }
 
     // Buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     FormData fdCond = new FormData();
 
     int margin = props.getMargin() * 2;
 
-    fdCond.left = new FormAttachment( 0, 0 ); // To the right of the label
-    fdCond.top = new FormAttachment( 0, 0 );
-    fdCond.right = new FormAttachment( 100, 0 );
-    fdCond.bottom = new FormAttachment( 100, -50 );
-    wCond.setLayoutData( fdCond );
+    fdCond.left = new FormAttachment(0, 0); // To the right of the label
+    fdCond.top = new FormAttachment(0, 0);
+    fdCond.right = new FormAttachment(100, 0);
+    fdCond.bottom = new FormAttachment(100, -50);
+    wCond.setLayoutData(fdCond);
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, e -> {
-      condition = null;
-      dispose();
-    } );
+    wCancel.addListener(
+        SWT.Selection,
+        e -> {
+          condition = null;
+          dispose();
+        });
 
-    wOk.addListener( SWT.Selection, e -> handleOK() );
+    wOk.addListener(SWT.Selection, e -> handleOK());
 
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
     Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -130,12 +130,12 @@ public class EnterConditionDialog extends Dialog {
   }
 
   public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
   public void handleOK() {
-    if ( wCond.getLevel() > 0 ) {
+    if (wCond.getLevel() > 0) {
       wCond.goUp();
     } else {
       dispose();

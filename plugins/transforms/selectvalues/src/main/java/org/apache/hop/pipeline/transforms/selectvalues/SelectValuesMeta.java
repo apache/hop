@@ -53,9 +53,8 @@ import java.util.List;
 @Transform(
         id = "SelectValues",
         image = "selectvalues.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.selectvalues",
-        name = "BaseTransform.TypeLongDesc.SelectValues",
-        description = "BaseTransform.TypeTooltipDesc.SelectValues",
+        name = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeLongDesc.SelectValues",
+        description = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeTooltipDesc.SelectValues",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/selectvalues.html"
 )

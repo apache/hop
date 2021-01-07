@@ -62,9 +62,8 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "GET_POP",
-  i18nPackageName = "org.apache.hop.workflow.actions.getpop",
-  name = "ActionGetPOP.Name",
-  description = "ActionGetPOP.Description",
+  name = "i18n::ActionGetPOP.Name",
+  description = "i18n::ActionGetPOP.Description",
   image = "GetPOP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/getpop.html"

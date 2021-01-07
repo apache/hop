@@ -78,9 +78,8 @@ import java.util.zip.ZipOutputStream;
 
 @Action(
   id = "ZIP_FILE",
-  i18nPackageName = "org.apache.hop.workflow.actions.zipfile",
-  name = "ActionZipFile.Name",
-  description = "ActionZipFile.Description",
+  name = "i18n::ActionZipFile.Name",
+  description = "i18n::ActionZipFile.Description",
   image = "Zip.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/zipfile.html"

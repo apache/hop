@@ -39,9 +39,8 @@ import java.util.List;
 
 @Transform(
     id = "SalesforceUpdate",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceupdate",
-    name = "SalesforceUpdate.TypeLongDesc.SalesforceUpdate",
-    description = "SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
+    name = "i18n::SalesforceUpdate.TypeLongDesc.SalesforceUpdate",
+    description = "i18n::SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFUD.svg",
     documentationUrl = "Products/Salesforce_Update" )

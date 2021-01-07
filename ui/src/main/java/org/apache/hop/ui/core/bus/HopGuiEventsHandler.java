@@ -113,6 +113,7 @@ public class HopGuiEventsHandler {
 
   /**
    * Remove all the event listeners for the given GUI ID
+   *
    * @param guiId The unique ID of the GUI component
    */
   public void removeEventListeners(String guiId) {

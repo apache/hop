@@ -40,25 +40,21 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-        id = "WebServiceAvailable",
-        image = "webserviceavailable.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.webserviceavailable",
-        name = "BaseTransform.TypeLongDesc.WebServiceAvailable",
-        description = "BaseTransform.TypeTooltipDesc.WebServiceAvailable",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/webserviceavailable.html"
-)
-public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
+    id = "WebServiceAvailable",
+    image = "webserviceavailable.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.WebServiceAvailable",
+    description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceAvailable",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/transforms/webserviceavailable.html")
+public class WebServiceAvailableMeta extends BaseTransformMeta
+    implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // Needed by Translator
 
-  /**
-   * dynamic filename
-   */
+  /** dynamic filename */
   private String urlField;
 
-  /**
-   * function result: new value name
-   */
+  /** function result: new value name */
   private String resultfieldname;
 
   private String connectTimeOut;
@@ -69,21 +65,17 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the urlField.
-   */
+  /** @return Returns the urlField. */
   public String getURLField() {
     return urlField;
   }
 
-  /**
-   * @param urlField The urlField to set.
-   */
-  public void setURLField( String urlField ) {
+  /** @param urlField The urlField to set. */
+  public void setURLField(String urlField) {
     this.urlField = urlField;
   }
 
-  public void setConnectTimeOut( String timeout ) {
+  public void setConnectTimeOut(String timeout) {
     this.connectTimeOut = timeout;
   }
 
@@ -91,7 +83,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     return connectTimeOut;
   }
 
-  public void setReadTimeOut( String timeout ) {
+  public void setReadTimeOut(String timeout) {
     this.readTimeOut = timeout;
   }
 
@@ -99,22 +91,19 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     return readTimeOut;
   }
 
-  /**
-   * @return Returns the resultName.
-   */
+  /** @return Returns the resultName. */
   public String getResultFieldName() {
     return resultfieldname;
   }
 
-  /**
-   * @param resultfieldname The resultfieldname to set.
-   */
-  public void setResultFieldName( String resultfieldname ) {
+  /** @param resultfieldname The resultfieldname to set. */
+  public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode, metadataProvider );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode, metadataProvider);
   }
 
   public Object clone() {
@@ -129,81 +118,107 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     readTimeOut = "0";
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
-    if ( !Utils.isEmpty( resultfieldname ) ) {
-      IValueMeta v = new ValueMetaBoolean( resultfieldname );
-      v.setOrigin( name );
-      inputRowMeta.addValueMeta( v );
+    if (!Utils.isEmpty(resultfieldname)) {
+      IValueMeta v = new ValueMetaBoolean(resultfieldname);
+      v.setOrigin(name);
+      inputRowMeta.addValueMeta(v);
     }
-
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XmlHandler.addTagValue( "urlField", urlField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "readTimeOut", readTimeOut ) );
-    retval.append( "    " + XmlHandler.addTagValue( "connectTimeOut", connectTimeOut ) );
-    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append("    " + XmlHandler.addTagValue("urlField", urlField));
+    retval.append("    " + XmlHandler.addTagValue("readTimeOut", readTimeOut));
+    retval.append("    " + XmlHandler.addTagValue("connectTimeOut", connectTimeOut));
+    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      urlField = XmlHandler.getTagValue( transformNode, "urlField" );
-      connectTimeOut = XmlHandler.getTagValue( transformNode, "connectTimeOut" );
-      readTimeOut = XmlHandler.getTagValue( transformNode, "readTimeOut" );
-      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "WebServiceAvailableMeta.Exception.UnableToReadTransformMeta" ), e );
+      urlField = XmlHandler.getTagValue(transformNode, "urlField");
+      connectTimeOut = XmlHandler.getTagValue(transformNode, "connectTimeOut");
+      readTimeOut = XmlHandler.getTagValue(transformNode, "readTimeOut");
+      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(
+              PKG, "WebServiceAvailableMeta.Exception.UnableToReadTransformMeta"),
+          e);
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
-    if ( Utils.isEmpty( resultfieldname ) ) {
-      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-      remarks.add( cr );
+    if (Utils.isEmpty(resultfieldname)) {
+      errorMessage =
+          BaseMessages.getString(PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     } else {
-      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
-      remarks.add( cr );
+      errorMessage =
+          BaseMessages.getString(PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
-    if ( Utils.isEmpty( urlField ) ) {
-      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-      remarks.add( cr );
+    if (Utils.isEmpty(urlField)) {
+      errorMessage =
+          BaseMessages.getString(PKG, "WebServiceAvailableMeta.CheckResult.URLFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     } else {
-      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
-      remarks.add( cr );
+      errorMessage = BaseMessages.getString(PKG, "WebServiceAvailableMeta.CheckResult.URLFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "WebServiceAvailableMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "WebServiceAvailableMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "WebServiceAvailableMeta.CheckResult.NoInpuReceived" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "WebServiceAvailableMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
+      remarks.add(cr);
     }
-
   }
 
-  public WebServiceAvailable createTransform( TransformMeta transformMeta, WebServiceAvailableData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new WebServiceAvailable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public WebServiceAvailable createTransform(
+      TransformMeta transformMeta,
+      WebServiceAvailableData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new WebServiceAvailable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   public WebServiceAvailableData getTransformData() {

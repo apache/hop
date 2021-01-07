@@ -507,7 +507,7 @@ public class PluginRegistry {
     }
   }
 
-  private void registerType( IPluginType pluginType ) throws HopPluginException {
+  public void registerType( IPluginType pluginType ) throws HopPluginException {
     registerPluginType( pluginType.getClass() );
 
     // Search plugins for this type...

@@ -49,9 +49,8 @@ import java.util.List;
 
 @Action(
   id = "TELNET",
-  i18nPackageName = "org.apache.hop.workflow.actions.telnet",
-  name = "ActionTelnet.Name",
-  description = "ActionTelnet.Description",
+  name = "i18n::ActionTelnet.Name",
+  description = "i18n::ActionTelnet.Description",
   image = "Telnet.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/telnet.html"

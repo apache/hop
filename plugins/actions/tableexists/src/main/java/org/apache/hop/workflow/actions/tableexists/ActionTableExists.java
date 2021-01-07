@@ -50,9 +50,8 @@ import java.util.List;
 
 @Action(
   id = "TABLE_EXISTS",
-  i18nPackageName = "org.apache.hop.workflow.actions.tableexists",
-  name = "ActionTableExists.Name",
-  description = "ActionTableExists.Description",
+  name = "i18n::ActionTableExists.Name",
+  description = "i18n::ActionTableExists.Description",
   image = "TableExists.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/tableexists.html"

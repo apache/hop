@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -375,14 +374,14 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Storage.Label" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           new String[] {
-            BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), } ),
+            BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ), } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Format" ),
           ColumnInfo.COLUMN_TYPE_FORMAT, 3 ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.DateLenient" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           new String[] {
-            BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), } ),
+            BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ), } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.DateFormatLocale" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, EnvUtil.getLocaleList() ),
@@ -392,7 +391,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ), } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Encoding" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, getCharsets(), false ),
@@ -588,20 +587,20 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
         item.setText( index++, change.getLength() < 0 ? "" : "" + change.getLength() );
         item.setText( index++, change.getPrecision() < 0 ? "" : "" + change.getPrecision() );
         item.setText( index++, change.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL ? BaseMessages
-          .getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+          .getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
         item.setText( index++, Const.NVL( change.getConversionMask(), "" ) );
         item
           .setText( index++, change.isDateFormatLenient()
-            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
-            PKG, SYSTEM_COMBO_NO ) );
+            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
+            PKG, "System.Combo.No" ) );
         item
           .setText( index++, change.getDateFormatLocale() == null ? "" : change.getDateFormatLocale().toString() );
         item.setText( index++, change.getDateFormatTimeZone() == null ? "" : change
           .getDateFormatTimeZone().toString() );
         item
           .setText( index++, change.isLenientStringToNumber()
-            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
-            PKG, SYSTEM_COMBO_NO ) );
+            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
+            PKG, "System.Combo.No" ) );
         item.setText( index++, Const.NVL( change.getEncoding(), "" ) );
         item.setText( index++, Const.NVL( change.getDecimalSymbol(), "" ) );
         item.setText( index++, Const.NVL( change.getGroupingSymbol(), "" ) );
@@ -697,18 +696,18 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       if ( change.getPrecision() < -2 ) {
         change.setPrecision( -2 );
       }
-      if ( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( index++ ) ) ) {
+      if ( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( index++ ) ) ) {
         change.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
       change.setConversionMask( item.getText( index++ ) );
       // If DateFormatLenient is anything but Yes (including blank) then it is false
       change.setDateFormatLenient( item.getText( index++ ).equalsIgnoreCase(
-        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) ) ? true : false );
+        BaseMessages.getString( PKG, "System.Combo.Yes" ) ) ? true : false );
       change.setDateFormatLocale( item.getText( index++ ) );
       change.setDateFormatTimeZone( item.getText( index++ ) );
       change.setLenientStringToNumber( item.getText( index++ ).equalsIgnoreCase(
-        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) ) ? true : false );
+        BaseMessages.getString( PKG, "System.Combo.Yes" ) ) ? true : false );
       change.setEncoding( item.getText( index++ ) );
       change.setDecimalSymbol( item.getText( index++ ) );
       change.setGroupingSymbol( item.getText( index++ ) );

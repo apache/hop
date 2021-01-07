@@ -66,10 +66,9 @@ import java.util.List;
 @Transform(
   id = "PipelineExecutor",
   image = "ui/images/pipelineexecutor.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transform",
-  name = "BaseTransform.TypeLongDesc.PipelineExecutor",
-  description = "BaseTransform.TypeTooltipDesc.PipelineExecutor",
-  categoryDescription = "BaseTransform.Category.Flow",
+  name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.PipelineExecutor",
+  description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.PipelineExecutor",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
   keywords = ""
 )
 public class PipelineExecutorMeta

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -68,7 +67,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
   private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
-    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
+    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
   private Button wDoNotFailIfNoFile;
 

@@ -60,9 +60,8 @@ import java.util.regex.Pattern;
  */
 @Action(
         id = "XML_WELL_FORMED",
-        i18nPackageName = "org.apache.hop.workflow.actions.xml.xmlwellformed",
-        name = "XML_WELL_FORMED.Name",
-        description = "XML_WELL_FORMED.Description",
+        name = "i18n::XML_WELL_FORMED.Name",
+        description = "i18n::XML_WELL_FORMED.Description",
         image = "XFC.svg",
         categoryDescription = "XML_WELL_FORMED.Category",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/xmlwellformed.html"

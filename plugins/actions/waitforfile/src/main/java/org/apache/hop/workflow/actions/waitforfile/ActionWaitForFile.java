@@ -52,9 +52,8 @@ import java.util.List;
 
 @Action(
   id = "WAIT_FOR_FILE",
-  i18nPackageName = "org.apache.hop.workflow.actions.waitforfile",
-  name = "ActionWaitForFile.Name",
-  description = "ActionWaitForFile.Description",
+  name = "i18n::ActionWaitForFile.Name",
+  description = "i18n::ActionWaitForFile.Description",
   image = "WaitForFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforfile.html"

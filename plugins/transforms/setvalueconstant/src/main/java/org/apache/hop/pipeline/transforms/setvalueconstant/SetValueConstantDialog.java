@@ -55,9 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_NO;
-import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_YES;
-
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
 
@@ -183,8 +180,8 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
             BaseMessages.getString(PKG, "SetValueConstantDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, SYSTEM_COMBO_NO)
+              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, "System.Combo.No")
             });
 
     wFields =
@@ -318,8 +315,8 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
       ti.setText(
           4,
           field.isEmptyString()
-              ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
-              : BaseMessages.getString(PKG, SYSTEM_COMBO_NO));
+              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              : BaseMessages.getString(PKG, "System.Combo.No"));
     }
 
     wFields.setRowNums();
@@ -352,7 +349,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
       field.setFieldName(ti.getText(1));
       field.setEmptyString(
-          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(ti.getText(4)));
+          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
       field.setReplaceValue(field.isEmptyString() ? "" : ti.getText(2));
       field.setReplaceMask(field.isEmptyString() ? "" : ti.getText(3));
       fields.add(field);

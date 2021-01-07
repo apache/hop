@@ -42,74 +42,72 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-        id = "NullIf",
-        image = "NullIf.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
-        name = "NullIf.Name",
-        description = "NullIf.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/nullif.html"
-)
-@InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
-public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf,NullIfData> {
+    id = "NullIf",
+    image = "NullIf.svg",
+    name = "i18n::NullIf.Name",
+    description = "i18n::NullIf.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/nullif.html")
+@InjectionSupported(
+    localizationPrefix = "Injection.NullIf.",
+    groups = {"FIELDS"})
+public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf, NullIfData> {
 
   private static final Class<?> PKG = NullIfMeta.class; // Needed by Translator
 
   @Override
-  public NullIf createTransform( TransformMeta transformMeta, NullIfData data, int copyNr,
-                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new NullIf( transformMeta,this, data, copyNr, pipelineMeta, pipeline);
+  public NullIf createTransform(
+      TransformMeta transformMeta,
+      NullIfData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new NullIf(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public static class Field implements Cloneable {
 
-    @Injection( name = "FIELDNAME", group = "FIELDS" )
+    @Injection(name = "FIELDNAME", group = "FIELDS")
     private String fieldName;
-    @Injection( name = "FIELDVALUE", group = "FIELDS" )
+
+    @Injection(name = "FIELDVALUE", group = "FIELDS")
     private String fieldValue;
 
-    /**
-     * @return Returns the fieldName.
-     */
+    /** @return Returns the fieldName. */
     public String getFieldName() {
       return fieldName;
     }
 
-    /**
-     * @param fieldName The fieldName to set.
-     */
-    public void setFieldName( String fieldName ) {
+    /** @param fieldName The fieldName to set. */
+    public void setFieldName(String fieldName) {
       this.fieldName = fieldName;
     }
 
-    /**
-     * @return Returns the fieldValue.
-     */
+    /** @return Returns the fieldValue. */
     public String getFieldValue() {
       return fieldValue;
     }
 
-    /**
-     * @param fieldValue The fieldValue to set.
-     */
-    public void setFieldValue( String fieldValue ) {
-      Boolean isEmptyAndNullDiffer = ValueMetaBase.convertStringToBoolean(
-        Const.NVL( System.getProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" ), "N" ) );
+    /** @param fieldValue The fieldValue to set. */
+    public void setFieldValue(String fieldValue) {
+      Boolean isEmptyAndNullDiffer =
+          ValueMetaBase.convertStringToBoolean(
+              Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
 
-      this.fieldValue = fieldValue == null && isEmptyAndNullDiffer ? Const.EMPTY_STRING : fieldValue;
+      this.fieldValue =
+          fieldValue == null && isEmptyAndNullDiffer ? Const.EMPTY_STRING : fieldValue;
     }
 
     public Field clone() {
       try {
         return (Field) super.clone();
-      } catch ( CloneNotSupportedException e ) {
-        throw new RuntimeException( e );
+      } catch (CloneNotSupportedException e) {
+        throw new RuntimeException(e);
       }
     }
   }
 
-  @InjectionDeep
-  private Field[] fields;
+  @InjectionDeep private Field[] fields;
 
   public NullIfMeta() {
     super(); // allocate BaseTransformMeta
@@ -119,18 +117,19 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     return fields;
   }
 
-  public void setFields( Field[] fields ) {
+  public void setFields(Field[] fields) {
     this.fields = fields;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
-  public void allocate( int count ) {
-    fields = new Field[ count ];
-    for ( int i = 0; i < count; i++ ) {
-      fields[ i ] = new Field();
+  public void allocate(int count) {
+    fields = new Field[count];
+    for (int i = 0; i < count; i++) {
+      fields[i] = new Field();
     }
   }
 
@@ -139,47 +138,52 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
 
     int count = fields.length;
 
-    retval.allocate( count );
+    retval.allocate(count);
 
-    for ( int i = 0; i < count; i++ ) {
-      retval.getFields()[ i ] = fields[ i ].clone();
+    for (int i = 0; i < count; i++) {
+      retval.getFields()[i] = fields[i].clone();
     }
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      Node fieldNodes = XmlHandler.getSubNode( transformNode, "fields" );
-      int count = XmlHandler.countNodes( fieldNodes, "field" );
+      Node fieldNodes = XmlHandler.getSubNode(transformNode, "fields");
+      int count = XmlHandler.countNodes(fieldNodes, "field");
 
-      allocate( count );
+      allocate(count);
 
-      for ( int i = 0; i < count; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fieldNodes, "field", i );
+      for (int i = 0; i < count; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fieldNodes, "field", i);
 
-        fields[ i ].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
-        fields[ i ].setFieldValue( XmlHandler.getTagValue( fnode, "value" ) );
+        fields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
+        fields[i].setFieldValue(XmlHandler.getTagValue(fnode, "value"));
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "NullIfMeta.Exception.UnableToReadTransformMetaFromXML" ),
-        e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "NullIfMeta.Exception.UnableToReadTransformMetaFromXML"), e);
     }
   }
 
   public void setDefault() {
     int count = 0;
 
-    allocate( count );
+    allocate(count);
 
-    for ( int i = 0; i < count; i++ ) {
-      fields[ i ].setFieldName( "field" + i );
-      fields[ i ].setFieldValue( "" );
+    for (int i = 0; i < count; i++) {
+      fields[i].setFieldName("field" + i);
+      fields[i].setFieldValue("");
     }
   }
 
-  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) {
-    if ( r == null ) {
+  public void getFields(
+      IRowMeta r,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    if (r == null) {
       r = new RowMeta(); // give back values
       // Meta-data doesn't change here, only the value possibly turns to NULL
     }
@@ -190,51 +194,67 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    <fields>" + Const.CR );
+    retval.append("    <fields>" + Const.CR);
 
-    for ( int i = 0; i < fields.length; i++ ) {
-      retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XmlHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
-      retval.append( "        " + XmlHandler.addTagValue( "value", fields[ i ].getFieldValue() ) );
-      retval.append( "        </field>" + Const.CR );
+    for (int i = 0; i < fields.length; i++) {
+      retval.append("      <field>" + Const.CR);
+      retval.append("        " + XmlHandler.addTagValue("name", fields[i].getFieldName()));
+      retval.append("        " + XmlHandler.addTagValue("value", fields[i].getFieldValue()));
+      retval.append("        </field>" + Const.CR);
     }
-    retval.append( "      </fields>" + Const.CR );
+    retval.append("      </fields>" + Const.CR);
 
     return retval.toString();
   }
 
-  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables variables,
-                    IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
-          "NullIfMeta.CheckResult.NoReceivingFieldsError" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "NullIfMeta.CheckResult.NoReceivingFieldsError"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "NullIfMeta.CheckResult.TransformReceivingFieldsOK", prev.size() + "" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "NullIfMeta.CheckResult.TransformReceivingFieldsOK", prev.size() + ""),
+              transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "NullIfMeta.CheckResult.TransformRecevingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "NullIfMeta.CheckResult.TransformRecevingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "NullIfMeta.CheckResult.NoInputReceivedError" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "NullIfMeta.CheckResult.NoInputReceivedError"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
   public NullIfData getTransformData() {
     return new NullIfData();
   }
-
 }

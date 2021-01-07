@@ -49,9 +49,8 @@ import java.util.List;
 
 @Transform(
   id = "SalesforceInput",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceinput",
-  name = "SalesforceInput.TypeLongDesc.SalesforceInput",
-  description = "SalesforceInput.TypeTooltipDesc.SalesforceInput",
+  name = "i18n::SalesforceInput.TypeLongDesc.SalesforceInput",
+  description = "i18n::SalesforceInput.TypeTooltipDesc.SalesforceInput",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
   image = "SFI.svg",
   documentationUrl = "Products/Salesforce_Input" )

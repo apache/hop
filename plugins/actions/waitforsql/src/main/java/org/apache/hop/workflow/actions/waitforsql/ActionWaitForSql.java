@@ -55,9 +55,8 @@ import java.util.List;
 
 @Action(
   id = "WAIT_FOR_SQL",
-  i18nPackageName = "org.apache.hop.workflow.actions.waitforsql",
-  name = "ActionWaitForSQL.Name",
-  description = "ActionWaitForSQL.Description",
+  name = "i18n::ActionWaitForSQL.Name",
+  description = "i18n::ActionWaitForSQL.Description",
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforsql.html"

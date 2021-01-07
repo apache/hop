@@ -46,9 +46,8 @@ import java.util.Date;
 
 @Action(
   id = "WRITE_TO_LOG",
-  i18nPackageName = "org.apache.hop.workflow.actions.writetolog",
-  name = "ActionWriteToLog.Name",
-  description = "ActionWriteToLog.Description",
+  name = "i18n::ActionWriteToLog.Name",
+  description = "i18n::ActionWriteToLog.Description",
   image = "WriteToLog.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/writetolog.html"

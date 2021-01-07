@@ -37,15 +37,19 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
     private volatile Object result = null;
   }
 
-  @SuppressWarnings( "unchecked" )
-  public static <T> T forObject( Class<T> iface, T delegate, Display display, ILogChannel log,
-                                 boolean asyncForVoid ) {
-    return (T) Proxy.newProxyInstance( delegate.getClass().getClassLoader(), (Class<?>[]) ClassUtils.getAllInterfaces(
-      delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<>( display, delegate, log,
-      asyncForVoid ) );
+  @SuppressWarnings("unchecked")
+  public static <T> T forObject(
+      Class<T> iface, T delegate, Display display, ILogChannel log, boolean asyncForVoid) {
+    return (T)
+        Proxy.newProxyInstance(
+            delegate.getClass().getClassLoader(),
+            (Class<?>[])
+                ClassUtils.getAllInterfaces(delegate.getClass()).toArray(new Class<?>[] {}),
+            new DisplayInvocationHandler<>(display, delegate, log, asyncForVoid));
   }
 
-  public DisplayInvocationHandler( Display display, T delegate, ILogChannel log, boolean asyncForVoid ) {
+  public DisplayInvocationHandler(
+      Display display, T delegate, ILogChannel log, boolean asyncForVoid) {
     this.display = display;
     this.delegate = delegate;
     this.log = log;
@@ -53,42 +57,43 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
   }
 
   @Override
-  public Object invoke( Object proxy, final Method method, final Object[] args ) throws Throwable {
-    if ( display.getThread() == Thread.currentThread() ) {
+  public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
+    if (display.getThread() == Thread.currentThread()) {
       try {
-        return method.invoke( delegate, args );
-      } catch ( InvocationTargetException e ) {
+        return method.invoke(delegate, args);
+      } catch (InvocationTargetException e) {
         throw e.getCause();
       }
     }
-    if ( asyncForVoid && method.getReturnType().equals( Void.TYPE ) ) {
-      display.asyncExec( () -> {
-        try {
-          method.invoke( delegate, args );
-        } catch ( Throwable e ) {
-          if ( e instanceof InvocationTargetException ) {
-            e = e.getCause();
-          }
-          log.logError( e.getMessage(), e );
-        }
-      } );
+    if (asyncForVoid && method.getReturnType().equals(Void.TYPE)) {
+      display.asyncExec(
+          () -> {
+            try {
+              method.invoke(delegate, args);
+            } catch (Throwable e) {
+              if (e instanceof InvocationTargetException) {
+                e = e.getCause();
+              }
+              log.logError(e.getMessage(), e);
+            }
+          });
       return null;
     }
     final ResultHolder resultHolder = new ResultHolder();
-    display.syncExec( () -> {
-      try {
-        resultHolder.result = method.invoke( delegate, args );
-      } catch ( InvocationTargetException e ) {
-        resultHolder.throwable = e.getCause();
-      } catch ( Exception e ) {
-        resultHolder.throwable = e;
-      }
-    } );
-    if ( resultHolder.result != null ) {
+    display.syncExec(
+        () -> {
+          try {
+            resultHolder.result = method.invoke(delegate, args);
+          } catch (InvocationTargetException e) {
+            resultHolder.throwable = e.getCause();
+          } catch (Exception e) {
+            resultHolder.throwable = e;
+          }
+        });
+    if (resultHolder.result != null) {
       return resultHolder.result;
     } else {
       throw resultHolder.throwable;
     }
   }
-
 }

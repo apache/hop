@@ -47,19 +47,27 @@ import java.util.List;
  *
  */
 @Transform(
-        id = "XSLT",
-        image = "XSLT.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xslt",
-        name = "XSLT.name",
-        description = "XSLT.description",
-        categoryDescription = "XSLT.category",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xslt.html"
-)
+    id = "XSLT",
+    image = "XSLT.svg",
+    name = "i18n::XSLT.name",
+    description = "i18n::XSLT.description",
+    categoryDescription = "XSLT.category",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 
-  public static final String[] outputProperties = new String[] { "method", "version", "encoding", "standalone",
-    "indent", "omit-xml-declaration", "doctype-public", "doctype-system", "media-type" };
+  public static final String[] outputProperties =
+      new String[] {
+        "method",
+        "version",
+        "encoding",
+        "standalone",
+        "indent",
+        "omit-xml-declaration",
+        "doctype-public",
+        "doctype-system",
+        "media-type"
+      };
 
   private String xslFilename;
   private String fieldName;
@@ -85,84 +93,60 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the parameterName.
-   */
+  /** @return Returns the parameterName. */
   public String[] getParameterName() {
     return parameterName;
   }
 
-  /**
-   * @param argumentDirection
-   *          The parameterName to set.
-   */
-  public void setParameterName( String[] argumentDirection ) {
+  /** @param argumentDirection The parameterName to set. */
+  public void setParameterName(String[] argumentDirection) {
     this.parameterName = argumentDirection;
   }
 
-  /**
-   * @return Returns the parameterField.
-   */
+  /** @return Returns the parameterField. */
   public String[] getParameterField() {
     return parameterField;
   }
 
-  /**
-   * @param argumentDirection
-   *          The parameterField to set.
-   */
-  public void setParameterField( String[] argumentDirection ) {
+  /** @param argumentDirection The parameterField to set. */
+  public void setParameterField(String[] argumentDirection) {
     this.parameterField = argumentDirection;
   }
 
-  /**
-   * @return Returns the XSL filename.
-   */
+  /** @return Returns the XSL filename. */
   public String getXslFilename() {
     return xslFilename;
   }
 
-  /**
-   * @return Returns the OutputPropertyName.
-   */
+  /** @return Returns the OutputPropertyName. */
   public String[] getOutputPropertyName() {
     return outputPropertyName;
   }
 
-  /**
-   * @param argumentDirection
-   *          The OutputPropertyName to set.
-   */
-  public void setOutputPropertyName( String[] argumentDirection ) {
+  /** @param argumentDirection The OutputPropertyName to set. */
+  public void setOutputPropertyName(String[] argumentDirection) {
     this.outputPropertyName = argumentDirection;
   }
 
-  /**
-   * @return Returns the OutputPropertyField.
-   */
+  /** @return Returns the OutputPropertyField. */
   public String[] getOutputPropertyValue() {
     return outputPropertyValue;
   }
 
-  /**
-   * @param argumentDirection
-   *          The outputPropertyValue to set.
-   */
-  public void setOutputPropertyValue( String[] argumentDirection ) {
+  /** @param argumentDirection The outputPropertyValue to set. */
+  public void setOutputPropertyValue(String[] argumentDirection) {
     this.outputPropertyValue = argumentDirection;
   }
 
-  public void setXSLFileField( String xslfilefieldin ) {
+  public void setXSLFileField(String xslfilefieldin) {
     xslFileField = xslfilefieldin;
   }
 
-  public void setXSLFactory( String xslfactoryin ) {
+  public void setXSLFactory(String xslfactoryin) {
     xslFactory = xslfactoryin;
   }
 
-  /**
-   * @return Returns the XSL factory type.
-   */
+  /** @return Returns the XSL factory type. */
   public String getXSLFactory() {
     return xslFactory;
   }
@@ -179,23 +163,20 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return fieldName;
   }
 
-  /**
-   * @param xslFilename
-   *          The Xsl filename to set.
-   */
-  public void setXslFilename( String xslFilename ) {
+  /** @param xslFilename The Xsl filename to set. */
+  public void setXslFilename(String xslFilename) {
     this.xslFilename = xslFilename;
   }
 
-  public void setResultfieldname( String resultfield ) {
+  public void setResultfieldname(String resultfield) {
     this.resultFieldname = resultfield;
   }
 
-  public void setFieldname( String fieldnamein ) {
+  public void setFieldname(String fieldnamein) {
     this.fieldName = fieldnamein;
   }
 
-  public void allocate( int nrParameters, int outputProps ) {
+  public void allocate(int nrParameters, int outputProps) {
     parameterName = new String[nrParameters];
     parameterField = new String[nrParameters];
 
@@ -207,13 +188,13 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     XsltMeta retval = (XsltMeta) super.clone();
     int nrparams = parameterName.length;
     int nroutputprops = outputPropertyName.length;
-    retval.allocate( nrparams, nroutputprops );
+    retval.allocate(nrparams, nroutputprops);
 
-    for ( int i = 0; i < nrparams; i++ ) {
+    for (int i = 0; i < nrparams; i++) {
       retval.parameterName[i] = parameterName[i];
       retval.parameterField[i] = parameterField[i];
     }
-    for ( int i = 0; i < nroutputprops; i++ ) {
+    for (int i = 0; i < nroutputprops; i++) {
       retval.outputPropertyName[i] = outputPropertyName[i];
       retval.outputPropertyValue[i] = outputPropertyValue[i];
     }
@@ -222,7 +203,12 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, XsltData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      XsltData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     return new Xslt(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
@@ -235,11 +221,11 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return xslFileFieldUse;
   }
 
-  public void setXSLField( boolean value ) {
+  public void setXSLField(boolean value) {
     this.xslFileFieldUse = value;
   }
 
-  public void setXSLFieldIsAFile( boolean xslFieldisAFile ) {
+  public void setXSLFieldIsAFile(boolean xslFieldisAFile) {
     this.xslFieldIsAFile = xslFieldisAFile;
   }
 
@@ -247,42 +233,46 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return xslFieldIsAFile;
   }
 
-  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      xslFilename = XmlHandler.getTagValue( transformNode, "xslfilename" );
-      fieldName = XmlHandler.getTagValue( transformNode, "fieldname" );
-      resultFieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
-      xslFileField = XmlHandler.getTagValue( transformNode, "xslfilefield" );
-      xslFileFieldUse = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "xslfilefielduse" ) );
-      String isAFile = XmlHandler.getTagValue( transformNode, "xslfieldisafile" );
-      if ( xslFileFieldUse && Utils.isEmpty( isAFile ) ) {
+      xslFilename = XmlHandler.getTagValue(transformNode, "xslfilename");
+      fieldName = XmlHandler.getTagValue(transformNode, "fieldname");
+      resultFieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
+      xslFileField = XmlHandler.getTagValue(transformNode, "xslfilefield");
+      xslFileFieldUse =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "xslfilefielduse"));
+      String isAFile = XmlHandler.getTagValue(transformNode, "xslfieldisafile");
+      if (xslFileFieldUse && Utils.isEmpty(isAFile)) {
         xslFieldIsAFile = true;
       } else {
-        xslFieldIsAFile = "Y".equalsIgnoreCase( isAFile );
+        xslFieldIsAFile = "Y".equalsIgnoreCase(isAFile);
       }
 
-      xslFactory = XmlHandler.getTagValue( transformNode, "xslfactory" );
+      xslFactory = XmlHandler.getTagValue(transformNode, "xslfactory");
 
-      Node parametersNode = XmlHandler.getSubNode( transformNode, "parameters" );
-      int nrparams = XmlHandler.countNodes( parametersNode, "parameter" );
+      Node parametersNode = XmlHandler.getSubNode(transformNode, "parameters");
+      int nrparams = XmlHandler.countNodes(parametersNode, "parameter");
 
-      Node parametersOutputProps = XmlHandler.getSubNode( transformNode, "outputproperties" );
-      int nroutputprops = XmlHandler.countNodes( parametersOutputProps, "outputproperty" );
-      allocate( nrparams, nroutputprops );
+      Node parametersOutputProps = XmlHandler.getSubNode(transformNode, "outputproperties");
+      int nroutputprops = XmlHandler.countNodes(parametersOutputProps, "outputproperty");
+      allocate(nrparams, nroutputprops);
 
-      for ( int i = 0; i < nrparams; i++ ) {
-        Node anode = XmlHandler.getSubNodeByNr( parametersNode, "parameter", i );
-        parameterField[i] = XmlHandler.getTagValue( anode, "field" );
-        parameterName[i] = XmlHandler.getTagValue( anode, "name" );
+      for (int i = 0; i < nrparams; i++) {
+        Node anode = XmlHandler.getSubNodeByNr(parametersNode, "parameter", i);
+        parameterField[i] = XmlHandler.getTagValue(anode, "field");
+        parameterName[i] = XmlHandler.getTagValue(anode, "name");
       }
-      for ( int i = 0; i < nroutputprops; i++ ) {
-        Node anode = XmlHandler.getSubNodeByNr( parametersOutputProps, "outputproperty", i );
-        outputPropertyName[i] = XmlHandler.getTagValue( anode, "name" );
-        outputPropertyValue[i] = XmlHandler.getTagValue( anode, "value" );
+      for (int i = 0; i < nroutputprops; i++) {
+        Node anode = XmlHandler.getSubNodeByNr(parametersOutputProps, "outputproperty", i);
+        outputPropertyName[i] = XmlHandler.getTagValue(anode, "name");
+        outputPropertyValue[i] = XmlHandler.getTagValue(anode, "value");
       }
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "XsltMeta.Exception.UnableToLoadTransformInfoFromXML" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "XsltMeta.Exception.UnableToLoadTransformInfoFromXML"), e);
     }
   }
 
@@ -297,148 +287,183 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
 
     int nrparams = 0;
     int nroutputproperties = 0;
-    allocate( nrparams, nroutputproperties );
+    allocate(nrparams, nroutputproperties);
 
-    for ( int i = 0; i < nrparams; i++ ) {
+    for (int i = 0; i < nrparams; i++) {
       parameterField[i] = "param" + i;
       parameterName[i] = "param";
     }
-    for ( int i = 0; i < nroutputproperties; i++ ) {
+    for (int i = 0; i < nroutputproperties; i++) {
       outputPropertyName[i] = "outputprop" + i;
       outputPropertyValue[i] = "outputprop";
     }
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-      IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     // Output field (String)
-    IValueMeta v = new ValueMetaString( variables.resolve( getResultfieldname() ));
-    v.setOrigin( name );
-    inputRowMeta.addValueMeta( v );
+    IValueMeta v = new ValueMetaString(variables.resolve(getResultfieldname()));
+    v.setOrigin(name);
+    inputRowMeta.addValueMeta(v);
   }
 
   public String getXml() {
     StringBuffer retval = new StringBuffer();
 
-    retval.append( "    " + XmlHandler.addTagValue( "xslfilename", xslFilename ) );
-    retval.append( "    " + XmlHandler.addTagValue( "fieldname", fieldName ) );
-    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultFieldname ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xslfilefield", xslFileField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xslfilefielduse", xslFileFieldUse ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xslfieldisafile", xslFieldIsAFile ) );
+    retval.append("    " + XmlHandler.addTagValue("xslfilename", xslFilename));
+    retval.append("    " + XmlHandler.addTagValue("fieldname", fieldName));
+    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultFieldname));
+    retval.append("    " + XmlHandler.addTagValue("xslfilefield", xslFileField));
+    retval.append("    " + XmlHandler.addTagValue("xslfilefielduse", xslFileFieldUse));
+    retval.append("    " + XmlHandler.addTagValue("xslfieldisafile", xslFieldIsAFile));
 
-    retval.append( "    " + XmlHandler.addTagValue( "xslfactory", xslFactory ) );
-    retval.append( "    <parameters>" ).append( Const.CR );
+    retval.append("    " + XmlHandler.addTagValue("xslfactory", xslFactory));
+    retval.append("    <parameters>").append(Const.CR);
 
-    for ( int i = 0; i < parameterName.length; i++ ) {
-      retval.append( "      <parameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[i] ) );
-      retval.append( "      </parameter>" ).append( Const.CR );
+    for (int i = 0; i < parameterName.length; i++) {
+      retval.append("      <parameter>").append(Const.CR);
+      retval.append("        ").append(XmlHandler.addTagValue("field", parameterField[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("name", parameterName[i]));
+      retval.append("      </parameter>").append(Const.CR);
     }
 
-    retval.append( "    </parameters>" ).append( Const.CR );
-    retval.append( "    <outputproperties>" ).append( Const.CR );
+    retval.append("    </parameters>").append(Const.CR);
+    retval.append("    <outputproperties>").append(Const.CR);
 
-    for ( int i = 0; i < outputPropertyName.length; i++ ) {
-      retval.append( "      <outputproperty>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", outputPropertyName[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "value", outputPropertyValue[i] ) );
-      retval.append( "      </outputproperty>" ).append( Const.CR );
+    for (int i = 0; i < outputPropertyName.length; i++) {
+      retval.append("      <outputproperty>").append(Const.CR);
+      retval.append("        ").append(XmlHandler.addTagValue("name", outputPropertyName[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
+      retval.append("      </outputproperty>").append(Const.CR);
     }
 
-    retval.append( "    </outputproperties>" ).append( Const.CR );
+    retval.append("    </outputproperties>").append(Const.CR);
     return retval.toString();
   }
 
-
-  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if ( prev != null && prev.size() > 0 ) {
+    if (prev != null && prev.size() > 0) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf( prev.size() ) ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf(prev.size())),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.NoInputReceived" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "XsltMeta.CheckResult.NoInputReceived"),
+              transformMeta);
+      remarks.add(cr);
     }
     // See if we have input streams leading to this step!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ExpectedInputOk" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "XsltMeta.CheckResult.ExpectedInputOk"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ExpectedInputError" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "XsltMeta.CheckResult.ExpectedInputError"),
+              transformMeta);
+      remarks.add(cr);
     }
 
     // Check if The result field is given
-    if ( getResultfieldname() == null ) {
+    if (getResultfieldname() == null) {
       // Result Field is missing !
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ErrorResultFieldNameMissing" ), transformMeta );
-      remarks.add( cr );
-
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultFieldNameMissing"),
+              transformMeta);
+      remarks.add(cr);
     }
 
     // Check if XSL Filename field is provided
-    if ( xslFileFieldUse ) {
-      if ( getXSLFileField() == null ) {
+    if (xslFileFieldUse) {
+      if (getXSLFileField() == null) {
         // Result Field is missing !
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing" ), transformMeta );
-        remarks.add( cr );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing"),
+                transformMeta);
+        remarks.add(cr);
       } else {
         // Result Field is provided !
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK" ), transformMeta );
-        remarks.add( cr );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK"),
+                transformMeta);
+        remarks.add(cr);
       }
     } else {
-      if ( xslFilename == null ) {
+      if (xslFilename == null) {
         // Result Field is missing !
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XsltMeta.CheckResult.ErrorXSLFileNameMissing" ), transformMeta );
-        remarks.add( cr );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorXSLFileNameMissing"),
+                transformMeta);
+        remarks.add(cr);
 
       } else {
         // Check if it's exist and it's a file
-        String RealFilename = variables.resolve( xslFilename );
-        File f = new File( RealFilename );
+        String RealFilename = variables.resolve(xslFilename);
+        File f = new File(RealFilename);
 
-        if ( f.exists() ) {
-          if ( f.isFile() ) {
+        if (f.exists()) {
+          if (f.isFile()) {
             cr =
-                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                    "XsltMeta.CheckResult.FileExists", RealFilename ), transformMeta );
-            remarks.add( cr );
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileExists", RealFilename),
+                    transformMeta);
+            remarks.add(cr);
           } else {
             cr =
-                new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                    "XsltMeta.CheckResult.ExistsButNoFile", RealFilename ), transformMeta );
-            remarks.add( cr );
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG, "XsltMeta.CheckResult.ExistsButNoFile", RealFilename),
+                    transformMeta);
+            remarks.add(cr);
           }
         } else {
           cr =
-              new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                  "XsltMeta.CheckResult.FileNotExists", RealFilename ), transformMeta );
-          remarks.add( cr );
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileNotExists", RealFilename),
+                  transformMeta);
+          remarks.add(cr);
         }
       }
     }
-
   }
 
   public boolean supportsErrorHandling() {

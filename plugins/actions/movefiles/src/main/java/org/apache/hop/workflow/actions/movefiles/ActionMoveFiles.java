@@ -61,9 +61,8 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "MOVE_FILES",
-  i18nPackageName = "org.apache.hop.workflow.actions.movefiles",
-  name = "ActionMoveFiles.Name",
-  description = "ActionMoveFiles.Description",
+  name = "i18n::ActionMoveFiles.Name",
+  description = "i18n::ActionMoveFiles.Description",
   image = "MoveFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/movefiles.html"

@@ -53,9 +53,8 @@ import java.util.List;
 
 @Action(
   id = "WRITE_TO_FILE",
-  i18nPackageName = "org.apache.hop.workflow.actions.writetofile",
-  name = "ActionWriteToFile.Name",
-  description = "ActionWriteToFile.Description",
+  name = "i18n::ActionWriteToFile.Name",
+  description = "i18n::ActionWriteToFile.Description",
   image = "WriteToFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/writetofile.html"

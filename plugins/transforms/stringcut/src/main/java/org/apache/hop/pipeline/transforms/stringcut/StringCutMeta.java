@@ -41,15 +41,14 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-        id = "StringCut",
-        image = "stringcut.svg",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.stringcut",
-        name = "BaseTransform.TypeLongDesc.StringCut",
-        description = "BaseTransform.TypeTooltipDesc.StringCut",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/stringcut.html"
-)
-public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
+    id = "StringCut",
+    image = "stringcut.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.StringCut",
+    description = "i18n::BaseTransform.TypeTooltipDesc.StringCut",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/stringcut.html")
+public class StringCutMeta extends BaseTransformMeta
+    implements ITransformMeta<StringCut, StringCutData> {
 
   private static final Class<?> PKG = StringCutMeta.class; // Needed by Translator
 
@@ -65,31 +64,23 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the fieldInStream.
-   */
+  /** @return Returns the fieldInStream. */
   public String[] getFieldInStream() {
     return fieldInStream;
   }
 
-  /**
-   * @param keyStream The fieldInStream to set.
-   */
-  public void setFieldInStream( String[] keyStream ) {
+  /** @param keyStream The fieldInStream to set. */
+  public void setFieldInStream(String[] keyStream) {
     this.fieldInStream = keyStream;
   }
 
-  /**
-   * @return Returns the fieldOutStream.
-   */
+  /** @return Returns the fieldOutStream. */
   public String[] getFieldOutStream() {
     return fieldOutStream;
   }
 
-  /**
-   * @param keyStream The fieldOutStream to set.
-   */
-  public void setFieldOutStream( String[] keyStream ) {
+  /** @param keyStream The fieldOutStream to set. */
+  public void setFieldOutStream(String[] keyStream) {
     this.fieldOutStream = keyStream;
   }
 
@@ -97,7 +88,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     return cutFrom;
   }
 
-  public void setCutFrom( String[] cutFrom ) {
+  public void setCutFrom(String[] cutFrom) {
     this.cutFrom = cutFrom;
   }
 
@@ -105,53 +96,55 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     return cutTo;
   }
 
-  public void setCutTo( String[] cutTo ) {
+  public void setCutTo(String[] cutTo) {
     this.cutTo = cutTo;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
-  public void allocate( int nrkeys ) {
-    fieldInStream = new String[ nrkeys ];
-    fieldOutStream = new String[ nrkeys ];
-    cutTo = new String[ nrkeys ];
-    cutFrom = new String[ nrkeys ];
+  public void allocate(int nrkeys) {
+    fieldInStream = new String[nrkeys];
+    fieldOutStream = new String[nrkeys];
+    cutTo = new String[nrkeys];
+    cutFrom = new String[nrkeys];
   }
 
   public Object clone() {
     StringCutMeta retval = (StringCutMeta) super.clone();
     int nrkeys = fieldInStream.length;
 
-    retval.allocate( nrkeys );
-    System.arraycopy( fieldInStream, 0, retval.fieldInStream, 0, nrkeys );
-    System.arraycopy( fieldOutStream, 0, retval.fieldOutStream, 0, nrkeys );
-    System.arraycopy( cutTo, 0, retval.cutTo, 0, nrkeys );
-    System.arraycopy( cutFrom, 0, retval.cutFrom, 0, nrkeys );
+    retval.allocate(nrkeys);
+    System.arraycopy(fieldInStream, 0, retval.fieldInStream, 0, nrkeys);
+    System.arraycopy(fieldOutStream, 0, retval.fieldOutStream, 0, nrkeys);
+    System.arraycopy(cutTo, 0, retval.cutTo, 0, nrkeys);
+    System.arraycopy(cutFrom, 0, retval.cutFrom, 0, nrkeys);
 
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
       int nrkeys;
 
-      Node lookup = XmlHandler.getSubNode( transformNode, "fields" );
-      nrkeys = XmlHandler.countNodes( lookup, "field" );
+      Node lookup = XmlHandler.getSubNode(transformNode, "fields");
+      nrkeys = XmlHandler.countNodes(lookup, "field");
 
-      allocate( nrkeys );
+      allocate(nrkeys);
 
-      for ( int i = 0; i < nrkeys; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( lookup, "field", i );
-        fieldInStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "out_stream_name" ), "" );
-        cutFrom[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "cut_from" ), "" );
-        cutTo[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "cut_to" ), "" );
+      for (int i = 0; i < nrkeys; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(lookup, "field", i);
+        fieldInStream[i] = Const.NVL(XmlHandler.getTagValue(fnode, "in_stream_name"), "");
+        fieldOutStream[i] = Const.NVL(XmlHandler.getTagValue(fnode, "out_stream_name"), "");
+        cutFrom[i] = Const.NVL(XmlHandler.getTagValue(fnode, "cut_from"), "");
+        cutTo[i] = Const.NVL(XmlHandler.getTagValue(fnode, "cut_to"), "");
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "StringCutMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "StringCutMeta.Exception.UnableToReadTransformMetaFromXML"),
+          e);
     }
   }
 
@@ -161,133 +154,162 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
 
     int nrkeys = 0;
 
-    allocate( nrkeys );
+    allocate(nrkeys);
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 500 );
+    StringBuilder retval = new StringBuilder(500);
 
-    retval.append( "    <fields>" ).append( Const.CR );
+    retval.append("    <fields>").append(Const.CR);
 
-    for ( int i = 0; i < fieldInStream.length; i++ ) {
-      retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "cut_from", cutFrom[ i ] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "cut_to", cutTo[ i ] ) );
-      retval.append( "      </field>" ).append( Const.CR );
+    for (int i = 0; i < fieldInStream.length; i++) {
+      retval.append("      <field>").append(Const.CR);
+      retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
+      retval
+          .append("        ")
+          .append(XmlHandler.addTagValue("out_stream_name", fieldOutStream[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("cut_from", cutFrom[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("cut_to", cutTo[i]));
+      retval.append("      </field>").append(Const.CR);
     }
 
-    retval.append( "    </fields>" ).append( Const.CR );
+    retval.append("    </fields>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    for ( int i = 0; i < fieldOutStream.length; i++ ) {
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    for (int i = 0; i < fieldOutStream.length; i++) {
       IValueMeta v;
-      if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
-        v = new ValueMetaString( variables.resolve( fieldOutStream[ i ] ) );
-        v.setLength( 100, -1 );
-        v.setOrigin( name );
-        inputRowMeta.addValueMeta( v );
+      if (!Utils.isEmpty(fieldOutStream[i])) {
+        v = new ValueMetaString(variables.resolve(fieldOutStream[i]));
+        v.setLength(100, -1);
+        v.setOrigin(name);
+        inputRowMeta.addValueMeta(v);
       } else {
-        v = inputRowMeta.searchValueMeta( fieldInStream[ i ] );
-        if ( v == null ) {
+        v = inputRowMeta.searchValueMeta(fieldInStream[i]);
+        if (v == null) {
           continue;
         }
-        v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
+        v.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
       }
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transforminfo,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
     String errorMessage = "";
     boolean first = true;
     boolean errorFound = false;
 
-    if ( prev == null ) {
-      errorMessage += BaseMessages.getString( PKG, "StringCutMeta.CheckResult.NoInputReceived" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
-      remarks.add( cr );
+    if (prev == null) {
+      errorMessage +=
+          BaseMessages.getString(PKG, "StringCutMeta.CheckResult.NoInputReceived") + Const.CR;
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
+      remarks.add(cr);
     } else {
 
-      for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[ i ];
+      for (int i = 0; i < fieldInStream.length; i++) {
+        String field = fieldInStream[i];
 
-        IValueMeta v = prev.searchValueMeta( field );
-        if ( v == null ) {
-          if ( first ) {
+        IValueMeta v = prev.searchValueMeta(field);
+        if (v == null) {
+          if (first) {
             first = false;
             errorMessage +=
-              BaseMessages.getString( PKG, "StringCutMeta.CheckResult.MissingInStreamFields" ) + Const.CR;
+                BaseMessages.getString(PKG, "StringCutMeta.CheckResult.MissingInStreamFields")
+                    + Const.CR;
           }
           errorFound = true;
           errorMessage += "\t\t" + field + Const.CR;
         }
       }
-      if ( errorFound ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
+      if (errorFound) {
+        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "StringCutMeta.CheckResult.FoundInStreamFields" ), transforminfo );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "StringCutMeta.CheckResult.FoundInStreamFields"),
+                transforminfo);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
       // Check whether all are strings
       first = true;
       errorFound = false;
-      for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[ i ];
+      for (int i = 0; i < fieldInStream.length; i++) {
+        String field = fieldInStream[i];
 
-        IValueMeta v = prev.searchValueMeta( field );
-        if ( v != null ) {
-          if ( v.getType() != IValueMeta.TYPE_STRING ) {
-            if ( first ) {
+        IValueMeta v = prev.searchValueMeta(field);
+        if (v != null) {
+          if (v.getType() != IValueMeta.TYPE_STRING) {
+            if (first) {
               first = false;
               errorMessage +=
-                BaseMessages.getString( PKG, "StringCutMeta.CheckResult.OperationOnNonStringFields" ) + Const.CR;
+                  BaseMessages.getString(
+                          PKG, "StringCutMeta.CheckResult.OperationOnNonStringFields")
+                      + Const.CR;
             }
             errorFound = true;
             errorMessage += "\t\t" + field + Const.CR;
           }
         }
       }
-      if ( errorFound ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
+      if (errorFound) {
+        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "StringCutMeta.CheckResult.AllOperationsOnStringFields" ), transforminfo );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(
+                    PKG, "StringCutMeta.CheckResult.AllOperationsOnStringFields"),
+                transforminfo);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
-      if ( fieldInStream.length > 0 ) {
-        for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
-          if ( Utils.isEmpty( fieldInStream[ idx ] ) ) {
+      if (fieldInStream.length > 0) {
+        for (int idx = 0; idx < fieldInStream.length; idx++) {
+          if (Utils.isEmpty(fieldInStream[idx])) {
             cr =
-              new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString( PKG, "StringCutMeta.CheckResult.InStreamFieldMissing", new Integer(
-                  idx + 1 ).toString() ), transforminfo );
-            remarks.add( cr );
-
+                new CheckResult(
+                    CheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "StringCutMeta.CheckResult.InStreamFieldMissing",
+                        new Integer(idx + 1).toString()),
+                    transforminfo);
+            remarks.add(cr);
           }
         }
       }
-
     }
   }
 
-  public StringCut createTransform( TransformMeta transformMeta, StringCutData data, int cnr,
-                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new StringCut( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public StringCut createTransform(
+      TransformMeta transformMeta,
+      StringCutData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new StringCut(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   public StringCutData getTransformData() {
@@ -297,5 +319,4 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
   public boolean supportsErrorHandling() {
     return true;
   }
-
 }

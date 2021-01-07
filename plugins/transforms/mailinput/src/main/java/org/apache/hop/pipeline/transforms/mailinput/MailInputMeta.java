@@ -46,9 +46,8 @@ import java.util.List;
 @Transform(
         id = "MailInput",
         image = "mailinput.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.mailinput",
-        name = "BaseTransform.TypeLongDesc.MailInput",
-        description = "BaseTransform.TypeTooltipDesc.MailInput",
+        name = "i18n::BaseTransform.TypeLongDesc.MailInput",
+        description = "i18n::BaseTransform.TypeTooltipDesc.MailInput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mailinput.html"
 )

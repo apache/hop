@@ -28,46 +28,55 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/**
- * Created by bmorrise on 10/13/16.
- */
+/** Created by bmorrise on 10/13/16. */
 public class DetailsDialog extends MessageDialog {
 
   private String details;
   private Text detailsText;
 
-  public DetailsDialog( Shell parentShell, String dialogTitle,
-                        Image dialogTitleImage, String dialogMessage, int dialogImageType,
-                        String[] dialogButtonLabels, int defaultIndex, String details ) {
-    super( parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels,
-      defaultIndex );
+  public DetailsDialog(
+      Shell parentShell,
+      String dialogTitle,
+      Image dialogTitleImage,
+      String dialogMessage,
+      int dialogImageType,
+      String[] dialogButtonLabels,
+      int defaultIndex,
+      String details) {
+    super(
+        parentShell,
+        dialogTitle,
+        dialogTitleImage,
+        dialogMessage,
+        dialogImageType,
+        dialogButtonLabels,
+        defaultIndex);
 
     this.details = details;
   }
 
   @Override
-  protected Control createMessageArea( Composite composite ) {
+  protected Control createMessageArea(Composite composite) {
     GridLayout gridLayout = (GridLayout) composite.getLayout();
     gridLayout.numColumns = 1;
-    composite.setLayout( gridLayout );
+    composite.setLayout(gridLayout);
 
-    if ( this.message != null ) {
-      this.messageLabel = new Label( composite, this.getMessageLabelStyle() );
-      this.messageLabel.setText( this.message );
+    if (this.message != null) {
+      this.messageLabel = new Label(composite, this.getMessageLabelStyle());
+      this.messageLabel.setText(this.message);
     }
 
-    if ( this.details != null ) {
-      this.detailsText = new Text( composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
+    if (this.details != null) {
+      this.detailsText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
       this.detailsText.pack();
-      this.detailsText.setText( this.details );
+      this.detailsText.setText(this.details);
       GridData gridData = new GridData();
       gridData.widthHint = 1024;
       gridData.heightHint = 300;
-      this.detailsText.setLayoutData( gridData );
-      this.detailsText.setSelection( this.details.length() );
+      this.detailsText.setLayoutData(gridData);
+      this.detailsText.setSelection(this.details.length());
     }
 
     return composite;
   }
-
 }

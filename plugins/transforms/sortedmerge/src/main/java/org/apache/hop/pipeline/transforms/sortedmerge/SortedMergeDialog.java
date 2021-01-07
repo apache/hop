@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -135,7 +134,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
         BaseMessages.getString( PKG, "SortedMergeDialog.Ascending.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
+          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
 
     wFields =
       new TableView(
@@ -233,8 +232,8 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
       ti.setText( 1, input.getFieldName()[ i ] );
-      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
-        .getString( PKG, SYSTEM_COMBO_NO ) );
+      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+        .getString( PKG, "System.Combo.No" ) );
     }
 
     wFields.setRowNums();
@@ -266,7 +265,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       TableItem ti = wFields.getNonEmpty( i );
       input.getFieldName()[ i ] = ti.getText( 1 );
       input.getAscending()[ i ] =
-        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 2 ) );
+        BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
     }
 
     // Show a warning (optional)

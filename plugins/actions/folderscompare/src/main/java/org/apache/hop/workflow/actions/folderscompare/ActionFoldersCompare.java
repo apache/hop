@@ -62,9 +62,8 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "FOLDERS_COMPARE",
-  i18nPackageName = "org.apache.hop.workflow.actions.folderscompare",
-  name = "ActionFoldersCompare.Name",
-  description = "ActionFoldersCompare.Description",
+  name = "i18n::ActionFoldersCompare.Name",
+  description = "i18n::ActionFoldersCompare.Description",
   image = "FoldersCompare.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/folderscompare.html"

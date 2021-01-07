@@ -41,15 +41,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Transform(
-        id = "NumberRange",
-        image = "numberrange.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.NumberRange",
-        name = "BaseTransform.TypeLongDesc.NumberRange",
-        description = "BaseTransform.TypeTooltipDesc.NumberRange",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform" ,
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/numberrange.html"
-)
-public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta<NumberRange, NumberRangeData> {
+    id = "NumberRange",
+    image = "numberrange.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.NumberRange",
+    description = "i18n::BaseTransform.TypeTooltipDesc.NumberRange",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/numberrange.html")
+public class NumberRangeMeta extends BaseTransformMeta
+    implements ITransformMeta<NumberRange, NumberRangeData> {
 
   private String inputField;
 
@@ -67,38 +66,45 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
     rules = new LinkedList<>();
   }
 
-  public NumberRangeMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    loadXml( transformNode, metadataProvider );
+  public NumberRangeMeta(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    loadXml(transformNode, metadataProvider);
   }
 
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "inputField", inputField ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "outputField", outputField ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "fallBackValue", getFallBackValue() ) );
+    retval.append("    ").append(XmlHandler.addTagValue("inputField", inputField));
+    retval.append("    ").append(XmlHandler.addTagValue("outputField", outputField));
+    retval.append("    ").append(XmlHandler.addTagValue("fallBackValue", getFallBackValue()));
 
-    retval.append( "    <rules>" ).append( Const.CR );
-    for ( NumberRangeRule rule : rules ) {
-      retval.append( "      <rule>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "lower_bound", rule.getLowerBound() ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "upper_bound", rule.getUpperBound() ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "value", rule.getValue() ) );
-      retval.append( "      </rule>" ).append( Const.CR );
+    retval.append("    <rules>").append(Const.CR);
+    for (NumberRangeRule rule : rules) {
+      retval.append("      <rule>").append(Const.CR);
+      retval.append("        ").append(XmlHandler.addTagValue("lower_bound", rule.getLowerBound()));
+      retval.append("        ").append(XmlHandler.addTagValue("upper_bound", rule.getUpperBound()));
+      retval.append("        ").append(XmlHandler.addTagValue("value", rule.getValue()));
+      retval.append("      </rule>").append(Const.CR);
     }
-    retval.append( "    </rules>" ).append( Const.CR );
+    retval.append("    </rules>").append(Const.CR);
 
     return retval.toString();
   }
 
   @Override
-  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    IValueMeta mcValue = new ValueMetaString( outputField );
-    mcValue.setOrigin( name );
-    mcValue.setLength( 255 );
-    row.addValueMeta( mcValue );
+  public void getFields(
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    IValueMeta mcValue = new ValueMetaString(outputField);
+    mcValue.setOrigin(name);
+    mcValue.setLength(255);
+    row.addValueMeta(mcValue);
   }
 
   @Override
@@ -108,75 +114,100 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, NumberRangeData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new NumberRange( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      NumberRangeData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new NumberRange(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      inputField = XmlHandler.getTagValue( transformNode, "inputField" );
-      outputField = XmlHandler.getTagValue( transformNode, "outputField" );
+      inputField = XmlHandler.getTagValue(transformNode, "inputField");
+      outputField = XmlHandler.getTagValue(transformNode, "outputField");
 
       emptyRules();
-      String fallBackValue = XmlHandler.getTagValue( transformNode, "fallBackValue" );
-      setFallBackValue( fallBackValue );
+      String fallBackValue = XmlHandler.getTagValue(transformNode, "fallBackValue");
+      setFallBackValue(fallBackValue);
 
-      Node fields = XmlHandler.getSubNode( transformNode, "rules" );
-      int count = XmlHandler.countNodes( fields, "rule" );
-      for ( int i = 0; i < count; i++ ) {
+      Node fields = XmlHandler.getSubNode(transformNode, "rules");
+      int count = XmlHandler.countNodes(fields, "rule");
+      for (int i = 0; i < count; i++) {
 
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "rule", i );
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "rule", i);
 
-        String lowerBoundStr = XmlHandler.getTagValue( fnode, "lower_bound" );
-        String upperBoundStr = XmlHandler.getTagValue( fnode, "upper_bound" );
-        String value = XmlHandler.getTagValue( fnode, "value" );
+        String lowerBoundStr = XmlHandler.getTagValue(fnode, "lower_bound");
+        String upperBoundStr = XmlHandler.getTagValue(fnode, "upper_bound");
+        String value = XmlHandler.getTagValue(fnode, "value");
 
-        double lowerBound = Double.parseDouble( lowerBoundStr );
-        double upperBound = Double.parseDouble( upperBoundStr );
-        addRule( lowerBound, upperBound, value );
+        double lowerBound = Double.parseDouble(lowerBoundStr);
+        double upperBound = Double.parseDouble(upperBoundStr);
+        addRule(lowerBound, upperBound, value);
       }
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to read transform info from XML node", e );
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to read transform info from XML node", e);
     }
   }
 
   @Override
   public void setDefault() {
     emptyRules();
-    setFallBackValue( "unknown" );
-    addRule( -Double.MAX_VALUE, 5, "Less than 5" );
-    addRule( 5, 10, "5-10" );
-    addRule( 10, Double.MAX_VALUE, "More than 10" );
+    setFallBackValue("unknown");
+    addRule(-Double.MAX_VALUE, 5, "Less than 5");
+    addRule(5, 10, "5-10");
+    addRule(10, Double.MAX_VALUE, "More than 10");
     inputField = "";
     outputField = "range";
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transforminfo,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult(
-          CheckResult.TYPE_RESULT_WARNING, "Not receiving any fields from previous transforms!", transforminfo );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              "Not receiving any fields from previous transforms!",
+              transforminfo);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, "Transform is connected to previous one, receiving "
-          + prev.size() + " fields", transforminfo );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              "Transform is connected to previous one, receiving " + prev.size() + " fields",
+              transforminfo);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, "Transform is receiving info from other transforms.", transforminfo );
-      remarks.add( cr );
+    if (input.length > 0) {
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              "Transform is receiving info from other transforms.",
+              transforminfo);
+      remarks.add(cr);
     } else {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, "No input received from other transforms!", transforminfo );
-      remarks.add( cr );
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              "No input received from other transforms!",
+              transforminfo);
+      remarks.add(cr);
     }
   }
 
@@ -193,7 +224,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
     return outputField;
   }
 
-  public void setOutputField( String outputField ) {
+  public void setOutputField(String outputField) {
     this.outputField = outputField;
   }
 
@@ -205,20 +236,20 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
     return fallBackValue;
   }
 
-  public void setInputField( String inputField ) {
+  public void setInputField(String inputField) {
     this.inputField = inputField;
   }
 
-  public void setFallBackValue( String fallBackValue ) {
+  public void setFallBackValue(String fallBackValue) {
     this.fallBackValue = fallBackValue;
   }
 
-  public void addRule( double lowerBound, double upperBound, String value ) {
-    NumberRangeRule rule = new NumberRangeRule( lowerBound, upperBound, value );
-    rules.add( rule );
+  public void addRule(double lowerBound, double upperBound, String value) {
+    NumberRangeRule rule = new NumberRangeRule(lowerBound, upperBound, value);
+    rules.add(rule);
   }
 
-  public void setRules( List<NumberRangeRule> rules ) {
+  public void setRules(List<NumberRangeRule> rules) {
     this.rules = rules;
   }
 

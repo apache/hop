@@ -43,8 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-
-
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
  *
@@ -59,7 +57,7 @@ public class EnterMappingDialog extends Dialog {
     private int _targetIndex = -1;
     private boolean _found = false;
 
-    public GuessPair( int src ) {
+    public GuessPair(int src) {
       _srcIndex = src;
       _found = false;
     }
@@ -68,7 +66,7 @@ public class EnterMappingDialog extends Dialog {
       return _targetIndex;
     }
 
-    public void setTargetIndex( int targetIndex ) {
+    public void setTargetIndex(int targetIndex) {
       _found = true;
       _targetIndex = targetIndex;
     }
@@ -77,7 +75,7 @@ public class EnterMappingDialog extends Dialog {
       return _srcIndex;
     }
 
-    public void setSrcIndex( int srcIndex ) {
+    public void setSrcIndex(int srcIndex) {
       _srcIndex = srcIndex;
     }
 
@@ -94,12 +92,10 @@ public class EnterMappingDialog extends Dialog {
 
   private List wTarget;
 
-
   private Button wSourceHide;
   private Button wTargetHide;
   private Button wSourceAuto;
   private Button wTargetAuto;
-
 
   private List wResult;
 
@@ -120,21 +116,25 @@ public class EnterMappingDialog extends Dialog {
    * @param source the source values
    * @param target the target values
    */
-  public EnterMappingDialog( Shell parent, String[] source, String[] target ) {
-    this( parent, source, target, new ArrayList<>() );
+  public EnterMappingDialog(Shell parent, String[] source, String[] target) {
+    this(parent, source, target, new ArrayList<>());
   }
 
   /**
    * Create a new dialog allowing the user to enter a mapping
    *
-   * @param parent   the parent shell
-   * @param source   the source values
-   * @param target   the target values
-   * @param mappings the already selected mappings (ArrayList containing <code>SourceToTargetMapping</code>s)
+   * @param parent the parent shell
+   * @param source the source values
+   * @param target the target values
+   * @param mappings the already selected mappings (ArrayList containing <code>SourceToTargetMapping
+   *     </code>s)
    */
-  public EnterMappingDialog( Shell parent, String[] source, String[] target,
-                             java.util.List<SourceToTargetMapping> mappings ) {
-    super( parent, SWT.NONE );
+  public EnterMappingDialog(
+      Shell parent,
+      String[] source,
+      String[] target,
+      java.util.List<SourceToTargetMapping> mappings) {
+    super(parent, SWT.NONE);
     props = PropsUi.getInstance();
     this.sourceList = source;
     this.targetList = target;
@@ -146,208 +146,213 @@ public class EnterMappingDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET );
-    props.setLook( shell );
+    shell =
+        new Shell(
+            parent,
+            SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET);
+    props.setLook(shell);
 
-    shell.setImage( GuiResource.getInstance().getImageHopUi() );
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Title" ) );
-    shell.setImage( GuiResource.getInstance().getImagePipeline() );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Title"));
+    shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     int margin = props.getMargin();
     int buttonSpace = 90;
 
     // Some buttons at the bottom
     //
-    Button wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-    Button wGuess = new Button( shell, SWT.PUSH );
-    wGuess.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Guess" ) );
-    wGuess.addListener( SWT.Selection, e -> guess() );
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wGuess, wCancel }, margin, null );
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wGuess = new Button(shell, SWT.PUSH);
+    wGuess.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Button.Guess"));
+    wGuess.addListener(SWT.Selection, e -> guess());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wGuess, wCancel}, margin, null);
 
     // Hide used source fields?
-    wSourceHide = new Button( shell, SWT.CHECK );
-    wSourceHide.setSelection( true );
-    wSourceHide.setText(BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedSources" ));
-    props.setLook( wSourceHide );
+    wSourceHide = new Button(shell, SWT.CHECK);
+    wSourceHide.setSelection(true);
+    wSourceHide.setText(BaseMessages.getString(PKG, "EnterMappingDialog.HideUsedSources"));
+    props.setLook(wSourceHide);
     FormData fdSourceHide = new FormData();
-    fdSourceHide.left = new FormAttachment( 0, 0 );
-    fdSourceHide.right = new FormAttachment( 25, 0 );
-    fdSourceHide.bottom = new FormAttachment( wOk, -2*margin );
-    wSourceHide.setLayoutData( fdSourceHide );
-    wSourceHide.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        refreshMappings();
-      }
-    } );
+    fdSourceHide.left = new FormAttachment(0, 0);
+    fdSourceHide.right = new FormAttachment(25, 0);
+    fdSourceHide.bottom = new FormAttachment(wOk, -2 * margin);
+    wSourceHide.setLayoutData(fdSourceHide);
+    wSourceHide.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            refreshMappings();
+          }
+        });
 
     // Hide used target fields?
-    wTargetHide = new Button( shell, SWT.CHECK );
-    wTargetHide.setText(BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedTargets" ));
-    wTargetHide.setSelection( true );
-    props.setLook( wTargetHide );
+    wTargetHide = new Button(shell, SWT.CHECK);
+    wTargetHide.setText(BaseMessages.getString(PKG, "EnterMappingDialog.HideUsedTargets"));
+    wTargetHide.setSelection(true);
+    props.setLook(wTargetHide);
     FormData fdTargetHide = new FormData();
-    fdTargetHide.left = new FormAttachment( 25, margin * 2 );
-    fdTargetHide.right = new FormAttachment( 50, 0 );
-    fdTargetHide.bottom = new FormAttachment(  wOk, -2*margin );
-    wTargetHide.setLayoutData( fdTargetHide );
-    wTargetHide.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        refreshMappings();
-      }
-    } );
+    fdTargetHide.left = new FormAttachment(25, margin * 2);
+    fdTargetHide.right = new FormAttachment(50, 0);
+    fdTargetHide.bottom = new FormAttachment(wOk, -2 * margin);
+    wTargetHide.setLayoutData(fdTargetHide);
+    wTargetHide.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            refreshMappings();
+          }
+        });
 
     // Automatic source selection
-    wSourceAuto = new Button( shell, SWT.CHECK );
-    wSourceAuto.setText(BaseMessages.getString( PKG, "EnterMappingDialog.AutoTargetSelection.Label" ));
-    wSourceAuto.setSelection( true );
-    props.setLook( wSourceAuto );
+    wSourceAuto = new Button(shell, SWT.CHECK);
+    wSourceAuto.setText(
+        BaseMessages.getString(PKG, "EnterMappingDialog.AutoTargetSelection.Label"));
+    wSourceAuto.setSelection(true);
+    props.setLook(wSourceAuto);
     FormData fdSourceAuto = new FormData();
-    fdSourceAuto.left = new FormAttachment( 0, 0 );
-    fdSourceAuto.right = new FormAttachment( 25, 0 );
-    fdSourceAuto.bottom = new FormAttachment( wSourceHide, -2*margin );
-    wSourceAuto.setLayoutData( fdSourceAuto );
+    fdSourceAuto.left = new FormAttachment(0, 0);
+    fdSourceAuto.right = new FormAttachment(25, 0);
+    fdSourceAuto.bottom = new FormAttachment(wSourceHide, -2 * margin);
+    wSourceAuto.setLayoutData(fdSourceAuto);
 
     // Automatic target selection
-    wTargetAuto = new Button( shell, SWT.CHECK );
-    wTargetAuto.setText(BaseMessages.getString( PKG, "EnterMappingDialog.AutoSourceSelection.Label" ));
-    wTargetAuto.setSelection( false );
-    props.setLook( wTargetAuto );
+    wTargetAuto = new Button(shell, SWT.CHECK);
+    wTargetAuto.setText(
+        BaseMessages.getString(PKG, "EnterMappingDialog.AutoSourceSelection.Label"));
+    wTargetAuto.setSelection(false);
+    props.setLook(wTargetAuto);
     FormData fdTargetAuto = new FormData();
-    fdTargetAuto.left = new FormAttachment( 25, margin*2 );
-    fdTargetAuto.right = new FormAttachment( 50, 0 );
-    fdTargetAuto.bottom = new FormAttachment( wTargetHide, -2*margin );
-    wTargetAuto.setLayoutData( fdTargetAuto );
+    fdTargetAuto.left = new FormAttachment(25, margin * 2);
+    fdTargetAuto.right = new FormAttachment(50, 0);
+    fdTargetAuto.bottom = new FormAttachment(wTargetHide, -2 * margin);
+    wTargetAuto.setLayoutData(fdTargetAuto);
 
     // Source table
     //
-    Label wlSource = new Label( shell, SWT.NONE );
-    wlSource.setText( BaseMessages.getString( PKG, "EnterMappingDialog.SourceFields.Label" ) );
-    props.setLook( wlSource );
+    Label wlSource = new Label(shell, SWT.NONE);
+    wlSource.setText(BaseMessages.getString(PKG, "EnterMappingDialog.SourceFields.Label"));
+    props.setLook(wlSource);
     FormData fdlSource = new FormData();
-    fdlSource.left = new FormAttachment( 0, 0 );
-    fdlSource.top = new FormAttachment( 0, margin );
-    wlSource.setLayoutData( fdlSource );
-    wSource = new List( shell, SWT.SINGLE | SWT.RIGHT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    for ( int i = 0; i < sourceList.length; i++ ) {
-      wSource.add( sourceList[ i ] );
+    fdlSource.left = new FormAttachment(0, 0);
+    fdlSource.top = new FormAttachment(0, margin);
+    wlSource.setLayoutData(fdlSource);
+    wSource = new List(shell, SWT.SINGLE | SWT.RIGHT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    for (int i = 0; i < sourceList.length; i++) {
+      wSource.add(sourceList[i]);
     }
-    props.setLook( wSource );
+    props.setLook(wSource);
     FormData fdSource = new FormData();
-    fdSource.left = new FormAttachment( 0, 0 );
-    fdSource.right = new FormAttachment( 25, 0 );
-    fdSource.top = new FormAttachment( wlSource, margin );
-    fdSource.bottom = new FormAttachment( wSourceAuto, -2*margin );
-    wSource.setLayoutData( fdSource );
-
+    fdSource.left = new FormAttachment(0, 0);
+    fdSource.right = new FormAttachment(25, 0);
+    fdSource.top = new FormAttachment(wlSource, margin);
+    fdSource.bottom = new FormAttachment(wSourceAuto, -2 * margin);
+    wSource.setLayoutData(fdSource);
 
     // Target table
-    Label wlTarget = new Label( shell, SWT.NONE );
-    wlTarget.setText( BaseMessages.getString( PKG, "EnterMappingDialog.TargetFields.Label" ) );
-    props.setLook( wlTarget );
+    Label wlTarget = new Label(shell, SWT.NONE);
+    wlTarget.setText(BaseMessages.getString(PKG, "EnterMappingDialog.TargetFields.Label"));
+    props.setLook(wlTarget);
     FormData fdlTarget = new FormData();
-    fdlTarget.left = new FormAttachment( wSource, margin * 2 );
-    fdlTarget.top = new FormAttachment( 0, margin );
-    wlTarget.setLayoutData( fdlTarget );
-    wTarget = new List( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    for ( int i = 0; i < targetList.length; i++ ) {
-      wTarget.add( targetList[ i ] );
+    fdlTarget.left = new FormAttachment(wSource, margin * 2);
+    fdlTarget.top = new FormAttachment(0, margin);
+    wlTarget.setLayoutData(fdlTarget);
+    wTarget = new List(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    for (int i = 0; i < targetList.length; i++) {
+      wTarget.add(targetList[i]);
     }
-    props.setLook( wTarget );
+    props.setLook(wTarget);
     FormData fdTarget = new FormData();
-    fdTarget.left = new FormAttachment( wSource, margin * 2 );
-    fdTarget.right = new FormAttachment( 50, 0 );
-    fdTarget.top = new FormAttachment( wlTarget, margin );
-    fdTarget.bottom = new FormAttachment( wTargetAuto, -2*margin );
-    wTarget.setLayoutData( fdTarget );
-
-
-
-
+    fdTarget.left = new FormAttachment(wSource, margin * 2);
+    fdTarget.right = new FormAttachment(50, 0);
+    fdTarget.top = new FormAttachment(wlTarget, margin);
+    fdTarget.bottom = new FormAttachment(wTargetAuto, -2 * margin);
+    wTarget.setLayoutData(fdTarget);
 
     // Delete mapping button
-    Button wDelete = new Button( shell, SWT.PUSH );
+    Button wDelete = new Button(shell, SWT.PUSH);
     FormData fdDelete = new FormData();
-    wDelete.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Delete" ) );
-    fdDelete.left = new FormAttachment( wTarget, margin * 2 );
-    fdDelete.top = new FormAttachment( wTarget, 0, SWT.CENTER );
-    wDelete.setLayoutData( fdDelete );
-    wDelete.addListener( SWT.Selection, e -> delete() );
+    wDelete.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Button.Delete"));
+    fdDelete.left = new FormAttachment(wTarget, margin * 2);
+    fdDelete.top = new FormAttachment(wTarget, 0, SWT.CENTER);
+    wDelete.setLayoutData(fdDelete);
+    wDelete.addListener(SWT.Selection, e -> delete());
 
     // Add mapping button:
-    Button wAdd = new Button( shell, SWT.PUSH );
+    Button wAdd = new Button(shell, SWT.PUSH);
     FormData fdAdd = new FormData();
-    wAdd.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Add" ) );
-    fdAdd.left = new FormAttachment( wTarget, margin * 2 );
-    fdAdd.right = new FormAttachment( wDelete, 0, SWT.RIGHT );
-    fdAdd.bottom = new FormAttachment( wDelete, -2*margin );
-    wAdd.setLayoutData( fdAdd );
-    wAdd.addListener( SWT.Selection, e -> add() );
+    wAdd.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Button.Add"));
+    fdAdd.left = new FormAttachment(wTarget, margin * 2);
+    fdAdd.right = new FormAttachment(wDelete, 0, SWT.RIGHT);
+    fdAdd.bottom = new FormAttachment(wDelete, -2 * margin);
+    wAdd.setLayoutData(fdAdd);
+    wAdd.addListener(SWT.Selection, e -> add());
 
     // Result table
-    Label wlResult = new Label( shell, SWT.NONE );
-    wlResult.setText( BaseMessages.getString( PKG, "EnterMappingDialog.ResultMappings.Label" ) );
-    props.setLook( wlResult );
+    Label wlResult = new Label(shell, SWT.NONE);
+    wlResult.setText(BaseMessages.getString(PKG, "EnterMappingDialog.ResultMappings.Label"));
+    props.setLook(wlResult);
     FormData fdlResult = new FormData();
-    fdlResult.left = new FormAttachment( wDelete, margin * 2 );
-    fdlResult.top = new FormAttachment( 0, margin );
-    wlResult.setLayoutData( fdlResult );
-    wResult = new List( shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    for ( int i = 0; i < targetList.length; i++ ) {
-      wResult.add( targetList[ i ] );
+    fdlResult.left = new FormAttachment(wDelete, margin * 2);
+    fdlResult.top = new FormAttachment(0, margin);
+    wlResult.setLayoutData(fdlResult);
+    wResult = new List(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    for (int i = 0; i < targetList.length; i++) {
+      wResult.add(targetList[i]);
     }
-    props.setLook( wResult );
+    props.setLook(wResult);
     FormData fdResult = new FormData();
-    fdResult.left = new FormAttachment( wDelete, margin * 2 );
-    fdResult.right = new FormAttachment( 100, 0 );
-    fdResult.top = new FormAttachment( wlResult, margin );
-    fdResult.bottom = new FormAttachment( wOk, -50 );
-    wResult.setLayoutData( fdResult );
+    fdResult.left = new FormAttachment(wDelete, margin * 2);
+    fdResult.right = new FormAttachment(100, 0);
+    fdResult.top = new FormAttachment(wlResult, margin);
+    fdResult.bottom = new FormAttachment(wOk, -50);
+    wResult.setLayoutData(fdResult);
 
+    wSource.addListener(
+        SWT.Selection,
+        event -> {
+          if (wSourceAuto.getSelection()) {
+            findTarget();
+          }
+        });
+    wSource.addListener(SWT.DefaultSelection, event -> add());
 
-
-    wSource.addListener( SWT.Selection, event -> {
-      if ( wSourceAuto.getSelection() ) {
-        findTarget();
-      }
-    } );
-    wSource.addListener( SWT.DefaultSelection, event -> add() );
-
-    wTarget.addListener( SWT.Selection, event -> {
-      if ( wTargetAuto.getSelection() ) {
-        findSource();
-      }
-    } );
-    wTarget.addListener( SWT.DefaultSelection, event -> add() );
-
+    wTarget.addListener(
+        SWT.Selection,
+        event -> {
+          if (wTargetAuto.getSelection()) {
+            findSource();
+          }
+        });
+    wTarget.addListener(SWT.DefaultSelection, event -> add());
 
     // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      @Override
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
+    shell.addShellListener(
+        new ShellAdapter() {
+          @Override
+          public void shellClosed(ShellEvent e) {
+            cancel();
+          }
+        });
 
     getData();
 
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -356,24 +361,25 @@ public class EnterMappingDialog extends Dialog {
 
   private void guess() {
     // Guess the target for all the sources...
-    String[] sortedSourceList = Arrays.copyOf( sourceList, sourceList.length );
+    String[] sortedSourceList = Arrays.copyOf(sourceList, sourceList.length);
 
     // Sort Longest to Shortest string - makes matching better
-    Arrays.sort( sortedSourceList, ( s1, s2 ) -> s2.length() - s1.length() );
+    Arrays.sort(sortedSourceList, (s1, s2) -> s2.length() - s1.length());
     // Look for matches using longest field name to shortest
     ArrayList<GuessPair> pList = new ArrayList<>();
-    for ( int i = 0; i < sourceList.length; i++ ) {
-      int idx = Const.indexOfString( sortedSourceList[ i ], wSource.getItems() );
-      if ( idx >= 0 ) {
-        pList.add( findTargetPair( idx ) );
+    for (int i = 0; i < sourceList.length; i++) {
+      int idx = Const.indexOfString(sortedSourceList[i], wSource.getItems());
+      if (idx >= 0) {
+        pList.add(findTargetPair(idx));
       }
     }
     // Now add them in order or source field list
-    Collections.sort( pList, ( s1, s2 ) -> s1.getSrcIndex() - s2.getSrcIndex() );
-    for ( GuessPair p : pList ) {
-      if ( p.getFound() ) {
-        SourceToTargetMapping mapping = new SourceToTargetMapping( p.getSrcIndex(), p.getTargetIndex() );
-        mappings.add( mapping );
+    Collections.sort(pList, (s1, s2) -> s1.getSrcIndex() - s2.getSrcIndex());
+    for (GuessPair p : pList) {
+      if (p.getFound()) {
+        SourceToTargetMapping mapping =
+            new SourceToTargetMapping(p.getSrcIndex(), p.getTargetIndex());
+        mappings.add(mapping);
       }
     }
     refreshMappings();
@@ -381,50 +387,50 @@ public class EnterMappingDialog extends Dialog {
 
   private boolean findTarget() {
     int sourceIndex = wSource.getSelectionIndex();
-    GuessPair p = findTargetPair( sourceIndex );
-    if ( p.getFound() ) {
-      wTarget.setSelection( p.getTargetIndex() );
+    GuessPair p = findTargetPair(sourceIndex);
+    if (p.getFound()) {
+      wTarget.setSelection(p.getTargetIndex());
     }
     return p.getFound();
   }
 
-  private GuessPair findTargetPair( int sourceIndex ) {
+  private GuessPair findTargetPair(int sourceIndex) {
     // Guess, user selects an entry in the list on the left.
     // Find a comparable entry in the target list...
-    GuessPair result = new GuessPair( sourceIndex );
+    GuessPair result = new GuessPair(sourceIndex);
 
-    if ( sourceIndex < 0 ) {
-      return result;  // Not Found
+    if (sourceIndex < 0) {
+      return result; // Not Found
     }
 
     // Skip everything after the bracket...
-    String sourceStr = wSource.getItem( sourceIndex ).toUpperCase();
+    String sourceStr = wSource.getItem(sourceIndex).toUpperCase();
 
-    int indexOfBracket = sourceStr.indexOf( EnterMappingDialog.STRING_ORIGIN_SEPARATOR );
+    int indexOfBracket = sourceStr.indexOf(EnterMappingDialog.STRING_ORIGIN_SEPARATOR);
     String sourceString = sourceStr;
-    if ( indexOfBracket >= 0 ) {
-      sourceString = sourceStr.substring( 0, indexOfBracket );
+    if (indexOfBracket >= 0) {
+      sourceString = sourceStr.substring(0, indexOfBracket);
     }
     int length = sourceString.length();
     boolean first = true;
 
     boolean found = false;
-    while ( !found && ( length >= ( (int) ( sourceString.length() * 0.85 ) ) || first ) ) {
+    while (!found && (length >= ((int) (sourceString.length() * 0.85)) || first)) {
       first = false;
 
-      for ( int i = 0; i < wTarget.getItemCount() && !found; i++ ) {
-        String test = wTarget.getItem( i ).toUpperCase();
+      for (int i = 0; i < wTarget.getItemCount() && !found; i++) {
+        String test = wTarget.getItem(i).toUpperCase();
         // Clean up field names in the form of OBJECT:LOOKUPFIELD/OBJECTNAME
-        if ( test.contains( EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR ) ) {
-          String[] tmp = test.split( EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR );
-          test = tmp[ tmp.length - 1 ];
-          if ( test.endsWith( "__R" ) ) {
-            test = test.substring( 0, test.length() - 3 ) + "__C";
+        if (test.contains(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR)) {
+          String[] tmp = test.split(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR);
+          test = tmp[tmp.length - 1];
+          if (test.endsWith("__R")) {
+            test = test.substring(0, test.length() - 3) + "__C";
           }
         }
-        if ( test.indexOf( sourceString.substring( 0, length ) ) >= 0 ) {
-          result.setSrcIndex( sourceIndex );
-          result.setTargetIndex( i );
+        if (test.indexOf(sourceString.substring(0, length)) >= 0) {
+          result.setSrcIndex(sourceIndex);
+          result.setTargetIndex(i);
           found = true;
         }
       }
@@ -440,17 +446,17 @@ public class EnterMappingDialog extends Dialog {
 
     int targetIndex = wTarget.getSelectionIndex();
     // Skip everything after the bracket...
-    String targetString = wTarget.getItem( targetIndex ).toUpperCase();
+    String targetString = wTarget.getItem(targetIndex).toUpperCase();
 
     int length = targetString.length();
     boolean first = true;
 
-    while ( !found && ( length >= 2 || first ) ) {
+    while (!found && (length >= 2 || first)) {
       first = false;
 
-      for ( int i = 0; i < wSource.getItemCount() && !found; i++ ) {
-        if ( wSource.getItem( i ).toUpperCase().indexOf( targetString.substring( 0, length ) ) >= 0 ) {
-          wSource.setSelection( i );
+      for (int i = 0; i < wSource.getItemCount() && !found; i++) {
+        if (wSource.getItem(i).toUpperCase().indexOf(targetString.substring(0, length)) >= 0) {
+          wSource.setSelection(i);
           found = true;
         }
       }
@@ -460,17 +466,17 @@ public class EnterMappingDialog extends Dialog {
   }
 
   private void add() {
-    if ( wSource.getSelectionCount() == 1 && wTarget.getSelectionCount() == 1 ) {
-      String sourceString = wSource.getSelection()[ 0 ];
-      String targetString = wTarget.getSelection()[ 0 ];
+    if (wSource.getSelectionCount() == 1 && wTarget.getSelectionCount() == 1) {
+      String sourceString = wSource.getSelection()[0];
+      String targetString = wTarget.getSelection()[0];
 
-      int srcIndex = Const.indexOfString( sourceString, sourceList );
-      int tgtIndex = Const.indexOfString( targetString, targetList );
+      int srcIndex = Const.indexOfString(sourceString, sourceList);
+      int tgtIndex = Const.indexOfString(targetString, targetList);
 
-      if ( srcIndex >= 0 && tgtIndex >= 0 ) {
+      if (srcIndex >= 0 && tgtIndex >= 0) {
         // New mapping: add it to the list...
-        SourceToTargetMapping mapping = new SourceToTargetMapping( srcIndex, tgtIndex );
-        mappings.add( mapping );
+        SourceToTargetMapping mapping = new SourceToTargetMapping(srcIndex, tgtIndex);
+        mappings.add(mapping);
 
         refreshMappings();
       }
@@ -480,64 +486,65 @@ public class EnterMappingDialog extends Dialog {
   private void refreshMappings() {
     // Refresh the results...
     wResult.removeAll();
-    for ( int i = 0; i < mappings.size(); i++ ) {
-      SourceToTargetMapping mapping = mappings.get( i );
+    for (int i = 0; i < mappings.size(); i++) {
+      SourceToTargetMapping mapping = mappings.get(i);
       String mappingString =
-        sourceList[ mapping.getSourcePosition() ] + " --> " + targetList[ mapping.getTargetPosition() ];
-      wResult.add( mappingString );
+          sourceList[mapping.getSourcePosition()]
+              + " --> "
+              + targetList[mapping.getTargetPosition()];
+      wResult.add(mappingString);
     }
 
     wSource.removeAll();
     // Refresh the sources
-    for ( int a = 0; a < sourceList.length; a++ ) {
+    for (int a = 0; a < sourceList.length; a++) {
       boolean found = false;
-      if ( wSourceHide.getSelection() ) {
-        for ( int b = 0; b < mappings.size() && !found; b++ ) {
-          SourceToTargetMapping mapping = mappings.get( b );
-          if ( mapping.getSourcePosition() == Const.indexOfString( sourceList[ a ], sourceList ) ) {
+      if (wSourceHide.getSelection()) {
+        for (int b = 0; b < mappings.size() && !found; b++) {
+          SourceToTargetMapping mapping = mappings.get(b);
+          if (mapping.getSourcePosition() == Const.indexOfString(sourceList[a], sourceList)) {
             found = true;
           }
         }
       }
 
-      if ( !found ) {
-        wSource.add( sourceList[ a ] );
+      if (!found) {
+        wSource.add(sourceList[a]);
       }
     }
 
     wTarget.removeAll();
     // Refresh the targets
-    for ( int a = 0; a < targetList.length; a++ ) {
+    for (int a = 0; a < targetList.length; a++) {
       boolean found = false;
-      if ( wTargetHide.getSelection() ) {
-        for ( int b = 0; b < mappings.size() && !found; b++ ) {
-          SourceToTargetMapping mapping = mappings.get( b );
-          if ( mapping.getTargetPosition() == Const.indexOfString( targetList[ a ], targetList ) ) {
+      if (wTargetHide.getSelection()) {
+        for (int b = 0; b < mappings.size() && !found; b++) {
+          SourceToTargetMapping mapping = mappings.get(b);
+          if (mapping.getTargetPosition() == Const.indexOfString(targetList[a], targetList)) {
             found = true;
           }
         }
       }
 
-      if ( !found ) {
-        wTarget.add( targetList[ a ] );
+      if (!found) {
+        wTarget.add(targetList[a]);
       }
     }
-
   }
 
   private void delete() {
     String[] result = wResult.getSelection();
-    for ( int i = result.length - 1; i >= 0; i-- ) {
-      int idx = wResult.indexOf( result[ i ] );
-      if ( idx >= 0 && idx < mappings.size() ) {
-        mappings.remove( idx );
+    for (int i = result.length - 1; i >= 0; i--) {
+      int idx = wResult.indexOf(result[i]);
+      if (idx >= 0 && idx < mappings.size()) {
+        mappings.remove(idx);
       }
     }
     refreshMappings();
   }
 
   public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 

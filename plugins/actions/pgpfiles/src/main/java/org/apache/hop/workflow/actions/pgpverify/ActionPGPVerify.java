@@ -54,9 +54,8 @@ import org.w3c.dom.Node;
 
 @Action(
   id = "PGP_VERIFY_FILES",
-  i18nPackageName = "org.apache.hop.workflow.actions.pgpverify",
-  name = "ActionPGPVerify.Name",
-  description = "ActionPGPVerify.Description",
+  name = "i18n::ActionPGPVerify.Name",
+  description = "i18n::ActionPGPVerify.Description",
   image = "PGPVerify.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpverify.html"

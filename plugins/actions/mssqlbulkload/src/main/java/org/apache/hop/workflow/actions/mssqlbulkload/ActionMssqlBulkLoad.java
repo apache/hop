@@ -61,9 +61,8 @@ import java.util.List;
  */
 @Action(
 	  id = "MSSQL_BULK_LOAD",
-	  i18nPackageName = "org.apache.hop.workflow.actions.mssqlbulkload",
-	  name = "ActionMssqlBulkLoad.Name",
-	  description = "ActionMssqlBulkLoad.Description",
+	  name = "i18n::ActionMssqlBulkLoad.Name",
+	  description = "i18n::ActionMssqlBulkLoad.Description",
 	  image = "MssqlBulkLoad.svg",
 	  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
 	  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mssqlbulkload.html"

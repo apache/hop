@@ -45,10 +45,9 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "LDAPInput",
-    name = "LdapInput.Name",
-    description = "LdapInput.Description",
+    name = "i18n::LdapInput.Name",
+    description = "i18n::LdapInput.Description",
     image = "ldapinput.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.ldapinput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"ldap", "input"},
     documentationUrl =

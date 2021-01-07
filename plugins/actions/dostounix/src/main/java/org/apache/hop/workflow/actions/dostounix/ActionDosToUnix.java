@@ -34,10 +34,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
@@ -58,27 +58,27 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 26-03-2008
  */
-
 @Action(
-  id = "DOS_UNIX_CONVERTER",
-  i18nPackageName = "org.apache.hop.workflow.actions.dostounix",
-  name = "ActionDosToUnix.Name",
-  description = "ActionDosToUnix.Description",
-  image = "DosToUnix.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dostounix.html"
-)
+    id = "DOS_UNIX_CONVERTER",
+    name = "i18n::ActionDosToUnix.Name",
+    description = "i18n::ActionDosToUnix.Description",
+    image = "DosToUnix.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dostounix.html")
 public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
 
   private static final Class<?> PKG = ActionDosToUnix.class; // Needed by Translator
 
-  public static final String[] ConversionTypeDesc = new String[] {
-    BaseMessages.getString( PKG, "ActionDosToUnix.ConversionType.Guess.Label" ),
-    BaseMessages.getString( PKG, "ActionDosToUnix.ConversionType.DosToUnix.Label" ),
-    BaseMessages.getString( PKG, "ActionDosToUnix.ConversionType.UnixToDos.Label" ) };
-  public static final String[] ConversionTypeCode = new String[] { "guess", "dostounix", "unixtodos" };
+  public static final String[] ConversionTypeDesc =
+      new String[] {
+        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.Guess.Label"),
+        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.DosToUnix.Label"),
+        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.UnixToDos.Label")
+      };
+  public static final String[] ConversionTypeCode =
+      new String[] {"guess", "dostounix", "unixtodos"};
 
   public static final int CONVERTION_TYPE_GUESS = 0;
   public static final int CONVERTION_TYPE_DOS_TO_UNIX = 1;
@@ -119,8 +119,8 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
   private static String tempFolder;
 
-  public ActionDosToUnix( String n ) {
-    super( n, "" );
+  public ActionDosToUnix(String n) {
+    super(n, "");
     resultFilenames = ADD_ALL_FILENAMES;
     argFromPrevious = false;
     sourceFileFolder = null;
@@ -132,89 +132,94 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionDosToUnix() {
-    this( "" );
+    this("");
   }
 
-  public void allocate( int nrFields ) {
-    sourceFileFolder = new String[ nrFields ];
-    wildcard = new String[ nrFields ];
-    conversionTypes = new int[ nrFields ];
+  public void allocate(int nrFields) {
+    sourceFileFolder = new String[nrFields];
+    wildcard = new String[nrFields];
+    conversionTypes = new int[nrFields];
   }
 
   public Object clone() {
     ActionDosToUnix je = (ActionDosToUnix) super.clone();
-    if ( sourceFileFolder != null ) {
+    if (sourceFileFolder != null) {
       int nrFields = sourceFileFolder.length;
-      je.allocate( nrFields );
-      System.arraycopy( sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields );
-      System.arraycopy( wildcard, 0, je.wildcard, 0, nrFields );
-      System.arraycopy( conversionTypes, 0, je.conversionTypes, 0, nrFields );
+      je.allocate(nrFields);
+      System.arraycopy(sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields);
+      System.arraycopy(wildcard, 0, je.wildcard, 0, nrFields);
+      System.arraycopy(conversionTypes, 0, je.conversionTypes, 0, nrFields);
     }
     return je;
   }
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder retval = new StringBuilder(300);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nrErrorsLessThan ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultFilenames ) );
-    retval.append( "      <fields>" ).append( Const.CR );
-    if ( sourceFileFolder != null ) {
-      for ( int i = 0; i < sourceFileFolder.length; i++ ) {
-        retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
-        retval.append( "          " ).append(
-          XmlHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[ i ] ) ) );
-        retval.append( "        </field>" ).append( Const.CR );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
+    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append("      ").append(XmlHandler.addTagValue("resultfilenames", resultFilenames));
+    retval.append("      <fields>").append(Const.CR);
+    if (sourceFileFolder != null) {
+      for (int i = 0; i < sourceFileFolder.length; i++) {
+        retval.append("        <field>").append(Const.CR);
+        retval
+            .append("          ")
+            .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolder[i]));
+        retval.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
+        retval
+            .append("          ")
+            .append(
+                XmlHandler.addTagValue(
+                    "ConversionType", getConversionTypeCode(conversionTypes[i])));
+        retval.append("        </field>").append(Const.CR);
       }
     }
-    retval.append( "      </fields>" ).append( Const.CR );
+    retval.append("      </fields>").append(Const.CR);
 
     return retval.toString();
   }
 
-  private static String getConversionTypeCode( int i ) {
-    if ( i < 0 || i >= ConversionTypeCode.length ) {
-      return ConversionTypeCode[ 0 ];
+  private static String getConversionTypeCode(int i) {
+    if (i < 0 || i >= ConversionTypeCode.length) {
+      return ConversionTypeCode[0];
     }
-    return ConversionTypeCode[ i ];
+    return ConversionTypeCode[i];
   }
 
-  public static String getConversionTypeDesc( int i ) {
-    if ( i < 0 || i >= ConversionTypeDesc.length ) {
-      return ConversionTypeDesc[ 0 ];
+  public static String getConversionTypeDesc(int i) {
+    if (i < 0 || i >= ConversionTypeDesc.length) {
+      return ConversionTypeDesc[0];
     }
-    return ConversionTypeDesc[ i ];
+    return ConversionTypeDesc[i];
   }
 
-  public static int getConversionTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getConversionTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ConversionTypeDesc.length; i++ ) {
-      if ( ConversionTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ConversionTypeDesc.length; i++) {
+      if (ConversionTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getConversionTypeByCode( tt );
+    return getConversionTypeByCode(tt);
   }
 
-  private static int getConversionTypeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getConversionTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ConversionTypeCode.length; i++ ) {
-      if ( ConversionTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ConversionTypeCode.length; i++) {
+      if (ConversionTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -222,45 +227,47 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
+      super.loadXml(entrynode);
 
-      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      includeSubFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      argFromPrevious =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
+      includeSubFolders =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
 
-      nrErrorsLessThan = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
-      resultFilenames = XmlHandler.getTagValue( entrynode, "resultfilenames" );
+      nrErrorsLessThan = XmlHandler.getTagValue(entrynode, "nr_errors_less_than");
+      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
+      resultFilenames = XmlHandler.getTagValue(entrynode, "resultfilenames");
 
-      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode(entrynode, "fields");
 
       // How many field arguments?
-      int nrFields = XmlHandler.countNodes( fields, "field" );
-      allocate( nrFields );
+      int nrFields = XmlHandler.countNodes(fields, "field");
+      allocate(nrFields);
 
       // Read them all...
-      for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+      for (int i = 0; i < nrFields; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
 
-        sourceFileFolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
-        wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
-        conversionTypes[ i ] =
-          getConversionTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "ConversionType" ), "" ) );
+        sourceFileFolder[i] = XmlHandler.getTagValue(fnode, "source_filefolder");
+        wildcard[i] = XmlHandler.getTagValue(fnode, "wildcard");
+        conversionTypes[i] =
+            getConversionTypeByCode(Const.NVL(XmlHandler.getTagValue(fnode, "ConversionType"), ""));
       }
-    } catch ( HopXmlException xe ) {
+    } catch (HopXmlException xe) {
 
       throw new HopXmlException(
-        BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.UnableLoadXML" ), xe );
+          BaseMessages.getString(PKG, "JobDosToUnix.Error.Exception.UnableLoadXML"), xe);
     }
   }
 
   @Override
-  public Result execute( Result previousResult, int nr ) throws HopException {
+  public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
-    result.setNrErrors( 1 );
-    result.setResult( false );
+    result.setNrErrors(1);
+    result.setResult(false);
 
     List<RowMetaAndData> rows = previousResult.getRows();
     RowMetaAndData resultRow = null;
@@ -268,81 +275,92 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     nrErrors = 0;
     nrProcessedFiles = 0;
     nrErrorFiles = 0;
-    limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
+    limitFiles = Const.toInt(resolve(getNrErrorsLessThan()), 10);
     successConditionBroken = false;
     successConditionBrokenExit = false;
-    tempFolder = resolve( "%%java.io.tmpdir%%" );
+    tempFolder = resolve("%%java.io.tmpdir%%");
 
     // Get source and destination files, also wildcard
     String[] vSourceFileFolder = sourceFileFolder;
     String[] vwildcard = wildcard;
 
-    if ( argFromPrevious ) {
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.ArgFromPrevious.Found", ( rows != null ? rows
-          .size() : 0 )
-          + "" ) );
+    if (argFromPrevious) {
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "JobDosToUnix.Log.ArgFromPrevious.Found",
+                (rows != null ? rows.size() : 0) + ""));
       }
-
     }
-    if ( argFromPrevious && rows != null ) {
+    if (argFromPrevious && rows != null) {
       // Copy the input row to the (command line) arguments
-      for ( int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++ ) {
-        if ( successConditionBroken ) {
-          if ( !successConditionBrokenExit ) {
-            logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors ) );
+      for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
+        if (successConditionBroken) {
+          if (!successConditionBrokenExit) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
-          result.setEntryNr( nrAllErrors );
-          result.setNrLinesRejected( nrErrorFiles );
-          result.setNrLinesWritten( nrProcessedFiles );
+          result.setEntryNr(nrAllErrors);
+          result.setNrLinesRejected(nrErrorFiles);
+          result.setNrLinesWritten(nrProcessedFiles);
           return result;
         }
 
-        resultRow = rows.get( iteration );
+        resultRow = rows.get(iteration);
 
         // Get source and destination file names, also wildcard
-        String vSourceFileFolderPrevious = resultRow.getString( 0, null );
-        String vWildcardPrevious = resultRow.getString( 1, null );
-        int conversionType = ActionDosToUnix.getConversionTypeByCode( resultRow.getString( 2, null ) );
+        String vSourceFileFolderPrevious = resultRow.getString(0, null);
+        String vWildcardPrevious = resultRow.getString(1, null);
+        int conversionType = ActionDosToUnix.getConversionTypeByCode(resultRow.getString(2, null));
 
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolderPrevious, vWildcardPrevious ) );
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "JobDosToUnix.Log.ProcessingRow",
+                  vSourceFileFolderPrevious,
+                  vWildcardPrevious));
         }
 
-        processFileFolder( vSourceFileFolderPrevious, vWildcardPrevious, conversionType, parentWorkflow, result );
+        processFileFolder(
+            vSourceFileFolderPrevious, vWildcardPrevious, conversionType, parentWorkflow, result);
       }
-    } else if ( vSourceFileFolder != null ) {
-      for ( int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++ ) {
-        if ( successConditionBroken ) {
-          if ( !successConditionBrokenExit ) {
-            logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors ) );
+    } else if (vSourceFileFolder != null) {
+      for (int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++) {
+        if (successConditionBroken) {
+          if (!successConditionBrokenExit) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
-          result.setEntryNr( nrAllErrors );
-          result.setNrLinesRejected( nrErrorFiles );
-          result.setNrLinesWritten( nrProcessedFiles );
+          result.setEntryNr(nrAllErrors);
+          result.setNrLinesRejected(nrErrorFiles);
+          result.setNrLinesWritten(nrProcessedFiles);
           return result;
         }
 
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolder[ i ], vwildcard[ i ] ) );
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolder[i], vwildcard[i]));
         }
 
-        processFileFolder( vSourceFileFolder[ i ], vwildcard[ i ], conversionTypes[ i ], parentWorkflow, result );
-
+        processFileFolder(
+            vSourceFileFolder[i], vwildcard[i], conversionTypes[i], parentWorkflow, result);
       }
     }
 
     // Success Condition
-    result.setNrErrors( nrAllErrors );
-    result.setNrLinesRejected( nrErrorFiles );
-    result.setNrLinesWritten( nrProcessedFiles );
-    if ( getSuccessStatus() ) {
-      result.setNrErrors( 0 );
-      result.setResult( true );
+    result.setNrErrors(nrAllErrors);
+    result.setNrLinesRejected(nrErrorFiles);
+    result.setNrLinesWritten(nrProcessedFiles);
+    if (getSuccessStatus()) {
+      result.setNrErrors(0);
+      result.setResult(true);
     }
 
     displayResults();
@@ -351,19 +369,21 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   private void displayResults() {
-    if ( isDetailed() ) {
-      logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.Info.Errors", nrErrors ) );
-      logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.Info.ErrorFiles", nrErrorFiles ) );
-      logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.Info.FilesProcessed", nrProcessedFiles ) );
-      logDetailed( "=======================================" );
+    if (isDetailed()) {
+      logDetailed("=======================================");
+      logDetailed(BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.Errors", nrErrors));
+      logDetailed(BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.ErrorFiles", nrErrorFiles));
+      logDetailed(
+          BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.FilesProcessed", nrProcessedFiles));
+      logDetailed("=======================================");
     }
   }
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ( ( nrAllErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( nrErrorFiles >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERROR_FILES_LESS ) ) ) {
+    if ((nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrErrorFiles >= limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS))) {
       retval = true;
     }
     return retval;
@@ -372,10 +392,11 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ( ( nrAllErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( nrProcessedFiles >= limitFiles && getSuccessCondition()
-      .equals( SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED ) )
-      || ( nrErrorFiles < limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERROR_FILES_LESS ) ) ) {
+    if ((nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrProcessedFiles >= limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED))
+        || (nrErrorFiles < limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS))) {
       retval = true;
     }
 
@@ -385,7 +406,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private void updateErrors() {
     nrErrors++;
     updateAllErrors();
-    if ( checkIfSuccessConditionBroken() ) {
+    if (checkIfSuccessConditionBroken()) {
       // Success condition was broken
       successConditionBroken = true;
     }
@@ -395,30 +416,30 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     nrAllErrors = nrErrors + nrErrorFiles;
   }
 
-  private static int getFileType( FileObject file ) throws Exception {
+  private static int getFileType(FileObject file) throws Exception {
     int aCount = 0; // occurences of LF
     int dCount = 0; // occurences of CR
 
-    try ( FileInputStream in = new FileInputStream( file.getName().getPathDecoded() ) ) {
-      while ( in.available() > 0 ) {
+    try (FileInputStream in = new FileInputStream(file.getName().getPathDecoded())) {
+      while (in.available() > 0) {
         int b = in.read();
-        if ( b == CR ) {
+        if (b == CR) {
           dCount++;
-          if ( in.available() > 0 ) {
+          if (in.available() > 0) {
             b = in.read();
-            if ( b == LF ) {
+            if (b == LF) {
               aCount++;
             } else {
               return TYPE_BINAY_FILE;
             }
           }
-        } else if ( b == LF ) {
+        } else if (b == LF) {
           aCount++;
         }
       }
     }
 
-    if ( aCount == dCount ) {
+    if (aCount == dCount) {
       return TYPE_DOS_FILE;
     } else {
       return TYPE_UNIX_FILE;
@@ -426,192 +447,220 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @VisibleForTesting
-  boolean convert( FileObject file, boolean toUnix ) {
+  boolean convert(FileObject file, boolean toUnix) {
     boolean retval = false;
     // CR = CR
     // LF = LF
     try {
-      String localfilename = HopVfs.getFilename( file );
-      File source = new File( localfilename );
-      if ( isDetailed() ) {
-        if ( toUnix ) {
-          logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.ConvertingFileToUnix", source
-            .getAbsolutePath() ) );
+      String localfilename = HopVfs.getFilename(file);
+      File source = new File(localfilename);
+      if (isDetailed()) {
+        if (toUnix) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Log.ConvertingFileToUnix", source.getAbsolutePath()));
         } else {
-          logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.ConvertingFileToDos", source
-            .getAbsolutePath() ) );
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Log.ConvertingFileToDos", source.getAbsolutePath()));
         }
       }
-      File tempFile = new File( tempFolder, source.getName() + ".tmp" );
+      File tempFile = new File(tempFolder, source.getName() + ".tmp");
 
-      if ( isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "JobDosToUnix.Log.CreatingTempFile", tempFile.getAbsolutePath() ) );
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                PKG, "JobDosToUnix.Log.CreatingTempFile", tempFile.getAbsolutePath()));
       }
 
       final int FOUR_KB = 4 * 1024;
-      byte[] buffer = new byte[ FOUR_KB ];
-      try ( FileOutputStream out = new FileOutputStream( tempFile );
-            FileInputStream in = new FileInputStream( localfilename ) ) {
+      byte[] buffer = new byte[FOUR_KB];
+      try (FileOutputStream out = new FileOutputStream(tempFile);
+          FileInputStream in = new FileInputStream(localfilename)) {
 
-        ConversionAutomata automata = new ConversionAutomata( out, toUnix );
+        ConversionAutomata automata = new ConversionAutomata(out, toUnix);
         int read;
-        while ( ( read = in.read( buffer ) ) > 0 ) {
-          automata.convert( buffer, read );
+        while ((read = in.read(buffer)) > 0) {
+          automata.convert(buffer, read);
         }
       }
 
-      if ( isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "JobDosToUnix.Log.DeletingSourceFile", localfilename ) );
+      if (isDebug()) {
+        logDebug(BaseMessages.getString(PKG, "JobDosToUnix.Log.DeletingSourceFile", localfilename));
       }
-      if ( isDebug() ) {
-        logDebug( BaseMessages.getString(
-          PKG, "JobDosToUnix.Log.RenamingTempFile", tempFile.getAbsolutePath(), source.getAbsolutePath() ) );
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                PKG,
+                "JobDosToUnix.Log.RenamingTempFile",
+                tempFile.getAbsolutePath(),
+                source.getAbsolutePath()));
       }
-      Files.move( tempFile.toPath(), source.toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.move(tempFile.toPath(), source.toPath(), StandardCopyOption.REPLACE_EXISTING);
       retval = true;
 
-    } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobDosToUnix.Log.ErrorConvertingFile", file.toString(), e
-        .getMessage() ) );
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG, "JobDosToUnix.Log.ErrorConvertingFile", file.toString(), e.getMessage()));
     }
 
     return retval;
   }
 
-  private boolean processFileFolder( String sourcefilefoldername, String wildcard, int convertion, IWorkflowEngine<WorkflowMeta> parentWorkflow,
-                                     Result result ) {
+  private boolean processFileFolder(
+      String sourcefilefoldername,
+      String wildcard,
+      int convertion,
+      IWorkflowEngine<WorkflowMeta> parentWorkflow,
+      Result result) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject currentFile = null;
 
     // Get real source file and wilcard
-    String realSourceFilefoldername = resolve( sourcefilefoldername );
-    if ( Utils.isEmpty( realSourceFilefoldername ) ) {
-      logError( BaseMessages.getString( PKG, "JobDosToUnix.log.FileFolderEmpty", sourcefilefoldername ) );
+    String realSourceFilefoldername = resolve(sourcefilefoldername);
+    if (Utils.isEmpty(realSourceFilefoldername)) {
+      logError(
+          BaseMessages.getString(PKG, "JobDosToUnix.log.FileFolderEmpty", sourcefilefoldername));
       // Update Errors
       updateErrors();
 
       return entrystatus;
     }
-    String realWildcard = resolve( wildcard );
+    String realWildcard = resolve(wildcard);
 
     try {
-      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
+      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
 
-      if ( sourcefilefolder.exists() ) {
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.FileExists", sourcefilefolder.toString() ) );
+      if (sourcefilefolder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Log.FileExists", sourcefilefolder.toString()));
         }
-        if ( sourcefilefolder.getType() == FileType.FILE ) {
-          entrystatus = convertOneFile( sourcefilefolder, convertion, result, parentWorkflow );
+        if (sourcefilefolder.getType() == FileType.FILE) {
+          entrystatus = convertOneFile(sourcefilefolder, convertion, result, parentWorkflow);
 
-        } else if ( sourcefilefolder.getType() == FileType.FOLDER ) {
-          FileObject[] fileObjects = sourcefilefolder.findFiles( new AllFileSelector() {
-            public boolean traverseDescendents( FileSelectInfo info ) {
-              return info.getDepth() == 0 || includeSubFolders;
-            }
+        } else if (sourcefilefolder.getType() == FileType.FOLDER) {
+          FileObject[] fileObjects =
+              sourcefilefolder.findFiles(
+                  new AllFileSelector() {
+                    public boolean traverseDescendents(FileSelectInfo info) {
+                      return info.getDepth() == 0 || includeSubFolders;
+                    }
 
-            public boolean includeFile( FileSelectInfo info ) {
+                    public boolean includeFile(FileSelectInfo info) {
 
-              FileObject fileObject = info.getFile();
-              try {
-                if ( fileObject == null ) {
-                  return false;
-                }
-                if ( fileObject.getType() != FileType.FILE ) {
-                  return false;
-                }
-              } catch ( Exception ex ) {
-                // Upon error don't process the file.
-                return false;
-              } finally {
-                if ( fileObject != null ) {
-                  try {
-                    fileObject.close();
-                  } catch ( IOException ex ) { /* Ignore */
-                  }
-                }
+                      FileObject fileObject = info.getFile();
+                      try {
+                        if (fileObject == null) {
+                          return false;
+                        }
+                        if (fileObject.getType() != FileType.FILE) {
+                          return false;
+                        }
+                      } catch (Exception ex) {
+                        // Upon error don't process the file.
+                        return false;
+                      } finally {
+                        if (fileObject != null) {
+                          try {
+                            fileObject.close();
+                          } catch (IOException ex) {
+                            /* Ignore */
+                          }
+                        }
+                      }
+                      return true;
+                    }
+                  });
 
-              }
-              return true;
-            }
-          } );
-
-          if ( fileObjects != null ) {
-            for ( int j = 0; j < fileObjects.length && !parentWorkflow.isStopped(); j++ ) {
-              if ( successConditionBroken ) {
-                if ( !successConditionBrokenExit ) {
-                  logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.SuccessConditionbroken", ""
-                    + nrAllErrors ) );
+          if (fileObjects != null) {
+            for (int j = 0; j < fileObjects.length && !parentWorkflow.isStopped(); j++) {
+              if (successConditionBroken) {
+                if (!successConditionBrokenExit) {
+                  logError(
+                      BaseMessages.getString(
+                          PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
                   successConditionBrokenExit = true;
                 }
                 return false;
               }
               // Fetch files in list one after one ...
-              currentFile = fileObjects[ j ];
+              currentFile = fileObjects[j];
 
-              if ( !currentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
+              if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
-                if ( includeSubFolders ) {
-                  if ( getFileWildcard( currentFile.toString(), realWildcard ) ) {
-                    convertOneFile( currentFile, convertion, result, parentWorkflow );
+                if (includeSubFolders) {
+                  if (getFileWildcard(currentFile.toString(), realWildcard)) {
+                    convertOneFile(currentFile, convertion, result, parentWorkflow);
                   }
                 }
 
               } else {
                 // In the base folder
-                if ( getFileWildcard( currentFile.toString(), realWildcard ) ) {
-                  convertOneFile( currentFile, convertion, result, parentWorkflow );
+                if (getFileWildcard(currentFile.toString(), realWildcard)) {
+                  convertOneFile(currentFile, convertion, result, parentWorkflow);
                 }
               }
             }
           }
         } else {
-          logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.UnknowFileFormat", sourcefilefolder
-            .toString() ) );
+          logError(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Error.UnknowFileFormat", sourcefilefolder.toString()));
           // Update Errors
           updateErrors();
         }
       } else {
-        logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.SourceFileNotExists", realSourceFilefoldername ) );
+        logError(
+            BaseMessages.getString(
+                PKG, "JobDosToUnix.Error.SourceFileNotExists", realSourceFilefoldername));
         // Update Errors
         updateErrors();
       }
-    } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.Processing", realSourceFilefoldername
-        .toString(), e.getMessage() ) );
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "JobDosToUnix.Error.Exception.Processing",
+              realSourceFilefoldername.toString(),
+              e.getMessage()));
       // Update Errors
       updateErrors();
     } finally {
-      if ( sourcefilefolder != null ) {
+      if (sourcefilefolder != null) {
         try {
           sourcefilefolder.close();
-        } catch ( IOException ex ) {
+        } catch (IOException ex) {
           /* Ignore */
         }
-
       }
-      if ( currentFile != null ) {
+      if (currentFile != null) {
         try {
           currentFile.close();
-        } catch ( IOException ex ) { /* Ignore */
+        } catch (IOException ex) {
+          /* Ignore */
         }
       }
     }
     return entrystatus;
   }
 
-  private boolean convertOneFile( FileObject file, int convertion, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) throws HopException {
+  private boolean convertOneFile(
+      FileObject file, int convertion, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow)
+      throws HopException {
     boolean retval = false;
     try {
       // We deal with a file..
 
       boolean convertToUnix = true;
 
-      if ( convertion == CONVERTION_TYPE_GUESS ) {
+      if (convertion == CONVERTION_TYPE_GUESS) {
         // Get file Type
-        int fileType = getFileType( file );
-        if ( fileType == TYPE_DOS_FILE ) {
+        int fileType = getFileType(file);
+        if (fileType == TYPE_DOS_FILE) {
           // File type is DOS
           // We need to convert it to UNIX
           convertToUnix = true;
@@ -620,36 +669,40 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           // so let's convert it to DOS
           convertToUnix = false;
         }
-      } else if ( convertion == CONVERTION_TYPE_DOS_TO_UNIX ) {
+      } else if (convertion == CONVERTION_TYPE_DOS_TO_UNIX) {
         convertToUnix = true;
       } else {
         convertToUnix = false;
       }
 
-      retval = convert( file, convertToUnix );
+      retval = convert(file, convertToUnix);
 
-      if ( !retval ) {
-        logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.FileNotConverted", file.toString() ) );
+      if (!retval) {
+        logError(
+            BaseMessages.getString(PKG, "JobDosToUnix.Error.FileNotConverted", file.toString()));
         // Update Bad files number
         updateBadFormed();
-        if ( resultFilenames.equals( ADD_ALL_FILENAMES ) || resultFilenames.equals( ADD_ERROR_FILES_ONLY ) ) {
-          addFileToResultFilenames( file, result, parentWorkflow );
+        if (resultFilenames.equals(ADD_ALL_FILENAMES)
+            || resultFilenames.equals(ADD_ERROR_FILES_ONLY)) {
+          addFileToResultFilenames(file, result, parentWorkflow);
         }
       } else {
-        if ( isDetailed() ) {
-          logDetailed( "---------------------------" );
-          logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Error.FileConverted", file, convertToUnix
-            ? "UNIX" : "DOS" ) );
+        if (isDetailed()) {
+          logDetailed("---------------------------");
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobDosToUnix.Error.FileConverted", file, convertToUnix ? "UNIX" : "DOS"));
         }
         // Update processed files number
         updateProcessedFormed();
-        if ( resultFilenames.equals( ADD_ALL_FILENAMES ) || resultFilenames.equals( ADD_PROCESSED_FILES_ONLY ) ) {
-          addFileToResultFilenames( file, result, parentWorkflow );
+        if (resultFilenames.equals(ADD_ALL_FILENAMES)
+            || resultFilenames.equals(ADD_PROCESSED_FILES_ONLY)) {
+          addFileToResultFilenames(file, result, parentWorkflow);
         }
       }
 
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to convert file '" + file.toString() + "'", e );
+    } catch (Exception e) {
+      throw new HopException("Unable to convert file '" + file.toString() + "'", e);
     }
     return retval;
   }
@@ -663,19 +716,30 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     updateAllErrors();
   }
 
-  private void addFileToResultFilenames( FileObject fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
+  private void addFileToResultFilenames(
+      FileObject fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     try {
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileaddentry, parentWorkflow.getWorkflowName(), toString() );
-      result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+          new ResultFile(
+              ResultFile.FILE_TYPE_GENERAL,
+              fileaddentry,
+              parentWorkflow.getWorkflowName(),
+              toString());
+      result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.FileAddedToResultFilesName", fileaddentry ) );
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "JobDosToUnix.Log.FileAddedToResultFilesName", fileaddentry));
       }
 
-    } catch ( Exception e ) {
-      logError( BaseMessages.getString(
-        PKG, "JobDosToUnix.Error.AddingToFilenameResult", fileaddentry.toString(), e.getMessage() ) );
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "JobDosToUnix.Error.AddingToFilenameResult",
+              fileaddentry.toString(),
+              e.getMessage()));
     }
   }
 
@@ -685,15 +749,15 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean getFileWildcard( String selectedfile, String wildcard ) {
+  private boolean getFileWildcard(String selectedfile, String wildcard) {
     Pattern pattern = null;
     boolean getIt = true;
 
-    if ( !Utils.isEmpty( wildcard ) ) {
-      pattern = Pattern.compile( wildcard );
+    if (!Utils.isEmpty(wildcard)) {
+      pattern = Pattern.compile(wildcard);
       // First see if the file matches the regular expression!
-      if ( pattern != null ) {
-        Matcher matcher = pattern.matcher( selectedfile );
+      if (pattern != null) {
+        Matcher matcher = pattern.matcher(selectedfile);
         getIt = matcher.matches();
       }
     }
@@ -701,15 +765,15 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return getIt;
   }
 
-  public void setIncludeSubFolders( boolean includeSubFolders ) {
+  public void setIncludeSubFolders(boolean includeSubFolders) {
     this.includeSubFolders = includeSubFolders;
   }
 
-  public void setArgFromPrevious( boolean argFromPrevious ) {
+  public void setArgFromPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
   }
 
-  public void setNrErrorsLessThan( String nrErrorsLessThan ) {
+  public void setNrErrorsLessThan(String nrErrorsLessThan) {
     this.nrErrorsLessThan = nrErrorsLessThan;
   }
 
@@ -717,7 +781,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return nrErrorsLessThan;
   }
 
-  public void setSuccessCondition( String successCondition ) {
+  public void setSuccessCondition(String successCondition) {
     this.successCondition = successCondition;
   }
 
@@ -725,7 +789,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return successCondition;
   }
 
-  public void setResultFilenames( String resultFilenames ) {
+  public void setResultFilenames(String resultFilenames) {
     this.resultFilenames = resultFilenames;
   }
 
@@ -744,48 +808,49 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     private final boolean toUnix;
     private byte state;
 
-    ConversionAutomata( OutputStream os, boolean toUnix ) {
+    ConversionAutomata(OutputStream os, boolean toUnix) {
       this.os = os;
       this.toUnix = toUnix;
       this.state = 0;
     }
 
-    void convert( byte[] input, int amount ) throws IOException {
-      if ( toUnix ) {
-        toUnix( input, amount );
+    void convert(byte[] input, int amount) throws IOException {
+      if (toUnix) {
+        toUnix(input, amount);
       } else {
-        toDos( input, amount );
+        toDos(input, amount);
       }
     }
 
-    private void toUnix( byte[] input, int amount ) throws IOException {
+    private void toUnix(byte[] input, int amount) throws IOException {
       // [0]:
       //     read CR -> goto [1];
       //     read __ -> write __;
       // [1]:
       //     read LF -> write LF;           goto [0];
-      //     read CR -> write CR;                    // two CRs in a row -- write the first and hold the second
+      //     read CR -> write CR;                    // two CRs in a row -- write the first and hold
+      // the second
       //     read __ -> write CR; write __; goto [0];
 
       int index = 0;
-      while ( index < amount ) {
-        int b = input[ index++ ];
-        switch ( state ) {
+      while (index < amount) {
+        int b = input[index++];
+        switch (state) {
           case 0:
-            if ( b == CR ) {
+            if (b == CR) {
               state = 1;
             } else {
-              os.write( b );
+              os.write(b);
             }
             break;
           case 1:
-            if ( b == LF ) {
-              os.write( LF );
+            if (b == LF) {
+              os.write(LF);
               state = 0;
             } else {
-              os.write( CR );
-              if ( b != CR ) {
-                os.write( b );
+              os.write(CR);
+              if (b != CR) {
+                os.write(b);
                 state = 0;
               }
             }
@@ -796,7 +861,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    private void toDos( byte[] input, int amount ) throws IOException {
+    private void toDos(byte[] input, int amount) throws IOException {
       // [0]:
       //     read CR -> goto [1];
       //     read LF -> write CR; write LF;
@@ -807,23 +872,23 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       //     read __ -> write CR; write __; goto [0];
 
       int index = 0;
-      while ( index < amount ) {
-        int b = input[ index++ ];
-        switch ( state ) {
+      while (index < amount) {
+        int b = input[index++];
+        switch (state) {
           case 0:
-            if ( b == CR ) {
+            if (b == CR) {
               state = 1;
-            } else if ( b == LF ) {
-              os.write( CR );
-              os.write( LF );
+            } else if (b == LF) {
+              os.write(CR);
+              os.write(LF);
             } else {
-              os.write( b );
+              os.write(b);
             }
             break;
           case 1:
-            os.write( CR );
-            if ( b != CR ) {
-              os.write( b );
+            os.write(CR);
+            if (b != CR) {
+              os.write(b);
               state = 0;
             }
             break;
@@ -834,7 +899,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     }
 
     private IllegalStateException unknownStateException() {
-      return new IllegalStateException( "Unknown state: " + state );
+      return new IllegalStateException("Unknown state: " + state);
     }
   }
 }

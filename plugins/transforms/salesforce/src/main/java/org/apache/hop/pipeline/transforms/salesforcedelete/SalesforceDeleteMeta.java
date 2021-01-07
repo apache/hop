@@ -39,9 +39,8 @@ import java.util.List;
 
 @Transform(
   id = "SalesforceDelete",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.salesforcedelete",
-  name = "SalesforceDelete.TypeLongDesc.SalesforceDelete",
-  description = "SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
+  name = "i18n::SalesforceDelete.TypeLongDesc.SalesforceDelete",
+  description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
   image = "SFD.svg",
   documentationUrl = "Products/Salesforce_Delete" )

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -146,7 +145,7 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
         BaseMessages.getString( PKG, "ConstantDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
+          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
 
     wFields =
       new TableView(
@@ -237,8 +236,8 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
         item.setText( col++, Const.NVL( def, "" ) );
         item
           .setText( col++, input.isSetEmptyString()[ i ]
-            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
-            PKG, SYSTEM_COMBO_NO ) );
+            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
+            PKG, "System.Combo.No" ) );
 
       }
     }
@@ -275,7 +274,7 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     for ( i = 0; i < nrFields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       input.getFieldName()[ i ] = item.getText( 1 );
-      input.isSetEmptyString()[ i ] = BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 10 ) );
+      input.isSetEmptyString()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 10 ) );
 
       input.getFieldType()[ i ] = input.isSetEmptyString()[ i ] ? "String" : item.getText( 2 );
       input.getFieldFormat()[ i ] = item.getText( 3 );

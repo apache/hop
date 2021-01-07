@@ -76,9 +76,8 @@ import java.util.zip.ZipOutputStream;
 
 @Action(
   id = "MAIL",
-  i18nPackageName = "org.apache.hop.workflow.actions.mail",
-  name = "ActionMail.Name",
-  description = "ActionMail.Description",
+  name = "i18n::ActionMail.Name",
+  description = "i18n::ActionMail.Description",
   image = "Mail.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mail.html"

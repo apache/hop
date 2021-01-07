@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -57,9 +56,8 @@ import java.util.Map;
 @Transform(
         id = "LoadFileInput",
         image = "loadfileinput.svg",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.loadfileinput",
-        name = "BaseTransform.TypeLongDesc.LoadFileInput",
-        description = "BaseTransform.TypeTooltipDesc.LoadFileInput",
+        name = "i18n::BaseTransform.TypeLongDesc.LoadFileInput",
+        description = "i18n::BaseTransform.TypeTooltipDesc.LoadFileInput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/loadfileinput.html"
 )
@@ -92,8 +90,8 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
 
   private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
 
-  public static final String[] RequiredFilesDesc = new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_NO ),
-    BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
+  public static final String[] RequiredFilesDesc = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
+    BaseMessages.getString( PKG, "System.Combo.Yes" ) };
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
 
   private static final String YES = "Y";

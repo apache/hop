@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Widget that combines a TextVar widget with a "Warning" image to the right. It's shown when there is a warning
- * condition in the text field.
+ * A Widget that combines a TextVar widget with a "Warning" image to the right. It's shown when
+ * there is a warning condition in the text field.
  *
  * @author Matt
  * @since 15-MAR-2009
@@ -55,8 +55,8 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
 
   private List<IWarning> warningInterfaces;
 
-  public TextVarWarning( IVariables variables, Composite composite, int flags ) {
-    super( composite, SWT.NONE );
+  public TextVarWarning(IVariables variables, Composite composite, int flags) {
+    super(composite, SWT.NONE);
 
     warningInterfaces = new ArrayList<>();
 
@@ -66,61 +66,59 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
     formLayout.marginTop = 0;
     formLayout.marginBottom = 0;
 
-    this.setLayout( formLayout );
+    this.setLayout(formLayout);
 
     // add a text field on it...
-    wText = new TextVar( variables, this, flags );
+    wText = new TextVar(variables, this, flags);
 
-    warningControlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT );
+    warningControlDecoration = new ControlDecoration(wText, SWT.CENTER | SWT.RIGHT);
     Image warningImage = GuiResource.getInstance().getImageWarning();
-    warningControlDecoration.setImage( warningImage );
-    warningControlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.FieldIsInUse" ) );
+    warningControlDecoration.setImage(warningImage);
+    warningControlDecoration.setDescriptionText(
+        BaseMessages.getString(PKG, "TextVar.tooltip.FieldIsInUse"));
     warningControlDecoration.hide();
 
     // If something has changed, check the warning interfaces
     //
-    wText.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
+    wText.addModifyListener(
+        new ModifyListener() {
+          public void modifyText(ModifyEvent arg0) {
 
-        // Verify all the warning interfaces.
-        // Show the first that has a warning to show...
-        //
-        boolean foundOne = false;
-        for ( IWarning warningInterface : warningInterfaces ) {
-          IWarningMessage warningSituation =
-            warningInterface.getWarningSituation( wText.getText(), wText, this );
-          if ( warningSituation.isWarning() ) {
-            foundOne = true;
-            warningControlDecoration.show();
-            warningControlDecoration.setDescriptionText( warningSituation.getWarningMessage() );
-            break;
+            // Verify all the warning interfaces.
+            // Show the first that has a warning to show...
+            //
+            boolean foundOne = false;
+            for (IWarning warningInterface : warningInterfaces) {
+              IWarningMessage warningSituation =
+                  warningInterface.getWarningSituation(wText.getText(), wText, this);
+              if (warningSituation.isWarning()) {
+                foundOne = true;
+                warningControlDecoration.show();
+                warningControlDecoration.setDescriptionText(warningSituation.getWarningMessage());
+                break;
+              }
+            }
+            if (!foundOne) {
+              warningControlDecoration.hide();
+            }
           }
-        }
-        if ( !foundOne ) {
-          warningControlDecoration.hide();
-        }
-      }
-    } );
+        });
 
     FormData fdText = new FormData();
-    fdText.top = new FormAttachment( 0, 0 );
-    fdText.left = new FormAttachment( 0, 0 );
-    fdText.right = new FormAttachment( 100, -warningImage.getBounds().width );
-    wText.setLayoutData( fdText );
+    fdText.top = new FormAttachment(0, 0);
+    fdText.left = new FormAttachment(0, 0);
+    fdText.right = new FormAttachment(100, -warningImage.getBounds().width);
+    wText.setLayoutData(fdText);
   }
 
-  /**
-   * @return the text in the Text widget
-   */
+  /** @return the text in the Text widget */
   public String getText() {
     return wText.getText();
   }
 
-  /**
-   * @param text the text in the Text widget to set.
-   */
-  public void setText( String text ) {
-    wText.setText( text );
+  /** @param text the text in the Text widget to set. */
+  public void setText(String text) {
+    wText.setText(text);
   }
 
   public TextVar getTextWidget() {
@@ -132,44 +130,44 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
    *
    * @param modifyListener
    */
-  public void addModifyListener( ModifyListener modifyListener ) {
-    wText.addModifyListener( modifyListener );
+  public void addModifyListener(ModifyListener modifyListener) {
+    wText.addModifyListener(modifyListener);
   }
 
-  public void addSelectionListener( SelectionAdapter lsDef ) {
-    wText.addSelectionListener( lsDef );
+  public void addSelectionListener(SelectionAdapter lsDef) {
+    wText.addSelectionListener(lsDef);
   }
 
-  public void addKeyListener( KeyListener lsKey ) {
-    wText.addKeyListener( lsKey );
+  public void addKeyListener(KeyListener lsKey) {
+    wText.addKeyListener(lsKey);
   }
 
-  public void addFocusListener( FocusListener lsFocus ) {
-    wText.addFocusListener( lsFocus );
+  public void addFocusListener(FocusListener lsFocus) {
+    wText.addFocusListener(lsFocus);
   }
 
-  public void setEchoChar( char c ) {
-    wText.setEchoChar( c );
+  public void setEchoChar(char c) {
+    wText.setEchoChar(c);
   }
 
-  public void setEnabled( boolean flag ) {
-    wText.setEnabled( flag );
+  public void setEnabled(boolean flag) {
+    wText.setEnabled(flag);
   }
 
   public boolean setFocus() {
     return wText.setFocus();
   }
 
-  public void addTraverseListener( TraverseListener tl ) {
-    wText.addTraverseListener( tl );
+  public void addTraverseListener(TraverseListener tl) {
+    wText.addTraverseListener(tl);
   }
 
-  public void setEditable( boolean editable ) {
-    wText.setEditable( editable );
+  public void setEditable(boolean editable) {
+    wText.setEditable(editable);
   }
 
-  public void setSelection( int i ) {
-    wText.setSelection( i );
+  public void setSelection(int i) {
+    wText.setSelection(i);
   }
 
   public void selectAll() {
@@ -180,12 +178,12 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
     wText.showSelection();
   }
 
-  public void addWarning( IWarning warningInterface ) {
-    warningInterfaces.add( warningInterface );
+  public void addWarning(IWarning warningInterface) {
+    warningInterfaces.add(warningInterface);
   }
 
-  public void removeWarningInterface( IWarning warningInterface ) {
-    warningInterfaces.remove( warningInterface );
+  public void removeWarningInterface(IWarning warningInterface) {
+    warningInterfaces.remove(warningInterface);
   }
 
   public List<IWarning> getWarningInterfaces() {

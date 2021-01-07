@@ -89,8 +89,7 @@ public class MessageDialogWithToggle {
   }
 
   public int open() {
-    int zoomedMargin = (int)(Const.MARGIN*props.getZoomFactor());
-
+    int zoomedMargin = (int) (Const.MARGIN * props.getZoomFactor());
 
     // Create the shell with the appropriate look and title...
     //
@@ -101,7 +100,7 @@ public class MessageDialogWithToggle {
     shellLayout.marginRight = zoomedMargin;
     shellLayout.marginBottom = zoomedMargin;
     shell.setLayout(shellLayout);
-    shell.setImage( GuiResource.getInstance().getImageHopUi() );
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.addDisposeListener(e -> cancel());
     shell.setText(Const.NVL(title, ""));
 
@@ -120,7 +119,7 @@ public class MessageDialogWithToggle {
 
     // Add the message label...
     //
-    Label wlMessage = new Label(shell, SWT.WRAP );
+    Label wlMessage = new Label(shell, SWT.WRAP);
     wlMessage.setText(Const.NVL(message, ""));
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(0, 0);
@@ -136,7 +135,7 @@ public class MessageDialogWithToggle {
     FormData fdToggle = new FormData();
     fdToggle.left = new FormAttachment(0, 0);
     fdToggle.right = new FormAttachment(100, 0);
-    fdToggle.top = new FormAttachment(wlMessage, 2*zoomedMargin);
+    fdToggle.top = new FormAttachment(wlMessage, 2 * zoomedMargin);
     wToggle.setLayoutData(fdToggle);
     // Keep the state sync'ed up...
     wToggle.addListener(SWT.Selection, e -> toggleState = wToggle.getSelection());
@@ -148,7 +147,12 @@ public class MessageDialogWithToggle {
       final int index = i;
       buttons[i] = new Button(shell, SWT.PUSH);
       buttons[i].setText(buttonLabels[i]);
-      buttons[i].addListener( SWT.Selection, e-> { returnCode=index; dispose(); } );
+      buttons[i].addListener(
+          SWT.Selection,
+          e -> {
+            returnCode = index;
+            dispose();
+          });
     }
     BaseTransformDialog.positionBottomButtons(shell, buttons, zoomedMargin, wToggle);
 

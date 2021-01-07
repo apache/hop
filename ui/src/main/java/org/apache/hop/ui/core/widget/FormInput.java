@@ -25,41 +25,41 @@ import org.eclipse.swt.widgets.Label;
 import java.lang.reflect.Method;
 
 /**
- * This class defines the fairly generic FormInput. This class is simply a convenience utility, containing the primary
- * information required to build an input for a FormLayout.
- * <p>
- * This template requires one to define the type of contained control.
- * <p>
- * ex: FormInput<Text> input = new FormInput<Text>( new Label( shell, SWT.NONE ), new Text(shell, SWT.SINGLE | SWT.LEFT
- * | SWT.BORDER) ); input.setText( "Hello", FormInput.Widget.LABEL ); input.setText( "World", FormInput.Widget.INPUT );
- * input.setToolTip( "To whom do you want to send a shout out?", FormInput.Widget.INPUT ); input.setPosition( 0, 47,
- * FormInput.Widget.LABEL, FormInput.Position.LEFT ); input.setPosition( 0, 130, FormInput.Widget.LABEL,
- * FormInput.Position.RIGHT ); input.setPosition( input.getLabel( ), 10, FormInput.Widget.INPUT, FormInput.Position.LEFT
- * );
+ * This class defines the fairly generic FormInput. This class is simply a convenience utility,
+ * containing the primary information required to build an input for a FormLayout.
+ *
+ * <p>This template requires one to define the type of contained control.
+ *
+ * <p>ex: FormInput<Text> input = new FormInput<Text>( new Label( shell, SWT.NONE ), new Text(shell,
+ * SWT.SINGLE | SWT.LEFT | SWT.BORDER) ); input.setText( "Hello", FormInput.Widget.LABEL );
+ * input.setText( "World", FormInput.Widget.INPUT ); input.setToolTip( "To whom do you want to send
+ * a shout out?", FormInput.Widget.INPUT ); input.setPosition( 0, 47, FormInput.Widget.LABEL,
+ * FormInput.Position.LEFT ); input.setPosition( 0, 130, FormInput.Widget.LABEL,
+ * FormInput.Position.RIGHT ); input.setPosition( input.getLabel( ), 10, FormInput.Widget.INPUT,
+ * FormInput.Position.LEFT );
  *
  * @author Robert D. Rice
  */
 public class FormInput<C extends Control> extends Object {
   public static final String vc_id = "$Id: FormInput.java 1672 2009-05-20 20:12:26Z robert $";
 
-  /**
-   * enumeration of available positioning elements
-   */
+  /** enumeration of available positioning elements */
   public enum Position {
-    LEFT, RIGHT, TOP, BOTTOM
+    LEFT,
+    RIGHT,
+    TOP,
+    BOTTOM
   }
 
-  /**
-   * enumeration of the contained widgets
-   */
+  /** enumeration of the contained widgets */
   public enum Widget {
-    LABEL, INPUT
+    LABEL,
+    INPUT
   }
 
-  /**
-   * attributes
-   */
+  /** attributes */
   protected Label label = null;
+
   protected C input = null;
   protected FormData labelFD = new FormData();
   protected FormData inputFD = new FormData();
@@ -70,10 +70,10 @@ public class FormInput<C extends Control> extends Object {
    * @param label
    * @param control input
    */
-  public FormInput( Label label, C input ) {
+  public FormInput(Label label, C input) {
     super();
-    setLabel( label );
-    setInput( input );
+    setLabel(label);
+    setInput(input);
   }
 
   /**
@@ -90,9 +90,9 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param label
    */
-  public void setLabel( Label label ) {
+  public void setLabel(Label label) {
     this.label = label;
-    this.label.setLayoutData( getLabelFD() );
+    this.label.setLayoutData(getLabelFD());
   }
 
   /**
@@ -109,9 +109,9 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param input
    */
-  public void setInput( C input ) {
+  public void setInput(C input) {
     this.input = input;
-    this.input.setLayoutData( getInputFD() );
+    this.input.setLayoutData(getInputFD());
   }
 
   /**
@@ -128,7 +128,7 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param labelFD
    */
-  public void setLabelFD( FormData labelFD ) {
+  public void setLabelFD(FormData labelFD) {
     this.labelFD = labelFD;
   }
 
@@ -146,7 +146,7 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param inputFD
    */
-  public void setInputFD( FormData inputFD ) {
+  public void setInputFD(FormData inputFD) {
     this.inputFD = inputFD;
   }
 
@@ -155,11 +155,11 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param numerator
    * @param offset
-   * @param widget    to set position, [ lable, input ]
-   * @param position  side, [ left, right, top, bottom ]
+   * @param widget to set position, [ lable, input ]
+   * @param position side, [ left, right, top, bottom ]
    */
-  public void setPosition( int numerator, int offset, Widget widget, Position side ) {
-    setPosition( new FormAttachment( numerator, offset ), widget, side );
+  public void setPosition(int numerator, int offset, Widget widget, Position side) {
+    setPosition(new FormAttachment(numerator, offset), widget, side);
   }
 
   /**
@@ -167,24 +167,24 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param Control
    * @param offset
-   * @param widget   to set position, [ lable, input ]
+   * @param widget to set position, [ lable, input ]
    * @param position side, [ left, right, top, bottom ]
    */
-  public void setPosition( Control control, int offset, Widget widget, Position side ) {
-    setPosition( new FormAttachment( control, offset ), widget, side );
+  public void setPosition(Control control, int offset, Widget widget, Position side) {
+    setPosition(new FormAttachment(control, offset), widget, side);
   }
 
   /**
    * setter for the element position
    *
    * @param FormAttachment position
-   * @param widget         to set position, [ lable, input ]
-   * @param position       side, [ left, right, top, bottom ]
+   * @param widget to set position, [ lable, input ]
+   * @param position side, [ left, right, top, bottom ]
    */
-  public void setPosition( FormAttachment position, Widget widget, Position side ) {
+  public void setPosition(FormAttachment position, Widget widget, Position side) {
     FormData layout = widget == Widget.LABEL ? getLabelFD() : getInputFD();
 
-    switch ( side ) {
+    switch (side) {
       case LEFT:
         layout.left = position;
         break;
@@ -208,14 +208,14 @@ public class FormInput<C extends Control> extends Object {
    * @param string text
    * @param widget to set text on
    */
-  public void setText( String text, Widget widget ) {
+  public void setText(String text, Widget widget) {
     Control control = widget == Widget.LABEL ? getLabel() : getInput();
-    Class<?>[] params = { String.class };
+    Class<?>[] params = {String.class};
 
     try {
-      Method method = control.getClass().getDeclaredMethod( "setText", params );
-      method.invoke( control, text );
-    } catch ( Exception ex ) {
+      Method method = control.getClass().getDeclaredMethod("setText", params);
+      method.invoke(control, text);
+    } catch (Exception ex) {
       // Ignore
     }
   }
@@ -226,14 +226,14 @@ public class FormInput<C extends Control> extends Object {
    * @param widget to retrieve the text from
    * @return string text
    */
-  public String getText( Widget widget ) {
+  public String getText(Widget widget) {
     String text = null;
     Control control = widget == Widget.LABEL ? getLabel() : getInput();
 
     try {
-      Method method = control.getClass().getDeclaredMethod( "getText" );
-      text = (String) method.invoke( control );
-    } catch ( Exception ex ) {
+      Method method = control.getClass().getDeclaredMethod("getText");
+      text = (String) method.invoke(control);
+    } catch (Exception ex) {
       // Ignore
     }
 
@@ -245,13 +245,13 @@ public class FormInput<C extends Control> extends Object {
    *
    * @param string text
    */
-  public void setToolTip( String text, Widget widget ) {
-    switch ( widget ) {
+  public void setToolTip(String text, Widget widget) {
+    switch (widget) {
       case LABEL:
-        getLabel().setToolTipText( text );
+        getLabel().setToolTipText(text);
         break;
       case INPUT:
-        getInput().setToolTipText( text );
+        getInput().setToolTipText(text);
         break;
       default:
         break;

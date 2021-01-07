@@ -18,7 +18,6 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -74,7 +73,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   private static final Class<?> PKG = ScriptValuesMetaMod.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
-    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
+    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
   private ModifyListener lsMod;
 

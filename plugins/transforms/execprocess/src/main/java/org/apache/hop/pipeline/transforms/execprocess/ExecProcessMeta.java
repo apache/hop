@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.execprocess;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -34,7 +34,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -45,55 +47,38 @@ import java.util.List;
  */
 
 @Transform(
-        id = "ExecProcess",
-        image = "execprocess.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.execprocess",
-        name = "BaseTransform.TypeLongDesc.ExecProcess",
-        description = "BaseTransform.TypeTooltipDesc.ExecProcess",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/execprocess.html"
-)
-public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
+    id = "ExecProcess",
+    image = "execprocess.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.ExecProcess",
+    description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/execprocess.html")
+public class ExecProcessMeta extends BaseTransformMeta
+    implements ITransformMeta<ExecProcess, ExecProcessData> {
   private static final Class<?> PKG = ExecProcessMeta.class; // Needed by Translator
 
-  /**
-   * dynamic process field name
-   */
+  /** dynamic process field name */
   private String processfield;
 
-  /**
-   * function result: new value name
-   */
+  /** function result: new value name */
   private String resultfieldname;
 
-  /**
-   * function result: error fieldname
-   */
+  /** function result: error fieldname */
   private String errorfieldname;
 
-  /**
-   * function result: exit value fieldname
-   */
+  /** function result: exit value fieldname */
   private String exitvaluefieldname;
 
-  /**
-   * fail if the exit status is different from 0
-   **/
+  /** fail if the exit status is different from 0 */
   private boolean failwhennotsuccess;
 
-  /**
-   * Output Line Delimiter - defaults to empty string for backward compatibility
-   **/
+  /** Output Line Delimiter - defaults to empty string for backward compatibility */
   public String outputLineDelimiter = "";
 
-  /**
-   * Whether arguments for the command are provided in input fields
-   **/
+  /** Whether arguments for the command are provided in input fields */
   private boolean argumentsInFields;
 
-  /**
-   * The field names where arguments should be found
-   **/
+  /** The field names where arguments should be found */
   private String[] argumentFieldNames;
 
   public ExecProcessMeta() {
@@ -105,65 +90,47 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
     this.argumentFieldNames = new String[argumentCount];
   }
 
-  /**
-   * @return Returns the processfield.
-   */
+  /** @return Returns the processfield. */
   public String getProcessField() {
     return processfield;
   }
 
-  /**
-   * @param processfield The processfield to set.
-   */
+  /** @param processfield The processfield to set. */
   public void setProcessField(String processfield) {
     this.processfield = processfield;
   }
 
-  /**
-   * @return Returns the resultName.
-   */
+  /** @return Returns the resultName. */
   public String getResultFieldName() {
     return resultfieldname;
   }
 
-  /**
-   * @param resultfieldname The resultfieldname to set.
-   */
+  /** @param resultfieldname The resultfieldname to set. */
   public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  /**
-   * @return Returns the errorfieldname.
-   */
+  /** @return Returns the errorfieldname. */
   public String getErrorFieldName() {
     return errorfieldname;
   }
 
-  /**
-   * @param errorfieldname The errorfieldname to set.
-   */
+  /** @param errorfieldname The errorfieldname to set. */
   public void setErrorFieldName(String errorfieldname) {
     this.errorfieldname = errorfieldname;
   }
 
-  /**
-   * @return Returns the exitvaluefieldname.
-   */
+  /** @return Returns the exitvaluefieldname. */
   public String getExitValueFieldName() {
     return exitvaluefieldname;
   }
 
-  /**
-   * @param exitvaluefieldname The exitvaluefieldname to set.
-   */
+  /** @param exitvaluefieldname The exitvaluefieldname to set. */
   public void setExitValueFieldName(String exitvaluefieldname) {
     this.exitvaluefieldname = exitvaluefieldname;
   }
 
-  /**
-   * @return Returns the failwhennotsuccess.
-   */
+  /** @return Returns the failwhennotsuccess. */
   public boolean isFailWhenNotSuccess() {
     return failwhennotsuccess;
   }
@@ -177,15 +144,14 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
     setFailWhenNotSuccess(failwhennotsuccess);
   }
 
-  /**
-   * @param failwhennotsuccess The failwhennotsuccess to set.
-   */
+  /** @param failwhennotsuccess The failwhennotsuccess to set. */
   public void setFailWhenNotSuccess(boolean failwhennotsuccess) {
     this.failwhennotsuccess = failwhennotsuccess;
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
@@ -205,8 +171,14 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     // Output fields (String)
     String realOutputFieldname = variables.resolve(resultfieldname);
     if (!Utils.isEmpty(realOutputFieldname)) {
@@ -225,7 +197,7 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
     String realexitvaluefieldname = variables.resolve(exitvaluefieldname);
     if (!Utils.isEmpty(realexitvaluefieldname)) {
       IValueMeta v = new ValueMetaInteger(realexitvaluefieldname);
-      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
+      v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
@@ -241,31 +213,36 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
     retval.append("    " + XmlHandler.addTagValue("exitvaluefieldname", exitvaluefieldname));
     retval.append("    " + XmlHandler.addTagValue("failwhennotsuccess", failwhennotsuccess));
     retval.append("    " + XmlHandler.addTagValue("outputlinedelimiter", outputLineDelimiter));
-    retval.append("    ").append( XmlHandler.addTagValue("argumentsInFields", argumentsInFields));
+    retval.append("    ").append(XmlHandler.addTagValue("argumentsInFields", argumentsInFields));
 
-    retval.append("    ").append( XmlHandler.openTag("argumentFields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.openTag("argumentFields")).append(Const.CR);
     for (int i = 0; i < argumentFieldNames.length; i++) {
-      retval.append("      ").append( XmlHandler.openTag("argumentField")).append(Const.CR);
-      retval.append("        ").append( XmlHandler.addTagValue("argumentFieldName", argumentFieldNames[i]));
-      retval.append("      ").append( XmlHandler.closeTag("argumentField")).append(Const.CR);
+      retval.append("      ").append(XmlHandler.openTag("argumentField")).append(Const.CR);
+      retval
+          .append("        ")
+          .append(XmlHandler.addTagValue("argumentFieldName", argumentFieldNames[i]));
+      retval.append("      ").append(XmlHandler.closeTag("argumentField")).append(Const.CR);
     }
-    retval.append("    ").append( XmlHandler.closeTag("argumentFields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.closeTag("argumentFields")).append(Const.CR);
     return retval.toString();
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
       processfield = XmlHandler.getTagValue(transformNode, "processfield");
       resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
       errorfieldname = XmlHandler.getTagValue(transformNode, "errorfieldname");
       exitvaluefieldname = XmlHandler.getTagValue(transformNode, "exitvaluefieldname");
-      failwhennotsuccess = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "failwhennotsuccess"));
+      failwhennotsuccess =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "failwhennotsuccess"));
       outputLineDelimiter = XmlHandler.getTagValue(transformNode, "outputlinedelimiter");
       if (outputLineDelimiter == null) {
         outputLineDelimiter = ""; // default to empty string for backward compatibility
       }
 
-      argumentsInFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "argumentsInFields"));
+      argumentsInFields =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "argumentsInFields"));
       Node argumentFieldsNode = XmlHandler.getSubNode(transformNode, "argumentFields");
       if (argumentFieldsNode == null) {
         argumentFieldNames = new String[0];
@@ -280,53 +257,68 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
 
     } catch (Exception e) {
       throw new HopXmlException(
-              BaseMessages.getString(PKG, "ExecProcessMeta.Exception.UnableToReadTransformMeta"), e);
+          BaseMessages.getString(PKG, "ExecProcessMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
     if (Utils.isEmpty(resultfieldname)) {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
     if (Utils.isEmpty(processfield)) {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
-              new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-                      PKG, "ExecProcessMeta.CheckResult.ReceivingInfoFromOtherTransforms"), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "ExecProcessMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
     } else {
       cr =
-              new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-                      PKG, "ExecProcessMeta.CheckResult.NoInpuReceived"), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
     }
     remarks.add(cr);
-
   }
 
   @Override
-  public ExecProcess createTransform( TransformMeta transformMeta, ExecProcessData data, int cnr,
-                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecProcess( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public ExecProcess createTransform(
+      TransformMeta transformMeta,
+      ExecProcessData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new ExecProcess(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -362,5 +354,4 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   public void setArgumentFieldNames(String[] argumentFieldNames) {
     this.argumentFieldNames = argumentFieldNames;
   }
-
 }

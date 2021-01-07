@@ -42,9 +42,8 @@ import java.util.List;
 
 @Transform(
     id = "SalesforceUpsert",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceupsert",
-    name = "SalesforceUpsert.TypeLongDesc.SalesforceUpsert",
-    description = "SalesforceUpsert.TypeTooltipDesc.SalesforceUpsert",
+    name = "i18n::SalesforceUpsert.TypeLongDesc.SalesforceUpsert",
+    description = "i18n::SalesforceUpsert.TypeTooltipDesc.SalesforceUpsert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFU.svg",
     documentationUrl = "Products/Salesforce_Upsert" )

@@ -47,9 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class contains the widgets for the GUI elements of a GUI Plugin
- */
+/** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
 
   private IVariables variables;
@@ -59,26 +57,31 @@ public class GuiCompositeWidgets {
   private int nrItems;
   private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
 
-  public GuiCompositeWidgets( IVariables variables ) {
+  public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
   }
 
-  public GuiCompositeWidgets( IVariables variables, int maxNrItems ) {
+  public GuiCompositeWidgets(IVariables variables, int maxNrItems) {
     this.variables = variables;
     this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
-    nrItems =0;
+    nrItems = 0;
     compositeWidgetsListener = null;
   }
 
-  public void createCompositeWidgets( Object sourceData, String parentKey, Composite parent, String parentGuiElementId, Control lastControl ) {
+  public void createCompositeWidgets(
+      Object sourceData,
+      String parentKey,
+      Composite parent,
+      String parentGuiElementId,
+      Control lastControl) {
 
     /*
-      The developer wants to be informed of any change to the content of the widget
-      We're just creating the widgets here so once the data is set it will generate a lot of modify listener events
-     */
-    if (sourceData!=null && sourceData instanceof IGuiPluginCompositeWidgetsListener ) {
+     The developer wants to be informed of any change to the content of the widget
+     We're just creating the widgets here so once the data is set it will generate a lot of modify listener events
+    */
+    if (sourceData != null && sourceData instanceof IGuiPluginCompositeWidgetsListener) {
       compositeWidgetsListener = (IGuiPluginCompositeWidgetsListener) sourceData;
     }
 
@@ -86,33 +89,38 @@ public class GuiCompositeWidgets {
     //
     GuiRegistry registry = GuiRegistry.getInstance();
     String key;
-    if ( StringUtils.isEmpty( parentKey ) ) {
+    if (StringUtils.isEmpty(parentKey)) {
       key = sourceData.getClass().getName();
     } else {
       key = parentKey;
     }
-    GuiElements guiElements = registry.findGuiElements( key, parentGuiElementId );
-    if ( guiElements == null ) {
-      System.err.println( "Create widgets: no GUI elements found for parent: " + key + ", parent ID: " + parentGuiElementId );
+    GuiElements guiElements = registry.findGuiElements(key, parentGuiElementId);
+    if (guiElements == null) {
+      System.err.println(
+          "Create widgets: no GUI elements found for parent: "
+              + key
+              + ", parent ID: "
+              + parentGuiElementId);
       return;
     }
 
     // Loop over the GUI elements, create and remember the widgets...
     //
-    addCompositeWidgets( sourceData, parent, guiElements, lastControl );
+    addCompositeWidgets(sourceData, parent, guiElements, lastControl);
 
-    if (compositeWidgetsListener!=null) {
-      compositeWidgetsListener.widgetsCreated( this );
+    if (compositeWidgetsListener != null) {
+      compositeWidgetsListener.widgetsCreated(this);
     }
 
     // Force re-layout
     //
-    parent.layout( true, true );
+    parent.layout(true, true);
   }
 
-  private Control addCompositeWidgets( Object sourceObject, Composite parent, GuiElements guiElements, Control lastControl ) {
+  private Control addCompositeWidgets(
+      Object sourceObject, Composite parent, GuiElements guiElements, Control lastControl) {
 
-    if ( guiElements.isIgnored() ) {
+    if (guiElements.isIgnored()) {
       return lastControl;
     }
 
@@ -122,72 +130,72 @@ public class GuiCompositeWidgets {
 
     // Do we add the element or the children?
     //
-    if ( guiElements.getId() != null ) {
+    if (guiElements.getId() != null) {
 
       // Add the label on the left hand side...
       //
-      if ( StringUtils.isNotEmpty( guiElements.getLabel() ) ) {
-        label = new Label( parent, SWT.RIGHT | SWT.SINGLE );
-        props.setLook( label );
-        label.setText( Const.NVL( guiElements.getLabel(), "" ) );
-        if (StringUtils.isNotEmpty( guiElements.getToolTip() )) {
-          label.setToolTipText( guiElements.getToolTip() );
+      if (StringUtils.isNotEmpty(guiElements.getLabel())) {
+        label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
+        props.setLook(label);
+        label.setText(Const.NVL(guiElements.getLabel(), ""));
+        if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
+          label.setToolTipText(guiElements.getToolTip());
         }
         FormData fdLabel = new FormData();
-        fdLabel.left = new FormAttachment( 0, 0 );
-        if ( lastControl == null ) {
-          fdLabel.top = new FormAttachment( 0, props.getMargin() );
+        fdLabel.left = new FormAttachment(0, 0);
+        if (lastControl == null) {
+          fdLabel.top = new FormAttachment(0, props.getMargin());
         } else {
-          fdLabel.top = new FormAttachment( lastControl, props.getMargin() );
+          fdLabel.top = new FormAttachment(lastControl, props.getMargin());
         }
-        fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
-        label.setLayoutData( fdLabel );
-        labelsMap.put( guiElements.getId(), label );
+        fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+        label.setLayoutData(fdLabel);
+        labelsMap.put(guiElements.getId(), label);
       }
 
       // Add the GUI element
       //
-      switch ( guiElements.getType() ) {
+      switch (guiElements.getType()) {
         case TEXT:
-          if ( guiElements.isVariablesEnabled() ) {
-            TextVar textVar = new TextVar( variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-            props.setLook( textVar );
-            if ( guiElements.isPassword() ) {
-              textVar.setEchoChar( '*' );
+          if (guiElements.isVariablesEnabled()) {
+            TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+            props.setLook(textVar);
+            if (guiElements.isPassword()) {
+              textVar.setEchoChar('*');
             }
-            widgetsMap.put( guiElements.getId(), textVar );
+            widgetsMap.put(guiElements.getId(), textVar);
             addModifyListener(textVar.getTextWidget());
             control = textVar;
           } else {
-            Text text = new Text( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-            props.setLook( text );
-            if ( guiElements.isPassword() ) {
-              text.setEchoChar( '*' );
+            Text text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+            props.setLook(text);
+            if (guiElements.isPassword()) {
+              text.setEchoChar('*');
             }
-            widgetsMap.put( guiElements.getId(), text );
+            widgetsMap.put(guiElements.getId(), text);
             addModifyListener(text);
             control = text;
           }
           break;
         case CHECKBOX:
-          Button button = new Button( parent, SWT.CHECK | SWT.LEFT );
-          props.setLook( button );
-          widgetsMap.put( guiElements.getId(), button );
+          Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
+          props.setLook(button);
+          widgetsMap.put(guiElements.getId(), button);
           addModifyListener(button);
           control = button;
           break;
         case COMBO:
-          if ( guiElements.isVariablesEnabled() ) {
-            ComboVar comboVar = new ComboVar( variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-            props.setLook( comboVar );
-            widgetsMap.put( guiElements.getId(), comboVar );
-            comboVar.setItems( getComboItems(sourceObject, guiElements.getGetComboValuesMethod()) );
+          if (guiElements.isVariablesEnabled()) {
+            ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+            props.setLook(comboVar);
+            widgetsMap.put(guiElements.getId(), comboVar);
+            comboVar.setItems(getComboItems(sourceObject, guiElements.getGetComboValuesMethod()));
             control = comboVar;
           } else {
-            Combo combo = new Combo( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-            props.setLook( combo );
-            combo.setItems( getComboItems( sourceObject, guiElements.getGetComboValuesMethod() ) );
-            widgetsMap.put( guiElements.getId(), combo );
+            Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+            props.setLook(combo);
+            combo.setItems(getComboItems(sourceObject, guiElements.getGetComboValuesMethod()));
+            widgetsMap.put(guiElements.getId(), combo);
             control = combo;
           }
           break;
@@ -195,22 +203,22 @@ public class GuiCompositeWidgets {
           break;
       }
 
-      if ( control != null ) {
+      if (control != null) {
         FormData fdControl = new FormData();
-        if ( label != null ) {
-          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
-          fdControl.right = new FormAttachment( 100, 0 );
-          fdControl.top = new FormAttachment( label, 0, SWT.CENTER );
+        if (label != null) {
+          fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+          fdControl.right = new FormAttachment(100, 0);
+          fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
         } else {
-          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
-          fdControl.right = new FormAttachment( 100, 0 );
-          if ( lastControl != null ) {
-            fdControl.top = new FormAttachment( lastControl, props.getMargin() );
+          fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+          fdControl.right = new FormAttachment(100, 0);
+          if (lastControl != null) {
+            fdControl.top = new FormAttachment(lastControl, props.getMargin());
           } else {
-            fdControl.top = new FormAttachment( 0, 0 );
+            fdControl.top = new FormAttachment(0, 0);
           }
         }
-        control.setLayoutData( fdControl );
+        control.setLayoutData(fdControl);
         return control;
       } else {
         return lastControl;
@@ -223,179 +231,217 @@ public class GuiCompositeWidgets {
     List<GuiElements> children = guiElements.getChildren();
 
     // Sort by ID
-    Collections.sort( children );
+    Collections.sort(children);
 
-    for ( GuiElements child : guiElements.getChildren() ) {
-      previousControl = addCompositeWidgets( sourceObject, parent, child, previousControl );
+    for (GuiElements child : guiElements.getChildren()) {
+      previousControl = addCompositeWidgets(sourceObject, parent, child, previousControl);
       nrItems++;
     }
 
     // We might need to add a number of extra lines...
     // Let's just add empty labels..
     //
-    for (;nrItems<maxNrItems;nrItems++) {
-      label = new Label( parent, SWT.RIGHT | SWT.SINGLE );
-      props.setLook( label );
-      label.setText( "                                                                    " );
+    for (; nrItems < maxNrItems; nrItems++) {
+      label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
+      props.setLook(label);
+      label.setText("                                                                    ");
       FormData fdLabel = new FormData();
-      fdLabel.left = new FormAttachment( 0, 0 );
-      if ( previousControl == null ) {
-        fdLabel.top = new FormAttachment( 0, 0 );
+      fdLabel.left = new FormAttachment(0, 0);
+      if (previousControl == null) {
+        fdLabel.top = new FormAttachment(0, 0);
       } else {
-        fdLabel.top = new FormAttachment( previousControl, props.getMargin() );
+        fdLabel.top = new FormAttachment(previousControl, props.getMargin());
       }
-      fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
-      label.setLayoutData( fdLabel );
+      fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+      label.setLayoutData(fdLabel);
       previousControl = label;
     }
-
 
     return previousControl;
   }
 
   /**
    * If a widget changes
+   *
    * @param control
    */
-  private void addModifyListener( final Control control ) {
-    if ( compositeWidgetsListener !=null) {
+  private void addModifyListener(final Control control) {
+    if (compositeWidgetsListener != null) {
       if (control instanceof Button) {
-        control.addListener( SWT.Selection, e -> compositeWidgetsListener.widgetModified( this, control ));
+        control.addListener(
+            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control));
       } else {
-        control.addListener( SWT.Modify, e -> compositeWidgetsListener.widgetModified( this, control ) );
+        control.addListener(
+            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control));
       }
     }
   }
 
-  private String[] getComboItems( Object sourceObject, String getComboValuesMethod ) {
+  private String[] getComboItems(Object sourceObject, String getComboValuesMethod) {
     try {
-      Method method = sourceObject.getClass().getMethod( getComboValuesMethod, ILogChannel.class, IHopMetadataProvider.class );
-      if (method==null) {
-        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IHopMetadataProvider in object '"+sourceObject+"'" );
+      Method method =
+          sourceObject
+              .getClass()
+              .getMethod(getComboValuesMethod, ILogChannel.class, IHopMetadataProvider.class);
+      if (method == null) {
+        throw new HopException(
+            "Unable to find method '"
+                + getComboValuesMethod
+                + "' with parameters ILogChannel and IHopMetadataProvider in object '"
+                + sourceObject
+                + "'");
       }
-      List<String> names = (List<String>) method.invoke( sourceObject, LogChannel.UI, HopGui.getInstance().getMetadataProvider() );
-      return names.toArray( new String[0] );
-    } catch(Exception e) {
-      LogChannel.UI.logError( "Error getting list of combo items for method '"+getComboValuesMethod +"' on source object: "+sourceObject, e );
+      List<String> names =
+          (List<String>)
+              method.invoke(
+                  sourceObject, LogChannel.UI, HopGui.getInstance().getMetadataProvider());
+      return names.toArray(new String[0]);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Error getting list of combo items for method '"
+              + getComboValuesMethod
+              + "' on source object: "
+              + sourceObject,
+          e);
       return new String[] {};
     }
   }
 
-  public void setWidgetsContents( Object sourceData, Composite parentComposite, String parentGuiElementId ) {
+  public void setWidgetsContents(
+      Object sourceData, Composite parentComposite, String parentGuiElementId) {
 
     GuiRegistry registry = GuiRegistry.getInstance();
-    GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
-    if ( guiElements == null ) {
+    GuiElements guiElements =
+        registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
+    if (guiElements == null) {
       return;
     }
 
-    setWidgetsData( sourceData, guiElements );
+    setWidgetsData(sourceData, guiElements);
 
-    if (compositeWidgetsListener!=null) {
-      compositeWidgetsListener.widgetsCreated( this );
+    if (compositeWidgetsListener != null) {
+      compositeWidgetsListener.widgetsCreated(this);
     }
 
-    parentComposite.layout( true, true );
+    parentComposite.layout(true, true);
   }
 
-  private void setWidgetsData( Object sourceData, GuiElements guiElements ) {
+  private void setWidgetsData(Object sourceData, GuiElements guiElements) {
 
-    if ( guiElements.isIgnored() ) {
+    if (guiElements.isIgnored()) {
       return;
     }
 
     // Do we add the element or the children?
     //
-    if ( guiElements.getId() != null ) {
+    if (guiElements.getId() != null) {
 
-      Control control = widgetsMap.get( guiElements.getId() );
-      if ( control != null ) {
+      Control control = widgetsMap.get(guiElements.getId());
+      if (control != null) {
 
         // What's the value?
         //
         Object value = null;
         try {
-          value = new PropertyDescriptor( guiElements.getFieldName(), sourceData.getClass() )
-            .getReadMethod()
-            .invoke( sourceData )
-          ;
-        } catch ( Exception e ) {
-          System.err.println( "Unable to get value for field: '" + guiElements.getFieldName() + "' : " + e.getMessage() );
+          value =
+              new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+                  .getReadMethod()
+                  .invoke(sourceData);
+        } catch (Exception e) {
+          System.err.println(
+              "Unable to get value for field: '"
+                  + guiElements.getFieldName()
+                  + "' : "
+                  + e.getMessage());
           e.printStackTrace();
         }
-        String stringValue = value == null ? "" : Const.NVL( value.toString(), "" );
+        String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
-        switch ( guiElements.getType() ) {
+        switch (guiElements.getType()) {
           case TEXT:
-            if ( guiElements.isVariablesEnabled() ) {
+            if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
-              textVar.setText( stringValue );
+              textVar.setText(stringValue);
             } else {
               Text text = (Text) control;
-              text.setText( stringValue );
+              text.setText(stringValue);
             }
             break;
           case CHECKBOX:
             Button button = (Button) control;
-            button.setSelection( (Boolean) value );
+            button.setSelection((Boolean) value);
             break;
           case COMBO:
-            if ( guiElements.isVariablesEnabled() ) {
+            if (guiElements.isVariablesEnabled()) {
               ComboVar comboVar = (ComboVar) control;
-              comboVar.setText( stringValue );
+              comboVar.setText(stringValue);
             } else {
               Combo combo = (Combo) control;
-              combo.setText( stringValue );
+              combo.setText(stringValue);
             }
             break;
           default:
-            System.err.println( "WARNING: setting data on widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
+            System.err.println(
+                "WARNING: setting data on widget with ID "
+                    + guiElements.getId()
+                    + " : not implemented type "
+                    + guiElements.getType()
+                    + " yet.");
             break;
         }
 
       } else {
-        System.err.println( "Widget not found to set value on for id: " + guiElements.getId()+", label: "+guiElements.getLabel() );
+        System.err.println(
+            "Widget not found to set value on for id: "
+                + guiElements.getId()
+                + ", label: "
+                + guiElements.getLabel());
       }
     } else {
 
       // Add the children
       //
-      for ( GuiElements child : guiElements.getChildren() ) {
-        setWidgetsData( sourceData, child );
+      for (GuiElements child : guiElements.getChildren()) {
+        setWidgetsData(sourceData, child);
       }
     }
   }
 
-  public void getWidgetsContents( Object sourceData, String parentGuiElementId ) {
+  public void getWidgetsContents(Object sourceData, String parentGuiElementId) {
     GuiRegistry registry = GuiRegistry.getInstance();
-    GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
-    if ( guiElements == null ) {
-      System.err.println( "getWidgetsContents: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+    GuiElements guiElements =
+        registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
+    if (guiElements == null) {
+      System.err.println(
+          "getWidgetsContents: no GUI elements found for class: "
+              + sourceData.getClass().getName()
+              + ", parent ID: "
+              + parentGuiElementId);
       return;
     }
 
-    getWidgetsData( sourceData, guiElements );
+    getWidgetsData(sourceData, guiElements);
   }
 
-  private void getWidgetsData( Object sourceData, GuiElements guiElements ) {
-    if ( guiElements.isIgnored() ) {
+  private void getWidgetsData(Object sourceData, GuiElements guiElements) {
+    if (guiElements.isIgnored()) {
       return;
     }
 
     // Do we add the element or the children?
     //
-    if ( guiElements.getId() != null ) {
+    if (guiElements.getId() != null) {
 
-      Control control = widgetsMap.get( guiElements.getId() );
-      if ( control != null ) {
+      Control control = widgetsMap.get(guiElements.getId());
+      if (control != null) {
 
         // What's the value?
         //
         Object value = null;
 
-        switch ( guiElements.getType() ) {
+        switch (guiElements.getType()) {
           case TEXT:
-            if ( guiElements.isVariablesEnabled() ) {
+            if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               value = textVar.getText();
             } else {
@@ -408,7 +454,7 @@ public class GuiCompositeWidgets {
             value = button.getSelection();
             break;
           case COMBO:
-            if ( guiElements.isVariablesEnabled() ) {
+            if (guiElements.isVariablesEnabled()) {
               ComboVar comboVar = (ComboVar) control;
               value = comboVar.getText();
             } else {
@@ -417,61 +463,80 @@ public class GuiCompositeWidgets {
             }
             break;
           default:
-            System.err.println( "WARNING: getting data from widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
+            System.err.println(
+                "WARNING: getting data from widget with ID "
+                    + guiElements.getId()
+                    + " : not implemented type "
+                    + guiElements.getType()
+                    + " yet.");
             break;
         }
 
         // Set the value on the source data object
         //
         try {
-          new PropertyDescriptor( guiElements.getFieldName(), sourceData.getClass() )
-            .getWriteMethod()
-            .invoke( sourceData, value )
-          ;
-        } catch ( Exception e ) {
-          System.err.println( "Unable to set value '" + value + "'on field: '" + guiElements.getFieldName() + "' : " + e.getMessage() );
+          new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+              .getWriteMethod()
+              .invoke(sourceData, value);
+        } catch (Exception e) {
+          System.err.println(
+              "Unable to set value '"
+                  + value
+                  + "'on field: '"
+                  + guiElements.getFieldName()
+                  + "' : "
+                  + e.getMessage());
           e.printStackTrace();
         }
 
       } else {
-        System.err.println( "Widget not found to set value on for id: " + guiElements.getId()+", label: "+guiElements.getLabel() );
+        System.err.println(
+            "Widget not found to set value on for id: "
+                + guiElements.getId()
+                + ", label: "
+                + guiElements.getLabel());
       }
     } else {
 
       // Add the children
       //
-      for ( GuiElements child : guiElements.getChildren() ) {
-        getWidgetsData( sourceData, child );
+      for (GuiElements child : guiElements.getChildren()) {
+        getWidgetsData(sourceData, child);
       }
     }
   }
 
-  public void enableWidgets( Object sourceData, String parentGuiElementId, boolean enabled ) {
+  public void enableWidgets(Object sourceData, String parentGuiElementId, boolean enabled) {
     GuiRegistry registry = GuiRegistry.getInstance();
-    GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
-    if ( guiElements == null ) {
-      System.err.println( "enableWidgets: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+    GuiElements guiElements =
+        registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
+    if (guiElements == null) {
+      System.err.println(
+          "enableWidgets: no GUI elements found for class: "
+              + sourceData.getClass().getName()
+              + ", parent ID: "
+              + parentGuiElementId);
       return;
     }
 
-    enableWidget( sourceData, guiElements, enabled );
+    enableWidget(sourceData, guiElements, enabled);
   }
 
-  private void enableWidget( Object sourceData, GuiElements guiElements, boolean enabled ) {
-    if ( guiElements.isIgnored() ) {
+  private void enableWidget(Object sourceData, GuiElements guiElements, boolean enabled) {
+    if (guiElements.isIgnored()) {
       return;
     }
 
     // Do we add the element or the children?
     //
-    if ( guiElements.getId() != null ) {
+    if (guiElements.getId() != null) {
 
       // TODO: look for flag to have custom enable/disable code
       //
-      //Temp fix to keep DriverClass enabled
-      if(!guiElements.getId().matches("driverClass")){
-        Control label = labelsMap.get( guiElements.getId() );
-        Control widget = widgetsMap.get( guiElements.getId() );
+      // Temp fix to keep DriverClass enabled
+      if (!guiElements.getId().matches("driverClass")) {
+        Control label = labelsMap.get(guiElements.getId());
+        Control widget = widgetsMap.get(guiElements.getId());
         if (label != null) {
           label.setEnabled(enabled);
         } else {
@@ -486,8 +551,8 @@ public class GuiCompositeWidgets {
     } else {
       // Add the children
       //
-      for ( GuiElements child : guiElements.getChildren() ) {
-        enableWidget( sourceData, child, enabled );
+      for (GuiElements child : guiElements.getChildren()) {
+        enableWidget(sourceData, child, enabled);
       }
     }
   }
@@ -501,10 +566,8 @@ public class GuiCompositeWidgets {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
-  public void setSpace( IVariables variables ) {
+  /** @param variables The variables to set */
+  public void setSpace(IVariables variables) {
     this.variables = variables;
   }
 
@@ -517,10 +580,8 @@ public class GuiCompositeWidgets {
     return labelsMap;
   }
 
-  /**
-   * @param labelsMap The labelsMap to set
-   */
-  public void setLabelsMap( Map<String, Control> labelsMap ) {
+  /** @param labelsMap The labelsMap to set */
+  public void setLabelsMap(Map<String, Control> labelsMap) {
     this.labelsMap = labelsMap;
   }
 
@@ -533,10 +594,8 @@ public class GuiCompositeWidgets {
     return widgetsMap;
   }
 
-  /**
-   * @param widgetsMap The widgetsMap to set
-   */
-  public void setWidgetsMap( Map<String, Control> widgetsMap ) {
+  /** @param widgetsMap The widgetsMap to set */
+  public void setWidgetsMap(Map<String, Control> widgetsMap) {
     this.widgetsMap = widgetsMap;
   }
 }

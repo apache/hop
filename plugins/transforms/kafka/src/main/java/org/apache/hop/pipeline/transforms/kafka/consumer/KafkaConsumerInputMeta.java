@@ -55,18 +55,21 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Transform(
-  id = "KafkaConsumer", image = "KafkaConsumerInput.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.kafka.consumer",
-  name = "KafkaConsumer.TypeLongDesc",
-  description = "KafkaConsumer.TypeTooltipDesc",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-  keywords = "kafka,consumer,input"
-)
-@InjectionSupported( localizationPrefix = "KafkaConsumerInputMeta.Injection.", groups = { "CONFIGURATION_PROPERTIES" } )
-public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
-                                    implements ITransformMeta<KafkaConsumerInput, KafkaConsumerInputData>, Cloneable {
+    id = "KafkaConsumer",
+    image = "KafkaConsumerInput.svg",
+    name = "i18n::KafkaConsumer.TypeLongDesc",
+    description = "i18n::KafkaConsumer.TypeTooltipDesc",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
+    keywords = "kafka,consumer,input")
+@InjectionSupported(
+    localizationPrefix = "KafkaConsumerInputMeta.Injection.",
+    groups = {"CONFIGURATION_PROPERTIES"})
+public class KafkaConsumerInputMeta
+    extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
+    implements ITransformMeta<KafkaConsumerInput, KafkaConsumerInputData>, Cloneable {
 
-  private static final Class<?> PKG = KafkaConsumerInputMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
+  private static final Class<?> PKG =
+      KafkaConsumerInputMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
 
   public static final String NUM_MESSAGES = "numMessages";
   public static final String DURATION = "duration";
@@ -90,42 +93,41 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
   public static final String TYPE_ATTRIBUTE = "type";
   public static final String AUTO_COMMIT = "AUTO_COMMIT";
 
-  @Injection( name = PIPELINE_PATH )
+  @Injection(name = PIPELINE_PATH)
   protected String filename = "";
 
-  @Injection( name = NUM_MESSAGES )
+  @Injection(name = NUM_MESSAGES)
   protected String batchSize = "1000";
 
-  @Injection( name = DURATION )
+  @Injection(name = DURATION)
   protected String batchDuration = "1000";
 
-  @Injection( name = SUB_TRANSFORM )
+  @Injection(name = SUB_TRANSFORM)
   protected String subTransform = "";
 
-  @Injection( name = "DIRECT_BOOTSTRAP_SERVERS" )
+  @Injection(name = "DIRECT_BOOTSTRAP_SERVERS")
   private String directBootstrapServers;
 
-  @Injection( name = "TOPICS" )
+  @Injection(name = "TOPICS")
   private List<String> topics;
 
-  @Injection( name = "CONSUMER_GROUP" )
+  @Injection(name = "CONSUMER_GROUP")
   private String consumerGroup;
 
-  @InjectionDeep( prefix = "KEY" )
+  @InjectionDeep(prefix = "KEY")
   private KafkaConsumerField keyField;
 
-  @InjectionDeep( prefix = "MESSAGE" )
+  @InjectionDeep(prefix = "MESSAGE")
   private KafkaConsumerField messageField;
 
-  @Injection( name = "NAMES", group = "CONFIGURATION_PROPERTIES" )
+  @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
   protected transient List<String> injectedConfigNames;
 
-  @Injection( name = "VALUES", group = "CONFIGURATION_PROPERTIES" )
+  @Injection(name = "VALUES", group = "CONFIGURATION_PROPERTIES")
   protected transient List<String> injectedConfigValues;
 
-  @Injection( name = AUTO_COMMIT )
+  @Injection(name = AUTO_COMMIT)
   private boolean autoCommit = true;
-
 
   private Map<String, String> config = new LinkedHashMap<>();
 
@@ -139,9 +141,13 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
   // Describe the standard way of retrieving mappings
   //
-  @FunctionalInterface interface MappingMetaRetriever {
-    PipelineMeta get( TransformWithMappingMeta mappingMeta, IHopMetadataProvider metadataProvider, IVariables variables )
-      throws HopException;
+  @FunctionalInterface
+  interface MappingMetaRetriever {
+    PipelineMeta get(
+        TransformWithMappingMeta mappingMeta,
+        IHopMetadataProvider metadataProvider,
+        IVariables variables)
+        throws HopException;
   }
 
   MappingMetaRetriever mappingMetaRetriever = PipelineExecutorMeta::loadMappingMeta;
@@ -151,94 +157,103 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
     topics = new ArrayList<>();
 
-    keyField = new KafkaConsumerField(
-      KafkaConsumerField.Name.KEY,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.KeyField" )
-    );
+    keyField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.KEY,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.KeyField"));
 
-    messageField = new KafkaConsumerField(
-      KafkaConsumerField.Name.MESSAGE,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.MessageField" )
-    );
+    messageField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.MESSAGE,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MessageField"));
 
-    topicField = new KafkaConsumerField(
-      KafkaConsumerField.Name.TOPIC,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.TopicField" )
-    );
+    topicField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.TOPIC,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TopicField"));
 
-    partitionField = new KafkaConsumerField(
-      KafkaConsumerField.Name.PARTITION,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.PartitionField" ),
-      KafkaConsumerField.Type.Integer
-    );
+    partitionField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.PARTITION,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.PartitionField"),
+            KafkaConsumerField.Type.Integer);
 
-    offsetField = new KafkaConsumerField(
-      KafkaConsumerField.Name.OFFSET,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.OffsetField" ),
-      KafkaConsumerField.Type.Integer
-    );
+    offsetField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.OFFSET,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.OffsetField"),
+            KafkaConsumerField.Type.Integer);
 
-    timestampField = new KafkaConsumerField(
-      KafkaConsumerField.Name.TIMESTAMP,
-      BaseMessages.getString( PKG, "KafkaConsumerInputDialog.TimestampField" ),
-      KafkaConsumerField.Type.Integer
-    );
+    timestampField =
+        new KafkaConsumerField(
+            KafkaConsumerField.Name.TIMESTAMP,
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField"),
+            KafkaConsumerField.Type.Integer);
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) {
 
-    setFilename( XmlHandler.getTagValue( transformNode, PIPELINE_PATH ) );
+    setFilename(XmlHandler.getTagValue(transformNode, PIPELINE_PATH));
 
     topics = new ArrayList<>();
-    List<Node> topicsNode = XmlHandler.getNodes( transformNode, TOPIC );
-    topicsNode.forEach( node -> {
-      String displayName = XmlHandler.getNodeValue( node );
-      topics.add(displayName);
-    } );
+    List<Node> topicsNode = XmlHandler.getNodes(transformNode, TOPIC);
+    topicsNode.forEach(
+        node -> {
+          String displayName = XmlHandler.getNodeValue(node);
+          topics.add(displayName);
+        });
 
-    setConsumerGroup( XmlHandler.getTagValue( transformNode, CONSUMER_GROUP ) );
-    String subTransformTag = XmlHandler.getTagValue( transformNode, SUB_TRANSFORM );
-    if ( !StringUtils.isEmpty( subTransformTag ) ) {
-      setSubTransform( subTransformTag );
+    setConsumerGroup(XmlHandler.getTagValue(transformNode, CONSUMER_GROUP));
+    String subTransformTag = XmlHandler.getTagValue(transformNode, SUB_TRANSFORM);
+    if (!StringUtils.isEmpty(subTransformTag)) {
+      setSubTransform(subTransformTag);
     }
-    setBatchSize( XmlHandler.getTagValue( transformNode, BATCH_SIZE ) );
-    setBatchDuration( XmlHandler.getTagValue( transformNode, BATCH_DURATION ) );
-    setDirectBootstrapServers( XmlHandler.getTagValue( transformNode, DIRECT_BOOTSTRAP_SERVERS ) );
+    setBatchSize(XmlHandler.getTagValue(transformNode, BATCH_SIZE));
+    setBatchDuration(XmlHandler.getTagValue(transformNode, BATCH_DURATION));
+    setDirectBootstrapServers(XmlHandler.getTagValue(transformNode, DIRECT_BOOTSTRAP_SERVERS));
 
-    String autoCommitValue = XmlHandler.getTagValue( transformNode, AUTO_COMMIT );
-    setAutoCommit( "Y".equals( autoCommitValue ) || StringUtils.isEmpty( autoCommitValue ) );
+    String autoCommitValue = XmlHandler.getTagValue(transformNode, AUTO_COMMIT);
+    setAutoCommit("Y".equals(autoCommitValue) || StringUtils.isEmpty(autoCommitValue));
 
-    List<Node> ofNode = XmlHandler.getNodes( transformNode, OUTPUT_FIELD_TAG_NAME );
+    List<Node> ofNode = XmlHandler.getNodes(transformNode, OUTPUT_FIELD_TAG_NAME);
 
-    ofNode.forEach( node -> {
-      String displayName = XmlHandler.getNodeValue( node );
-      String kafkaName = XmlHandler.getTagAttribute( node, KAFKA_NAME_ATTRIBUTE );
-      String type = XmlHandler.getTagAttribute( node, TYPE_ATTRIBUTE );
-      KafkaConsumerField field = new KafkaConsumerField(
-        KafkaConsumerField.Name.valueOf( kafkaName.toUpperCase() ),
-        displayName,
-        KafkaConsumerField.Type.valueOf( type ) );
+    ofNode.forEach(
+        node -> {
+          String displayName = XmlHandler.getNodeValue(node);
+          String kafkaName = XmlHandler.getTagAttribute(node, KAFKA_NAME_ATTRIBUTE);
+          String type = XmlHandler.getTagAttribute(node, TYPE_ATTRIBUTE);
+          KafkaConsumerField field =
+              new KafkaConsumerField(
+                  KafkaConsumerField.Name.valueOf(kafkaName.toUpperCase()),
+                  displayName,
+                  KafkaConsumerField.Type.valueOf(type));
 
-      setField( field );
-    } );
+          setField(field);
+        });
 
     config = new LinkedHashMap<>();
 
-    Optional.ofNullable( XmlHandler.getSubNode( transformNode, ADVANCED_CONFIG ) ).map( Node::getChildNodes )
-        .ifPresent( nodes -> IntStream.range( 0, nodes.getLength() ).mapToObj( nodes::item )
-            .filter( node -> node.getNodeType() == Node.ELEMENT_NODE )
-            .forEach( node -> {
-              if ( CONFIG_OPTION.equals( node.getNodeName() ) ) {
-                config.put( node.getAttributes().getNamedItem( OPTION_PROPERTY ).getTextContent(),
-                            node.getAttributes().getNamedItem( OPTION_VALUE ).getTextContent() );
-              } else {
-                config.put( node.getNodeName(), node.getTextContent() );
-              }
-            } ) );
+    Optional.ofNullable(XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG))
+        .map(Node::getChildNodes)
+        .ifPresent(
+            nodes ->
+                IntStream.range(0, nodes.getLength())
+                    .mapToObj(nodes::item)
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .forEach(
+                        node -> {
+                          if (CONFIG_OPTION.equals(node.getNodeName())) {
+                            config.put(
+                                node.getAttributes().getNamedItem(OPTION_PROPERTY).getTextContent(),
+                                node.getAttributes().getNamedItem(OPTION_VALUE).getTextContent());
+                          } else {
+                            config.put(node.getNodeName(), node.getTextContent());
+                          }
+                        }));
   }
 
-  protected void setField( KafkaConsumerField field ) {
-    field.getKafkaName().setFieldOnMeta( this, field );
+  protected void setField(KafkaConsumerField field) {
+    field.getKafkaName().setFieldOnMeta(this, field);
   }
 
   public void setDefault() {
@@ -246,72 +261,95 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     batchDuration = "1000";
   }
 
-  public RowMeta getRowMeta( String origin, IVariables variables ) throws HopTransformException {
+  public RowMeta getRowMeta(String origin, IVariables variables) throws HopTransformException {
     RowMeta rowMeta = new RowMeta();
-    putFieldOnRowMeta( getKeyField(), rowMeta, origin, variables );
-    putFieldOnRowMeta( getMessageField(), rowMeta, origin, variables );
-    putFieldOnRowMeta( getTopicField(), rowMeta, origin, variables );
-    putFieldOnRowMeta( getPartitionField(), rowMeta, origin, variables );
-    putFieldOnRowMeta( getOffsetField(), rowMeta, origin, variables );
-    putFieldOnRowMeta( getTimestampField(), rowMeta, origin, variables );
+    putFieldOnRowMeta(getKeyField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getMessageField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getTopicField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getPartitionField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getOffsetField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getTimestampField(), rowMeta, origin, variables);
     return rowMeta;
   }
 
-  private void putFieldOnRowMeta( KafkaConsumerField field, IRowMeta rowMeta,
-                                  String origin, IVariables variables ) throws HopTransformException {
-    if ( field != null && !StringUtils.isEmpty( field.getOutputName() ) ) {
+  private void putFieldOnRowMeta(
+      KafkaConsumerField field, IRowMeta rowMeta, String origin, IVariables variables)
+      throws HopTransformException {
+    if (field != null && !StringUtils.isEmpty(field.getOutputName())) {
       try {
-        String value = variables.resolve( field.getOutputName() );
-        IValueMeta v = ValueMetaFactory.createValueMeta( value,
-          field.getOutputType().getIValueMetaType() );
-        v.setOrigin( origin );
-        rowMeta.addValueMeta( v );
-      } catch ( Exception e ) {
-        throw new HopTransformException( BaseMessages.getString( PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field), e );
+        String value = variables.resolve(field.getOutputName());
+        IValueMeta v =
+            ValueMetaFactory.createValueMeta(value, field.getOutputType().getIValueMetaType());
+        v.setOrigin(origin);
+        rowMeta.addValueMeta(v);
+      } catch (Exception e) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field),
+            e);
       }
     }
   }
 
-
-  @Override public String getXml() {
+  @Override
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    getTopics().forEach( topic -> xml.append( "    " ).append( XmlHandler.addTagValue( TOPIC, topic ) ) );
+    getTopics().forEach(topic -> xml.append("    ").append(XmlHandler.addTagValue(TOPIC, topic)));
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( CONSUMER_GROUP, consumerGroup ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( PIPELINE_PATH, filename ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( SUB_TRANSFORM, getSubTransform() ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( BATCH_SIZE, batchSize ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( BATCH_DURATION, batchDuration ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( DIRECT_BOOTSTRAP_SERVERS, directBootstrapServers ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( AUTO_COMMIT, autoCommit ) );
+    xml.append("    ").append(XmlHandler.addTagValue(CONSUMER_GROUP, consumerGroup));
+    xml.append("    ").append(XmlHandler.addTagValue(PIPELINE_PATH, filename));
+    xml.append("    ").append(XmlHandler.addTagValue(SUB_TRANSFORM, getSubTransform()));
+    xml.append("    ").append(XmlHandler.addTagValue(BATCH_SIZE, batchSize));
+    xml.append("    ").append(XmlHandler.addTagValue(BATCH_DURATION, batchDuration));
+    xml.append("    ")
+        .append(XmlHandler.addTagValue(DIRECT_BOOTSTRAP_SERVERS, directBootstrapServers));
+    xml.append("    ").append(XmlHandler.addTagValue(AUTO_COMMIT, autoCommit));
 
-    getFieldDefinitions().forEach( field ->
-      xml.append( "    " ).append(
-        XmlHandler.addTagValue( OUTPUT_FIELD_TAG_NAME, field.getOutputName(), true,
-          KAFKA_NAME_ATTRIBUTE, field.getKafkaName().toString(),
-          TYPE_ATTRIBUTE, field.getOutputType().toString() ) ) );
+    getFieldDefinitions()
+        .forEach(
+            field ->
+                xml.append("    ")
+                    .append(
+                        XmlHandler.addTagValue(
+                            OUTPUT_FIELD_TAG_NAME,
+                            field.getOutputName(),
+                            true,
+                            KAFKA_NAME_ATTRIBUTE,
+                            field.getKafkaName().toString(),
+                            TYPE_ATTRIBUTE,
+                            field.getOutputType().toString())));
 
-    xml.append( "    " ).append( XmlHandler.openTag( ADVANCED_CONFIG ) ).append( Const.CR );
-    getConfig().forEach(
-      ( key, value ) -> xml.append( "        " ).append( XmlHandler.addTagValue( CONFIG_OPTION, "", true, OPTION_PROPERTY, (String) key, OPTION_VALUE, (String) value ) ) );
-    xml.append( "    " ).append( XmlHandler.closeTag( ADVANCED_CONFIG ) ).append( Const.CR );
+    xml.append("    ").append(XmlHandler.openTag(ADVANCED_CONFIG)).append(Const.CR);
+    getConfig()
+        .forEach(
+            (key, value) ->
+                xml.append("        ")
+                    .append(
+                        XmlHandler.addTagValue(
+                            CONFIG_OPTION,
+                            "",
+                            true,
+                            OPTION_PROPERTY,
+                            (String) key,
+                            OPTION_VALUE,
+                            (String) value)));
+    xml.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
 
     return xml.toString();
   }
 
   public List<KafkaConsumerField> getFieldDefinitions() {
-    return new ArrayList<>( Arrays.asList(
-      getKeyField(),
-      getMessageField(),
-      getTopicField(),
-      getPartitionField(),
-      getOffsetField(),
-      getTimestampField() )
-    );
+    return new ArrayList<>(
+        Arrays.asList(
+            getKeyField(),
+            getMessageField(),
+            getTopicField(),
+            getPartitionField(),
+            getOffsetField(),
+            getTimestampField()));
   }
 
-  public void setConfig( Map<String, String> config ) {
+  public void setConfig(Map<String, String> config) {
     this.config = config;
   }
 
@@ -321,15 +359,22 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
   }
 
   protected void applyInjectedProperties() {
-    if ( injectedConfigNames != null || injectedConfigValues != null ) {
-      Preconditions.checkState( injectedConfigNames != null, "Options names were not injected" );
-      Preconditions.checkState( injectedConfigValues != null, "Options values were not injected" );
-      Preconditions.checkState( injectedConfigNames.size() == injectedConfigValues.size(),
-          "Injected different number of options names and value" );
+    if (injectedConfigNames != null || injectedConfigValues != null) {
+      Preconditions.checkState(injectedConfigNames != null, "Options names were not injected");
+      Preconditions.checkState(injectedConfigValues != null, "Options values were not injected");
+      Preconditions.checkState(
+          injectedConfigNames.size() == injectedConfigValues.size(),
+          "Injected different number of options names and value");
 
-      setConfig( IntStream.range( 0, injectedConfigNames.size() ).boxed().collect( Collectors
-          .toMap( injectedConfigNames::get, injectedConfigValues::get, ( v1, v2 ) -> v1,
-              LinkedHashMap::new ) ) );
+      setConfig(
+          IntStream.range(0, injectedConfigNames.size())
+              .boxed()
+              .collect(
+                  Collectors.toMap(
+                      injectedConfigNames::get,
+                      injectedConfigValues::get,
+                      (v1, v2) -> v1,
+                      LinkedHashMap::new)));
 
       injectedConfigNames = null;
       injectedConfigValues = null;
@@ -342,101 +387,134 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
   public KafkaConsumerInputMeta copyObject() {
     KafkaConsumerInputMeta newClone = (KafkaConsumerInputMeta) super.clone();
-    newClone.topics = new ArrayList<>( this.topics );
-    newClone.keyField = new KafkaConsumerField( this.keyField );
-    newClone.messageField = new KafkaConsumerField( this.messageField );
-    if ( null != this.injectedConfigNames ) {
-      newClone.injectedConfigNames = new ArrayList<>( this.injectedConfigNames );
+    newClone.topics = new ArrayList<>(this.topics);
+    newClone.keyField = new KafkaConsumerField(this.keyField);
+    newClone.messageField = new KafkaConsumerField(this.messageField);
+    if (null != this.injectedConfigNames) {
+      newClone.injectedConfigNames = new ArrayList<>(this.injectedConfigNames);
     }
-    if ( null != this.injectedConfigValues ) {
-      newClone.injectedConfigValues = new ArrayList<>( this.injectedConfigValues );
+    if (null != this.injectedConfigValues) {
+      newClone.injectedConfigValues = new ArrayList<>(this.injectedConfigValues);
     }
-    newClone.config = new LinkedHashMap<>( this.config );
-    newClone.topicField = new KafkaConsumerField( this.topicField );
-    newClone.offsetField = new KafkaConsumerField( this.offsetField );
-    newClone.partitionField = new KafkaConsumerField( this.partitionField );
-    newClone.timestampField = new KafkaConsumerField( this.timestampField );
+    newClone.config = new LinkedHashMap<>(this.config);
+    newClone.topicField = new KafkaConsumerField(this.topicField);
+    newClone.offsetField = new KafkaConsumerField(this.offsetField);
+    newClone.partitionField = new KafkaConsumerField(this.partitionField);
+    newClone.timestampField = new KafkaConsumerField(this.timestampField);
     return newClone;
   }
 
-
-  @Override public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables variables, IHopMetadataProvider metadataProvider )
-    throws HopTransformException {
+  @Override
+  public void getFields(
+      IRowMeta rowMeta,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     try {
-      PipelineMeta pipelineMeta = mappingMetaRetriever.get( this, metadataProvider, variables );
-      if ( !StringUtils.isEmpty( getSubTransform() ) ) {
-        String realSubTransformName = variables.resolve( getSubTransform() );
-        rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( variables, realSubTransformName ) );
-        pipelineMeta.getTransforms().stream().filter( transformMeta -> transformMeta.getName().equals( realSubTransformName ) )
-          .findFirst()
-          .ifPresent( transformMeta -> {
-            try {
-              transformMeta.getTransform().getFields( rowMeta, origin, info, nextTransform, variables, metadataProvider );
-            } catch ( HopTransformException e ) {
-              throw new RuntimeException( e );
-            }
-          } );
+      PipelineMeta pipelineMeta = mappingMetaRetriever.get(this, metadataProvider, variables);
+      if (!StringUtils.isEmpty(getSubTransform())) {
+        String realSubTransformName = variables.resolve(getSubTransform());
+        rowMeta.addRowMeta(pipelineMeta.getPrevTransformFields(variables, realSubTransformName));
+        pipelineMeta.getTransforms().stream()
+            .filter(transformMeta -> transformMeta.getName().equals(realSubTransformName))
+            .findFirst()
+            .ifPresent(
+                transformMeta -> {
+                  try {
+                    transformMeta
+                        .getTransform()
+                        .getFields(
+                            rowMeta, origin, info, nextTransform, variables, metadataProvider);
+                  } catch (HopTransformException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
       }
-    } catch ( HopException e ) {
-      getLog().logDebug( "could not get fields, probable AEL" );
-      rowMeta.addRowMeta( getRowMeta( origin, variables ) );
+    } catch (HopException e) {
+      getLog().logDebug("could not get fields, probable AEL");
+      rowMeta.addRowMeta(getRowMeta(origin, variables));
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta,
-                     TransformMeta transformMeta, IRowMeta prev, String[] input, String[] output,
-                     IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     long duration = Long.MIN_VALUE;
     try {
-      duration = Long.parseLong( variables.resolve( getBatchDuration() ) );
-    } catch ( NumberFormatException e ) {
-      remarks.add( new CheckResult(
-        ICheckResult.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Duration" ),
-        transformMeta ) );
+      duration = Long.parseLong(variables.resolve(getBatchDuration()));
+    } catch (NumberFormatException e) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Duration"),
+              transformMeta));
     }
 
     long size = Long.MIN_VALUE;
     try {
-      size = Long.parseLong( variables.resolve( getBatchSize() ) );
-    } catch ( NumberFormatException e ) {
-      remarks.add( new CheckResult(
-        ICheckResult.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Number of records" ),
-        transformMeta ) );
+      size = Long.parseLong(variables.resolve(getBatchSize()));
+    } catch (NumberFormatException e) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Number of records"),
+              transformMeta));
     }
 
-    if ( duration == 0 && size == 0 ) {
-      remarks.add( new CheckResult(
-        ICheckResult.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "KafkaConsumerInputMeta.CheckResult.NoBatchDefined" ),
-        transformMeta ) );
+    if (duration == 0 && size == 0) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "KafkaConsumerInputMeta.CheckResult.NoBatchDefined"),
+              transformMeta));
     }
   }
 
-  @Override public KafkaConsumerInput createTransform( TransformMeta transformMeta, KafkaConsumerInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new KafkaConsumerInput( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  @Override
+  public KafkaConsumerInput createTransform(
+      TransformMeta transformMeta,
+      KafkaConsumerInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new KafkaConsumerInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  @Override public KafkaConsumerInputData getTransformData() {
+  @Override
+  public KafkaConsumerInputData getTransformData() {
     return new KafkaConsumerInputData();
   }
 
-  @Override public boolean[] isReferencedObjectEnabled() {
-    return new boolean[] { StringUtils.isNotEmpty( filename ) };
+  @Override
+  public boolean[] isReferencedObjectEnabled() {
+    return new boolean[] {StringUtils.isNotEmpty(filename)};
   }
 
-  @Override public String[] getReferencedObjectDescriptions() {
-    return new String[] { "Kafka Pipeline" };
+  @Override
+  public String[] getReferencedObjectDescriptions() {
+    return new String[] {"Kafka Pipeline"};
   }
 
-  @Override public String getActiveReferencedObjectDescription() {
+  @Override
+  public String getActiveReferencedObjectDescription() {
     return "Running Kafka Pipeline";
   }
 
-  @Override public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta( this, metadataProvider, variables );
+  @Override
+  public IHasFilename loadReferencedObject(
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return PipelineExecutorMeta.loadMappingMeta(this, metadataProvider, variables);
   }
 
   /**
@@ -444,14 +522,14 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
    *
    * @return value of filename
    */
-  @Override public String getFilename() {
+  @Override
+  public String getFilename() {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  @Override public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  @Override
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -464,10 +542,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return batchSize;
   }
 
-  /**
-   * @param batchSize The batchSize to set
-   */
-  public void setBatchSize( String batchSize ) {
+  /** @param batchSize The batchSize to set */
+  public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
 
@@ -480,10 +556,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return batchDuration;
   }
 
-  /**
-   * @param batchDuration The batchDuration to set
-   */
-  public void setBatchDuration( String batchDuration ) {
+  /** @param batchDuration The batchDuration to set */
+  public void setBatchDuration(String batchDuration) {
     this.batchDuration = batchDuration;
   }
 
@@ -497,9 +571,10 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
   }
 
   /**
-   * @param subTransform the name of the transform in the kafka pipeline to retrieve data from to set
+   * @param subTransform the name of the transform in the kafka pipeline to retrieve data from to
+   *     set
    */
-  public void setSubTransform( String subTransform ) {
+  public void setSubTransform(String subTransform) {
     this.subTransform = subTransform;
   }
 
@@ -512,10 +587,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return directBootstrapServers;
   }
 
-  /**
-   * @param directBootstrapServers The directBootstrapServers to set
-   */
-  public void setDirectBootstrapServers( String directBootstrapServers ) {
+  /** @param directBootstrapServers The directBootstrapServers to set */
+  public void setDirectBootstrapServers(String directBootstrapServers) {
     this.directBootstrapServers = directBootstrapServers;
   }
 
@@ -528,10 +601,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return topics;
   }
 
-  /**
-   * @param topics The topics to set
-   */
-  public void setTopics( List<String> topics ) {
+  /** @param topics The topics to set */
+  public void setTopics(List<String> topics) {
     this.topics = topics;
   }
 
@@ -544,10 +615,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return consumerGroup;
   }
 
-  /**
-   * @param consumerGroup The consumerGroup to set
-   */
-  public void setConsumerGroup( String consumerGroup ) {
+  /** @param consumerGroup The consumerGroup to set */
+  public void setConsumerGroup(String consumerGroup) {
     this.consumerGroup = consumerGroup;
   }
 
@@ -560,10 +629,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return keyField;
   }
 
-  /**
-   * @param keyField The keyField to set
-   */
-  public void setKeyField( KafkaConsumerField keyField ) {
+  /** @param keyField The keyField to set */
+  public void setKeyField(KafkaConsumerField keyField) {
     this.keyField = keyField;
   }
 
@@ -576,10 +643,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return messageField;
   }
 
-  /**
-   * @param messageField The messageField to set
-   */
-  public void setMessageField( KafkaConsumerField messageField ) {
+  /** @param messageField The messageField to set */
+  public void setMessageField(KafkaConsumerField messageField) {
     this.messageField = messageField;
   }
 
@@ -592,10 +657,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return injectedConfigNames;
   }
 
-  /**
-   * @param injectedConfigNames The injectedConfigNames to set
-   */
-  public void setInjectedConfigNames( List<String> injectedConfigNames ) {
+  /** @param injectedConfigNames The injectedConfigNames to set */
+  public void setInjectedConfigNames(List<String> injectedConfigNames) {
     this.injectedConfigNames = injectedConfigNames;
   }
 
@@ -608,10 +671,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return injectedConfigValues;
   }
 
-  /**
-   * @param injectedConfigValues The injectedConfigValues to set
-   */
-  public void setInjectedConfigValues( List<String> injectedConfigValues ) {
+  /** @param injectedConfigValues The injectedConfigValues to set */
+  public void setInjectedConfigValues(List<String> injectedConfigValues) {
     this.injectedConfigValues = injectedConfigValues;
   }
 
@@ -624,10 +685,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return topicField;
   }
 
-  /**
-   * @param topicField The topicField to set
-   */
-  public void setTopicField( KafkaConsumerField topicField ) {
+  /** @param topicField The topicField to set */
+  public void setTopicField(KafkaConsumerField topicField) {
     this.topicField = topicField;
   }
 
@@ -640,10 +699,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return offsetField;
   }
 
-  /**
-   * @param offsetField The offsetField to set
-   */
-  public void setOffsetField( KafkaConsumerField offsetField ) {
+  /** @param offsetField The offsetField to set */
+  public void setOffsetField(KafkaConsumerField offsetField) {
     this.offsetField = offsetField;
   }
 
@@ -656,10 +713,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return partitionField;
   }
 
-  /**
-   * @param partitionField The partitionField to set
-   */
-  public void setPartitionField( KafkaConsumerField partitionField ) {
+  /** @param partitionField The partitionField to set */
+  public void setPartitionField(KafkaConsumerField partitionField) {
     this.partitionField = partitionField;
   }
 
@@ -672,10 +727,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return timestampField;
   }
 
-  /**
-   * @param timestampField The timestampField to set
-   */
-  public void setTimestampField( KafkaConsumerField timestampField ) {
+  /** @param timestampField The timestampField to set */
+  public void setTimestampField(KafkaConsumerField timestampField) {
     this.timestampField = timestampField;
   }
 
@@ -688,10 +741,8 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     return autoCommit;
   }
 
-  /**
-   * @param autoCommit The autoCommit to set
-   */
-  public void setAutoCommit( boolean autoCommit ) {
+  /** @param autoCommit The autoCommit to set */
+  public void setAutoCommit(boolean autoCommit) {
     this.autoCommit = autoCommit;
   }
 }

@@ -61,9 +61,8 @@ import org.w3c.dom.Node;
 
 @Action(
   id = "SFTPPUT",
-  i18nPackageName = "org.apache.hop.workflow.actions.sftpput",
-  name = "ActionSFTPPut.Name",
-  description = "ActionSFTPPut.Description",
+  name = "i18n::ActionSFTPPut.Name",
+  description = "i18n::ActionSFTPPut.Description",
   image = "SFTPPut.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sftpput.html"

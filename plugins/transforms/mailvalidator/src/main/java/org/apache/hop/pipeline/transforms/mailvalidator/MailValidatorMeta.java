@@ -42,20 +42,18 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-        id = "MailValidator",
-        image = "mailvalidator.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.mailvalidator",
-        name = "BaseTransform.TypeLongDesc.MailValidator",
-        description = "BaseTransform.TypeTooltipDesc.MailValidator",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mailvalidator.html"
-)
-public class MailValidatorMeta extends BaseTransformMeta implements ITransformMeta<MailValidator, MailValidatorData> {
+    id = "MailValidator",
+    image = "mailvalidator.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.MailValidator",
+    description = "i18n::BaseTransform.TypeTooltipDesc.MailValidator",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mailvalidator.html")
+public class MailValidatorMeta extends BaseTransformMeta
+    implements ITransformMeta<MailValidator, MailValidatorData> {
   private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
 
-  /**
-   * dynamic email address
-   */
+  /** dynamic email address */
   private String emailfield;
 
   private boolean ResultAsString;
@@ -84,9 +82,7 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the emailfield.
-   */
+  /** @return Returns the emailfield. */
   public String getEmailField() {
     return emailfield;
   }
@@ -96,32 +92,26 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
    * @deprecated use {@link #setEmailField(String)} instead
    */
   @Deprecated
-  public void setEmailfield( String emailfield ) {
-    setEmailField( emailfield );
+  public void setEmailfield(String emailfield) {
+    setEmailField(emailfield);
   }
 
-  public void setEmailField( String emailfield ) {
+  public void setEmailField(String emailfield) {
     this.emailfield = emailfield;
   }
 
-  /**
-   * @return Returns the resultName.
-   */
+  /** @return Returns the resultName. */
   public String getResultFieldName() {
     return resultfieldname;
   }
 
-  /**
-   * @param resultfieldname The resultfieldname to set.
-   */
-  public void setResultFieldName( String resultfieldname ) {
+  /** @param resultfieldname The resultfieldname to set. */
+  public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  /**
-   * @param emailValideMsg The emailValideMsg to set.
-   */
-  public void setEmailValideMsg( String emailValideMsg ) {
+  /** @param emailValideMsg The emailValideMsg to set. */
+  public void setEmailValideMsg(String emailValideMsg) {
     this.emailValideMsg = emailValideMsg;
   }
 
@@ -151,45 +141,33 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
     return emailNotValideMsg;
   }
 
-  /**
-   * @return Returns the errorsFieldName.
-   */
+  /** @return Returns the errorsFieldName. */
   public String getErrorsField() {
     return errorsFieldName;
   }
 
-  /**
-   * @param errorsFieldName The errorsFieldName to set.
-   */
-  public void setErrorsField( String errorsFieldName ) {
+  /** @param errorsFieldName The errorsFieldName to set. */
+  public void setErrorsField(String errorsFieldName) {
     this.errorsFieldName = errorsFieldName;
   }
 
-  /**
-   * @return Returns the timeout.
-   */
+  /** @return Returns the timeout. */
   public String getTimeOut() {
     return timeout;
   }
 
-  /**
-   * @param timeout The timeout to set.
-   */
-  public void setTimeOut( String timeout ) {
+  /** @param timeout The timeout to set. */
+  public void setTimeOut(String timeout) {
     this.timeout = timeout;
   }
 
-  /**
-   * @return Returns the defaultSMTP.
-   */
+  /** @return Returns the defaultSMTP. */
   public String getDefaultSMTP() {
     return defaultSMTP;
   }
 
-  /**
-   * @param defaultSMTP The defaultSMTP to set.
-   */
-  public void setDefaultSMTP( String defaultSMTP ) {
+  /** @param defaultSMTP The defaultSMTP to set. */
+  public void setDefaultSMTP(String defaultSMTP) {
     this.defaultSMTP = defaultSMTP;
   }
 
@@ -211,25 +189,21 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
    * @deprecated use {@link #setEmailSender(String)} instead
    */
   @Deprecated
-  public void seteMailSender( String emailSender ) {
-    setEmailSender( emailSender );
+  public void seteMailSender(String emailSender) {
+    setEmailSender(emailSender);
   }
 
-  public void setEmailSender( String emailSender ) {
+  public void setEmailSender(String emailSender) {
     this.emailSender = emailSender;
   }
 
-  /**
-   * @return Returns the defaultSMTPField.
-   */
+  /** @return Returns the defaultSMTPField. */
   public String getDefaultSMTPField() {
     return defaultSMTPField;
   }
 
-  /**
-   * @param defaultSMTPField The defaultSMTPField to set.
-   */
-  public void setDefaultSMTPField( String defaultSMTPField ) {
+  /** @param defaultSMTPField The defaultSMTPField to set. */
+  public void setDefaultSMTPField(String defaultSMTPField) {
     this.defaultSMTPField = defaultSMTPField;
   }
 
@@ -251,18 +225,16 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
    * @deprecated use {@link #setDynamicDefaultSMTP(boolean)} instead
    */
   @Deprecated
-  public void setdynamicDefaultSMTP( boolean isdynamicDefaultSMTP ) {
-    setDynamicDefaultSMTP( isdynamicDefaultSMTP );
+  public void setdynamicDefaultSMTP(boolean isdynamicDefaultSMTP) {
+    setDynamicDefaultSMTP(isdynamicDefaultSMTP);
   }
 
-  public void setDynamicDefaultSMTP( boolean isdynamicDefaultSMTP ) {
+  public void setDynamicDefaultSMTP(boolean isdynamicDefaultSMTP) {
     this.isdynamicDefaultSMTP = isdynamicDefaultSMTP;
   }
 
-  /**
-   * @param emailNotValideMsg The emailNotValideMsg to set.
-   */
-  public void setEmailNotValideMsg( String emailNotValideMsg ) {
+  /** @param emailNotValideMsg The emailNotValideMsg to set. */
+  public void setEmailNotValideMsg(String emailNotValideMsg) {
     this.emailNotValideMsg = emailNotValideMsg;
   }
 
@@ -270,11 +242,11 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
     return ResultAsString;
   }
 
-  public void setResultAsString( boolean ResultAsString ) {
+  public void setResultAsString(boolean ResultAsString) {
     this.ResultAsString = ResultAsString;
   }
 
-  public void setSMTPCheck( boolean smtpcheck ) {
+  public void setSMTPCheck(boolean smtpcheck) {
     this.smtpCheck = smtpcheck;
   }
 
@@ -282,8 +254,9 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
     return smtpCheck;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -293,8 +266,13 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, MailValidatorData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new MailValidator( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      MailValidatorData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new MailValidator(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void setDefault() {
@@ -311,189 +289,244 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
     defaultSMTPField = null;
   }
 
-  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta r,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
-    String realResultFieldName = variables.resolve( resultfieldname );
-    if ( ResultAsString ) {
-      IValueMeta v = new ValueMetaString( realResultFieldName );
-      v.setLength( 100, -1 );
-      v.setOrigin( name );
-      r.addValueMeta( v );
+    String realResultFieldName = variables.resolve(resultfieldname);
+    if (ResultAsString) {
+      IValueMeta v = new ValueMetaString(realResultFieldName);
+      v.setLength(100, -1);
+      v.setOrigin(name);
+      r.addValueMeta(v);
 
     } else {
-      IValueMeta v = new ValueMetaBoolean( realResultFieldName );
-      v.setOrigin( name );
-      r.addValueMeta( v );
+      IValueMeta v = new ValueMetaBoolean(realResultFieldName);
+      v.setOrigin(name);
+      r.addValueMeta(v);
     }
 
-    String realErrorsFieldName = variables.resolve( errorsFieldName );
-    if ( !Utils.isEmpty( realErrorsFieldName ) ) {
-      IValueMeta v = new ValueMetaString( realErrorsFieldName );
-      v.setLength( 100, -1 );
-      v.setOrigin( name );
-      r.addValueMeta( v );
+    String realErrorsFieldName = variables.resolve(errorsFieldName);
+    if (!Utils.isEmpty(realErrorsFieldName)) {
+      IValueMeta v = new ValueMetaString(realErrorsFieldName);
+      v.setLength(100, -1);
+      v.setOrigin(name);
+      r.addValueMeta(v);
     }
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XmlHandler.addTagValue( "emailfield", emailfield ) );
-    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "ResultAsString", ResultAsString ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "smtpCheck", smtpCheck ) );
+    retval.append("    " + XmlHandler.addTagValue("emailfield", emailfield));
+    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
+    retval.append("    ").append(XmlHandler.addTagValue("ResultAsString", ResultAsString));
+    retval.append("    ").append(XmlHandler.addTagValue("smtpCheck", smtpCheck));
 
-    retval.append( "    " + XmlHandler.addTagValue( "emailValideMsg", emailValideMsg ) );
-    retval.append( "    " + XmlHandler.addTagValue( "emailNotValideMsg", emailNotValideMsg ) );
-    retval.append( "    " + XmlHandler.addTagValue( "errorsFieldName", errorsFieldName ) );
-    retval.append( "    " + XmlHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "    " + XmlHandler.addTagValue( "defaultSMTP", defaultSMTP ) );
-    retval.append( "    " + XmlHandler.addTagValue( "emailSender", emailSender ) );
-    retval.append( "    " + XmlHandler.addTagValue( "defaultSMTPField", defaultSMTPField ) );
+    retval.append("    " + XmlHandler.addTagValue("emailValideMsg", emailValideMsg));
+    retval.append("    " + XmlHandler.addTagValue("emailNotValideMsg", emailNotValideMsg));
+    retval.append("    " + XmlHandler.addTagValue("errorsFieldName", errorsFieldName));
+    retval.append("    " + XmlHandler.addTagValue("timeout", timeout));
+    retval.append("    " + XmlHandler.addTagValue("defaultSMTP", defaultSMTP));
+    retval.append("    " + XmlHandler.addTagValue("emailSender", emailSender));
+    retval.append("    " + XmlHandler.addTagValue("defaultSMTPField", defaultSMTPField));
 
-    retval.append( "    " + XmlHandler.addTagValue( "isdynamicDefaultSMTP", isdynamicDefaultSMTP ) );
+    retval.append("    " + XmlHandler.addTagValue("isdynamicDefaultSMTP", isdynamicDefaultSMTP));
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      emailfield = XmlHandler.getTagValue( transformNode, "emailfield" );
-      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
-      ResultAsString = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ResultAsString" ) );
-      smtpCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "smtpCheck" ) );
+      emailfield = XmlHandler.getTagValue(transformNode, "emailfield");
+      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
+      ResultAsString =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ResultAsString"));
+      smtpCheck = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "smtpCheck"));
 
-      emailValideMsg = XmlHandler.getTagValue( transformNode, "emailValideMsg" );
-      emailNotValideMsg = XmlHandler.getTagValue( transformNode, "emailNotValideMsg" );
-      errorsFieldName = XmlHandler.getTagValue( transformNode, "errorsFieldName" );
-      timeout = XmlHandler.getTagValue( transformNode, "timeout" );
-      defaultSMTP = XmlHandler.getTagValue( transformNode, "defaultSMTP" );
-      emailSender = XmlHandler.getTagValue( transformNode, "emailSender" );
-      defaultSMTPField = XmlHandler.getTagValue( transformNode, "defaultSMTPField" );
+      emailValideMsg = XmlHandler.getTagValue(transformNode, "emailValideMsg");
+      emailNotValideMsg = XmlHandler.getTagValue(transformNode, "emailNotValideMsg");
+      errorsFieldName = XmlHandler.getTagValue(transformNode, "errorsFieldName");
+      timeout = XmlHandler.getTagValue(transformNode, "timeout");
+      defaultSMTP = XmlHandler.getTagValue(transformNode, "defaultSMTP");
+      emailSender = XmlHandler.getTagValue(transformNode, "emailSender");
+      defaultSMTPField = XmlHandler.getTagValue(transformNode, "defaultSMTPField");
 
-      isdynamicDefaultSMTP = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "isdynamicDefaultSMTP" ) );
+      isdynamicDefaultSMTP =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "isdynamicDefaultSMTP"));
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "MailValidatorMeta.Exception.UnableToReadTransformMeta" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "MailValidatorMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if ( Utils.isEmpty( resultfieldname ) ) {
+    if (Utils.isEmpty(resultfieldname)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.ResultFieldMissing" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.ResultFieldMissing"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.ResultFieldOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.ResultFieldOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
-    if ( this.ResultAsString ) {
-      if ( Utils.isEmpty( emailValideMsg ) ) {
+    if (this.ResultAsString) {
+      if (Utils.isEmpty(emailValideMsg)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.EmailValidMsgMissing" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.EmailValidMsgMissing"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.EmailValidMsgOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.EmailValidMsgOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
-      if ( Utils.isEmpty( emailNotValideMsg ) ) {
+      if (Utils.isEmpty(emailNotValideMsg)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.EmailNotValidMsgMissing" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "MailValidatorMeta.CheckResult.EmailNotValidMsgMissing"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.EmailNotValidMsgOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.EmailNotValidMsgOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
     }
 
-    if ( Utils.isEmpty( emailfield ) ) {
+    if (Utils.isEmpty(emailfield)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.eMailFieldMissing" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailFieldMissing"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.eMailFieldOK" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailFieldOK"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "MailValidatorMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailValidatorMeta.CheckResult.NoInpuReceived" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
     }
-    remarks.add( cr );
-    if ( ResultAsString ) {
-      if ( Utils.isEmpty( emailValideMsg ) ) {
+    remarks.add(cr);
+    if (ResultAsString) {
+      if (Utils.isEmpty(emailValideMsg)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailValidMsgMissing" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailValidMsgMissing"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailValidMsgOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailValidMsgOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
-      if ( Utils.isEmpty( emailNotValideMsg ) ) {
+      if (Utils.isEmpty(emailNotValideMsg)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailNotValidMsgMissing" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "MailValidatorMeta.CheckResult.eMailNotValidMsgMissing"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailNotValidMsgOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailNotValidMsgOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
     }
     // SMTP check
-    if ( smtpCheck ) {
+    if (smtpCheck) {
       // sender
-      if ( Utils.isEmpty( emailSender ) ) {
+      if (Utils.isEmpty(emailSender)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailSenderMissing" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailSenderMissing"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailValidatorMeta.CheckResult.eMailSenderOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailValidatorMeta.CheckResult.eMailSenderOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
       // dynamic default SMTP
-      if ( isdynamicDefaultSMTP ) {
-        if ( Utils.isEmpty( defaultSMTPField ) ) {
+      if (isdynamicDefaultSMTP) {
+        if (Utils.isEmpty(defaultSMTPField)) {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "MailValidatorMeta.CheckResult.dynamicDefaultSMTPFieldMissing" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "MailValidatorMeta.CheckResult.dynamicDefaultSMTPFieldMissing"),
+                  transformMeta);
         } else {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-              PKG, "MailValidatorMeta.CheckResult.dynamicDefaultSMTPFieldOk" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_OK,
+                  BaseMessages.getString(
+                      PKG, "MailValidatorMeta.CheckResult.dynamicDefaultSMTPFieldOk"),
+                  transformMeta);
         }
-        remarks.add( cr );
+        remarks.add(cr);
       }
     }
-
   }
 
   public MailValidatorData getTransformData() {
@@ -503,5 +536,4 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
   public boolean supportsErrorHandling() {
     return true;
   }
-
 }

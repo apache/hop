@@ -63,9 +63,8 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "PGP_DECRYPT_FILES",
-  i18nPackageName = "org.apache.hop.workflow.actions.pgpdecryptfiles",
-  name = "ActionPGPDecryptFiles.Name",
-  description = "ActionPGPDecryptFiles.Description",
+  name = "i18n::ActionPGPDecryptFiles.Name",
+  description = "i18n::ActionPGPDecryptFiles.Description",
   image = "PGPDecryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpdecryptfiles.html"

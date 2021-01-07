@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.mail;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -32,8 +32,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -44,16 +46,13 @@ import java.util.List;
  * @author Samatar
  * @since 28-07-2008
  */
-
 @Transform(
-        id = "Mail",
-        image = "mail.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.mail",
-        name = "BaseTransform.TypeLongDesc.Mail",
-        description = "BaseTransform.TypeTooltipDesc.Mail",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mail.html"
-)
+    id = "Mail",
+    image = "mail.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.Mail",
+    description = "i18n::BaseTransform.TypeTooltipDesc.Mail",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mail.html")
 public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // Needed by Translator
 
@@ -65,14 +64,10 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
 
   private String destinationBCc;
 
-  /**
-   * Caution : this is not the reply to addresses but the mail sender name
-   */
+  /** Caution : this is not the reply to addresses but the mail sender name */
   private String replyAddress;
 
-  /**
-   * Caution : this is not the reply to addresses but the mail sender
-   */
+  /** Caution : this is not the reply to addresses but the mail sender */
   private String replyName;
 
   private String subject;
@@ -133,33 +128,23 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
 
   private String secureConnectionType;
 
-  /**
-   * The encoding to use for reading: null or empty string means system default encoding
-   */
+  /** The encoding to use for reading: null or empty string means system default encoding */
   private String encoding;
 
-  /**
-   * The reply to addresses
-   */
+  /** The reply to addresses */
   private String replyToAddresses;
 
   private String[] embeddedimages;
 
   private String[] contentids;
 
-  /**
-   * Flag : attach file from content defined in a field
-   **/
+  /** Flag : attach file from content defined in a field */
   private boolean attachContentFromField;
 
-  /**
-   * file content field name
-   **/
+  /** file content field name */
   private String attachContentField;
 
-  /**
-   * filename content field
-   **/
+  /** filename content field */
   private String attachContentFileNameField;
 
   public MailMeta() {
@@ -167,8 +152,9 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   @Override
@@ -178,161 +164,197 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, MailData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new Mail( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      MailData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new Mail(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  public void allocate( int value ) {
-    this.embeddedimages = new String[ value ];
-    this.contentids = new String[ value ];
+  public void allocate(int value) {
+    this.embeddedimages = new String[value];
+    this.contentids = new String[value];
   }
 
-  private void readData( Node transformNode ) {
-    setServer( XmlHandler.getTagValue( transformNode, "server" ) );
-    setPort( XmlHandler.getTagValue( transformNode, "port" ) );
-    setDestination( XmlHandler.getTagValue( transformNode, "destination" ) );
-    setDestinationCc( XmlHandler.getTagValue( transformNode, "destinationCc" ) );
-    setDestinationBCc( XmlHandler.getTagValue( transformNode, "destinationBCc" ) );
-    setReplyToAddresses( XmlHandler.getTagValue( transformNode, "replyToAddresses" ) );
-    setReplyAddress( XmlHandler.getTagValue( transformNode, "replyto" ) );
-    setReplyName( XmlHandler.getTagValue( transformNode, "replytoname" ) );
-    setSubject( XmlHandler.getTagValue( transformNode, "subject" ) );
-    setIncludeDate( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_date" ) ) );
-    setIncludeSubFolders( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_subfolders" ) ) );
-    setZipFilenameDynamic( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "zipFilenameDynamic" ) ) );
-    setisDynamicFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "isFilenameDynamic" ) ) );
-    setDynamicFieldname( XmlHandler.getTagValue( transformNode, "dynamicFieldname" ) );
-    setDynamicWildcard( XmlHandler.getTagValue( transformNode, "dynamicWildcard" ) );
-    setAttachContentFromField( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "attachContentFromField" ) ) );
-    setAttachContentField( XmlHandler.getTagValue( transformNode, "attachContentField" ) );
-    setAttachContentFileNameField( XmlHandler.getTagValue( transformNode, "attachContentFileNameField" ) );
+  private void readData(Node transformNode) {
+    setServer(XmlHandler.getTagValue(transformNode, "server"));
+    setPort(XmlHandler.getTagValue(transformNode, "port"));
+    setDestination(XmlHandler.getTagValue(transformNode, "destination"));
+    setDestinationCc(XmlHandler.getTagValue(transformNode, "destinationCc"));
+    setDestinationBCc(XmlHandler.getTagValue(transformNode, "destinationBCc"));
+    setReplyToAddresses(XmlHandler.getTagValue(transformNode, "replyToAddresses"));
+    setReplyAddress(XmlHandler.getTagValue(transformNode, "replyto"));
+    setReplyName(XmlHandler.getTagValue(transformNode, "replytoname"));
+    setSubject(XmlHandler.getTagValue(transformNode, "subject"));
+    setIncludeDate("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_date")));
+    setIncludeSubFolders(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_subfolders")));
+    setZipFilenameDynamic(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "zipFilenameDynamic")));
+    setisDynamicFilename(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "isFilenameDynamic")));
+    setDynamicFieldname(XmlHandler.getTagValue(transformNode, "dynamicFieldname"));
+    setDynamicWildcard(XmlHandler.getTagValue(transformNode, "dynamicWildcard"));
+    setAttachContentFromField(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "attachContentFromField")));
+    setAttachContentField(XmlHandler.getTagValue(transformNode, "attachContentField"));
+    setAttachContentFileNameField(
+        XmlHandler.getTagValue(transformNode, "attachContentFileNameField"));
 
-    setDynamicZipFilenameField( XmlHandler.getTagValue( transformNode, "dynamicZipFilename" ) );
-    setSourceFileFoldername( XmlHandler.getTagValue( transformNode, "sourcefilefoldername" ) );
-    setSourceWildcard( XmlHandler.getTagValue( transformNode, "sourcewildcard" ) );
-    setContactPerson( XmlHandler.getTagValue( transformNode, "contact_person" ) );
-    setContactPhone( XmlHandler.getTagValue( transformNode, "contact_phone" ) );
-    setComment( XmlHandler.getTagValue( transformNode, "comment" ) );
-    setIncludingFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_files" ) ) );
-    setUsingAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_auth" ) ) );
-    setUsingSecureAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_secure_auth" ) ) );
-    setAuthenticationUser( XmlHandler.getTagValue( transformNode, "auth_user" ) );
-    setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue(
-      transformNode, "auth_password" ) ) );
-    setOnlySendComment( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "only_comment" ) ) );
-    setUseHTML( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_HTML" ) ) );
-    setUsePriority( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_Priority" ) ) );
-    setEncoding( XmlHandler.getTagValue( transformNode, "encoding" ) );
-    setPriority( XmlHandler.getTagValue( transformNode, "priority" ) );
-    setImportance( XmlHandler.getTagValue( transformNode, "importance" ) );
-    setSensitivity( XmlHandler.getTagValue( transformNode, "sensitivity" ) );
-    setSecureConnectionType( XmlHandler.getTagValue( transformNode, "secureconnectiontype" ) );
-    setZipFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "zip_files" ) ) );
-    setZipFilename( XmlHandler.getTagValue( transformNode, "zip_name" ) );
-    setZipLimitSize( XmlHandler.getTagValue( transformNode, "zip_limit_size" ) );
+    setDynamicZipFilenameField(XmlHandler.getTagValue(transformNode, "dynamicZipFilename"));
+    setSourceFileFoldername(XmlHandler.getTagValue(transformNode, "sourcefilefoldername"));
+    setSourceWildcard(XmlHandler.getTagValue(transformNode, "sourcewildcard"));
+    setContactPerson(XmlHandler.getTagValue(transformNode, "contact_person"));
+    setContactPhone(XmlHandler.getTagValue(transformNode, "contact_phone"));
+    setComment(XmlHandler.getTagValue(transformNode, "comment"));
+    setIncludingFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_files")));
+    setUsingAuthentication("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_auth")));
+    setUsingSecureAuthentication(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_secure_auth")));
+    setAuthenticationUser(XmlHandler.getTagValue(transformNode, "auth_user"));
+    setAuthenticationPassword(
+        Encr.decryptPasswordOptionallyEncrypted(
+            XmlHandler.getTagValue(transformNode, "auth_password")));
+    setOnlySendComment("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "only_comment")));
+    setUseHTML("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_HTML")));
+    setUsePriority("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_Priority")));
+    setEncoding(XmlHandler.getTagValue(transformNode, "encoding"));
+    setPriority(XmlHandler.getTagValue(transformNode, "priority"));
+    setImportance(XmlHandler.getTagValue(transformNode, "importance"));
+    setSensitivity(XmlHandler.getTagValue(transformNode, "sensitivity"));
+    setSecureConnectionType(XmlHandler.getTagValue(transformNode, "secureconnectiontype"));
+    setZipFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "zip_files")));
+    setZipFilename(XmlHandler.getTagValue(transformNode, "zip_name"));
+    setZipLimitSize(XmlHandler.getTagValue(transformNode, "zip_limit_size"));
 
-    Node images = XmlHandler.getSubNode( transformNode, "embeddedimages" );
+    Node images = XmlHandler.getSubNode(transformNode, "embeddedimages");
     // How many field embedded images ?
-    int nrImages = XmlHandler.countNodes( images, "embeddedimage" );
+    int nrImages = XmlHandler.countNodes(images, "embeddedimage");
 
-    allocate( nrImages );
+    allocate(nrImages);
 
     // Read them all...
-    for ( int i = 0; i < nrImages; i++ ) {
-      Node fnode = XmlHandler.getSubNodeByNr( images, "embeddedimage", i );
+    for (int i = 0; i < nrImages; i++) {
+      Node fnode = XmlHandler.getSubNodeByNr(images, "embeddedimage", i);
 
-      embeddedimages[ i ] = XmlHandler.getTagValue( fnode, "image_name" );
-      contentids[ i ] = XmlHandler.getTagValue( fnode, "content_id" );
+      embeddedimages[i] = XmlHandler.getTagValue(fnode, "image_name");
+      contentids[i] = XmlHandler.getTagValue(fnode, "content_id");
     }
   }
 
-  public void setEmbeddedImage( int i, String value ) {
-    embeddedimages[ i ] = value;
+  public void setEmbeddedImage(int i, String value) {
+    embeddedimages[i] = value;
   }
 
-  public void setEmbeddedImages( String[] value ) {
+  public void setEmbeddedImages(String[] value) {
     this.embeddedimages = value;
   }
 
-  public void setContentIds( int i, String value ) {
-    contentids[ i ] = value;
+  public void setContentIds(int i, String value) {
+    contentids[i] = value;
   }
 
-  public void setContentIds( String[] value ) {
+  public void setContentIds(String[] value) {
     this.contentids = value;
   }
 
   @Override
-  public void setDefault() {
-  }
+  public void setDefault() {}
 
   @Override
   public String getXml() throws HopException {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder retval = new StringBuilder(300);
 
-    retval.append( super.getXml() );
+    retval.append(super.getXml());
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "server", this.server ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "port", this.port ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "destination", this.destination ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationCc", this.destinationCc ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationBCc", this.destinationBCc ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "replyToAddresses", this.replyToAddresses ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "replyto", this.replyAddress ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "replytoname", this.replyName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "subject", this.subject ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_date", this.includeDate ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", this.includeSubFolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "zipFilenameDynamic", this.zipFilenameDynamic ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "isFilenameDynamic", this.isFilenameDynamic ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "attachContentFromField", this.attachContentFromField ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "attachContentField", this.attachContentField ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "attachContentFileNameField", this.attachContentFileNameField ) );
+    retval.append("      ").append(XmlHandler.addTagValue("server", this.server));
+    retval.append("      ").append(XmlHandler.addTagValue("port", this.port));
+    retval.append("      ").append(XmlHandler.addTagValue("destination", this.destination));
+    retval.append("      ").append(XmlHandler.addTagValue("destinationCc", this.destinationCc));
+    retval.append("      ").append(XmlHandler.addTagValue("destinationBCc", this.destinationBCc));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("replyToAddresses", this.replyToAddresses));
+    retval.append("      ").append(XmlHandler.addTagValue("replyto", this.replyAddress));
+    retval.append("      ").append(XmlHandler.addTagValue("replytoname", this.replyName));
+    retval.append("      ").append(XmlHandler.addTagValue("subject", this.subject));
+    retval.append("      ").append(XmlHandler.addTagValue("include_date", this.includeDate));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("include_subfolders", this.includeSubFolders));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("zipFilenameDynamic", this.zipFilenameDynamic));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("isFilenameDynamic", this.isFilenameDynamic));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("attachContentFromField", this.attachContentFromField));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("attachContentField", this.attachContentField));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("attachContentFileNameField", this.attachContentFileNameField));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicFieldname", this.dynamicFieldname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicWildcard", this.dynamicWildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicZipFilename", this.dynamicZipFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sourcefilefoldername", this.sourcefilefoldername ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sourcewildcard", this.sourcewildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_person", this.contactPerson ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_phone", this.contactPhone ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "comment", this.comment ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_files", this.includingFiles ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_files", this.zipFiles ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_name", this.zipFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_limit_size", this.ziplimitsize ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "use_auth", this.usingAuthentication ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "use_secure_auth", this.usingSecureAuthentication ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "auth_user", this.authenticationUser ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "auth_password", Encr
-        .encryptPasswordIfNotUsingVariables( this.authenticationPassword ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "only_comment", this.onlySendComment ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "use_HTML", this.useHTML ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "use_Priority", this.usePriority ) );
-    retval.append( "    " + XmlHandler.addTagValue( "encoding", this.encoding ) );
-    retval.append( "    " + XmlHandler.addTagValue( "priority", this.priority ) );
-    retval.append( "    " + XmlHandler.addTagValue( "importance", this.importance ) );
-    retval.append( "    " + XmlHandler.addTagValue( "sensitivity", this.sensitivity ) );
-    retval.append( "    " + XmlHandler.addTagValue( "secureconnectiontype", this.secureConnectionType ) );
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("dynamicFieldname", this.dynamicFieldname));
+    retval.append("      ").append(XmlHandler.addTagValue("dynamicWildcard", this.dynamicWildcard));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("dynamicZipFilename", this.dynamicZipFilename));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("sourcefilefoldername", this.sourcefilefoldername));
+    retval.append("      ").append(XmlHandler.addTagValue("sourcewildcard", this.sourcewildcard));
+    retval.append("      ").append(XmlHandler.addTagValue("contact_person", this.contactPerson));
+    retval.append("      ").append(XmlHandler.addTagValue("contact_phone", this.contactPhone));
+    retval.append("      ").append(XmlHandler.addTagValue("comment", this.comment));
+    retval.append("      ").append(XmlHandler.addTagValue("include_files", this.includingFiles));
+    retval.append("      ").append(XmlHandler.addTagValue("zip_files", this.zipFiles));
+    retval.append("      ").append(XmlHandler.addTagValue("zip_name", this.zipFilename));
+    retval.append("      ").append(XmlHandler.addTagValue("zip_limit_size", this.ziplimitsize));
+    retval.append("      ").append(XmlHandler.addTagValue("use_auth", this.usingAuthentication));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("use_secure_auth", this.usingSecureAuthentication));
+    retval.append("      ").append(XmlHandler.addTagValue("auth_user", this.authenticationUser));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "auth_password",
+                Encr.encryptPasswordIfNotUsingVariables(this.authenticationPassword)));
+    retval.append("      ").append(XmlHandler.addTagValue("only_comment", this.onlySendComment));
+    retval.append("      ").append(XmlHandler.addTagValue("use_HTML", this.useHTML));
+    retval.append("      ").append(XmlHandler.addTagValue("use_Priority", this.usePriority));
+    retval.append("    " + XmlHandler.addTagValue("encoding", this.encoding));
+    retval.append("    " + XmlHandler.addTagValue("priority", this.priority));
+    retval.append("    " + XmlHandler.addTagValue("importance", this.importance));
+    retval.append("    " + XmlHandler.addTagValue("sensitivity", this.sensitivity));
+    retval.append(
+        "    " + XmlHandler.addTagValue("secureconnectiontype", this.secureConnectionType));
 
-    retval.append( "      <embeddedimages>" ).append( Const.CR );
-    if ( embeddedimages != null ) {
-      for ( int i = 0; i < embeddedimages.length; i++ ) {
-        retval.append( "        <embeddedimage>" ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "content_id", contentids[ i ] ) );
-        retval.append( "        </embeddedimage>" ).append( Const.CR );
+    retval.append("      <embeddedimages>").append(Const.CR);
+    if (embeddedimages != null) {
+      for (int i = 0; i < embeddedimages.length; i++) {
+        retval.append("        <embeddedimage>").append(Const.CR);
+        retval.append("          ").append(XmlHandler.addTagValue("image_name", embeddedimages[i]));
+        retval.append("          ").append(XmlHandler.addTagValue("content_id", contentids[i]));
+        retval.append("        </embeddedimage>").append(Const.CR);
       }
     }
-    retval.append( "      </embeddedimages>" ).append( Const.CR );
+    retval.append("      </embeddedimages>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public void setServer( String s ) {
+  public void setServer(String s) {
     this.server = s;
   }
 
@@ -340,15 +362,15 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.server;
   }
 
-  public void setDestination( String dest ) {
+  public void setDestination(String dest) {
     this.destination = dest;
   }
 
-  public void setDestinationCc( String destCc ) {
+  public void setDestinationCc(String destCc) {
     this.destinationCc = destCc;
   }
 
-  public void setDestinationBCc( String destBCc ) {
+  public void setDestinationBCc(String destBCc) {
     this.destinationBCc = destBCc;
   }
 
@@ -365,7 +387,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.destinationBCc;
   }
 
-  public void setReplyAddress( String reply ) {
+  public void setReplyAddress(String reply) {
     this.replyAddress = reply;
   }
 
@@ -373,7 +395,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.replyAddress;
   }
 
-  public void setReplyName( String replyname ) {
+  public void setReplyName(String replyname) {
     this.replyName = replyname;
   }
 
@@ -381,7 +403,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.replyName;
   }
 
-  public void setSubject( String subj ) {
+  public void setSubject(String subj) {
     this.subject = subj;
   }
 
@@ -389,11 +411,11 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.subject;
   }
 
-  public void setIncludeDate( boolean incl ) {
+  public void setIncludeDate(boolean incl) {
     this.includeDate = incl;
   }
 
-  public void setIncludeSubFolders( boolean incl ) {
+  public void setIncludeSubFolders(boolean incl) {
     this.includeSubFolders = incl;
   }
 
@@ -413,31 +435,31 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.zipFilenameDynamic;
   }
 
-  public void setZipFilenameDynamic( boolean isdynamic ) {
+  public void setZipFilenameDynamic(boolean isdynamic) {
     this.zipFilenameDynamic = isdynamic;
   }
 
-  public void setisDynamicFilename( boolean isdynamic ) {
+  public void setisDynamicFilename(boolean isdynamic) {
     this.isFilenameDynamic = isdynamic;
   }
 
-  public void setAttachContentFromField( boolean attachContentFromField ) {
+  public void setAttachContentFromField(boolean attachContentFromField) {
     this.attachContentFromField = attachContentFromField;
   }
 
-  public void setAttachContentField( String attachContentField ) {
+  public void setAttachContentField(String attachContentField) {
     this.attachContentField = attachContentField;
   }
 
-  public void setAttachContentFileNameField( String attachContentFileNameField ) {
+  public void setAttachContentFileNameField(String attachContentFileNameField) {
     this.attachContentFileNameField = attachContentFileNameField;
   }
 
-  public void setDynamicWildcard( String dynamicwildcard ) {
+  public void setDynamicWildcard(String dynamicwildcard) {
     this.dynamicWildcard = dynamicwildcard;
   }
 
-  public void setDynamicZipFilenameField( String dynamiczipfilename ) {
+  public void setDynamicZipFilenameField(String dynamiczipfilename) {
     this.dynamicZipFilename = dynamiczipfilename;
   }
 
@@ -449,7 +471,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.dynamicWildcard;
   }
 
-  public void setSourceFileFoldername( String sourcefile ) {
+  public void setSourceFileFoldername(String sourcefile) {
     this.sourcefilefoldername = sourcefile;
   }
 
@@ -457,7 +479,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.sourcefilefoldername;
   }
 
-  public void setSourceWildcard( String wildcard ) {
+  public void setSourceWildcard(String wildcard) {
     this.sourcewildcard = wildcard;
   }
 
@@ -465,7 +487,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.sourcewildcard;
   }
 
-  public void setDynamicFieldname( String dynamicfield ) {
+  public void setDynamicFieldname(String dynamicfield) {
     this.dynamicFieldname = dynamicfield;
   }
 
@@ -493,7 +515,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.attachContentFileNameField;
   }
 
-  public void setContactPerson( String person ) {
+  public void setContactPerson(String person) {
     this.contactPerson = person;
   }
 
@@ -501,7 +523,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.contactPerson;
   }
 
-  public void setContactPhone( String phone ) {
+  public void setContactPhone(String phone) {
     this.contactPhone = phone;
   }
 
@@ -509,7 +531,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.contactPhone;
   }
 
-  public void setComment( String comm ) {
+  public void setComment(String comm) {
     this.comment = comm;
   }
 
@@ -521,223 +543,161 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return this.includingFiles;
   }
 
-  public void setIncludingFiles( boolean includeFiles ) {
+  public void setIncludingFiles(boolean includeFiles) {
     this.includingFiles = includeFiles;
   }
 
-  /**
-   * @return Returns the zipFilename.
-   */
+  /** @return Returns the zipFilename. */
   public String getZipFilename() {
     return this.zipFilename;
   }
 
-  /**
-   * @return Returns the ziplimitsize.
-   */
+  /** @return Returns the ziplimitsize. */
   public String getZipLimitSize() {
     return this.ziplimitsize;
   }
 
-  /**
-   * @param ziplimitsize The ziplimitsize to set.
-   */
-  public void setZipLimitSize( String ziplimitsize ) {
+  /** @param ziplimitsize The ziplimitsize to set. */
+  public void setZipLimitSize(String ziplimitsize) {
     this.ziplimitsize = ziplimitsize;
   }
 
-  /**
-   * @param zipFilename The zipFilename to set.
-   */
-  public void setZipFilename( String zipFilename ) {
+  /** @param zipFilename The zipFilename to set. */
+  public void setZipFilename(String zipFilename) {
     this.zipFilename = zipFilename;
   }
 
-  /**
-   * @return Returns the zipFiles.
-   */
+  /** @return Returns the zipFiles. */
   public boolean isZipFiles() {
     return zipFiles;
   }
 
-  /**
-   * @param zipFiles The zipFiles to set.
-   */
-  public void setZipFiles( boolean zipFiles ) {
+  /** @param zipFiles The zipFiles to set. */
+  public void setZipFiles(boolean zipFiles) {
     this.zipFiles = zipFiles;
   }
 
-  /**
-   * @return Returns the authenticationPassword.
-   */
+  /** @return Returns the authenticationPassword. */
   public String getAuthenticationPassword() {
     return this.authenticationPassword;
   }
 
-  /**
-   * @param authenticationPassword The authenticationPassword to set.
-   */
-  public void setAuthenticationPassword( String authenticationPassword ) {
+  /** @param authenticationPassword The authenticationPassword to set. */
+  public void setAuthenticationPassword(String authenticationPassword) {
     this.authenticationPassword = authenticationPassword;
   }
 
-  /**
-   * @return Returns the authenticationUser.
-   */
+  /** @return Returns the authenticationUser. */
   public String getAuthenticationUser() {
     return this.authenticationUser;
   }
 
-  /**
-   * @param authenticationUser The authenticationUser to set.
-   */
-  public void setAuthenticationUser( String authenticationUser ) {
+  /** @param authenticationUser The authenticationUser to set. */
+  public void setAuthenticationUser(String authenticationUser) {
     this.authenticationUser = authenticationUser;
   }
 
-  /**
-   * @return Returns the usingAuthentication.
-   */
+  /** @return Returns the usingAuthentication. */
   public boolean isUsingAuthentication() {
     return this.usingAuthentication;
   }
 
-  /**
-   * @param usingAuthentication The usingAuthentication to set.
-   */
-  public void setUsingAuthentication( boolean usingAuthentication ) {
+  /** @param usingAuthentication The usingAuthentication to set. */
+  public void setUsingAuthentication(boolean usingAuthentication) {
     this.usingAuthentication = usingAuthentication;
   }
 
-  /**
-   * @return the onlySendComment flag
-   */
+  /** @return the onlySendComment flag */
   public boolean isOnlySendComment() {
     return this.onlySendComment;
   }
 
-  /**
-   * @param onlySendComment the onlySendComment flag to set
-   */
-  public void setOnlySendComment( boolean onlySendComment ) {
+  /** @param onlySendComment the onlySendComment flag to set */
+  public void setOnlySendComment(boolean onlySendComment) {
     this.onlySendComment = onlySendComment;
   }
 
-  /**
-   * @return the useHTML flag
-   */
+  /** @return the useHTML flag */
   public boolean isUseHTML() {
     return this.useHTML;
   }
 
-  /**
-   * @param useHTML the useHTML to set
-   */
-  public void setUseHTML( boolean useHTML ) {
+  /** @param useHTML the useHTML to set */
+  public void setUseHTML(boolean useHTML) {
     this.useHTML = useHTML;
   }
 
-  /**
-   * @return the encoding
-   */
+  /** @return the encoding */
   public String getEncoding() {
     return this.encoding;
   }
 
-  /**
-   * @return the secure connection type
-   */
+  /** @return the secure connection type */
   public String getSecureConnectionType() {
     return this.secureConnectionType;
   }
 
-  /**
-   * @param secureConnectionType the secureconnectiontype to set
-   */
-  public void setSecureConnectionType( String secureConnectionType ) {
+  /** @param secureConnectionType the secureconnectiontype to set */
+  public void setSecureConnectionType(String secureConnectionType) {
     this.secureConnectionType = secureConnectionType;
   }
 
-  /**
-   * @param replyToAddresses the replyToAddresses to set
-   */
-  public void setReplyToAddresses( String replyToAddresses ) {
+  /** @param replyToAddresses the replyToAddresses to set */
+  public void setReplyToAddresses(String replyToAddresses) {
     this.replyToAddresses = replyToAddresses;
   }
 
-  /**
-   * @return the secure replyToAddresses
-   */
+  /** @return the secure replyToAddresses */
   public String getReplyToAddresses() {
     return this.replyToAddresses;
   }
 
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding( String encoding ) {
+  /** @param encoding the encoding to set */
+  public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
-  /**
-   * @return the usingSecureAuthentication
-   */
+  /** @return the usingSecureAuthentication */
   public boolean isUsingSecureAuthentication() {
     return this.usingSecureAuthentication;
   }
 
-  /**
-   * @param usingSecureAuthentication the usingSecureAuthentication to set
-   */
-  public void setUsingSecureAuthentication( boolean usingSecureAuthentication ) {
+  /** @param usingSecureAuthentication the usingSecureAuthentication to set */
+  public void setUsingSecureAuthentication(boolean usingSecureAuthentication) {
     this.usingSecureAuthentication = usingSecureAuthentication;
   }
 
-  /**
-   * @return the port
-   */
+  /** @return the port */
   public String getPort() {
     return this.port;
   }
 
-  /**
-   * @param port the port to set
-   */
-  public void setPort( String port ) {
+  /** @param port the port to set */
+  public void setPort(String port) {
     this.port = port;
   }
 
-  /**
-   * @param usePriority the usePriority to set
-   */
-  public void setUsePriority( boolean usePriority ) {
+  /** @param usePriority the usePriority to set */
+  public void setUsePriority(boolean usePriority) {
     this.usePriority = usePriority;
   }
 
-  /**
-   * @return the usePriority flag
-   */
+  /** @return the usePriority flag */
   public boolean isUsePriority() {
     return this.usePriority;
   }
 
-  /**
-   * @return the priority
-   */
+  /** @return the priority */
   public String getPriority() {
     return this.priority;
   }
 
-  /**
-   * @param importance the importance to set
-   */
-  public void setImportance( String importance ) {
+  /** @param importance the importance to set */
+  public void setImportance(String importance) {
     this.importance = importance;
   }
 
-  /**
-   * @return the importance
-   */
+  /** @return the importance */
   public String getImportance() {
     return this.importance;
   }
@@ -746,178 +706,235 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     return sensitivity;
   }
 
-  public void setSensitivity( String sensitivity ) {
+  public void setSensitivity(String sensitivity) {
     this.sensitivity = sensitivity;
   }
 
-  /**
-   * @param priority the priority to set
-   */
-  public void setPriority( String priority ) {
+  /** @param priority the priority to set */
+  public void setPriority(String priority) {
     this.priority = priority;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.NotReceivingFields" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.NotReceivingFields"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "MailMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.TransformRecevingData2" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.TransformRecevingData2"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "MailMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // Servername
-    if ( Utils.isEmpty( server ) ) {
+    if (Utils.isEmpty(server)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.ServerEmpty" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerEmpty"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.ServerOk" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerOk"),
+              transformMeta);
+      remarks.add(cr);
       // is the field exists?
-      if ( prev.indexOfValue( variables.resolve( server ) ) < 0 ) {
+      if (prev.indexOfValue(variables.resolve(server)) < 0) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-            PKG, "MailMeta.CheckResult.ServerFieldNotFound", server ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerFieldNotFound", server),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
     }
 
     // port number
-    if ( Utils.isEmpty( port ) ) {
+    if (Utils.isEmpty(port)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.PortEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.PortEmpty"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult(
-          CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "MailMeta.CheckResult.PortOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.PortOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // reply address
-    if ( Utils.isEmpty( replyAddress ) ) {
+    if (Utils.isEmpty(replyAddress)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.ReplayAddressEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.ReplayAddressEmpty"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.ReplayAddressOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.ReplayAddressOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // Destination
-    if ( Utils.isEmpty( destination ) ) {
+    if (Utils.isEmpty(destination)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.DestinationEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.DestinationEmpty"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.DestinationOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.DestinationOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // Subject
-    if ( Utils.isEmpty( subject ) ) {
+    if (Utils.isEmpty(subject)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.SubjectEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.SubjectEmpty"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.SubjectOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.SubjectOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // Comment
-    if ( Utils.isEmpty( comment ) ) {
+    if (Utils.isEmpty(comment)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.CommentEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.CommentEmpty"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "MailMeta.CheckResult.CommentEmpty" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MailMeta.CheckResult.CommentEmpty"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
-    if ( isFilenameDynamic ) {
+    if (isFilenameDynamic) {
       // Dynamic Filename field
-      if ( Utils.isEmpty( dynamicFieldname ) ) {
+      if (Utils.isEmpty(dynamicFieldname)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailMeta.CheckResult.DynamicFilenameFieldEmpty" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicFilenameFieldEmpty"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailMeta.CheckResult.DynamicFilenameFieldOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicFilenameFieldOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
 
     } else {
       // static filename
-      if ( Utils.isEmpty( sourcefilefoldername ) ) {
+      if (Utils.isEmpty(sourcefilefoldername)) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "MailMeta.CheckResult.SourceFilenameEmpty" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "MailMeta.CheckResult.SourceFilenameEmpty"),
+                transformMeta);
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "MailMeta.CheckResult.SourceFilenameOk" ), transformMeta );
+            new CheckResult(
+                CheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "MailMeta.CheckResult.SourceFilenameOk"),
+                transformMeta);
       }
-      remarks.add( cr );
+      remarks.add(cr);
     }
 
-    if ( isZipFiles() ) {
-      if ( isFilenameDynamic ) {
+    if (isZipFiles()) {
+      if (isFilenameDynamic) {
         // dynamic zipfilename
-        if ( Utils.isEmpty( getDynamicZipFilenameField() ) ) {
+        if (Utils.isEmpty(getDynamicZipFilenameField())) {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "MailMeta.CheckResult.DynamicZipfilenameEmpty" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicZipfilenameEmpty"),
+                  transformMeta);
         } else {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-              PKG, "MailMeta.CheckResult.DynamicZipfilenameOK" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_OK,
+                  BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicZipfilenameOK"),
+                  transformMeta);
         }
-        remarks.add( cr );
+        remarks.add(cr);
 
       } else {
         // static zipfilename
-        if ( Utils.isEmpty( zipFilename ) ) {
+        if (Utils.isEmpty(zipFilename)) {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "MailMeta.CheckResult.ZipfilenameEmpty" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "MailMeta.CheckResult.ZipfilenameEmpty"),
+                  transformMeta);
         } else {
           cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-              PKG, "MailMeta.CheckResult.ZipfilenameOk" ), transformMeta );
+              new CheckResult(
+                  CheckResult.TYPE_RESULT_OK,
+                  BaseMessages.getString(PKG, "MailMeta.CheckResult.ZipfilenameOk"),
+                  transformMeta);
         }
-        remarks.add( cr );
+        remarks.add(cr);
       }
     }
   }

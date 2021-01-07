@@ -57,9 +57,8 @@ import java.util.List;
 @Transform(
     id = "XMLJoin",
     image = "XJN.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
-    name = "XmlJoin.name",
-    description = "XmlJoin.description",
+    name = "i18n::XmlJoin.name",
+    description = "i18n::XmlJoin.description",
     categoryDescription = "XmlJoin.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")

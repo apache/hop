@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -279,18 +278,18 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.Ascending.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           new String[] {
-            BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-            BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ),
+            BaseMessages.getString( PKG, "System.Combo.Yes" ),
+            BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CaseInsensitive.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CollatorDisabled.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CollatorStrength.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
@@ -301,8 +300,8 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.PreSortedField.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ) };
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ) };
 
     wFields =
       new TableView(
@@ -422,16 +421,16 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
       ti.setText( 1, input.getFieldName()[ i ] );
-      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
-        .getString( PKG, SYSTEM_COMBO_NO ) );
+      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+        .getString( PKG, "System.Combo.No" ) );
       ti.setText( 3, input.getCaseSensitive()[ i ]
-        ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+        ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
       ti.setText( 4, input.getCollatorEnabled()[ i ]
-        ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+        ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
       ti.setText( 5, input.getCollatorStrength()[ i ] == 0
         ? BaseMessages.getString( PKG, "System.Combo.Primary" ) : Integer.toString( input.getCollatorStrength()[ i ] ) );
       ti.setText( 6, input.getPreSortedField()[ i ]
-        ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+        ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
     }
 
     wFields.setRowNums();
@@ -474,15 +473,15 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     for ( int i = 0; i < nrFields; i++ ) {
       TableItem ti = wFields.getNonEmpty( i );
       input.getFieldName()[ i ] = ti.getText( 1 );
-      input.getAscending()[ i ] = Utils.isEmpty( ti.getText( 2 ) ) || BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 2 ) );
-      input.getCaseSensitive()[ i ] = BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 3 ) );
-      input.getCollatorEnabled()[ i ] = BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 4 ) );
+      input.getAscending()[ i ] = Utils.isEmpty( ti.getText( 2 ) ) || BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
+      input.getCaseSensitive()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 3 ) );
+      input.getCollatorEnabled()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 4 ) );
       if ( ti.getText( 5 ) == "" ) {
         input.getCollatorStrength()[ i ] = Integer.parseInt( BaseMessages.getString( PKG, "System.Combo.Primary" ) );
       } else {
         input.getCollatorStrength()[ i ] = Integer.parseInt( ti.getText( 5 ) );
       }
-      input.getPreSortedField()[ i ] = BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 6 ) );
+      input.getPreSortedField()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 6 ) );
     }
 
     dispose();
@@ -493,7 +492,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
       IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener insertListener = ( tableItem, v ) -> {
-          tableItem.setText( 2, BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) );
+          tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
           return true;
         };
         BaseTransformDialog

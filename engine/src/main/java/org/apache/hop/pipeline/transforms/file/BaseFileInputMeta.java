@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import com.google.common.base.Preconditions;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -51,8 +50,8 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
   public static final String YES = "Y";
 
   public static final String[] RequiredFilesDesc =
-    new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG,
-        SYSTEM_COMBO_YES ) };
+    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
+        "System.Combo.Yes" ) };
 
   @InjectionDeep
   public I inputFiles;

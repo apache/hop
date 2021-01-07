@@ -32,10 +32,10 @@ public class ManagedColor {
   private boolean systemColor;
 
   /**
-   * @param color       The color
+   * @param color The color
    * @param systemColor true if this is a system color and doesn't need to be disposed off
    */
-  public ManagedColor( Color color, boolean systemColor ) {
+  public ManagedColor(Color color, boolean systemColor) {
     this.color = color;
     this.systemColor = systemColor;
   }
@@ -46,8 +46,8 @@ public class ManagedColor {
    * @param display
    * @param rgb
    */
-  public ManagedColor( Display display, RGB rgb ) {
-    this.color = new Color( display, rgb );
+  public ManagedColor(Display display, RGB rgb) {
+    this.color = new Color(display, rgb);
     this.systemColor = false;
   }
 
@@ -55,12 +55,12 @@ public class ManagedColor {
    * Create a new managed color by using the Red Green & Blue values.
    *
    * @param display
-   * @param r       Red composite
-   * @param g       Green composite
-   * @param b       Blue composite
+   * @param r Red composite
+   * @param g Green composite
+   * @param b Blue composite
    */
-  public ManagedColor( Display display, int r, int g, int b ) {
-    this.color = new Color( display, r, g, b );
+  public ManagedColor(Display display, int r, int g, int b) {
+    this.color = new Color(display, r, g, b);
     this.systemColor = false;
   }
 
@@ -70,45 +70,35 @@ public class ManagedColor {
    * @param display
    * @param color
    */
-  public ManagedColor( Display display, int color ) {
-    this.color = display.getSystemColor( color );
+  public ManagedColor(Display display, int color) {
+    this.color = display.getSystemColor(color);
     this.systemColor = false;
   }
 
-  /**
-   * Free the managed resource if it hasn't already been done and if this is not a system color
-   */
+  /** Free the managed resource if it hasn't already been done and if this is not a system color */
   public void dispose() {
     // System color and already disposed off colors don't need to be disposed!
-    if ( !systemColor && !color.isDisposed() ) {
+    if (!systemColor && !color.isDisposed()) {
       color.dispose();
     }
   }
 
-  /**
-   * @return Returns the color.
-   */
+  /** @return Returns the color. */
   public Color getColor() {
     return color;
   }
 
-  /**
-   * @param color the color to set
-   */
-  public void setColor( Color color ) {
+  /** @param color the color to set */
+  public void setColor(Color color) {
     this.color = color;
   }
 
-  /**
-   * @param systemColor the systemColor to set
-   */
-  public void setSystemColor( boolean systemColor ) {
+  /** @param systemColor the systemColor to set */
+  public void setSystemColor(boolean systemColor) {
     this.systemColor = systemColor;
   }
 
-  /**
-   * @return true if this is a system color.
-   */
+  /** @return true if this is a system color. */
   public boolean isSystemColor() {
     return systemColor;
   }

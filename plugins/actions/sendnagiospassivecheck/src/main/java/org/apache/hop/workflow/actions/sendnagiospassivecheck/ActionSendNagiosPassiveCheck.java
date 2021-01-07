@@ -56,9 +56,8 @@ import java.util.List;
 
 @Action(
   id = "SEND_NAGIOS_PASSIVE_CHECK",
-  i18nPackageName = "org.apache.hop.workflow.actions.sendnagiospassivecheck",
-  name = "ActionSendNagiosPassiveCheck.Name",
-  description = "ActionSendNagiosPassiveCheck.Description",
+  name = "i18n::ActionSendNagiosPassiveCheck.Name",
+  description = "i18n::ActionSendNagiosPassiveCheck.Description",
   image = "SendNagiosPassiveCheck.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sendnagiospassivecheck.html"

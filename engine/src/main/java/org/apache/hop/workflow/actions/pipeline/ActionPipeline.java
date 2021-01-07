@@ -73,9 +73,8 @@ import java.util.Map;
 @Action(
   id = "PIPELINE",
   image = "ui/images/pipeline.svg",
-  i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
-  name = "ActionPipeline.Name",
-  description = "ActionPipeline.Description",
+  name = "i18n::ActionPipeline.Name",
+  description = "i18n::ActionPipeline.Description",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
 )

@@ -54,9 +54,8 @@ import java.util.List;
 
 @Action(
 		  id = "EVAL_TABLE_CONTENT",
-		  i18nPackageName = "org.apache.hop.workflow.actions.evaluatetablecontent",
-		  name = "ActionEvalTableContent.Name",
-		  description = "ActionEvalTableContent.Description",
+		  name = "i18n::ActionEvalTableContent.Name",
+		  description = "i18n::ActionEvalTableContent.Description",
 		  image = "EvalTableContent.svg",
 		  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
 		  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/evaluatetablecontent.html"
