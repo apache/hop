@@ -824,6 +824,7 @@
                     <excludes>
 
                         <!-- General Exclusions -->
+                        <exclude>DISCLAIMER-WIP</exclude>
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
                         <exclude>licenses/*</exclude>
