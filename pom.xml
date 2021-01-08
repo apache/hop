@@ -831,6 +831,7 @@
                         <exclude>**/Sleak.java</exclude>
                         <exclude>**/SqlValuesHighlight.java</exclude>
                         <exclude>**/ImageUtil.java</exclude>
+                        <exclude>**/FtpClient.java</exclude>
 
                         <!-- General Exclusions -->
                         <exclude>LICENSE</exclude>
