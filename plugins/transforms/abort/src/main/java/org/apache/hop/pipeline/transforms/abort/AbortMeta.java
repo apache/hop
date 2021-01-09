@@ -122,7 +122,7 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
     rowThreshold = "0";
     message = "";
     alwaysLogRows = true;
-    abortOption = AbortOption.ABORT;
+    abortOption = AbortOption.ABORT_WITH_ERROR;
   }
 
   @Override
