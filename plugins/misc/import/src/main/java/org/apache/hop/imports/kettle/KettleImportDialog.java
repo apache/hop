@@ -278,16 +278,16 @@ public class KettleImportDialog extends Dialog {
         wJdbcProps.setLayoutData(fdJdbcProps);
         lastControl = wJdbcProps;
         
-        Button wbImport = new Button(shell, SWT.PUSH);
-        props.setLook(wbImport);
-        wbImport.setText("Import...");
-        FormData fdbImport = new FormData();
-        fdbImport.left = new FormAttachment(0, 0);
-        fdbImport.right = new FormAttachment(middle, 0);
-        fdbImport.top = new FormAttachment(lastControl, margin);
-        wbImport.setLayoutData(fdbImport);
-        wbImport.addListener(SWT.Selection, e -> { doImport(); });
-        lastControl = wbImport;
+//        Button wbImport = new Button(shell, SWT.PUSH);
+//        props.setLook(wbImport);
+//        wbImport.setText("Import...");
+//        FormData fdbImport = new FormData();
+//        fdbImport.left = new FormAttachment(0, 0);
+//        fdbImport.right = new FormAttachment(middle, 0);
+//        fdbImport.top = new FormAttachment(lastControl, margin);
+//        wbImport.setLayoutData(fdbImport);
+//        wbImport.addListener(SWT.Selection, e -> { doImport(); });
+//        lastControl = wbImport;
 
         Label separator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
         FormData fdLine = new FormData();
@@ -301,8 +301,9 @@ public class KettleImportDialog extends Dialog {
         // Buttons go at the bottom of the dialog
         //
         Button wOK = new Button( shell, SWT.PUSH );
-        wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-        wOK.addListener( SWT.Selection, event -> ok() );
+        wOK.setText("Import");
+//        wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+        wOK.addListener( SWT.Selection, event -> doImport() );
         Button wCancel = new Button( shell, SWT.PUSH );
         wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
         wCancel.addListener( SWT.Selection, event -> cancel() );
@@ -384,7 +385,7 @@ public class KettleImportDialog extends Dialog {
         kettleImport.setOutputFolder(wImportPath.getText());
         kettleImport.importHopFolder();
         try{
-            Object migrationObject = new Object[] {projectName, kettleImport.migratedFilesMap};
+            Object migrationObject = new Object[] {projectName, kettleImport.migratedFilesMap, kettleImport.inputFolder.getAbsolutePath()};
             ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables, "HopImportMigratedFiles", migrationObject);
         }catch(HopException e){
             e.printStackTrace();
@@ -406,11 +407,15 @@ public class KettleImportDialog extends Dialog {
 
         String eol = System.getProperty("line.separator");
         String messageString = "Imported: " + eol;
-        messageString += kettleImport.migratedFilesMap.size() + " jobs and transformations" + eol;
+        messageString += kettleImport.kjbCounter + " jobs" + eol;
+        messageString += kettleImport.ktrCounter + " transformations" + eol;
+        messageString += kettleImport.otherCounter + " other files"  + eol;
         messageString += variables.getVariableNames().length + " variables" + eol;
-        messageString += kettleImport.connectionsList.size() + " database connections" + eol + eol;
-        messageString += "Connections with the same name and different configurations have only been saved once." + eol;
-        messageString += "Check 'connections.csv' in your project folder for a list of connections that need extra attention";
+        if(kettleImport.connectionCounter > 0){
+            messageString += kettleImport.connectionCounter + " database connections" + eol + eol;
+            messageString += "Connections with the same name and different configurations have only been saved once." + eol;
+            messageString += "Check 'connections.csv' in your project folder for a list of connections that need extra attention";
+        }
         MessageBox box =
                 new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
         box.setText("Import summary");

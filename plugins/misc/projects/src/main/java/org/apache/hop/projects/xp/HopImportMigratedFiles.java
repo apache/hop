@@ -31,8 +31,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -49,6 +48,7 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
     public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, Object[] migrationObject) throws HopException {
         String projectName = (String)migrationObject[0];
         HashMap<String, DOMSource> filesMap = (HashMap<String, DOMSource>)migrationObject[1];
+        String inputFolder = (String)migrationObject[2];
 
         HopGui hopGui = HopGui.getInstance();
         ProjectsConfig config = ProjectsConfigSingleton.getConfig();
@@ -67,19 +67,49 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
              */
             Iterator<String> filesIterator = filesMap.keySet().iterator();
             while(filesIterator.hasNext()) {
-                String outFilename = filesIterator.next();
-                DOMSource domSource = filesMap.get(outFilename);
+                String filename = filesIterator.next();
+                DOMSource domSource = filesMap.get(filename);
 
-                if(outFilename.indexOf(System.getProperty("user.dir")) > -1){
-                    outFilename = outFilename.replaceAll(System.getProperty("user.dir"), "");
-                    outFilename = projectConfig.getProjectHome() + outFilename;
+
+                // copy any non-Hop files as is
+                if(domSource == null){
+                    InputStream is = null;
+                    OutputStream os = null;
+                    try{
+                        File sourceFile = new File(filename);
+                        if(!sourceFile.isDirectory()){
+                            String outFilename = filename.replaceAll(inputFolder, projectConfig.getProjectHome());
+                            File projectFile = new File(outFilename);
+                            String folderName = projectFile.getParent();
+                            Files.createDirectories(Paths.get(folderName));
+                            is = new FileInputStream(sourceFile);
+                            os = new FileOutputStream(projectFile);
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = is.read(buffer)) > 0) {
+                                os.write(buffer, 0, length);
+                            }
+                        }
+                    }finally {
+                        if(is != null){
+                            is.close();
+                        }
+                        if(os != null){
+                            os.close();
+                        }
+                    }
+                }else{
+                    String outFilename = "";
+                    if(filename.indexOf(System.getProperty("user.dir")) > -1){
+                        outFilename = filename.replaceAll(System.getProperty("user.dir"), "");
+                        outFilename = projectConfig.getProjectHome() + outFilename;
+                    }
+                    File outFile = new File(outFilename);
+                    String folderName = outFile.getParent();
+                    Files.createDirectories(Paths.get(folderName));
+                    StreamResult streamResult = new StreamResult(new File(outFilename));
+                    transformer.transform(domSource, streamResult);
                 }
-
-                File outFile = new File(outFilename);
-                String folderName = outFile.getParent();
-                Files.createDirectories(Paths.get(folderName));
-                StreamResult streamResult = new StreamResult(new File(outFilename));
-                transformer.transform(domSource, streamResult);
             }
         }catch(TransformerConfigurationException e) {
             e.printStackTrace();

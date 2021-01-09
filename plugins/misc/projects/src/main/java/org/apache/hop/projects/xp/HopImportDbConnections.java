@@ -76,16 +76,19 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
 
         String eol = System.getProperty("line.separator");
 
-        try (Writer writer = new FileWriter(projectConfig.getProjectHome() + System.getProperty("file.separator") + "connections.csv")) {
-            for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
-                writer.append(entry.getKey())
-                        .append(',')
-                        .append(entry.getValue())
-                        .append(eol);
+        // only create connections csv if we have connections
+        if(connectionList.size() > 0){
+            try (Writer writer = new FileWriter(projectConfig.getProjectHome() + System.getProperty("file.separator") + "connections.csv")) {
+                for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
+                    writer.append(entry.getKey())
+                            .append(',')
+                            .append(entry.getValue())
+                            .append(eol);
+                }
+            } catch (IOException e) {
+                log.logError("Error writing connections file to project : ");
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            log.logError("Error writing connections file to project : ");
-            e.printStackTrace();
         }
     }
 }

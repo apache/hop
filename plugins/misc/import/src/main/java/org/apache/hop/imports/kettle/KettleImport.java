@@ -44,6 +44,8 @@ import java.util.stream.Stream;
 
 public class KettleImport extends HopImport implements IHopImport {
 
+    public int kjbCounter, ktrCounter, otherCounter = 0;
+
     public KettleImport(){
         super();
     }
@@ -66,6 +68,13 @@ public class KettleImport extends HopImport implements IHopImport {
                 File kettleFile = new File(kettleFilename);
                 importHopFile(kettleFile);
             });
+            kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
+            // TODO: add a proper way to exclude folders instead of hard coded .git exclude.
+            List<String> otherFilesList = kettleWalk.map(x -> x.toString()).filter(f -> !f.endsWith(".ktr") && !f.endsWith(".kjb") && !f.contains(".git/")).collect(Collectors.toList());
+            otherFilesList.forEach(otherFilename -> {
+                migratedFilesMap.put(otherFilename, null);
+                otherCounter++;
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,8 +90,10 @@ public class KettleImport extends HopImport implements IHopImport {
 
         // move to processNode?
         if(kettleFile.getName().endsWith(".ktr")){
+            ktrCounter++;
             renameNode(doc, doc.getDocumentElement(), "pipeline");
         }else if(kettleFile.getName().endsWith(".kjb")){
+            kjbCounter++;
             renameNode(doc, doc.getDocumentElement(), "workflow");
         }
         processNode(doc, doc.getDocumentElement());
@@ -90,6 +101,7 @@ public class KettleImport extends HopImport implements IHopImport {
         DOMSource domSource = new DOMSource(doc);
         String outFilename = kettleFile.getAbsolutePath().replaceAll(inputFolder.getAbsolutePath(), outputFolder.getAbsolutePath()).replaceAll(".ktr", ".hpl").replaceAll(".kjb", ".hwf");
         migratedFilesMap.put(outFilename, domSource);
+
     }
 
     @Override
@@ -151,9 +163,6 @@ public class KettleImport extends HopImport implements IHopImport {
 
                     if(connElement.getElementsByTagName("name").getLength() > 0){
                         databaseMeta.setName(getTextContent(connElement, "name", 0));
-//                        if(kettleFile != null){
-//                            connectionFileList.put(kettleFile.getAbsolutePath(), databaseMeta);
-//                        }
                     }
                     if(connElement.getElementsByTagName("server").getLength() > 0){
                         iDatabase.setHostname(getTextContent(connElement, "server", 0));
@@ -246,8 +255,6 @@ public class KettleImport extends HopImport implements IHopImport {
                             }
                         }
                     }
-
-//                    nodeToProcess = processRepositoryNode(node);
                     nodeList = nodeToProcess.getChildNodes();
                 }
             }
@@ -320,7 +327,6 @@ public class KettleImport extends HopImport implements IHopImport {
             }
             if(childNode.getNodeName().equals("filename")){
                 filename = childNode.getTextContent().replaceAll(".ktr", "").replaceAll(".kjb", "");
-//                childNode.setTextContent(directory + System.getProperty("file.separator") + filename + type);
                 childNode.setTextContent(filename + type);
                 filenameNode = childNode;
             }
@@ -334,15 +340,6 @@ public class KettleImport extends HopImport implements IHopImport {
                 repositoryNode.removeChild(childNode);
             }
         }
-
-/*
-        for(int i=0; i < repositoryNode.getChildNodes().getLength(); i++){
-            Node childNode = repositoryNode.getChildNodes().item(i);
-            if(childNode.getNodeName().equals("filename")){
-                childNode.setTextContent(directory + System.getProperty("file.separator") + filename + type);
-            }
-        }
-*/
 
         filenameNode.setTextContent(directory + "/" + filename + type);
 

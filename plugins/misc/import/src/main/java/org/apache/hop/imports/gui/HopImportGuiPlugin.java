@@ -18,6 +18,8 @@
 package org.apache.hop.imports.gui;
 
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.imports.kettle.KettleImport;
 import org.apache.hop.imports.kettle.KettleImportDialog;
@@ -26,7 +28,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 @GuiPlugin
 public class HopImportGuiPlugin {
 
-    public static final String ID_MAIN_MENU_TOOLS_IMPORT = "40300-menu-tools-import";
+    public static final String ID_MAIN_MENU_FILE_IMPORT = "10060-menu-tools-import";
 
     public static HopImportGuiPlugin instance;
 
@@ -39,11 +41,14 @@ public class HopImportGuiPlugin {
 
     @GuiMenuElement(
             root = HopGui.ID_MAIN_MENU,
-            id = ID_MAIN_MENU_TOOLS_IMPORT,
-            label = "Import Kettle",
-            parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
+            id = ID_MAIN_MENU_FILE_IMPORT,
+            label = "Import from Kettle/PDI",
+//            image = "kettle-logo.svg",
+            parentId = HopGui.ID_MAIN_MENU_FILE,
             separator = true
     )
+    @GuiKeyboardShortcut(control = true, key = 'i')
+    @GuiOsxKeyboardShortcut(command = true, key = 'i')
     public void menuToolsImport(){
         HopGui hopGui = HopGui.getInstance();
 

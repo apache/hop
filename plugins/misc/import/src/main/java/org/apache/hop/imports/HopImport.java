@@ -49,6 +49,8 @@ public class HopImport implements IHopImport{
 
     public HashMap<String, DOMSource> migratedFilesMap;
 
+    public int connectionCounter = 0;
+
     private ProjectsConfig config;
 
     public HopImport(){
@@ -158,6 +160,7 @@ public class HopImport implements IHopImport{
         // only add new connection name to the list
         if(connectionsList.stream().filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName())).collect(Collectors.toList()).size() == 0){
             connectionsList.add(databaseMeta);
+            connectionCounter++;
         }
     }
 }
