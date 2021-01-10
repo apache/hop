@@ -111,6 +111,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -362,7 +363,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all variables initially
     //
-    canvas = new Canvas(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
+    scrolledcomposite = new ScrolledComposite(sashForm, SWT.V_SCROLL | SWT.H_SCROLL);
+    canvas = new Canvas(scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER);
+    scrolledcomposite.setContent(canvas);
+    scrolledcomposite.addListener(SWT.Resize, e -> {
+      resize();
+    });
 
     sashForm.setWeights(
         new int[] {
@@ -389,8 +395,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectedActions = null;
     selectedNote = null;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    horizontalScrollBar = scrolledcomposite.getHorizontalBar();
+    verticalScrollBar = scrolledcomposite.getVerticalBar();
 
     horizontalScrollBar.addSelectionListener(
         new SelectionAdapter() {
@@ -2607,6 +2613,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point max = workflowMeta.getMaximum();
     Point thumb = getThumb(area, max);
     return getOffset(thumb, area);
+  }
+
+  protected Point getMaximum() {
+    return workflowMeta.getMaximum();
   }
 
   @Override

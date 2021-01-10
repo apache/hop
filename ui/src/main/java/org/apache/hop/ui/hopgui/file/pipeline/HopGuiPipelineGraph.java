@@ -148,6 +148,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -476,7 +477,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all variables initially
     //
-    canvas = new Canvas(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
+    scrolledcomposite = new ScrolledComposite(sashForm, SWT.V_SCROLL | SWT.H_SCROLL);
+    canvas = new Canvas(scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER);
+    scrolledcomposite.setContent(canvas);
+    scrolledcomposite.addListener(SWT.Resize, e -> {
+      resize();
+    });
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -509,8 +515,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     impact = new ArrayList<>();
     impactFinished = false;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    horizontalScrollBar = scrolledcomposite.getHorizontalBar();
+    verticalScrollBar = scrolledcomposite.getVerticalBar();
 
     horizontalScrollBar.addSelectionListener(
         new SelectionAdapter() {
@@ -3215,6 +3221,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb(area, max);
     return getOffset(thumb, area);
+  }
+
+  protected Point getMaximum() {
+    return pipelineMeta.getMaximum();
   }
 
   private void editTransform(TransformMeta transformMeta) {
