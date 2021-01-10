@@ -62,7 +62,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/ldifinput.html")
 public class LDIFInputMeta extends BaseTransformMeta
     implements ITransformMeta<LDIFInput, LDIFInputData> {
-  private static final Class<?> PKG = LDIFInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LDIFInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

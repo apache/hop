@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sftpput.html"
 )
 public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSftpPut.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSftpPut.class; // For Translator
 
   private int afterFtps;
 

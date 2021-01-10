@@ -56,7 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class IfNullDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = IfNullMeta.class; // Needed by Translator
+  private static final Class<?> PKG = IfNullMeta.class; // For Translator
 
   private final IfNullMeta input;
 

@@ -82,7 +82,7 @@ import java.util.Map;
 )
 public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   /**
    * The name of the workflow run configuration to execute with

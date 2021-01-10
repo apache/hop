@@ -62,7 +62,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsoninput.html",
     name = "i18n::JsonInput.name",
     description = "i18n::JsonInput.description",
-    categoryDescription = "JsonInput.category")
+    categoryDescription = "i18n::JsonInput.category")
 @InjectionSupported(
     localizationPrefix = "JsonInput.Injection.",
     groups = {"FILENAME_LINES", "FIELDS"},
@@ -95,8 +95,7 @@ public class JsonInputMeta
         JsonInput,
         JsonInputData>
     implements ITransformMeta<JsonInput, JsonInputData> {
-  private static final Class<?> PKG =
-      JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

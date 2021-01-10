@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 29-07-2004
  */
 public class EnterConditionDialog extends Dialog {
-  private static final Class<?> PKG = EnterConditionDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterConditionDialog.class; // For Translator
 
   private PropsUi props;
 

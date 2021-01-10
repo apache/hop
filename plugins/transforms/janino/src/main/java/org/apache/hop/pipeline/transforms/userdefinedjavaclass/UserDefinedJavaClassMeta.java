@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
         "https://hop.apache.org/manual/latest/plugins/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta extends BaseTransformMeta
     implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
     classType,

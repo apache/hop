@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
 

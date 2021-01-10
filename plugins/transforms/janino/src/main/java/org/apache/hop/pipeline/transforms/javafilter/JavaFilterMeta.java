@@ -58,7 +58,7 @@ import java.util.Objects;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/javafilter.html")
 public class JavaFilterMeta extends BaseTransformMeta
     implements ITransformMeta<JavaFilter, JavaFilterData> {
-  private static final Class<?> PKG = JavaFilterMeta.class; // Needed by Translator
+  private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
 
   /** The formula calculations to be performed */
   private String condition;

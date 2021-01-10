@@ -59,7 +59,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/gettablenames.html")
 public class GetTableNamesMeta extends BaseTransformMeta
     implements ITransformMeta<GetTableNames, GetTableNamesData> {
-  private static final Class<?> PKG = GetTableNamesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta database;

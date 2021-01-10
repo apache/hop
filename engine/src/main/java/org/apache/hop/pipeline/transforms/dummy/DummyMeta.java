@@ -49,7 +49,7 @@ import java.util.List;
     keywords = "")
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
-  private static final Class<?> PKG = DummyMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DummyMeta.class; // For Translator
 
   public DummyMeta() {
     super(); // allocate BaseTransformMeta

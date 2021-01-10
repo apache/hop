@@ -54,7 +54,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getvariable.html")
 public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
-  private static final Class<?> PKG = HttpMeta.class; // Needed by Translator
+  private static final Class<?> PKG = HttpMeta.class; // For Translator
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

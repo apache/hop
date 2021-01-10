@@ -62,7 +62,7 @@ import java.util.Map;
     groups = {"FIELDS", "CUSTOM", "CONTENT"})
 public class ExcelOutputMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelOutput, ExcelOutputData> {
-  private static final Class<?> PKG = ExcelOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelOutputMeta.class; // For Translator
 
   public static final int FONT_NAME_ARIAL = 0;
   public static final int FONT_NAME_COURIER = 1;

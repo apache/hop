@@ -42,7 +42,7 @@ public class BeamPublisherTransformHandler extends BeamBaseTransformHandler impl
     super( variables, runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 

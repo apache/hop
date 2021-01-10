@@ -60,7 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HopGuiLogBrowser {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private StyledText text;
   private ILogParentProvided logProvider;

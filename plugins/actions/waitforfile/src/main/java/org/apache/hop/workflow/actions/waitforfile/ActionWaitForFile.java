@@ -59,7 +59,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforfile.html"
 )
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
 
   private String filename;
   private String maximumTimeout; // maximum timeout in seconds

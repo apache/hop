@@ -56,7 +56,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 

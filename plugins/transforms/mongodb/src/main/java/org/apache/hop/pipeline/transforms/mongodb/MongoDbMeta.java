@@ -28,7 +28,7 @@ import java.util.List;
 
 public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta implements ITransformMeta<Main, Data> {
-  protected static Class<?> PKG = MongoDbInputMeta.class; // for i18n purposes
+  protected static Class<?> PKG = MongoDbInputMeta.class; // For Translator
 
   @Injection(name = "HOSTNAME")
   private String hostname = "localhost";

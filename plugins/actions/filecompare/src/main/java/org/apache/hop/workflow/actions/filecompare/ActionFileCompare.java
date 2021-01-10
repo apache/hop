@@ -65,7 +65,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/filecompare.html"
 )
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFileCompare.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 
   private String filename1;
   private String filename2;

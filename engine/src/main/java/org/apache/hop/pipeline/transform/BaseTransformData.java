@@ -28,10 +28,7 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
  */
 public abstract class BaseTransformData implements ITransformData {
 
-  /**
-   * The pkg used for i18n
-   */
-  private static final Class<?> PKG = BaseTransform.class; // Needed by Translator
+  private static final Class<?> PKG = BaseTransform.class; // For Translator
 
   /**
    * The status.

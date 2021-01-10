@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
  * @since 07-05-2003
  */
 public class Const {
-  private static final Class<?> PKG = Const.class; // Needed by Translator
+  private static final Class<?> PKG = Const.class; // For Translator
 
   /**
    * Release Type
@@ -940,6 +940,10 @@ public class Const {
     HOP_SIMPLE_STACK_TRACES,
   };
 
+  /**
+   * The i18n prefix to signal that this is a String in the format: i18n:package:key
+   */
+  public static final String I18N_PREFIX = "i18n:";
 
   /**
    * <p>A variable to configure if the S3 input / output transforms should use the Amazon Default Credentials Provider Chain

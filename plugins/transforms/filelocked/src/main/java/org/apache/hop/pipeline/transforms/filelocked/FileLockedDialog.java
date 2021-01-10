@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FileLockedDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FileLockedMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FileLockedMeta.class; // For Translator
 
   private CCombo wFileName;
 

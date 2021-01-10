@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/getpop.html"
 )
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
+  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
   static final int FOLDER_OUTPUT = 0;
   static final int FOLDER_ATTACHMENTS = 1;
@@ -729,7 +729,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         && getAfterGetIMAP() == MailConnectionMeta.AFTER_GET_IMAP_MOVE ) ) {
         if ( Utils.isEmpty( realMoveToIMAPFolder ) ) {
           throw new HopException( BaseMessages
-            .getString( PKG, "JobGetMailsFromPOP.Error.MoveToIMAPFolderEmpty" ) );
+            .getString( PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty" ) );
         }
         moveafter = true;
       }
@@ -743,7 +743,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           String realBeginDate = resolve( getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty" ) );
+              PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty" ) );
           }
           beginDate = df.parse( realBeginDate );
           break;
@@ -751,13 +751,13 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           realBeginDate = resolve( getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
+              PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
           }
           beginDate = df.parse( realBeginDate );
           String realEndDate = resolve( getReceivedDate2() );
           if ( Utils.isEmpty( realEndDate ) ) {
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
+              PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
           }
           endDate = df.parse( realEndDate );
           break;
@@ -872,12 +872,12 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       if ( isIncludeSubFolders() ) {
         // Fetch also sub folders?
         if ( isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "JobGetPOP.FetchingSubFolders" ) );
+          logDebug( BaseMessages.getString( PKG, "ActionGetPOP.FetchingSubFolders" ) );
         }
         String[] subfolders = mailConn.returnAllFolders();
         if ( subfolders.length == 0 ) {
           if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "JobGetPOP.NoSubFolders" ) );
+            logDebug( BaseMessages.getString( PKG, "ActionGetPOP.NoSubFolders" ) );
           }
         } else {
           for ( int i = 0; i < subfolders.length; i++ ) {
@@ -896,14 +896,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
       if ( isDetailed() ) {
         logDetailed( "=======================================" );
-        logDetailed( BaseMessages.getString( PKG, "JobGetPOP.Log.Info.SavedMessages", ""
+        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.SavedMessages", ""
           + mailConn.getSavedMessagesCounter() ) );
-        logDetailed( BaseMessages.getString( PKG, "JobGetPOP.Log.Info.DeletedMessages", ""
+        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.DeletedMessages", ""
           + mailConn.getDeletedMessagesCounter() ) );
-        logDetailed( BaseMessages.getString( PKG, "JobGetPOP.Log.Info.MovedMessages", ""
+        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.MovedMessages", ""
           + mailConn.getMovedMessagesCounter() ) );
         if ( getActionType() == MailConnectionMeta.ACTION_TYPE_GET && isSaveAttachment() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobGetPOP.Log.Info.AttachedMessagesSuccess", ""
+          logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.AttachedMessagesSuccess", ""
             + mailConn.getSavedAttachedFilesCounter() ) );
         }
         logDetailed( "=======================================" );
@@ -941,7 +941,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       int messagesCount = mailConn.getMessagesCount();
 
       if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.TotalMessagesFolder.Label", ""
+        logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.TotalMessagesFolder.Label", ""
           + messagesCount, Const.NVL( mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER ) ) );
       }
 
@@ -961,14 +961,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 // Delete this message
                 mailConn.deleteMessage();
                 if ( isDebug() ) {
-                  logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageDeleted", "" + i ) );
+                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + i ) );
                 }
               }
             } else {
               // Delete messages
               mailConn.deleteMessages( true );
               if ( isDebug() ) {
-                logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessagesDeleted", "" + messagesCount ) );
+                logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount ) );
               }
             }
             break;
@@ -983,7 +983,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 mailConn.moveMessage();
                 if ( isDebug() ) {
                   logDebug( BaseMessages.getString(
-                    PKG, "JobGetMailsFromPOP.MessageMoved", "" + i, realMoveToIMAPFolder ) );
+                    PKG, "ActionGetMailsFromPOP.MessageMoved", "" + i, realMoveToIMAPFolder ) );
                 }
               }
             } else {
@@ -991,7 +991,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               mailConn.moveMessages();
               if ( isDebug() ) {
                 logDebug( BaseMessages.getString(
-                  PKG, "JobGetMailsFromPOP.MessagesMoved", "" + messagesCount, realMoveToIMAPFolder ) );
+                  PKG, "ActionGetMailsFromPOP.MessagesMoved", "" + messagesCount, realMoveToIMAPFolder ) );
               }
             }
             break;
@@ -1011,17 +1011,17 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 //
                 if ( isDebug() && mailConn.getMessage() != null ) {
                   logDebug( "--------------------------------------------------" );
-                  logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageNumber.Label", ""
+                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageNumber.Label", ""
                     + messagenumber ) );
                   if ( mailConn.getMessage().getReceivedDate() != null ) {
-                    logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.ReceivedDate.Label", df
+                    logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.ReceivedDate.Label", df
                       .format( mailConn.getMessage().getReceivedDate() ) ) );
                   }
-                  logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.ContentType.Label", mailConn
+                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.ContentType.Label", mailConn
                     .getMessage().getContentType() ) );
-                  logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.EmailFrom.Label", Const.NVL( mailConn
+                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.EmailFrom.Label", Const.NVL( mailConn
                     .getMessage().getFrom()[ 0 ].toString(), "" ) ) );
-                  logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.EmailSubject.Label", Const.NVL(
+                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.EmailSubject.Label", Const.NVL(
                     mailConn.getMessage().getSubject(), "" ) ) );
                 }
                 if ( isSaveMessage() ) {
@@ -1030,7 +1030,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
                   if ( isDebug() ) {
                     logDebug( BaseMessages.getString(
-                      PKG, "JobGetMailsFromPOP.LocalFilename.Label", localfilenameMessage ) );
+                      PKG, "ActionGetMailsFromPOP.LocalFilename.Label", localfilenameMessage ) );
                   }
 
                   // save message content in the file
@@ -1039,7 +1039,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   mailConn.getMessage().setFlag( Flag.SEEN, true );
 
                   if ( isDetailed() ) {
-                    logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageSaved.Label", ""
+                    logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageSaved.Label", ""
                       + messagenumber, localfilenameMessage, realOutputFolder ) );
                   }
                 }
@@ -1054,7 +1054,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   if ( getDelete() ) {
                     mailConn.deleteMessage();
                     if ( isDebug() ) {
-                      logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageDeleted", ""
+                      logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", ""
                         + messagenumber ) );
                     }
                   }
@@ -1064,7 +1064,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                       // Delete messages
                       mailConn.deleteMessage();
                       if ( isDebug() ) {
-                        logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageDeleted", ""
+                        logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", ""
                           + messagenumber ) );
                       }
                       break;
@@ -1072,7 +1072,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                       // Move messages
                       mailConn.moveMessage();
                       if ( isDebug() ) {
-                        logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageMoved", ""
+                        logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageMoved", ""
                           + messagenumber, realMoveToIMAPFolder ) );
                       }
                       break;
@@ -1195,10 +1195,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       switch ( folderType ) {
         case ActionGetPOP.FOLDER_OUTPUT:
           throw new HopException( BaseMessages
-            .getString( PKG, "JobGetMailsFromPOP.Error.OutputFolderEmpty" ) );
+            .getString( PKG, "ActionGetMailsFromPOP.Error.OutputFolderEmpty" ) );
         case ActionGetPOP.FOLDER_ATTACHMENTS:
           throw new HopException( BaseMessages
-            .getString( PKG, "JobGetMailsFromPOP.Error.AttachmentFolderEmpty" ) );
+            .getString( PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderEmpty" ) );
       }
     }
     FileObject folder = HopVfs.getFileObject( folderName );
@@ -1207,19 +1207,19 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         switch ( folderType ) {
           case ActionGetPOP.FOLDER_OUTPUT:
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.NotAFolderNot", folderName ) );
+              PKG, "ActionGetMailsFromPOP.Error.NotAFolderNot", folderName ) );
           case ActionGetPOP.FOLDER_ATTACHMENTS:
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.AttachmentFolderNotAFolder", folderName ) );
+              PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotAFolder", folderName ) );
         }
       }
       if ( isDebug() ) {
         switch ( folderType ) {
           case ActionGetPOP.FOLDER_OUTPUT:
-            logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.Log.OutputFolderExists", folderName ) );
+            logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Log.OutputFolderExists", folderName ) );
             break;
           case ActionGetPOP.FOLDER_ATTACHMENTS:
-            logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.Log.AttachmentFolderExists", folderName ) );
+            logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Log.AttachmentFolderExists", folderName ) );
             break;
         }
       }
@@ -1230,10 +1230,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         switch ( folderType ) {
           case ActionGetPOP.FOLDER_OUTPUT:
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.OutputFolderNotExist", folderName ) );
+              PKG, "ActionGetMailsFromPOP.Error.OutputFolderNotExist", folderName ) );
           case ActionGetPOP.FOLDER_ATTACHMENTS:
             throw new HopException( BaseMessages.getString(
-              PKG, "JobGetMailsFromPOP.Error.AttachmentFolderNotExist", folderName ) );
+              PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist", folderName ) );
         }
       }
     }

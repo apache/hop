@@ -61,7 +61,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta
     implements ITransformMeta<ValueMapper, ValueMapperData> {
-  private static final Class<?> PKG = ValueMapperMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
 
   @Injection(name = "FIELDNAME")
   private String fieldToUse;

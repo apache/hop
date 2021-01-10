@@ -69,7 +69,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class LoadFileInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO =
       new String[] {

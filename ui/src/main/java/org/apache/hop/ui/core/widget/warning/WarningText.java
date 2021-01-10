@@ -46,7 +46,7 @@ import java.util.List;
  * @since 25-FEB-2009
  */
 public class WarningText extends Composite implements ISupportsWarning {
-  private static final Class<?> PKG = CheckBoxVar.class; // Needed by Translator
+  private static final Class<?> PKG = CheckBoxVar.class; // For Translator
 
   private ControlDecoration warningControlDecoration;
 

@@ -57,7 +57,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/tableexists.html"
 )
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTableExists.class; // Needed by Translator
+  private static final Class<?> PKG = ActionTableExists.class; // For Translator
 
   private String tableName;
   private String schemaname;

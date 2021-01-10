@@ -74,7 +74,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionShell.class; // Needed by Translator
+  private static final Class<?> PKG = ActionShell.class; // For Translator
 
   private String filename;
 

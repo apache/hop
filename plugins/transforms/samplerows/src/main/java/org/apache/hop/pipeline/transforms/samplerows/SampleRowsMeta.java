@@ -55,7 +55,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/samplerows.html")
 public class SampleRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SampleRows, SampleRowsData> {
-  private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   private String linesrange;
   private String linenumfield;

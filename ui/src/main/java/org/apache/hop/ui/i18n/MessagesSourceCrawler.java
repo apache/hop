@@ -49,6 +49,9 @@ import java.util.regex.Pattern;
  */
 public class MessagesSourceCrawler {
 
+  /** The Hop source code */
+  private String rootFolder;
+
   /** The source directories to crawl through */
   private List<String> sourceDirectories;
 
@@ -99,13 +102,14 @@ public class MessagesSourceCrawler {
         Pattern.compile(
             "BaseMessages\\s*.getString\\(\\s*PKG,.*\\);", Pattern.DOTALL | Pattern.MULTILINE);
     doubleQuotePattern = Pattern.compile("\"", Pattern.MULTILINE);
-    i18nStringPattern = Pattern.compile( "\"i18n:[a-z\\.0-9]*:[a-zA-Z0-9\\.]*\"", Pattern.DOTALL | Pattern.MULTILINE );
+    i18nStringPattern = Pattern.compile( "\""+Const.I18N_PREFIX+"[a-z\\.0-9]*:[a-zA-Z0-9\\.]*\"", Pattern.DOTALL | Pattern.MULTILINE );
   }
 
   public MessagesSourceCrawler(ILogChannel log, String rootFolder, BundlesStore bundlesStore)
       throws HopException {
     this();
     this.log = log;
+    this.rootFolder = rootFolder;
     this.bundlesStore = bundlesStore;
     this.filesToAvoid = new ArrayList<>();
 
@@ -282,8 +286,17 @@ public class MessagesSourceCrawler {
         }
         String i18nKey = i18n[2];
 
+        String actualSourceFolder = sourceFolder;
+        // If we have an explicit package in the i18n:package:key expression we assume
+        // that the reference is to somewhere else in the source code
+        // To cover this scenario we assume a root source tree
+        //
+        if (StringUtils.isNotEmpty( i18n[2] )) {
+          actualSourceFolder = rootFolder;
+        }
+
         KeyOccurrence keyOccurrence = new KeyOccurrence(
-            javaFile, sourceFolder, i18nPackage, i18StringMatcher.start(), i18nKey, "", expression);
+            javaFile, actualSourceFolder, i18nPackage, i18StringMatcher.start(), i18nKey, "", expression);
         addKeyOccurrence(keyOccurrence);
       }
       startIndex=i18StringMatcher.start()+1;
@@ -690,5 +703,21 @@ public class MessagesSourceCrawler {
   /** @param log The log to set */
   public void setLog(ILogChannel log) {
     this.log = log;
+  }
+
+  /**
+   * Gets rootFolder
+   *
+   * @return value of rootFolder
+   */
+  public String getRootFolder() {
+    return rootFolder;
+  }
+
+  /**
+   * @param rootFolder The rootFolder to set
+   */
+  public void setRootFolder( String rootFolder ) {
+    this.rootFolder = rootFolder;
   }
 }

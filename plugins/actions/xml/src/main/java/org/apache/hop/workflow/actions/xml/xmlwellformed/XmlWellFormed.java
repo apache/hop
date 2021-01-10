@@ -63,11 +63,11 @@ import java.util.regex.Pattern;
         name = "i18n::XML_WELL_FORMED.Name",
         description = "i18n::XML_WELL_FORMED.Description",
         image = "XFC.svg",
-        categoryDescription = "XML_WELL_FORMED.Category",
+        categoryDescription = "i18n::XML_WELL_FORMED.Category",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/xmlwellformed.html"
 )
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlWellFormed.class; // For Translator
 
   public static String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
   public static String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";

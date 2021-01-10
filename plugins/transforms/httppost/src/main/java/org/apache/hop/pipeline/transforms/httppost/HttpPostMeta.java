@@ -56,7 +56,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/httppost.html")
 public class HttpPostMeta extends BaseTransformMeta
     implements ITransformMeta<HttpPost, HttpPostData> {
-  private static final Class<?> PKG = HttpPostMeta.class; // Needed by Translator
+  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

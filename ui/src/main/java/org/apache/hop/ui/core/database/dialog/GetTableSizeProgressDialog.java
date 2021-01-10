@@ -40,7 +40,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 12-may-2005
  */
 public class GetTableSizeProgressDialog {
-  private static final Class<?> PKG = GetTableSizeProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = GetTableSizeProgressDialog.class; // For Translator
 
   private Shell shell;
   private IVariables variables;

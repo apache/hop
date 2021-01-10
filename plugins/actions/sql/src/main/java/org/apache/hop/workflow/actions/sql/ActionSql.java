@@ -65,7 +65,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sql.html"
 )
 public class ActionSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSql.class; // For Translator
 
   private String sql;
   private DatabaseMeta connection;

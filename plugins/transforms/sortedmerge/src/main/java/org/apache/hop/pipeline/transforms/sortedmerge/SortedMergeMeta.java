@@ -60,7 +60,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/sortedmerge.html")
 public class SortedMergeMeta extends BaseTransformMeta
     implements ITransformMeta<SortedMerge, SortedMergeData> {
-  private static final Class<?> PKG = SortedMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   /** order by which fields? */
   @Injection(name = "FIELD_NAME", group = "FIELDS")

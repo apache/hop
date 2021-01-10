@@ -59,7 +59,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/dbproc.html")
 public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
 
-  private static final Class<?> PKG = DBProcMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DBProcMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta database;

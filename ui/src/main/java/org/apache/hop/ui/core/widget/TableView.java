@@ -116,7 +116,7 @@ public class TableView extends Composite {
     void delete(int[] items);
   }
 
-  private static final Class<?> PKG = TableView.class; // Needed by Translator
+  private static final Class<?> PKG = TableView.class; // For Translator
 
   // define CANCEL_KEYS here so that RWT needs not to be imported.
   // HiromuHota/pentaho-kettle#123

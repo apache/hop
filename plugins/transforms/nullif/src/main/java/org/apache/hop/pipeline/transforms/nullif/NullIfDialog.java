@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.*;
 
 public class NullIfDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = NullIfMeta.class; // Needed by Translator
+  private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
   private Text wTransformName;
 

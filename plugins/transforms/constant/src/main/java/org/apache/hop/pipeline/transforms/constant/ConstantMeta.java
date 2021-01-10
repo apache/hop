@@ -55,7 +55,7 @@ import java.util.List;
 public class ConstantMeta extends BaseTransformMeta
     implements ITransformMeta<Constant, ConstantData> {
 
-  private static final Class<?> PKG = ConstantMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ConstantMeta.class; // For Translator
 
   private String[] currency;
   private String[] decimal;

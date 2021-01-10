@@ -45,7 +45,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SortedMergeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SortedMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "SortedMergeSortWarning";
 

@@ -56,7 +56,7 @@ import java.util.List;
 public class CreditCardValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {
 
-  private static final Class<?> PKG = CreditCardValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
   /** dynamic field */
   private String fieldname;

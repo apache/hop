@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ProcessFilesDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
 
   private CCombo wSourceFileNameField;
 

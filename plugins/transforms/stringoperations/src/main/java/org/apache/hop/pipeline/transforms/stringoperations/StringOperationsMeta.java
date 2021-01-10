@@ -51,7 +51,7 @@ import java.util.List;
 public class StringOperationsMeta extends BaseTransformMeta
     implements ITransformMeta<StringOperations, StringOperationsData> {
 
-  private static final Class<?> PKG = StringOperationsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
 
   /** which field in input stream to compare with? */
   private String[] fieldInStream;

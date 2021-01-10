@@ -52,7 +52,7 @@ import java.util.List;
     groups = {"FIELDS", "VALUE_TYPES"})
 public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull, IfNullData> {
 
-  private static final Class<?> PKG = IfNullMeta.class; // Needed by Translator
+  private static final Class<?> PKG = IfNullMeta.class; // For Translator
 
   @Override
   public IfNull createTransform(

@@ -53,7 +53,7 @@ import java.util.List;
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static final Class<?> PKG = RandomValueMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 
   public static final int TYPE_RANDOM_NONE = 0;
 

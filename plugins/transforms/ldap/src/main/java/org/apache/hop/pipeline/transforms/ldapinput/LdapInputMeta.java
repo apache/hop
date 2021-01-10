@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
         "https://hop.apache.org/manual/latest/plugins/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
-  private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

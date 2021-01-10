@@ -49,7 +49,7 @@ import java.net.URLConnection;
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWebServiceAvailable.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
 
   private String url;
   private String connectTimeOut;

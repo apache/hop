@@ -55,7 +55,7 @@ import java.util.List;
 public class CalculatorMeta extends BaseTransformMeta
     implements ITransformMeta<Calculator, CalculatorData> {
 
-  private static final Class<?> PKG = CalculatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
   /** The calculations to be performed */
   private CalculatorMetaFunction[] calculation;

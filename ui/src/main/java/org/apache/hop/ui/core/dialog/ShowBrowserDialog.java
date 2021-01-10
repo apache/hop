@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 22-12-2005
  */
 public class ShowBrowserDialog extends Dialog {
-  private static final Class<?> PKG = ShowBrowserDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ShowBrowserDialog.class; // For Translator
 
   private String dialogTitle;
   private String content;

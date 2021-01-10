@@ -79,8 +79,6 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       return;
     }
 
-    PropsUi props = PropsUi.getInstance();
-
     MenuItem menuItem;
 
     // With children mean: drop-down menu item

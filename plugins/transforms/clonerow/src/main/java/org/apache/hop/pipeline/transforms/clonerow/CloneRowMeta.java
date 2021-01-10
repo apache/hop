@@ -54,7 +54,7 @@ import java.util.List;
 public class CloneRowMeta extends BaseTransformMeta
     implements ITransformMeta<CloneRow, CloneRowData> {
 
-  private static final Class<?> PKG = CloneRowMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CloneRowMeta.class; // For Translator
 
   /** nr of clone rows */
   private String nrclones;

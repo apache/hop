@@ -55,7 +55,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/multimerge.html")
 public class MultiMergeJoinMeta extends BaseTransformMeta
     implements ITransformMeta<MultiMergeJoin, MultiMergeJoinData> {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public static final String[] joinTypes = {"INNER", "FULL OUTER"};
   public static final boolean[] optionals = {false, true};

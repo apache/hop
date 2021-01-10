@@ -46,7 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/zipfile.html")
 public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<ZipFile, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
 
   /** dynamic filename */
   private String sourcefilenamefield;

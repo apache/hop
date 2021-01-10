@@ -59,7 +59,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delete.html")
 public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Delete, DeleteData> {
-  private static final Class<?> PKG = DeleteMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
   /** The target schema name */
   private String schemaName;

@@ -45,7 +45,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExecProcessMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 
   private CCombo wProcess;
 

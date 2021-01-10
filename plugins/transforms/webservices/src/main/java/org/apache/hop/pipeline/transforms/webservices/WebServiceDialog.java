@@ -81,7 +81,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = WebServiceMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WebServiceMeta.class; // For Translator
 
   private WebServiceMeta meta;
 

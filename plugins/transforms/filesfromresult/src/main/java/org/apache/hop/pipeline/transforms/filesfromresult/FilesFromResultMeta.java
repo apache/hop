@@ -54,7 +54,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/filesfromresult.html")
 public class FilesFromResultMeta extends BaseTransformMeta
     implements ITransformMeta<FilesFromResult, FilesFromResultData> {
-  private static final Class<?> PKG = FilesFromResult.class; // Needed by Translator
+  private static final Class<?> PKG = FilesFromResult.class; // For Translator
 
   public FilesFromResultMeta() {
     super(); // allocate BaseTransformMeta

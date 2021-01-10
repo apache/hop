@@ -33,7 +33,7 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
  * @since 6-apr-2005
  */
 public class ActionWorkflowRunner implements Runnable {
-  private static final Class<?> PKG = Workflow.class; // Needed by Translator
+  private static final Class<?> PKG = Workflow.class; // For Translator
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private Result result;

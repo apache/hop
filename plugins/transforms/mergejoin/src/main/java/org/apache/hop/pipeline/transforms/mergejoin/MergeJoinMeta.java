@@ -59,7 +59,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mergejoin.html")
 public class MergeJoinMeta extends BaseTransformMeta
     implements ITransformMeta<MergeJoin, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public static final String[] joinTypes = {"INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER"};
   public static final boolean[] one_optionals = {false, false, true, true};

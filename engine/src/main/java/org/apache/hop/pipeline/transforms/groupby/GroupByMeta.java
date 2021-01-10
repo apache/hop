@@ -55,7 +55,7 @@ import java.util.List;
     keywords = "")
 public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
 
-  private static final Class<?> PKG = GroupByMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
   public static final int TYPE_GROUP_NONE = 0;
 

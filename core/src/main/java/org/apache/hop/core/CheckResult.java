@@ -26,7 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 11-01-04
  */
 public class CheckResult implements ICheckResult {
-  private static final Class<?> PKG = Const.class; // Needed by Translator
+  private static final Class<?> PKG = Const.class; // For Translator
 
   public static final String[] typeDesc = {
     "", BaseMessages.getString( PKG, "CheckResult.OK" ), BaseMessages.getString( PKG, "CheckResult.Remark" ),

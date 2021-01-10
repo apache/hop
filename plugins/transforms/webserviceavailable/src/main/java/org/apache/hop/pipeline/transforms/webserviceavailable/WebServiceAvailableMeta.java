@@ -49,7 +49,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/webserviceavailable.html")
 public class WebServiceAvailableMeta extends BaseTransformMeta
     implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
-  private static final Class<?> PKG = WebServiceAvailableMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   /** dynamic filename */
   private String urlField;

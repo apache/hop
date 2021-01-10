@@ -49,7 +49,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RegexEvalDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = RegexEvalMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
   private StyledTextComp wScript;
 

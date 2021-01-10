@@ -63,7 +63,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getsubfolders.html")
 public class GetSubFoldersMeta extends BaseTransformMeta
     implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
   public static final String[] RequiredFoldersDesc =
       new String[] {

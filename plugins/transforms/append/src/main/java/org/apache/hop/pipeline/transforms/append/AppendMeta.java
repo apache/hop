@@ -59,7 +59,7 @@ import java.util.List;
 @InjectionSupported(localizationPrefix = "AppendMeta.Injection.")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 
-  private static final Class<?> PKG = Append.class; // Needed by Translator
+  private static final Class<?> PKG = Append.class; // For Translator
 
   @Injection(name = "HEAD_TRANSFORM")
   public String headTransformName;

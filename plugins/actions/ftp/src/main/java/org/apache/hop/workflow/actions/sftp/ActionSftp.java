@@ -66,7 +66,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sftp.html"
 )
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSftp.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSftp.class; // For Translator
 
   private static final int DEFAULT_PORT = 22;
   private String serverName;

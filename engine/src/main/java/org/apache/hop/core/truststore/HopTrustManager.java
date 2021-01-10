@@ -35,7 +35,7 @@ import java.security.cert.X509Certificate;
  */
 public class HopTrustManager implements X509TrustManager {
 
-  private static final Class<?> classFromPackage = HopTrustManager.class; // i18n purposes
+  private static final Class<?> classFromPackage = HopTrustManager.class; // For Translator
 
   /** The trust manager around which we wrap ourselves in this class. */
   private X509TrustManager tm;

@@ -50,7 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delay.html")
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
-  private static final Class<?> PKG = DelayMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DelayMeta.class; // For Translator
 
   private String timeout;
   private String scaletime;

@@ -59,12 +59,11 @@ import java.util.List;
     image = "XJN.svg",
     name = "i18n::XmlJoin.name",
     description = "i18n::XmlJoin.description",
-    categoryDescription = "XmlJoin.category",
+    categoryDescription = "i18n::XmlJoin.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
-  private static final Class<?> PKG =
-      XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   /** The base name of the output file */
 

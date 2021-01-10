@@ -47,7 +47,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/processfiles.html")
 public class ProcessFilesMeta extends BaseTransformMeta
     implements ITransformMeta<ProcessFiles, ProcessFilesData> {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
 
   private boolean addresultfilenames;
   private boolean overwritetargetfile;

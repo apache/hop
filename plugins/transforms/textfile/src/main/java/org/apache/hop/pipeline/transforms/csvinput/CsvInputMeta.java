@@ -77,7 +77,7 @@ public class CsvInputMeta extends BaseTransformMeta
         IInputFileMeta<CsvInput, CsvInputData>,
         ICsvInputAwareMeta {
 
-  private static final Class<?> PKG = CsvInput.class; // Needed by Translator
+  private static final Class<?> PKG = CsvInput.class; // For Translator
 
   private String filename;
 

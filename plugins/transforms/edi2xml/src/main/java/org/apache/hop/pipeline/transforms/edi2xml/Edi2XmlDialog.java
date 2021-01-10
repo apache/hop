@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.*;
 
 public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
+  private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
 
   private final Edi2XmlMeta input;
 

@@ -57,7 +57,7 @@ import java.util.Map;
         "https://hop.apache.org/manual/latest/plugins/transforms/getfilesrowcount.html")
 public class GetFilesRowsCountMeta extends BaseTransformMeta
     implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

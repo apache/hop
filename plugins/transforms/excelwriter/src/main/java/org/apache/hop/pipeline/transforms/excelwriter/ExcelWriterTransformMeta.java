@@ -56,7 +56,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/excelwriter.html")
 public class ExcelWriterTransformMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";

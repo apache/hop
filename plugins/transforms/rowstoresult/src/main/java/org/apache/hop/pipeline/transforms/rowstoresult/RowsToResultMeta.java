@@ -45,7 +45,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rowstoresult.html")
 public class RowsToResultMeta extends BaseTransformMeta
     implements ITransformMeta<RowsToResult, RowsToResultData> {
-  private static final Class<?> PKG = RowsToResult.class; // Needed by Translator
+  private static final Class<?> PKG = RowsToResult.class; // For Translator
 
   public RowsToResultMeta() {
     super(); // allocate BaseTransformMeta

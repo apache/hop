@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/actions/deleteresultfilenames.html")
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // For Translator
 
   private String folderName;
   private boolean specifyWildcard;

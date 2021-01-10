@@ -50,7 +50,7 @@ import java.util.List;
 public class ColumnExistsMeta extends BaseTransformMeta
     implements ITransformMeta<ColumnExists, ColumnExistsData> {
 
-  private static final Class<?> PKG = ColumnExistsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta database;

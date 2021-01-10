@@ -186,7 +186,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the filename from a field, JAXP factory
+   * Test case for XSLT transform, getting the filename from a field, JAXP factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -198,7 +198,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the filename from a field, SAXON factory
+   * Test case for XSLT transform, getting the filename from a field, SAXON factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -210,7 +210,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the XSL from a field, JAXP factory
+   * Test case for XSLT transform, getting the XSL from a field, JAXP factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -220,7 +220,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the XSL from a field, SAXON factory
+   * Test case for XSLT transform, getting the XSL from a field, SAXON factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -230,7 +230,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the XSL from a file, JAXP factory
+   * Test case for XSLT transform, getting the XSL from a file, JAXP factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -241,7 +241,7 @@ public class XsltTest extends TestCase {
   }
 
   /**
-   * Test case for XSLT step, getting the XSL from a file, SAXON factory
+   * Test case for XSLT transform, getting the XSL from a file, SAXON factory
    * 
    * @throws Exception
    *           Upon any exception
@@ -265,9 +265,9 @@ public class XsltTest extends TestCase {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     //
-    // create an injector step...
+    // create an injector transform...
     //
-    String injectorTransformName = "injector step";
+    String injectorTransformName = "injector transform";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
@@ -276,9 +276,9 @@ public class XsltTest extends TestCase {
     pipelineMeta.addTransform( injectorTransform );
 
     //
-    // Create a XSLT step
+    // Create a XSLT transform
     //
-    String xsltName = "xslt step";
+    String xsltName = "xslt transform";
     XsltMeta xm = new XsltMeta();
 
     String xsltPid = registry.getPluginId( TransformPluginType.class, xm );
@@ -333,9 +333,9 @@ public class XsltTest extends TestCase {
     pipelineMeta.addPipelineHop( hi );
 
     //
-    // Create a dummy step 1
+    // Create a dummy transform 1
     //
-    String dummyTransformName1 = "dummy step 1";
+    String dummyTransformName1 = "dummy transform 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );

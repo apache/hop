@@ -51,8 +51,7 @@ import java.io.File;
 import java.util.Collections;
 
 public class ProjectDialog extends Dialog {
-  private static final Class<?> PKG =
-      ProjectDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ProjectDialog.class; // For Translator
 
   private final Project project;
   private final ProjectConfig projectConfig;
@@ -415,13 +414,13 @@ public class ProjectDialog extends Dialog {
       // Renaming the project is not supported.
       //
       String projectName = wName.getText();
-      if (StringUtils.isEmpty( projectName )) {
+      if (StringUtils.isEmpty(projectName)) {
         throw new HopException("Please give your new project a name");
       }
-      if (StringUtils.isNotEmpty( originalName )) {
-        if (!projectName.equals( originalName )) {
-          wName.setText( originalName );
-          throw new HopException("Sorry, renaming project '"+originalName+"' is not supported");
+      if (StringUtils.isNotEmpty(originalName)) {
+        if (!projectName.equals(originalName)) {
+          wName.setText(originalName);
+          throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
         }
       }
 

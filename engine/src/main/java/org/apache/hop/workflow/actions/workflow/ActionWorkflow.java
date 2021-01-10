@@ -77,7 +77,7 @@ import java.util.UUID;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html")
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWorkflow.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
   private String filename;
 

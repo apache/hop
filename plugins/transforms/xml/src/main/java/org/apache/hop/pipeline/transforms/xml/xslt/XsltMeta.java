@@ -51,10 +51,10 @@ import java.util.List;
     image = "XSLT.svg",
     name = "i18n::XSLT.name",
     description = "i18n::XSLT.description",
-    categoryDescription = "XSLT.category",
+    categoryDescription = "i18n::XSLT.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
-  private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   public static final String[] outputProperties =
       new String[] {
@@ -375,7 +375,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
               transformMeta);
       remarks.add(cr);
     }
-    // See if we have input streams leading to this step!
+    // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(

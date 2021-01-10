@@ -62,7 +62,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforsql.html"
 )
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 
   public boolean isClearResultList;
 

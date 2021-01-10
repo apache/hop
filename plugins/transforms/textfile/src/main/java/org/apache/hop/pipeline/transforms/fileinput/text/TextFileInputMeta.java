@@ -83,9 +83,7 @@ public class TextFileInputMeta
         TextFileInput,
         TextFileInputData>
     implements ITransformMeta<TextFileInput, TextFileInputData>, ICsvInputAwareMeta {
-  private static final Class<?> PKG =
-      TextFileInputMeta.class; // Needed by Translator TODO: check i18n
-  // for base
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
 

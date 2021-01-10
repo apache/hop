@@ -83,7 +83,7 @@ import java.util.zip.ZipOutputStream;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mail.html"
 )
 public class ActionMail extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMail.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMail.class; // For Translator
 
   private String server;
 

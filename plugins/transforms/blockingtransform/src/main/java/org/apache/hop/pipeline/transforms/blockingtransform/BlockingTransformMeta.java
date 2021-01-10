@@ -50,7 +50,7 @@ import java.util.List;
 public class BlockingTransformMeta extends BaseTransformMeta
     implements ITransformMeta<BlockingTransform, BlockingTransformData> {
 
-  private static final Class<?> PKG = BlockingTransformMeta.class; // Needed by Translator
+  private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
   /** Directory to store the temp files */
   private String directory;

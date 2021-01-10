@@ -56,7 +56,7 @@ import java.util.Objects;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/janino.html")
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
-  private static final Class<?> PKG = JaninoMeta.class; // Needed by Translator
+  private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   /** The formula calculations to be performed */
   private JaninoMetaFunction[] formula;

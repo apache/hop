@@ -60,7 +60,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/yamlinput.html")
 public class YamlInputMeta extends BaseTransformMeta
     implements ITransformMeta<YamlInput, YamlInputData> {
-  private static final Class<?> PKG = YamlInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = YamlInputMeta.class; // For Translator
 
   private static final String YES = "Y";
 
@@ -454,7 +454,7 @@ public class YamlInputMeta extends BaseTransformMeta
       yamlField = XmlHandler.getTagValue(transformNode, "YamlField");
     } catch (Exception e) {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "YamlInputMeta.Exception.ErrorLoadingXML", e.toString()));
+          BaseMessages.getString(PKG, "YamlInputMeta.Exception.ErrorLoadingXml", e.toString()));
     }
   }
 

@@ -68,7 +68,7 @@ import java.util.Optional;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/filterrows.html")
 public class FilterRowsMeta extends BaseTransformMeta
     implements ITransformMeta<FilterRows, FilterRowsData> {
-  private static final Class<?> PKG = FilterRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
   /**
    * This is the main condition for the complete filter.

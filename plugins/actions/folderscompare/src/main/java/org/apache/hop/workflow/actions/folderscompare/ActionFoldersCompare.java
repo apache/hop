@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/folderscompare.html"
 )
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFoldersCompare.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
 
   private String filename1;
   private String filename2;

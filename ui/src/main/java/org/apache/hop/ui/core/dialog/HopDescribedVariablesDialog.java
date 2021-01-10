@@ -49,7 +49,7 @@ import java.util.List;
  * @author Matt
  */
 public class HopDescribedVariablesDialog extends Dialog {
-  private static final Class<?> PKG = HopDescribedVariablesDialog.class; // Needed by Translator
+  private static final Class<?> PKG = HopDescribedVariablesDialog.class; // For Translator
 
   private TableView wFields;
 

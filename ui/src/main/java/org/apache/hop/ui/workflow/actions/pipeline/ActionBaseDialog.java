@@ -60,7 +60,6 @@ import java.io.IOException;
 
 /** Created by bmorrise on 1/6/17. */
 public abstract class ActionBaseDialog extends ActionDialog {
-
   public static final Class<?> PKG = ActionBaseDialog.class;
 
   protected Label wlPath;

@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Aliaksandr Kastenka
  */
 public class NewSubPipelineDialog extends Dialog {
-  private static final Class<?> PKG = NewSubPipelineDialog.class; // Needed by Translator
+  private static final Class<?> PKG = NewSubPipelineDialog.class; // For Translator
 
   private Button wShow;
 

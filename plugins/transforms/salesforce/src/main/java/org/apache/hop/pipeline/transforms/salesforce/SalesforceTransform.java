@@ -38,7 +38,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
     extends BaseTransform<Meta, Data>
     implements ITransform<Meta, Data> {
 
-  public static Class<?> PKG = SalesforceTransform.class;
+  public static Class<?> PKG = SalesforceTransform.class; // For Translator
 
   public SalesforceTransform( TransformMeta transformMeta, Meta meta, Data data, int copyNr, PipelineMeta pipelineMeta,
       Pipeline pipeline ) {
@@ -57,29 +57,29 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
     String realModule = resolve( meta.getModule() );
 
     if ( Utils.isEmpty( realUrl ) ) {
-      log.logError( BaseMessages.getString( PKG, "SalesforceTransform.TargetURLMissing.Error" ) );
+      log.logError( BaseMessages.getString( PKG, "SalesforceConnection.TargetURLMissing.Error" ) );
       return false;
     }
     if ( Utils.isEmpty( realUsername ) ) {
-      log.logError( BaseMessages.getString( PKG, "SalesforceInput.UsernameMissing.Error" ) );
+      log.logError( BaseMessages.getString( PKG, "SalesforceConnection.UsernameMissing.Error" ) );
       return false;
     }
     if ( Utils.isEmpty( realPassword ) ) {
-      log.logError( BaseMessages.getString( PKG, "SalesforceInput.PasswordMissing.Error" ) );
+      log.logError( BaseMessages.getString( PKG, "SalesforceConnection.PasswordMissing.Error" ) );
       return false;
     }
     if ( Utils.isEmpty( realModule ) ) {
-      log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.ModuleMissing.DialogMessage" ) );
+      log.logError( BaseMessages.getString( PKG, "SalesForceTransform.ModuleMissing.DialogMessage" ) );
       return false;
     }
     try {
-      // The final step should call data.connection.connect(), as other settings may set additional options
+      // The final transform should call data.connection.connect(), as other settings may set additional options
       data.connection = new SalesforceConnection( log, realUrl, realUsername, realPassword );
       data.connection.setModule( realModule );
       data.connection.setTimeOut( Const.toInt( resolve( meta.getTimeout() ), 0 ) );
       data.connection.setUsingCompression( meta.isCompression() );
     } catch ( HopException ke ) {
-      logError( BaseMessages.getString( PKG, "SalesforceInput.Log.ErrorOccurredDuringTransformInitialize" )
+      logError( BaseMessages.getString( PKG, "SalesforceTransform.Log.ErrorOccurredDuringTransformInitialize" )
         + ke.getMessage() );
       return false;
     }

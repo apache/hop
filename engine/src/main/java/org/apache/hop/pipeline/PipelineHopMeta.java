@@ -37,7 +37,7 @@ import java.util.Objects;
  * Defines a link between 2 transforms in a pipeline
  */
 public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Comparable<PipelineHopMeta>, Cloneable {
-  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
+  private static final Class<?> PKG = Pipeline.class; // For Translator
 
   public static final String XML_HOP_TAG = "hop";
   public static final String XML_FROM_TAG = "from";

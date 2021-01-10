@@ -52,7 +52,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DataGridMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DataGridMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
   private Composite wDataComp;

@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 26-02-2008
  */
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 
   private Text wName;
 

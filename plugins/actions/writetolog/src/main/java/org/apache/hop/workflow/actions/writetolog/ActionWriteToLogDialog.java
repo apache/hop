@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.*;
  * @since 08-08-2007
  */
 public class ActionWriteToLogDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWriteToLog.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 
   private Text wName;
 

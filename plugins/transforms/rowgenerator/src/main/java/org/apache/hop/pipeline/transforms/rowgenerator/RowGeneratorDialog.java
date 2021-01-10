@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 
   private Label wlLimit;
   private TextVar wLimit;

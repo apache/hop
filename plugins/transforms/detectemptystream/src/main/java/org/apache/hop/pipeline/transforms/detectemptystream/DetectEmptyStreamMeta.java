@@ -45,7 +45,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/detectemptystream.html")
 public class DetectEmptyStreamMeta extends BaseTransformMeta
     implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStreamMeta() {
     super(); // allocate BaseTransformMeta

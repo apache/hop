@@ -58,7 +58,7 @@ import java.util.List;
  * @since 19-03-2014
  */
 public class EditRowsDialog {
-  private static final Class<?> PKG = EditRowsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EditRowsDialog.class; // For Translator
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 

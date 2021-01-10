@@ -61,7 +61,7 @@ import java.util.StringTokenizer;
  * @since 21-10-2004
  */
 public class EnterListDialog extends Dialog {
-  private static final Class<?> PKG = EnterListDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterListDialog.class; // For Translator
 
   private PropsUi props;
 

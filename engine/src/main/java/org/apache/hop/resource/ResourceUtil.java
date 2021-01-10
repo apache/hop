@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
 
 public class ResourceUtil {
 
-  private static final Class<?> PKG = ResourceUtil.class; // Needed by Translator
+  private static final Class<?> PKG = ResourceUtil.class; // For Translator
 
   /**
    * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform, Workflow Entry, etc) to a ZIP

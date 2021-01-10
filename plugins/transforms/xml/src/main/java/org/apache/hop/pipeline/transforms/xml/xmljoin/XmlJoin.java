@@ -56,7 +56,7 @@ import java.util.List;
  * @since 14-jan-2006
  */
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements ITransform<XmlJoinMeta, XmlJoinData> {
-  private static final Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   private Transformer transformer;
 
@@ -162,7 +162,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
         int outputIndex = data.outputRowMeta.size() - 1;
 
-        // send the row to the next steps...
+        // send the row to the next transforms...
         putRow( data.outputRowMeta, RowDataUtil.addValueData( data.outputRowData, outputIndex, sw.toString() ) );
         // finishing up
         setOutputDone();
@@ -252,7 +252,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
       setTransformer( transformer );
 
-      // See if a main step is supplied: in that case move the corresponding rowset to position 0
+      // See if a main transform is supplied: in that case move the corresponding rowset to position 0
       //
       swapFirstInputRowSetIfExists( meta.getTargetXmlTransform() );
     } catch ( Exception e ) {

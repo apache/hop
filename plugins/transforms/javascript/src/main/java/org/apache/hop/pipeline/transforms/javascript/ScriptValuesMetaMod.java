@@ -78,7 +78,7 @@ import java.util.Properties;
     groups = {"FIELDS", "SCRIPTS"})
 public class ScriptValuesMetaMod extends BaseTransformMeta
     implements ITransformMeta<ScriptValuesMod, ScriptValuesModData> {
-  private static final Class<?> PKG = ScriptValuesMetaMod.class; // Needed by Translator
+  private static final Class<?> PKG = ScriptValuesMetaMod.class; // For Translator
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
   private static final String JSSCRIPT_TAG_NAME = "jsScript_name";

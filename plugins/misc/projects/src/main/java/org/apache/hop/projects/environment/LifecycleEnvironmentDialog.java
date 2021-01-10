@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Text;
 import java.io.File;
 
 public class LifecycleEnvironmentDialog extends Dialog {
-  private static final Class<?> PKG = LifecycleEnvironmentDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = LifecycleEnvironmentDialog.class; // For Translator
 
   private final LifecycleEnvironment environment;
 

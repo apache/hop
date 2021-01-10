@@ -70,7 +70,7 @@ import java.util.Map;
 public class TextFileOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TextFileOutput, TextFileOutputData> {
 
-  private static final Class<?> PKG = TextFileOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
 
   protected static final int FILE_COMPRESSION_TYPE_NONE = 0;
 

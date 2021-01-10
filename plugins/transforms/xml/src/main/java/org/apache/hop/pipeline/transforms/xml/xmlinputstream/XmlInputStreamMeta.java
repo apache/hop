@@ -46,7 +46,7 @@ import java.util.List;
     image = "xml_input_stream.svg",
     name = "i18n::XMLInputStream.name",
     description = "i18n::XMLInputStream.description",
-    categoryDescription = "XMLInputStream.category",
+    categoryDescription = "i18n::XMLInputStream.category",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/xmlinputstream.html")
 public class XmlInputStreamMeta extends BaseTransformMeta
@@ -59,7 +59,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta
   private String filename;
   private boolean addResultFile;
 
-  /** The number of rows to ignore before sending rows to the next step */
+  /** The number of rows to ignore before sending rows to the next transform */
   private String
       nrRowsToSkip; // String for variable usage, enables chunk loading defined in an outer loop
 
@@ -343,7 +343,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta
           Const.NVL(XmlHandler.getTagValue(transformNode, "xmlDataValueField"), xmlDataValueField);
 
     } catch (Exception e) {
-      throw new HopXmlException("Unable to load step info from XML", e);
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
@@ -532,17 +532,17 @@ public class XmlInputStreamMeta extends BaseTransformMeta
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  "Field name is not in previous step",
+                  "Field name is not in previous transform",
                   transformMeta);
         } else {
           cr =
               new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK, "Field name is in previous step", transformMeta);
+                  ICheckResult.TYPE_RESULT_OK, "Field name is in previous transform", transformMeta);
         }
       } catch (HopTransformException e) {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR, "Could not find previous step", transformMeta);
+                ICheckResult.TYPE_RESULT_ERROR, "Could not find previous transform", transformMeta);
       }
       remarks.add(cr);
     }

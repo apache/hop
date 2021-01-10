@@ -75,7 +75,7 @@ import java.util.Set;
 /** Dialog class for the MongoDB output transform */
 public class MongoDbOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = MongoDbOutputMeta.class;
+  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   protected MongoDbOutputMeta currentMeta;
   protected MongoDbOutputMeta originalMeta;
@@ -159,10 +159,10 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // Buttons inherited from BaseTransformDialog
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(getString("System.Button.OK")); // $NON-NLS-1$
+    wOk.setText(getString("System.Button.OK")); //
     wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(getString("System.Button.Cancel")); // $NON-NLS-1$
+    wCancel.setText(getString("System.Button.Cancel")); //
     wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
@@ -969,15 +969,15 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         };
     colInf2[1].setComboValues(new String[] {"Create", "Drop"});
     colInf2[1].setReadOnly(true);
-    colInf2[2].setComboValues(new String[] {"Y", "N"}); // $NON-NLS-1$
+    colInf2[2].setComboValues(new String[] {"Y", "N"}); //
     colInf2[2].setReadOnly(true);
-    colInf2[3].setComboValues(new String[] {"Y", "N"}); // $NON-NLS-1$
+    colInf2[3].setComboValues(new String[] {"Y", "N"}); //
     colInf2[3].setReadOnly(true);
 
     // get indexes but
     Button wbShowIndexes = new Button( wIndexesComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbShowIndexes );
-    wbShowIndexes.setText(getString("MongoDbOutputDialog.ShowIndexesBut")); // $NON-NLS-1$
+    wbShowIndexes.setText(getString("MongoDbOutputDialog.ShowIndexesBut")); //
     fd = new FormData();
     fd.bottom = new FormAttachment(100, -margin * 2);
     fd.left = new FormAttachment(0, margin);
@@ -1077,7 +1077,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
               shell,
               SWT.ICON_WARNING | SWT.OK,
               getString("MongoDbOutputDialog.ErrorMessage.NoFieldPathsDefined.Title"),
-              getString("MongoDbOutputDialog.ErrorMessage.NoFieldPathsDefined")); // $NON-NLS-1$
+              getString("MongoDbOutputDialog.ErrorMessage.NoFieldPathsDefined")); //
       smd.open();
     }
 
@@ -1132,9 +1132,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
         MongoDbOutputMeta.MongoIndex newIndex = new MongoDbOutputMeta.MongoIndex();
         newIndex.m_pathToFields = indexFieldList;
-        newIndex.m_drop = indexOpp.equals("Drop"); // $NON-NLS-1$
-        newIndex.m_unique = unique.equals("Y"); // $NON-NLS-1$
-        newIndex.m_sparse = sparse.equals("Y"); // $NON-NLS-1$
+        newIndex.m_drop = indexOpp.equals("Drop"); //
+        newIndex.m_unique = unique.equals("Y"); //
+        newIndex.m_sparse = sparse.equals("Y"); //
 
         mongoIndexes.add(newIndex);
       }
@@ -1163,13 +1163,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         newField.m_incomingFieldName = incoming;
         newField.m_mongoDocPath = path;
         newField.m_useIncomingFieldNameAsMongoFieldName =
-            ((useIncoming.length() > 0) ? useIncoming.equals("Y") : true); // $NON-NLS-1$
+            ((useIncoming.length() > 0) ? useIncoming.equals("Y") : true); //
         newField.insertNull =
             getString("MongoDbOutputDialog.Fields.NullValues.Insert").equals(allowNull);
-        newField.m_JSON = ((json.length() > 0) ? json.equals("Y") : false); // $NON-NLS-1$
-        newField.m_updateMatchField = (updateMatch.equals("Y")); // $NON-NLS-1$
+        newField.m_JSON = ((json.length() > 0) ? json.equals("Y") : false); //
+        newField.m_updateMatchField = (updateMatch.equals("Y")); //
         if (modifierOp.length() == 0) {
-          newField.m_modifierUpdateOperation = "N/A"; // $NON-NLS-1$
+          newField.m_modifierUpdateOperation = "N/A"; //
         } else {
           newField.m_modifierUpdateOperation = modifierOp;
         }
@@ -1184,18 +1184,18 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void getData() {
-    wHostnameField.setText(Const.NVL(currentMeta.getHostnames(), "")); // $NON-NLS-1$
-    wPortField.setText(Const.NVL(currentMeta.getPort(), "")); // $NON-NLS-1$
+    wHostnameField.setText(Const.NVL(currentMeta.getHostnames(), "")); //
+    wPortField.setText(Const.NVL(currentMeta.getPort(), "")); //
     wbUseAllReplicaSetMembers.setSelection(currentMeta.getUseAllReplicaSetMembers());
-    wAuthDbName.setText(Const.NVL(currentMeta.getAuthenticationDatabaseName(), "")); // $NON-NLS-1$
-    wUsernameField.setText(Const.NVL(currentMeta.getAuthenticationUser(), "")); // $NON-NLS-1$
-    wPassField.setText(Const.NVL(currentMeta.getAuthenticationPassword(), "")); // $NON-NLS-1$
+    wAuthDbName.setText(Const.NVL(currentMeta.getAuthenticationDatabaseName(), "")); //
+    wUsernameField.setText(Const.NVL(currentMeta.getAuthenticationUser(), "")); //
+    wPassField.setText(Const.NVL(currentMeta.getAuthenticationPassword(), "")); //
     wDbAuthMec.setText(Const.NVL(currentMeta.getAuthenticationMechanism(), ""));
     wbKerberos.setSelection(currentMeta.getUseKerberosAuthentication());
     wPassField.setEnabled(!wbKerberos.getSelection());
-    wDbNameField.setText(Const.NVL(currentMeta.getDbName(), "")); // $NON-NLS-1$
-    wCollectionField.setText(Const.NVL(currentMeta.getCollection(), "")); // $NON-NLS-1$
-    wBatchInsertSizeField.setText(Const.NVL(currentMeta.getBatchInsertSize(), "")); // $NON-NLS-1$
+    wDbNameField.setText(Const.NVL(currentMeta.getDbName(), "")); //
+    wCollectionField.setText(Const.NVL(currentMeta.getCollection(), "")); //
+    wBatchInsertSizeField.setText(Const.NVL(currentMeta.getBatchInsertSize(), "")); //
     wbUpdate.setSelection(currentMeta.getUpdate());
     wbUpsert.setSelection(currentMeta.getUpsert());
     wbMulti.setSelection(currentMeta.getMulti());
@@ -1215,22 +1215,22 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     }
 
     wReadPreference.setEnabled(wbModifierUpdate.getEnabled() && wbModifierUpdate.getSelection());
-    wConnectTimeout.setText(Const.NVL(currentMeta.getConnectTimeout(), "")); // $NON-NLS-1$
-    wSocketTimeout.setText(Const.NVL(currentMeta.getSocketTimeout(), "")); // $NON-NLS-1$
+    wConnectTimeout.setText(Const.NVL(currentMeta.getConnectTimeout(), "")); //
+    wSocketTimeout.setText(Const.NVL(currentMeta.getSocketTimeout(), "")); //
     wbUseSSLSocketFactory.setSelection(currentMeta.isUseSSLSocketFactory());
-    wWriteConcern.setText(Const.NVL(currentMeta.getWriteConcern(), "")); // $NON-NLS-1$
-    wTimeout.setText(Const.NVL(currentMeta.getWTimeout(), "")); // $NON-NLS-1$
+    wWriteConcern.setText(Const.NVL(currentMeta.getWriteConcern(), "")); //
+    wTimeout.setText(Const.NVL(currentMeta.getWTimeout(), "")); //
     wbJournalWrites.setSelection(currentMeta.getJournal());
-    wReadPreference.setText(Const.NVL(currentMeta.getReadPreference(), "")); // $NON-NLS-1$
+    wReadPreference.setText(Const.NVL(currentMeta.getReadPreference(), "")); //
     wWriteRetries.setText(
         Const.NVL(
             currentMeta.getWriteRetries(),
-            "" //$NON-NLS-1$
+            "" //
                 + MongoDbOutputMeta.RETRIES));
     wWriteRetryDelay.setText(
         Const.NVL(
             currentMeta.getWriteRetryDelay(),
-            "" //$NON-NLS-1$
+            "" //
                 + MongoDbOutputMeta.RETRIES));
 
     List<MongoDbOutputMeta.MongoField> mongoFields = currentMeta.getMongoFields();
@@ -1239,18 +1239,18 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       for (MongoDbOutputMeta.MongoField field : mongoFields) {
         TableItem item = new TableItem(wMongoFields.table, SWT.NONE);
 
-        item.setText(1, Const.NVL(field.m_incomingFieldName, "")); // $NON-NLS-1$
-        item.setText(2, Const.NVL(field.m_mongoDocPath, "")); // $NON-NLS-1$
-        item.setText(3, field.m_useIncomingFieldNameAsMongoFieldName ? "Y" : "N"); // $NON-NLS-1$
+        item.setText(1, Const.NVL(field.m_incomingFieldName, "")); //
+        item.setText(2, Const.NVL(field.m_mongoDocPath, "")); //
+        item.setText(3, field.m_useIncomingFieldNameAsMongoFieldName ? "Y" : "N"); //
         String insertNullKey =
             field.insertNull
                 ? "MongoDbOutputDialog.Fields.NullValues.Insert"
                 : "MongoDbOutputDialog.Fields.NullValues.Ignore";
         item.setText(4, getString(insertNullKey));
-        item.setText(5, field.m_JSON ? "Y" : "N"); // $NON-NLS-1$
-        item.setText(6, field.m_updateMatchField ? "Y" : "N"); // $NON-NLS-1$
-        item.setText(7, Const.NVL(field.m_modifierUpdateOperation, "")); // $NON-NLS-1$
-        item.setText(8, Const.NVL(field.m_modifierOperationApplyPolicy, "")); // $NON-NLS-1$
+        item.setText(5, field.m_JSON ? "Y" : "N"); //
+        item.setText(6, field.m_updateMatchField ? "Y" : "N"); //
+        item.setText(7, Const.NVL(field.m_modifierUpdateOperation, "")); //
+        item.setText(8, Const.NVL(field.m_modifierOperationApplyPolicy, "")); //
       }
 
       wMongoFields.removeEmptyRows();
@@ -1264,15 +1264,15 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       for (MongoDbOutputMeta.MongoIndex index : mongoIndexes) {
         TableItem item = new TableItem(wMongoIndexes.table, SWT.None);
 
-        item.setText(1, Const.NVL(index.m_pathToFields, "")); // $NON-NLS-1$
+        item.setText(1, Const.NVL(index.m_pathToFields, "")); //
         if (index.m_drop) {
-          item.setText(2, "Drop"); // $NON-NLS-1$
+          item.setText(2, "Drop"); //
         } else {
-          item.setText(2, "Create"); // $NON-NLS-1$
+          item.setText(2, "Create"); //
         }
 
-        item.setText(3, Const.NVL(index.m_unique ? "Y" : "N", "N")); // $NON-NLS-1$  //$NON-NLS-3$
-        item.setText(4, Const.NVL(index.m_sparse ? "Y" : "N", "N")); // $NON-NLS-1$  //$NON-NLS-3$
+        item.setText(3, Const.NVL(index.m_unique ? "Y" : "N", "N")); //   //
+        item.setText(4, Const.NVL(index.m_sparse ? "Y" : "N", "N")); //   //
       }
 
       wMongoIndexes.removeEmptyRows();
@@ -1310,23 +1310,23 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         if (e instanceof PrivilegedActionException) {
           e = ((PrivilegedActionException) e).getException();
         }
-        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); // $NON-NLS-1$
+        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); //
         new ErrorDialog(
             shell,
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            //$NON-NLS-1$
+            //
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            e); //$NON-NLS-1$
+            e); //
       }
     } else {
       // popup some feedback
 
-      String missingConnDetails = ""; // $NON-NLS-1$
+      String missingConnDetails = ""; //
       if (StringUtils.isEmpty(hostname)) {
-        missingConnDetails += "host name(s)"; // $NON-NLS-1$
+        missingConnDetails += "host name(s)"; //
       }
       if (StringUtils.isEmpty(dB)) {
-        missingConnDetails += " database"; // $NON-NLS-1$
+        missingConnDetails += " database"; //
       }
       ShowMessageDialog smd =
           new ShowMessageDialog(
@@ -1334,9 +1334,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
               SWT.ICON_WARNING | SWT.OK,
               getString("MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails.Title"),
               BaseMessages.getString(
-                  PKG, //$NON-NLS-1$
+                  PKG, //
                   "MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails",
-                  missingConnDetails)); //$NON-NLS-1$
+                  missingConnDetails)); //
       smd.open();
     }
 
@@ -1374,13 +1374,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           }
         }
       } catch (Exception e) {
-        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); // $NON-NLS-1$
+        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); //
         new ErrorDialog(
             shell,
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            //$NON-NLS-1$
+            //
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            e); //$NON-NLS-1$
+            e); //
       }
     } else {
       ShowMessageDialog smd =
@@ -1389,9 +1389,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
               SWT.ICON_WARNING | SWT.OK,
               getString("MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails.Title"),
               BaseMessages.getString(
-                  PKG, //$NON-NLS-1$
+                  PKG, //
                   "MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails",
-                  "host name(s)")); //$NON-NLS-1$
+                  "host name(s)")); //
       smd.open();
     }
   }
@@ -1419,13 +1419,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         }
 
       } catch (Exception e) {
-        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); // $NON-NLS-1$
+        logError(getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); //
         new ErrorDialog(
             shell,
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            //$NON-NLS-1$
+            //
             getString("MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
-            e); //$NON-NLS-1$
+            e); //
       }
     } else {
       // popup some feedback
@@ -1435,9 +1435,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
               SWT.ICON_WARNING | SWT.OK,
               getString("MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails.Title"),
               BaseMessages.getString(
-                  PKG, //$NON-NLS-1$
+                  PKG, //
                   "MongoDbOutputDialog.ErrorMessage.MissingConnectionDetails",
-                  "host name(s)")); //$NON-NLS-1$
+                  "host name(s)")); //
       smd.open();
     }
 
@@ -1455,13 +1455,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       }
     } catch (HopException e) {
       logError(
-          getString("System.Dialog.GetFieldsFailed.Message"), // $NON-NLS-1$
+          getString("System.Dialog.GetFieldsFailed.Message"), //
           e);
       new ErrorDialog(
           shell,
           getString("System.Dialog.GetFieldsFailed.Title"),
           getString("System.Dialog.GetFieldsFailed.Message"),
-          e); //$NON-NLS-1$
+          e); //
     }
   }
 
@@ -1488,12 +1488,12 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   public static String prettyPrintDocStructure(String toFormat) {
     StringBuffer result = new StringBuffer();
     int indent = 0;
-    String source = toFormat.replaceAll("[ ]*,", ","); // $NON-NLS-1$
+    String source = toFormat.replaceAll("[ ]*,", ","); //
     Element next = Element.OPEN_BRACE;
 
     while (source.length() > 0) {
       source = source.trim();
-      String toIndent = ""; // $NON-NLS-1$
+      String toIndent = ""; //
       int minIndex = Integer.MAX_VALUE;
       char targetChar = '{';
       if (source.indexOf('{') > -1 && source.indexOf('{') < minIndex) {
@@ -1527,13 +1527,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           indent -= 2;
         }
         pad(result, indent);
-        String comma = ""; // $NON-NLS-1$
+        String comma = ""; //
         int offset = 1;
         if (source.length() >= 2 && source.charAt(1) == ',') {
-          comma = ","; // $NON-NLS-1$
+          comma = ","; //
           offset = 2;
         }
-        result.append(targetChar).append(comma).append("\n"); // $NON-NLS-1$
+        result.append(targetChar).append(comma).append("\n"); //
         source = source.substring(offset, source.length());
       } else {
         pad(result, indent);
@@ -1544,7 +1544,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           toIndent = source.substring(0, minIndex + 1);
           source = source.substring(minIndex + 1, source.length());
         }
-        result.append(toIndent.trim()).append("\n"); // $NON-NLS-1$
+        result.append(toIndent.trim()).append("\n"); //
       }
 
       if (next == Element.OPEN_BRACE || next == Element.OPEN_BRACKET) {
@@ -1590,7 +1590,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         vm.setName(field.environUpdatedFieldName);
         r.addValueMeta(vm);
 
-        String val = ""; // $NON-NLS-1$
+        String val = ""; //
         if (gotGenuineRowMeta && actualR.indexOfValue(field.environUpdatedFieldName) >= 0) {
           int index = actualR.indexOfValue(field.environUpdatedFieldName);
           switch (actualR.getValueMeta(index).getType()) {
@@ -1601,38 +1601,38 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
                   // we will actually have to parse some kind of JSON doc
                   // here in the case where the matching doc/doc to be inserted is
                   // a full top-level incoming JSON doc
-                  val = "{\"IncomingJSONDoc\" : \"<document content>\"}"; // $NON-NLS-1$
+                  val = "{\"IncomingJSONDoc\" : \"<document content>\"}"; //
                 } else {
-                  val = "<JSON sub document>"; // $NON-NLS-1$
+                  val = "<JSON sub document>"; //
                   // turn this off for the purpose of doc structure
                   // visualization so that we don't screw up for the
                   // lack of a real JSON doc to parse :-)
                   field.m_JSON = false;
                 }
               } else {
-                val = "<string val>"; // $NON-NLS-1$
+                val = "<string val>"; //
               }
               break;
             case IValueMeta.TYPE_INTEGER:
-              val = "<integer val>"; // $NON-NLS-1$
+              val = "<integer val>"; //
               break;
             case IValueMeta.TYPE_NUMBER:
-              val = "<number val>"; // $NON-NLS-1$
+              val = "<number val>"; //
               break;
             case IValueMeta.TYPE_BOOLEAN:
-              val = "<bool val>"; // $NON-NLS-1$
+              val = "<bool val>"; //
               break;
             case IValueMeta.TYPE_DATE:
-              val = "<date val>"; // $NON-NLS-1$
+              val = "<date val>"; //
               break;
             case IValueMeta.TYPE_BINARY:
-              val = "<binary val>"; // $NON-NLS-1$
+              val = "<binary val>"; //
               break;
             default:
-              val = "<unsupported value type>"; // $NON-NLS-1$
+              val = "<unsupported value type>"; //
           }
         } else {
-          val = "<value>"; // $NON-NLS-1$
+          val = "<value>"; //
         }
 
         dummyRow[i++] = val;
@@ -1641,12 +1641,12 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       MongoDbOutputData.MongoTopLevel topLevelStruct =
           MongoDbOutputData.checkTopLevelConsistency(mongoFields, vs);
       for (MongoDbOutputMeta.MongoField m : mongoFields) {
-        m.m_modifierOperationApplyPolicy = "Insert&Update"; // $NON-NLS-1$
+        m.m_modifierOperationApplyPolicy = "Insert&Update"; //
       }
 
-      String toDisplay = ""; // $NON-NLS-1$
+      String toDisplay = ""; //
       String windowTitle =
-          getString("MongoDbOutputDialog.PreviewDocStructure.Title"); // $NON-NLS-1$
+          getString("MongoDbOutputDialog.PreviewDocStructure.Title"); //
 
       if (!wbModifierUpdate.getSelection()) {
         DBObject result =
@@ -1660,13 +1660,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
             new MongoDbOutputData()
                 .getModifierUpdateObject(mongoFields, r, dummyRow, vs, topLevelStruct);
         toDisplay =
-            getString("MongoDbOutputDialog.PreviewModifierUpdate.Heading1") // $NON-NLS-1$
-                + ":\n\n" //$NON-NLS-1$
+            getString("MongoDbOutputDialog.PreviewModifierUpdate.Heading1") //
+                + ":\n\n" //
                 + prettyPrintDocStructure(query.toString())
-                + getString("MongoDbOutputDialog.PreviewModifierUpdate.Heading2") // $NON-NLS-1$
-                + ":\n\n" //$NON-NLS-1$
+                + getString("MongoDbOutputDialog.PreviewModifierUpdate.Heading2") //
+                + ":\n\n" //
                 + prettyPrintDocStructure(modifier.toString());
-        windowTitle = getString("MongoDbOutputDialog.PreviewModifierUpdate.Title"); // $NON-NLS-1$
+        windowTitle = getString("MongoDbOutputDialog.PreviewModifierUpdate.Title"); //
       }
 
       ShowMessageDialog smd =
@@ -1675,19 +1675,19 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     } catch (Exception ex) {
       logError(
           getString("MongoDbOutputDialog.ErrorMessage.ProblemPreviewingDocStructure.Message")
-              //$NON-NLS-1$
+              //
               + ":\n\n"
               + ex.getMessage(),
-          ex); //$NON-NLS-1$
+          ex); //
       new ErrorDialog(
           shell,
           getString("MongoDbOutputDialog.ErrorMessage.ProblemPreviewingDocStructure.Title"),
-          //$NON-NLS-1$
+          //
           getString("MongoDbOutputDialog.ErrorMessage.ProblemPreviewingDocStructure.Message")
-              //$NON-NLS-1$
+              //
               + ":\n\n"
               + ex.getMessage(),
-          ex); //$NON-NLS-1$
+          ex); //
       return;
     }
   }
@@ -1706,7 +1706,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
         StringBuffer result = new StringBuffer();
         for (String index : wrapper.getIndexInfo(dbName, collection)) {
-          result.append(index).append("\n\n"); // $NON-NLS-1$
+          result.append(index).append("\n\n"); //
         }
 
         ShowMessageDialog smd =
@@ -1715,22 +1715,22 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
                 SWT.ICON_INFORMATION | SWT.OK,
                 BaseMessages.getString(PKG, "MongoDbOutputDialog.IndexInfo", collection),
                 result.toString(),
-                true); //$NON-NLS-1$
+                true); //
         smd.open();
       } catch (Exception e) {
         logError(
-            getString("MongoDbOutputDialog.ErrorMessage.GeneralError.Message") // $NON-NLS-1$
+            getString("MongoDbOutputDialog.ErrorMessage.GeneralError.Message") //
                 + ":\n\n"
                 + e.getMessage(),
-            e); //$NON-NLS-1$
+            e); //
         new ErrorDialog(
             shell,
             getString("MongoDbOutputDialog.ErrorMessage.IndexPreview.Title"),
-            //$NON-NLS-1$
-            getString("MongoDbOutputDialog.ErrorMessage.GeneralError.Message") // $NON-NLS-1$
+            //
+            getString("MongoDbOutputDialog.ErrorMessage.GeneralError.Message") //
                 + ":\n\n"
                 + e.getMessage(),
-            e); //$NON-NLS-1$
+            e); //
       } finally {
         if (conn != null) {
           conn.close();

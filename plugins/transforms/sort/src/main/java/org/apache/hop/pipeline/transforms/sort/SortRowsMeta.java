@@ -64,7 +64,7 @@ import java.util.Locale;
 public class SortRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
-  private static final Class<?> PKG = SortRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
   /** order by which fields? */
   @Injection(name = "NAME", group = "FIELDS")

@@ -88,11 +88,9 @@ import java.util.zip.ZipOutputStream;
  * @author matt
  */
 public class Translator {
+  private static final Class<?> PKG = Translator.class; // For Translator
+
   private static final String TRANSLATOR_NAMESPACE = "hop-translator";
-  /**
-   * for i18n purposes, needed by Translator!
-   */
-  private static final Class<?> PKG = Translator.class;
 
   public static final String APP_NAME = BaseMessages.getString( PKG, "i18nDialog.ApplicationName" );
 

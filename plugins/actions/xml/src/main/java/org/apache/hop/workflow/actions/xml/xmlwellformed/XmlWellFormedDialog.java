@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
  * @since 26-03-2008
  */
 public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlWellFormedDialog.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobXMLWellFormed.Filetype.Xml" ),
@@ -739,8 +739,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Msg" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.ActionNameMissing.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ) );
       mb.open();
       return;
     }

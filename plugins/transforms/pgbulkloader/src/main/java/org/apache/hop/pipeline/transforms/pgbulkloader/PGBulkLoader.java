@@ -60,7 +60,7 @@ import java.sql.Statement;
  */
 public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData> implements ITransform<PGBulkLoaderMeta, PGBulkLoaderData> {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
   private Charset clientEncoding = Charset.defaultCharset();
   private PGCopyOutputStream pgCopyOut;

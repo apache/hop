@@ -57,7 +57,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
         IProvidesDatabaseConnectionInformation {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
   /** what's the schema for the target? */
   private String schemaName;

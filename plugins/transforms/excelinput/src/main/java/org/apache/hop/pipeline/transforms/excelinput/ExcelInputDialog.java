@@ -70,7 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExcelInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
   /**
    * Marker put on tab to indicate attention required

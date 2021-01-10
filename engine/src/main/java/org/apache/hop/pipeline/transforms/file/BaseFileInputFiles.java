@@ -32,7 +32,7 @@ import java.util.List;
 
 /** Input files settings. */
 public class BaseFileInputFiles implements Cloneable {
-  private static final Class<?> PKG = BaseFileInputFiles.class; // Needed by Translator
+  private static final Class<?> PKG = BaseFileInputFiles.class; // For Translator
 
   public static final String NO = "N";
 

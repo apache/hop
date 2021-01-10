@@ -50,7 +50,7 @@ import java.util.List;
 public class StringCutMeta extends BaseTransformMeta
     implements ITransformMeta<StringCut, StringCutData> {
 
-  private static final Class<?> PKG = StringCutMeta.class; // Needed by Translator
+  private static final Class<?> PKG = StringCutMeta.class; // For Translator
 
   private String[] fieldInStream;
 

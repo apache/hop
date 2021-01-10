@@ -59,13 +59,12 @@ import java.util.Map;
     image = "XOU.svg",
     name = "i18n::XMLOutput.name",
     description = "i18n::XMLOutput.description",
-    categoryDescription = "XMLOutput.category",
+    categoryDescription = "i18n::XMLOutput.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmloutput.html")
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
 public class XmlOutputMeta extends BaseTransformMeta
     implements ITransformMeta<XmlOutput, XmlOutputData> {
-  private static final Class<?> PKG =
-      XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
 
   /** The base name of the output file */
   @Injection(name = "FILENAME")
@@ -88,9 +87,9 @@ public class XmlOutputMeta extends BaseTransformMeta
   @Injection(name = "SPLIT_EVERY")
   private int splitEvery;
 
-  /** Flag: add the stepnr in the filename */
+  /** Flag: add the transformnr in the filename */
   @Injection(name = "INC_TRANSFORMNR_IN_FILENAME")
-  private boolean stepNrInFilename;
+  private boolean transformNrInFilename;
 
   /** Flag: add the date in the filename */
   @Injection(name = "INC_DATE_IN_FILENAME")
@@ -197,14 +196,14 @@ public class XmlOutputMeta extends BaseTransformMeta
     this.splitEvery = splitEvery;
   }
 
-  /** @return Returns the stepNrInFilename. */
+  /** @return Returns the transformNrInFilename. */
   public boolean isTransformNrInFilename() {
-    return stepNrInFilename;
+    return transformNrInFilename;
   }
 
-  /** @param stepNrInFilename The stepNrInFilename to set. */
-  public void setTransformNrInFilename(boolean stepNrInFilename) {
-    this.stepNrInFilename = stepNrInFilename;
+  /** @param transformNrInFilename The transformNrInFilename to set. */
+  public void setTransformNrInFilename(boolean transformNrInFilename) {
+    this.transformNrInFilename = transformNrInFilename;
   }
 
   /** @return Returns the timeInFilename. */
@@ -359,7 +358,7 @@ public class XmlOutputMeta extends BaseTransformMeta
         outputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
       }
     } catch (Exception e) {
-      throw new HopXmlException("Unable to load step info from XML", e);
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
@@ -380,7 +379,7 @@ public class XmlOutputMeta extends BaseTransformMeta
   public void setDefault() {
     fileName = "file";
     extension = "xml";
-    stepNrInFilename = false;
+    transformNrInFilename = false;
     doNotOpenNewFileInit = false;
     dateInFilename = false;
     timeInFilename = false;
@@ -404,7 +403,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     int copies = 1;
     int splits = 1;
 
-    if (stepNrInFilename) {
+    if (transformNrInFilename) {
       copies = 3;
     }
 
@@ -433,7 +432,8 @@ public class XmlOutputMeta extends BaseTransformMeta
     return retval;
   }
 
-  public String buildFilename(IVariables variables, int stepnr, int splitnr, boolean ziparchive) {
+  public String buildFilename(
+      IVariables variables, int transformnr, int splitnr, boolean ziparchive) {
     SimpleDateFormat daf = new SimpleDateFormat();
     DecimalFormat df = new DecimalFormat("00000");
 
@@ -460,8 +460,8 @@ public class XmlOutputMeta extends BaseTransformMeta
       }
     }
 
-    if (stepNrInFilename) {
-      retval += "_" + stepnr;
+    if (transformNrInFilename) {
+      retval += "_" + transformnr;
     }
     if (splitEvery > 0) {
       retval += "_" + df.format(splitnr + 1);
@@ -491,7 +491,7 @@ public class XmlOutputMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
 
-    // No values are added to the row in this type of step
+    // No values are added to the row in this type of transform
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
@@ -531,7 +531,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     retval
         .append("      ")
         .append(XmlHandler.addTagValue("do_not_open_newfile_init", doNotOpenNewFileInit));
-    retval.append("      ").append(XmlHandler.addTagValue("split", stepNrInFilename));
+    retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
     retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
     retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
     retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
@@ -579,7 +579,7 @@ public class XmlOutputMeta extends BaseTransformMeta
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
-      TransformMeta stepinfo,
+      TransformMeta transforminfo,
       IRowMeta prev,
       String[] input,
       String[] output,
@@ -595,7 +595,7 @@ public class XmlOutputMeta extends BaseTransformMeta
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "XMLOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
 
       String errorMessage = "";
@@ -612,32 +612,32 @@ public class XmlOutputMeta extends BaseTransformMeta
       if (errorFound) {
         errorMessage =
             BaseMessages.getString(PKG, "XMLOutputMeta.CheckResult.FieldsNotFound", errorMessage);
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, stepinfo);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "XMLOutputMeta.CheckResult.AllFieldsFound"),
-                stepinfo);
+                transforminfo);
         remarks.add(cr);
       }
     }
 
-    // See if we have input streams leading to this step!
+    // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XMLOutputMeta.CheckResult.ExpectedInputOk"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XMLOutputMeta.CheckResult.ExpectedInputError"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     }
 
@@ -645,7 +645,7 @@ public class XmlOutputMeta extends BaseTransformMeta
         new CheckResult(
             ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "XMLOutputMeta.CheckResult.FilesNotChecked"),
-            stepinfo);
+            transforminfo);
     remarks.add(cr);
   }
 

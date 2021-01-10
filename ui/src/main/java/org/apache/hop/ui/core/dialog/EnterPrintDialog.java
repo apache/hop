@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 19-06-2003
  */
 public class EnterPrintDialog extends Dialog {
-  private static final Class<?> PKG = EnterPrintDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterPrintDialog.class; // For Translator
 
   private int retval;
   private Image image;

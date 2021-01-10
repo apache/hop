@@ -50,13 +50,13 @@ import java.util.List;
     image = "GenericTransform.svg",
     name = "i18n::StreamSchemaTransform.Name",
     description = "i18n::StreamSchemaTransform.TooltipDesc",
-    categoryDescription = "StreamSchemaTransform.Category",
+    categoryDescription = "i18n::StreamSchemaTransform.Category",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
-  private static final Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
+  private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
 
   /** Stores the names of the transforms to merge into the output */
   private ArrayList<String> transformsToMerge = new ArrayList<>();
@@ -80,8 +80,8 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is called every time a new step is created and should allocate/set the step
-   * configuration to sensible defaults. The values set here will be used by Spoon when a new step
+   * This method is called every time a new transform is created and should allocate/set the transform
+   * configuration to sensible defaults. The values set here will be used by Spoon when a new transform
    * is created.
    */
   public void setDefault() {
@@ -102,7 +102,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * Determine the number of steps we're planning to merge
+   * Determine the number of transforms we're planning to merge
    *
    * @return number of items to merge, 0 if none
    */
@@ -115,9 +115,9 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * Set steps to merge
+   * Set transforms to merge
    *
-   * @param arrayOfTransforms Names of steps to merge
+   * @param arrayOfTransforms Names of transforms to merge
    */
   public void setTransformsToMerge(String[] arrayOfTransforms) {
     transformsToMerge = new ArrayList<>();
@@ -125,11 +125,11 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
-   * step meta object. Be sure to create proper deep copies if the step configuration is stored in
+   * This method is used when a transform is duplicated in Spoon. It needs to return a deep copy of this
+   * transform meta object. Be sure to create proper deep copies if the transform configuration is stored in
    * modifiable objects.
    *
-   * <p>See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on
+   * <p>See org.pentaho.di.trans.transforms.rowgenerator.RowGeneratorMeta.clone() for an example on
    * creating a deep copy.
    *
    * @return a deep copy of this
@@ -182,14 +182,14 @@ public class StreamSchemaMeta extends BaseTransformMeta
   private void readData(Node transformNode) throws HopXmlException {
     try {
       // TODO put the strings in a config file or make constants in this file
-      Node steps = XmlHandler.getSubNode(transformNode, "transforms");
-      int nrsteps = XmlHandler.countNodes(steps, "transform");
+      Node transforms = XmlHandler.getSubNode(transformNode, "transforms");
+      int nrtransforms = XmlHandler.countNodes(transforms, "transform");
 
       transformsToMerge.clear();
 
-      // we need to add a stream for each step we want to merge to ensure it gets treated as an info
+      // we need to add a stream for each transform we want to merge to ensure it gets treated as an info
       // stream
-      for (int i = 0; i < nrsteps; i++) {
+      for (int i = 0; i < nrtransforms; i++) {
         getTransformIOMeta()
             .addStream(
                 new Stream(
@@ -197,14 +197,14 @@ public class StreamSchemaMeta extends BaseTransformMeta
       }
 
       List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      for (int i = 0; i < nrsteps; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(steps, "transform", i);
+      for (int i = 0; i < nrtransforms; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(transforms, "transform", i);
         String name = XmlHandler.getTagValue(fnode, "name");
         transformsToMerge.add(name);
         infoStreams.get(i).setSubject(name);
       }
     } catch (Exception e) {
-      throw new HopXmlException("Unable to load step info from XML", e);
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
@@ -212,7 +212,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    * This method is called to determine the changes the transform is making to the row-stream. To
    * that end a IRowMeta object is passed in, containing the row-stream structure as it is when
    * entering the transform. This method must apply any changes the transform makes to the row
-   * stream. Usually a step adds fields to the row-stream.
+   * stream. Usually a transform adds fields to the row-stream.
    *
    * @param inputRowMeta the row structure coming in to the transform
    * @param name the name of the transform making the changes
@@ -256,11 +256,11 @@ public class StreamSchemaMeta extends BaseTransformMeta
    *
    * @param remarks the list of remarks to append to
    * @param pipelineMeta the description of the transformation
-   * @param transformMeta the description of the step
+   * @param transformMeta the description of the transform
    * @param prev the structure of the incoming row-stream
-   * @param input names of steps sending input to the step
-   * @param output names of steps this step is sending output to
-   * @param info fields coming in from info steps
+   * @param input names of transforms sending input to the transform
+   * @param output names of transforms this transform is sending output to
+   * @param info fields coming in from info transforms
    * @param metadataProvider metadataProvider to optionally read from
    */
   public void check(
@@ -276,7 +276,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
 
     CheckResult cr;
 
-    // See if there are input streams leading to this step!
+    // See if there are input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
@@ -314,15 +314,15 @@ public class StreamSchemaMeta extends BaseTransformMeta
   */
 
   /**
-   * Called by PDI to get a new instance of the step implementation. A standard implementation
-   * passing the arguments to the constructor of the step class is recommended.
+   * Called by PDI to get a new instance of the transform implementation. A standard implementation
+   * passing the arguments to the constructor of the transform class is recommended.
    *
    * @param transformMeta description of the transform
    * @param data instance of a transform data class
    * @param copyNr copy number
    * @param pipelineMeta description of the pipeline
    * @param pipeline runtime implementation of the pipeline
-   * @return the new instance of a step implementation
+   * @return the new instance of a transform implementation
    */
   @Override
   public ITransform createTransform(

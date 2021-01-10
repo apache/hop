@@ -39,19 +39,19 @@ public class PdiDiff {
     transMeta1
         .getTransforms()
         .forEach(
-            step -> {
-              Optional<TransformMeta> step2 =
+            transform -> {
+              Optional<TransformMeta> transform2 =
                   transMeta2.getTransforms().stream()
-                      .filter(obj -> step.getName().equals(obj.getName()))
+                      .filter(obj -> transform.getName().equals(obj.getName()))
                       .findFirst();
               String status = null;
-              if (step2.isPresent()) {
+              if (transform2.isPresent()) {
                 Map<String, String> tmp = null, tmp2 = null;
                 try {
                   // AttributeMap("Git") cannot affect the XML comparison
-                  tmp = step.getAttributesMap().remove(ATTR_GIT);
-                  tmp2 = step2.get().getAttributesMap().remove(ATTR_GIT);
-                  if (step.getXml().equals(step2.get().getXml())) {
+                  tmp = transform.getAttributesMap().remove(ATTR_GIT);
+                  tmp2 = transform2.get().getAttributesMap().remove(ATTR_GIT);
+                  if (transform.getXml().equals(transform2.get().getXml())) {
                     status = UNCHANGED;
                   } else {
                     status = CHANGED;
@@ -59,8 +59,8 @@ public class PdiDiff {
                 } catch (HopException e) {
                   e.printStackTrace();
                 } finally {
-                  step.setAttributes(ATTR_GIT, tmp);
-                  step2.get().setAttributes(ATTR_GIT, tmp2);
+                  transform.setAttributes(ATTR_GIT, tmp);
+                  transform2.get().setAttributes(ATTR_GIT, tmp2);
                 }
               } else {
                 if (isForward) {
@@ -69,7 +69,7 @@ public class PdiDiff {
                   status = ADDED;
                 }
               }
-              step.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
+              transform.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
             });
     return transMeta1;
   }

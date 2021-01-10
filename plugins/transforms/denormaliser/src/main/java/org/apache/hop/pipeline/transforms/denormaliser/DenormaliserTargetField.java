@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 17-jan-2006
  */
 public class DenormaliserTargetField {
-  private static final Class<?> PKG = DenormaliserMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
 
   private String fieldName;
   private String keyValue;

@@ -39,7 +39,7 @@ import java.util.Vector;
  */
 public class TextFileImportWizardPage1 extends WizardPage { // implements Listener
 
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private TableDraw wTable;
   private FormData fdTable;

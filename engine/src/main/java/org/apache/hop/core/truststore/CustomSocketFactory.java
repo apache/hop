@@ -33,7 +33,7 @@ import java.security.NoSuchAlgorithmException;
 public class CustomSocketFactory extends SSLSocketFactory {
 
   private static final Class<?> classFromPackage =
-      CustomSocketFactory.class; // Needed by Translator
+      CustomSocketFactory.class; // For Translator
 
   private static boolean configured;
 

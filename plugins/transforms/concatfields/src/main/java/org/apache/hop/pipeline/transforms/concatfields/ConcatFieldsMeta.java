@@ -62,7 +62,7 @@ public class ConcatFieldsMeta extends BaseTransformMeta
     implements ITransformMeta<ConcatFields, ConcatFieldsData> {
 
   private static final Class<?> PKG =
-      ConcatFieldsMeta.class; // for i18n purposes, needed by Translator2!!
+      ConcatFieldsMeta.class; // For Translator
 
   /** The separator to choose for the CSV file */
   @Injection(name = "SEPARATOR")

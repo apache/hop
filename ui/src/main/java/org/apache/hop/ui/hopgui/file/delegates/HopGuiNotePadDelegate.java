@@ -30,9 +30,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import java.util.List;
 
 public class HopGuiNotePadDelegate {
-
-  // TODO: move i18n package to HopGui
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGui hopGui;
   private IHopFileTypeHandler handler;

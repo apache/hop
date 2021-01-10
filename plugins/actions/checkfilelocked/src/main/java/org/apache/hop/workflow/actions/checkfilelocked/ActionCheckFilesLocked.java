@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/checkfilelocked.html")
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCheckFilesLocked.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator
 
   public boolean argFromPrevious;
 

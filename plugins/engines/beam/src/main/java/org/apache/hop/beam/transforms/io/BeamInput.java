@@ -31,7 +31,7 @@ public class BeamInput extends BaseTransform<BeamInputMeta, BeamInputData> imple
    * transforms.
    *
    * @param transformMeta          The TransformMeta object to run.
-   * @param stepDataInterface the data object to store temporary data, database connections, caches, result sets,
+   * @param transformDataInterface the data object to store temporary data, database connections, caches, result sets,
    *                          hashtables etc.
    * @param copyNr            The copynumber for this transform.
    * @param pipelineMeta         The TransInfo of which the transform transformMeta is part of.

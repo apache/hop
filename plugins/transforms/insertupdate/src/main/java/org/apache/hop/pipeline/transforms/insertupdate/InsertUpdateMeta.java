@@ -68,7 +68,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta
     implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = InsertUpdateMeta.class; // Needed by Translator
+  private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
 
@@ -356,7 +356,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(
-              PKG, "InsertUpdateMeta.Exception.UnableToReadTransformMetaFromXML"),
+              PKG, "InsertUpdateMeta.Exception.UnableToReadTransformInfoFromXML"),
           e);
     }
   }

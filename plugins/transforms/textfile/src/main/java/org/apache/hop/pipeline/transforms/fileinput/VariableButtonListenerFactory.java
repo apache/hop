@@ -33,7 +33,7 @@ import java.util.Arrays;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 public class VariableButtonListenerFactory {
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,

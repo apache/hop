@@ -73,7 +73,7 @@ import java.util.Map;
     groups = {"FIELDS", "SHEETS", "FILENAME_LINES"})
 public class ExcelInputMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelInput, ExcelInputData> {
-  private static final Class<?> PKG = ExcelInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

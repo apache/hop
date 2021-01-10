@@ -41,7 +41,7 @@ import java.util.List;
 
 public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITransform<IfNullMeta,IfNullData> {
 
-  private static final Class<?> PKG = IfNullMeta.class; // Needed by Translator
+  private static final Class<?> PKG = IfNullMeta.class; // For Translator
 
   public IfNull( TransformMeta transformMeta, IfNullMeta meta, IfNullData data , int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

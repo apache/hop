@@ -60,7 +60,7 @@ import java.util.List;
 public class InjectorMeta extends BaseTransformMeta
     implements ITransformMeta<Injector, InjectorData> {
 
-  private static final Class<?> PKG = InjectorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = InjectorMeta.class; // For Translator
 
   private String[] fieldname;
   private int[] type;

@@ -60,7 +60,7 @@ import java.util.regex.Pattern;
  * @since 19-06-2003
  */
 public class EnterSelectionDialog extends Dialog {
-  private static final Class<?> PKG = EnterSelectionDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterSelectionDialog.class; // For Translator
 
   private Label wlSelection;
   private List wSelection;
@@ -432,21 +432,8 @@ public class EnterSelectionDialog extends Dialog {
     int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL;
 
     wSelection = new List(shell, options);
-    String pentRepo = "";
-    boolean found = false;
     for (int i = 0; i < choices.length; i++) {
-      if (choices[i] != null
-          && choices[i].startsWith(BaseMessages.getString(PKG, "EnterSelectionDialog.HopRepo"))) {
-        pentRepo = choices[i];
-        found = true;
-      } else {
-        wSelection.add(choices[i]);
-      }
-    }
-
-    if (found) {
-      wSelection.add(pentRepo, 0);
-      wSelection.select(0);
+      wSelection.add(choices[i]);
     }
 
     int width = (Const.isOSX() ? 75 : 70);

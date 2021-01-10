@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDefinedJavaClassCodeSnippits {
-  private static final Class<?> PKG = UserDefinedJavaClass.class;
+  private static final Class<?> PKG = UserDefinedJavaClass.class; // For Translator
   private static UserDefinedJavaClassCodeSnippits snippitsHelper = null;
 
   private final List<Snippit> snippits = new ArrayList<Snippit>();

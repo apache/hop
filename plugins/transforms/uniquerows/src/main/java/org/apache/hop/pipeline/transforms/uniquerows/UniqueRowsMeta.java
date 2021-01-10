@@ -52,7 +52,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/uniquerows.html")
 public class UniqueRowsMeta extends BaseTransformMeta
     implements ITransformMeta<UniqueRows, UniqueRowsData> {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   /** Indicate that we want to count the number of doubles */
   private boolean countRows;

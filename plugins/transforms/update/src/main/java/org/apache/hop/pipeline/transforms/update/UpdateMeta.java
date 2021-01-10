@@ -64,7 +64,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/update.html")
 public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
-  private static final Class<?> PKG = UpdateMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
 

@@ -49,7 +49,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SortRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
   private TextVar wSortDir;
 

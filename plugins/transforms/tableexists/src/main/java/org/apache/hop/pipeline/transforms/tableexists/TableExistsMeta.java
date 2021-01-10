@@ -54,7 +54,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/tableexists.html")
 public class TableExistsMeta extends BaseTransformMeta
     implements ITransformMeta<TableExists, TableExistsData> {
-  private static final Class<?> PKG = TableExistsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta database;

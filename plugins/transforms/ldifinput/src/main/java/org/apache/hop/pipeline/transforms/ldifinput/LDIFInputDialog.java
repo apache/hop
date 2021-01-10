@@ -80,7 +80,7 @@ import java.util.HashSet;
 
 public class LDIFInputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = LDIFInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LDIFInputMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 

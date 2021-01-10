@@ -63,7 +63,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sendnagiospassivecheck.html"
 )
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
 
   private String serverName;
   private String port;

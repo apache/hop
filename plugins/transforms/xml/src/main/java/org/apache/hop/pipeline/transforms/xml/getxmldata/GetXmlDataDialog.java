@@ -77,9 +77,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class GetXmlDataDialog extends BaseTransformDialog implements ITransformDialog {
-  private String XMLSource = null;
+  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
-  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private String XMLSource = null;
 
   private CTabFolder wTabFolder;
 
@@ -1710,7 +1710,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
   // Preview the data
   private void preview() {
     try {
-      // Create the XML input step
+      // Create the XML input transform
       GetXmlDataMeta oneMeta = new GetXmlDataMeta();
       getInfo( oneMeta );
 

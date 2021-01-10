@@ -22,7 +22,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
 public class DatabaseImpact {
-  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
+  private static final Class<?> PKG = Pipeline.class; // For Translator
 
   public static final int TYPE_IMPACT_NONE = 0;
   public static final int TYPE_IMPACT_READ = 1;

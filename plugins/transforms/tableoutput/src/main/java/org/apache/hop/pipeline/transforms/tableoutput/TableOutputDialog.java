@@ -59,7 +59,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

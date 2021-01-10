@@ -60,7 +60,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {
-  private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public static final int UNDEFINED = -2;
 
@@ -269,7 +269,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
         selectFields[ i ] = new SelectField();
         selectFields[ i ].setName( XmlHandler.getTagValue( line, "name" ) );
         selectFields[ i ].setRename( XmlHandler.getTagValue( line, "rename" ) );
-        selectFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( line, "length" ), UNDEFINED ) ); // $NON-NtagLS-1$
+        selectFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( line, "length" ), UNDEFINED ) );
         selectFields[ i ].setPrecision( Const.toInt( XmlHandler.getTagValue( line, "precision" ), UNDEFINED ) );
       }
       selectingAndSortingUnspecifiedFields =

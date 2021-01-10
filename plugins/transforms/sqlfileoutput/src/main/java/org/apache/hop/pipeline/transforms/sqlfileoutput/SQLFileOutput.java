@@ -38,7 +38,7 @@ import java.io.OutputStreamWriter;
 
 
 public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutputData> implements ITransform<SQLFileOutputMeta,SQLFileOutputData> {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   String schemaTable;
   String schemaName;

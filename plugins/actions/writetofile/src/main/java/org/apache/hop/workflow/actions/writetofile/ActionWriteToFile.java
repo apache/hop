@@ -60,7 +60,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/writetofile.html"
 )
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWriteToFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
   private String filename;
   private boolean createParentFolder;

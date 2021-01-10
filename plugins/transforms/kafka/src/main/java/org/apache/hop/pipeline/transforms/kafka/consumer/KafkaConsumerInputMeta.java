@@ -68,8 +68,7 @@ public class KafkaConsumerInputMeta
     extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
     implements ITransformMeta<KafkaConsumerInput, KafkaConsumerInputData>, Cloneable {
 
-  private static final Class<?> PKG =
-      KafkaConsumerInputMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
+  private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
 
   public static final String NUM_MESSAGES = "numMessages";
   public static final String DURATION = "duration";
@@ -284,7 +283,7 @@ public class KafkaConsumerInputMeta
         rowMeta.addValueMeta(v);
       } catch (Exception e) {
         throw new HopTransformException(
-            BaseMessages.getString(PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field),
+            BaseMessages.getString(PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field.getOutputName()),
             e);
       }
     }

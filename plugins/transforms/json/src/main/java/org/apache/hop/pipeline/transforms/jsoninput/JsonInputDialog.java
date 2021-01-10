@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 

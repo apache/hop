@@ -34,8 +34,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 public class HelpUtils {
-
-  private static final Class<?> PKG = HelpUtils.class;
+  private static final Class<?> PKG = HelpUtils.class; // For Translator
 
   public static Button createHelpButton( final Composite parent, final String title, final IPlugin plugin ) {
     Button button = newButton( parent );

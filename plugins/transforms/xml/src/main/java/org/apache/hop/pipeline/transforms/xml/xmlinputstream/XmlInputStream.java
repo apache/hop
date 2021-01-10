@@ -57,7 +57,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 // TODO black box testing
 public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData> implements ITransform<XmlInputStreamMeta, XmlInputStreamData> {
-  private static final Class<?> PKG = XmlInputStream.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlInputStream.class; // For Translator
 
   private static int PARENT_ID_ALLOCATE_SIZE = 1000; // max. number of nested elements, we may let the user configure
                                                      // this
@@ -68,9 +68,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     "CHARACTERS", "COMMENT", "SPACE", "START_DOCUMENT", "END_DOCUMENT", "ENTITY_REFERENCE", "ATTRIBUTE", "DTD",
     "CDATA", "NAMESPACE", "NOTATION_DECLARATION", "ENTITY_DECLARATION" };
 
-  public XmlInputStream(TransformMeta transformMeta, XmlInputStreamMeta meta, XmlInputStreamData stepDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public XmlInputStream(TransformMeta transformMeta, XmlInputStreamMeta meta, XmlInputStreamData transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline trans ) {
-    super( transformMeta, meta, stepDataInterface, copyNr, pipelineMeta, trans );
+    super( transformMeta, meta, transformDataInterface, copyNr, pipelineMeta, trans );
   }
 
   @Override
@@ -109,7 +109,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         }
         if ( row == null ) {
           setOutputDone(); // signal end to receiver(s)
-          return false; // This is the end of this step.
+          return false; // This is the end of this transform.
         }
         String xml = getInputRowMeta().getString( row, inputFieldIndex );
         try {
@@ -138,7 +138,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
           return true;
         } else {
           setOutputDone(); // signal end to receiver(s)
-          return false; // This is the end of this step.
+          return false; // This is the end of this transform.
         }
       }
     }
@@ -224,12 +224,12 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
   /**
    * If there are incoming hops:
-   *  Retrieves filenames from all rows that pass through this step
+   *  Retrieves filenames from all rows that pass through this transform
    *  using field name selected from incoming hops. If no input field is
    *  chosen and there is some manually typed text it will try to open
    *  a file using this text (for compatibility reasons)
    * If there is no incoming hops it will simply try to open file with
-   * path provided in step dialog
+   * path provided in transform dialog
    *
    * @throws HopException
    */

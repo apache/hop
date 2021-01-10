@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/movefiles.html"
 )
 public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMoveFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMoveFiles.class; // For Translator
 
   public boolean moveEmptyFolders;
   public boolean argFromPrevious;

@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
 import com.google.common.annotations.VisibleForTesting;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
-  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // Needed by Translator
+  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // For Translator
 
   protected String id;
   protected String name;
@@ -258,7 +258,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       return null;
     }
 
-    if ( codedString.startsWith( "i18n:" ) ) {
+    if ( codedString.startsWith( Const.I18N_PREFIX ) ) {
       String[] parts = codedString.split( ":" );
       if ( parts.length != 3 ) {
         return codedString;
@@ -287,7 +287,17 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       return null;
     }
 
-    if ( string.startsWith( "i18n:" ) ) {
+    if ( string.startsWith( Const.I18N_PREFIX ) ) {
+
+      if (string.startsWith("i18n::BaseTransform.Category")) {
+        System.out.println("Debug");
+        try {
+          Thread.sleep( 10000 );
+        } catch ( InterruptedException e ) {
+          //
+        }
+        System.out.println("Debug");
+      }
       String[] parts = string.split( ":" );
       if ( parts.length != 3 ) {
         return string;
@@ -298,7 +308,11 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         }
         String i18nKey = parts[2];
 
-        return BaseMessages.getString( i18nPackage, i18nKey );
+        String translation = BaseMessages.getString( i18nPackage, i18nKey, resourceClass );
+        if (translation.startsWith( "!" ) && translation.endsWith( "!" )) {
+          translation = BaseMessages.getString( i18nPackage, i18nKey );
+        }
+        return translation;
       }
     } else {
       // Try the default package name

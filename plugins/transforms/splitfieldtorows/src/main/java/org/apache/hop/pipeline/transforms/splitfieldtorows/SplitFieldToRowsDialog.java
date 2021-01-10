@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   private ComboVar wSplitField;
 

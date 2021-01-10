@@ -48,7 +48,7 @@ import java.util.List;
   image = "FFO.svg",
   documentationUrl = "Products/Salesforce_Insert" )
 public class SalesforceInsertMeta extends SalesforceTransformMeta<SalesforceInsert, SalesforceInsertData> {
-  private static Class<?> PKG = SalesforceInsertMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
   /**
    * Field value to update
@@ -236,7 +236,7 @@ public class SalesforceInsertMeta extends SalesforceTransformMeta<SalesforceInse
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rollbackAllChangesOnError" ) ) );
 
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

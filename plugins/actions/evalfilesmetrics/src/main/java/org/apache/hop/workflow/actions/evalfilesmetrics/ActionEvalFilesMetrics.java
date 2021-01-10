@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/evalfilesmetrics.html"
 )
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 
   
   public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;

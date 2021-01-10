@@ -53,7 +53,7 @@ import java.util.Random;
  * @since 19-06-2003
  */
 public class ActionMailDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMail.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMail.class; // For Translator
 
   private static final String[] IMAGES_FILE_TYPES =
     new String[] {

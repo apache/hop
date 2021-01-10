@@ -39,7 +39,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class MailValidatorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailValidatorDialog.class; // For Translator
 
   private boolean gotPreviousFields = false;
 

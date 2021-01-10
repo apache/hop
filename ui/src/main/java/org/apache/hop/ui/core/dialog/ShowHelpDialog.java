@@ -53,7 +53,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
-
   private static final Class<?> PKG = HopGui.class;
 
   private static final String DOC_URL =

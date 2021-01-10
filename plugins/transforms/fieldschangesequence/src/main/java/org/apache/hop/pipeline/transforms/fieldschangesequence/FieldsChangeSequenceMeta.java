@@ -54,7 +54,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/fieldschangesequence.html")
 public class FieldsChangeSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
-  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   /** by which fields to display? */
   private String[] fieldName;

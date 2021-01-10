@@ -79,7 +79,7 @@ import java.util.Map;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPipeline.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
   private String filename;
 

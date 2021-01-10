@@ -61,7 +61,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/pgbulkloader.html")
 public class PropertyInputMeta extends BaseTransformMeta
     implements ITransformMeta<PropertyInput, PropertyInputData> {
-  private static final Class<?> PKG = PropertyInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

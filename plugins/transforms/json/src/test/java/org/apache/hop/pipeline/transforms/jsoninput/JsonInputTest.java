@@ -559,15 +559,15 @@ public class JsonInputTest {
 
     JsonInputMeta meta = createSimpleMeta( inCol, aField, bField );
     meta.setIgnoreMissingPath( true );
-    JsonInput step = createJsonInput( inCol, meta, new Object[] { input } );
-    step.addRowListener(
+    JsonInput transform = createJsonInput( inCol, meta, new Object[] { input } );
+    transform.addRowListener(
       new RowComparatorListener(
         new Object[] { input, 1L, null },
         new Object[] { input, null, 2L },
         new Object[] { input, 3L, 2L },
         new Object[] { input, 4L, 4L } ) );
-    processRows( step, 4 );
-    Assert.assertEquals( 4, step.getLinesWritten() );
+    processRows( transform, 4 );
+    Assert.assertEquals( 4, transform.getLinesWritten() );
   }
 
   @Test
@@ -592,16 +592,16 @@ public class JsonInputTest {
 
     JsonInputMeta meta = createSimpleMeta( inCol, aField, bField, cField );
     meta.setIgnoreMissingPath( true );
-    JsonInput step = createJsonInput( inCol, meta, new Object[] { input } );
-    step.addRowListener(
+    JsonInput transform = createJsonInput( inCol, meta, new Object[] { input } );
+    transform.addRowListener(
       new RowComparatorListener(
         new Object[] { input, "1", "2", null } ) );
-    processRows( step, 1 );
-    Assert.assertEquals( 1, step.getLinesWritten() );
+    processRows( transform, 1 );
+    Assert.assertEquals( 1, transform.getLinesWritten() );
   }
 
   /**
-   * PDI-10384 Huge numbers causing exception in JSON input step<br>
+   * PDI-10384 Huge numbers causing exception in JSON input transform<br>
    */
   @Test
   public void testLargeDoubles() throws Exception {
@@ -1219,9 +1219,9 @@ public class JsonInputTest {
       this.data = data;
     }
 
-    public RowComparatorListener( ITransform step, Object[]... data ) {
+    public RowComparatorListener( ITransform transform, Object[]... data ) {
       this.data = data;
-      step.addRowListener( this );
+      transform.addRowListener( this );
     }
 
     /**

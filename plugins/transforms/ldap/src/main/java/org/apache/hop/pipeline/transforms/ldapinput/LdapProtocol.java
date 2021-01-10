@@ -34,7 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 /** Class encapsulating Ldap protocol configuration */
 public class LdapProtocol {
 
-  private static Class<?> classFromResourcesPackage = LdapProtocol.class; // for i18n purposes,
+  private static Class<?> classFromResourcesPackage = LdapProtocol.class; // For Translator
   // needed by Translator!!
 
   private static final String CONNECTION_PREFIX = "ldap://";

@@ -50,7 +50,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/filestoresult.html")
 public class FilesToResultMeta extends BaseTransformMeta
     implements ITransformMeta<FilesToResult, FilesToResultData> {
-  private static final Class<?> PKG = FilesToResultMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 
   private String filenameField;
 

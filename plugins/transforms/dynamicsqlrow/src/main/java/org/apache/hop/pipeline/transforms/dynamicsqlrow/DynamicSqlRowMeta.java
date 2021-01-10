@@ -53,7 +53,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/dynamicsqlrow.html")
 public class DynamicSqlRowMeta extends BaseTransformMeta
     implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta databaseMeta;

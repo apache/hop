@@ -63,7 +63,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/deletefolders.html")
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
 
   public boolean argFromPrevious;
 

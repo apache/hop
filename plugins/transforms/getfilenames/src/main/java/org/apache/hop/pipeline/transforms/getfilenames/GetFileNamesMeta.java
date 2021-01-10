@@ -63,7 +63,7 @@ import java.util.Map;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getfilenames.html")
 public class GetFileNamesMeta extends BaseTransformMeta
     implements ITransformMeta<GetFileNames, GetFileNamesData> {
-  private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

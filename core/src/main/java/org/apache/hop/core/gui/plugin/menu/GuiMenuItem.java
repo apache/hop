@@ -66,14 +66,14 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
     this.image = guiElement.image();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage() );
+    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), guiPluginClassName );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.listenerMethod = guiPluginMethod.getName();
     this.listenerClassName = guiPluginClassName; // Ask the classloader for the class
     this.singleTon = true; // Always a singleton for now
-    this.label = calculateI18n( i18nPackage, guiElement.label() );
-    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip() );
+    this.label = calculateI18n( i18nPackage, guiElement.label(), guiPluginMethod.getDeclaringClass() );
+    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip(), guiPluginMethod.getDeclaringClass() );
     this.classLoader = classLoader;
   }
 

@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> implements ITransform<SimpleMappingMeta, SimpleMappingData> {
 
-  private static final Class<?> PKG = SimpleMappingMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
   public SimpleMapping( TransformMeta transformMeta, SimpleMappingMeta meta, SimpleMappingData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

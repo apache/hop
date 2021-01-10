@@ -43,7 +43,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FieldSplitterMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   private CCombo wSplitfield;
 

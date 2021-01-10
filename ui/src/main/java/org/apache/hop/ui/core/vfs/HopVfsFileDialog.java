@@ -98,7 +98,7 @@ import java.util.Map;
 @GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
-  private static final Class<?> PKG = HopVfsFileDialog.class; // Needed by Translator
+  private static final Class<?> PKG = HopVfsFileDialog.class; // For Translator
 
   public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
 

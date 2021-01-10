@@ -47,7 +47,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/syslog.html")
 public class SyslogMessageMeta extends BaseTransformMeta
     implements ITransformMeta<SyslogMessage, SyslogMessageData> {
-  private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SyslogMessageMeta.class; // For Translator
 
   /** dynamic message fieldname */
   private String messagefieldname;

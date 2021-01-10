@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * @since 10-06-2007
  */
 public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   public SalesforceUpdate( TransformMeta transformMeta, SalesforceUpdateMeta meta, SalesforceUpdateData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
@@ -227,7 +227,7 @@ public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, 
 
           // Simply add this row to the error row
           if ( log.isDebug() ) {
-            logDebug( "Passing row to error step" );
+            logDebug( "Passing row to error transform" );
           }
 
           putError( getInputRowMeta(), data.outputBuffer[ j ], 1, errorMessage, null, "SalesforceUpdate001" );
@@ -248,7 +248,7 @@ public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, 
 
       // Simply add this row to the error row
       if ( log.isDebug() ) {
-        logDebug( "Passing row to error step" );
+        logDebug( "Passing row to error transform" );
       }
 
       for ( int i = 0; i < data.iBufferPos; i++ ) {

@@ -72,7 +72,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/unzip.html"
 )
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionUnZip.class; // Needed by Translator
+  private static final Class<?> PKG = ActionUnZip.class; // For Translator
 
   private String zipFilename;
   public int afterunzip;

@@ -60,8 +60,7 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/replacestring.html")
 public class ReplaceStringMeta extends BaseTransformMeta
     implements ITransformMeta<ReplaceString, ReplaceStringData> {
-
-  private static final Class<?> PKG = ReplaceStringMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   @Injection(name = "FIELD_IN_STREAM", group = "FIELDS")
   private String[] fieldInStream;

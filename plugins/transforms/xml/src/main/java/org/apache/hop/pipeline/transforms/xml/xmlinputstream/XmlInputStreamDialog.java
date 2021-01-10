@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
 //TODO correct sizing of window
 
 public class XmlInputStreamDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = XmlInputStreamMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlInputStreamMeta.class; // For Translator
 
   // for tabs later on:
   // private CTabFolder wTabFolder;
@@ -188,7 +188,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     // fdTabFolder.bottom= new FormAttachment(100, -50);
     // wTabFolder.setLayoutData(fdTabFolder);
 
-    // See if the step receives input. If so, we don't ask for the filename, but
+    // See if the transform receives input. If so, we don't ask for the filename, but
     // for the filename field.
     //
     isReceivingInput = pipelineMeta.findNrPrevTransforms( transformMeta ) > 0;
@@ -258,7 +258,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       wFilename.setLayoutData( fdFilename );
       lastControl = wFilename;
     }
-    // data from previous step
+    // data from previous transform
     Label lblAcceptingFilenames = new Label( shell, SWT.RIGHT );
     lblAcceptingFilenames.setText( BaseMessages.getString( PKG, "XMLInputStreamDialog.SourceStreamField.Label" ) );
     props.setLook( lblAcceptingFilenames );

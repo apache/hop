@@ -67,7 +67,7 @@ import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 
 public class SQLFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

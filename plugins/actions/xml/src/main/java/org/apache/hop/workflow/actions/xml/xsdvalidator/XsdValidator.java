@@ -64,11 +64,10 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
     name = "i18n::XSD_VALIDATOR.Name",
     description = "i18n::XSD_VALIDATOR.Description",
     image = "org/apache/hop/workflow/actions/xml/XSD.svg",
-    categoryDescription = "XSD_VALIDATOR.Category",
+    categoryDescription = "i18n::XSD_VALIDATOR.Category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/xsdvalidator.html")
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG =
-      XsdValidator.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidator.class; // For Translator
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION =
       "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";

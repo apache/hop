@@ -57,7 +57,7 @@ import java.util.BitSet;
  * @since 20-06-2010
  */
 public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData> implements ITransform<JsonInputMeta, JsonInputData> {
-  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   private RowOutputConverter rowOutputConverter;
 

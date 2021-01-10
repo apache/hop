@@ -34,8 +34,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, KafkaProducerOutputData>
                                  implements ITransform<KafkaProducerOutputMeta, KafkaProducerOutputData> {
 
-  // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
-  private static final Class<?> PKG = KafkaProducerOutputMeta.class;
+  private static final Class<?> PKG = KafkaProducerOutputMeta.class; // For Translator
 
   private KafkaFactory kafkaFactory;
 
@@ -95,7 +94,7 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
     putRow( getInputRowMeta(), r ); // copy row to possible alternate rowset(s).
 
     if ( checkFeedback( getLinesRead() ) && log.isBasic() ) {
-      logBasic( BaseMessages.getString( PKG, "KafkaConsumerInput.Log.LineNumber" ) + getLinesRead() );
+      logBasic( BaseMessages.getString( PKG, "KafkaConsumerOutput.Log.LineNumber" ) + getLinesRead() );
     }
 
     return true;

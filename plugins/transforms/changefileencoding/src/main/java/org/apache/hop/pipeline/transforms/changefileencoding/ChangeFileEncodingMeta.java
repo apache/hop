@@ -47,7 +47,7 @@ import java.util.List;
 public class ChangeFileEncodingMeta extends BaseTransformMeta
     implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
-  private static final Class<?> PKG = ChangeFileEncoding.class; // Needed by Translator
+  private static final Class<?> PKG = ChangeFileEncoding.class; // For Translator
 
   private boolean addsourceresultfilenames;
   private boolean addtargetresultfilenames;

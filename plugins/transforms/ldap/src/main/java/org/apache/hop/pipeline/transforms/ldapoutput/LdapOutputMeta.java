@@ -49,7 +49,7 @@ import org.w3c.dom.Node;
         "https://hop.apache.org/manual/latest/plugins/transforms/ldapoutput.html")
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
-  private static Class<?> PKG = LdapOutputMeta.class; // Needed by Translator
+  private static Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

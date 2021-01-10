@@ -65,7 +65,7 @@ import java.util.TreeSet;
  */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements ITransform<GroupByMeta, GroupByData> {
 
-  private static final Class<?> PKG = GroupByMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

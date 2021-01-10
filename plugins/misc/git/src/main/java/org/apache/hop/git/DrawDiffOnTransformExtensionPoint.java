@@ -37,7 +37,7 @@ import static org.apache.hop.git.PdiDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnTransExtensionPoint",
-    description = "Draws a marker on top of a step if it has some change",
+    description = "Draws a marker on top of a transform if it has some change",
     extensionPointId = "PipelinePainterEnd")
 public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
 
@@ -52,14 +52,14 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
     PipelineMeta pipelineMeta = painter.getPipelineMeta();
     try {
       pipelineMeta.getTransforms().stream()
-          .filter(step -> step.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
+          .filter(transform -> transform.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
           .forEach(
-              step -> {
+              transform -> {
                 if (pipelineMeta.getPipelineVersion() == null
                     ? false
                     : pipelineMeta.getPipelineVersion().startsWith("git")) {
-                  String status = step.getAttribute(ATTR_GIT, ATTR_STATUS);
-                  Point n = step.getLocation();
+                  String status = transform.getAttribute(ATTR_GIT, ATTR_STATUS);
+                  Point n = transform.getLocation();
                   String location = "images/git/";
                   if (status.equals(REMOVED)) {
                     location += "removed.svg";
@@ -91,7 +91,7 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                     throw new RuntimeException(e);
                   }
                 } else {
-                  step.getAttributesMap().remove(ATTR_GIT);
+                  transform.getAttributesMap().remove(ATTR_GIT);
                 }
               });
     } catch (Exception e) {

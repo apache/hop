@@ -34,7 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 @GuiPlugin( id = "GUI-GoogleBigQueryDatabaseMeta" )
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  private static final Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
+  private static final Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // For Translator
 
   @Override public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };

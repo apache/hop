@@ -66,14 +66,14 @@ import java.util.Objects;
     image = "combinationlookup.svg",
     name = "i18n::CombinationLookup.Name",
     description = "i18n::CombinationLookup.Description",
-    categoryDescription = "BaseTransform.Category.DataWarehouse",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
 public class CombinationLookupMeta extends BaseTransformMeta
     implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
 
-  private static final Class<?> PKG = CombinationLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
   /** Default cache size: 0 will cache everything */
   public static final int DEFAULT_CACHE_SIZE = 9999;

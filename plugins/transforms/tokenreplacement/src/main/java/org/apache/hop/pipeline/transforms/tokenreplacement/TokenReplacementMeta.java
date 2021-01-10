@@ -59,6 +59,8 @@ import java.util.List;
     groups = {"OUTPUT_FIELDS"})
 public class TokenReplacementMeta extends BaseTransformMeta
     implements ITransformMeta<TokenReplacement, TokenReplacementData> {
+  private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
+
   public static final String INPUT_TYPE = "input_type";
   public static final String INPUT_FIELD_NAME = "input_field_name";
   public static final String INPUT_FILENAME = "input_filename";
@@ -73,7 +75,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
   public static final String APPEND_OUTPUT_FILENAME = "append_output_filename";
   public static final String CREATE_PARENT_FOLDER = "create_parent_folder";
   public static final String INCLUDE_STEP_NR_IN_OUTPUT_FILENAME =
-      "include_step_nr_in_output_filename";
+      "include_transform_nr_in_output_filename";
   public static final String INCLUDE_PART_NR_IN_OUTPUT_FILENAME =
       "include_part_nr_in_output_filename";
   public static final String INCLUDE_DATE_IN_OUTPUT_FILENAME = "include_date_in_output_filename";
@@ -90,13 +92,19 @@ public class TokenReplacementMeta extends BaseTransformMeta
   public static final String OUTPUT_FILE_ENCODING = "output_file_encoding";
   public static final String OUTPUT_SPLIT_EVERY = "output_split_every";
   public static final String OUTPUT_FILE_FORMAT = "output_file_format";
-  private static Class<?> PKG =
-      TokenReplacementMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] INPUT_TYPES = {"text", "field", "file"};
   public static final String[] OUTPUT_TYPES = {"field", "file"};
   public static final String[] formatMapperLineTerminator =
       new String[] {"DOS", "UNIX", "CR", "None"};
+
+  public static final String[] formatMapperLineTerminatorDescriptions =
+      new String[] {
+        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.DOS"),
+        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.UNIX"),
+        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.CR"),
+        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.None")
+      };
 
   @Injection(name = "INPUT_TYPE")
   private String inputType;
@@ -150,7 +158,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
   private int splitEvery;
 
   @Injection(name = "OUTPUT_INCLUDE_STEPNR")
-  private boolean includeStepNrInOutputFileName;
+  private boolean includeTransformNrInOutputFileName;
 
   @Injection(name = "OUTPUT_INCLUDE_PARTNR")
   private boolean includePartNrInOutputFileName;
@@ -179,7 +187,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
   @InjectionDeep private TokenReplacementField[] tokenReplacementFields;
 
   public TokenReplacementMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
     allocate(0);
   }
 
@@ -323,12 +331,12 @@ public class TokenReplacementMeta extends BaseTransformMeta
     this.splitEvery = splitEvery;
   }
 
-  public boolean isIncludeStepNrInOutputFileName() {
-    return includeStepNrInOutputFileName;
+  public boolean isIncludeTransformNrInOutputFileName() {
+    return includeTransformNrInOutputFileName;
   }
 
-  public void setIncludeStepNrInOutputFileName(boolean includeStepNrInOutputFileName) {
-    this.includeStepNrInOutputFileName = includeStepNrInOutputFileName;
+  public void setIncludeTransformNrInOutputFileName(boolean includeTransformNrInOutputFileName) {
+    this.includeTransformNrInOutputFileName = includeTransformNrInOutputFileName;
   }
 
   public boolean isIncludePartNrInOutputFileName() {
@@ -452,7 +460,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
           "Y"
               .equalsIgnoreCase(
                   Const.NVL(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER), ""));
-      includeStepNrInOutputFileName =
+      includeTransformNrInOutputFileName =
           "Y"
               .equalsIgnoreCase(
                   Const.NVL(
@@ -564,7 +572,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     retval.append(
         "    "
             + XmlHandler.addTagValue(
-                INCLUDE_STEP_NR_IN_OUTPUT_FILENAME, includeStepNrInOutputFileName));
+                INCLUDE_STEP_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
     retval.append(
         "    "
             + XmlHandler.addTagValue(
@@ -613,7 +621,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     outputFileNameInField = false;
     appendOutputFileName = false;
     createParentFolder = false;
-    includeStepNrInOutputFileName = false;
+    includeTransformNrInOutputFileName = false;
     includePartNrInOutputFileName = false;
     includeDateInOutputFileName = false;
     includeTimeInOutputFileName = false;
@@ -671,7 +679,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
         retval += "_" + t;
       }
     }
-    if (meta.isIncludeStepNrInOutputFileName()) {
+    if (meta.isIncludeTransformNrInOutputFileName()) {
       retval += "_" + transformnr;
     }
     if (meta.isIncludePartNrInOutputFileName()) {
@@ -756,7 +764,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
       remarks.add(cr);
     }
 
-    // See if we have input streams leading to this step!
+    // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
@@ -796,5 +804,13 @@ public class TokenReplacementMeta extends BaseTransformMeta
       v.setOrigin(name);
       row.addValueMeta(v);
     }
+  }
+
+  public static final String getOutputFileFormatDescription(String code) {
+    int index = Const.indexOfString( code, formatMapperLineTerminator);
+    if (index<0) {
+      index=3;
+    }
+    return formatMapperLineTerminatorDescriptions[index];
   }
 }

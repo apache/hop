@@ -76,8 +76,7 @@ import java.util.List;
     image = "dimensionlookup.svg",
     name = "i18n::BaseTransform.TypeLongDesc.DimensionUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
-    categoryDescription =
-        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/dimensionlookup.html")
 @InjectionSupported(
@@ -85,7 +84,7 @@ import java.util.List;
     groups = {"KEYS", "FIELDS"})
 public class DimensionLookupMeta extends BaseTransformMeta
     implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;
   public static final int TYPE_UPDATE_DIM_UPDATE = 1;

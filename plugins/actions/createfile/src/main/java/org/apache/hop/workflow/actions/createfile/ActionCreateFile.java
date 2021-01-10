@@ -57,7 +57,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/createfile.html")
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCreateFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCreateFile.class; // For Translator
   private String filename;
 
   private boolean failIfFileExists;

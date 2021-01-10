@@ -59,7 +59,7 @@ import java.util.List;
 public class DatabaseLookupMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 
   public static final String[] conditionStrings =
       new String[] {

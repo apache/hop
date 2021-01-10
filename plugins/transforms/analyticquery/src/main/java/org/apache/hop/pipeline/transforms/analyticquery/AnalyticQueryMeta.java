@@ -60,7 +60,7 @@ import java.util.List;
 public class AnalyticQueryMeta extends BaseTransformMeta
     implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 
-  private static final Class<?> PKG = AnalyticQuery.class; // Needed by Translator
+  private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 
   public static final int TYPE_FUNCT_LEAD = 0;
   public static final int TYPE_FUNCT_LAG = 1;

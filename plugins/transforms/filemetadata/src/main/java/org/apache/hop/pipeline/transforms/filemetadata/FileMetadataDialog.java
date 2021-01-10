@@ -63,9 +63,9 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    * The properties file with localized keys is expected to reside in
    * {the package of the class specified}/messages/messages_{locale}.properties
    */
-  private static final Class<?> PKG = FileMetadataMeta.class; // for i18n purposes
+  private static final Class<?> PKG = FileMetadataMeta.class; // For Translator
 
-  // this is the object the stores the step's settings
+  // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
   private FileMetadataMeta meta;
@@ -85,9 +85,9 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    * from/to it.
    *
    * @param parent    the SWT shell to open the dialog in
-   * @param in        the meta object holding the step's settings
+   * @param in        the meta object holding the transform's settings
    * @param pipelineMeta transformation description
-   * @param sname     the step name
+   * @param sname     the transform name
    */
   public FileMetadataDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -407,7 +407,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   }
 
   /**
-   * This helper method puts the step configuration stored in the meta object
+   * This helper method puts the transform configuration stored in the meta object
    * and puts it into the dialog controls.
    */
   private void populateDialog() {
@@ -461,7 +461,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    */
   private void ok() {
     // The "TransformName" variable will be the return value for the open() method.
-    // Setting to step name from the dialog control
+    // Setting to transform name from the dialog control
     transformName = wTransformName.getText();
 
     meta.setFileName(wFilename.getText());

@@ -49,7 +49,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class HopServer {
-  private static final Class<?> PKG = HopServer.class; // Needed by Translator
+  private static final Class<?> PKG = HopServer.class; // For Translator
 
   private WebServer webServer;
   private HopServerConfig config;

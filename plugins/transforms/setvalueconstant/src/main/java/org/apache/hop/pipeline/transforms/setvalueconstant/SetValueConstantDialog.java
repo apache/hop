@@ -56,7 +56,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   private final SetValueConstantMeta input;
 

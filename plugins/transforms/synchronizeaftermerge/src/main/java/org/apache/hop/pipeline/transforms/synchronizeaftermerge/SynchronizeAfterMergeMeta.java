@@ -62,7 +62,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/synchronizeaftermerge.html")
 public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     implements ITransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   /** what's the lookup schema? */
   @Injection(name = "SHEMA_NAME")

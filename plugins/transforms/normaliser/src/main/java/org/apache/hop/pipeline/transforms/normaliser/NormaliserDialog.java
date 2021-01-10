@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.*;
 
 public class NormaliserDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
+  private static final Class<?> PKG = NormaliserMeta.class; // For Translator
 
   private static final int NAME_INDEX = 1;
 

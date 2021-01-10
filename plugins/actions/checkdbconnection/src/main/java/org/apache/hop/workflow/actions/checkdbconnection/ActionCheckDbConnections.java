@@ -56,7 +56,7 @@ import java.util.List;
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/actions/checkdbconnection.html")
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCheckDbConnections.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator
 
   private DatabaseMeta[] connections;
 

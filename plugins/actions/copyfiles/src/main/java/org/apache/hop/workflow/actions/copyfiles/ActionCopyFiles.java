@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/copyfiles.html")
 public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCopyFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
 
   public static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
   public static final String SOURCE_FILE_FOLDER = "source_filefolder";

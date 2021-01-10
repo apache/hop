@@ -51,7 +51,7 @@ import java.util.*;
  * @since 28 September 2007
  */
 public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ReplaceStringMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   private TableView wFields;
 

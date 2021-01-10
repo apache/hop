@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * @since 30-04-2007
  */
 public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidator.class; // For Translator
 
   private static final String[] FILETYPES_XML = new String[] {
     BaseMessages.getString( PKG, "JobEntryXSDValidator.Filetype.Xml" ),
@@ -295,8 +295,8 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Msg" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.ActionNameMissing.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ) );
       mb.open();
       return;
     }

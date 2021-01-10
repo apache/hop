@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = LdapOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   private Button wUsingAuthentication;
 

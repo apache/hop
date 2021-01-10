@@ -87,7 +87,7 @@ DATE      PRODUCT    Sales   Number
     groups = {"FIELDS"})
 public class NormaliserMeta extends BaseTransformMeta
     implements ITransformMeta<Normaliser, NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
+  private static final Class<?> PKG = NormaliserMeta.class; // For Translator
 
   private String typeField; // Name of the new type-field.
 

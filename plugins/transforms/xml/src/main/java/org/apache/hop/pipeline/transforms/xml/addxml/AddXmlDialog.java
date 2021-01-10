@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class AddXmlDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = AddXmlMeta.class; // For Translator
 
   private Button wOmitXMLHeader;
 

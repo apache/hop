@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * @since 28-01-2007
  */
 public class ActionCreateFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCreateFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCreateFile.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCreateFile.Filetype.All" ) };

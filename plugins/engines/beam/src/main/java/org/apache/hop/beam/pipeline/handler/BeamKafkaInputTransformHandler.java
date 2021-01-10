@@ -43,7 +43,7 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
     super( variables, runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -85,7 +85,7 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
       xpPluginClasses
     );
     PCollection<HopRow> afterInput = pipeline.apply( beamInputTransform );
-    stepCollectionMap.put( transformMeta.getName(), afterInput );
+    transformCollectionMap.put( transformMeta.getName(), afterInput );
     log.logBasic( "Handled transform (KAFKA INPUT) : " + transformMeta.getName() );
   }
 }

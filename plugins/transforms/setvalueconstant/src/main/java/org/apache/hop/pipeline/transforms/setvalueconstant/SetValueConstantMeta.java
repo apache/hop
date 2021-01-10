@@ -55,7 +55,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/setvalueconstant.html")
 public class SetValueConstantMeta extends BaseTransformMeta
     implements ITransformMeta<SetValueConstant, SetValueConstantData> {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   @InjectionDeep private List<Field> fields = new ArrayList<>();
 

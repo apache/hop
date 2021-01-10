@@ -74,7 +74,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/http.html"
 )
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionHttp.class; // Needed by Translator
+  private static final Class<?> PKG = ActionHttp.class; // For Translator
 
   private static final String URL_FIELDNAME = "URL";
   private static final String UPLOADFILE_FIELDNAME = "UPLOAD";

@@ -48,7 +48,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/abort.html")
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 
-  private static final Class<?> PKG = AbortMeta.class; // Needed by Translator
+  private static final Class<?> PKG = AbortMeta.class; // For Translator
 
   public enum AbortOption {
     ABORT,
@@ -161,9 +161,7 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
       }
     } catch (Exception e) {
       throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "AbortMeta.Exception.UnexpectedErrorInReadingTransformMetaFromRepository"),
-          e); // TODO: Change wording
+          BaseMessages.getString(PKG, "AbortMeta.Exception.UnableToLoadTransformMetaFromXML"), e);
     }
   }
 

@@ -55,7 +55,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/ssh.html")
 public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SSHData> {
-  static Class<?> PKG = SSHMeta.class; // Needed by Translator
+  static Class<?> PKG = SSHMeta.class; // For Translator
   private static int DEFAULT_PORT = 22;
 
   private String command;

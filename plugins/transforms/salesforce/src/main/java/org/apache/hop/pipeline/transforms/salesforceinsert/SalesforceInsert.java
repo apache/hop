@@ -42,7 +42,7 @@ import java.util.ArrayList;
  * @since 10-06-2007
  */
 public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, SalesforceInsertData> {
-  private static Class<?> PKG = SalesforceInsertMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
 
   public SalesforceInsert( TransformMeta transformMeta, SalesforceInsertMeta meta, SalesforceInsertData data, int copyNr,
@@ -250,7 +250,7 @@ public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, 
       }
       // Simply add this row to the error row
       if ( log.isDebug() ) {
-        logDebug( "Passing row to error step" );
+        logDebug( "Passing row to error transform" );
       }
 
       for ( int i = 0; i < data.iBufferPos; i++ ) {

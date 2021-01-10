@@ -50,7 +50,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/setvariable.html")
 public class SetVariableMeta extends BaseTransformMeta
     implements ITransformMeta<SetVariable, SetVariableData> {
-  private static final Class<?> PKG = SetVariableMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SetVariableMeta.class; // For Translator
 
   public static final int VARIABLE_TYPE_JVM = 0;
   public static final int VARIABLE_TYPE_PARENT_WORKFLOW = 1;

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for testcases. You can add an instance of this class to a step to read all of the Rows the step read or
+ * Helper class for testcases. You can add an instance of this class to a transform to read all of the Rows the transform read or
  * wrote.
  *
  * @author Sven Boden

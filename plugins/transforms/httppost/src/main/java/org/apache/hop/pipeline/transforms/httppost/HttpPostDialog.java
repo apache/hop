@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class HttpPostDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = HttpPostMeta.class; // Needed by Translator
+  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

@@ -74,7 +74,7 @@ import org.eclipse.swt.widgets.Text;
  *
  */
 public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
-  private static final Class<?> PKG = DatabaseMetaEditor.class; // Needed by Translator
+  private static final Class<?> PKG = DatabaseMetaEditor.class; // For Translator
   
   private CTabFolder wTabFolder;
 

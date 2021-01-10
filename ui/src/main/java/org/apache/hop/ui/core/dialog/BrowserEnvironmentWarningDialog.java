@@ -44,8 +44,8 @@ import java.net.URI;
 
 /** Dialog that shows a warning when the Browser Environment is not supported. */
 public class BrowserEnvironmentWarningDialog extends Dialog {
+  private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class; // For Translator
 
-  private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class; // Needed by Translator
   private Shell shell;
   private PropsUi props;
   private Label warningIcon;

@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.*;
  * @since 10-03-2007
  */
 public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSuccess.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSuccess.class; // For Translator
 
   private Text wName;
 

@@ -51,7 +51,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/splitfieldtorows.html")
 public class SplitFieldToRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   /** Field to split */
   private String splitField;

@@ -52,18 +52,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Store run-time data on the getXMLData step. */
+/** Store run-time data on the getXMLData transform. */
 @Transform(
     id = "getXMLData",
     image = "GXD.svg",
     name = "i18n::GetXMLData.name",
     description = "i18n::GetXMLData.description",
-    categoryDescription = "GetXMLData.category",
+    categoryDescription = "i18n::GetXMLData.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getxmldata.html")
 public class GetXmlDataMeta extends BaseTransformMeta
     implements ITransformMeta<GetXmlData, GetXmlDataData> {
-  private static final Class<?> PKG =
-      GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private static final String YES = "Y";
 
@@ -692,7 +691,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
       sizeFieldName = XmlHandler.getTagValue(transformNode, "sizeFieldName");
     } catch (Exception e) {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "GetXMLDataMeta.Exception.ErrorLoadingXML", e.toString()));
+          BaseMessages.getString(PKG, "GetXMLDataMeta.Exception.ErrorLoadingXml", e.toString()));
     }
   }
 
@@ -981,7 +980,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
-      // In case the name of the file comes from previous steps, forget about this!
+      // In case the name of the file comes from previous transforms, forget about this!
       //
       List<String> newFilenames = new ArrayList<>();
 

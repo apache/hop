@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * @since 17-10-2007
  */
 public class ActionCreateFolderDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCreateFolder.class; // Needed by Translator
+  private static final Class<?> PKG = ActionCreateFolder.class; // For Translator
 
   private Text wName;
 

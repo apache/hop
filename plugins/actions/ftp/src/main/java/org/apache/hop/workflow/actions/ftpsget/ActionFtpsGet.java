@@ -65,7 +65,7 @@ import java.util.regex.Pattern;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpsget.html")
 public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpsGet.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpsGet.class; // For Translator
 
   private String serverName;
   private String userName;

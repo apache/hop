@@ -58,7 +58,7 @@ import java.util.Map;
     id = "Repeat",
     name = "Repeat",
     description = "Repeat execution of a workflow or a transformation",
-    categoryDescription = "General",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "repeat.svg",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {

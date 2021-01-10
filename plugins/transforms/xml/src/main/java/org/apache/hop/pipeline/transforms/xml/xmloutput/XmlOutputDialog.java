@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.*;
 
 public class XmlOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
 
   private Label wlFilename;
   private TextVar wFilename;

@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableExistsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * @since 25-02-2011
  */
 public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionPGPVerify.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
 
   private static final String[] EXTENSIONS = new String[] { "*" };
 

@@ -42,7 +42,7 @@ public class GetFilesRowsCount
   extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData>
   implements ITransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
 
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 
   // private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 

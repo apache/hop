@@ -147,7 +147,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
   /**
    * The package name, used for internationalization of messages.
    */
-  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
+  private static final Class<?> PKG = Pipeline.class; // For Translator
 
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;

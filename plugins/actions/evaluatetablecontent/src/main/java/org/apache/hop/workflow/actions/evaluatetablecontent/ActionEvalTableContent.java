@@ -61,7 +61,7 @@ import java.util.List;
 		  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/evaluatetablecontent.html"
 )
 public class ActionEvalTableContent extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEvalTableContent.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
 
   private boolean addRowsResult;
   private boolean clearResultList;

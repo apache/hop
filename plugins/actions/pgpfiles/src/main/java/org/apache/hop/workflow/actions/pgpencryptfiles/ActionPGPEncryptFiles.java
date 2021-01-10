@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpencryptfiles.html"
 )
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
   public static final String[] actionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Encrypt.Label" ),

@@ -65,7 +65,7 @@ import java.util.regex.Pattern;
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/actions/addresultfilenames.html")
 public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAddResultFilenames.class; // Needed by Translator
+  private static final Class<?> PKG = ActionAddResultFilenames.class; // For Translator
 
   public boolean argFromPrevious;
 

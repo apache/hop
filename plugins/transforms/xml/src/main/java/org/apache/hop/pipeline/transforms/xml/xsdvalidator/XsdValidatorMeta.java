@@ -56,12 +56,11 @@ import java.util.Map;
     image = "XOU.svg",
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
-    categoryDescription = "XSDValidator.category",
+    categoryDescription = "i18n::XSDValidator.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<XsdValidator, XsdValidatorData> {
-  private static final Class<?> PKG =
-      XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
 
   private String xsdFilename;
   private String xmlStream;
@@ -316,7 +315,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
-      TransformMeta stepinfo,
+      TransformMeta transforminfo,
       IRowMeta prev,
       String[] input,
       String[] output,
@@ -331,14 +330,14 @@ public class XsdValidatorMeta extends BaseTransformMeta
           new CheckResult(
               CheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XMLStreamFieldEmpty"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               CheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XMLStreamFieldOK"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     }
 
@@ -348,14 +347,14 @@ public class XsdValidatorMeta extends BaseTransformMeta
           new CheckResult(
               CheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ResultFieldEmpty"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               CheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ResultFieldOK"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     }
 
@@ -365,7 +364,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
             new CheckResult(
                 CheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XSDFieldEmpty"),
-                stepinfo);
+                transforminfo);
         remarks.add(cr);
       }
     }
@@ -378,31 +377,31 @@ public class XsdValidatorMeta extends BaseTransformMeta
                   PKG,
                   "XsdValidatorMeta.CheckResult.ConnectedTransformOK",
                   String.valueOf(prev.size())),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               CheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.NoInputReceived"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     }
 
-    // See if we have input streams leading to this step!
+    // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ExpectedInputOk"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ExpectedInputError"),
-              stepinfo);
+              transforminfo);
       remarks.add(cr);
     }
   }
@@ -433,7 +432,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
-      // In case the name of the file comes from previous steps, forget about this!
+      // In case the name of the file comes from previous transforms, forget about this!
       //
 
       // From : ${Internal.Transformation.Filename.Directory}/../foo/bar.xsd

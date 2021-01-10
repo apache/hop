@@ -51,7 +51,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mailvalidator.html")
 public class MailValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<MailValidator, MailValidatorData> {
-  private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailValidatorMeta.class; // For Translator
 
   /** dynamic email address */
   private String emailfield;

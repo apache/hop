@@ -56,7 +56,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rowgenerator.html")
 public class RowGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<RowGenerator, RowGeneratorData> {
-  private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 
   private boolean neverEnding;
 

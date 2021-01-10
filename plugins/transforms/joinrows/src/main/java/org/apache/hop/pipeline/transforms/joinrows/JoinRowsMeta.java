@@ -57,7 +57,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/joinrows.html")
 public class JoinRowsMeta extends BaseTransformMeta
     implements ITransformMeta<JoinRows, JoinRowsData> {
-  private static final Class<?> PKG = JoinRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
 
   @Injection(name = "TEMP_DIR")
   private String directory;

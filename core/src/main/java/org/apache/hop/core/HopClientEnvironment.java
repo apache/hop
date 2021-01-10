@@ -50,10 +50,7 @@ import java.util.Set;
  * @author matt
  */
 public class HopClientEnvironment {
-  /**
-   * For i18n purposes, needed by Translator!!
-   */
-  private static final Class<?> PKG = Const.class;
+  private static final Class<?> PKG = Const.class; // For Translator
 
   private static HopClientEnvironment instance = null;
 

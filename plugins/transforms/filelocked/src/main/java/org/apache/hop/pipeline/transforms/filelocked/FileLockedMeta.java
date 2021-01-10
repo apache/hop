@@ -54,7 +54,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/filelocked.html")
 public class FileLockedMeta extends BaseTransformMeta
     implements ITransformMeta<FileLocked, FileLockedData> {
-  private static final Class<?> PKG = FileLockedMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FileLockedMeta.class; // For Translator
 
   private boolean addresultfilenames;
 

@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/deletefiles.html")
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 
-  private static final Class<?> PKG = ActionDeleteFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
 
   private boolean argFromPrevious;
 

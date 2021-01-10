@@ -25,7 +25,6 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Created by bmorrise on 10/13/16. */
 public class ErrorWithDetailsDialog extends MessageDialog {
-
   public static final Class<?> PKG = ErrorWithDetailsDialog.class;
 
   private int detailsIndex;

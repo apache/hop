@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PropertyInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 

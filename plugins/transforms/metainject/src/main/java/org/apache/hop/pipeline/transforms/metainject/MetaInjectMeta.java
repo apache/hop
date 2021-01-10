@@ -71,8 +71,7 @@ public class MetaInjectMeta extends BaseTransformMeta
         ITransformMetaChangeListener,
         ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG =
-      MetaInjectMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
 
   private static final String MAPPINGS = "mappings";
   private static final String MAPPING = "mapping";
@@ -468,7 +467,7 @@ public class MetaInjectMeta extends BaseTransformMeta
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a transformation, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   @Override
   public String[] getReferencedObjectDescriptions() {

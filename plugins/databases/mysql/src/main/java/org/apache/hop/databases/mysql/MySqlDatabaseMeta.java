@@ -52,7 +52,7 @@ import java.util.Set;
 )
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-    private static final Class<?> PKG = MySqlDatabaseMeta.class;
+    private static final Class<?> PKG = MySqlDatabaseMeta.class; // For Translator
 
     @GuiWidgetElement(
             id = "resultStreaming",

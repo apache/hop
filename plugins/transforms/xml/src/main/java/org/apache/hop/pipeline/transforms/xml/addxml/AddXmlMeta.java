@@ -45,7 +45,7 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 /**
- * This class knows how to handle the MetaData for the XML output step
+ * This class knows how to handle the MetaData for the XML output transform
  *
  * @since 14-jan-2006
  */
@@ -54,14 +54,13 @@ import java.util.List;
     image = "add_xml.svg",
     name = "i18n::AddXML.name",
     description = "i18n::AddXML.description",
-    categoryDescription = "AddXML.category",
+    categoryDescription = "i18n::AddXML.category",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/addxml.html")
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",
     groups = {"OUTPUT_FIELDS"})
 public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddXml, AddXmlData> {
-  private static final Class<?> PKG =
-      AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = AddXmlMeta.class; // For Translator
 
   /** The base name of the output file */
 
@@ -194,7 +193,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
             XmlHandler.getTagValue(fnode, "attributeParentName"));
       }
     } catch (Exception e) {
-      throw new HopXmlException("Unable to load step info from XML", e);
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
@@ -332,7 +331,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
       }
     }
 
-    // See if we have input streams leading to this step!
+    // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(

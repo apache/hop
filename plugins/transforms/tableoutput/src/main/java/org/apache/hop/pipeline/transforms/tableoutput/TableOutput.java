@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> implements ITransform<TableOutputMeta, TableOutputData> {
 
-  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   public TableOutput( TransformMeta transformMeta, TableOutputMeta meta, TableOutputData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

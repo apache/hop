@@ -52,7 +52,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/plugins/transforms/pgpdecryptstream.html")
 public class PGPEncryptStreamMeta extends BaseTransformMeta
     implements ITransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
-  private static final Class<?> PKG = PGPEncryptStreamMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   /** GPG location */
   private String gpgLocation;

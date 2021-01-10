@@ -49,13 +49,12 @@ import java.util.List;
     image = "JSO.svg",
     name = "i18n::JsonOutput.name",
     description = "i18n::JsonOutput.description",
-    categoryDescription = "JsonOutput.category",
+    categoryDescription = "i18n::JsonOutput.category",
     keywords = {"json", "javascript", "object", "notation"},
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {
-  private static final Class<?> PKG =
-      JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
 
   /** Operations type */
   private int operationType;

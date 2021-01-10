@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 27-02-2007
  */
 public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionZipFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionZipFile.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobZipFiles.Filetype.Zip" ),

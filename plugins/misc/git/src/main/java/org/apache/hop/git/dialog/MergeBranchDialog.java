@@ -36,7 +36,7 @@ import java.util.List;
 
 public class MergeBranchDialog extends Dialog {
 
-  private static final Class<?> PKG = HopPerspectivePlugin.class;
+  private static final Class<?> PKG = HopPerspectivePlugin.class; // For Translator
   private static final List<String> listMergeStrategy = new ArrayList<>();
 
   static {

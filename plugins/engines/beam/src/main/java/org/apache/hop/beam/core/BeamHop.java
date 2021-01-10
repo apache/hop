@@ -65,27 +65,27 @@ public class BeamHop {
       // Register extra classes from the plugins...
       // If they're already in the classpath, this should be fast.
       //
-      TransformPluginType stepPluginType = (TransformPluginType) registry.getPluginType( TransformPluginType.class );
-      for ( String stepPluginClassName : transformPluginClasses ) {
+      TransformPluginType transformPluginType = (TransformPluginType) registry.getPluginType( TransformPluginType.class );
+      for ( String transformPluginClassName : transformPluginClasses ) {
         try {
           // Only register if it doesn't exist yet.  This is not ideal if we want to replace old transforms with bug fixed new ones.
           //
-          IPlugin exists = findPlugin( registry, TransformPluginType.class, stepPluginClassName );
+          IPlugin exists = findPlugin( registry, TransformPluginType.class, transformPluginClassName );
           if ( exists == null ) {
             // Class should be in the classpath since we put it there
             //
-            Class<?> transformPluginClass = Class.forName( stepPluginClassName );
+            Class<?> transformPluginClass = Class.forName( transformPluginClassName );
             Transform annotation = transformPluginClass.getAnnotation( Transform.class );
 
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
             // LOG.info( "Registering transform plugin class: " + transformPluginClass );
-            stepPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<>(), true, null );
+            transformPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<>(), true, null );
           } else {
-            LOG.debug( "Plugin " + stepPluginClassName + " is already registered" );
+            LOG.debug( "Plugin " + transformPluginClassName + " is already registered" );
           }
         } catch ( Exception e ) {
-          LOG.error( "Error registering transform plugin class : " + stepPluginClassName, e );
+          LOG.error( "Error registering transform plugin class : " + transformPluginClassName, e );
         }
       }
 

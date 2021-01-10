@@ -76,7 +76,7 @@ public class TextFileInputMeta extends BaseTransformMeta
     implements ITransformMeta<TextFileInput, TextFileInputData>,
         IInputFileMeta<TextFileInput, TextFileInputData> {
 
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
       new String[] {

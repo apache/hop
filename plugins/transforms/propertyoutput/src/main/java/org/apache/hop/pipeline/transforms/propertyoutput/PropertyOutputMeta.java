@@ -57,7 +57,7 @@ import java.util.Map;
         "https://hop.apache.org/manual/latest/plugins/transforms/propertyoutput.html")
 public class PropertyOutputMeta extends BaseTransformMeta
     implements ITransformMeta<PropertyOutput, PropertyOutputData> {
-  private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 
   private String keyfield;
   private String valuefield;

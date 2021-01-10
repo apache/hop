@@ -45,7 +45,7 @@ import java.util.List;
     image = "SFUD.svg",
     documentationUrl = "Products/Salesforce_Update" )
 public class SalesforceUpdateMeta extends SalesforceTransformMeta<SalesforceUpdate,SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;
@@ -217,7 +217,7 @@ public class SalesforceUpdateMeta extends SalesforceTransformMeta<SalesforceUpda
       setRollbackAllChangesOnError(
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rollbackAllChangesOnError" ) ) );
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

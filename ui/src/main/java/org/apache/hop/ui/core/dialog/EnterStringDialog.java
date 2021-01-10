@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 21-11-2004
  */
 public class EnterStringDialog extends Dialog {
-  private static final Class<?> PKG = EnterStringDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterStringDialog.class; // For Translator
 
   private Label wlString;
 

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.*;
 
 public class CheckSumDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CheckSumDialog.class; // Needed by Translator
+  private static final Class<?> PKG = CheckSumDialog.class; // For Translator
 
   private final CheckSumMeta input;
 

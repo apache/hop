@@ -47,7 +47,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/abort.html")
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAbort.class; // Needed by Translator
+  private static final Class<?> PKG = ActionAbort.class; // For Translator
 
   private String message;
 

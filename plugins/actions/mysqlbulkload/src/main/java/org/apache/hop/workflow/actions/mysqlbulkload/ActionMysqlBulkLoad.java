@@ -67,7 +67,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mysqlbulkload.html"
 )
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
 
   private String schemaname;
   private String tableName;

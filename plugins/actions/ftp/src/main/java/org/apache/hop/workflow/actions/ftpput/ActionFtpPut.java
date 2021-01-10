@@ -70,7 +70,7 @@ import com.enterprisedt.net.ftp.FTPTransferType;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpPut.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 
   public static final int FTP_DEFAULT_PORT = 21;
 

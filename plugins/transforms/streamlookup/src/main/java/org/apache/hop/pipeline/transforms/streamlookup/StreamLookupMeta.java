@@ -58,7 +58,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/streamlookup.html")
 public class StreamLookupMeta extends BaseTransformMeta
     implements ITransformMeta<StreamLookup, StreamLookupData> {
-  private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
   /** fields in input streams with which we look up values */
   @Injection(name = "KEY_STREAM")

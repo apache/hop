@@ -60,7 +60,7 @@ public class FileMetadataMeta extends BaseTransformMeta
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
-  private static final Class<?> PKG = FileMetadataMeta.class; // for i18n purposes
+  private static final Class<?> PKG = FileMetadataMeta.class; // For Translator
 
   /** Stores the name of the file to examine */
   private String fileName = "";
@@ -83,8 +83,8 @@ public class FileMetadataMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is called every time a new step is created and should allocate/set the step
-   * configuration to sensible defaults. The values set here will be used by Spoon when a new step
+   * This method is called every time a new transform is created and should allocate/set the transform
+   * configuration to sensible defaults. The values set here will be used by Spoon when a new transform
    * is created.
    */
   public void setDefault() {
@@ -104,7 +104,7 @@ public class FileMetadataMeta extends BaseTransformMeta
 
   /**
    * This method is used when a transform is duplicated. It needs to return a deep copy of this
-   * object. Be sure to create proper deep copies if the step configuration is stored in modifiable
+   * object. Be sure to create proper deep copies if the transform configuration is stored in modifiable
    * objects.
    *
    * @return a deep copy of this

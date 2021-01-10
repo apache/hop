@@ -56,8 +56,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 01-11-2004
  */
 public class EnterValueDialog extends Dialog {
-
-  private static final Class<?> PKG = EnterValueDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterValueDialog.class; // For Translator
 
   private Display display;
 

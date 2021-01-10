@@ -50,7 +50,7 @@ import java.util.Collections;
  * @since 23-03-2006
  */
 public class EnterMappingDialog extends Dialog {
-  private static final Class<?> PKG = EnterMappingDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterMappingDialog.class; // For Translator
 
   public class GuessPair {
     private int _srcIndex = -1;

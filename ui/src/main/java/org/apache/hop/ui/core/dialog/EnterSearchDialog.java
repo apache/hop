@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class EnterSearchDialog {
-  private static final Class<?> PKG = EnterSearchDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterSearchDialog.class; // For Translator
 
   private static final PropsUi props = PropsUi.getInstance();
   private Shell parentShell;

@@ -80,7 +80,7 @@ import java.util.List;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static final Class<?> PKG = EnterOptionsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 

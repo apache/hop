@@ -56,7 +56,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/telnet.html"
 )
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTelnet.class; // for i18n
+  private static final Class<?> PKG = ActionTelnet.class; // For Translator
 
   private String hostname;
   private String port;

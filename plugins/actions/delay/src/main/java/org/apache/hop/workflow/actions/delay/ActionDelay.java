@@ -49,7 +49,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/delay.html")
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDelay.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDelay.class; // For Translator
 
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
 

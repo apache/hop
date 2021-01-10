@@ -70,7 +70,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpdecryptfiles.html"
 )
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // For Translator
 
   private SimpleDateFormat daf;
   private GPG gpg;

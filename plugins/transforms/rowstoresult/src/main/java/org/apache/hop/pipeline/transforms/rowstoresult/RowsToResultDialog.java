@@ -33,7 +33,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RowsToResultDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = RowsToResultMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RowsToResultMeta.class; // For Translator
 
   private final RowsToResultMeta input;
 

@@ -70,7 +70,7 @@ import java.util.List;
 public class TableInputMeta extends BaseTransformMeta
     implements ITransformMeta<TableInput, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
 

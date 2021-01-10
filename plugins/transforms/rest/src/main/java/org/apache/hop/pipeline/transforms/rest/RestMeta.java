@@ -50,7 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rest.html")
 public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
-  private static final Class<?> PKG = RestMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RestMeta.class; // For Translator
 
   public static final String[] APPLICATION_TYPES =
       new String[] {

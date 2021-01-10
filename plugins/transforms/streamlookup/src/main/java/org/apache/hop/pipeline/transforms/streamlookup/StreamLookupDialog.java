@@ -45,7 +45,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
   private CCombo wTransform;
 

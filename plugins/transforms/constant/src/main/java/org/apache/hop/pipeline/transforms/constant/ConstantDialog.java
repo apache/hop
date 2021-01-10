@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ConstantMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ConstantMeta.class; // For Translator
 
   private TableView wFields;
 

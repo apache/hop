@@ -52,7 +52,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 19-12-2003
  */
 public class ChangeAction {
-  private static final Class<?> PKG = ChangeAction.class; // Needed by Translator
+  private static final Class<?> PKG = ChangeAction.class; // For Translator
 
   public enum ActionType {
 

@@ -54,7 +54,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mail.html")
 public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailMeta.class; // For Translator
 
   private String server;
 

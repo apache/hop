@@ -75,14 +75,14 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.image = toolbarElement.image();
     this.disabledImage = toolbarElement.disabledImage();
     this.password = toolbarElement.password();
-    this.i18nPackage = calculateI18nPackage( toolbarElement.i18nPackageClass(), toolbarElement.i18nPackage() );
+    this.i18nPackage = calculateI18nPackage( toolbarElement.i18nPackageClass(), toolbarElement.i18nPackage(), listenerClass );
     this.ignored = toolbarElement.ignored();
     this.addingSeparator = toolbarElement.separator();
     this.singleTon = true;
     this.listenerClass = listenerClass;
     this.listenerMethod = method.getName();
-    this.label = calculateI18n( i18nPackage, toolbarElement.label() );
-    this.toolTip = calculateI18n( i18nPackage, toolbarElement.toolTip() );
+    this.label = calculateI18n( i18nPackage, toolbarElement.label(), method.getDeclaringClass() );
+    this.toolTip = calculateI18n( i18nPackage, toolbarElement.toolTip(), method.getDeclaringClass() );
     this.classLoader = classLoader;
     this.extraWidth = toolbarElement.extraWidth();
     this.alignRight = toolbarElement.alignRight();

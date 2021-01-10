@@ -65,7 +65,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta
     implements ITransformMeta<MergeRows, MergeRowsData> {
-  private static final Class<?> PKG = MergeRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
 
   @Injection(name = "FLAG_FIELD")
   private String flagField;

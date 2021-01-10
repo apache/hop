@@ -55,7 +55,7 @@ import java.util.List;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/eval.html"
 )
 public class ActionEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEval.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEval.class; // For Translator
 
   private String script;
 

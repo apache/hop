@@ -85,7 +85,7 @@ import java.util.zip.ZipOutputStream;
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/zipfile.html"
 )
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionZipFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionZipFile.class; // For Translator
 
   private String zipFilename;
   public int compressionRate;

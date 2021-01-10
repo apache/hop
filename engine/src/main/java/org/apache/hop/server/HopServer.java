@@ -99,7 +99,7 @@ import java.util.Random;
   image = "ui/images/server.svg"
 )
 public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
-  private static final Class<?> PKG = HopServer.class; // Needed by Translator
+  private static final Class<?> PKG = HopServer.class; // For Translator
 
   public static final String STRING_HOP_SERVER = "Hop Server";
 

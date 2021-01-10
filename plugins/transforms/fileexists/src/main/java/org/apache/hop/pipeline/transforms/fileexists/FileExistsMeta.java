@@ -54,7 +54,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fileexists.html")
 public class FileExistsMeta extends BaseTransformMeta
     implements ITransformMeta<FileExists, FileExistsData> {
-  private static final Class<?> PKG = FileExistsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FileExistsMeta.class; // For Translator
 
   private boolean addresultfilenames;
 

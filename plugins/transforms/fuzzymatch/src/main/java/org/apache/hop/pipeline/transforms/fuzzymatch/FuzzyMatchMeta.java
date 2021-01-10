@@ -57,7 +57,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fuzzymatch.html")
 public class FuzzyMatchMeta extends BaseTransformMeta
     implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   public static final String DEFAULT_SEPARATOR = ",";
   /** Algorithms type */

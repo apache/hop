@@ -53,7 +53,7 @@ import java.util.List;
     groups = {"FIELDS"})
 public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf, NullIfData> {
 
-  private static final Class<?> PKG = NullIfMeta.class; // Needed by Translator
+  private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
   @Override
   public NullIf createTransform(

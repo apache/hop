@@ -62,7 +62,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/tableoutput.html")
 public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private DatabaseMeta databaseMeta;
   private String schemaName;

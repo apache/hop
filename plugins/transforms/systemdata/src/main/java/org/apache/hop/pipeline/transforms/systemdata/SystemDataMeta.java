@@ -57,7 +57,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/systemdata.html")
 public class SystemDataMeta extends BaseTransformMeta
     implements ITransformMeta<SystemData, SystemDataData> {
-  private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SystemDataMeta.class; // For Translator
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;

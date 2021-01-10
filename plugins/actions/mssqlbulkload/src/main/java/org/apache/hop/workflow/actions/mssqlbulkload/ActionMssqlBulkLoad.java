@@ -68,7 +68,7 @@ import java.util.List;
 	  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mssqlbulkload.html"
 )
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
 
   private String schemaname;
   private String tableName;

@@ -51,7 +51,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/syslog.html")
 public class ActionSyslog extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSyslog.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSyslog.class; // For Translator
 
   private String serverName;
   private String port;

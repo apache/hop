@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSimpleEval.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
 
   public static final String[] valueTypeDesc =
       new String[] {

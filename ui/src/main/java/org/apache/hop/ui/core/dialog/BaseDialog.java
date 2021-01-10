@@ -58,8 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
-
-  private static final Class<?> PKG = BaseDialog.class;
+  private static final Class<?> PKG = BaseDialog.class; // For Translator
 
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;

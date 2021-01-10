@@ -48,7 +48,7 @@ import java.util.*;
 
 
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CalculatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
   private Text wTransformName;
 

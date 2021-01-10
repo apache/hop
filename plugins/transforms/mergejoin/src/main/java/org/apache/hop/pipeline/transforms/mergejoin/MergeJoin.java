@@ -50,7 +50,7 @@ import java.util.List;
  */
 public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
     implements ITransform<MergeJoinMeta, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public MergeJoin(
       TransformMeta transformMeta,
