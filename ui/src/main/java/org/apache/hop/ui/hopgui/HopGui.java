@@ -626,6 +626,8 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_CLOSE_ALL,
       label = "Close all",
       parentId = ID_MAIN_MENU_FILE)
+  @GuiKeyboardShortcut(control = true, shift=true, key = 'w')
+  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 'w')
   public void menuFileCloseAll() {
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
@@ -1042,13 +1044,17 @@ public class HopGui
    * @param running set this to true if the current file is running
    * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities(IHopFileType fileType, boolean running, boolean paused) {
+  public void handleFileCapabilities(IHopFileType<?> fileType, boolean running, boolean paused) {
 
     mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE);
     mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
     mainMenuWidgets.enableMenuItem(
+        fileType, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
+    mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_FILE_CLOSE, IHopFileType.CAPABILITY_CLOSE);
+    mainMenuWidgets.enableMenuItem(
+        fileType, ID_MAIN_MENU_FILE_CLOSE_ALL, IHopFileType.CAPABILITY_CLOSE);
 
     mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, IHopFileType.CAPABILITY_SELECT);
