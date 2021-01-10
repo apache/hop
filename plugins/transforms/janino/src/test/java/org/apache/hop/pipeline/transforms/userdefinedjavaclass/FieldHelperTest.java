@@ -243,9 +243,9 @@ public class FieldHelperTest {
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
     Object[] data = new Object[ 1 ];
-    new FieldHelper( row, "Name" ).setValue( data, "Hitachi Vantara" );
+    new FieldHelper( row, "Name" ).setValue( data, "Hop" );
 
-    assertEquals( "Hitachi Vantara", data[ 0 ] );
+    assertEquals( "Hop", data[ 0 ] );
   }
 
   @Test

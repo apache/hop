@@ -214,8 +214,8 @@
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
 
         <!-- License Configuration -->
-        <license.organizationName>Hitachi Vantara</license.organizationName>
-        <license.inceptionYear>2002</license.inceptionYear>
+        <license.organizationName>Apache</license.organizationName>
+        <license.inceptionYear>2020</license.inceptionYear>
         <license.licenseFile>LICENSE.txt</license.licenseFile>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
@@ -820,8 +820,18 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>0.13</version>
                 <configuration>
+                    <excludeSubProjects>false</excludeSubProjects>
                     <consoleOutput>true</consoleOutput>
                     <excludes>
+
+                        <!-- License Exclusions -->
+                        <exclude>**/UserDefinedJavaClassHighlight.java</exclude>
+                        <exclude>**/ScriptValuesHighlight.java</exclude>
+                        <exclude>**/SOQLValuesHighlight.java</exclude>
+                        <exclude>**/Sleak.java</exclude>
+                        <exclude>**/SqlValuesHighlight.java</exclude>
+                        <exclude>**/ImageUtil.java</exclude>
+                        <exclude>**/FtpClient.java</exclude>
 
                         <!-- General Exclusions -->
                         <exclude>LICENSE</exclude>
@@ -834,6 +844,7 @@
                         <exclude>**/*.hwf</exclude>
                         <exclude>**/PUT_JDBC_HERE</exclude>
                         <exclude>**/hop.pwd</exclude>
+                        <exclude>**/*.iml</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
@@ -854,9 +865,9 @@
                         <exclude>**/integration-tests/**/*.txt</exclude>
 
                         <!-- Samples Exclusions -->
-                        <!-- plugins/engine/beam -->
-                        <exclude>src/main/resources/demo/**/*.txt</exclude>
-                        <exclude>src/main/resources/demo/**/*.csv</exclude>
+                        <!-- plugins/engines/beam -->
+                        <exclude>**/src/main/resources/demo/**/*.txt</exclude>
+                        <exclude>**/src/main/resources/demo/**/*.csv</exclude>
 
                         <!-- Assemblies -->
                         <exclude>**/beam-demo/data-orch.list</exclude>
