@@ -894,8 +894,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       areaOwners.add(
           new AreaOwner(
               AreaType.TRANSFORM_FAILURE_ICON,
-              pt.x + iconSize/2 - 8,
-              pt.y - 8,
+              xError,
+              yError,
               16,
               16,
               offset,
