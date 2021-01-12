@@ -84,6 +84,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
     if ( first ) {
       first = false;
 
+      // Making sure the mail API finds the right resources
+      //
+      Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
+
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();
 
