@@ -144,9 +144,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
 
     private String jsonSizeFieldname;
-    private String jsonPageStartsAtFieldname;
-    private String jsonPageEndsAtFieldname;
-
 
     public String getJsonSizeFieldname() {
         return jsonSizeFieldname;
@@ -154,22 +151,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
     public void setJsonSizeFieldname(String jsonSizeFieldname) {
         this.jsonSizeFieldname = jsonSizeFieldname;
-    }
-
-    public String getJsonPageStartsAtFieldname() {
-        return jsonPageStartsAtFieldname;
-    }
-
-    public void setJsonPageStartsAtFieldname(String jsonPageStartsAtFieldname) {
-        this.jsonPageStartsAtFieldname = jsonPageStartsAtFieldname;
-    }
-
-    public String getJsonPageEndsAtFieldname() {
-        return jsonPageEndsAtFieldname;
-    }
-
-    public void setJsonPageEndsAtFieldname(String jsonPageEndsAtFieldname) {
-        this.jsonPageEndsAtFieldname = jsonPageEndsAtFieldname;
     }
 
     public JsonOutputMeta() {
@@ -424,6 +405,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
                 keyFields[i] = new JsonOutputKeyField();
                 keyFields[i].setFieldName(XmlHandler.getTagValue(fnode, "key_field_name"));
+                keyFields[i].setElementName(XmlHandler.getTagValue(fnode, "key_field_element"));
             }
 
             Node fields = XmlHandler.getSubNode(transformnode, "fields");
@@ -441,8 +423,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
                 outputFields[i].setRemoveIfBlank(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "remove_if_blank")));
             }
 
-            jsonPageStartsAtFieldname = XmlHandler.getTagValue(transformnode, "additional_fields", "json_page_starts_at_field");
-            jsonPageEndsAtFieldname = XmlHandler.getTagValue(transformnode, "additional_fields", "json_page_ends_at_field");
             jsonSizeFieldname = XmlHandler.getTagValue(transformnode, "additional_fields", "json_size_field");
 
         } catch (Exception e) {
@@ -494,20 +474,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
                 row.addValueMeta(i, vmi);
             }
 
-            // This is JSON block's column
-            row.addValueMeta(this.getKeyFields().length, new ValueMetaString(this.getOutputValue()));
+            ValueMetaString vm = new ValueMetaString(this.getOutputValue());
+            row.addValueMeta(this.getKeyFields().length, vm);
 
             int fieldLength = this.getKeyFields().length + 1;
             if (this.jsonSizeFieldname != null && this.jsonSizeFieldname.length()>0) {
                 row.addValueMeta(fieldLength, new ValueMetaInteger(this.jsonSizeFieldname));
-                fieldLength++;
-            }
-            if (this.jsonPageStartsAtFieldname != null && this.jsonPageStartsAtFieldname.length()>0) {
-                row.addValueMeta(fieldLength, new ValueMetaInteger(this.jsonPageStartsAtFieldname));
-                fieldLength++;
-            }
-            if (this.jsonPageEndsAtFieldname != null && this.jsonPageEndsAtFieldname.length()>0) {
-                row.addValueMeta(fieldLength, new ValueMetaInteger(this.jsonPageEndsAtFieldname));
                 fieldLength++;
             }
         }
@@ -536,8 +508,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         retval.append("      ").append(XmlHandler.addTagValue("doNotOpenNewFileInit", doNotOpenNewFileInit));
         retval.append("      </file>" + Const.CR);
         retval.append("     <additional_fields>" + Const.CR);
-        retval.append("      ").append(XmlHandler.addTagValue("json_page_starts_at_field", jsonPageStartsAtFieldname));
-        retval.append("      ").append(XmlHandler.addTagValue("json_page_ends_at_field", jsonPageEndsAtFieldname));
         retval.append("      ").append(XmlHandler.addTagValue("json_size_field", jsonSizeFieldname));
         retval.append("      </additional_fields>" + Const.CR);
 
@@ -548,6 +518,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
             if (keyField.getFieldName() != null && keyField.getFieldName().length() != 0) {
                 retval.append("      <key_field>").append(Const.CR);
                 retval.append("        ").append(XmlHandler.addTagValue("key_field_name", keyField.getFieldName()));
+                retval.append("        ").append(XmlHandler.addTagValue("key_field_element", keyField.getElementName()));
                 retval.append("    </key_field>" + Const.CR);
             }
         }

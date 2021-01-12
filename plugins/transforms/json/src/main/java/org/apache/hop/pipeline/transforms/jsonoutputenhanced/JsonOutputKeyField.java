@@ -25,6 +25,9 @@ public class JsonOutputKeyField implements Cloneable {
     @Injection( name = "JSON_FIELDNAME", group = "KEY_FIELDS" )
     private String fieldName;
 
+    @Injection( name = "JSON_ELEMENTNAME", group = "KEY_FIELDS" )
+    private String elementName;
+
     public JsonOutputKeyField(String fieldName) {
         this.fieldName = fieldName;
     }
@@ -61,4 +64,11 @@ public class JsonOutputKeyField implements Cloneable {
         this.fieldName = fieldname;
     }
 
+    public String getElementName() {
+        return elementName;
+    }
+
+    public void setElementName(String elementName) {
+        this.elementName = elementName;
+    }
 }

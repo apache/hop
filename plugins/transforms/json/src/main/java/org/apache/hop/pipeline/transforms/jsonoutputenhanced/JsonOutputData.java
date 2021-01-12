@@ -40,12 +40,10 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
     public List<ObjectNode> jsonItems;
     public List<ObjectNode> jsonKeyGroupItems;
 
-    private boolean outputValue;
-    private boolean writeToFile;
-
     public String realBlocName;
     public int splitnr;
     public Writer writer;
+    public boolean isWriteToFile;
 
     /**
      *
@@ -54,26 +52,7 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
         super();
 
         this.nrRow = 0;
-        this.outputValue = false;
-        this.writeToFile = false;
         this.writer = null;
         this.jsonKeyGroupItems = new ArrayList<>();
-        this.jsonItems = new ArrayList<>();
-    }
-
-    public boolean isOutputValue() {
-        return outputValue;
-    }
-
-    public void setOutputValue(boolean outputValue) {
-        this.outputValue = outputValue;
-    }
-
-    public boolean isWriteToFile() {
-        return writeToFile;
-    }
-
-    public void setWriteToFile(boolean writeToFile) {
-        this.writeToFile = writeToFile;
     }
 }

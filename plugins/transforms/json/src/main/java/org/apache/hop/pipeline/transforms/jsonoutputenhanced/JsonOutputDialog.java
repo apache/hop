@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -54,7 +55,9 @@ import java.util.List;
 import java.util.*;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
-    private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
+    private static Class<?> PKG = JsonOutputMeta.class; // needed by Translator!!
+
+    public static final String STRING_SORT_WARNING_PARAMETER = "JSONSortWarning";
 
     private CTabItem wGeneralTab, wFieldsTab, wKeyConfigTab, wAdditionalFieldsConfigTab;
 
@@ -122,12 +125,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
     private Label wlJSONSizeFieldname;
     private TextVar wJSONSizeFieldname;
-
-    private Label wlJSONPageStartAtFieldname;
-    private TextVar wJSONPageStartAtFieldname;
-
-    private Label wlJSONPageEndAtFieldname;
-    private TextVar wJSONPageEndAtFieldname;
 
     private Group wSettings;
 
@@ -273,7 +270,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
                 new ColumnInfo[]{
                         new ColumnInfo(BaseMessages.getString(PKG, "JsonOutputDialog.Fieldname.Column"),
                                 ColumnInfo.COLUMN_TYPE_CCOMBO, new String[]{""}, false),
+                        new ColumnInfo(BaseMessages.getString(PKG, "JsonOutputDialog.ElementName.Column"),
+                                ColumnInfo.COLUMN_TYPE_TEXT, false)
                 };
+        keyColInf[1].setUsingVariables(true);
         wKeyFields =
                 new TableView(variables, wKeyConfigComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, keyColInf, keyFieldsRows, lsMod,
                         props);
@@ -283,7 +283,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         fdKeyFields.top = new FormAttachment(0, 0);
         fdKeyFields.right = new FormAttachment(100, 0);
         fdKeyFields.bottom = new FormAttachment(100, 0);
-       // fdKeyFields.bottom = new FormAttachment(wGet, -margin);
         wKeyFields.setLayoutData(fdKeyFields);
 
         wKeyConfigComp.setLayout(keyConfigLayout);
@@ -376,44 +375,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         fdJSONSizeFieldname.top = new FormAttachment(wBlocName, margin);
         fdJSONSizeFieldname.right = new FormAttachment(100, 0);
         wJSONSizeFieldname.setLayoutData(fdJSONSizeFieldname);
-
-        // JSON page starts ad field
-        wlJSONPageStartAtFieldname = new Label(wAdditionalFieldsConfigComp, SWT.RIGHT);
-        wlJSONPageStartAtFieldname.setText(BaseMessages.getString(PKG, "JsonOutputDialog.JSONPageStartsAt.Label"));
-        props.setLook(wlJSONPageStartAtFieldname);
-        FormData fdlJSONPageStartAtFieldname = new FormData();
-        fdlJSONPageStartAtFieldname.left = new FormAttachment(0, 0);
-        fdlJSONPageStartAtFieldname.right = new FormAttachment(middle, -margin);
-        fdlJSONPageStartAtFieldname.top = new FormAttachment(wlJSONSizeFieldname, margin);
-        wlJSONPageStartAtFieldname.setLayoutData(fdlJSONPageStartAtFieldname);
-        wJSONPageStartAtFieldname = new TextVar(variables, wAdditionalFieldsConfigComp, SWT.BORDER | SWT.READ_ONLY);
-        wJSONPageStartAtFieldname.setEditable(true);
-        props.setLook(wJSONPageStartAtFieldname);
-        wJSONPageStartAtFieldname.addModifyListener(lsMod);
-        FormData fdJSONPageStartAtFieldname = new FormData();
-        fdJSONPageStartAtFieldname.left = new FormAttachment(middle, 0);
-        fdJSONPageStartAtFieldname.top = new FormAttachment(wJSONSizeFieldname, margin);
-        fdJSONPageStartAtFieldname.right = new FormAttachment(100, 0);
-        wJSONPageStartAtFieldname.setLayoutData(fdJSONPageStartAtFieldname);
-
-        // JSON ends at field
-        wlJSONPageEndAtFieldname = new Label(wAdditionalFieldsConfigComp, SWT.RIGHT);
-        wlJSONPageEndAtFieldname.setText(BaseMessages.getString(PKG, "JsonOutputDialog.JSONPageEndsAt.Label"));
-        props.setLook(wlJSONPageEndAtFieldname);
-        FormData fdlJSONPageEndAtFieldname = new FormData();
-        fdlJSONPageEndAtFieldname.left = new FormAttachment(0, 0);
-        fdlJSONPageEndAtFieldname.right = new FormAttachment(middle, -margin);
-        fdlJSONPageEndAtFieldname.top = new FormAttachment(wJSONPageStartAtFieldname, margin);
-        wlJSONPageEndAtFieldname.setLayoutData(fdlJSONPageEndAtFieldname);
-        wJSONPageEndAtFieldname = new TextVar(variables, wAdditionalFieldsConfigComp, SWT.BORDER | SWT.READ_ONLY);
-        wJSONPageEndAtFieldname.setEditable(true);
-        props.setLook(wJSONPageEndAtFieldname);
-        wJSONPageEndAtFieldname.addModifyListener(lsMod);
-        FormData fdJSONPageEndAtFieldname = new FormData();
-        fdJSONPageEndAtFieldname.left = new FormAttachment(middle, 0);
-        fdJSONPageEndAtFieldname.top = new FormAttachment(wJSONPageStartAtFieldname, margin);
-        fdJSONPageEndAtFieldname.right = new FormAttachment(100, 0);
-        wJSONPageEndAtFieldname.setLayoutData(fdJSONPageEndAtFieldname);
 
         wAdditionalFieldsConfigComp.setLayout(additionalFieldsConfigLayout);
         wAdditionalFieldsConfigComp.layout();
@@ -996,8 +957,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
 
         wJSONSizeFieldname.setText(Const.NVL(input.getJsonSizeFieldname(), ""));
-        wJSONPageStartAtFieldname.setText(Const.NVL(input.getJsonPageStartsAtFieldname(), ""));
-        wJSONPageEndAtFieldname.setText(Const.NVL(input.getJsonPageEndsAtFieldname(), ""));
 
         if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "JsonOutputDialog.Log.GettingFieldsInfo"));
@@ -1008,6 +967,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
             TableItem item = wKeyFields.table.getItem(i);
             item.setText(1, Const.NVL(field.getFieldName(), ""));
+            item.setText(2, Const.NVL(field.getElementName(), ""));
 
         }
 
@@ -1066,8 +1026,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         jsometa.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
 
         jsometa.setJsonSizeFieldname(wJSONSizeFieldname.getText());
-        jsometa.setJsonPageStartsAtFieldname(wJSONPageStartAtFieldname.getText());
-        jsometa.setJsonPageEndsAtFieldname(wJSONPageEndAtFieldname.getText());
 
         int nrKeyFields = wKeyFields.nrNonEmpty();
 
@@ -1078,6 +1036,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
             TableItem item = wKeyFields.getNonEmpty(i);
             field.setFieldName(item.getText(1));
+            field.setElementName(item.getText(2));
             jsometa.getKeyFields()[i] = field;
         }
 
@@ -1106,6 +1065,18 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         transformName = wTransformName.getText(); // return value
 
         getInfo(input);
+
+        if ( "Y".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) ) {
+            MessageDialogWithToggle md = new MessageDialogWithToggle( shell,
+                    BaseMessages.getString( PKG, "JsonOutputDialog.InputNeedSort.DialogTitle" ),
+                    BaseMessages.getString( PKG, "JsonOutputDialog.InputNeedSort.DialogMessage", Const.CR ) + Const.CR,
+                    SWT.ICON_WARNING,
+                    new String[] { BaseMessages.getString( PKG, "JsonOutputDialog.InputNeedSort.Option1" ) },
+                    BaseMessages.getString( PKG, "JsonOutputDialog.InputNeedSort.Option2" ),
+                    "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
+            md.open();
+            props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
+        }
 
         dispose();
     }
@@ -1177,11 +1148,5 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         wlAddToResult.setEnabled(activeFile);
         wAddToResult.setEnabled(activeFile);
         wbShowFiles.setEnabled(activeFile);
-
-        boolean activeOutputValue =
-                JsonOutputMeta.getOperationTypeByDesc(wOperation.getText()) != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE;
-
-        wlOutputValue.setEnabled(activeOutputValue);
-        wOutputValue.setEnabled(activeOutputValue);
     }
 }
