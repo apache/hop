@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.*;
 
 public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> implements ITransform<FileLockedMeta, FileLockedData> {
 
-  private static final Class<?> PKG = FileLockedMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FileLockedMeta.class; // For Translator
 
   public FileLocked( TransformMeta transformMeta, FileLockedMeta meta, FileLockedData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

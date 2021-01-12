@@ -39,7 +39,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -52,7 +51,7 @@ import java.util.List;
  * @author Matt
  */
 public class SelectRowDialog extends Dialog {
-  private static final Class<?> PKG = SelectRowDialog.class; // Needed by Translator
+  private static final Class<?> PKG = SelectRowDialog.class; // For Translator
 
   private Label wlFields;
   private TableView wFields;
@@ -76,8 +75,9 @@ public class SelectRowDialog extends Dialog {
    * @param style
    * @param buffer
    */
-  public SelectRowDialog( Shell parent, IVariables variables, int style, List<RowMetaAndData> buffer ) {
-    super( parent, style );
+  public SelectRowDialog(
+      Shell parent, IVariables variables, int style, List<RowMetaAndData> buffer) {
+    super(parent, style);
     this.buffer = buffer;
     this.variables = variables;
     props = PropsUi.getInstance();
@@ -85,7 +85,7 @@ public class SelectRowDialog extends Dialog {
     selection = null;
   }
 
-  public void setTitle( String title ) {
+  public void setTitle(String title) {
     this.title = title;
   }
 
@@ -93,83 +93,90 @@ public class SelectRowDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
-    props.setLook( shell );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
+    props.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    if ( title == null ) {
-      title = BaseMessages.getString( PKG, "SelectRowDialog.Title" );
+    if (title == null) {
+      title = BaseMessages.getString(PKG, "SelectRowDialog.Title");
     }
 
-    shell.setLayout( formLayout );
-    shell.setImage( GuiResource.getInstance().getImagePipeline() );
-    shell.setText( title );
+    shell.setLayout(formLayout);
+    shell.setImage(GuiResource.getInstance().getImagePipeline());
+    shell.setText(title);
 
     int margin = props.getMargin();
 
     // Simply exit and close in case we don't have anything to edit or show
     //
-    if ( buffer == null || buffer.size() == 0 ) {
+    if (buffer == null || buffer.size() == 0) {
       return null;
     }
 
-    rowMeta = buffer.get( 0 ).getRowMeta();
+    rowMeta = buffer.get(0).getRowMeta();
 
     int FieldsRows = buffer.size();
 
-    ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
-    for ( int i = 0; i < rowMeta.size(); i++ ) {
-      IValueMeta v = rowMeta.getValueMeta( i );
-      colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false );
-      colinf[ i ].setToolTip( v.toStringMeta() );
-      colinf[ i ].setReadOnly( true );
+    ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta v = rowMeta.getValueMeta(i);
+      colinf[i] = new ColumnInfo(v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false);
+      colinf[i].setToolTip(v.toStringMeta());
+      colinf[i].setReadOnly(true);
     }
 
     wFields =
-      new TableView(
-        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, null, props );
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            FieldsRows,
+            null,
+            props);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     fdFields = new FormData();
-    fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
-    fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( wOk, -margin );
-    wFields.setLayoutData( fdFields );
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wlFields, margin);
+    fdFields.right = new FormAttachment(100, 0);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
+    wFields.setLayoutData(fdFields);
 
     // Add listeners
     lsOk = e -> ok();
-    wOk.addListener( SWT.Selection, lsOk );
+    wOk.addListener(SWT.Selection, lsOk);
 
     lsCancel = e -> close();
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wCancel.addListener(SWT.Selection, lsCancel);
 
-    wFields.table.addListener( SWT.DefaultSelection, e->ok() );
+    wFields.table.addListener(SWT.DefaultSelection, e -> ok());
 
     // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        close();
-      }
-    } );
+    shell.addShellListener(
+        new ShellAdapter() {
+          public void shellClosed(ShellEvent e) {
+            close();
+          }
+        });
 
     getData();
 
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
 
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -177,38 +184,36 @@ public class SelectRowDialog extends Dialog {
   }
 
   public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
-  /**
-   * Copy information from the input buffer to the dialog fields.
-   */
+  /** Copy information from the input buffer to the dialog fields. */
   private void getData() {
-    for ( int i = 0; i < buffer.size(); i++ ) {
-      RowMetaAndData rowMetaAndData = buffer.get( i );
+    for (int i = 0; i < buffer.size(); i++) {
+      RowMetaAndData rowMetaAndData = buffer.get(i);
       IRowMeta rowMeta = rowMetaAndData.getRowMeta();
       Object[] rowData = rowMetaAndData.getData();
 
-      for ( int c = 0; c < rowMeta.size(); c++ ) {
-        IValueMeta v = rowMeta.getValueMeta( c );
+      for (int c = 0; c < rowMeta.size(); c++) {
+        IValueMeta v = rowMeta.getValueMeta(c);
         String show;
 
         try {
-          if ( v.isNumeric() ) {
-            show = v.getString( rowData[ c ] );
+          if (v.isNumeric()) {
+            show = v.getString(rowData[c]);
           } else {
-            show = v.getString( rowData[ c ] );
+            show = v.getString(rowData[c]);
           }
-        } catch ( HopValueException e ) {
+        } catch (HopValueException e) {
           show = "<conversion error>";
         }
-        if ( show != null ) {
-          wFields.table.getItem( i ).setText( c + 1, show );
+        if (show != null) {
+          wFields.table.getItem(i).setText(c + 1, show);
         }
       }
     }
-    wFields.optWidth( true );
+    wFields.optWidth(true);
   }
 
   private void close() {
@@ -218,8 +223,8 @@ public class SelectRowDialog extends Dialog {
 
   private void ok() {
     int[] idx = wFields.getSelectionIndices();
-    if ( idx.length > 0 && idx[ 0 ] < buffer.size() ) {
-      selection = buffer.get( idx[ 0 ] );
+    if (idx.length > 0 && idx[0] < buffer.size()) {
+      selection = buffer.get(idx[0]);
     }
     dispose();
   }

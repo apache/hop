@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData> implements ITransform<LoadFileInputMeta, LoadFileInputData> {
 
-  private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
 
   public LoadFileInput( TransformMeta transformMeta, LoadFileInputMeta meta, LoadFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

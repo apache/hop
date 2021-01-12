@@ -29,19 +29,19 @@ public class CheckBox extends Composite {
   private Button button;
   private Label label;
 
-  public CheckBox( Composite composite ) {
-    super( composite, SWT.NONE );
-    WidgetUtils.setFormLayout( this, 0 );
+  public CheckBox(Composite composite) {
+    super(composite, SWT.NONE);
+    WidgetUtils.setFormLayout(this, 0);
 
-    button = new Button( this, SWT.CHECK );
-    button.setLayoutData( new FormDataBuilder().left().result() );
+    button = new Button(this, SWT.CHECK);
+    button.setLayoutData(new FormDataBuilder().left().result());
 
-    label = new Label( this, SWT.LEFT );
-    label.setLayoutData( new FormDataBuilder().left( button, ConstUi.SMALL_MARGIN ).result() );
+    label = new Label(this, SWT.LEFT);
+    label.setLayoutData(new FormDataBuilder().left(button, ConstUi.SMALL_MARGIN).result());
   }
 
-  public void setText( String text ) {
-    label.setText( text );
+  public void setText(String text) {
+    label.setText(text);
   }
 
   public Button getButton() {

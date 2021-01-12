@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData> implements ITransform<ConcatFieldsMeta, ConcatFieldsData> {
 
-  private static final Class<?> PKG = ConcatFields.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ConcatFields.class; // For Translator
 
   public ConcatFields(TransformMeta transformMeta, ConcatFieldsMeta meta, ConcatFieldsData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

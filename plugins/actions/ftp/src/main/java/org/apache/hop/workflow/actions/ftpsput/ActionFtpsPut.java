@@ -54,15 +54,14 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "FTPS_PUT",
-  i18nPackageName = "org.apache.hop.workflow.actions.ftpsput",
-  name = "ActionFTPSPut.Name",
-  description = "ActionFTPSPut.Description",
+  name = "i18n::ActionFTPSPut.Name",
+  description = "i18n::ActionFTPSPut.Description",
   image = "FTPSPut.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpsput.html"
 )
 public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpsPut.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpsPut.class; // For Translator
 
   private String serverName;
   private String serverPort;

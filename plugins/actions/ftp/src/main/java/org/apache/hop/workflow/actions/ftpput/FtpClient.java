@@ -51,7 +51,7 @@ public class FtpClient extends FTPClient {
    */
   private boolean sizeSupported = true;
 
-  private static final Class<?> PKG = FtpClient.class; // Needed by Translator
+  private static final Class<?> PKG = FtpClient.class; // For Translator
   private ILogChannel log;
 
   public FtpClient( ILogChannel log ) {

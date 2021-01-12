@@ -47,7 +47,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class LdapConnection {
   private static Class<?> classFromResourcesPackage =
-      LdapInputMeta.class; // Needed by Translator
+      LdapInputMeta.class; // For Translator
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
 

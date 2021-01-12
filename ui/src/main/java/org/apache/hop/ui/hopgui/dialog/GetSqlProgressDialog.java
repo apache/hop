@@ -39,7 +39,7 @@ import java.util.List;
  * @since 15-mrt-2005
  */
 public class GetSqlProgressDialog {
-  private static final Class<?> PKG = GetSqlProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = GetSqlProgressDialog.class; // For Translator
 
   private Shell shell;
   private final IVariables variables;

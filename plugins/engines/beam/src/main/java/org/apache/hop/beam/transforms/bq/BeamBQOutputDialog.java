@@ -37,7 +37,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class BeamBQOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = BeamBQOutputDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BeamBQOutputDialog.class; // For Translator
   private final BeamBQOutputMeta input;
 
   int middle;

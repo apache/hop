@@ -95,8 +95,8 @@ public class ProjectsGuiPlugin {
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_PROJECT_LABEL,
       type = GuiToolbarElementType.LABEL,
-      label = "Project:",
-      toolTip = "Click here to edit the active project",
+      label = "i18n::HopGui.Toolbar.Project.Label",
+      toolTip = "i18n::HopGui.Toolbar.Project.Tooltip",
       separator = true)
   public void editProject() {
     HopGui hopGui = HopGui.getInstance();
@@ -152,7 +152,7 @@ public class ProjectsGuiPlugin {
       type = GuiToolbarElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       extraWidth = 200,
-      toolTip = "Select the active project")
+      toolTip = "i18n::HopGui.Toolbar.ProjectsList.Tooltip")
   public void selectProject() {
     HopGui hopGui = HopGui.getInstance();
     Combo combo = getProjectsCombo();
@@ -187,7 +187,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_PROJECT_EDIT,
-      toolTip = "Edit the selected project",
+      toolTip = "i18n::HopGui.Toolbar.Project.Edit.Tooltip",
       image = "project-edit.svg")
   public void editSelectedProject() {
     editProject();
@@ -196,7 +196,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_PROJECT_ADD,
-      toolTip = "Add a new project",
+      toolTip = "i18n::HopGui.Toolbar.Project.Add.Tooltip",
       image = "project-add.svg")
   public void addNewProject() {
     HopGui hopGui = HopGui.getInstance();
@@ -299,7 +299,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_PROJECT_DELETE,
-      toolTip = "Deleted the selected project",
+      toolTip = "i18n::HopGui.Toolbar.Project.Delete.Tooltip",
       image = "project-delete.svg",
       separator = true)
   public void deleteSelectedProject() {
@@ -361,8 +361,8 @@ public class ProjectsGuiPlugin {
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_ENVIRONMENT_LABEL,
       type = GuiToolbarElementType.LABEL,
-      label = "Environment:",
-      toolTip = "Click here to edit the active environment",
+      label = "i18n::HopGui.Toolbar.Environment.Label",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Tooltip",
       separator = true)
   public void editEnvironment() {
     HopGui hopGui = HopGui.getInstance();
@@ -443,7 +443,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_ENVIRONMENT_EDIT,
-      toolTip = "Edit the selected environment",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Edit.Tooltip",
       image = "environment-edit.svg")
   public void editSelectedEnvironment() {
     editEnvironment();
@@ -452,7 +452,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_ENVIRONMENT_ADD,
-      toolTip = "Add a new environment",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Add.Tooltip",
       image = "environment-add.svg")
   public void addNewEnvironment() {
     HopGui hopGui = HopGui.getInstance();
@@ -486,7 +486,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_ENVIRONMENT_DELETE,
-      toolTip = "Deleted the selected environment",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Delete.Tooltip",
       image = "environment-delete.svg",
       separator = true)
   public void deleteSelectedEnvironment() {
@@ -812,7 +812,7 @@ public class ProjectsGuiPlugin {
   @GuiToolbarElement(
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME,
-      toolTip = "Navigate to the project home directory",
+      toolTip = "i18n::FileDialog.Browse.Project.Home",
       image = "project.svg")
   public void fileDialogBrowserProjectHome() {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();

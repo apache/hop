@@ -33,10 +33,10 @@ import java.util.Date;
 import java.util.regex.Pattern;
 
 public class FieldHelper {
+  private static final Class<?> PKG = FieldHelper.class; // For Translator
+
   private int index = -1;
   private IValueMeta meta;
-
-  private static final Class<?> PKG = FieldHelper.class; // Needed by Translator
 
   public FieldHelper( IRowMeta rowMeta, String fieldName ) {
     this.meta = rowMeta.searchValueMeta( fieldName );

@@ -113,7 +113,7 @@ public class JsonInputMetaTest {
     assertEquals( expectedMeta( "/transform_defaultPathLeafToNull_N.xml" ), xml );
   }
 
-  // Loading step meta from the step xml where DefaultPathLeafToNull=N
+  // Loading transform meta from the transform xml where DefaultPathLeafToNull=N
   @Test
   public void testMetaLoad_DefaultPathLeafToNull_Is_N() throws HopXmlException {
     jsonInputMeta = new JsonInputMeta();
@@ -121,7 +121,7 @@ public class JsonInputMetaTest {
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", false, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 
-  // Loading step meta from default step xml. In this case DefaultPathLeafToNull=Y in xml.
+  // Loading transform meta from default transform xml. In this case DefaultPathLeafToNull=Y in xml.
   @Test
   public void testDefaultMetaLoad_DefaultPathLeafToNull_Is_Y() throws HopXmlException {
     jsonInputMeta = new JsonInputMeta();
@@ -129,7 +129,7 @@ public class JsonInputMetaTest {
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", true, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 
-  // Loading step meta from the step xml that was created before PDI-17060 fix. In this case xml contains no
+  // Loading transform meta from the transform xml that was created before PDI-17060 fix. In this case xml contains no
   // DefaultPathLeafToNull node at all.
   // For backward compatibility in this case we think that the option is set to default value - Y.
   @Test
@@ -141,12 +141,12 @@ public class JsonInputMetaTest {
 
   private Node loadTransformFile( String transformFilename ) throws HopXmlException {
     Document document = XmlHandler.loadXmlFile( this.getClass().getResourceAsStream( transformFilename ) );
-    Node stepNode = document.getDocumentElement();
-    return stepNode;
+    Node transformNode = document.getDocumentElement();
+    return transformNode;
   }
 
-  private String expectedMeta( String step ) throws Exception {
-    try ( BufferedReader reader = new BufferedReader( new InputStreamReader( this.getClass().getResourceAsStream( step ) ) ) ) {
+  private String expectedMeta( String transform ) throws Exception {
+    try ( BufferedReader reader = new BufferedReader( new InputStreamReader( this.getClass().getResourceAsStream( transform ) ) ) ) {
       String xml = reader.lines().collect( Collectors.joining( Const.CR ) );
       xml = CLEAN_NODES.matcher( xml ).replaceAll( "" );
       return xml;

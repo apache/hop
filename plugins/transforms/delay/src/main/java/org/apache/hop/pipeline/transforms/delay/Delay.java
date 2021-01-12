@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Delay extends BaseTransform<DelayMeta, DelayData> implements ITransform<DelayMeta, DelayData> {
 
-  private static final Class<?> PKG = DelayMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DelayMeta.class; // For Translator
 
   public Delay( TransformMeta transformMeta, DelayMeta meta, DelayData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {

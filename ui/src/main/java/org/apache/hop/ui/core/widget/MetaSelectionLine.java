@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.ToolItem;
  * @since 2019-12-17
  */
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
-  private static final Class<?> PKG = MetaSelectionLine.class; // i18n
+  private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;

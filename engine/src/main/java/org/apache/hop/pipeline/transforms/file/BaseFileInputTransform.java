@@ -54,7 +54,7 @@ import java.util.Map;
 public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Data extends BaseFileInputTransformData> extends
   BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
 
-  private static final Class<?> PKG = BaseFileInputTransform.class; // Needed by Translator
+  private static final Class<?> PKG = BaseFileInputTransform.class; // For Translator
 
   /**
    * Create reader for specific file.

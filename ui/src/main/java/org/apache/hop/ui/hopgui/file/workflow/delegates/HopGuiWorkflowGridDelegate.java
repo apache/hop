@@ -45,7 +45,7 @@ import java.util.TimerTask;
 @GuiPlugin(description = "Workflow Graph Grid Delegate")
 public class HopGuiWorkflowGridDelegate {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
+  private static final Class<?> PKG = HopGuiWorkflowGridDelegate.class; // For Translator
 
   private HopGui hopGui;
 
@@ -54,7 +54,7 @@ public class HopGuiWorkflowGridDelegate {
   private static final String STRING_CHEF_LOG_TREE_NAME = "Workflow Log Tree";
 
   private HopGuiWorkflowGraph workflowGraph;
-  private CTabItem jobGridTab;
+  private CTabItem workflowGridTab;
   private Tree wTree;
 
   public WorkflowTracker workflowTracker;
@@ -72,32 +72,32 @@ public class HopGuiWorkflowGridDelegate {
   }
 
   /**
-   * Add a grid with the execution metrics per transform in a table view
+   * Add a grid with the execution metrics per action in a table view
    */
-  public void addJobGrid() {
+  public void addWorkflowGrid() {
 
     // First, see if we need to add the extra view...
     //
     if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
       workflowGraph.addExtraView();
     } else {
-      if ( jobGridTab != null && !jobGridTab.isDisposed() ) {
+      if ( workflowGridTab != null && !workflowGridTab.isDisposed() ) {
         // just set this one active and get out...
         //
-        workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
+        workflowGraph.extraViewTabFolder.setSelection( workflowGridTab );
         return;
       }
     }
 
-    jobGridTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
-    jobGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
-    jobGridTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.GridTab.Name" ) );
+    workflowGridTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
+    workflowGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
+    workflowGridTab.setText( BaseMessages.getString( PKG, "HopGui.WorkflowGraph.GridTab.Name" ) );
 
     addControls();
 
-    jobGridTab.setControl( wTree );
+    workflowGridTab.setControl( wTree );
 
-    workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
+    workflowGraph.extraViewTabFolder.setSelection( workflowGridTab );
   }
 
   /**
@@ -264,8 +264,8 @@ public class HopGuiWorkflowGridDelegate {
     }
   }
 
-  public CTabItem getJobGridTab() {
-    return jobGridTab;
+  public CTabItem getWorkflowGridTab() {
+    return workflowGridTab;
   }
 
   public void setWorkflowTracker( WorkflowTracker workflowTracker ) {

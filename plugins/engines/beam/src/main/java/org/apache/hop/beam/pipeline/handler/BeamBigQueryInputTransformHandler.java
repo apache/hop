@@ -61,7 +61,7 @@ public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler
   public void handleTransform(
       ILogChannel log,
       TransformMeta transformMeta,
-      Map<String, PCollection<HopRow>> stepCollectionMap,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
@@ -89,7 +89,7 @@ public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler
             transformPluginClasses,
             xpPluginClasses);
     PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
-    stepCollectionMap.put(transformMeta.getName(), afterInput);
+    transformCollectionMap.put(transformMeta.getName(), afterInput);
     log.logBasic("Handled transform (BQ INPUT) : " + transformMeta.getName());
   }
 }

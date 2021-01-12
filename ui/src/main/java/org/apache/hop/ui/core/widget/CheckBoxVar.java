@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Composite;
  * @since 9-august-2006
  */
 public class CheckBoxVar extends Composite {
-  private static final Class<?> PKG = CheckBoxVar.class; // Needed by Translator
+  private static final Class<?> PKG = CheckBoxVar.class; // For Translator
 
   private static final PropsUi props = PropsUi.getInstance();
 

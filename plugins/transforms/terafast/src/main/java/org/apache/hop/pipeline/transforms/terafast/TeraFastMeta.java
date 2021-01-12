@@ -48,9 +48,8 @@ import java.util.List;
 @Transform(
   id = "TeraFast",
   image = "TeraFast.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
-  description = "TeraFast.Description",
-  name = "TeraFast.Name",
+  description = "i18n::TeraFast.Description",
+  name = "i18n::TeraFast.Name",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/terafast.html"
 )

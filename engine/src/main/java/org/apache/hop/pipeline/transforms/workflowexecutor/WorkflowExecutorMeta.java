@@ -75,15 +75,14 @@ import java.util.Map;
 @Transform(
   id = "WorkflowExecutor",
   image = "ui/images/workflowexecutor.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transform",
-  name = "BaseTransform.TypeLongDesc.WorkflowExecutor",
-  description = "BaseTransform.TypeTooltipDesc.WorkflowExecutor",
-  categoryDescription = "BaseTransform.Category.Flow",
+  name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.WorkflowExecutor",
+  description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.WorkflowExecutor",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
   keywords = ""
 )
 public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   /**
    * The name of the workflow run configuration to execute with

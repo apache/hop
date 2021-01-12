@@ -59,7 +59,7 @@ import com.enterprisedt.net.ftp.FTPFileParser;
 
 public class MVSFileParser extends FTPFileParser {
 
-  private static final Class<?> PKG = MVSFileParser.class; // Needed by Translator
+  private static final Class<?> PKG = MVSFileParser.class; // For Translator
 
   /*** DO NOT TRANSLATE THESE ***/
   private static final String PARSER_KEY = "MVS";

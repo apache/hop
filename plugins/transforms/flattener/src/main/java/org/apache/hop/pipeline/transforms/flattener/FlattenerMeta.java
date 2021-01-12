@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.flattener;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -31,7 +31,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -42,27 +44,21 @@ import java.util.List;
  * @author Matt
  * @since 17-jan-2006
  */
-
 @Transform(
-        id = "Flattener,Flatterner",
-        image = "flattener.svg",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.flattener",
-        name = "BaseTransform.TypeLongDesc.RowFlattener",
-        description = "BaseTransform.TypeTooltipDesc.RowFlattener",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/flattener.html"
-)
-public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<Flattener, FlattenerData> {
-  private static final Class<?> PKG = FlattenerMeta.class; // Needed by Translator
+    id = "Flattener,Flatterner",
+    image = "flattener.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.RowFlattener",
+    description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/flattener.html")
+public class FlattenerMeta extends BaseTransformMeta
+    implements ITransformMeta<Flattener, FlattenerData> {
+  private static final Class<?> PKG = FlattenerMeta.class; // For Translator
 
-  /**
-   * The field to flatten
-   */
+  /** The field to flatten */
   private String fieldName;
 
-  /**
-   * Fields to flatten, same data type as input
-   */
+  /** Fields to flatten, same data type as input */
   private String[] targetField;
 
   public FlattenerMeta() {
@@ -73,7 +69,7 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<F
     return fieldName;
   }
 
-  public void setFieldName( String fieldName ) {
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
@@ -81,16 +77,17 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<F
     return targetField;
   }
 
-  public void setTargetField( String[] targetField ) {
+  public void setTargetField(String[] targetField) {
     this.targetField = targetField;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
-  public void allocate( int nrFields ) {
-    targetField = new String[ nrFields ];
+  public void allocate(int nrFields) {
+    targetField = new String[nrFields];
   }
 
   public Object clone() {
@@ -101,94 +98,120 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<F
   public void setDefault() {
     int nrFields = 0;
 
-    allocate( nrFields );
+    allocate(nrFields);
   }
 
   @Override
-  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
     // Remove the key value (there will be different entries for each output row)
     //
-    if ( fieldName != null && fieldName.length() > 0 ) {
-      int idx = row.indexOfValue( fieldName );
-      if ( idx < 0 ) {
-        throw new HopTransformException( BaseMessages.getString(
-          PKG, "FlattenerMeta.Exception.UnableToLocateFieldInInputFields", fieldName ) );
+    if (fieldName != null && fieldName.length() > 0) {
+      int idx = row.indexOfValue(fieldName);
+      if (idx < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "FlattenerMeta.Exception.UnableToLocateFieldInInputFields", fieldName));
       }
 
-      IValueMeta v = row.getValueMeta( idx );
-      row.removeValueMeta( idx );
+      IValueMeta v = row.getValueMeta(idx);
+      row.removeValueMeta(idx);
 
-      for ( int i = 0; i < targetField.length; i++ ) {
+      for (int i = 0; i < targetField.length; i++) {
         IValueMeta value = v.clone();
-        value.setName( targetField[ i ] );
-        value.setOrigin( name );
+        value.setName(targetField[i]);
+        value.setOrigin(name);
 
-        row.addValueMeta( value );
+        row.addValueMeta(value);
       }
     } else {
-      throw new HopTransformException( BaseMessages.getString( PKG, "FlattenerMeta.Exception.FlattenFieldRequired" ) );
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "FlattenerMeta.Exception.FlattenFieldRequired"));
     }
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      fieldName = XmlHandler.getTagValue( transformNode, "field_name" );
+      fieldName = XmlHandler.getTagValue(transformNode, "field_name");
 
-      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XmlHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      int nrFields = XmlHandler.countNodes(fields, "field");
 
-      allocate( nrFields );
+      allocate(nrFields);
 
-      for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
-        targetField[ i ] = XmlHandler.getTagValue( fnode, "name" );
+      for (int i = 0; i < nrFields; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        targetField[i] = XmlHandler.getTagValue(fnode, "name");
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "FlattenerMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "FlattenerMeta.Exception.UnableToLoadTransformMetaFromXML"),
+          e);
     }
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XmlHandler.addTagValue( "field_name", fieldName ) );
+    retval.append("      " + XmlHandler.addTagValue("field_name", fieldName));
 
-    retval.append( "      <fields>" + Const.CR );
-    for ( int i = 0; i < targetField.length; i++ ) {
-      retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XmlHandler.addTagValue( "name", targetField[ i ] ) );
-      retval.append( "          </field>" + Const.CR );
+    retval.append("      <fields>" + Const.CR);
+    for (int i = 0; i < targetField.length; i++) {
+      retval.append("        <field>" + Const.CR);
+      retval.append("          " + XmlHandler.addTagValue("name", targetField[i]));
+      retval.append("          </field>" + Const.CR);
     }
-    retval.append( "        </fields>" + Const.CR );
+    retval.append("        </fields>" + Const.CR);
 
     return retval.toString();
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
 
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "FlattenerMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "FlattenerMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "FlattenerMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "FlattenerMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
-  public Flattener createTransform( TransformMeta transformMeta, FlattenerData data, int cnr,
-                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Flattener( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public Flattener createTransform(
+      TransformMeta transformMeta,
+      FlattenerData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new Flattener(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   public FlattenerData getTransformData() {

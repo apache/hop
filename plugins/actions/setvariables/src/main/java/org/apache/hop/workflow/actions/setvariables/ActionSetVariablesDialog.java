@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.*;
  * @since 06-05-2007
  */
 public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSetVariables.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 
   private Text wName;
 

@@ -49,7 +49,7 @@ import java.util.Vector;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 public class TextFileImportWizardPage2 extends WizardPage {
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private List wFields;
   private FormData fdFields;

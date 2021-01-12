@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @since 03-Juin-2008
  */
 public class CreditCardVerifier {
-  private static final Class<?> PKG = CreditCardValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
   public static final int INVALID = -1;
   public static final int VISA = 0;

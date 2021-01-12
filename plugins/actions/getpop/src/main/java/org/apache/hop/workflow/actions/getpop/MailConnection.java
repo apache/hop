@@ -70,7 +70,7 @@ import java.util.regex.Pattern;
  */
 
 public class MailConnection {
-  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
+  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
   /**
    * Target mail server.
@@ -224,10 +224,10 @@ public class MailConnection {
       }
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.NewConnectionDefined" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.NewConnectionDefined" ) );
       }
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.NewConnection", Const.NVL(
+      throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.NewConnection", Const.NVL(
         this.server, "" ) ), e );
     }
   }
@@ -282,7 +282,7 @@ public class MailConnection {
   public void connect() throws HopException {
     if ( log.isDetailed() ) {
       log.logDetailed( BaseMessages.getString(
-        PKG, "JobGetMailsFromPOP.Connecting", this.server, this.username, "" + this.port ) );
+        PKG, "ActionGetMailsFromPOP.Connecting", this.server, this.username, "" + this.port ) );
     }
     try {
       if ( this.usessl || this.protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
@@ -298,11 +298,11 @@ public class MailConnection {
       }
       if ( log.isDetailed() ) {
         log.logDetailed( BaseMessages.getString(
-          PKG, "JobGetMailsFromPOP.Connected", this.server, this.username, "" + this.port ) );
+          PKG, "ActionGetMailsFromPOP.Connected", this.server, this.username, "" + this.port ) );
       }
     } catch ( Exception e ) {
       throw new HopException(
-        BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.Connecting", this.server, this.username, Const
+        BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.Connecting", this.server, this.username, Const
           .NVL( "" + this.port, "" ) ), e );
     }
   }
@@ -320,7 +320,7 @@ public class MailConnection {
   /**
    * Open the folder.
    *
-   * @param foldername the name of the folder to open
+   * @param folderName the name of the folder to open
    * @param write      open the folder in write mode
    * @throws HopException if something went wrong.
    */
@@ -331,7 +331,7 @@ public class MailConnection {
   /**
    * Open the folder.
    *
-   * @param foldername    the name of the folder to open
+   * @param folderName    the name of the folder to open
    * @param defaultFolder true to open the default folder (INBOX)
    * @param write         open the folder in write mode
    * @throws HopException if something went wrong.
@@ -354,7 +354,7 @@ public class MailConnection {
         }
 
         if ( this.folder == null ) {
-          throw new HopException( BaseMessages.getString( PKG, "JobGetMailsFromPOP.InvalidDefaultFolder.Label" ) );
+          throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.InvalidDefaultFolder.Label" ) );
         }
 
         if ( ( folder.getType() & Folder.HOLDS_MESSAGES ) == 0 ) {
@@ -367,7 +367,7 @@ public class MailConnection {
           this.folder = getRecursiveFolder( folderName );
         }
         if ( this.folder == null || !this.folder.exists() ) {
-          throw new HopException( BaseMessages.getString( PKG, "JobGetMailsFromPOP.InvalidFolder.Label" ) );
+          throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.InvalidFolder.Label" ) );
         }
       }
       if ( this.write ) {
@@ -385,21 +385,21 @@ public class MailConnection {
       }
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.FolderOpened.Label", getFolderName() ) );
+        log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Label", getFolderName() ) );
       }
       if ( log.isDebug() ) {
         // display some infos on folder
         //CHECKSTYLE:LineLength:OFF
-        log.logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.FolderOpened.Name", getFolderName() ) );
-        log.logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.FolderOpened.FullName", this.folder.getFullName() ) );
-        log.logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.FolderOpened.Url", this.folder.getURLName().toString() ) );
-        log.logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.FolderOpened.Subscribed", "" + this.folder.isSubscribed() ) );
+        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Name", getFolderName() ) );
+        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.FullName", this.folder.getFullName() ) );
+        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Url", this.folder.getURLName().toString() ) );
+        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Subscribed", "" + this.folder.isSubscribed() ) );
       }
 
     } catch ( Exception e ) {
       throw new HopException( defaultFolder
-        ? BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.OpeningDefaultFolder" )
-        : BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.OpeningFolder", folderName ), e );
+        ? BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.OpeningDefaultFolder" )
+        : BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.OpeningFolder", folderName ), e );
     }
   }
 
@@ -459,7 +459,7 @@ public class MailConnection {
       }
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString(
-        PKG, "JobGetMailsFromPOP.Error.ClosingFolder", getFolderName() ), e );
+        PKG, "ActionGetMailsFromPOP.Error.ClosingFolder", getFolderName() ), e );
     }
   }
 
@@ -678,7 +678,7 @@ public class MailConnection {
         log.logDebug( BaseMessages.getString( PKG, "MailConnection.ConnectionClosed" ) );
       }
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.ClosingConnection" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.ClosingConnection" ), e );
     }
   }
 
@@ -686,7 +686,7 @@ public class MailConnection {
    * Export message content to a filename.
    *
    * @param filename   the target filename
-   * @param foldername the parent folder of filename
+   * @param folderName the parent folder of filename
    * @throws HopException
    */
 
@@ -709,7 +709,7 @@ public class MailConnection {
   /**
    * Save attached files to a folder.
    *
-   * @param foldername the target foldername
+   * @param folderName the target foldername
    * @throws HopException
    */
   public void saveAttachedFiles( String folderName ) throws HopException {
@@ -719,7 +719,7 @@ public class MailConnection {
   /**
    * Save attached files to a folder.
    *
-   * @param foldername the target foldername
+   * @param folderName the target foldername
    * @param pattern    regular expression to filter on files
    * @throws HopException
    */
@@ -774,7 +774,7 @@ public class MailConnection {
             saveFile( folderName, filename, part.getInputStream() );
             updateSavedAttachedFilesCounter();
             if ( log.isDetailed() ) {
-              log.logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.AttachedFileSaved", filename, ""
+              log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.AttachedFileSaved", filename, ""
                 + getMessage().getMessageNumber(), folderName ) );
             }
           }
@@ -870,7 +870,7 @@ public class MailConnection {
   /**
    * Set destination folder
    *
-   * @param foldername   destination foldername
+   * @param folderName   destination foldername
    * @param createFolder flag create folder if needed
    * @throws HopException
    */
@@ -1080,7 +1080,7 @@ public class MailConnection {
   /**
    * Check if a folder exists on server (only IMAP).
    *
-   * @param foldername the name of the folder
+   * @param folderName the name of the folder
    * @return true is folder exists
    */
   public boolean folderExists( String folderName ) {

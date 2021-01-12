@@ -33,7 +33,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
  * Created by rfellows on 6/15/17.
  */
 public class KafkaConsumerField {
-  private static final Class<?> PKG = KafkaConsumerField.class;
+  private static final Class<?> PKG = KafkaConsumerField.class; // For Translator
 
   private Name kafkaName;
 

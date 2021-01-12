@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DeleteMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

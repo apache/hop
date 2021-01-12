@@ -83,13 +83,13 @@ import java.util.List;
  *     <p>
  */
 public class DatabaseExplorerDialog extends Dialog {
+  private static final Class<?> PKG = DatabaseExplorerDialog.class; // For Translator
+
   private ILogChannel log;
   private PropsUi props;
   private DatabaseMeta dbMeta;
   private IVariables variables;
   private DbCache dbcache;
-
-  private static final Class<?> PKG = DatabaseExplorerDialog.class;
 
   private static final String STRING_CATALOG =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Catalogs.Label");

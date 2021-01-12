@@ -40,7 +40,7 @@ import java.util.List;
  * @since 2-jun-2003
  */
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> implements ITransform<SortedMergeMeta, SortedMergeData> {
-  private static final Class<?> PKG = SortedMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   public SortedMerge(TransformMeta transformMeta, SortedMergeMeta meta, SortedMergeData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

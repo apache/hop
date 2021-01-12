@@ -146,7 +146,7 @@ public class XmlOutputMetaTest {
   }
 
   private Node getTestNode() throws HopXmlException {
-    String xml = "<step>" + Const.CR
+    String xml = "<transform>" + Const.CR
         + "<name>My XML Output</name>" + Const.CR
         + "<type>XMLOutput</type>" + Const.CR
         + "<description/>" + Const.CR
@@ -205,13 +205,13 @@ public class XmlOutputMetaTest {
         + "  </field>" + Const.CR
         + "</fields>" + Const.CR
         + "<cluster_schema/>" + Const.CR
-        + "<remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>" + Const.CR
+        + "<remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>" + Const.CR
         + "<xloc>256</xloc>" + Const.CR
         + "<yloc>64</yloc>" + Const.CR
         + "<draw>Y</draw>" + Const.CR
         + "</GUI>" + Const.CR
-        + "</step>" + Const.CR;
-    return XmlHandler.loadXmlString( xml, "step" );
+        + "</transform>" + Const.CR;
+    return XmlHandler.loadXmlString( xml, "transform" );
   }
 
   @Test
@@ -295,10 +295,10 @@ public class XmlOutputMetaTest {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    Node stepNode = mock( Node.class );
-    when( stepNode.getChildNodes() ).thenThrow( new RuntimeException( "some words" ) );
+    Node transformNode = mock( Node.class );
+    when( transformNode.getChildNodes() ).thenThrow( new RuntimeException( "some words" ) );
     try {
-      xmlOutputMeta.loadXml( stepNode, metadataProvider );
+      xmlOutputMeta.loadXml( transformNode, metadataProvider );
     } catch ( HopXmlException e ) {
       assertEquals( "some words", e.getCause().getMessage() );
     }
@@ -351,15 +351,15 @@ public class XmlOutputMetaTest {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    TransformMeta stepInfo = mock( TransformMeta.class );
+    TransformMeta transformInfo = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<ICheckResult> remarks = new ArrayList<>();
-    xmlOutputMeta.check( remarks, pipelineMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    xmlOutputMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
-    assertEquals( "Transform is receiving info from other steps.", remarks.get( 0 ).getText() );
+    assertEquals( "Transform is receiving info from other transforms.", remarks.get( 0 ).getText() );
     assertEquals( "File specifications are not checked.", remarks.get( 1 ).getText() );
 
     XmlField xmlField = new XmlField();
@@ -370,12 +370,12 @@ public class XmlOutputMetaTest {
     xmlOutputMeta.setOutputFields( new XmlField[] { xmlField } );
     when( prev.size() ).thenReturn( 1 );
     remarks.clear();
-    xmlOutputMeta.check( remarks, pipelineMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    xmlOutputMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 4, remarks.size() );
     assertEquals( "Transform is connected to previous one, receiving 1 fields", remarks.get( 0 ).getText() );
     assertEquals( "All output fields are found in the input stream.", remarks.get( 1 ).getText() );
-    assertEquals( "Transform is receiving info from other steps.", remarks.get( 2 ).getText() );
+    assertEquals( "Transform is receiving info from other transforms.", remarks.get( 2 ).getText() );
     assertEquals( "File specifications are not checked.", remarks.get( 3 ).getText() );
 
   }

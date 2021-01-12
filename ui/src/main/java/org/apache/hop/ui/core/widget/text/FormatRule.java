@@ -20,21 +20,19 @@ package org.apache.hop.ui.core.widget.text;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by bmorrise on 9/15/17.
- */
+/** Created by bmorrise on 9/15/17. */
 public abstract class FormatRule {
 
   protected String pattern;
 
-  abstract Format execute( String value );
+  abstract Format execute(String value);
 
-  public FormatRule( String pattern ) {
+  public FormatRule(String pattern) {
     this.pattern = pattern;
   }
 
-  protected Matcher parse( String value ) {
-    Pattern p = Pattern.compile( pattern );
-    return p.matcher( value );
+  protected Matcher parse(String value) {
+    Pattern p = Pattern.compile(pattern);
+    return p.matcher(value);
   }
 }

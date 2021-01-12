@@ -95,8 +95,8 @@ public class MappingIODefinition implements Cloneable {
 
     this();
 
-    inputTransformName = XmlHandler.getTagValue( mappingNode, "input_step" );
-    outputTransformName = XmlHandler.getTagValue( mappingNode, "output_step" );
+    inputTransformName = XmlHandler.getTagValue( mappingNode, "input_transform" );
+    outputTransformName = XmlHandler.getTagValue( mappingNode, "output_transform" );
     mainDataPath = "Y".equalsIgnoreCase( XmlHandler.getTagValue( mappingNode, "main_path" ) );
     renamingOnOutput = "Y".equalsIgnoreCase( XmlHandler.getTagValue( mappingNode, "rename_on_output" ) );
     description = XmlHandler.getTagValue( mappingNode, "description" );
@@ -116,8 +116,8 @@ public class MappingIODefinition implements Cloneable {
 
     xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "input_step", inputTransformName ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( "output_step", outputTransformName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "input_transform", inputTransformName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "output_transform", outputTransformName ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "main_path", mainDataPath ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "rename_on_output", renamingOnOutput ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );

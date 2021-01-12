@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** A dialog to display version information. */
 public class AboutDialog extends Dialog {
-  private static final Class<?> PKG = AboutDialog.class; // Needed by Translator
+  private static final Class<?> PKG = AboutDialog.class; // For Translator
 
   private static final String[] PROPERTIES =  new String[] { "os.name","os.version","os.arch", "java.version", "java.vm.vendor", "java.specification.version","java.class.path","file.encoding","HOP_PLATFORM_RUNTIME","HOP_CONFIG_FOLDER"}; 
 

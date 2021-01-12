@@ -40,7 +40,7 @@ import java.sql.ResultSet;
  */
 public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData> implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
 
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
   public DatabaseJoin( TransformMeta transformMeta, DatabaseJoinMeta meta, DatabaseJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

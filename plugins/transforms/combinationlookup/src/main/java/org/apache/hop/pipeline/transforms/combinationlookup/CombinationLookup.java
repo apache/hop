@@ -67,7 +67,7 @@ import java.util.List;
  */
 public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData> implements ITransform<CombinationLookupMeta, CombinationLookupData> {
 
-  private static final Class<?> PKG = CombinationLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
   private static final int CREATION_METHOD_AUTOINC = 1;
   private static final int CREATION_METHOD_SEQUENCE = 2;

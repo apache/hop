@@ -38,7 +38,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 public class DtdValidatorUtil {
-  private static final Class<?> PKG = DtdValidator.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = DtdValidator.class; // For Translator
 
   private String xmlfilename;
   private String xsdfilename;

@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.*;
 
 public class InsertUpdateDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = InsertUpdateMeta.class; // Needed by Translator
+  private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

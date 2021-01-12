@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopServerSingleton {
 
-  private static final Class<?> PKG = org.apache.hop.www.HopServer.class; // Needed by Translator
+  private static final Class<?> PKG = org.apache.hop.www.HopServer.class; // For Translator
 
   private static HopServerConfig hopServerConfig;
   private static HopServerSingleton hopServerSingleton;

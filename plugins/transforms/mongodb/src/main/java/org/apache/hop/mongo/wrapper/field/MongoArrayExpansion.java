@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MongoArrayExpansion {
-  protected static Class<?> PKG = MongoArrayExpansion.class; // for i18n purposes
+  protected static Class<?> PKG = MongoArrayExpansion.class; // For Translator
 
   /** The prefix of the full path that defines the expansion */
   public String expansionPath;

@@ -21,13 +21,12 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 public class HopGuiServerDelegate {
-
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGui hopGui;
   private IHopFileTypeHandler handler;
 
-  public HopGuiServerDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
+  public HopGuiServerDelegate(HopGui hopGui, IHopFileTypeHandler handler) {
     this.hopGui = hopGui;
     this.handler = handler;
   }

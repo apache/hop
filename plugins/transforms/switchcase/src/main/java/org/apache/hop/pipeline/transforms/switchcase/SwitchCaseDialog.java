@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
 
   private CCombo wFieldName;
 

@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.Arrays;
 
 public class ModPartitionerDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PipelineDialog.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineDialog.class; // For Translator
 
   private TransformPartitioningMeta partitioningMeta;
   private ModPartitioner partitioner;

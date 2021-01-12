@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-06-2003
  */
 public class ActionSqlDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSql.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobSQL.Filetype.Sql" ), BaseMessages.getString( PKG, "JobSQL.Filetype.Text" ),

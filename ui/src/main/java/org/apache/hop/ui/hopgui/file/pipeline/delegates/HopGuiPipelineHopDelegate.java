@@ -42,7 +42,7 @@ import java.util.List;
 public class HopGuiPipelineHopDelegate {
 
   // TODO: move i18n package to HopGui
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final int MESSAGE_DIALOG_WITH_TOGGLE_YES_BUTTON_ID = 256;
 

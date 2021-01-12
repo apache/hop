@@ -35,7 +35,7 @@ import java.util.Set;
 )
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
-    private static final Class<?> PKG = MariaDBDatabaseMeta.class;
+    private static final Class<?> PKG = MariaDBDatabaseMeta.class; // For Translator
 
     private static final Set<String> SHORT_MESSAGE_EXCEPTIONS = Sets.newHashSet("org.mariadb.jdbc.internal.stream.MaxAllowedPacketException");
 

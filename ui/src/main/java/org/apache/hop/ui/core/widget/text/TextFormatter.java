@@ -20,33 +20,31 @@ package org.apache.hop.ui.core.widget.text;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by bmorrise on 9/15/17.
- */
+/** Created by bmorrise on 9/15/17. */
 public class TextFormatter {
 
   private List<FormatRule> rules = new ArrayList<>();
   public static TextFormatter instance;
 
   public TextFormatter() {
-    registerRule( new UrlFormatRule() );
+    registerRule(new UrlFormatRule());
   }
 
   public static TextFormatter getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new TextFormatter();
     }
     return instance;
   }
 
-  public void registerRule( FormatRule rule ) {
-    rules.add( rule );
+  public void registerRule(FormatRule rule) {
+    rules.add(rule);
   }
 
-  public Format execute( String value ) {
+  public Format execute(String value) {
     Format format = new Format();
-    for ( FormatRule rule : rules ) {
-      format.add( rule.execute( value ) );
+    for (FormatRule rule : rules) {
+      format.add(rule.execute(value));
     }
     return format;
   }

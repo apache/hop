@@ -33,44 +33,40 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
 @Transform(
-        id = "DetectLastRow",
-        image = "detectlastrow.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.detectlastrow",
-        name = "BaseTransform.TypeLongDesc.DetectLastRow",
-        description = "BaseTransform.TypeTooltipDesc.DetectLastRow",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/detectlastrow.html"
-)
-public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMeta<DetectLastRow, DetectLastRowData> {
-  private static final Class<?> PKG = DetectLastRowMeta.class; // Needed by Translator
+    id = "DetectLastRow",
+    image = "detectlastrow.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.DetectLastRow",
+    description = "i18n::BaseTransform.TypeTooltipDesc.DetectLastRow",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/detectlastrow.html")
+public class DetectLastRowMeta extends BaseTransformMeta
+    implements ITransformMeta<DetectLastRow, DetectLastRowData> {
+  private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 
-  /**
-   * function result: new value name
-   */
+  /** function result: new value name */
   private String resultfieldname;
 
-  /**
-   * @return Returns the resultName.
-   */
+  /** @return Returns the resultName. */
   public String getResultFieldName() {
     return resultfieldname;
   }
 
-  /**
-   * @param resultfieldname The resultfieldname to set.
-   */
-  public void setResultFieldName( String resultfieldname ) {
+  /** @param resultfieldname The resultfieldname to set. */
+  public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -83,65 +79,87 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
     resultfieldname = "result";
   }
 
-  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
-    if ( !Utils.isEmpty( resultfieldname ) ) {
-      IValueMeta v =
-        new ValueMetaBoolean( variables.resolve( resultfieldname ) );
-      v.setOrigin( name );
-      row.addValueMeta( v );
+    if (!Utils.isEmpty(resultfieldname)) {
+      IValueMeta v = new ValueMetaBoolean(variables.resolve(resultfieldname));
+      v.setOrigin(name);
+      row.addValueMeta(v);
     }
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "DetectLastRowMeta.Exception.UnableToReadTransformMeta" ), e );
+      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "DetectLastRowMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
-    if ( Utils.isEmpty( resultfieldname ) ) {
-      errorMessage = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-      remarks.add( cr );
+    if (Utils.isEmpty(resultfieldname)) {
+      errorMessage =
+          BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.ResultFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     } else {
-      errorMessage = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
-      remarks.add( cr );
+      errorMessage = BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.ResultFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DetectLastRowMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DetectLastRowMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "DetectLastRowMeta.CheckResult.NoInpuReceived" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
-  public DetectLastRow createTransform( TransformMeta transformMeta, DetectLastRowData data, int cnr,
-                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DetectLastRow( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public DetectLastRow createTransform(
+      TransformMeta transformMeta,
+      DetectLastRowData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new DetectLastRow(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   public DetectLastRowData getTransformData() {
@@ -149,7 +167,8 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
   }
 
   public PipelineType[] getSupportedPipelineTypes() {
-    return new PipelineType[] { PipelineType.Normal, };
+    return new PipelineType[] {
+      PipelineType.Normal,
+    };
   }
-
 }

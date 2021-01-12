@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunConfiguration> {
 
-  private static final Class<?> PKG = WorkflowRunConfigurationEditor.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowRunConfigurationEditor.class; // For Translator
   
   private WorkflowRunConfiguration runConfiguration;
   private WorkflowRunConfiguration workingConfiguration;

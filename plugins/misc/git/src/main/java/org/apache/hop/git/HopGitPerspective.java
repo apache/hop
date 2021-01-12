@@ -94,7 +94,7 @@ import java.util.List;
 @GuiPlugin
 public class HopGitPerspective implements IHopPerspective {
 
-  private static final Class<?> PKG = HopGitPerspective.class;
+  private static final Class<?> PKG = HopGitPerspective.class; // For Translator
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20040-perspective-git";
 

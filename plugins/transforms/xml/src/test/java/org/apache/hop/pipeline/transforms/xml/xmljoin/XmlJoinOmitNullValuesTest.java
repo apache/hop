@@ -42,7 +42,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * Test for XmlJoin step
+ * Test for XmlJoin transform
  * 
  * @author Pavel Sakun
  * @see XmlJoin

@@ -61,7 +61,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @GuiPlugin(description = "Pipeline Graph Grid Delegate")
 public class HopGuiPipelineGridDelegate {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGridDelegate-ToolBar";
   public static final String TOOLBAR_ICON_SHOW_HIDE_INACTIVE = "ToolbarIcon-10000-ShowHideInactive";

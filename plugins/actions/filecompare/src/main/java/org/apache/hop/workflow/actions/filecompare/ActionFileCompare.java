@@ -58,15 +58,14 @@ import java.util.List;
 
 @Action(
   id = "FILE_COMPARE",
-  i18nPackageName = "org.apache.hop.workflow.actions.filecompare",
-  name = "ActionFileCompare.Name",
-  description = "ActionFileCompare.Description",
+  name = "i18n::ActionFileCompare.Name",
+  description = "i18n::ActionFileCompare.Description",
   image = "FileCompare.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/filecompare.html"
 )
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFileCompare.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 
   private String filename1;
   private String filename2;

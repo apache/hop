@@ -104,8 +104,7 @@ import java.util.Set;
  * @since 05-04-2003
  */
 public class Database implements IVariables, ILoggingObject {
-  /** for i18n purposes, needed by Translator!! */
-  private static final Class<?> PKG = Database.class;
+  private static final Class<?> PKG = Database.class; // For Translator
 
   private static final Map<String, Set<String>> registeredDrivers = new HashMap<>();
 

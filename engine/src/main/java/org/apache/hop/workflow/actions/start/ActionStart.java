@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.start;
 
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -26,28 +26,23 @@ import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
 
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * The start action is starting point for workflow execution.
- */
-
+/** The start action is starting point for workflow execution. */
 @Action(
-  id = ActionStart.ID,
-  image = "ui/images/start.svg",
-  i18nPackageName = "org.apache.hop.workflow.actions.start",
-  name = "ActionStart.Name",
-  description = "ActionStart.Description",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/start.html"
-)
+    id = ActionStart.ID,
+    image = "ui/images/start.svg",
+    name = "i18n::ActionStart.Name",
+    description = "i18n::ActionStart.Description",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/start.html")
 public class ActionStart extends ActionBase implements Cloneable, IAction {
 
   /** Action unique identifier" */
@@ -69,11 +64,11 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   private int hour = 12;
 
   public ActionStart() {
-    this( null );
+    this(null);
   }
 
-  public ActionStart( String name ) {
-    super( name, "" );
+  public ActionStart(String name) {
+    super(name, "");
   }
 
   public Object clone() {
@@ -82,67 +77,74 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder retval = new StringBuilder(200);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "repeat", repeat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "schedulerType", schedulerType ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "intervalSeconds", intervalSeconds ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "intervalMinutes", intervalMinutes ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "hour", hour ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "minutes", minutes ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "weekDay", weekDay ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "DayOfMonth", dayOfMonth ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("repeat", repeat));
+    retval.append("      ").append(XmlHandler.addTagValue("schedulerType", schedulerType));
+    retval.append("      ").append(XmlHandler.addTagValue("intervalSeconds", intervalSeconds));
+    retval.append("      ").append(XmlHandler.addTagValue("intervalMinutes", intervalMinutes));
+    retval.append("      ").append(XmlHandler.addTagValue("hour", hour));
+    retval.append("      ").append(XmlHandler.addTagValue("minutes", minutes));
+    retval.append("      ").append(XmlHandler.addTagValue("weekDay", weekDay));
+    retval.append("      ").append(XmlHandler.addTagValue("DayOfMonth", dayOfMonth));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      repeat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "repeat" ) );
-      setSchedulerType( Const.toInt( XmlHandler.getTagValue( entrynode, "schedulerType" ), NOSCHEDULING ) );
-      setIntervalSeconds( Const.toInt( XmlHandler.getTagValue( entrynode, "intervalSeconds" ), 0 ) );
-      setIntervalMinutes( Const.toInt( XmlHandler.getTagValue( entrynode, "intervalMinutes" ), 0 ) );
-      setHour( Const.toInt( XmlHandler.getTagValue( entrynode, "hour" ), 0 ) );
-      setMinutes( Const.toInt( XmlHandler.getTagValue( entrynode, "minutes" ), 0 ) );
-      setWeekDay( Const.toInt( XmlHandler.getTagValue( entrynode, "weekDay" ), 0 ) );
-      setDayOfMonth( Const.toInt( XmlHandler.getTagValue( entrynode, "dayOfMonth" ), 0 ) );
-    } catch ( HopException e ) {
-      throw new HopXmlException( "Unable to load action of type 'special' from XML node", e );
+      super.loadXml(entrynode);
+      repeat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "repeat"));
+      setSchedulerType(
+          Const.toInt(XmlHandler.getTagValue(entrynode, "schedulerType"), NOSCHEDULING));
+      setIntervalSeconds(Const.toInt(XmlHandler.getTagValue(entrynode, "intervalSeconds"), 0));
+      setIntervalMinutes(Const.toInt(XmlHandler.getTagValue(entrynode, "intervalMinutes"), 0));
+      setHour(Const.toInt(XmlHandler.getTagValue(entrynode, "hour"), 0));
+      setMinutes(Const.toInt(XmlHandler.getTagValue(entrynode, "minutes"), 0));
+      setWeekDay(Const.toInt(XmlHandler.getTagValue(entrynode, "weekDay"), 0));
+      setDayOfMonth(Const.toInt(XmlHandler.getTagValue(entrynode, "dayOfMonth"), 0));
+    } catch (HopException e) {
+      throw new HopXmlException("Unable to load action of type 'special' from XML node", e);
     }
   }
 
-  public Result execute( Result previousResult, int nr ) throws HopWorkflowException {
+  public Result execute(Result previousResult, int nr) throws HopWorkflowException {
     Result result = previousResult;
 
-    if ( isStart() ) {
+    if (isStart()) {
       try {
         long sleepTime = getNextExecutionTime();
-        if ( sleepTime > 0 ) {
-          parentWorkflow.getLogChannel().logBasic(
-            parentWorkflow.getWorkflowName(),
-            "Sleeping: " + ( sleepTime / 1000 / 60 ) + " minutes (sleep time=" + sleepTime + ")" );
+        if (sleepTime > 0) {
+          parentWorkflow
+              .getLogChannel()
+              .logBasic(
+                  parentWorkflow.getWorkflowName(),
+                  "Sleeping: "
+                      + (sleepTime / 1000 / 60)
+                      + " minutes (sleep time="
+                      + sleepTime
+                      + ")");
           long totalSleep = 0L;
-          while ( totalSleep < sleepTime && !parentWorkflow.isStopped() ) {
-            Thread.sleep( 1000L );
+          while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
+            Thread.sleep(1000L);
             totalSleep += 1000L;
           }
         }
-      } catch ( InterruptedException e ) {
-        throw new HopWorkflowException( e );
+      } catch (InterruptedException e) {
+        throw new HopWorkflowException(e);
       }
       result = previousResult;
-      result.setResult( true );
-    } else if ( isDummy() ) {
+      result.setResult(true);
+    } else if (isDummy()) {
       result = previousResult;
     }
     return result;
   }
 
   private long getNextExecutionTime() {
-    switch ( schedulerType ) {
+    switch (schedulerType) {
       case NOSCHEDULING:
         return 0;
       case INTERVAL:
@@ -168,17 +170,17 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
 
     long nowMillis = calendar.getTimeInMillis();
     int amHour = hour;
-    if ( amHour > 12 ) {
+    if (amHour > 12) {
       amHour = amHour - 12;
-      calendar.set( Calendar.AM_PM, Calendar.PM );
+      calendar.set(Calendar.AM_PM, Calendar.PM);
     } else {
-      calendar.set( Calendar.AM_PM, Calendar.AM );
+      calendar.set(Calendar.AM_PM, Calendar.AM);
     }
-    calendar.set( Calendar.HOUR, amHour );
-    calendar.set( Calendar.MINUTE, minutes );
-    calendar.set( Calendar.DAY_OF_MONTH, dayOfMonth );
-    if ( calendar.getTimeInMillis() <= nowMillis ) {
-      calendar.add( Calendar.MONTH, 1 );
+    calendar.set(Calendar.HOUR, amHour);
+    calendar.set(Calendar.MINUTE, minutes);
+    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+    if (calendar.getTimeInMillis() <= nowMillis) {
+      calendar.add(Calendar.MONTH, 1);
     }
     return calendar.getTimeInMillis() - nowMillis;
   }
@@ -188,17 +190,17 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
 
     long nowMillis = calendar.getTimeInMillis();
     int amHour = hour;
-    if ( amHour > 12 ) {
+    if (amHour > 12) {
       amHour = amHour - 12;
-      calendar.set( Calendar.AM_PM, Calendar.PM );
+      calendar.set(Calendar.AM_PM, Calendar.PM);
     } else {
-      calendar.set( Calendar.AM_PM, Calendar.AM );
+      calendar.set(Calendar.AM_PM, Calendar.AM);
     }
-    calendar.set( Calendar.HOUR, amHour );
-    calendar.set( Calendar.MINUTE, minutes );
-    calendar.set( Calendar.DAY_OF_WEEK, weekDay + 1 );
-    if ( calendar.getTimeInMillis() <= nowMillis ) {
-      calendar.add( Calendar.WEEK_OF_YEAR, 1 );
+    calendar.set(Calendar.HOUR, amHour);
+    calendar.set(Calendar.MINUTE, minutes);
+    calendar.set(Calendar.DAY_OF_WEEK, weekDay + 1);
+    if (calendar.getTimeInMillis() <= nowMillis) {
+      calendar.add(Calendar.WEEK_OF_YEAR, 1);
     }
     return calendar.getTimeInMillis() - nowMillis;
   }
@@ -208,16 +210,16 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
 
     long nowMillis = calendar.getTimeInMillis();
     int amHour = hour;
-    if ( amHour > 12 ) {
+    if (amHour > 12) {
       amHour = amHour - 12;
-      calendar.set( Calendar.AM_PM, Calendar.PM );
+      calendar.set(Calendar.AM_PM, Calendar.PM);
     } else {
-      calendar.set( Calendar.AM_PM, Calendar.AM );
+      calendar.set(Calendar.AM_PM, Calendar.AM);
     }
-    calendar.set( Calendar.HOUR, amHour );
-    calendar.set( Calendar.MINUTE, minutes );
-    if ( calendar.getTimeInMillis() <= nowMillis ) {
-      calendar.add( Calendar.DAY_OF_MONTH, 1 );
+    calendar.set(Calendar.HOUR, amHour);
+    calendar.set(Calendar.MINUTE, minutes);
+    if (calendar.getTimeInMillis() <= nowMillis) {
+      calendar.add(Calendar.DAY_OF_MONTH, 1);
     }
     return calendar.getTimeInMillis() - nowMillis;
   }
@@ -250,36 +252,36 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     return dayOfMonth;
   }
 
-  public void setDayOfMonth( int dayOfMonth ) {
+  public void setDayOfMonth(int dayOfMonth) {
     this.dayOfMonth = dayOfMonth;
   }
 
-  public void setHour( int hour ) {
+  public void setHour(int hour) {
     this.hour = hour;
   }
 
-  public void setMinutes( int minutes ) {
+  public void setMinutes(int minutes) {
     this.minutes = minutes;
   }
 
-  public void setWeekDay( int weekDay ) {
+  public void setWeekDay(int weekDay) {
     this.weekDay = weekDay;
   }
 
-  public void setSchedulerType( int schedulerType ) {
+  public void setSchedulerType(int schedulerType) {
     this.schedulerType = schedulerType;
   }
 
   @Override
   public boolean isStart() {
-      return true;
+    return true;
   }
-  
+
   public boolean isRepeat() {
     return repeat;
   }
 
-  public void setRepeat( boolean repeat ) {
+  public void setRepeat(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -287,7 +289,7 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     return intervalSeconds;
   }
 
-  public void setIntervalSeconds( int intervalSeconds ) {
+  public void setIntervalSeconds(int intervalSeconds) {
     this.intervalSeconds = intervalSeconds;
   }
 
@@ -295,14 +297,14 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     return intervalMinutes;
   }
 
-  public void setIntervalMinutes( int intervalMinutes ) {
+  public void setIntervalMinutes(int intervalMinutes) {
     this.intervalMinutes = intervalMinutes;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-
-  }
-
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {}
 }

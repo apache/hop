@@ -71,10 +71,10 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   protected List<String> xpPluginClasses;
   protected int batchSize;
   protected String transformName;
-  protected String stepPluginId;
+  protected String transformPluginId;
   protected String inputRowMetaJson;
   protected boolean inputTransform;
-  protected String stepMetaInterfaceXml;
+  protected String transformMetaInterfaceXml;
   protected List<String> targetTransforms;
   protected List<String> infoTransforms;
   protected List<String> infoRowMetaJsons;
@@ -93,7 +93,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   }
 
   public TransformTransform( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses,
-                             int batchSize, int flushIntervalMs, String transformName, String stepPluginId, String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
+                             int batchSize, int flushIntervalMs, String transformName, String transformPluginId, String transformMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
                              List<String> targetTransforms, List<String> infoTransforms, List<String> infoRowMetaJsons, List<PCollectionView<List<HopRow>>> infoCollectionViews ) {
     this.variableValues = variableValues;
     this.metastoreJson = metastoreJson;
@@ -102,8 +102,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     this.batchSize = batchSize;
     this.flushIntervalMs = flushIntervalMs;
     this.transformName = transformName;
-    this.stepPluginId = stepPluginId;
-    this.stepMetaInterfaceXml = stepMetaInterfaceXml;
+    this.transformPluginId = transformPluginId;
+    this.transformMetaInterfaceXml = transformMetaInterfaceXml;
     this.inputRowMetaJson = inputRowMetaJson;
     this.inputTransform = inputTransform;
     this.targetTransforms = targetTransforms;
@@ -141,13 +141,13 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // Create a new transform function, initializes the transform
       //
-      TransformFn stepFn = new TransformFn( variableValues, metastoreJson, transformPluginClasses, xpPluginClasses,
-        transformName, stepPluginId, stepMetaInterfaceXml, inputRowMetaJson, inputTransform,
+      TransformFn transformFn = new TransformFn( variableValues, metastoreJson, transformPluginClasses, xpPluginClasses,
+        transformName, transformPluginId, transformMetaInterfaceXml, inputRowMetaJson, inputTransform,
         targetTransforms, infoTransforms, infoRowMetaJsons );
 
       // The actual transform functionality
       //
-      ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of( stepFn );
+      ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of( transformFn );
 
       // Add optional side inputs...
       //
@@ -187,8 +187,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     protected List<String> transformPluginClasses;
     protected List<String> xpPluginClasses;
     protected String transformName;
-    protected String stepPluginId;
-    protected String stepMetaInterfaceXml;
+    protected String transformPluginId;
+    protected String transformMetaInterfaceXml;
     protected String inputRowMetaJson;
     protected List<String> targetTransforms;
     protected List<String> infoTransforms;
@@ -205,7 +205,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     private transient TransformMeta transformMeta;
     private transient IRowMeta inputRowMeta;
     private transient IRowMeta outputRowMeta;
-    private transient List<TransformMetaDataCombi> stepCombis;
+    private transient List<TransformMetaDataCombi> transformCombis;
     private transient LocalPipelineEngine pipeline;
     private transient RowProducer rowProducer;
     private transient IRowListener rowListener;
@@ -231,8 +231,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     // I created a private class because instances of this one need access to infoCollectionViews
     //
 
-    public TransformFn( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String transformName, String stepPluginId,
-                   String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
+    public TransformFn( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String transformName, String transformPluginId,
+                   String transformMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
                    List<String> targetTransforms, List<String> infoTransforms, List<String> infoRowMetaJsons ) {
       this();
       this.variableValues = variableValues;
@@ -240,8 +240,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       this.transformPluginClasses = transformPluginClasses;
       this.xpPluginClasses = xpPluginClasses;
       this.transformName = transformName;
-      this.stepPluginId = stepPluginId;
-      this.stepMetaInterfaceXml = stepMetaInterfaceXml;
+      this.transformPluginId = transformPluginId;
+      this.transformMetaInterfaceXml = transformMetaInterfaceXml;
       this.inputRowMetaJson = inputRowMetaJson;
       this.inputTransform = inputTransform;
       this.targetTransforms = targetTransforms;
@@ -258,7 +258,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     @StartBundle
     public void startBundle( StartBundleContext startBundleContext ) {
       Metrics.counter( "startBundle", transformName ).inc();
-      if ( "ScriptValueMod".equals( stepPluginId ) && pipeline != null ) {
+      if ( "ScriptValueMod".equals( transformPluginId ) && pipeline != null ) {
         initialize = true;
       }
     }
@@ -350,20 +350,20 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             infoTransformMetas.add( infoTransformMeta );
           }
 
-          stepCombis = new ArrayList<>();
+          transformCombis = new ArrayList<>();
 
           // The main transform inflated from XML metadata...
           //
           PluginRegistry registry = PluginRegistry.getInstance();
-          ITransformMeta iTransformMeta = registry.loadClass( TransformPluginType.class, stepPluginId, ITransformMeta.class );
+          ITransformMeta iTransformMeta = registry.loadClass( TransformPluginType.class, transformPluginId, ITransformMeta.class );
           if ( iTransformMeta == null ) {
-            throw new HopException( "Unable to load transform plugin with ID " + stepPluginId + ", this plugin isn't in the plugin registry or classpath" );
+            throw new HopException( "Unable to load transform plugin with ID " + transformPluginId + ", this plugin isn't in the plugin registry or classpath" );
           }
 
-          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetadataProvider() );
+          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, transformMetaInterfaceXml, pipelineMeta.getMetadataProvider() );
 
           transformMeta = new TransformMeta( transformName, iTransformMeta );
-          transformMeta.setTransformPluginId( stepPluginId );
+          transformMeta.setTransformPluginId( transformPluginId );
           transformMeta.setLocation( 400, 200 );
           pipelineMeta.addTransform( transformMeta );
           if ( !inputTransform ) {
@@ -414,11 +414,11 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           //
           if ( !inputTransform ) {
             TransformMetaDataCombi injectorCombi = findCombi( pipeline, INJECTOR_TRANSFORM_NAME );
-            stepCombis.add( injectorCombi );
+            transformCombis.add( injectorCombi );
           }
 
-          TransformMetaDataCombi stepCombi = findCombi( pipeline, transformName );
-          stepCombis.add( stepCombi );
+          TransformMetaDataCombi transformCombi = findCombi( pipeline, transformName );
+          transformCombis.add( transformCombi );
           outputRowMeta = pipelineMeta.getTransformFields( pipeline, transformName );
 
           if ( targetTransforms.isEmpty() ) {
@@ -427,7 +427,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
                 resultRows.add( row );
               }
             };
-            stepCombi.transform.addRowListener( rowListener );
+            transformCombi.transform.addRowListener( rowListener );
           }
 
           // Create a list of TupleTag to direct the target rows
@@ -443,8 +443,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           for ( String targetTransform : targetTransforms ) {
             TransformMetaDataCombi targetCombi = findCombi( pipeline, targetTransform );
-            stepCombis.add( targetCombi );
-            targetRowMetas.add( pipelineMeta.getTransformFields( pipeline, stepCombi.transformName ) );
+            transformCombis.add( targetCombi );
+            targetRowMetas.add( pipelineMeta.getTransformFields( pipeline, transformCombi.transformName ) );
 
             String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetTransform );
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {

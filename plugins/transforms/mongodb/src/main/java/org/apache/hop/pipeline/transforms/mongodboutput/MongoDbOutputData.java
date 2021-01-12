@@ -47,7 +47,7 @@ import java.util.Map;
 /** Data class for the MongoDbOutput transform */
 public class MongoDbOutputData extends BaseTransformData implements ITransformData {
 
-  private static Class<?> PKG = MongoDbOutputMeta.class;
+  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   public static final int MONGO_DEFAULT_PORT = 27017;
 
@@ -633,22 +633,22 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         String path =
             (field.environUpdateMongoDocPath != null)
                 ? field.environUpdateMongoDocPath
-                : ""; //$NON-NLS-1$
+                : ""; //
 
         boolean hasPath = !StringUtils.isEmpty(path);
         path +=
             ((field.m_useIncomingFieldNameAsMongoFieldName)
                 ? (hasPath
-                    ? "." //$NON-NLS-1$
+                    ? "." //
                         + incomingFieldName
                     : incomingFieldName)
-                : ""); //$NON-NLS-1$
+                : ""); //
 
         // post process arrays to fit the dot notation (if not already done
         // by the user)
         if (path.indexOf('[') > 0) {
           path =
-              path.replace("[", ".").replace("]", ""); // $NON-NLS-1$  //$NON-NLS-3$ //$NON-NLS-4$
+              path.replace("[", ".").replace("]", ""); //   // //
         }
 
         setMongoValueFromHopValue(query, path, vm, row[index], field.m_JSON, field.insertNull);
@@ -659,7 +659,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       throw new HopException(
           BaseMessages.getString(
               PKG,
-              "MongoDbOutput.Messages.Error.NoFieldsToUpdateSpecifiedForMatch")); //$NON-NLS-1$
+              "MongoDbOutput.Messages.Error.NoFieldsToUpdateSpecifiedForMatch")); //
     }
 
     if (!hasNonNullMatchValues) {
@@ -769,7 +769,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                   throw new HopException(
                       BaseMessages.getString(
                           PKG,
-                          "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //$NON-NLS-1$
+                          "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
                 }
               }
             }
@@ -796,7 +796,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                   throw new HopException(
                       BaseMessages.getString(
                           PKG,
-                          "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //$NON-NLS-1$
+                          "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
                 }
               }
             }
@@ -813,7 +813,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               throw new HopException(
                   BaseMessages.getString(
                       PKG,
-                      "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //$NON-NLS-1$
+                      "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
             }
           } else {
             if (pathParts.size() == 0) {
@@ -908,7 +908,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     if (hopType.isSerializableType()) {
       throw new HopValueException(
           BaseMessages.getString(
-              PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals")); // $NON-NLS-1$
+              PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals")); //
     }
 
     return false;
@@ -922,7 +922,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     }
 
     String part = pathParts.get(0);
-    if (part.startsWith("[")) { // $NON-NLS-1$
+    if (part.startsWith("[")) { //
       String index = part.substring(1, part.indexOf(']')).trim();
       part = part.substring(part.indexOf(']') + 1).trim();
       if (part.length() > 0) {
@@ -939,7 +939,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         pathParts.remove(0);
       }
       return new Integer(index);
-    } else if (part.endsWith("]")) { // $NON-NLS-1$
+    } else if (part.endsWith("]")) { //
       String fieldName = part.substring(0, part.indexOf('['));
       Object mongoField = current.get(fieldName);
       if (mongoField == null) {
@@ -953,7 +953,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               BaseMessages.getString(
                   PKG,
                   "MongoDbOutput.Messages.Error.FieldExistsButIsntAnArray",
-                  part)); //$NON-NLS-1$
+                  part)); //
         }
       }
       part = part.substring(part.indexOf('['));
@@ -979,7 +979,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             BaseMessages.getString(
                 PKG,
                 "MongoDbOutput.Messages.Error.FieldExistsButIsntARecord",
-                part)); //$NON-NLS-1$
+                part)); //
       }
     }
     pathParts.remove(0);
@@ -1012,7 +1012,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
       if (StringUtils.isEmpty(mongoPath)) {
         numRecords++;
-      } else if (mongoPath.startsWith("[")) { // $NON-NLS-1$
+      } else if (mongoPath.startsWith("[")) { //
         numArrays++;
       } else {
         numRecords++;

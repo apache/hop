@@ -59,15 +59,14 @@ import org.w3c.dom.Node;
 
 @Action(
   id = "SFTP",
-  i18nPackageName = "org.apache.hop.workflow.actions.sftp",
-  name = "ActionSFTP.Name",
-  description = "ActionSFTP.Description",
+  name = "i18n::ActionSFTP.Name",
+  description = "i18n::ActionSFTP.Description",
   image = "SFTP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sftp.html"
 )
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSftp.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSftp.class; // For Translator
 
   private static final int DEFAULT_PORT = 22;
   private String serverName;

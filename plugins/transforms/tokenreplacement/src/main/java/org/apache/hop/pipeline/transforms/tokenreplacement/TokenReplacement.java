@@ -49,7 +49,7 @@ import java.util.Iterator;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData>
         implements ITransform<TokenReplacementMeta, TokenReplacementData> {
-  private static Class<?> PKG = TokenReplacementMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   public TokenReplacement(TransformMeta transformMeta, TokenReplacementMeta meta, TokenReplacementData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {

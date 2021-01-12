@@ -38,7 +38,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 12-may-2005
  */
 public class GetQueryFieldsProgressDialog {
-  private static final Class<?> PKG = GetQueryFieldsProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = GetQueryFieldsProgressDialog.class; // For Translator
 
   private Shell shell;
   private DatabaseMeta dbMeta;

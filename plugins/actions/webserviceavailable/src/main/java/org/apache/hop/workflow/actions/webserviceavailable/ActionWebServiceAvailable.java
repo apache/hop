@@ -25,9 +25,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.io.InputStream;
@@ -40,32 +40,30 @@ import java.net.URLConnection;
  * @author Samatar
  * @since 05-11-2009
  */
-
 @Action(
-  id = "WEBSERVICE_AVAILABLE",
-  i18nPackageName = "org.apache.hop.workflow.actions.webserviceavailable",
-  name = "ActionWebServiceAvailable.Name",
-  description = "ActionWebServiceAvailable.Description",
-  image = "WebServiceAvailable.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/webserviceavailable.html"
-)
+    id = "WEBSERVICE_AVAILABLE",
+    name = "i18n::ActionWebServiceAvailable.Name",
+    description = "i18n::ActionWebServiceAvailable.Description",
+    image = "WebServiceAvailable.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWebServiceAvailable.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
 
   private String url;
   private String connectTimeOut;
   private String readTimeOut;
 
-  public ActionWebServiceAvailable( String n ) {
-    super( n, "" );
+  public ActionWebServiceAvailable(String n) {
+    super(n, "");
     url = null;
     connectTimeOut = "0";
     readTimeOut = "0";
   }
 
   public ActionWebServiceAvailable() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -74,29 +72,31 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 50 );
+    StringBuilder retval = new StringBuilder(50);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "url", url ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "connectTimeOut", connectTimeOut ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "readTimeOut", readTimeOut ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("url", url));
+    retval.append("      ").append(XmlHandler.addTagValue("connectTimeOut", connectTimeOut));
+    retval.append("      ").append(XmlHandler.addTagValue("readTimeOut", readTimeOut));
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      url = XmlHandler.getTagValue( entrynode, "url" );
-      connectTimeOut = XmlHandler.getTagValue( entrynode, "connectTimeOut" );
-      readTimeOut = XmlHandler.getTagValue( entrynode, "readTimeOut" );
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
+      super.loadXml(entrynode);
+      url = XmlHandler.getTagValue(entrynode, "url");
+      connectTimeOut = XmlHandler.getTagValue(entrynode, "connectTimeOut");
+      readTimeOut = XmlHandler.getTagValue(entrynode, "readTimeOut");
+    } catch (HopXmlException xe) {
+      throw new HopXmlException(
+          BaseMessages.getString(
+              PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node"),
+          xe);
     }
   }
 
-  public void setURL( String url ) {
+  public void setURL(String url) {
     this.url = url;
   }
 
@@ -104,7 +104,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return url;
   }
 
-  public void setConnectTimeOut( String timeout ) {
+  public void setConnectTimeOut(String timeout) {
     this.connectTimeOut = timeout;
   }
 
@@ -112,7 +112,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return connectTimeOut;
   }
 
-  public void setReadTimeOut( String timeout ) {
+  public void setReadTimeOut(String timeout) {
     this.readTimeOut = timeout;
   }
 
@@ -120,44 +120,46 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return readTimeOut;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
+    result.setResult(false);
 
-    String realURL = resolve( getURL() );
+    String realURL = resolve(getURL());
 
-    if ( !Utils.isEmpty( realURL ) ) {
-      int connectTimeOut = Const.toInt( resolve( getConnectTimeOut() ), 0 );
-      int readTimeOut = Const.toInt( resolve( getReadTimeOut() ), 0 );
+    if (!Utils.isEmpty(realURL)) {
+      int connectTimeOut = Const.toInt(resolve(getConnectTimeOut()), 0);
+      int readTimeOut = Const.toInt(resolve(getReadTimeOut()), 0);
       InputStream in = null;
       try {
 
-        URLConnection conn = new URL( realURL ).openConnection();
-        conn.setConnectTimeout( connectTimeOut );
-        conn.setReadTimeout( readTimeOut );
+        URLConnection conn = new URL(realURL).openConnection();
+        conn.setConnectTimeout(connectTimeOut);
+        conn.setReadTimeout(readTimeOut);
         in = conn.getInputStream();
         // Web service is available
-        result.setResult( true );
-      } catch ( Exception e ) {
-        result.setNrErrors( 1 );
+        result.setResult(true);
+      } catch (Exception e) {
+        result.setNrErrors(1);
         String message =
-          BaseMessages
-            .getString( PKG, "ActionWebServiceAvailable.ERROR_0004_Exception", realURL, e.toString() );
-        logError( message );
-        result.setLogText( message );
+            BaseMessages.getString(
+                PKG, "ActionWebServiceAvailable.ERROR_0004_Exception", realURL, e.toString());
+        logError(message);
+        result.setLogText(message);
       } finally {
-        if ( in != null ) {
+        if (in != null) {
           try {
             in.close();
-          } catch ( Exception e ) { /* Ignore */
+          } catch (Exception e) {
+            /* Ignore */
           }
         }
       }
     } else {
-      result.setNrErrors( 1 );
-      String message = BaseMessages.getString( PKG, "ActionWebServiceAvailable.ERROR_0005_No_URL_Defined" );
-      logError( message );
-      result.setLogText( message );
+      result.setNrErrors(1);
+      String message =
+          BaseMessages.getString(PKG, "ActionWebServiceAvailable.ERROR_0005_No_URL_Defined");
+      logError(message);
+      result.setLogText(message);
     }
 
     return result;
@@ -166,5 +168,4 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
   public boolean evaluates() {
     return true;
   }
-
 }

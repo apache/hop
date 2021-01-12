@@ -45,7 +45,7 @@ import java.util.List;
         name = "Beam BigQuery Input",
         description = "Reads from a BigQuery table in Beam",
         image = "beam-bq-input.svg",
-        categoryDescription = "Big Data",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beambigqueryinput.html"
 )
 public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {

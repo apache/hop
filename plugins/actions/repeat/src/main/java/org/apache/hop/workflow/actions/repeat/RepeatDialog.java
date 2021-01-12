@@ -58,7 +58,7 @@ import java.util.List;
 
 public class RepeatDialog extends ActionDialog implements IActionDialog {
 
-  private static Class<?> PKG = RepeatDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = RepeatDialog.class; // For Translator
 
   private static final String COLON_SEPARATOR = " : ";
 

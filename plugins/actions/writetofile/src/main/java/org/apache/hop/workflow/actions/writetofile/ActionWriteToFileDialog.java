@@ -48,7 +48,7 @@ import java.util.ArrayList;
  * @since 28-01-2007
  */
 public class ActionWriteToFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWriteToFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobWriteToFile.Filetype.All" ) };

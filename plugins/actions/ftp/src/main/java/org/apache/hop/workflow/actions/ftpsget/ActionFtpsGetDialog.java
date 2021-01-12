@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-03-2010
  */
 public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpsGet.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpsGet.class; // For Translator
 
   private LabelText wName;
 

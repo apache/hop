@@ -41,7 +41,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> implements ITransform<CubeOutputMeta, CubeOutputData> {
 
-  private static final Class<?> PKG = CubeOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
   public CubeOutput( TransformMeta transformMeta, CubeOutputMeta meta, CubeOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

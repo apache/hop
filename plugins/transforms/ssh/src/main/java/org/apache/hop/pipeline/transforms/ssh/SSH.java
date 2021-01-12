@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 
 public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
-  private static final Class<?> PKG = SSHMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SSHMeta.class; // For Translator
 
   public SSH( TransformMeta transformMeta, SSHMeta meta, SSHData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

@@ -66,7 +66,7 @@ import java.util.concurrent.Future;
     description = "This contains all the metadata needed to connect to a relational database",
     image = "ui/images/database.svg")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
-  private static final Class<?> PKG = Database.class; // Needed by Translator
+  private static final Class<?> PKG = Database.class; // For Translator
 
   public static final String XML_TAG = "connection";
 

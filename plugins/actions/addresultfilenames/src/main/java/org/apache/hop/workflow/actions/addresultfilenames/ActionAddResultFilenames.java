@@ -56,18 +56,16 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 06-05-2007
  */
-
 @Action(
-  id = "ADD_RESULT_FILENAMES",
-  i18nPackageName = "org.apache.hop.workflow.actions.addresultfilenames",
-  name = "ActionAddResultFilenames.Name",
-  description = "ActionAddResultFilenames.Description",
-  image="AddResultFileNames.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/addresultfilenames.html"
-)
+    id = "ADD_RESULT_FILENAMES",
+    name = "i18n::ActionAddResultFilenames.Name",
+    description = "i18n::ActionAddResultFilenames.Description",
+    image = "AddResultFileNames.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/actions/addresultfilenames.html")
 public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAddResultFilenames.class; // Needed by Translator
+  private static final Class<?> PKG = ActionAddResultFilenames.class; // For Translator
 
   public boolean argFromPrevious;
 
@@ -79,8 +77,8 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
   public String[] filemasks;
 
-  public ActionAddResultFilenames( String n ) {
-    super( n, "" );
+  public ActionAddResultFilenames(String n) {
+    super(n, "");
     argFromPrevious = false;
     deleteallbefore = false;
     arguments = null;
@@ -89,7 +87,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
   }
 
   public ActionAddResultFilenames() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -98,182 +96,207 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder retval = new StringBuilder(300);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "delete_all_before", deleteallbefore ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
+    retval.append("      ").append(XmlHandler.addTagValue("delete_all_before", deleteallbefore));
 
-    retval.append( "      <fields>" ).append( Const.CR );
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length; i++ ) {
-        retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "name", arguments[ i ] ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "filemask", filemasks[ i ] ) );
-        retval.append( "        </field>" ).append( Const.CR );
+    retval.append("      <fields>").append(Const.CR);
+    if (arguments != null) {
+      for (int i = 0; i < arguments.length; i++) {
+        retval.append("        <field>").append(Const.CR);
+        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
+        retval.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
+        retval.append("        </field>").append(Const.CR);
       }
     }
-    retval.append( "      </fields>" ).append( Const.CR );
+    retval.append("      </fields>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      includeSubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
-      deleteallbefore = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "delete_all_before" ) );
+      super.loadXml(entrynode);
+      argFromPrevious =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
+      includeSubfolders =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
+      deleteallbefore =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "delete_all_before"));
 
-      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode(entrynode, "fields");
 
       // How many field arguments?
-      int nrFields = XmlHandler.countNodes( fields, "field" );
-      arguments = new String[ nrFields ];
-      filemasks = new String[ nrFields ];
+      int nrFields = XmlHandler.countNodes(fields, "field");
+      arguments = new String[nrFields];
+      filemasks = new String[nrFields];
 
       // Read them all...
-      for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+      for (int i = 0; i < nrFields; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
 
-        arguments[ i ] = XmlHandler.getTagValue( fnode, "name" );
-        filemasks[ i ] = XmlHandler.getTagValue( fnode, "filemask" );
+        arguments[i] = XmlHandler.getTagValue(fnode, "name");
+        filemasks[i] = XmlHandler.getTagValue(fnode, "filemask");
       }
-    } catch ( HopXmlException xe ) {
+    } catch (HopXmlException xe) {
       throw new HopXmlException(
-        BaseMessages.getString( PKG, "ActionAddResultFilenames.UnableToLoadFromXml" ), xe );
+          BaseMessages.getString(PKG, "ActionAddResultFilenames.UnableToLoadFromXml"), xe);
     }
   }
 
-  public Result execute( Result result, int nr ) throws HopException {
+  public Result execute(Result result, int nr) throws HopException {
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow = null;
 
     int nrErrFiles = 0;
-    result.setResult( true );
+    result.setResult(true);
 
-    if ( deleteallbefore ) {
+    if (deleteallbefore) {
       // clear result filenames
       int size = result.getResultFiles().size();
-      if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "ActionAddResultFilenames.log.FilesFound", "" + size ) );
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "ActionAddResultFilenames.log.FilesFound", "" + size));
       }
 
       result.getResultFiles().clear();
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionAddResultFilenames.log.DeletedFiles", "" + size ) );
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionAddResultFilenames.log.DeletedFiles", "" + size));
       }
     }
 
-    if ( argFromPrevious ) {
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionAddResultFilenames.FoundPreviousRows", String
-          .valueOf( ( rows != null ? rows.size() : 0 ) ) ) );
+    if (argFromPrevious) {
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionAddResultFilenames.FoundPreviousRows",
+                String.valueOf((rows != null ? rows.size() : 0))));
       }
     }
 
-    if ( argFromPrevious && rows != null ) { // Copy the input row to the (command line) arguments
-      for ( int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++ ) {
-        resultRow = rows.get( iteration );
+    if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments
+      for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
+        resultRow = rows.get(iteration);
 
         // Get values from previous result
-        String fileFolderPrevious = resultRow.getString( 0, null );
-        String fileMasksPrevious = resultRow.getString( 1, null );
+        String fileFolderPrevious = resultRow.getString(0, null);
+        String fileMasksPrevious = resultRow.getString(1, null);
 
         // ok we can process this file/folder
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "ActionAddResultFilenames.ProcessingRow", fileFolderPrevious, fileMasksPrevious ) );
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionAddResultFilenames.ProcessingRow",
+                  fileFolderPrevious,
+                  fileMasksPrevious));
         }
 
-        if ( !processFile( fileFolderPrevious, fileMasksPrevious, parentWorkflow, result ) ) {
+        if (!processFile(fileFolderPrevious, fileMasksPrevious, parentWorkflow, result)) {
           nrErrFiles++;
         }
-
       }
-    } else if ( arguments != null ) {
+    } else if (arguments != null) {
 
-      for ( int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++ ) {
+      for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
 
         // ok we can process this file/folder
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "ActionAddResultFilenames.ProcessingArg", arguments[ i ], filemasks[ i ] ) );
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ActionAddResultFilenames.ProcessingArg", arguments[i], filemasks[i]));
         }
-        if ( !processFile( arguments[ i ], filemasks[ i ], parentWorkflow, result ) ) {
+        if (!processFile(arguments[i], filemasks[i], parentWorkflow, result)) {
           nrErrFiles++;
         }
       }
     }
 
-    if ( nrErrFiles > 0 ) {
-      result.setResult( false );
-      result.setNrErrors( nrErrFiles );
+    if (nrErrFiles > 0) {
+      result.setResult(false);
+      result.setNrErrors(nrErrFiles);
     }
 
     return result;
   }
 
-  private boolean processFile( String filename, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
+  private boolean processFile(
+      String filename,
+      String wildcard,
+      IWorkflowEngine<WorkflowMeta> parentWorkflow,
+      Result result) {
 
     boolean rcode = true;
     FileObject filefolder = null;
-    String realFilefoldername = resolve( filename );
-    String realwildcard = resolve( wildcard );
+    String realFilefoldername = resolve(filename);
+    String realwildcard = resolve(wildcard);
 
     try {
-      filefolder = HopVfs.getFileObject( realFilefoldername );
-      if ( filefolder.exists() ) {
+      filefolder = HopVfs.getFileObject(realFilefoldername);
+      if (filefolder.exists()) {
         // the file or folder exists
 
-        if ( filefolder.getType() == FileType.FILE ) {
+        if (filefolder.getType() == FileType.FILE) {
           // Add filename to Resultfilenames ...
-          if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "ActionAddResultFilenames.AddingFileToResult", filefolder
-              .toString() ) );
+          if (log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ActionAddResultFilenames.AddingFileToResult", filefolder.toString()));
           }
           ResultFile resultFile =
-            new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filefolder.toString() ), parentWorkflow
-              .getWorkflowName(), toString() );
-          result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+              new ResultFile(
+                  ResultFile.FILE_TYPE_GENERAL,
+                  HopVfs.getFileObject(filefolder.toString()),
+                  parentWorkflow.getWorkflowName(),
+                  toString());
+          result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
         } else {
-          FileObject[] list = filefolder.findFiles( new TextFileSelector( filefolder.toString(), realwildcard ) );
+          FileObject[] list =
+              filefolder.findFiles(new TextFileSelector(filefolder.toString(), realwildcard));
 
-          for ( int i = 0; i < list.length && !parentWorkflow.isStopped(); i++ ) {
+          for (int i = 0; i < list.length && !parentWorkflow.isStopped(); i++) {
             // Add filename to Resultfilenames ...
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "ActionAddResultFilenames.AddingFileToResult", list[ i ]
-                .toString() ) );
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG, "ActionAddResultFilenames.AddingFileToResult", list[i].toString()));
             }
             ResultFile resultFile =
-              new ResultFile(
-                ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( list[ i ].toString()), parentWorkflow
-                .getWorkflowName(), toString() );
-            result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+                new ResultFile(
+                    ResultFile.FILE_TYPE_GENERAL,
+                    HopVfs.getFileObject(list[i].toString()),
+                    parentWorkflow.getWorkflowName(),
+                    toString());
+            result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
           }
         }
 
       } else {
         // File can not be found
-        if ( log.isBasic() ) {
-          logBasic( BaseMessages.getString(
-            PKG, "ActionAddResultFilenames.FileCanNotbeFound", realFilefoldername ) );
+        if (log.isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionAddResultFilenames.FileCanNotbeFound", realFilefoldername));
         }
         rcode = false;
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       rcode = false;
-      logError( BaseMessages.getString( PKG, "ActionAddResultFilenames.CouldNotProcess", realFilefoldername, e
-        .getMessage() ), e );
+      logError(
+          BaseMessages.getString(
+              PKG, "ActionAddResultFilenames.CouldNotProcess", realFilefoldername, e.getMessage()),
+          e);
     } finally {
-      if ( filefolder != null ) {
+      if (filefolder != null) {
         try {
           filefolder.close();
           filefolder = null;
-        } catch ( IOException ex ) {
+        } catch (IOException ex) {
           // Ignore
         }
       }
@@ -286,41 +309,45 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     String fileWildcard = null;
     String sourceFolder = null;
 
-    public TextFileSelector( String sourcefolderin, String filewildcard ) {
-      if ( !Utils.isEmpty( sourcefolderin ) ) {
+    public TextFileSelector(String sourcefolderin, String filewildcard) {
+      if (!Utils.isEmpty(sourcefolderin)) {
         sourceFolder = sourcefolderin;
       }
 
-      if ( !Utils.isEmpty( filewildcard ) ) {
+      if (!Utils.isEmpty(filewildcard)) {
         fileWildcard = filewildcard;
       }
     }
 
-    public boolean includeFile( FileSelectInfo info ) {
+    public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       try {
-        if ( !info.getFile().toString().equals( sourceFolder ) ) {
+        if (!info.getFile().toString().equals(sourceFolder)) {
           // Pass over the Base folder itself
           String shortFilename = info.getFile().getName().getBaseName();
 
-          if ( info.getFile().getParent().equals( info.getBaseFolder() )
-            || ( !info.getFile().getParent().equals( info.getBaseFolder() ) && includeSubfolders ) ) {
-            if ( ( info.getFile().getType() == FileType.FILE && fileWildcard == null )
-              || ( info.getFile().getType() == FileType.FILE && fileWildcard != null && GetFileWildcard(
-              shortFilename, fileWildcard ) ) ) {
+          if (info.getFile().getParent().equals(info.getBaseFolder())
+              || (!info.getFile().getParent().equals(info.getBaseFolder()) && includeSubfolders)) {
+            if ((info.getFile().getType() == FileType.FILE && fileWildcard == null)
+                || (info.getFile().getType() == FileType.FILE
+                    && fileWildcard != null
+                    && GetFileWildcard(shortFilename, fileWildcard))) {
               returncode = true;
             }
           }
         }
-      } catch ( Exception e ) {
-        logError( "Error while finding files ... in ["
-          + info.getFile().toString() + "]. Exception :" + e.getMessage() );
+      } catch (Exception e) {
+        logError(
+            "Error while finding files ... in ["
+                + info.getFile().toString()
+                + "]. Exception :"
+                + e.getMessage());
         returncode = false;
       }
       return returncode;
     }
 
-    public boolean traverseDescendents( FileSelectInfo info ) {
+    public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }
   }
@@ -331,15 +358,15 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard( String selectedfile, String wildcard ) {
+  private boolean GetFileWildcard(String selectedfile, String wildcard) {
     Pattern pattern = null;
     boolean getIt = true;
 
-    if ( !Utils.isEmpty( wildcard ) ) {
-      pattern = Pattern.compile( wildcard );
+    if (!Utils.isEmpty(wildcard)) {
+      pattern = Pattern.compile(wildcard);
       // First see if the file matches the regular expression!
-      if ( pattern != null ) {
-        Matcher matcher = pattern.matcher( selectedfile );
+      if (pattern != null) {
+        Matcher matcher = pattern.matcher(selectedfile);
         getIt = matcher.matches();
       }
     }
@@ -347,15 +374,15 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return getIt;
   }
 
-  public void setIncludeSubfolders( boolean includeSubfolders ) {
+  public void setIncludeSubfolders(boolean includeSubfolders) {
     this.includeSubfolders = includeSubfolders;
   }
 
-  public void setArgumentsPrevious( boolean argFromPrevious ) {
+  public void setArgumentsPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
   }
 
-  public void setDeleteAllBefore( boolean deleteallbefore ) {
+  public void setDeleteAllBefore(boolean deleteallbefore) {
     this.deleteallbefore = deleteallbefore;
   }
 
@@ -383,22 +410,30 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return includeSubfolders;
   }
 
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    boolean res =
+        ActionValidatorUtils.andValidator()
+            .validate(
+                this,
+                "arguments",
+                remarks,
+                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
-    if ( res == false ) {
+    if (res == false) {
       return;
     }
 
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace( ctx, getVariables() );
-    AndValidator.putValidators( ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator() );
+    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AndValidator.putValidators(
+        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for ( int i = 0; i < arguments.length; i++ ) {
-      ActionValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );
+    for (int i = 0; i < arguments.length; i++) {
+      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
     }
   }
-
 }

@@ -59,9 +59,8 @@ import java.util.Map.Entry;
 @Transform(
     id = "MetaInject",
     image = "GenericTransform.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.metainject",
-    name = "BaseTransform.TypeLongDesc.MetaInject",
-    description = "BaseTransform.TypeTooltipDesc.MetaInject",
+    name = "i18n::BaseTransform.TypeLongDesc.MetaInject",
+    description = "i18n::BaseTransform.TypeTooltipDesc.MetaInject",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/metainject.html")
 @InjectionSupported(
@@ -72,8 +71,7 @@ public class MetaInjectMeta extends BaseTransformMeta
         ITransformMetaChangeListener,
         ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG =
-      MetaInjectMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
 
   private static final String MAPPINGS = "mappings";
   private static final String MAPPING = "mapping";
@@ -353,7 +351,9 @@ public class MetaInjectMeta extends BaseTransformMeta
     return MetaInjectMeta.loadPipelineMeta(this, metadataProvider, variables);
   }
 
-  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+  @Override
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, TransformMeta transformMeta) {
 
     List<ResourceReference> references = new ArrayList<>(5);
     String realFilename = variables.resolve(fileName);
@@ -467,7 +467,7 @@ public class MetaInjectMeta extends BaseTransformMeta
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a transformation, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   @Override
   public String[] getReferencedObjectDescriptions() {

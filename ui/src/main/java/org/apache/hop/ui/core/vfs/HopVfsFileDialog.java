@@ -98,7 +98,7 @@ import java.util.Map;
 @GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
-  private static final Class<?> PKG = HopVfsFileDialog.class; // Needed by Translator
+  private static final Class<?> PKG = HopVfsFileDialog.class; // For Translator
 
   public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
 
@@ -169,8 +169,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private int sortIndex = 0;
   private boolean ascending = true;
 
-  public HopVfsFileDialog() {
-  }
+  public HopVfsFileDialog() {}
 
   public HopVfsFileDialog(
       Shell parent,
@@ -211,7 +210,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fileImage = GuiResource.getInstance().getImageFile();
     folderImage = GuiResource.getInstance().getImageFolder();
   }
-
 
   /**
    * Gets the active instance of this dialog
@@ -1204,7 +1202,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       separator = true)
   public void showHideHidden() {
     showingHiddenFiles = !showingHiddenFiles;
-        
+
     refreshBrowser();
   }
 

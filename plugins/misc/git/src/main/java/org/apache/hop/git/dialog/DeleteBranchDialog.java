@@ -35,7 +35,7 @@ import java.util.List;
 
 public class DeleteBranchDialog extends Dialog {
 
-  private static final Class<?> PKG = HopPerspectivePlugin.class;
+  private static final Class<?> PKG = HopPerspectivePlugin.class; // For Translator
 
   private CCombo comboBranch;
   private String selectedBranch;

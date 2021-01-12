@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.variables.IVariables;
 
 public abstract class SalesforceTransformDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
-  private static final Class<?> PKG = SalesforceTransformMeta.class;
   protected static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'Z";
   protected static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
@@ -80,15 +80,15 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog impl
     if ( successConnection ) {
 
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "SalesforceDialog.Connected.OK", realUsername )
+      mb.setMessage( BaseMessages.getString( PKG, "SalesforceTransformDialog.Connected.OK", realUsername )
         + Const.CR );
-      mb.setText( BaseMessages.getString( PKG, "SalesforceDialog.Connected.Title.Ok" ) );
+      mb.setText( BaseMessages.getString( PKG, "SalesforceTransformDialog.Connected.Title.Ok" ) );
       mb.open();
     } else {
       new ErrorDialog(
         shell,
-        BaseMessages.getString( PKG, "SalesforceDialog.Connected.Title.Error" ),
-        BaseMessages.getString( PKG, "SalesforceDialog.Connected.NOK", realUsername ),
+        BaseMessages.getString( PKG, "SalesforceTransformDialog.Connected.Title.Error" ),
+        BaseMessages.getString( PKG, "SalesforceTransformDialog.Connected.NOK", realUsername ),
         new Exception( msgError ) );
     }
   }

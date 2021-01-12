@@ -48,15 +48,15 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 	/**
 	 * The constructor should simply pass on its arguments to the parent class.
 	 *
-	 * @param transformMeta 				step description
-	 * @param data	step data class
-	 * @param copyNr					step copy
+	 * @param transformMeta 				transform description
+	 * @param data	transform data class
+	 * @param copyNr					transform copy
 	 * @param pipelineMeta					transformation description
 	 * @param pipeline				transformation executing
 	 */
 	public StreamSchema(TransformMeta transformMeta, StreamSchemaMeta meta, StreamSchemaData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
         super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
-        pipeline.setSafeModeEnabled(false);  // safe mode is incompatible with this step
+        pipeline.setSafeModeEnabled(false);  // safe mode is incompatible with this transform
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 	 *
 	 */
 	public boolean init() {
-		// Casting to step-specific implementation classes is safe
+		// Casting to transform-specific implementation classes is safe
 
 		data.infoStreams = meta.getTransformIOMeta().getInfoStreams();
 		data.numTransforms = data.infoStreams.size();
@@ -81,7 +81,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 	 * For each row, create a new output row in the model of the master output row and copy the data values in to the
      * appropriate indexes
 	 *
-	 * @return true to indicate that the function should be called again, false if the step is done
+	 * @return true to indicate that the function should be called again, false if the transform is done
 	 */
 	public boolean processRow() throws HopException {
 
@@ -95,7 +95,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
                 data.r = findInputRowSet(data.infoStreams.get(i).getTransformName());
                 data.rowSets.add(data.r);
                 data.TransformNames[i] = data.r.getName();
-                // Avoids race condition. Row metas are not available until the previous steps have called
+                // Avoids race condition. Row metas are not available until the previous transforms have called
                 // putRowWait at least once
                 while (data.rowMetas[i] == null && !isStopped()) {
                     data.rowMetas[i] = data.r.getRowMeta();
@@ -114,13 +114,13 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 
 		Object[] incomingRow = getRow();  // get the next available row
 
-		// if no more rows are expected, indicate step is finished and processRow() should not be called again
+		// if no more rows are expected, indicate transform is finished and processRow() should not be called again
 		if (incomingRow == null){
 			setOutputDone();
 			return false;
 		}
 
-        // get the name of the step that the current rowset is coming from
+        // get the name of the transform that the current rowset is coming from
 		data.currentName = getInputRowSets().get(getCurrentInputRowSetNr()).getName();
         // because rowsets are removed from the list of rowsets once they're exhausted (in the getRow() method) we
         // need to use the name to find the proper index for our lookups later
@@ -158,7 +158,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 	}
 
     /**
-     * Clear steps from step data
+     * Clear transforms from transform data
      */
     public void dispose() {
 

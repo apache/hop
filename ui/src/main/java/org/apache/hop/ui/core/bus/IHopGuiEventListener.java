@@ -27,5 +27,4 @@ import org.apache.hop.core.exception.HopException;
 public interface IHopGuiEventListener<T> {
 
   void event(HopGuiEvent<T> event) throws HopException;
-
 }

@@ -39,13 +39,14 @@ import java.util.List;
 
 @Transform(
   id = "MappingOutput",
-  name = "Mapping Output",
+  name = "i18n::BaseTransform.TypeLongDesc.MappingOuptut",
+  description = "i18n::BaseTransform.TypeTooltipDesc.MappingOutput",
   image = "MPO.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class MappingOutputMeta extends BaseTransformMeta implements ITransformMeta<MappingOutput, MappingOutputData> {
 
-  private static final Class<?> PKG = MappingOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
   public MappingOutputMeta() {
     super(); // allocate BaseTransformMeta

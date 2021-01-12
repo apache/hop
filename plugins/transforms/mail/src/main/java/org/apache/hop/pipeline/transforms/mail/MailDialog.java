@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MailDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailMeta.class; // For Translator
 
   private static final String[] FILETYPES =
     new String[] { BaseMessages.getString( PKG, "MailDialog.Filetype.All" ) };

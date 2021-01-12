@@ -45,7 +45,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ColumnExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ColumnExistsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ColumnExistsDialog.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

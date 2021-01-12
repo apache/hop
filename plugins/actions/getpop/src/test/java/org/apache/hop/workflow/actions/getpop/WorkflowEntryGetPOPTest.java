@@ -236,7 +236,7 @@ public class WorkflowEntryGetPOPTest {
       if ( e instanceof HopException ) {
         assertTrue( "Output Folder should not be created",
           BaseMessages.getString( ActionGetPOP.class,
-            "JobGetMailsFromPOP.Error.OutputFolderNotExist", outputDir.getAbsolutePath() ).equals(
+            "ActionGetMailsFromPOP.Error.OutputFolderNotExist", outputDir.getAbsolutePath() ).equals(
             Const.trim( e.getMessage() ) ) );
       } else {
         fail( "Output Folder should not have been created: " + e.getLocalizedMessage() );
@@ -249,7 +249,7 @@ public class WorkflowEntryGetPOPTest {
       if ( e instanceof HopException ) {
         assertTrue( "Output Folder should not be created",
           BaseMessages.getString( ActionGetPOP.class,
-            "JobGetMailsFromPOP.Error.AttachmentFolderNotExist", attachmentsDir.getAbsolutePath() ).equals(
+            "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist", attachmentsDir.getAbsolutePath() ).equals(
             Const.trim( e.getMessage() ) ) );
       } else {
         fail( "Attachments Folder should not have been created: " + e.getLocalizedMessage() );

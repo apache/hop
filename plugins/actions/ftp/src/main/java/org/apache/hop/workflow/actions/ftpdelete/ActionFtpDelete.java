@@ -63,19 +63,15 @@ import java.util.regex.Pattern;
  * @author Matt
  * @since 05-11-2003
  */
-
 @Action(
-  id = "FTP_DELETE",
-  i18nPackageName = "org.apache.hop.workflow.actions.ftpdelete",
-  name = "ActionFTPDelete.Name",
-  description = "ActionFTPDelete.Description",
-  image = "FTPDelete.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpdelete.html"
-)
-
+    id = "FTP_DELETE",
+    name = "i18n::ActionFTPDelete.Name",
+    description = "i18n::ActionFTPDelete.Description",
+    image = "FTPDelete.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpdelete.html")
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpDelete.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
 
   private String serverName;
 
@@ -159,8 +155,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
   SFTPv3Client sshclient = null;
 
-  public ActionFtpDelete( String n ) {
-    super( n, "" );
+  public ActionFtpDelete(String n) {
+    super(n, "");
     copyprevious = false;
     protocol = PROTOCOL_FTP;
     port = "21";
@@ -175,7 +171,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionFtpDelete() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -184,97 +180,114 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 550 ); // 448 characters in spaces and tag names alone
+    StringBuilder retval = new StringBuilder(550); // 448 characters in spaces and tag names alone
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "ftpdirectory", ftpDirectory ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("protocol", protocol));
+    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
+    retval.append("      ").append(XmlHandler.addTagValue("port", port));
+    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
+    retval.append("      ").append(XmlHandler.addTagValue("ftpdirectory", ftpDirectory));
+    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
+    retval.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "useproxy", useproxy ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+    retval.append("      ").append(XmlHandler.addTagValue("useproxy", useproxy));
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "publicpublickey", publicpublickey ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilepass", keyFilePass ) );
+    retval.append("      ").append(XmlHandler.addTagValue("publicpublickey", publicpublickey));
+    retval.append("      ").append(XmlHandler.addTagValue("keyfilename", keyFilename));
+    retval.append("      ").append(XmlHandler.addTagValue("keyfilepass", keyFilePass));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit_success", nrLimitSuccess ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
-    retval.append( "      " ).append(
-      XmlHandler
-        .addTagValue( "ftps_connection_type", FtpsConnection.getConnectionTypeCode(FtpsConnectionType) ) );
+    retval.append("      ").append(XmlHandler.addTagValue("nr_limit_success", nrLimitSuccess));
+    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append("      ").append(XmlHandler.addTagValue("copyprevious", copyprevious));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "ftps_connection_type", FtpsConnection.getConnectionTypeCode(FtpsConnectionType)));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "socksproxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( getSocksProxyPassword() ) ) );
+    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "socksproxy_password",
+                Encr.encryptPasswordIfNotUsingVariables(getSocksProxyPassword())));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
+      super.loadXml(entrynode);
 
-      protocol = XmlHandler.getTagValue( entrynode, "protocol" );
-      port = XmlHandler.getTagValue( entrynode, "port" );
-      serverName = XmlHandler.getTagValue( entrynode, "servername" );
-      userName = XmlHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
-      ftpDirectory = XmlHandler.getTagValue( entrynode, "ftpdirectory" );
-      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
-      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
+      protocol = XmlHandler.getTagValue(entrynode, "protocol");
+      port = XmlHandler.getTagValue(entrynode, "port");
+      serverName = XmlHandler.getTagValue(entrynode, "servername");
+      userName = XmlHandler.getTagValue(entrynode, "username");
+      password =
+          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+      ftpDirectory = XmlHandler.getTagValue(entrynode, "ftpdirectory");
+      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
+      timeout = Const.toInt(XmlHandler.getTagValue(entrynode, "timeout"), 10000);
+      activeConnection = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "active"));
 
-      useproxy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useproxy" ) );
-      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
+      useproxy = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "useproxy"));
+      proxyHost = XmlHandler.getTagValue(entrynode, "proxy_host");
+      proxyPort = XmlHandler.getTagValue(entrynode, "proxy_port");
+      proxyUsername = XmlHandler.getTagValue(entrynode, "proxy_username");
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, "proxy_password"));
 
-      publicpublickey = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "publicpublickey" ) );
-      keyFilename = XmlHandler.getTagValue( entrynode, "keyfilename" );
-      keyFilePass = XmlHandler.getTagValue( entrynode, "keyfilepass" );
+      publicpublickey = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "publicpublickey"));
+      keyFilename = XmlHandler.getTagValue(entrynode, "keyfilename");
+      keyFilePass = XmlHandler.getTagValue(entrynode, "keyfilepass");
 
-      nrLimitSuccess = XmlHandler.getTagValue( entrynode, "nr_limit_success" );
-      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
-      copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
+      nrLimitSuccess = XmlHandler.getTagValue(entrynode, "nr_limit_success");
+      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
+      copyprevious = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "copyprevious"));
       FtpsConnectionType =
-        FtpsConnection.getConnectionTypeByCode( Const.NVL( XmlHandler.getTagValue(
-          entrynode, "ftps_connection_type" ), "" ) );
-      socksProxyHost = XmlHandler.getTagValue( entrynode, "socksproxy_host" );
-      socksProxyPort = XmlHandler.getTagValue( entrynode, "socksproxy_port" );
-      socksProxyUsername = XmlHandler.getTagValue( entrynode, "socksproxy_username" );
+          FtpsConnection.getConnectionTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "ftps_connection_type"), ""));
+      socksProxyHost = XmlHandler.getTagValue(entrynode, "socksproxy_host");
+      socksProxyPort = XmlHandler.getTagValue(entrynode, "socksproxy_port");
+      socksProxyUsername = XmlHandler.getTagValue(entrynode, "socksproxy_username");
       socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "socksproxy_password" ) );
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, "socksproxy_password"));
 
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( "Unable to load action of type 'ftp' from XML node", xe );
+    } catch (HopXmlException xe) {
+      throw new HopXmlException("Unable to load action of type 'ftp' from XML node", xe);
     }
   }
 
   private boolean getStatus() {
     boolean retval = false;
 
-    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_ALL_FILES_DOWNLOADED ) )
-      || ( NrfilesDeleted >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
-      || ( nrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_ALL_FILES_DOWNLOADED))
+        || (NrfilesDeleted >= limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
+        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
       retval = true;
     }
 
@@ -285,67 +298,51 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return copyprevious;
   }
 
-  public void setCopyPrevious( boolean copyprevious ) {
+  public void setCopyPrevious(boolean copyprevious) {
     this.copyprevious = copyprevious;
   }
 
-  /**
-   * @param publickey The publicpublickey to set.
-   */
-  public void setUsePublicKey( boolean publickey ) {
+  /** @param publickey The publicpublickey to set. */
+  public void setUsePublicKey(boolean publickey) {
     this.publicpublickey = publickey;
   }
 
-  /**
-   * @return Returns the use public key.
-   */
+  /** @return Returns the use public key. */
   public boolean isUsePublicKey() {
     return publicpublickey;
   }
 
-  /**
-   * @param keyfilename The key filename to set.
-   */
-  public void setKeyFilename( String keyfilename ) {
+  /** @param keyfilename The key filename to set. */
+  public void setKeyFilename(String keyfilename) {
     this.keyFilename = keyfilename;
   }
 
-  /**
-   * @return Returns the key filename.
-   */
+  /** @return Returns the key filename. */
   public String getKeyFilename() {
     return keyFilename;
   }
 
-  /**
-   * @param keyFilePass The key file pass to set.
-   */
-  public void setKeyFilePass( String keyFilePass ) {
+  /** @param keyFilePass The key file pass to set. */
+  public void setKeyFilePass(String keyFilePass) {
     this.keyFilePass = keyFilePass;
   }
 
-  /**
-   * @return Returns the key file pass.
-   */
+  /** @return Returns the key file pass. */
   public String getKeyFilePass() {
     return keyFilePass;
   }
 
-  /**
-   * @return the connection type
-   */
+  /** @return the connection type */
   public int getFtpsConnectionType() {
     return FtpsConnectionType;
   }
 
-  /**
-   * @param type the connectionType to set
-   */
-  public void setFtpsConnectionType(int type ) {
+  /** @param type the connectionType to set */
+  public void setFtpsConnectionType(int type) {
     FtpsConnectionType = type;
   }
 
-  public void setLimitSuccess( String nrLimitSuccessin ) {
+  public void setLimitSuccess(String nrLimitSuccessin) {
     this.nrLimitSuccess = nrLimitSuccessin;
   }
 
@@ -353,7 +350,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return nrLimitSuccess;
   }
 
-  public void setSuccessCondition( String successCondition ) {
+  public void setSuccessCondition(String successCondition) {
     this.successCondition = successCondition;
   }
 
@@ -361,49 +358,37 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return successCondition;
   }
 
-  /**
-   * @return Returns the directory.
-   */
+  /** @return Returns the directory. */
   public String getFtpDirectory() {
     return ftpDirectory;
   }
 
-  /**
-   * @param directory The directory to set.
-   */
-  public void setFtpDirectory( String directory ) {
+  /** @param directory The directory to set. */
+  public void setFtpDirectory(String directory) {
     this.ftpDirectory = directory;
   }
 
-  /**
-   * @return Returns the password.
-   */
+  /** @return Returns the password. */
   public String getPassword() {
     return password;
   }
 
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return Returns the serverName.
-   */
+  /** @return Returns the serverName. */
   public String getServerName() {
     return serverName;
   }
 
-  /**
-   * @param serverName The serverName to set.
-   */
-  public void setServerName( String serverName ) {
+  /** @param serverName The serverName to set. */
+  public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  public void setProtocol( String protocol ) {
+  public void setProtocol(String protocol) {
     this.protocol = protocol;
   }
 
@@ -411,59 +396,43 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return protocol;
   }
 
-  /**
-   * @return Returns the userName.
-   */
+  /** @return Returns the userName. */
   public String getUserName() {
     return userName;
   }
 
-  /**
-   * @param userName The userName to set.
-   */
-  public void setUserName( String userName ) {
+  /** @param userName The userName to set. */
+  public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /**
-   * @return Returns the wildcard.
-   */
+  /** @return Returns the wildcard. */
   public String getWildcard() {
     return wildcard;
   }
 
-  /**
-   * @param wildcard The wildcard to set.
-   */
-  public void setWildcard( String wildcard ) {
+  /** @param wildcard The wildcard to set. */
+  public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
 
-  /**
-   * @param timeout The timeout to set.
-   */
-  public void setTimeout( int timeout ) {
+  /** @param timeout The timeout to set. */
+  public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
 
-  /**
-   * @return Returns the timeout.
-   */
+  /** @return Returns the timeout. */
   public int getTimeout() {
     return timeout;
   }
 
-  /**
-   * @return Returns the hostname of the ftp-proxy.
-   */
+  /** @return Returns the hostname of the ftp-proxy. */
   public String getProxyHost() {
     return proxyHost;
   }
 
-  /**
-   * @param proxyHost The hostname of the proxy.
-   */
-  public void setProxyHost( String proxyHost ) {
+  /** @param proxyHost The hostname of the proxy. */
+  public void setProxyHost(String proxyHost) {
     this.proxyHost = proxyHost;
   }
 
@@ -471,77 +440,59 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return useproxy;
   }
 
-  public void setUseProxy( boolean useproxy ) {
+  public void setUseProxy(boolean useproxy) {
     this.useproxy = useproxy;
   }
 
-  /**
-   * @return Returns the password which is used to authenticate at the proxy.
-   */
+  /** @return Returns the password which is used to authenticate at the proxy. */
   public String getProxyPassword() {
     return proxyPassword;
   }
 
-  /**
-   * @param proxyPassword The password which is used to authenticate at the proxy.
-   */
-  public void setProxyPassword( String proxyPassword ) {
+  /** @param proxyPassword The password which is used to authenticate at the proxy. */
+  public void setProxyPassword(String proxyPassword) {
     this.proxyPassword = proxyPassword;
   }
 
-  /**
-   * @return Returns the port of the ftp.
-   */
+  /** @return Returns the port of the ftp. */
   public String getPort() {
     return port;
   }
 
-  /**
-   * @param port The port of the ftp.
-   */
-  public void setPort( String port ) {
+  /** @param port The port of the ftp. */
+  public void setPort(String port) {
     this.port = port;
   }
 
-  /**
-   * @return Returns the port of the ftp-proxy.
-   */
+  /** @return Returns the port of the ftp-proxy. */
   public String getProxyPort() {
     return proxyPort;
   }
 
-  /**
-   * @param proxyPort The port of the ftp-proxy.
-   */
-  public void setProxyPort( String proxyPort ) {
+  /** @param proxyPort The port of the ftp-proxy. */
+  public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
 
-  /**
-   * @return Returns the username which is used to authenticate at the proxy.
-   */
+  /** @return Returns the username which is used to authenticate at the proxy. */
   public String getProxyUsername() {
     return proxyUsername;
   }
 
-  /**
-   * @param proxyUsername The username which is used to authenticate at the proxy.
-   */
-  public void setProxyUsername( String proxyUsername ) {
+  /** @param proxyUsername The username which is used to authenticate at the proxy. */
+  public void setProxyUsername(String proxyUsername) {
     this.proxyUsername = proxyUsername;
   }
 
-  /**
-   * Needed for the Vector coming from sshclient.ls() *
-   */
-  @SuppressWarnings( "unchecked" )
-  public Result execute( Result previousResult, int nr ) {
-    log.logBasic( BaseMessages.getString( PKG, "ActionFTPDelete.Started", serverName ) );
+  /** Needed for the Vector coming from sshclient.ls() * */
+  @SuppressWarnings("unchecked")
+  public Result execute(Result previousResult, int nr) {
+    log.logBasic(BaseMessages.getString(PKG, "ActionFTPDelete.Started", serverName));
     RowMetaAndData resultRow = null;
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
 
-    result.setResult( false );
+    result.setResult(false);
     nrErrors = 0;
     NrfilesDeleted = 0;
     successConditionBroken = false;
@@ -549,32 +500,33 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
     // Here let's put some controls before stating the workflow
 
-    String realservername = environmentSubstitute( serverName );
-    String realserverpassword = Utils.resolvePassword( this, password );
-    String realFtpDirectory = environmentSubstitute( ftpDirectory );
+    String realservername = environmentSubstitute(serverName);
+    String realserverpassword = Utils.resolvePassword(this, password);
+    String realFtpDirectory = environmentSubstitute(ftpDirectory);
 
-    int realserverport = Const.toInt( environmentSubstitute( port ), 0 );
-    String realUsername = environmentSubstitute( userName );
-    String realPassword = Utils.resolvePassword( this, password );
-    String realproxyhost = environmentSubstitute( proxyHost );
-    String realproxyusername = environmentSubstitute( proxyUsername );
-    String realproxypassword = Utils.resolvePassword( this, proxyPassword );
-    int realproxyport = Const.toInt( environmentSubstitute( proxyPort ), 0 );
-    String realkeyFilename = environmentSubstitute( keyFilename );
-    String realkeyPass = environmentSubstitute( keyFilePass );
+    int realserverport = Const.toInt(environmentSubstitute(port), 0);
+    String realUsername = environmentSubstitute(userName);
+    String realPassword = Utils.resolvePassword(this, password);
+    String realproxyhost = environmentSubstitute(proxyHost);
+    String realproxyusername = environmentSubstitute(proxyUsername);
+    String realproxypassword = Utils.resolvePassword(this, proxyPassword);
+    int realproxyport = Const.toInt(environmentSubstitute(proxyPort), 0);
+    String realkeyFilename = environmentSubstitute(keyFilename);
+    String realkeyPass = environmentSubstitute(keyFilePass);
 
-    // PDI The following is used to apply a path for SSH because the SFTPv3Client doesn't let us specify/change dirs
+    // PDI The following is used to apply a path for SSH because the SFTPv3Client doesn't let us
+    // specify/change dirs
     String sourceFolder = "";
 
-    if ( isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.Start" ) );
+    if (isDetailed()) {
+      logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.Start"));
     }
 
-    if ( copyprevious && rows.size() == 0 ) {
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.ArgsFromPreviousNothing" ) );
+    if (copyprevious && rows.size() == 0) {
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.ArgsFromPreviousNothing"));
       }
-      result.setResult( true );
+      result.setResult(true);
       return result;
     }
 
@@ -582,235 +534,261 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
       // Get all the files in the current directory...
       String[] filelist = null;
-      if ( protocol.equals( PROTOCOL_FTP ) ) {
+      if (protocol.equals(PROTOCOL_FTP)) {
         // If socks proxy server was provided
-        if ( !Utils.isEmpty( socksProxyHost ) ) {
-          if ( !Utils.isEmpty( socksProxyPort ) ) {
-            FTPClient.initSOCKS( environmentSubstitute( socksProxyPort ), environmentSubstitute( socksProxyHost ) );
+        if (!Utils.isEmpty(socksProxyHost)) {
+          if (!Utils.isEmpty(socksProxyPort)) {
+            FTPClient.initSOCKS(
+                environmentSubstitute(socksProxyPort), environmentSubstitute(socksProxyHost));
           } else {
-            throw new FTPException( BaseMessages.getString(
-              PKG, "ActionFTPDelete.SocksProxy.PortMissingException", environmentSubstitute( socksProxyHost ),
-              getName() ) );
+            throw new FTPException(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionFTPDelete.SocksProxy.PortMissingException",
+                    environmentSubstitute(socksProxyHost),
+                    getName()));
           }
           // then if we have authentication information
-          if ( !Utils.isEmpty( socksProxyUsername ) && !Utils.isEmpty( socksProxyPassword ) ) {
+          if (!Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
             FTPClient.initSOCKSAuthentication(
-              environmentSubstitute( socksProxyUsername ), Utils.resolvePassword( this, socksProxyPassword ) );
-          } else if ( !Utils.isEmpty( socksProxyUsername )
-            && Utils.isEmpty( socksProxyPassword ) || Utils.isEmpty( socksProxyUsername )
-            && !Utils.isEmpty( socksProxyPassword ) ) {
+                environmentSubstitute(socksProxyUsername),
+                Utils.resolvePassword(this, socksProxyPassword));
+          } else if (!Utils.isEmpty(socksProxyUsername) && Utils.isEmpty(socksProxyPassword)
+              || Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
             // we have a username without a password or vica versa
-            throw new FTPException( BaseMessages.getString(
-              PKG, "ActionFTPDelete.SocksProxy.IncompleteCredentials",
-              environmentSubstitute( socksProxyHost ), getName() ) );
+            throw new FTPException(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionFTPDelete.SocksProxy.IncompleteCredentials",
+                    environmentSubstitute(socksProxyHost),
+                    getName()));
           }
         }
 
         // establish the connection
         FtpConnect(
-          realservername, realUsername, realPassword, realserverport, realFtpDirectory, realproxyhost,
-          realproxyusername, realproxypassword, realproxyport, timeout );
+            realservername,
+            realUsername,
+            realPassword,
+            realserverport,
+            realFtpDirectory,
+            realproxyhost,
+            realproxyusername,
+            realproxypassword,
+            realproxyport,
+            timeout);
 
         filelist = ftpclient.dir();
 
         // Some FTP servers return a message saying no files found as a string in the filenlist
         // e.g. Solaris 8
         // CHECK THIS !!!
-        if ( filelist.length == 1 ) {
-          String translatedWildcard = environmentSubstitute( wildcard );
-          if ( !Utils.isEmpty( translatedWildcard ) ) {
-            if ( filelist[ 0 ].startsWith( translatedWildcard ) ) {
-              throw new FTPException( filelist[ 0 ] );
+        if (filelist.length == 1) {
+          String translatedWildcard = environmentSubstitute(wildcard);
+          if (!Utils.isEmpty(translatedWildcard)) {
+            if (filelist[0].startsWith(translatedWildcard)) {
+              throw new FTPException(filelist[0]);
             }
-
           }
         }
-      } else if ( protocol.equals( PROTOCOL_FTPS ) ) {
+      } else if (protocol.equals(PROTOCOL_FTPS)) {
         // establish the secure connection
-        FtpsConnect( realservername, realUsername, realserverport, realPassword, realFtpDirectory, timeout );
+        FtpsConnect(
+            realservername, realUsername, realserverport, realPassword, realFtpDirectory, timeout);
         // Get all the files in the current directory...
         filelist = ftpsclient.getFileNames();
-      } else if ( protocol.equals( PROTOCOL_SFTP ) ) {
+      } else if (protocol.equals(PROTOCOL_SFTP)) {
         // establish the secure connection
-        SFTPConnect( realservername, realUsername, realserverport, realPassword, realFtpDirectory );
+        SFTPConnect(realservername, realUsername, realserverport, realPassword, realFtpDirectory);
 
         // Get all the files in the current directory...
         filelist = sftpclient.dir();
-      } else if ( protocol.equals( PROTOCOL_SSH ) ) {
+      } else if (protocol.equals(PROTOCOL_SSH)) {
         // establish the secure connection
         SSHConnect(
-          realservername, realserverpassword, realserverport, realUsername, realPassword, realproxyhost,
-          realproxyusername, realproxypassword, realproxyport, realkeyFilename, realkeyPass );
+            realservername,
+            realserverpassword,
+            realserverport,
+            realUsername,
+            realPassword,
+            realproxyhost,
+            realproxyusername,
+            realproxypassword,
+            realproxyport,
+            realkeyFilename,
+            realkeyPass);
 
         sourceFolder = ".";
-        if ( realFtpDirectory != null ) {
+        if (realFtpDirectory != null) {
           sourceFolder = realFtpDirectory + "/";
         } else {
           sourceFolder = "./";
         }
 
         // NOTE: Source of the unchecked warning suppression for the declaration of this method.
-        Vector<SFTPv3DirectoryEntry> vfilelist = sshclient.ls( sourceFolder );
-        if ( vfilelist != null ) {
+        Vector<SFTPv3DirectoryEntry> vfilelist = sshclient.ls(sourceFolder);
+        if (vfilelist != null) {
           // Make one pass through the vfilelist to get an accurate count
           // Using the two-pass method with arrays is faster than using ArrayList
           int fileCount = 0;
           Iterator<SFTPv3DirectoryEntry> iterator = vfilelist.iterator();
-          while ( iterator.hasNext() ) {
+          while (iterator.hasNext()) {
             SFTPv3DirectoryEntry dirEntry = iterator.next();
 
-            if ( dirEntry != null
-              && !dirEntry.filename.equals( "." ) && !dirEntry.filename.equals("src/test")
-              && !isDirectory( sshclient, sourceFolder + dirEntry.filename ) ) {
+            if (dirEntry != null
+                && !dirEntry.filename.equals(".")
+                && !dirEntry.filename.equals("src/test")
+                && !isDirectory(sshclient, sourceFolder + dirEntry.filename)) {
               fileCount++;
             }
           }
 
           // Now that we have the correct count, create and fill in the array
-          filelist = new String[ fileCount ];
+          filelist = new String[fileCount];
           iterator = vfilelist.iterator();
           int i = 0;
-          while ( iterator.hasNext() ) {
+          while (iterator.hasNext()) {
             SFTPv3DirectoryEntry dirEntry = iterator.next();
 
-            if ( dirEntry != null
-              && !dirEntry.filename.equals( "." ) && !dirEntry.filename.equals("src/test")
-              && !isDirectory( sshclient, sourceFolder + dirEntry.filename ) ) {
-              filelist[ i ] = dirEntry.filename;
+            if (dirEntry != null
+                && !dirEntry.filename.equals(".")
+                && !dirEntry.filename.equals("src/test")
+                && !isDirectory(sshclient, sourceFolder + dirEntry.filename)) {
+              filelist[i] = dirEntry.filename;
               i++;
             }
           }
         }
       }
 
-      if ( isDetailed() ) {
-        logDetailed( "ActionFTPDelete.FoundNFiles", String.valueOf( filelist.length ) );
+      if (isDetailed()) {
+        logDetailed("ActionFTPDelete.FoundNFiles", String.valueOf(filelist.length));
       }
       int found = filelist == null ? 0 : filelist.length;
-      if ( found == 0 ) {
-        result.setResult( true );
+      if (found == 0) {
+        result.setResult(true);
         return result;
       }
 
       Pattern pattern = null;
-      if ( copyprevious ) {
+      if (copyprevious) {
         // Copy the input row to the (command line) arguments
-        for ( int iteration = 0; iteration < rows.size(); iteration++ ) {
-          resultRow = rows.get( iteration );
+        for (int iteration = 0; iteration < rows.size(); iteration++) {
+          resultRow = rows.get(iteration);
 
           // Get file names
-          String filePrevious = resultRow.getString( 0, null );
-          if ( !Utils.isEmpty( filePrevious ) ) {
-            listPreviousFiles.add( filePrevious );
+          String filePrevious = resultRow.getString(0, null);
+          if (!Utils.isEmpty(filePrevious)) {
+            listPreviousFiles.add(filePrevious);
           }
         }
       } else {
-        if ( !Utils.isEmpty( wildcard ) ) {
-          String realWildcard = environmentSubstitute( wildcard );
-          pattern = Pattern.compile( realWildcard );
-
+        if (!Utils.isEmpty(wildcard)) {
+          String realWildcard = environmentSubstitute(wildcard);
+          pattern = Pattern.compile(realWildcard);
         }
       }
 
-      if ( !getSuccessCondition().equals( SUCCESS_IF_ALL_FILES_DOWNLOADED ) ) {
-        limitFiles = Const.toInt( environmentSubstitute( getLimitSuccess() ), 10 );
+      if (!getSuccessCondition().equals(SUCCESS_IF_ALL_FILES_DOWNLOADED)) {
+        limitFiles = Const.toInt(environmentSubstitute(getLimitSuccess()), 10);
       }
 
       // Get the files in the list...
-      for ( int i = 0; i < filelist.length && !parentWorkflow.isStopped(); i++ ) {
-        if ( successConditionBroken ) {
-          throw new Exception( BaseMessages.getString( PKG, "ActionFTPDelete.SuccesConditionBroken" ) );
+      for (int i = 0; i < filelist.length && !parentWorkflow.isStopped(); i++) {
+        if (successConditionBroken) {
+          throw new Exception(BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
         }
 
         boolean getIt = false;
 
-        if ( isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "ActionFTPDelete.AnalysingFile", filelist[ i ] ) );
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "ActionFTPDelete.AnalysingFile", filelist[i]));
         }
 
         try {
           // First see if the file matches the regular expression!
-          if ( copyprevious ) {
-            if ( listPreviousFiles.contains( filelist[ i ] ) ) {
+          if (copyprevious) {
+            if (listPreviousFiles.contains(filelist[i])) {
               getIt = true;
             }
           } else {
-            if ( pattern != null ) {
-              Matcher matcher = pattern.matcher( filelist[ i ] );
+            if (pattern != null) {
+              Matcher matcher = pattern.matcher(filelist[i]);
               getIt = matcher.matches();
             }
           }
 
-          if ( getIt ) {
+          if (getIt) {
             // Delete file
-            if ( protocol.equals( PROTOCOL_FTP ) ) {
-              ftpclient.delete( filelist[ i ] );
+            if (protocol.equals(PROTOCOL_FTP)) {
+              ftpclient.delete(filelist[i]);
             }
-            if ( protocol.equals( PROTOCOL_FTPS ) ) {
-              ftpsclient.deleteFile( filelist[ i ] );
-            } else if ( protocol.equals( PROTOCOL_SFTP ) ) {
-              sftpclient.delete( filelist[ i ] );
-            } else if ( protocol.equals( PROTOCOL_SSH ) ) {
-              sshclient.rm( sourceFolder + filelist[ i ] );
+            if (protocol.equals(PROTOCOL_FTPS)) {
+              ftpsclient.deleteFile(filelist[i]);
+            } else if (protocol.equals(PROTOCOL_SFTP)) {
+              sftpclient.delete(filelist[i]);
+            } else if (protocol.equals(PROTOCOL_SSH)) {
+              sshclient.rm(sourceFolder + filelist[i]);
             }
-            if ( isDetailed() ) {
-              logDetailed( "ActionFTPDelete.RemotefileDeleted", filelist[ i ] );
+            if (isDetailed()) {
+              logDetailed("ActionFTPDelete.RemotefileDeleted", filelist[i]);
             }
             updateDeletedFiles();
           }
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           // Update errors number
           updateErrors();
-          logError( BaseMessages.getString( PKG, "JobFTP.UnexpectedError", e.getMessage() ) );
+          logError(BaseMessages.getString(PKG, "JobFTP.UnexpectedError", e.getMessage()));
 
-          if ( successConditionBroken ) {
-            throw new Exception( BaseMessages.getString( PKG, "ActionFTPDelete.SuccesConditionBroken" ) );
+          if (successConditionBroken) {
+            throw new Exception(
+                BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
           }
         }
       } // end for
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       updateErrors();
-      logError( BaseMessages.getString( PKG, "ActionFTPDelete.ErrorGetting", e.getMessage() ) );
-      logError( Const.getStackTracker( e ) );
+      logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()));
+      logError(Const.getStackTracker(e));
     } finally {
-      if ( ftpclient != null && ftpclient.connected() ) {
+      if (ftpclient != null && ftpclient.connected()) {
         try {
           ftpclient.quit();
           ftpclient = null;
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage() ) );
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage()));
         }
       }
-      if ( ftpsclient != null ) {
+      if (ftpsclient != null) {
         try {
           ftpsclient.disconnect();
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage() ) );
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage()));
         }
       }
-      if ( sftpclient != null ) {
+      if (sftpclient != null) {
         try {
           sftpclient.disconnect();
           sftpclient = null;
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage() ) );
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage()));
         }
       }
-      if ( sshclient != null ) {
+      if (sshclient != null) {
         try {
           sshclient.close();
           sshclient = null;
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage() ) );
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorQuitting", e.getMessage()));
         }
       }
 
       FTPClient.clearSOCKS();
     }
 
-    result.setResult( !successConditionBroken );
-    result.setNrFilesRetrieved( NrfilesDeleted );
-    result.setNrErrors( nrErrors );
+    result.setResult(!successConditionBroken);
+    result.setNrFilesRetrieved(NrfilesDeleted);
+    result.setNrErrors(nrErrors);
 
     return result;
   }
@@ -822,38 +800,48 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
    * @param filename
    * @return true, if filename is a directory
    */
-  public boolean isDirectory( SFTPv3Client sftpClient, String filename ) {
+  public boolean isDirectory(SFTPv3Client sftpClient, String filename) {
     try {
-      return sftpClient.stat( filename ).isDirectory();
-    } catch ( Exception e ) {
+      return sftpClient.stat(filename).isDirectory();
+    } catch (Exception e) {
       // Ignore FTP errors
     }
     return false;
   }
 
-  private void SSHConnect( String realservername, String realserverpassword, int realserverport,
-                           String realUsername, String realPassword, String realproxyhost, String realproxyusername,
-                           String realproxypassword, int realproxyport, String realkeyFilename, String realkeyPass ) throws Exception {
+  private void SSHConnect(
+      String realservername,
+      String realserverpassword,
+      int realserverport,
+      String realUsername,
+      String realPassword,
+      String realproxyhost,
+      String realproxyusername,
+      String realproxypassword,
+      int realproxyport,
+      String realkeyFilename,
+      String realkeyPass)
+      throws Exception {
 
     /* Create a connection instance */
 
-    Connection conn = new Connection( realservername, realserverport );
+    Connection conn = new Connection(realservername, realserverport);
 
     /* We want to connect through a HTTP proxy */
-    if ( useproxy ) {
-      conn.setProxyData( new HTTPProxyData( realproxyhost, realproxyport ) );
+    if (useproxy) {
+      conn.setProxyData(new HTTPProxyData(realproxyhost, realproxyport));
 
       /* Now connect */
       // if the proxy requires basic authentication:
-      if ( !Utils.isEmpty( realproxyusername ) || !Utils.isEmpty( realproxypassword ) ) {
-        conn
-          .setProxyData( new HTTPProxyData( realproxyhost, realproxyport, realproxyusername, realproxypassword ) );
+      if (!Utils.isEmpty(realproxyusername) || !Utils.isEmpty(realproxypassword)) {
+        conn.setProxyData(
+            new HTTPProxyData(realproxyhost, realproxyport, realproxyusername, realproxypassword));
       }
     }
 
-    if ( timeout > 0 ) {
+    if (timeout > 0) {
       // Use timeout
-      conn.connect( null, 0, timeout * 1000 );
+      conn.connect(null, 0, timeout * 1000);
 
     } else {
       // Cache Host Key
@@ -863,178 +851,204 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     // Authenticate
 
     boolean isAuthenticated = false;
-    if ( publicpublickey ) {
-      isAuthenticated = conn.authenticateWithPublicKey( realUsername, new File( realkeyFilename ), realkeyPass );
+    if (publicpublickey) {
+      isAuthenticated =
+          conn.authenticateWithPublicKey(realUsername, new File(realkeyFilename), realkeyPass);
     } else {
-      isAuthenticated = conn.authenticateWithPassword( realUsername, realserverpassword );
+      isAuthenticated = conn.authenticateWithPassword(realUsername, realserverpassword);
     }
 
-    if ( !isAuthenticated ) {
-      throw new Exception( "Can not connect to " );
+    if (!isAuthenticated) {
+      throw new Exception("Can not connect to ");
     }
 
-    sshclient = new SFTPv3Client( conn );
-
+    sshclient = new SFTPv3Client(conn);
   }
 
-  private void SFTPConnect( String realservername, String realusername, int realport, String realpassword,
-                            String realFtpDirectory ) throws Exception {
+  private void SFTPConnect(
+      String realservername,
+      String realusername,
+      int realport,
+      String realpassword,
+      String realFtpDirectory)
+      throws Exception {
     // Create sftp client to host ...
-    sftpclient = new SftpClient( InetAddress.getByName( realservername ), realport, realusername );
+    sftpclient = new SftpClient(InetAddress.getByName(realservername), realport, realusername);
 
     // login to ftp host ...
-    sftpclient.login( realpassword );
+    sftpclient.login(realpassword);
 
     // move to spool dir ...
-    if ( !Utils.isEmpty( realFtpDirectory ) ) {
-      sftpclient.chdir( realFtpDirectory );
-      if ( isDetailed() ) {
-        logDetailed( "Changed to directory [" + realFtpDirectory + "]" );
+    if (!Utils.isEmpty(realFtpDirectory)) {
+      sftpclient.chdir(realFtpDirectory);
+      if (isDetailed()) {
+        logDetailed("Changed to directory [" + realFtpDirectory + "]");
       }
     }
-
   }
 
-  private void FtpsConnect(String realservername, String realusername, int realport, String realpassword,
-                           String realFtpDirectory, int realtimeout ) throws Exception {
+  private void FtpsConnect(
+      String realservername,
+      String realusername,
+      int realport,
+      String realpassword,
+      String realFtpDirectory,
+      int realtimeout)
+      throws Exception {
     // Create ftps client to host ...
     ftpsclient =
-      new FtpsConnection( getFtpsConnectionType(), realservername, realport, realusername, realpassword );
+        new FtpsConnection(
+            getFtpsConnectionType(), realservername, realport, realusername, realpassword);
 
-    if ( !Utils.isEmpty( proxyHost ) ) {
-      String realProxyHost = environmentSubstitute( proxyHost );
-      String realProxyUsername = environmentSubstitute( proxyUsername );
-      String realProxyPassword = Utils.resolvePassword( this, proxyPassword );
+    if (!Utils.isEmpty(proxyHost)) {
+      String realProxyHost = environmentSubstitute(proxyHost);
+      String realProxyUsername = environmentSubstitute(proxyUsername);
+      String realProxyPassword = Utils.resolvePassword(this, proxyPassword);
 
-      ftpsclient.setProxyHost( realProxyHost );
-      if ( !Utils.isEmpty( realProxyUsername ) ) {
-        ftpsclient.setProxyUser( realProxyUsername );
+      ftpsclient.setProxyHost(realProxyHost);
+      if (!Utils.isEmpty(realProxyUsername)) {
+        ftpsclient.setProxyUser(realProxyUsername);
       }
-      if ( !Utils.isEmpty( realProxyPassword ) ) {
-        ftpsclient.setProxyPassword( realProxyPassword );
+      if (!Utils.isEmpty(realProxyPassword)) {
+        ftpsclient.setProxyPassword(realProxyPassword);
       }
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxyHost ) );
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxyHost));
       }
 
-      int proxyport = Const.toInt( environmentSubstitute( proxyPort ), 21 );
-      if ( proxyport != 0 ) {
-        ftpsclient.setProxyPort( proxyport );
+      int proxyport = Const.toInt(environmentSubstitute(proxyPort), 21);
+      if (proxyport != 0) {
+        ftpsclient.setProxyPort(proxyport);
       }
     } else {
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedConnectionTo", realservername ) );
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionFTPDelete.OpenedConnectionTo", realservername));
       }
     }
 
     // set activeConnection connectmode ...
-    if ( activeConnection ) {
-      ftpsclient.setPassiveMode( false );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetActive" ) );
+    if (activeConnection) {
+      ftpsclient.setPassiveMode(false);
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.SetActive"));
       }
     } else {
-      ftpsclient.setPassiveMode( true );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetPassive" ) );
+      ftpsclient.setPassiveMode(true);
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.SetPassive"));
       }
     }
 
     // Set the timeout
-    ftpsclient.setTimeOut( realtimeout );
-    if ( isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetTimeout", String.valueOf( realtimeout ) ) );
+    ftpsclient.setTimeOut(realtimeout);
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "ActionFTPDelete.SetTimeout", String.valueOf(realtimeout)));
     }
 
     // now connect
     ftpsclient.connect();
 
     // move to spool dir ...
-    if ( !Utils.isEmpty( realFtpDirectory ) ) {
-      ftpsclient.changeDirectory( realFtpDirectory );
-      if ( isDetailed() ) {
-        logDetailed( "Changed to directory [" + realFtpDirectory + "]" );
+    if (!Utils.isEmpty(realFtpDirectory)) {
+      ftpsclient.changeDirectory(realFtpDirectory);
+      if (isDetailed()) {
+        logDetailed("Changed to directory [" + realFtpDirectory + "]");
       }
     }
   }
 
-  private void FtpConnect(String realServername, String realusername, String realpassword, int realport,
-                          String realFtpDirectory, String realProxyhost, String realproxyusername, String realproxypassword,
-                          int realproxyport, int realtimeout ) throws Exception {
+  private void FtpConnect(
+      String realServername,
+      String realusername,
+      String realpassword,
+      int realport,
+      String realFtpDirectory,
+      String realProxyhost,
+      String realproxyusername,
+      String realproxypassword,
+      int realproxyport,
+      int realtimeout)
+      throws Exception {
 
     // Create ftp client to host:port ...
     ftpclient = new FTPClient();
-    ftpclient.setRemoteAddr( InetAddress.getByName( realServername ) );
-    if ( realport != 0 ) {
-      ftpclient.setRemotePort( realport );
+    ftpclient.setRemoteAddr(InetAddress.getByName(realServername));
+    if (realport != 0) {
+      ftpclient.setRemotePort(realport);
     }
 
-    if ( !Utils.isEmpty( realProxyhost ) ) {
-      ftpclient.setRemoteAddr( InetAddress.getByName( realProxyhost ) );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxyhost ) );
+    if (!Utils.isEmpty(realProxyhost)) {
+      ftpclient.setRemoteAddr(InetAddress.getByName(realProxyhost));
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxyhost));
       }
 
       // FIXME: Proper default port for proxy
-      if ( realproxyport != 0 ) {
-        ftpclient.setRemotePort( realproxyport );
+      if (realproxyport != 0) {
+        ftpclient.setRemotePort(realproxyport);
       }
     } else {
-      ftpclient.setRemoteAddr( InetAddress.getByName( realServername ) );
+      ftpclient.setRemoteAddr(InetAddress.getByName(realServername));
 
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedConnectionTo", realServername ) );
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionFTPDelete.OpenedConnectionTo", realServername));
       }
     }
 
     // set activeConnection connectmode ...
-    if ( activeConnection ) {
-      ftpclient.setConnectMode( FTPConnectMode.ACTIVE );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetActive" ) );
+    if (activeConnection) {
+      ftpclient.setConnectMode(FTPConnectMode.ACTIVE);
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.SetActive"));
       }
     } else {
-      ftpclient.setConnectMode( FTPConnectMode.PASV );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetPassive" ) );
+      ftpclient.setConnectMode(FTPConnectMode.PASV);
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.SetPassive"));
       }
     }
 
     // Set the timeout
-    ftpclient.setTimeout( realtimeout );
-    if ( isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.SetTimeout", String.valueOf( realtimeout ) ) );
+    ftpclient.setTimeout(realtimeout);
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "ActionFTPDelete.SetTimeout", String.valueOf(realtimeout)));
     }
 
     // login to ftp host ...
     ftpclient.connect();
 
     String realUsername =
-      realusername
-        + ( !Utils.isEmpty( realProxyhost ) ? "@" + realServername : "" )
-        + ( !Utils.isEmpty( realproxyusername ) ? " " + realproxyusername : "" );
+        realusername
+            + (!Utils.isEmpty(realProxyhost) ? "@" + realServername : "")
+            + (!Utils.isEmpty(realproxyusername) ? " " + realproxyusername : "");
 
-    String realPassword = realpassword + ( !Utils.isEmpty( realproxypassword ) ? " " + realproxypassword : "" );
+    String realPassword =
+        realpassword + (!Utils.isEmpty(realproxypassword) ? " " + realproxypassword : "");
 
-    ftpclient.login( realUsername, realPassword );
+    ftpclient.login(realUsername, realPassword);
     // Remove password from logging, you don't know where it ends up.
-    if ( isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.LoggedIn", realUsername ) );
+    if (isDetailed()) {
+      logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.LoggedIn", realUsername));
     }
 
     // move to spool dir ...
-    if ( !Utils.isEmpty( realFtpDirectory ) ) {
-      ftpclient.chdir( realFtpDirectory );
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.ChangedDir", realFtpDirectory ) );
+    if (!Utils.isEmpty(realFtpDirectory)) {
+      ftpclient.chdir(realFtpDirectory);
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.ChangedDir", realFtpDirectory));
       }
     }
-
   }
 
   private void updateErrors() {
     nrErrors++;
-    if ( !getStatus() ) {
+    if (!getStatus()) {
       // Success condition was broken
       successConditionBroken = true;
     }
@@ -1048,94 +1062,97 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  /**
-   * @return the activeConnection
-   */
+  /** @return the activeConnection */
   public boolean isActiveConnection() {
     return activeConnection;
   }
 
-  /**
-   * @param activeConnection the activeConnection to set
-   */
-  public void setActiveConnection( boolean activeConnection ) {
+  /** @param activeConnection the activeConnection to set */
+  public void setActiveConnection(boolean activeConnection) {
     this.activeConnection = activeConnection;
   }
 
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "serverName", remarks, AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate(
-      this, "targetDirectory", remarks, AndValidator.putValidators(
-        ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "userName", remarks, AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "password", remarks, AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "serverName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "targetDirectory",
+            remarks,
+            AndValidator.putValidators(
+                ActionValidatorUtils.notBlankValidator(),
+                ActionValidatorUtils.fileExistsValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "userName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "password",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
-    if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = environmentSubstitute( serverName );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(workflowMeta);
+    if (!Utils.isEmpty(serverName)) {
+      String realServername = environmentSubstitute(serverName);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
+      references.add(reference);
     }
     return references;
   }
 
-  /**
-   * @return Socks proxy host
-   */
+  /** @return Socks proxy host */
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
-  /**
-   * @return Socks proxy port
-   */
+  /** @return Socks proxy port */
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
-  /**
-   * @return Socks proxy username
-   */
+  /** @return Socks proxy username */
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
-  /**
-   * @return Socks proxy username
-   */
+  /** @return Socks proxy username */
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }
 
-  /**
-   * @return Sets socks proxy host
-   */
-  public void setSocksProxyHost( String socksProxyHost ) {
+  /** @return Sets socks proxy host */
+  public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
 
-  /**
-   * @return Sets socks proxy port
-   */
-  public void setSocksProxyPort( String socksProxyPort ) {
+  /** @return Sets socks proxy port */
+  public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
 
-  /**
-   * @return Sets socks proxy username
-   */
-  public void setSocksProxyUsername( String socksProxyUsername ) {
+  /** @return Sets socks proxy username */
+  public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
 
-  /**
-   * @return Sets socks proxy username
-   */
-  public void setSocksProxyPassword( String socksProxyPassword ) {
+  /** @return Sets socks proxy username */
+  public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }
 }

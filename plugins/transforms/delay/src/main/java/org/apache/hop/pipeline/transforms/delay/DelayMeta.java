@@ -30,7 +30,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -41,16 +43,14 @@ import java.util.List;
  */
 
 @Transform(
-        id = "Delay",
-        image = "delay.svg",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.delay",
-        name = "BaseTransform.TypeLongDesc.Delay",
-        description = "BaseTransform.TypeTooltipDesc.Delay",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delay.html"
-)
+    id = "Delay",
+    image = "delay.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.Delay",
+    description = "i18n::BaseTransform.TypeTooltipDesc.Delay",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delay.html")
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
-  private static final Class<?> PKG = DelayMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DelayMeta.class; // For Translator
 
   private String timeout;
   private String scaletime;
@@ -58,7 +58,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
 
   // before 3.1.1 it was "millisecond","second","minute","hour"-->
   // keep compatibility see PDI-1850, PDI-1532
-  public String[] ScaleTimeCode = { "milliseconds", "seconds", "minutes", "hours" };
+  public String[] ScaleTimeCode = {"milliseconds", "seconds", "minutes", "hours"};
 
   public DelayMeta() {
     super(); // allocate BaseTransformMeta
@@ -66,14 +66,15 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XmlHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "    " + XmlHandler.addTagValue( "scaletime", scaletime ) );
+    retval.append("    " + XmlHandler.addTagValue("timeout", timeout));
+    retval.append("    " + XmlHandler.addTagValue("scaletime", scaletime));
 
     return retval.toString();
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -85,54 +86,56 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
     return scaletime;
   }
 
-  public void setScaleTimeCode( int ScaleTimeIndex ) {
-    switch ( ScaleTimeIndex ) {
+  public void setScaleTimeCode(int ScaleTimeIndex) {
+    switch (ScaleTimeIndex) {
       case 0:
-        scaletime = ScaleTimeCode[ 0 ]; // milliseconds
+        scaletime = ScaleTimeCode[0]; // milliseconds
         break;
       case 1:
-        scaletime = ScaleTimeCode[ 1 ]; // second
+        scaletime = ScaleTimeCode[1]; // second
         break;
       case 2:
-        scaletime = ScaleTimeCode[ 2 ]; // minutes
+        scaletime = ScaleTimeCode[2]; // minutes
         break;
       case 3:
-        scaletime = ScaleTimeCode[ 3 ]; // hours
+        scaletime = ScaleTimeCode[3]; // hours
         break;
       default:
-        scaletime = ScaleTimeCode[ 1 ]; // seconds
+        scaletime = ScaleTimeCode[1]; // seconds
         break;
     }
   }
 
   public int getScaleTimeCode() {
     int retval = 1; // DEFAULT: seconds
-    if ( scaletime == null ) {
+    if (scaletime == null) {
       return retval;
     }
-    if ( scaletime.equals( ScaleTimeCode[ 0 ] ) ) {
+    if (scaletime.equals(ScaleTimeCode[0])) {
       retval = 0;
-    } else if ( scaletime.equals( ScaleTimeCode[ 1 ] ) ) {
+    } else if (scaletime.equals(ScaleTimeCode[1])) {
       retval = 1;
-    } else if ( scaletime.equals( ScaleTimeCode[ 2 ] ) ) {
+    } else if (scaletime.equals(ScaleTimeCode[2])) {
       retval = 2;
-    } else if ( scaletime.equals( ScaleTimeCode[ 3 ] ) ) {
+    } else if (scaletime.equals(ScaleTimeCode[3])) {
       retval = 3;
     }
 
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      timeout = XmlHandler.getTagValue( transformNode, "timeout" );
-      scaletime = XmlHandler.getTagValue( transformNode, "scaletime" );
+      timeout = XmlHandler.getTagValue(transformNode, "timeout");
+      scaletime = XmlHandler.getTagValue(transformNode, "scaletime");
       // set all unknown values to seconds
-      setScaleTimeCode( getScaleTimeCode() ); // compatibility reasons for pipelines before 3.1.1, see PDI-1850,
+      setScaleTimeCode(
+          getScaleTimeCode()); // compatibility reasons for pipelines before 3.1.1, see PDI-1850,
       // PDI-1532
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "DelayMeta.Exception.UnableToReadTransformMeta" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "DelayMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
@@ -145,60 +148,81 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
     return timeout;
   }
 
-  public void setTimeOut( String timeout ) {
+  public void setTimeOut(String timeout) {
     this.timeout = timeout;
   }
 
-  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-  }
+  public void getFields(
+      IRowMeta rowMeta,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {}
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
-    if ( Utils.isEmpty( timeout ) ) {
-      errorMessage = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutMissing" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+    if (Utils.isEmpty(timeout)) {
+      errorMessage = BaseMessages.getString(PKG, "DelayMeta.CheckResult.TimeOutMissing");
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
-      errorMessage = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutOk" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
+      errorMessage = BaseMessages.getString(PKG, "DelayMeta.CheckResult.TimeOutOk");
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "DelayMeta.CheckResult.NotReceivingFields" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "DelayMeta.CheckResult.NotReceivingFields"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DelayMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DelayMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DelayMeta.CheckResult.TransformRecevingData2" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "DelayMeta.CheckResult.TransformRecevingData2"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "DelayMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "DelayMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
   }
 
-  public Delay createTransform( TransformMeta transformMeta, DelayData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
-    return new Delay( transformMeta, this, data, cnr, tr, pipeline );
+  public Delay createTransform(
+      TransformMeta transformMeta, DelayData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
+    return new Delay(transformMeta, this, data, cnr, tr, pipeline);
   }
 
   public DelayData getTransformData() {
     return new DelayData();
   }
-
 }

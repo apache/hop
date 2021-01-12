@@ -60,7 +60,7 @@ import java.util.List;
  * @since 07-apr-2005
  */
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private Shell shell;
 

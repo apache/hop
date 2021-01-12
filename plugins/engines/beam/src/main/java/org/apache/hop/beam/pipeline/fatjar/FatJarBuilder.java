@@ -217,9 +217,9 @@ public class FatJarBuilder {
     String[] pluginFolders = plugins.split( "," );
     for ( String pluginFolder : pluginFolders ) {
       try {
-        List<String> stepClasses = HopPipelineMetaToBeamPipelineConverter.findAnnotatedClasses( pluginFolder, pluginClassName );
-        for ( String stepClass : stepClasses ) {
-          classes.add( stepClass );
+        List<String> transformClasses = HopPipelineMetaToBeamPipelineConverter.findAnnotatedClasses( pluginFolder, pluginClassName );
+        for ( String transformClass : transformClasses ) {
+          classes.add( transformClass );
         }
       } catch ( Exception e ) {
         throw new HopException( "Error find plugin classes of annotation type '" + pluginClassName + "' in folder '" + pluginFolder, e );

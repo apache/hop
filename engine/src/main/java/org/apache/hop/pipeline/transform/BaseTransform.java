@@ -132,7 +132,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   implements ITransform<Meta, Data>,
   IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
-  private static final Class<?> PKG = BaseTransform.class; // Needed by Translator
+  private static final Class<?> PKG = BaseTransform.class; // For Translator
 
   protected IVariables variables = new Variables();
 

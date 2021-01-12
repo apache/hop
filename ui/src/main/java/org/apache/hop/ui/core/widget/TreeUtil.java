@@ -25,17 +25,20 @@ import org.eclipse.swt.widgets.TreeItem;
 public class TreeUtil {
   public static final void setOptimalWidthOnColumns(final Tree tree) {
     if (tree.isDisposed()) return;
-    // Compute size in UI Thread to avoid NPE 
-    tree.getDisplay().asyncExec(() -> {
-      if(tree.isDisposed()) return;
-      tree.setRedraw(false);
-      for (TreeColumn column : tree.getColumns()) {
-        if (column.isDisposed()) break;
-        column.pack();
-        column.setWidth(column.getWidth() + (int) (40 * PropsUi.getInstance().getZoomFactor()));
-      }
-      tree.setRedraw(true);      
-    });
+    // Compute size in UI Thread to avoid NPE
+    tree.getDisplay()
+        .asyncExec(
+            () -> {
+              if (tree.isDisposed()) return;
+              tree.setRedraw(false);
+              for (TreeColumn column : tree.getColumns()) {
+                if (column.isDisposed()) break;
+                column.pack();
+                column.setWidth(
+                    column.getWidth() + (int) (40 * PropsUi.getInstance().getZoomFactor()));
+              }
+              tree.setRedraw(true);
+            });
   }
 
   public static final TreeItem findTreeItem(Tree tree, String[] path) {

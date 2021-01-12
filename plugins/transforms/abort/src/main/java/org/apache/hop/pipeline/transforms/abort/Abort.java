@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITransform<AbortMeta, AbortData> {
 
-  private static final Class<?> PKG = Abort.class; // Needed by Translator
+  private static final Class<?> PKG = Abort.class; // For Translator
 
   private int nrInputRows;
   private int nrThresholdRows;

@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = NumberRangeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
 
   private final NumberRangeMeta input;
 

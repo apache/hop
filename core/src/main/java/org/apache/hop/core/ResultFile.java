@@ -34,7 +34,7 @@ import java.util.Date;
  * @author matt
  */
 public class ResultFile implements Cloneable {
-  private static final Class<?> PKG = Const.class; // Needed by Translator
+  private static final Class<?> PKG = Const.class; // For Translator
 
   public static final int FILE_TYPE_GENERAL = 0;
   public static final int FILE_TYPE_LOG = 1;

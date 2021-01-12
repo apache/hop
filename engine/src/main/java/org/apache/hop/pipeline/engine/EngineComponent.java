@@ -29,10 +29,7 @@ import java.util.Objects;
 
 public class EngineComponent implements IEngineComponent {
 
-  /**
-   * The pkg used for i18n
-   */
-  private static final Class<?> PKG = BaseTransform.class; // Needed by Translator
+  private static final Class<?> PKG = BaseTransform.class; // For Translator
 
   private String name;
   private int copyNr;

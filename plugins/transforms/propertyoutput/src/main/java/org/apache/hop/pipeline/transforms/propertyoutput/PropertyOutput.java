@@ -44,7 +44,7 @@ public class PropertyOutput
   extends BaseTransform<PropertyOutputMeta,PropertyOutputData>
   implements ITransform<PropertyOutputMeta,PropertyOutputData> {
 
-  private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 
   public PropertyOutput( TransformMeta transformMeta, PropertyOutputMeta meta, PropertyOutputData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {

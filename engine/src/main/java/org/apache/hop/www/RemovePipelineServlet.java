@@ -37,7 +37,7 @@ import java.io.PrintWriter;
 
 @HopServerServlet(id="removePipeline", name = "Remove a pipeline")
 public class RemovePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = RemovePipelineServlet.class; // Needed by Translator
+  private static final Class<?> PKG = RemovePipelineServlet.class; // For Translator
 
   private static final long serialVersionUID = 6618979989596401783L;
 

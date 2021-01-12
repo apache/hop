@@ -49,8 +49,7 @@ import java.util.Map;
 
 public class KafkaProducerOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
-  private static final Class<?> PKG = KafkaProducerOutputMeta.class;
+  private static final Class<?> PKG = KafkaProducerOutputMeta.class; // For Translator
 
   private static final ImmutableMap<String, String> DEFAULT_OPTION_VALUES = ImmutableMap.of( ProducerConfig.COMPRESSION_TYPE_CONFIG, "none" );
 

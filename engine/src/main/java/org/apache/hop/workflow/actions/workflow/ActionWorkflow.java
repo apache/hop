@@ -70,16 +70,14 @@ import java.util.UUID;
  * @since 01-10-2003, Rewritten on 18-06-2004
  */
 @Action(
-  id = "WORKFLOW",
-  image = "ui/images/workflow.svg",
-  i18nPackageName = "org.apache.hop.workflow.actions.workflow",
-  name = "ActionWorkflow.Name",
-  description = "ActionWorkflow.Description",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html"
-)
+    id = "WORKFLOW",
+    image = "ui/images/workflow.svg",
+    name = "i18n::ActionWorkflow.Name",
+    description = "i18n::ActionWorkflow.Description",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html")
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWorkflow.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
   private String filename;
 
@@ -263,7 +261,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables )
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
@@ -395,7 +393,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
       RowMetaAndData resultRow = null;
       boolean first = true;
-      List<RowMetaAndData> rows = new ArrayList<>( result.getRows() );
+      List<RowMetaAndData> rows = new ArrayList<>(result.getRows());
 
       while ((first && !execPerRow)
           || (execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0)) {
@@ -452,7 +450,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
               if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                 namedParam.setParameterValue(
-                    parameters[idx], Const.NVL( resolve(parameterValues[idx]), ""));
+                    parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
               } else {
                 // something filled in, in the field column...
                 //
@@ -486,8 +484,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                     namedParam.setParameterValue(
-                        parameters[idx],
-                        Const.NVL( resolve(parameterValues[idx]), ""));
+                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
                   } else {
                     String fieldValue = "";
 
@@ -515,8 +512,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                     namedParam.setParameterValue(
-                        parameters[idx],
-                        Const.NVL( resolve(parameterValues[idx]), ""));
+                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
                   } else {
                     String fieldValue = "";
 
@@ -536,11 +532,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         //
         workflow =
             WorkflowEngineFactory.createWorkflowEngine(
-                this,
-                resolve(runConfiguration),
-                metadataProvider,
-                workflowMeta,
-                this);
+                this, resolve(runConfiguration), metadataProvider, workflowMeta, this);
         workflow.setParentWorkflow(parentWorkflow);
         workflow.setLogLevel(jobLogLevel);
         workflow.shareWith(this);
@@ -625,7 +617,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         // Set the result rows too, if any ...
         if (!Utils.isEmpty(oneResult.getRows())) {
-          result.setRows( new ArrayList<>( oneResult.getRows() ));
+          result.setRows(new ArrayList<>(oneResult.getRows()));
         }
 
         // if one of them fails (in the loop), increase the number of errors

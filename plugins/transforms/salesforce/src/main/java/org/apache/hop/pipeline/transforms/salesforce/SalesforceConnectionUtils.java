@@ -24,7 +24,7 @@ public class SalesforceConnectionUtils {
 
   public static final int MAX_UPDATED_OBJECTS_IDS = 2000;
 
-  private static Class<?> PKG = SalesforceInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   public static final String TARGET_DEFAULT_URL = "https://login.salesforce.com/services/Soap/u/50.0";
 

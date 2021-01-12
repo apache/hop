@@ -46,7 +46,7 @@ import java.sql.SQLException;
  */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData> implements ITransform<TableInputMeta, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
   public TableInput( TransformMeta transformMeta, TableInputMeta meta, TableInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

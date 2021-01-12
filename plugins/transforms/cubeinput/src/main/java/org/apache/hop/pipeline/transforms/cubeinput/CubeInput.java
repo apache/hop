@@ -38,7 +38,7 @@ import java.util.zip.GZIPInputStream;
 
 public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> implements ITransform<CubeInputMeta, CubeInputData> {
 
-  private static final Class<?> PKG = CubeInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CubeInputMeta.class; // For Translator
 
   private int realRowLimit;
 

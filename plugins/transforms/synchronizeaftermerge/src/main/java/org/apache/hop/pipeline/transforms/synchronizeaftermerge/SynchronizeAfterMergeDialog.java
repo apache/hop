@@ -60,7 +60,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

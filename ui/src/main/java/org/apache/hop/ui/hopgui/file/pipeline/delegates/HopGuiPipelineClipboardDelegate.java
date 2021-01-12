@@ -42,7 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiPipelineClipboardDelegate {
-  private static final Class<?> PKG = HopGui.class; // i18n messages bundle location
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final String XML_TAG_PIPELINE_TRANSFORMS = "pipeline-transforms";
   private static final String XML_TAG_TRANSFORMS = "transforms";

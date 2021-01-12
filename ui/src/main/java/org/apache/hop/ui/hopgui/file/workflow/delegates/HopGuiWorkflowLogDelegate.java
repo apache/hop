@@ -48,7 +48,7 @@ import java.util.ArrayList;
 
 @GuiPlugin(description = "Workflow Graph Log Delegate")
 public class HopGuiWorkflowLogDelegate {
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // For Translator
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";

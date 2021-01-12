@@ -60,15 +60,14 @@ import java.util.List;
 
 @Action(
   id = "MYSQL_BULK_LOAD",
-  i18nPackageName = "org.apache.hop.workflow.actions.mysqlbulkload",
-  name = "ActionMysqlBulkLoad.Name",
-  description = "ActionMysqlBulkLoad.Description",
+  name = "i18n::ActionMysqlBulkLoad.Name",
+  description = "i18n::ActionMysqlBulkLoad.Description",
   image = "MysqlBulkLoad.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mysqlbulkload.html"
 )
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
 
   private String schemaname;
   private String tableName;

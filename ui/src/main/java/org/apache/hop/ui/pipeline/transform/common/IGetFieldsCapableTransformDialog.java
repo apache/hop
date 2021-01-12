@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * An interface providing functionality for any transform dialog that has the "get fields" capability.
  */
 public interface IGetFieldsCapableTransformDialog<TransformMetaType extends BaseTransformMeta> {
-  Class<?> PKG = IGetFieldsCapableTransformDialog.class; // Needed by Translator
+  Class<?> PKG = IGetFieldsCapableTransformDialog.class; // For Translator
 
   LogChannel logger = new LogChannel( IGetFieldsCapableTransformDialog.class );
 

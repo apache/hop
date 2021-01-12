@@ -66,7 +66,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class Mail extends BaseTransform<MailMeta, MailData> implements ITransform<MailMeta, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailMeta.class; // For Translator
 
   public Mail( TransformMeta transformMeta, MailMeta meta, MailData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -83,6 +83,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     if ( first ) {
       first = false;
+
+      // Making sure the mail API finds the right resources
+      //
+      Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
 
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();

@@ -20,8 +20,8 @@ package org.apache.hop.workflow.actions.shell;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -37,17 +37,17 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.validator.AbstractFileValidator;
+import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -66,18 +66,15 @@ import java.util.Map;
  * @author Matt
  * @since 01-10-2003, rewritten on 18-06-2004
  */
-
 @Action(
-  id = "SHELL",
-  i18nPackageName = "org.apache.hop.workflow.actions.shell",
-  name = "ActionShell.Name",
-  description = "ActionShell.Description",
-  image = "shell.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/shell.html"
-)
+    id = "SHELL",
+    name = "i18n::ActionShell.Name",
+    description = "i18n::ActionShell.Description",
+    image = "shell.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionShell.class; // Needed by Translator
+  private static final Class<?> PKG = ActionShell.class; // For Translator
 
   private String filename;
 
@@ -90,7 +87,6 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   public boolean setLogfile;
 
   public String logfile, logext;
-
   public boolean addDate, addTime;
 
   public LogLevel logFileLevel;
@@ -103,95 +99,100 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
   public String script;
 
-  public ActionShell( String name ) {
-    super( name, "" );
+  public ActionShell(String name) {
+    super(name, "");
   }
 
   public ActionShell() {
-    this( "" );
+    this("");
     clear();
   }
 
-  public void allocate( int nrFields ) {
-    arguments = new String[ nrFields ];
+  public void allocate(int nrFields) {
+    arguments = new String[nrFields];
   }
 
   public Object clone() {
     ActionShell je = (ActionShell) super.clone();
-    if ( arguments != null ) {
+    if (arguments != null) {
       int nrFields = arguments.length;
-      je.allocate( nrFields );
-      System.arraycopy( arguments, 0, je.arguments, 0, nrFields );
+      je.allocate(nrFields);
+      System.arraycopy(arguments, 0, je.arguments, 0, nrFields);
     }
     return je;
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder retval = new StringBuilder(300);
 
-    retval.append( super.getXml() );
+    retval.append(super.getXml());
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "work_directory", workDirectory ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "exec_per_row", execPerRow ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "set_logfile", setLogfile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "logfile", logfile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "logext", logext ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", addDate ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", addTime ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "insertScript", insertScript ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "script", script ) );
+    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
+    retval.append("      ").append(XmlHandler.addTagValue("work_directory", workDirectory));
+    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval.append("      ").append(XmlHandler.addTagValue("exec_per_row", execPerRow));
+    retval.append("      ").append(XmlHandler.addTagValue("set_logfile", setLogfile));
+    retval.append("      ").append(XmlHandler.addTagValue("logfile", logfile));
+    retval.append("      ").append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
+    retval.append("      ").append(XmlHandler.addTagValue("logext", logext));
+    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
+    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
+    retval.append("      ").append(XmlHandler.addTagValue("insertScript", insertScript));
+    retval.append("      ").append(XmlHandler.addTagValue("script", script));
 
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "loglevel", ( logFileLevel == null ) ? null : logFileLevel.getCode() ) );
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "loglevel", (logFileLevel == null) ? null : logFileLevel.getCode()));
 
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length; i++ ) {
+    if (arguments != null) {
+      for (int i = 0; i < arguments.length; i++) {
         // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
         // THE XML "DUBIOUS". DON'T REUSE IT. (Sven B)
-        retval.append( "      " ).append( XmlHandler.addTagValue( "argument" + i, arguments[ i ] ) );
+        retval.append("      ").append(XmlHandler.addTagValue("argument" + i, arguments[i]));
       }
     }
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      setFileName( XmlHandler.getTagValue( entrynode, "filename" ) );
-      setWorkDirectory( XmlHandler.getTagValue( entrynode, "work_directory" ) );
-      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      execPerRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "exec_per_row" ) );
-      setLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_logfile" ) );
-      setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
-      addDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
-      addTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
-      logfile = XmlHandler.getTagValue( entrynode, "logfile" );
-      logext = XmlHandler.getTagValue( entrynode, "logext" );
-      logFileLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
-      insertScript = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "insertScript" ) );
+      super.loadXml(entrynode);
+      setFileName(XmlHandler.getTagValue(entrynode, "filename"));
+      setWorkDirectory(XmlHandler.getTagValue(entrynode, "work_directory"));
+      argFromPrevious =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
+      execPerRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "exec_per_row"));
+      setLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_logfile"));
+      setAppendLogfile =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
+      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
+      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
+      logfile = XmlHandler.getTagValue(entrynode, "logfile");
+      logext = XmlHandler.getTagValue(entrynode, "logext");
+      logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
+      insertScript = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "insertScript"));
 
-      script = XmlHandler.getTagValue( entrynode, "script" );
+      script = XmlHandler.getTagValue(entrynode, "script");
 
       // How many arguments?
       int argnr = 0;
-      while ( XmlHandler.getTagValue( entrynode, "argument" + argnr ) != null ) {
+      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
         argnr++;
       }
-      allocate( argnr );
+      allocate(argnr);
 
       // Read them all...
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[ a ] = XmlHandler.getTagValue( entrynode, "argument" + a );
+      for (int a = 0; a < argnr; a++) {
+        arguments[a] = XmlHandler.getTagValue(entrynode, "argument" + a);
       }
-    } catch ( HopException e ) {
-      throw new HopXmlException( "Unable to load action of type 'shell' from XML node", e );
+    } catch (HopException e) {
+      throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
     }
   }
 
@@ -218,11 +219,11 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
    * @deprecated use {@link #setFilename(String)} instead
    */
   @Deprecated
-  public void setFileName( String n ) {
+  public void setFileName(String n) {
     filename = n;
   }
 
-  public void setFilename( String n ) {
+  public void setFilename(String n) {
     filename = n;
   }
 
@@ -231,10 +232,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFilename() {
-    return resolve( getFilename() );
+    return resolve(getFilename());
   }
 
-  public void setWorkDirectory( String n ) {
+  public void setWorkDirectory(String n) {
     workDirectory = n;
   }
 
@@ -242,7 +243,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return workDirectory;
   }
 
-  public void setScript( String scriptin ) {
+  public void setScript(String scriptin) {
     script = scriptin;
   }
 
@@ -252,62 +253,64 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
   public String getLogFilename() {
     String retval = "";
-    if ( setLogfile ) {
+    if (setLogfile) {
       retval += logfile == null ? "" : logfile;
       Calendar cal = Calendar.getInstance();
-      if ( addDate ) {
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd" );
-        retval += "_" + sdf.format( cal.getTime() );
+      if (addDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        retval += "_" + sdf.format(cal.getTime());
       }
-      if ( addTime ) {
-        SimpleDateFormat sdf = new SimpleDateFormat( "HHmmss" );
-        retval += "_" + sdf.format( cal.getTime() );
+      if (addTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
+        retval += "_" + sdf.format(cal.getTime());
       }
-      if ( logext != null && logext.length() > 0 ) {
+      if (logext != null && logext.length() > 0) {
         retval += "." + logext;
       }
     }
     return retval;
   }
 
-  public Result execute( Result result, int nr ) throws HopException {
+  public Result execute(Result result, int nr) throws HopException {
     FileLoggingEventListener loggingEventListener = null;
     LogLevel shellLogLevel = parentWorkflow.getLogLevel();
-    if ( setLogfile ) {
-      String realLogFilename = resolve( getLogFilename() );
+    if (setLogfile) {
+      String realLogFilename = resolve(getLogFilename());
       // We need to check here the log filename
       // if we do not have one, we must fail
-      if ( Utils.isEmpty( realLogFilename ) ) {
-        logError( BaseMessages.getString( PKG, "ActionShell.Exception.LogFilenameMissing" ) );
-        result.setNrErrors( 1 );
-        result.setResult( false );
+      if (Utils.isEmpty(realLogFilename)) {
+        logError(BaseMessages.getString(PKG, "ActionShell.Exception.LogFilenameMissing"));
+        result.setNrErrors(1);
+        result.setResult(false);
         return result;
       }
 
       try {
-        loggingEventListener = new FileLoggingEventListener( getLogChannelId(), realLogFilename, setAppendLogfile );
-        HopLogStore.getAppender().addLoggingEventListener( loggingEventListener );
-      } catch ( HopException e ) {
-        logError( BaseMessages.getString( PKG, "ActionShell.Error.UnableopenAppenderFile", getLogFilename(), e
-          .toString() ) );
-        logError( Const.getStackTracker( e ) );
-        result.setNrErrors( 1 );
-        result.setResult( false );
+        loggingEventListener =
+            new FileLoggingEventListener(getLogChannelId(), realLogFilename, setAppendLogfile);
+        HopLogStore.getAppender().addLoggingEventListener(loggingEventListener);
+      } catch (HopException e) {
+        logError(
+            BaseMessages.getString(
+                PKG, "ActionShell.Error.UnableopenAppenderFile", getLogFilename(), e.toString()));
+        logError(Const.getStackTracker(e));
+        result.setNrErrors(1);
+        result.setResult(false);
         return result;
       }
       shellLogLevel = logFileLevel;
     }
 
-    log.setLogLevel( shellLogLevel );
+    log.setLogLevel(shellLogLevel);
 
-    result.setEntryNr( nr );
+    result.setEntryNr(nr);
 
     // "Translate" the arguments for later
     String[] substArgs = null;
-    if ( arguments != null ) {
-      substArgs = new String[ arguments.length ];
-      for ( int idx = 0; idx < arguments.length; idx++ ) {
-        substArgs[ idx ] = resolve( arguments[ idx ] );
+    if (arguments != null) {
+      substArgs = new String[arguments.length];
+      for (int idx = 0; idx < arguments.length; idx++) {
+        substArgs[idx] = resolve(arguments[idx]);
       }
     }
 
@@ -317,48 +320,49 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     boolean first = true;
     List<RowMetaAndData> rows = result.getRows();
 
-    if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionShell.Log.FoundPreviousRows", ""
-        + ( rows != null ? rows.size() : 0 ) ) );
+    if (log.isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionShell.Log.FoundPreviousRows", "" + (rows != null ? rows.size() : 0)));
     }
 
-    while ( ( first && !execPerRow )
-      || ( execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0 ) ) {
+    while ((first && !execPerRow)
+        || (execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0)) {
       first = false;
-      if ( rows != null && execPerRow ) {
-        resultRow = rows.get( iteration );
+      if (rows != null && execPerRow) {
+        resultRow = rows.get(iteration);
       } else {
         resultRow = null;
       }
 
       List<RowMetaAndData> cmdRows = null;
 
-      if ( execPerRow ) {
+      if (execPerRow) {
         // Execute for each input row
 
-        if ( argFromPrevious ) {
+        if (argFromPrevious) {
           // Copy the input row to the (command line) arguments
 
-          if ( resultRow != null ) {
-            args = new String[ resultRow.size() ];
-            for ( int i = 0; i < resultRow.size(); i++ ) {
-              args[ i ] = resultRow.getString( i, null );
+          if (resultRow != null) {
+            args = new String[resultRow.size()];
+            for (int i = 0; i < resultRow.size(); i++) {
+              args[i] = resultRow.getString(i, null);
             }
           }
         } else {
           // Just pass a single row
           List<RowMetaAndData> newList = new ArrayList<>();
-          newList.add( resultRow );
+          newList.add(resultRow);
           cmdRows = newList;
         }
       } else {
-        if ( argFromPrevious ) {
+        if (argFromPrevious) {
           // Only put the first Row on the arguments
           args = null;
-          if ( resultRow != null ) {
-            args = new String[ resultRow.size() ];
-            for ( int i = 0; i < resultRow.size(); i++ ) {
-              args[ i ] = resultRow.getString( i, null );
+          if (resultRow != null) {
+            args = new String[resultRow.size()];
+            for (int i = 0; i < resultRow.size(); i++) {
+              args[i] = resultRow.getString(i, null);
             }
           } else {
             cmdRows = rows;
@@ -369,27 +373,30 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         }
       }
 
-      executeShell( result, cmdRows, args );
+      executeShell(result, cmdRows, args);
 
       iteration++;
     }
 
-    if ( setLogfile ) {
-      if ( loggingEventListener != null ) {
-        HopLogStore.getAppender().removeLoggingEventListener( loggingEventListener );
+    if (setLogfile) {
+      if (loggingEventListener != null) {
+        HopLogStore.getAppender().removeLoggingEventListener(loggingEventListener);
         loggingEventListener.close();
 
         ResultFile resultFile =
-          new ResultFile(
-            ResultFile.FILE_TYPE_LOG, loggingEventListener.getFile(), parentWorkflow.getWorkflowName(), getName() );
-        result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+            new ResultFile(
+                ResultFile.FILE_TYPE_LOG,
+                loggingEventListener.getFile(),
+                parentWorkflow.getWorkflowName(),
+                getName());
+        result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
       }
     }
 
     return result;
   }
 
-  private void executeShell( Result result, List<RowMetaAndData> cmdRows, String[] args ) {
+  private void executeShell(Result result, List<RowMetaAndData> cmdRows, String[] args) {
     FileObject fileObject = null;
     String realScript = null;
     FileObject tempFile = null;
@@ -399,101 +406,103 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       String[] base = null;
       List<String> cmds = new ArrayList<>();
 
-      if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "JobShell.RunningOn", Const.getSystemOs() ) );
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "JobShell.RunningOn", Const.getSystemOs()));
       }
 
-      if ( insertScript ) {
-        realScript = resolve( script );
+      if (insertScript) {
+        realScript = resolve(script);
       } else {
-        String realFilename = resolve( getFilename() );
-        fileObject = HopVfs.getFileObject( realFilename );
+        String realFilename = resolve(getFilename());
+        fileObject = HopVfs.getFileObject(realFilename);
       }
 
-      if ( Const.getSystemOs().equals( "Windows 95" ) ) {
-        base = new String[] { "command.com", "/C" };
-        if ( insertScript ) {
-          tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
-          fileObject = createTemporaryShellFile( tempFile, realScript );
+      if (Const.getSystemOs().equals("Windows 95")) {
+        base = new String[] {"command.com", "/C"};
+        if (insertScript) {
+          tempFile =
+              HopVfs.createTempFile("hop", "shell.bat", System.getProperty("java.io.tmpdir"));
+          fileObject = createTemporaryShellFile(tempFile, realScript);
         }
-      } else if ( Const.getSystemOs().startsWith( "Windows" ) ) {
-        base = new String[] { "cmd.exe", "/C" };
-        if ( insertScript ) {
-          tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
-          fileObject = createTemporaryShellFile( tempFile, realScript );
+      } else if (Const.getSystemOs().startsWith("Windows")) {
+        base = new String[] {"cmd.exe", "/C"};
+        if (insertScript) {
+          tempFile =
+              HopVfs.createTempFile("hop", "shell.bat", System.getProperty("java.io.tmpdir"));
+          fileObject = createTemporaryShellFile(tempFile, realScript);
         }
       } else {
-        if ( insertScript ) {
-          tempFile = HopVfs.createTempFile( "hop", "shell", System.getProperty( "java.io.tmpdir" ) );
-          fileObject = createTemporaryShellFile( tempFile, realScript );
+        if (insertScript) {
+          tempFile = HopVfs.createTempFile("hop", "shell", System.getProperty("java.io.tmpdir"));
+          fileObject = createTemporaryShellFile(tempFile, realScript);
         }
-        base = new String[] { HopVfs.getFilename( fileObject ) };
+        base = new String[] {HopVfs.getFilename(fileObject)};
       }
 
       // Construct the arguments...
-      if ( argFromPrevious && cmdRows != null ) {
+      if (argFromPrevious && cmdRows != null) {
         // Add the base command...
-        for ( int i = 0; i < base.length; i++ ) {
-          cmds.add( base[ i ] );
+        for (int i = 0; i < base.length; i++) {
+          cmds.add(base[i]);
         }
 
-        if ( Const.getSystemOs().equals( "Windows 95" ) || Const.getSystemOs().startsWith( "Windows" ) ) {
+        if (Const.getSystemOs().equals("Windows 95") || Const.getSystemOs().startsWith("Windows")) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.
 
-          StringBuilder cmdline = new StringBuilder( 300 );
+          StringBuilder cmdline = new StringBuilder(300);
 
-          cmdline.append( '"' );
-          cmdline.append( Const.optionallyQuoteStringByOS( HopVfs.getFilename( fileObject ) ) );
+          cmdline.append('"');
+          cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
           // Add the arguments from previous results...
-          for ( int i = 0; i < cmdRows.size(); i++ ) {
+          for (int i = 0; i < cmdRows.size(); i++) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
 
-            RowMetaAndData r = cmdRows.get( i );
-            for ( int j = 0; j < r.size(); j++ ) {
-              cmdline.append( ' ' );
-              cmdline.append( Const.optionallyQuoteStringByOS( r.getString( j, null ) ) );
+            RowMetaAndData r = cmdRows.get(i);
+            for (int j = 0; j < r.size(); j++) {
+              cmdline.append(' ');
+              cmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
-          cmdline.append( '"' );
-          cmds.add( cmdline.toString() );
+          cmdline.append('"');
+          cmds.add(cmdline.toString());
         } else {
           // Add the arguments from previous results...
-          for ( int i = 0; i < cmdRows.size(); i++ ) {
+          for (int i = 0; i < cmdRows.size(); i++) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
 
-            RowMetaAndData r = cmdRows.get( i );
-            for ( int j = 0; j < r.size(); j++ ) {
-              cmds.add( Const.optionallyQuoteStringByOS( r.getString( j, null ) ) );
+            RowMetaAndData r = cmdRows.get(i);
+            for (int j = 0; j < r.size(); j++) {
+              cmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
         }
-      } else if ( args != null ) {
+      } else if (args != null) {
         // Add the base command...
-        for ( int i = 0; i < base.length; i++ ) {
-          cmds.add( base[ i ] );
+        for (int i = 0; i < base.length; i++) {
+          cmds.add(base[i]);
         }
 
-        if ( Const.getSystemOs().equals( "Windows 95" ) || Const.getSystemOs().startsWith( "Windows" ) ) {
+        if (Const.getSystemOs().equals("Windows 95") || Const.getSystemOs().startsWith("Windows")) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.
 
-          StringBuilder cmdline = new StringBuilder( 300 );
+          StringBuilder cmdline = new StringBuilder(300);
 
-          cmdline.append( '"' );
-          cmdline.append( Const.optionallyQuoteStringByOS( HopVfs.getFilename( fileObject ) ) );
+          cmdline.append('"');
+          cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
 
-          for ( int i = 0; i < args.length; i++ ) {
-            cmdline.append( ' ' );
-            cmdline.append( Const.optionallyQuoteStringByOS( args[ i ] ) );
+          for (int i = 0; i < args.length; i++) {
+            cmdline.append(' ');
+            cmdline.append(Const.optionallyQuoteStringByOS(args[i]));
           }
-          cmdline.append( '"' );
-          cmds.add( cmdline.toString() );
+          cmdline.append('"');
+          cmds.add(cmdline.toString());
         } else {
-          for ( int i = 0; i < args.length; i++ ) {
-            cmds.add( args[ i ] );
+          for (int i = 0; i < args.length; i++) {
+            cmds.add(args[i]);
           }
         }
       }
@@ -502,61 +511,62 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
       Iterator<String> it = cmds.iterator();
       boolean first = true;
-      while ( it.hasNext() ) {
-        if ( !first ) {
-          command.append( ' ' );
+      while (it.hasNext()) {
+        if (!first) {
+          command.append(' ');
         } else {
           first = false;
         }
-        command.append( it.next() );
+        command.append(it.next());
       }
-      if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "JobShell.ExecCommand", command.toString() ) );
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "JobShell.ExecCommand", command.toString()));
       }
 
       // Build the environment variable list...
-      ProcessBuilder procBuilder = new ProcessBuilder( cmds );
+      ProcessBuilder procBuilder = new ProcessBuilder(cmds);
       Map<String, String> env = procBuilder.environment();
       String[] variables = getVariableNames();
-      for ( int i = 0; i < variables.length; i++ ) {
-        if ( StringUtils.isNotEmpty(variables[i])) {
-          env.put( variables[ i ], Const.NVL( getVariable( variables[ i ] ), "" ) );
+      for (int i = 0; i < variables.length; i++) {
+        if (StringUtils.isNotEmpty(variables[i])) {
+          env.put(variables[i], Const.NVL(getVariable(variables[i]), ""));
         }
       }
 
-      if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
-        String vfsFilename = resolve( getWorkDirectory() );
-        File file = new File( HopVfs.getFilename( HopVfs.getFileObject( vfsFilename ) ) );
-        procBuilder.directory( file );
+      if (getWorkDirectory() != null && !Utils.isEmpty(Const.rtrim(getWorkDirectory()))) {
+        String vfsFilename = resolve(getWorkDirectory());
+        File file = new File(HopVfs.getFilename(HopVfs.getFileObject(vfsFilename)));
+        procBuilder.directory(file);
       }
       Process proc = procBuilder.start();
 
       // any error message?
-      StreamLogger errorLogger = new StreamLogger( log, proc.getErrorStream(), "(stderr)", true );
+      StreamLogger errorLogger = new StreamLogger(log, proc.getErrorStream(), "(stderr)", true);
 
       // any output?
-      StreamLogger outputLogger = new StreamLogger( log, proc.getInputStream(), "(stdout)" );
+      StreamLogger outputLogger = new StreamLogger(log, proc.getInputStream(), "(stdout)");
 
       // kick them off
-      Thread errorLoggerThread = new Thread( errorLogger );
+      Thread errorLoggerThread = new Thread(errorLogger);
       errorLoggerThread.start();
-      Thread outputLoggerThread = new Thread( outputLogger );
+      Thread outputLoggerThread = new Thread(outputLogger);
       outputLoggerThread.start();
 
       proc.waitFor();
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobShell.CommandFinished", command.toString() ) );
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "JobShell.CommandFinished", command.toString()));
       }
 
       // What's the exit status?
-      result.setExitStatus( proc.exitValue() );
-      if ( result.getExitStatus() != 0 ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "JobShell.ExitStatus", resolve( getFilename() ), "" + result.getExitStatus() ) );
+      result.setExitStatus(proc.exitValue());
+      if (result.getExitStatus() != 0) {
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JobShell.ExitStatus", resolve(getFilename()), "" + result.getExitStatus()));
         }
 
-        result.setNrErrors( 1 );
+        result.setNrErrors(1);
       }
 
       // wait until loggers read all data from stdout and stderr
@@ -568,79 +578,89 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       proc.getErrorStream().close();
       proc.getOutputStream().close();
 
-    } catch ( IOException ioe ) {
-      logError( BaseMessages.getString(
-        PKG, "JobShell.ErrorRunningShell", resolve( getFilename() ), ioe.toString() ), ioe );
-      result.setNrErrors( 1 );
-    } catch ( InterruptedException ie ) {
-      logError( BaseMessages.getString(
-        PKG, "JobShell.Shellinterupted", resolve( getFilename() ), ie.toString() ), ie );
-      result.setNrErrors( 1 );
-    } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobShell.UnexpectedError", resolve( getFilename() ), e
-        .toString() ), e );
-      result.setNrErrors( 1 );
+    } catch (IOException ioe) {
+      logError(
+          BaseMessages.getString(
+              PKG, "JobShell.ErrorRunningShell", resolve(getFilename()), ioe.toString()),
+          ioe);
+      result.setNrErrors(1);
+    } catch (InterruptedException ie) {
+      logError(
+          BaseMessages.getString(
+              PKG, "JobShell.Shellinterupted", resolve(getFilename()), ie.toString()),
+          ie);
+      result.setNrErrors(1);
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG, "JobShell.UnexpectedError", resolve(getFilename()), e.toString()),
+          e);
+      result.setNrErrors(1);
     } finally {
       // If we created a temporary file, remove it...
       //
-      if ( tempFile != null ) {
+      if (tempFile != null) {
         try {
           tempFile.delete();
-        } catch ( Exception e ) {
-          BaseMessages.getString( PKG, "JobShell.UnexpectedError", tempFile.toString(), e.toString() );
+        } catch (Exception e) {
+          BaseMessages.getString(
+              PKG, "JobShell.UnexpectedError", tempFile.toString(), e.toString());
         }
       }
     }
 
-    if ( result.getNrErrors() > 0 ) {
-      result.setResult( false );
+    if (result.getNrErrors() > 0) {
+      result.setResult(false);
     } else {
-      result.setResult( true );
+      result.setResult(true);
     }
   }
 
-  private FileObject createTemporaryShellFile( FileObject tempFile, String fileContent ) throws Exception {
+  private FileObject createTemporaryShellFile(FileObject tempFile, String fileContent)
+      throws Exception {
     // Create a unique new temporary filename in the working directory, put the script in there
     // Set the permissions to execute and then run it...
     //
-    if ( tempFile != null && fileContent != null ) {
+    if (tempFile != null && fileContent != null) {
       try {
         // flag indicates if current OS is Windows or not
         boolean isWindows = Const.isWindows();
-        if ( !isWindows ) {
-          fileContent = replaceWinEOL( fileContent );
+        if (!isWindows) {
+          fileContent = replaceWinEOL(fileContent);
         }
         tempFile.createFile();
         OutputStream outputStream = tempFile.getContent().getOutputStream();
-        outputStream.write( fileContent.getBytes() );
+        outputStream.write(fileContent.getBytes());
         outputStream.close();
-        if ( !isWindows ) {
-          String tempFilename = HopVfs.getFilename( tempFile );
+        if (!isWindows) {
+          String tempFilename = HopVfs.getFilename(tempFile);
           // Now we have to make this file executable...
           // On Unix-like systems this is done using the command "/bin/chmod +x filename"
           //
-          ProcessBuilder procBuilder = new ProcessBuilder( "chmod", "+x", tempFilename );
+          ProcessBuilder procBuilder = new ProcessBuilder("chmod", "+x", tempFilename);
           Process proc = procBuilder.start();
           // Eat/log stderr/stdout all messages in a different thread...
-          StreamLogger errorLogger = new StreamLogger( log, proc.getErrorStream(), toString() + " (stderr)" );
-          StreamLogger outputLogger = new StreamLogger( log, proc.getInputStream(), toString() + " (stdout)" );
-          new Thread( errorLogger ).start();
-          new Thread( outputLogger ).start();
+          StreamLogger errorLogger =
+              new StreamLogger(log, proc.getErrorStream(), toString() + " (stderr)");
+          StreamLogger outputLogger =
+              new StreamLogger(log, proc.getInputStream(), toString() + " (stdout)");
+          new Thread(errorLogger).start();
+          new Thread(outputLogger).start();
           proc.waitFor();
         }
 
-      } catch ( Exception e ) {
-        throw new Exception( "Unable to create temporary file to execute script", e );
+      } catch (Exception e) {
+        throw new Exception("Unable to create temporary file to execute script", e);
       }
     }
     return tempFile;
   }
 
   @VisibleForTesting
-  String replaceWinEOL( String input ) {
+  String replaceWinEOL(String input) {
     String result = input;
     // replace Windows's EOL if it's contained ( see PDI-12176 )
-    result = result.replaceAll( "\\r\\n?", "\n" );
+    result = result.replaceAll("\\r\\n?", "\n");
 
     return result;
   }
@@ -653,32 +673,44 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( filename ) ) {
-      String realFileName = resolve( filename );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(filename)) {
+      String realFileName = resolve(filename);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realFileName, ResourceType.FILE));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace( ctx, getVariables() );
-    AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(),
-      ActionValidatorUtils.fileExistsValidator() );
+    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AndValidator.putValidators(
+        ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    ActionValidatorUtils.andValidator().validate( this, "workDirectory", remarks, ctx );
-    ActionValidatorUtils.andValidator().validate( this, "filename", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+    ActionValidatorUtils.andValidator().validate(this, "workDirectory", remarks, ctx);
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "filename",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
 
-    if ( setLogfile ) {
-      ActionValidatorUtils.andValidator().validate( this, "logfile", remarks,
-        AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+    if (setLogfile) {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "logfile",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     }
   }
 

@@ -47,7 +47,7 @@ import java.util.Map;
  * @since 10-06-2007
  */
 public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, SalesforceUpsertData> {
-  private static Class<?> PKG = SalesforceUpsertMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 
   private static final String BOOLEAN = "boolean";
   private static final String STRING = "string";
@@ -289,7 +289,7 @@ public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, 
       }
       // Simply add this row to the error row
       if ( log.isDebug() ) {
-        logDebug( "Passing row to error step" );
+        logDebug( "Passing row to error transform" );
       }
 
       for ( int i = 0; i < data.iBufferPos; i++ ) {

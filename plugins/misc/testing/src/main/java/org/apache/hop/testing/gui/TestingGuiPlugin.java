@@ -95,7 +95,7 @@ import java.util.Map;
 
 @GuiPlugin
 public class TestingGuiPlugin {
-  protected static Class<?> PKG = TestingGuiPlugin.class; // for i18n
+  protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
   public static final String ID_TOOLBAR_UNIT_TESTS_LABEL =
       "HopGuiPipelineGraph-ToolBar-20000-unit-tests-label";

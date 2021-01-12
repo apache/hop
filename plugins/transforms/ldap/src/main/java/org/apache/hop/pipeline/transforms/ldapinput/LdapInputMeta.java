@@ -45,17 +45,16 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "LDAPInput",
-    name = "LdapInput.Name",
-    description = "LdapInput.Description",
+    name = "i18n::LdapInput.Name",
+    description = "i18n::LdapInput.Description",
     image = "ldapinput.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.ldapinput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"ldap", "input"},
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
-  private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

@@ -47,10 +47,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.Hashtable;
@@ -63,7 +61,7 @@ import java.util.StringTokenizer;
  * @since 21-10-2004
  */
 public class EnterListDialog extends Dialog {
-  private static final Class<?> PKG = EnterListDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterListDialog.class; // For Translator
 
   private PropsUi props;
 
@@ -82,8 +80,8 @@ public class EnterListDialog extends Dialog {
 
   private boolean opened;
 
-  public EnterListDialog( Shell parent, int style, String[] input ) {
-    super( parent, style );
+  public EnterListDialog(Shell parent, int style, String[] input) {
+    super(parent, style);
     this.props = PropsUi.getInstance();
 
     this.input = input;
@@ -96,310 +94,313 @@ public class EnterListDialog extends Dialog {
 
   public String[] open() {
     Shell parent = getParent();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImagePipeline() );
-    shell.setText( BaseMessages.getString( PKG, "EnterListDialog.Title" ) );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    props.setLook(shell);
+    shell.setImage(GuiResource.getInstance().getImagePipeline());
+    shell.setText(BaseMessages.getString(PKG, "EnterListDialog.Title"));
 
-    shell.setLayout( new FormLayout() );
+    shell.setLayout(new FormLayout());
 
     int margin = props.getMargin();
 
     // //////////////////////////////////////////////////
     // Top & Bottom regions.
     // //////////////////////////////////////////////////
-    Composite top = new Composite( shell, SWT.NONE );
+    Composite top = new Composite(shell, SWT.NONE);
     FormLayout topLayout = new FormLayout();
     topLayout.marginHeight = margin;
     topLayout.marginWidth = margin;
-    top.setLayout( topLayout );
+    top.setLayout(topLayout);
 
     FormData fdTop = new FormData();
-    fdTop.left = new FormAttachment( 0, 0 );
-    fdTop.top = new FormAttachment( 0, 0 );
-    fdTop.right = new FormAttachment( 100, 0 );
-    fdTop.bottom = new FormAttachment( 100, -50 );
-    top.setLayoutData( fdTop );
-    props.setLook( top );
+    fdTop.left = new FormAttachment(0, 0);
+    fdTop.top = new FormAttachment(0, 0);
+    fdTop.right = new FormAttachment(100, 0);
+    fdTop.bottom = new FormAttachment(100, -50);
+    top.setLayoutData(fdTop);
+    props.setLook(top);
 
-    Composite bottom = new Composite( shell, SWT.NONE );
-    bottom.setLayout( new FormLayout() );
+    Composite bottom = new Composite(shell, SWT.NONE);
+    bottom.setLayout(new FormLayout());
     FormData fdBottom = new FormData();
-    fdBottom.left = new FormAttachment( 0, 0 );
-    fdBottom.top = new FormAttachment( top, 0 );
-    fdBottom.right = new FormAttachment( 100, 0 );
-    fdBottom.bottom = new FormAttachment( 100, 0 );
-    bottom.setLayoutData( fdBottom );
-    props.setLook( bottom );
+    fdBottom.left = new FormAttachment(0, 0);
+    fdBottom.top = new FormAttachment(top, 0);
+    fdBottom.right = new FormAttachment(100, 0);
+    fdBottom.bottom = new FormAttachment(100, 0);
+    bottom.setLayoutData(fdBottom);
+    props.setLook(bottom);
 
     // //////////////////////////////////////////////////
     // Sashform
     // //////////////////////////////////////////////////
 
-    SashForm sashform = new SashForm( top, SWT.HORIZONTAL );
-    sashform.setLayout( new FormLayout() );
+    SashForm sashform = new SashForm(top, SWT.HORIZONTAL);
+    sashform.setLayout(new FormLayout());
     FormData fdSashform = new FormData();
-    fdSashform.left = new FormAttachment( 0, 0 );
-    fdSashform.top = new FormAttachment( 0, 0 );
-    fdSashform.right = new FormAttachment( 100, 0 );
-    fdSashform.bottom = new FormAttachment( 100, 0 );
-    sashform.setLayoutData( fdSashform );
+    fdSashform.left = new FormAttachment(0, 0);
+    fdSashform.top = new FormAttachment(0, 0);
+    fdSashform.right = new FormAttachment(100, 0);
+    fdSashform.bottom = new FormAttachment(100, 0);
+    sashform.setLayoutData(fdSashform);
 
     // ////////////////////////
     // / LEFT
     // ////////////////////////
-    Composite leftsplit = new Composite( sashform, SWT.NONE );
-    leftsplit.setLayout( new FormLayout() );
+    Composite leftsplit = new Composite(sashform, SWT.NONE);
+    leftsplit.setLayout(new FormLayout());
     FormData fdLeftsplit = new FormData();
-    fdLeftsplit.left = new FormAttachment( 0, 0 );
-    fdLeftsplit.top = new FormAttachment( 0, 0 );
-    fdLeftsplit.right = new FormAttachment( 100, 0 );
-    fdLeftsplit.bottom = new FormAttachment( 100, 0 );
-    leftsplit.setLayoutData( fdLeftsplit );
-    props.setLook( leftsplit );
+    fdLeftsplit.left = new FormAttachment(0, 0);
+    fdLeftsplit.top = new FormAttachment(0, 0);
+    fdLeftsplit.right = new FormAttachment(100, 0);
+    fdLeftsplit.bottom = new FormAttachment(100, 0);
+    leftsplit.setLayoutData(fdLeftsplit);
+    props.setLook(leftsplit);
 
     // Source list to the left...
-    wlListSource = new Label( leftsplit, SWT.NONE );
-    wlListSource.setText( BaseMessages.getString( PKG, "EnterListDialog.AvailableItems.Label" ) );
-    props.setLook( wlListSource );
+    wlListSource = new Label(leftsplit, SWT.NONE);
+    wlListSource.setText(BaseMessages.getString(PKG, "EnterListDialog.AvailableItems.Label"));
+    props.setLook(wlListSource);
     FormData fdlListSource = new FormData();
-    fdlListSource.left = new FormAttachment( 0, 0 );
-    fdlListSource.top = new FormAttachment( 0, 0 );
-    wlListSource.setLayoutData( fdlListSource );
+    fdlListSource.left = new FormAttachment(0, 0);
+    fdlListSource.top = new FormAttachment(0, 0);
+    wlListSource.setLayoutData(fdlListSource);
 
-    wListSource = new List( leftsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
-    props.setLook( wListSource );
+    wListSource = new List(leftsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    props.setLook(wListSource);
 
     FormData fdListSource = new FormData();
-    fdListSource.left = new FormAttachment( 0, 0 );
-    fdListSource.top = new FormAttachment( wlListSource, 0 );
-    fdListSource.right = new FormAttachment( 100, 0 );
-    fdListSource.bottom = new FormAttachment( 100, 0 );
-    wListSource.setLayoutData( fdListSource );
+    fdListSource.left = new FormAttachment(0, 0);
+    fdListSource.top = new FormAttachment(wlListSource, 0);
+    fdListSource.right = new FormAttachment(100, 0);
+    fdListSource.bottom = new FormAttachment(100, 0);
+    wListSource.setLayoutData(fdListSource);
 
     // /////////////////////////
     // MIDDLE
     // /////////////////////////
 
-    Composite compmiddle = new Composite( sashform, SWT.NONE );
-    compmiddle.setLayout( new FormLayout() );
+    Composite compmiddle = new Composite(sashform, SWT.NONE);
+    compmiddle.setLayout(new FormLayout());
     FormData fdCompMiddle = new FormData();
-    fdCompMiddle.left = new FormAttachment( 0, 0 );
-    fdCompMiddle.top = new FormAttachment( 0, 0 );
-    fdCompMiddle.right = new FormAttachment( 100, 0 );
-    fdCompMiddle.bottom = new FormAttachment( 100, 0 );
-    compmiddle.setLayoutData( fdCompMiddle );
-    props.setLook( compmiddle );
+    fdCompMiddle.left = new FormAttachment(0, 0);
+    fdCompMiddle.top = new FormAttachment(0, 0);
+    fdCompMiddle.right = new FormAttachment(100, 0);
+    fdCompMiddle.bottom = new FormAttachment(100, 0);
+    compmiddle.setLayoutData(fdCompMiddle);
+    props.setLook(compmiddle);
 
-    Composite gButtonGroup = new Composite( compmiddle, SWT.NONE );
-    GridLayout gridLayout = new GridLayout( 1, false );
-    gButtonGroup.setLayout( gridLayout );
+    Composite gButtonGroup = new Composite(compmiddle, SWT.NONE);
+    GridLayout gridLayout = new GridLayout(1, false);
+    gButtonGroup.setLayout(gridLayout);
 
-    wAddOne = new Button( gButtonGroup, SWT.PUSH );
-    wAddOne.setText( " > " );
-    wAddOne.setToolTipText( BaseMessages.getString( PKG, "EnterListDialog.AddOne.Tooltip" ) );
-    wAddAll = new Button( gButtonGroup, SWT.PUSH );
-    wAddAll.setText( " >> " );
-    wAddAll.setToolTipText( BaseMessages.getString( PKG, "EnterListDialog.AddAll.Tooltip" ) );
-    wRemoveOne = new Button( gButtonGroup, SWT.PUSH );
-    wRemoveOne.setText( " < " );
-    wRemoveOne.setToolTipText( BaseMessages.getString( PKG, "EnterListDialog.RemoveOne.Tooltip" ) );
-    wRemoveAll = new Button( gButtonGroup, SWT.PUSH );
-    wRemoveAll.setText( " << " );
-    wRemoveAll.setToolTipText( BaseMessages.getString( PKG, "EnterListDialog.RemoveAll.Tooltip" ) );
+    wAddOne = new Button(gButtonGroup, SWT.PUSH);
+    wAddOne.setText(" > ");
+    wAddOne.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.AddOne.Tooltip"));
+    wAddAll = new Button(gButtonGroup, SWT.PUSH);
+    wAddAll.setText(" >> ");
+    wAddAll.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.AddAll.Tooltip"));
+    wRemoveOne = new Button(gButtonGroup, SWT.PUSH);
+    wRemoveOne.setText(" < ");
+    wRemoveOne.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.RemoveOne.Tooltip"));
+    wRemoveAll = new Button(gButtonGroup, SWT.PUSH);
+    wRemoveAll.setText(" << ");
+    wRemoveAll.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.RemoveAll.Tooltip"));
 
-    GridData gdAddOne = new GridData( GridData.FILL_BOTH );
-    wAddOne.setLayoutData( gdAddOne );
+    GridData gdAddOne = new GridData(GridData.FILL_BOTH);
+    wAddOne.setLayoutData(gdAddOne);
 
-    GridData gdAddAll = new GridData( GridData.FILL_BOTH );
-    wAddAll.setLayoutData( gdAddAll );
+    GridData gdAddAll = new GridData(GridData.FILL_BOTH);
+    wAddAll.setLayoutData(gdAddAll);
 
-    GridData gdRemoveAll = new GridData( GridData.FILL_BOTH );
-    wRemoveAll.setLayoutData( gdRemoveAll );
+    GridData gdRemoveAll = new GridData(GridData.FILL_BOTH);
+    wRemoveAll.setLayoutData(gdRemoveAll);
 
-    GridData gdRemoveOne = new GridData( GridData.FILL_BOTH );
-    wRemoveOne.setLayoutData( gdRemoveOne );
+    GridData gdRemoveOne = new GridData(GridData.FILL_BOTH);
+    wRemoveOne.setLayoutData(gdRemoveOne);
 
     FormData fdButtonGroup = new FormData();
     wAddAll.pack(); // get a size
-    fdButtonGroup.left = new FormAttachment( 50, -( wAddAll.getSize().x / 2 ) - 5 );
-    fdButtonGroup.top = new FormAttachment( 30, 0 );
-    gButtonGroup.setBackground( shell.getBackground() ); // the default looks ugly
-    gButtonGroup.setLayoutData( fdButtonGroup );
+    fdButtonGroup.left = new FormAttachment(50, -(wAddAll.getSize().x / 2) - 5);
+    fdButtonGroup.top = new FormAttachment(30, 0);
+    gButtonGroup.setBackground(shell.getBackground()); // the default looks ugly
+    gButtonGroup.setLayoutData(fdButtonGroup);
 
     // ///////////////////////////////
     // RIGHT
     // ///////////////////////////////
-    Composite rightsplit = new Composite( sashform, SWT.NONE );
-    rightsplit.setLayout( new FormLayout() );
+    Composite rightsplit = new Composite(sashform, SWT.NONE);
+    rightsplit.setLayout(new FormLayout());
     FormData fdRightsplit = new FormData();
-    fdRightsplit.left = new FormAttachment( 0, 0 );
-    fdRightsplit.top = new FormAttachment( 0, 0 );
-    fdRightsplit.right = new FormAttachment( 100, 0 );
-    fdRightsplit.bottom = new FormAttachment( 100, 0 );
-    rightsplit.setLayoutData( fdRightsplit );
-    props.setLook( rightsplit );
+    fdRightsplit.left = new FormAttachment(0, 0);
+    fdRightsplit.top = new FormAttachment(0, 0);
+    fdRightsplit.right = new FormAttachment(100, 0);
+    fdRightsplit.bottom = new FormAttachment(100, 0);
+    rightsplit.setLayoutData(fdRightsplit);
+    props.setLook(rightsplit);
 
-    wlListDest = new Label( rightsplit, SWT.NONE );
-    wlListDest.setText( BaseMessages.getString( PKG, "EnterListDialog.Selection.Label" ) );
-    props.setLook( wlListDest );
+    wlListDest = new Label(rightsplit, SWT.NONE);
+    wlListDest.setText(BaseMessages.getString(PKG, "EnterListDialog.Selection.Label"));
+    props.setLook(wlListDest);
     FormData fdlListDest = new FormData();
-    fdlListDest.left = new FormAttachment( 0, 0 );
-    fdlListDest.top = new FormAttachment( 0, 0 );
-    wlListDest.setLayoutData( fdlListDest );
+    fdlListDest.left = new FormAttachment(0, 0);
+    fdlListDest.top = new FormAttachment(0, 0);
+    wlListDest.setLayoutData(fdlListDest);
 
-    wListDest = new List( rightsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
-    props.setLook( wListDest );
+    wListDest = new List(rightsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    props.setLook(wListDest);
 
     FormData fdListDest = new FormData();
-    fdListDest.left = new FormAttachment( 0, 0 );
-    fdListDest.top = new FormAttachment( wlListDest, 0 );
-    fdListDest.right = new FormAttachment( 100, 0 );
-    fdListDest.bottom = new FormAttachment( 100, 0 );
-    wListDest.setLayoutData( fdListDest );
+    fdListDest.left = new FormAttachment(0, 0);
+    fdListDest.top = new FormAttachment(wlListDest, 0);
+    fdListDest.right = new FormAttachment(100, 0);
+    fdListDest.bottom = new FormAttachment(100, 0);
+    wListDest.setLayoutData(fdListDest);
 
-    sashform.setWeights( new int[] { 40, 16, 40 } );
+    sashform.setWeights(new int[] {40, 16, 40});
 
     // //////////////////////////////////////////////////////////////
     // THE BOTTOM BUTTONS...
     // //////////////////////////////////////////////////////////////
 
-    wOk = new Button( bottom, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button(bottom, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
 
-    wCancel = new Button( bottom, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel = new Button(bottom, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     FormData fdOk = new FormData();
     FormData fdCancel = new FormData();
 
-    fdOk.left = new FormAttachment( 35, 0 );
-    fdOk.bottom = new FormAttachment( 100, 0 );
-    wOk.setLayoutData( fdOk );
+    fdOk.left = new FormAttachment(35, 0);
+    fdOk.bottom = new FormAttachment(100, 0);
+    wOk.setLayoutData(fdOk);
 
-    fdCancel.left = new FormAttachment( wOk, 10 );
-    fdCancel.bottom = new FormAttachment( 100, 0 );
-    wCancel.setLayoutData( fdCancel );
-
-    // Add listeners
-    wCancel.addListener( SWT.Selection, e -> dispose() );
+    fdCancel.left = new FormAttachment(wOk, 10);
+    fdCancel.bottom = new FormAttachment(100, 0);
+    wCancel.setLayoutData(fdCancel);
 
     // Add listeners
-    wOk.addListener( SWT.Selection, e -> handleOK() );
+    wCancel.addListener(SWT.Selection, e -> dispose());
+
+    // Add listeners
+    wOk.addListener(SWT.Selection, e -> handleOK());
 
     // Drag & Drop for transforms
-    Transfer[] ttypes = new Transfer[] { TextTransfer.getInstance() };
+    Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};
 
-    DragSource ddSource = new DragSource( wListSource, DND.DROP_MOVE | DND.DROP_COPY );
-    ddSource.setTransfer( ttypes );
-    ddSource.addDragListener( new DragSourceListener() {
-      public void dragStart( DragSourceEvent event ) {
-      }
+    DragSource ddSource = new DragSource(wListSource, DND.DROP_MOVE | DND.DROP_COPY);
+    ddSource.setTransfer(ttypes);
+    ddSource.addDragListener(
+        new DragSourceListener() {
+          public void dragStart(DragSourceEvent event) {}
 
-      public void dragSetData( DragSourceEvent event ) {
-        String[] ti = wListSource.getSelection();
-        String data = new String();
-        for ( int i = 0; i < ti.length; i++ ) {
-          data += ti[ i ] + Const.CR;
-        }
-        event.data = data;
-      }
+          public void dragSetData(DragSourceEvent event) {
+            String[] ti = wListSource.getSelection();
+            String data = new String();
+            for (int i = 0; i < ti.length; i++) {
+              data += ti[i] + Const.CR;
+            }
+            event.data = data;
+          }
 
-      public void dragFinished( DragSourceEvent event ) {
-      }
-    } );
-    DropTarget ddTarget = new DropTarget( wListDest, DND.DROP_MOVE | DND.DROP_COPY );
-    ddTarget.setTransfer( ttypes );
-    ddTarget.addDropListener( new DropTargetListener() {
-      public void dragEnter( DropTargetEvent event ) {
-      }
+          public void dragFinished(DragSourceEvent event) {}
+        });
+    DropTarget ddTarget = new DropTarget(wListDest, DND.DROP_MOVE | DND.DROP_COPY);
+    ddTarget.setTransfer(ttypes);
+    ddTarget.addDropListener(
+        new DropTargetListener() {
+          public void dragEnter(DropTargetEvent event) {}
 
-      public void dragLeave( DropTargetEvent event ) {
-      }
+          public void dragLeave(DropTargetEvent event) {}
 
-      public void dragOperationChanged( DropTargetEvent event ) {
-      }
+          public void dragOperationChanged(DropTargetEvent event) {}
 
-      public void dragOver( DropTargetEvent event ) {
-      }
+          public void dragOver(DropTargetEvent event) {}
 
-      public void drop( DropTargetEvent event ) {
-        if ( event.data == null ) { // no data to copy, indicate failure in event.detail
-          event.detail = DND.DROP_NONE;
-          return;
-        }
-        StringTokenizer strtok = new StringTokenizer( (String) event.data, Const.CR );
-        while ( strtok.hasMoreTokens() ) {
-          String source = strtok.nextToken();
-          addToDestination( source );
-        }
-      }
+          public void drop(DropTargetEvent event) {
+            if (event.data == null) { // no data to copy, indicate failure in event.detail
+              event.detail = DND.DROP_NONE;
+              return;
+            }
+            StringTokenizer strtok = new StringTokenizer((String) event.data, Const.CR);
+            while (strtok.hasMoreTokens()) {
+              String source = strtok.nextToken();
+              addToDestination(source);
+            }
+          }
 
-      public void dropAccept( DropTargetEvent event ) {
-      }
-    } );
+          public void dropAccept(DropTargetEvent event) {}
+        });
 
-    wListSource.addKeyListener( new KeyAdapter() {
-      public void keyPressed( KeyEvent e ) {
-        if ( e.character == SWT.CR ) {
-          addToSelection( wListSource.getSelection() );
-        }
-      }
-    } );
-    wListDest.addKeyListener( new KeyAdapter() {
-      public void keyPressed( KeyEvent e ) {
-        if ( e.character == SWT.CR ) {
-          delFromSelection( wListDest.getSelection() );
-        }
-      }
-    } );
+    wListSource.addKeyListener(
+        new KeyAdapter() {
+          public void keyPressed(KeyEvent e) {
+            if (e.character == SWT.CR) {
+              addToSelection(wListSource.getSelection());
+            }
+          }
+        });
+    wListDest.addKeyListener(
+        new KeyAdapter() {
+          public void keyPressed(KeyEvent e) {
+            if (e.character == SWT.CR) {
+              delFromSelection(wListDest.getSelection());
+            }
+          }
+        });
 
     // Double click adds to destination.
-    wListSource.addSelectionListener( new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        addToSelection( wListSource.getSelection() );
-      }
-    } );
+    wListSource.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetDefaultSelected(SelectionEvent e) {
+            addToSelection(wListSource.getSelection());
+          }
+        });
     // Double click adds to source
-    wListDest.addSelectionListener( new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        delFromSelection( wListDest.getSelection() );
-      }
-    } );
+    wListDest.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetDefaultSelected(SelectionEvent e) {
+            delFromSelection(wListDest.getSelection());
+          }
+        });
 
-    wAddOne.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        addToSelection( wListSource.getSelection() );
-      }
-    } );
+    wAddOne.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            addToSelection(wListSource.getSelection());
+          }
+        });
 
-    wRemoveOne.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        delFromSelection( wListDest.getSelection() );
-      }
-    } );
+    wRemoveOne.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            delFromSelection(wListDest.getSelection());
+          }
+        });
 
-    wAddAll.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        addToSelection( wListSource.getItems() );
-      }
-    } );
+    wAddAll.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            addToSelection(wListSource.getItems());
+          }
+        });
 
-    wRemoveAll.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        delFromSelection( wListDest.getItems() );
-      }
-    } );
+    wRemoveAll.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            delFromSelection(wListDest.getItems());
+          }
+        });
 
     opened = true;
     getData();
 
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
     Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -407,54 +408,54 @@ public class EnterListDialog extends Dialog {
   }
 
   public void getData() {
-    if ( !opened ) {
+    if (!opened) {
       return;
     }
 
     wListSource.removeAll();
     wListDest.removeAll();
-    for ( int i = 0; i < input.length; i++ ) {
-      Integer idx = Integer.valueOf( i );
-      String str = selection.get( idx );
-      if ( str == null ) {
+    for (int i = 0; i < input.length; i++) {
+      Integer idx = Integer.valueOf(i);
+      String str = selection.get(idx);
+      if (str == null) {
         // Not selected: show in source!
-        wListSource.add( input[ i ] );
+        wListSource.add(input[i]);
       } else {
         // Selected, show in destination!
-        wListDest.add( input[ i ] );
+        wListDest.add(input[i]);
       }
     }
   }
 
-  public void addToSelection( String[] string ) {
-    for ( int i = 0; i < string.length; i++ ) {
-      addToDestination( string[ i ] );
+  public void addToSelection(String[] string) {
+    for (int i = 0; i < string.length; i++) {
+      addToDestination(string[i]);
     }
   }
 
-  public void delFromSelection( String[] string ) {
-    for ( int i = 0; i < string.length; i++ ) {
-      delFromDestination( string[ i ] );
+  public void delFromSelection(String[] string) {
+    for (int i = 0; i < string.length; i++) {
+      delFromDestination(string[i]);
     }
   }
 
-  public void addToDestination( String string ) {
-    int idxInput = Const.indexOfString( string, input );
-    selection.put( Integer.valueOf( idxInput ), string );
+  public void addToDestination(String string) {
+    int idxInput = Const.indexOfString(string, input);
+    selection.put(Integer.valueOf(idxInput), string);
 
     getData();
   }
 
-  public void delFromDestination( String string ) {
-    int idxInput = Const.indexOfString( string, input );
-    selection.remove( Integer.valueOf( idxInput ) );
+  public void delFromDestination(String string) {
+    int idxInput = Const.indexOfString(string, input);
+    selection.remove(Integer.valueOf(idxInput));
 
     getData();
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
+    WindowProperty winprop = new WindowProperty(shell);
+    props.setScreen(winprop);
     shell.dispose();
   }
 

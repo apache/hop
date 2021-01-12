@@ -36,7 +36,7 @@ import java.net.URLEncoder;
 
 @HopServerServlet(id="startExec", name = "Start the execution of a pipeline")
 public class StartExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = StartExecutionPipelineServlet.class; // Needed by Translator
+  private static final Class<?> PKG = StartExecutionPipelineServlet.class; // For Translator
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/startExec";

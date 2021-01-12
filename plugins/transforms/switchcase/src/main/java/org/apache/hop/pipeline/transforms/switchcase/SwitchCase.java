@@ -43,7 +43,7 @@ import java.util.Set;
  *
  */
 public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> implements ITransform<SwitchCaseMeta, SwitchCaseData> {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
 
   public SwitchCase( TransformMeta transformMeta, SwitchCaseMeta meta, SwitchCaseData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

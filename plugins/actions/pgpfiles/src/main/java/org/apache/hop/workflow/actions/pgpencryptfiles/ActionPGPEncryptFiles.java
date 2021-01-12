@@ -61,15 +61,14 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "PGP_ENCRYPT_FILES",
-  i18nPackageName = "org.apache.hop.workflow.actions.pgpencryptfiles",
-  name = "ActionPGPEncryptFiles.Name",
-  description = "ActionPGPEncryptFiles.Description",
+  name = "i18n::ActionPGPEncryptFiles.Name",
+  description = "i18n::ActionPGPEncryptFiles.Description",
   image = "PGPEncryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpencryptfiles.html"
 )
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
   public static final String[] actionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Encrypt.Label" ),

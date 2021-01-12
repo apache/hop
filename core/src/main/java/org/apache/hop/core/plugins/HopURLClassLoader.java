@@ -33,7 +33,7 @@ import java.util.Vector;
 import java.util.jar.JarFile;
 
 public class HopURLClassLoader extends URLClassLoader {
-  private static final Class<?> PKG = HopURLClassLoader.class; // Needed by Translator
+  private static final Class<?> PKG = HopURLClassLoader.class; // For Translator
 
   private String name;
 

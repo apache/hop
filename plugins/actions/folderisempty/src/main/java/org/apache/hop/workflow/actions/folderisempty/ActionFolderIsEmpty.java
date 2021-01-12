@@ -53,15 +53,14 @@ import java.util.regex.Pattern;
  */
 @Action(
   id = "FOLDER_IS_EMPTY",
-  i18nPackageName = "org.apache.hop.workflow.actions.folderisempty",
-  name = "ActionFolderIsEmpty.Name",
-  description = "ActionFolderIsEmpty.Description",
+  name = "i18n::ActionFolderIsEmpty.Name",
+  description = "i18n::ActionFolderIsEmpty.Description",
   image = "FolderIsEmpty.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/folderisempty.html"
 )
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFolderIsEmpty.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
 
   private String folderName;
   private int filescount;

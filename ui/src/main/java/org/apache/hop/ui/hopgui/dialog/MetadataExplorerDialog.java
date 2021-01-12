@@ -64,8 +64,7 @@ import java.util.List;
 
 @GuiPlugin
 public class MetadataExplorerDialog {
-  private static final Class<?> PKG =
-      MetadataExplorerDialog.class; // for i18n purposes, needed by Translator
+  private static final Class<?> PKG = MetadataExplorerDialog.class; // For Translator
 
   private static final String METADATA_EXPLORER_DIALOG_TREE = "Metadata explorer dialog tree";
 
@@ -165,11 +164,10 @@ public class MetadataExplorerDialog {
 
     // refresh automatically when the metadata changes
     //
-    HopGui.getInstance().getEventsHandler().addEventListener(
-      getClass().getName(),
-      e->refreshTree(),
-      HopGuiEvents.MetadataChanged.name()
-    );
+    HopGui.getInstance()
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName(), e -> refreshTree(), HopGuiEvents.MetadataChanged.name());
 
     TreeMemory.addTreeListener(tree, METADATA_EXPLORER_DIALOG_TREE);
 
@@ -358,9 +356,9 @@ public class MetadataExplorerDialog {
         int copyNr = 2;
         while (true) {
           String newName = activeObjectName + " " + copyNr;
-          if (!manager.getSerializer().exists( newName )) {
-            metadata.setName( newName );
-            manager.getSerializer().save( metadata );
+          if (!manager.getSerializer().exists(newName)) {
+            metadata.setName(newName);
+            manager.getSerializer().save(metadata);
             refreshTree();
             manager.editMetadata(newName);
             break;
@@ -390,7 +388,7 @@ public class MetadataExplorerDialog {
 
     // Get rid of the listener we registered...
     //
-    HopGui.getInstance().getEventsHandler().removeEventListeners( getClass().getName() );
+    HopGui.getInstance().getEventsHandler().removeEventListeners(getClass().getName());
   }
 
   @GuiToolbarElement(

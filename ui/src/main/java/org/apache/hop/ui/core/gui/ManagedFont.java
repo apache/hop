@@ -32,10 +32,10 @@ public class ManagedFont {
   private boolean systemFont;
 
   /**
-   * @param font       The font
+   * @param font The font
    * @param systemFont true if this is a system font and doesn't need to be disposed off
    */
-  public ManagedFont( Font font, boolean systemFont ) {
+  public ManagedFont(Font font, boolean systemFont) {
     this.font = font;
     this.systemFont = systemFont;
   }
@@ -43,49 +43,39 @@ public class ManagedFont {
   /**
    * Create a new managed font by using fontdata
    *
-   * @param display  the display to use
+   * @param display the display to use
    * @param fontData The fontdata to create the font with.
    */
-  public ManagedFont( Display display, FontData fontData ) {
-    this.font = new Font( display, fontData );
+  public ManagedFont(Display display, FontData fontData) {
+    this.font = new Font(display, fontData);
     this.systemFont = false;
   }
 
-  /**
-   * Free the managed resource if it hasn't already been done and if this is not a system font
-   */
+  /** Free the managed resource if it hasn't already been done and if this is not a system font */
   public void dispose() {
     // System color and already disposed off colors don't need to be disposed!
-    if ( !systemFont && !font.isDisposed() ) {
+    if (!systemFont && !font.isDisposed()) {
       font.dispose();
     }
   }
 
-  /**
-   * @return Returns the font.
-   */
+  /** @return Returns the font. */
   public Font getFont() {
     return font;
   }
 
-  /**
-   * @return true if this is a system font.
-   */
+  /** @return true if this is a system font. */
   public boolean isSystemFont() {
     return systemFont;
   }
 
-  /**
-   * @param font the font to set
-   */
-  public void setFont( Font font ) {
+  /** @param font the font to set */
+  public void setFont(Font font) {
     this.font = font;
   }
 
-  /**
-   * @param systemFont the systemFont to set
-   */
-  public void setSystemFont( boolean systemFont ) {
+  /** @param systemFont the systemFont to set */
+  public void setSystemFont(boolean systemFont) {
     this.systemFont = systemFont;
   }
 }

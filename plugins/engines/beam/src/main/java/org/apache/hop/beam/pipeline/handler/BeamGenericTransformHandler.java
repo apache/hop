@@ -68,7 +68,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     this.metaStoreJson = metaStoreJson;
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -78,7 +78,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     boolean reduceParallelism = checkTransformCopiesForReducedParallelism( transformMeta );
     reduceParallelism=reduceParallelism || needsSingleThreading( transformMeta );
 
-    String stepMetaInterfaceXml = XmlHandler.openTag( TransformMeta.XML_TAG ) + transformMeta.getTransform().getXml() + XmlHandler.closeTag( TransformMeta.XML_TAG );
+    String transformMetaInterfaceXml = XmlHandler.openTag( TransformMeta.XML_TAG ) + transformMeta.getTransform().getXml() + XmlHandler.closeTag( TransformMeta.XML_TAG );
 
 
     // See if the transform has Info transforms
@@ -91,7 +91,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
       if ( !previousTransforms.contains( infoTransformMeta ) ) {
         infoTransforms.add( infoTransformMeta.getName() );
         infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( variables, infoTransformMeta ) ) );
-        PCollection<HopRow> infoCollection = stepCollectionMap.get( infoTransformMeta.getName() );
+        PCollection<HopRow> infoCollection = transformCollectionMap.get( infoTransformMeta.getName() );
         if ( infoCollection == null ) {
           throw new HopException( "Unable to find collection for transform '" + infoTransformMeta.getName() + " providing info for '" + transformMeta.getName() + "'" );
         }
@@ -129,11 +129,11 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
     if (needsBatching(transformMeta)) {
       transformTransform = new TransformBatchTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
-        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
+        transformMeta.getName(), transformMeta.getTransformPluginId(), transformMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
         targetTransforms, infoTransforms, infoRowMetaJsons, infoCollectionViews );
     } else {
       transformTransform = new TransformTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
-        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
+        transformMeta.getName(), transformMeta.getTransformPluginId(), transformMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
         targetTransforms, infoTransforms, infoRowMetaJsons, infoCollectionViews );
     }
 
@@ -152,7 +152,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
       // Store this new collection so we can hook up other transforms...
       //
       String tupleId = HopBeamUtil.createMainInputTupleId( transformMeta.getName() );
-      stepCollectionMap.put( tupleId, input );
+      transformCollectionMap.put( tupleId, input );
     } else if ( reduceParallelism ) {
       PCollection.IsBounded isBounded = input.isBounded();
       if (isBounded== PCollection.IsBounded.BOUNDED) {
@@ -188,7 +188,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // Save this in the map
     //
-    stepCollectionMap.put( transformMeta.getName(), mainPCollection );
+    transformCollectionMap.put( transformMeta.getName(), mainPCollection );
 
     // Were there any targeted transforms in this transform?
     //
@@ -198,7 +198,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
       // Store this in the map as well
       //
-      stepCollectionMap.put( tupleId, targetPCollection );
+      transformCollectionMap.put( tupleId, targetPCollection );
     }
 
     log.logBasic( "Handled transform (STEP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s), targets=" + targetTransforms.size() + ", infos=" + infoTransforms.size() );

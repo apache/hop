@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 
 
 public class MappingInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
   private TableView wFields;
 

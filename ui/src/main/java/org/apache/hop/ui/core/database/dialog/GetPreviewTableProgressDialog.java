@@ -42,7 +42,7 @@ import java.util.List;
  * @since 12-may-2005
  */
 public class GetPreviewTableProgressDialog {
-  private static final Class<?> PKG = GetPreviewTableProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = GetPreviewTableProgressDialog.class; // For Translator
 
   private Shell shell;
   private DatabaseMeta dbMeta;

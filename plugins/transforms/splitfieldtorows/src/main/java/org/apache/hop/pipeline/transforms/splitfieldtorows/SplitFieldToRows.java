@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData> implements ITransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
 
 

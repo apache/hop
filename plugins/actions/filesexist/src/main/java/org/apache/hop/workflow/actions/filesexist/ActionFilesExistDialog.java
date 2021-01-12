@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.*;
  * @since 12-10-2007
  */
 public class ActionFilesExistDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFilesExist.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFilesExist.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobFilesExist.Filetype.Text" ),

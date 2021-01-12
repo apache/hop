@@ -88,10 +88,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class MetaInjectDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
 
   public static final String CONST_VALUE = "<const>";
-  private static final Class<?> PKG =
-      MetaInjectMeta.class; // for i18n purposes, needed by Translator2!!
 
   private final MetaInjectMeta metaInjectMeta;
 
@@ -805,8 +804,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "PipelineExecutorDialog.ErrorLoadingPipeline.DialogTitle"),
-          BaseMessages.getString(PKG, "PipelineExecutorDialog.ErrorLoadingPipeline.DialogMessage"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingPipeline.DialogTitle"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingPipeline.DialogMessage"),
           e);
     }
   }

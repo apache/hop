@@ -36,23 +36,24 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-        id = "DetectEmptyStream",
-        image = "detectemptystream.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.detectemptystream",
-        name = "BaseTransform.TypeLongDesc.DetectEmptyStream",
-        description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/detectemptystream.html"
-)
-public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // Needed by Translator
+    id = "DetectEmptyStream",
+    image = "detectemptystream.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.DetectEmptyStream",
+    description = "i18n::BaseTransform.TypeTooltipDesc.DetectEmptyStream",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/transforms/detectemptystream.html")
+public class DetectEmptyStreamMeta extends BaseTransformMeta
+    implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStreamMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -60,45 +61,65 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
     return retval;
   }
 
-  private void readData( Node transformNode ) {
-  }
+  private void readData(Node transformNode) {}
 
-  public void setDefault() {
-  }
+  public void setDefault() {}
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "DetectEmptyStreamMeta.CheckResult.NotReceivingFields" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "DetectEmptyStreamMeta.CheckResult.NotReceivingFields"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+              transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData2" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData2"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "DetectEmptyStreamMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "DetectEmptyStreamMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
-  public DetectEmptyStream createTransform( TransformMeta transformMeta, DetectEmptyStreamData data, int cnr, PipelineMeta tr,
-                                            Pipeline pipeline ) {
-    return new DetectEmptyStream( transformMeta, this, data, cnr, tr, pipeline );
+  public DetectEmptyStream createTransform(
+      TransformMeta transformMeta,
+      DetectEmptyStreamData data,
+      int cnr,
+      PipelineMeta tr,
+      Pipeline pipeline) {
+    return new DetectEmptyStream(transformMeta, this, data, cnr, tr, pipeline);
   }
 
   public DetectEmptyStreamData getTransformData() {
@@ -106,7 +127,8 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
   }
 
   public PipelineType[] getSupportedPipelineTypes() {
-    return new PipelineType[] { PipelineType.Normal, };
+    return new PipelineType[] {
+      PipelineType.Normal,
+    };
   }
-
 }

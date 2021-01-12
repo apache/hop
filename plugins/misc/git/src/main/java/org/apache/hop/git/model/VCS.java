@@ -31,7 +31,7 @@ import java.util.List;
 
 public class VCS implements IVCS {
 
-  protected static final Class<?> PKG = HopPerspectivePlugin.class;
+  protected static final Class<?> PKG = HopPerspectivePlugin.class; // For Translator
   protected Shell shell;
   protected String directory;
 

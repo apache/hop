@@ -37,14 +37,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 /**
- * A Widget that combines a Text widget with a Variable button that will insert an Environment variable. The tool tip of
- * the text widget shows the content of the Text widget with expanded variables.
+ * A Widget that combines a Text widget with a Variable button that will insert an Environment
+ * variable. The tool tip of the text widget shows the content of the Text widget with expanded
+ * variables.
  *
  * @author Matt
  * @since 17-may-2006
  */
 public class ComboVar extends Composite {
-  private static final Class<?> PKG = ComboVar.class; // Needed by Translator
+  private static final Class<?> PKG = ComboVar.class; // For Translator
 
   private String toolTipText;
 
@@ -60,22 +61,31 @@ public class ComboVar extends Composite {
 
   private ModifyListener modifyListenerTooltipText;
 
-  public ComboVar( IVariables variables, Composite composite, int flags ) {
-    this( variables, composite, flags, null, null, null );
+  public ComboVar(IVariables variables, Composite composite, int flags) {
+    this(variables, composite, flags, null, null, null);
   }
 
-  public ComboVar( IVariables variables, Composite composite, int flags, String toolTipText ) {
-    this( variables, composite, flags, toolTipText, null, null );
+  public ComboVar(IVariables variables, Composite composite, int flags, String toolTipText) {
+    this(variables, composite, flags, toolTipText, null, null);
   }
 
-  public ComboVar( IVariables variables, Composite composite, int flags,
-                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
-    this( variables, composite, flags, null, getCaretPositionInterface, insertTextInterface );
+  public ComboVar(
+      IVariables variables,
+      Composite composite,
+      int flags,
+      IGetCaretPosition getCaretPositionInterface,
+      IInsertText insertTextInterface) {
+    this(variables, composite, flags, null, getCaretPositionInterface, insertTextInterface);
   }
 
-  public ComboVar( IVariables variables, Composite composite, int flags, String toolTipText,
-                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
-    super( composite, SWT.NONE );
+  public ComboVar(
+      IVariables variables,
+      Composite composite,
+      int flags,
+      String toolTipText,
+      IGetCaretPosition getCaretPositionInterface,
+      IInsertText insertTextInterface) {
+    super(composite, SWT.NONE);
     this.toolTipText = toolTipText;
     this.getCaretPositionInterface = getCaretPositionInterface;
     this.insertTextInterface = insertTextInterface;
@@ -90,97 +100,86 @@ public class ComboVar extends Composite {
     formLayout.marginTop = 0;
     formLayout.marginBottom = 0;
 
-    this.setLayout( formLayout );
+    this.setLayout(formLayout);
 
     // Add the variable $ image on the top right of the control
     //
-    Label wlImage = new Label( this, SWT.NONE );
-    wlImage.setImage( GuiResource.getInstance().getImageVariable() );
-    wlImage.setToolTipText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
+    Label wlImage = new Label(this, SWT.NONE);
+    wlImage.setImage(GuiResource.getInstance().getImageVariable());
+    wlImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
-    fdlImage.top = new FormAttachment( 0, 0 );
-    fdlImage.right = new FormAttachment( 100, 0 );
-    wlImage.setLayoutData( fdlImage );
+    fdlImage.top = new FormAttachment(0, 0);
+    fdlImage.right = new FormAttachment(100, 0);
+    wlImage.setLayoutData(fdlImage);
 
     // add a text field on it...
-    wCombo = new CCombo( this, flags );
-    modifyListenerTooltipText = getModifyListenerTooltipText( wCombo );
-    wCombo.addModifyListener( modifyListenerTooltipText );
+    wCombo = new CCombo(this, flags);
+    modifyListenerTooltipText = getModifyListenerTooltipText(wCombo);
+    wCombo.addModifyListener(modifyListenerTooltipText);
     FormData fdCombo = new FormData();
-    fdCombo.top = new FormAttachment( 0, 0 );
-    fdCombo.left = new FormAttachment( 0, 0 );
-    fdCombo.right = new FormAttachment( wlImage, 0 );
-    wCombo.setLayoutData( fdCombo );
+    fdCombo.top = new FormAttachment(0, 0);
+    fdCombo.left = new FormAttachment(0, 0);
+    fdCombo.right = new FormAttachment(wlImage, 0);
+    wCombo.setLayoutData(fdCombo);
 
-    controlSpaceKeyAdapter = new ControlSpaceKeyAdapter( variables, wCombo, getCaretPositionInterface, insertTextInterface );
-    wCombo.addKeyListener( controlSpaceKeyAdapter );
-
-
+    controlSpaceKeyAdapter =
+        new ControlSpaceKeyAdapter(
+            variables, wCombo, getCaretPositionInterface, insertTextInterface);
+    wCombo.addKeyListener(controlSpaceKeyAdapter);
   }
 
-  /**
-   * @return the getCaretPositionInterface
-   */
+  /** @return the getCaretPositionInterface */
   public IGetCaretPosition getGetCaretPositionInterface() {
     return getCaretPositionInterface;
   }
 
-  /**
-   * @param getCaretPositionInterface the getCaretPositionInterface to set
-   */
-  public void setGetCaretPositionInterface( IGetCaretPosition getCaretPositionInterface ) {
+  /** @param getCaretPositionInterface the getCaretPositionInterface to set */
+  public void setGetCaretPositionInterface(IGetCaretPosition getCaretPositionInterface) {
     this.getCaretPositionInterface = getCaretPositionInterface;
   }
 
-  /**
-   * @return the insertTextInterface
-   */
+  /** @return the insertTextInterface */
   public IInsertText getInsertTextInterface() {
     return insertTextInterface;
   }
 
-  /**
-   * @param insertTextInterface the insertTextInterface to set
-   */
-  public void setInsertTextInterface( IInsertText insertTextInterface ) {
+  /** @param insertTextInterface the insertTextInterface to set */
+  public void setInsertTextInterface(IInsertText insertTextInterface) {
     this.insertTextInterface = insertTextInterface;
   }
 
-  private ModifyListener getModifyListenerTooltipText( final CCombo comboField ) {
+  private ModifyListener getModifyListenerTooltipText(final CCombo comboField) {
     return e -> {
       String tip = comboField.getText();
-      if ( !Utils.isEmpty( tip ) && !Utils.isEmpty( toolTipText ) ) {
+      if (!Utils.isEmpty(tip) && !Utils.isEmpty(toolTipText)) {
         tip += Const.CR + Const.CR + toolTipText;
       }
 
-      if ( Utils.isEmpty( tip ) ) {
+      if (Utils.isEmpty(tip)) {
         tip = toolTipText;
       }
-      comboField.setToolTipText( variables.resolve( tip ) );
+      comboField.setToolTipText(variables.resolve(tip));
     };
   }
 
-  /**
-   * @return the text in the Text widget
-   */
+  /** @return the text in the Text widget */
   public String getText() {
     return wCombo.getText();
   }
 
-  /**
-   * @param text the text in the Text widget to set.
-   */
-  public void setText( String text ) {
-    wCombo.setText( text );
-    modifyListenerTooltipText.modifyText( null );
+  /** @param text the text in the Text widget to set. */
+  public void setText(String text) {
+    wCombo.setText(text);
+    modifyListenerTooltipText.modifyText(null);
   }
 
   public CCombo getCComboWidget() {
     return wCombo;
   }
 
-  @Override public void addListener( int eventType, Listener listener ) {
-    wCombo.addListener( eventType, listener );
+  @Override
+  public void addListener(int eventType, Listener listener) {
+    wCombo.addListener(eventType, listener);
   }
 
   /**
@@ -188,60 +187,60 @@ public class ComboVar extends Composite {
    *
    * @param modifyListener
    */
-  public void addModifyListener( ModifyListener modifyListener ) {
-    wCombo.addModifyListener( modifyListener );
+  public void addModifyListener(ModifyListener modifyListener) {
+    wCombo.addModifyListener(modifyListener);
   }
 
-  public void addSelectionListener( SelectionListener lsDef ) {
-    wCombo.addSelectionListener( lsDef );
+  public void addSelectionListener(SelectionListener lsDef) {
+    wCombo.addSelectionListener(lsDef);
   }
 
-  public void addKeyListener( KeyListener lsKey ) {
-    wCombo.addKeyListener( lsKey );
+  public void addKeyListener(KeyListener lsKey) {
+    wCombo.addKeyListener(lsKey);
   }
 
-  public void addFocusListener( FocusListener lsFocus ) {
-    wCombo.addFocusListener( lsFocus );
+  public void addFocusListener(FocusListener lsFocus) {
+    wCombo.addFocusListener(lsFocus);
   }
 
-  public void setEnabled( boolean flag ) {
-    wCombo.setEnabled( flag );
+  public void setEnabled(boolean flag) {
+    wCombo.setEnabled(flag);
   }
 
   public boolean setFocus() {
     return wCombo.setFocus();
   }
 
-  public void addTraverseListener( TraverseListener tl ) {
-    wCombo.addTraverseListener( tl );
+  public void addTraverseListener(TraverseListener tl) {
+    wCombo.addTraverseListener(tl);
   }
 
-  public void setToolTipText( String toolTipText ) {
+  public void setToolTipText(String toolTipText) {
     this.toolTipText = toolTipText;
-    wCombo.setToolTipText( toolTipText );
-    modifyListenerTooltipText.modifyText( null );
+    wCombo.setToolTipText(toolTipText);
+    modifyListenerTooltipText.modifyText(null);
   }
 
-  public void setEditable( boolean editable ) {
-    wCombo.setEditable( editable );
+  public void setEditable(boolean editable) {
+    wCombo.setEditable(editable);
   }
 
-  public void setVariables( IVariables vars ) {
+  public void setVariables(IVariables vars) {
     variables = vars;
-    controlSpaceKeyAdapter.setVariables( variables );
-    modifyListenerTooltipText.modifyText( null );
+    controlSpaceKeyAdapter.setVariables(variables);
+    modifyListenerTooltipText.modifyText(null);
   }
 
-  public void setItems( String[] items ) {
-    wCombo.setItems( items );
+  public void setItems(String[] items) {
+    wCombo.setItems(items);
   }
 
   public String[] getItems() {
     return wCombo.getItems();
   }
 
-  public void add( String item ) {
-    wCombo.add( item );
+  public void add(String item) {
+    wCombo.add(item);
   }
 
   public int getItemCount() {
@@ -256,12 +255,12 @@ public class ComboVar extends Composite {
     wCombo.removeAll();
   }
 
-  public void remove( int index ) {
-    wCombo.remove( index );
+  public void remove(int index) {
+    wCombo.remove(index);
   }
 
-  public void select( int index ) {
-    wCombo.select( index );
-    modifyListenerTooltipText.modifyText( null );
+  public void select(int index) {
+    wCombo.select(index);
+    modifyListenerTooltipText.modifyText(null);
   }
 }

@@ -41,7 +41,7 @@ import org.w3c.dom.Node;
         name = "Beam Input",
         description = "Describes a Beam Input",
         image = "beam-input.svg",
-        categoryDescription = "Big Data",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beaminput.html"
 )
 public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<BeamInput, BeamInputData> {

@@ -45,15 +45,14 @@ import java.util.List;
 
 @Action(
   id = "FILES_EXIST",
-  i18nPackageName = "org.apache.hop.workflow.actions.filesexist",
-  name = "ActionFilesExist.Name",
-  description = "ActionFilesExist.Description",
+  name = "i18n::ActionFilesExist.Name",
+  description = "i18n::ActionFilesExist.Description",
   image = "FilesExist.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/filesexist.html"
 )
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFilesExist.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFilesExist.class; // For Translator
 
   private String filename; // TODO: looks like it is not used: consider deleting
 

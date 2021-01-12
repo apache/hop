@@ -62,7 +62,7 @@ public class TransformMeta implements
   Cloneable, Comparable<TransformMeta>, IGuiPosition,
   ICheckResultSource, IResourceExport, IResourceHolder,
   IAttributes, IBaseMeta {
-  private static final Class<?> PKG = TransformMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TransformMeta.class; // For Translator
 
   public static final String XML_TAG = "transform";
 

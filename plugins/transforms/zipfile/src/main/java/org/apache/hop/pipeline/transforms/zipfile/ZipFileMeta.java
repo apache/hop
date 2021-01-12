@@ -38,23 +38,19 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-
 @Transform(
-        id = "ZipFile",
-        image = "zipfile.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.ZipFile",
-        name = "ZipFile.Name",
-        description = "ZipFile.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/zipfile.html"
-)
+    id = "ZipFile",
+    image = "zipfile.svg",
+    name = "i18n::ZipFile.Name",
+    description = "i18n::ZipFile.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/zipfile.html")
 public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<ZipFile, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
 
-  /**
-   * dynamic filename
-   */
+  /** dynamic filename */
   private String sourcefilenamefield;
+
   private String targetfilenamefield;
   private String baseFolderField;
 
@@ -66,23 +62,18 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
 
   private boolean keepsourcefolder;
 
-  /**
-   * Operations type
-   */
+  /** Operations type */
   private int operationType;
 
-  /**
-   * The operations description
-   */
+  /** The operations description */
   public static final String[] operationTypeDesc = {
-    BaseMessages.getString( PKG, "ZipFileMeta.operationType.DoNothing" ),
-    BaseMessages.getString( PKG, "ZipFileMeta.operationType.Move" ),
-    BaseMessages.getString( PKG, "ZipFileMeta.operationType.Delete" ) };
+    BaseMessages.getString(PKG, "ZipFileMeta.operationType.DoNothing"),
+    BaseMessages.getString(PKG, "ZipFileMeta.operationType.Move"),
+    BaseMessages.getString(PKG, "ZipFileMeta.operationType.Delete")
+  };
 
-  /**
-   * The operations type codes
-   */
-  public static final String[] operationTypeCode = { "", "move", "delete" };
+  /** The operations type codes */
+  public static final String[] operationTypeCode = {"", "move", "delete"};
 
   public static final int OPERATION_TYPE_NOTHING = 0;
 
@@ -95,63 +86,52 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, ZipFileData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new ZipFile( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ZipFileData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new ZipFile(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  /**
-   * @return Returns the sourcefilenamefield.
-   */
+  /** @return Returns the sourcefilenamefield. */
   public String getDynamicSourceFileNameField() {
     return sourcefilenamefield;
   }
 
-  /**
-   * @param sourcefilenamefield The sourcefilenamefield to set.
-   */
-  public void setDynamicSourceFileNameField( String sourcefilenamefield ) {
+  /** @param sourcefilenamefield The sourcefilenamefield to set. */
+  public void setDynamicSourceFileNameField(String sourcefilenamefield) {
     this.sourcefilenamefield = sourcefilenamefield;
   }
 
-  /**
-   * @return Returns the baseFolderField.
-   */
+  /** @return Returns the baseFolderField. */
   public String getBaseFolderField() {
     return baseFolderField;
   }
 
-  /**
-   * @param baseFolderField The baseFolderField to set.
-   */
-  public void setBaseFolderField( String baseFolderField ) {
+  /** @param baseFolderField The baseFolderField to set. */
+  public void setBaseFolderField(String baseFolderField) {
     this.baseFolderField = baseFolderField;
   }
 
-  /**
-   * @return Returns the movetofolderfield.
-   */
+  /** @return Returns the movetofolderfield. */
   public String getMoveToFolderField() {
     return movetofolderfield;
   }
 
-  /**
-   * @param movetofolderfield The movetofolderfield to set.
-   */
-  public void setMoveToFolderField( String movetofolderfield ) {
+  /** @param movetofolderfield The movetofolderfield to set. */
+  public void setMoveToFolderField(String movetofolderfield) {
     this.movetofolderfield = movetofolderfield;
   }
 
-  /**
-   * @return Returns the targetfilenamefield.
-   */
+  /** @return Returns the targetfilenamefield. */
   public String getDynamicTargetFileNameField() {
     return targetfilenamefield;
   }
 
-  /**
-   * @param targetfilenamefield The targetfilenamefield to set.
-   */
-  public void setDynamicTargetFileNameField( String targetfilenamefield ) {
+  /** @param targetfilenamefield The targetfilenamefield to set. */
+  public void setDynamicTargetFileNameField(String targetfilenamefield) {
     this.targetfilenamefield = targetfilenamefield;
   }
 
@@ -171,24 +151,25 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
     return keepsourcefolder;
   }
 
-  public void setKeepSouceFolder( boolean value ) {
+  public void setKeepSouceFolder(boolean value) {
     keepsourcefolder = value;
   }
 
-  public void setaddTargetFileNametoResult( boolean addresultfilenames ) {
+  public void setaddTargetFileNametoResult(boolean addresultfilenames) {
     this.addresultfilenames = addresultfilenames;
   }
 
-  public void setOverwriteZipEntry( boolean overwritezipentry ) {
+  public void setOverwriteZipEntry(boolean overwritezipentry) {
     this.overwritezipentry = overwritezipentry;
   }
 
-  public void setCreateParentFolder( boolean createparentfolder ) {
+  public void setCreateParentFolder(boolean createparentfolder) {
     this.createparentfolder = createparentfolder;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -205,76 +186,94 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
     operationType = OPERATION_TYPE_NOTHING;
   }
 
-  private static String getOperationTypeCode( int i ) {
-    if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[ 0 ];
+  private static String getOperationTypeCode(int i) {
+    if (i < 0 || i >= operationTypeCode.length) {
+      return operationTypeCode[0];
     }
-    return operationTypeCode[ i ];
+    return operationTypeCode[i];
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XmlHandler.addTagValue( "sourcefilenamefield", sourcefilenamefield ) );
-    retval.append( "    " + XmlHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
-    retval.append( "    " + XmlHandler.addTagValue( "baseFolderField", baseFolderField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "overwritezipentry", overwritezipentry ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "createparentfolder", createparentfolder ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "keepsourcefolder", keepsourcefolder ) );
-    retval.append( "    " + XmlHandler.addTagValue( "movetofolderfield", movetofolderfield ) );
+    retval.append("    " + XmlHandler.addTagValue("sourcefilenamefield", sourcefilenamefield));
+    retval.append("    " + XmlHandler.addTagValue("targetfilenamefield", targetfilenamefield));
+    retval.append("    " + XmlHandler.addTagValue("baseFolderField", baseFolderField));
+    retval.append(
+        "    " + XmlHandler.addTagValue("operation_type", getOperationTypeCode(operationType)));
+    retval.append("    ").append(XmlHandler.addTagValue("addresultfilenames", addresultfilenames));
+    retval.append("    ").append(XmlHandler.addTagValue("overwritezipentry", overwritezipentry));
+    retval.append("    ").append(XmlHandler.addTagValue("createparentfolder", createparentfolder));
+    retval.append("    ").append(XmlHandler.addTagValue("keepsourcefolder", keepsourcefolder));
+    retval.append("    " + XmlHandler.addTagValue("movetofolderfield", movetofolderfield));
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      sourcefilenamefield = XmlHandler.getTagValue( transformNode, "sourcefilenamefield" );
-      targetfilenamefield = XmlHandler.getTagValue( transformNode, "targetfilenamefield" );
-      baseFolderField = XmlHandler.getTagValue( transformNode, "baseFolderField" );
+      sourcefilenamefield = XmlHandler.getTagValue(transformNode, "sourcefilenamefield");
+      targetfilenamefield = XmlHandler.getTagValue(transformNode, "targetfilenamefield");
+      baseFolderField = XmlHandler.getTagValue(transformNode, "baseFolderField");
       operationType =
-        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operation_type" ), "" ) );
-      addresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfilenames" ) );
-      overwritezipentry = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "overwritezipentry" ) );
-      createparentfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createparentfolder" ) );
-      keepsourcefolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "keepsourcefolder" ) );
-      movetofolderfield = XmlHandler.getTagValue( transformNode, "movetofolderfield" );
+          getOperationTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(transformNode, "operation_type"), ""));
+      addresultfilenames =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfilenames"));
+      overwritezipentry =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "overwritezipentry"));
+      createparentfolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "createparentfolder"));
+      keepsourcefolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "keepsourcefolder"));
+      movetofolderfield = XmlHandler.getTagValue(transformNode, "movetofolderfield");
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "ZipFileMeta.Exception.UnableToReadTransformMeta" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "ZipFileMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
     // source filename
-    if ( Utils.isEmpty( sourcefilenamefield ) ) {
-      errorMessage = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.SourceFileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-      remarks.add( cr );
+    if (Utils.isEmpty(sourcefilenamefield)) {
+      errorMessage = BaseMessages.getString(PKG, "ZipFileMeta.CheckResult.SourceFileFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     } else {
-      errorMessage = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.TargetFileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
-      remarks.add( cr );
+      errorMessage = BaseMessages.getString(PKG, "ZipFileMeta.CheckResult.TargetFileFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "ZipFileMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "ZipFileMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "ZipFileMeta.CheckResult.NoInpuReceived" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ZipFileMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
+      remarks.add(cr);
     }
-
   }
 
   public ZipFileData getTransformData() {
@@ -289,38 +288,38 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
     return operationType;
   }
 
-  public static int getOperationTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getOperationTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < operationTypeDesc.length; i++) {
+      if (operationTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // If this fails, try to match using the code.
-    return getOperationTypeByCode( tt );
+    return getOperationTypeByCode(tt);
   }
 
-  public void setOperationType( int operationType ) {
+  public void setOperationType(int operationType) {
     this.operationType = operationType;
   }
 
-  public static String getOperationTypeDesc( int i ) {
-    if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[ 0 ];
+  public static String getOperationTypeDesc(int i) {
+    if (i < 0 || i >= operationTypeDesc.length) {
+      return operationTypeDesc[0];
     }
-    return operationTypeDesc[ i ];
+    return operationTypeDesc[i];
   }
 
-  private static int getOperationTypeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getOperationTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < operationTypeCode.length; i++) {
+      if (operationTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }

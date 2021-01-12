@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import java.util.List;
 
 public class TransformOption {
-  private static final Class<?> PKG = TransformOption.class;
+  private static final Class<?> PKG = TransformOption.class; // For Translator
 
   private final String key;
   private final String text;

@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData> implements ITransform<GetSubFoldersMeta, GetSubFoldersData> {
 
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
   public GetSubFolders( TransformMeta transformMeta, GetSubFoldersMeta meta, GetSubFoldersData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

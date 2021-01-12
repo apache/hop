@@ -43,8 +43,7 @@ import com.google.common.annotations.VisibleForTesting;
  * @since 28 September 2008
  */
 public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> implements ITransform<ReplaceStringMeta, ReplaceStringData> {
-
-  private static final Class<?> PKG = ReplaceStringMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   public ReplaceString( TransformMeta transformMeta, ReplaceStringMeta meta, ReplaceStringData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

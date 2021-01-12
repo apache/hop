@@ -44,7 +44,7 @@ import java.util.UUID;
 @HopServerServlet(id="startPipeline", name = "Prepare and start the execution of a pipeline")
 public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = StartPipelineServlet.class;
+  private static final Class<?> PKG = StartPipelineServlet.class; // For Translator
 
   private static final long serialVersionUID = -5879200987669847357L;
 

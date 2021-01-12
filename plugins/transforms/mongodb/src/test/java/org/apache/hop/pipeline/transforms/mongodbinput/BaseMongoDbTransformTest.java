@@ -73,7 +73,7 @@ public class BaseMongoDbTransformTest {
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(mongoClientWrapper);
 
-    when(transformMeta.getName()).thenReturn("stepMetaName");
+    when(transformMeta.getName()).thenReturn("transformMetaName");
     when(pipelineMeta.findTransform(anyString())).thenReturn(transformMeta);
     when(logChannelFactory.create(any(BaseTransform.class), any(Pipeline.class)))
         .thenReturn(mockLog);

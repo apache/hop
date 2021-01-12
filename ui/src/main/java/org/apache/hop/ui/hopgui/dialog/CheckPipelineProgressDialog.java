@@ -40,7 +40,7 @@ import java.util.List;
  * @since 16-mrt-2005
  */
 public class CheckPipelineProgressDialog {
-  private static final Class<?> PKG = CheckPipelineProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = CheckPipelineProgressDialog.class; // For Translator
 
   private Shell shell;
   private PipelineMeta pipelineMeta;
