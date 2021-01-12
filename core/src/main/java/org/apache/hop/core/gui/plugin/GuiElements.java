@@ -104,18 +104,11 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), fieldClass.getName() );
+    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), field.getDeclaringClass().getName() );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.label = calculateI18n( i18nPackage, guiElement.label(), field.getDeclaringClass() );
     this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip(), field.getDeclaringClass() );
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
-      this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
-    } else {
-      this.label = guiElement.label();
-      this.toolTip = guiElement.toolTip();
-    }
   }
 
 
