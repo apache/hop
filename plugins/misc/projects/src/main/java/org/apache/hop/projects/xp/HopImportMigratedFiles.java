@@ -103,6 +103,8 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                     if(filename.indexOf(System.getProperty("user.dir")) > -1){
                         outFilename = filename.replaceAll(System.getProperty("user.dir"), "");
                         outFilename = projectConfig.getProjectHome() + outFilename;
+                    }else{
+                        outFilename = filename;
                     }
                     File outFile = new File(outFilename);
                     String folderName = outFile.getParent();
