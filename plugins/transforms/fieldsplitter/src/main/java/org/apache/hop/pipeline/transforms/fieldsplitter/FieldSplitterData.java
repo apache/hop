@@ -32,6 +32,7 @@ public class FieldSplitterData extends BaseTransformData implements ITransformDa
   public int fieldnr;
   public String delimiter;
   public String enclosure;
+  public String escapeString;
 
   public FieldSplitterData() {
     super();

@@ -122,6 +122,10 @@ public class FieldSplitterMeta extends BaseTransformMeta
   @Injection(name = "ENCLOSURE")
   private String enclosure;
 
+  /** Ignore delimiter when preceded by an escape string */
+  @Injection(name = "ESCAPE_STRING")
+  private String escapeString;
+
   /** new field names */
   @Injection(name = "NAME", group = "FIELDS")
   private String[] fieldName;
@@ -200,6 +204,20 @@ public class FieldSplitterMeta extends BaseTransformMeta
 
   public void setEnclosure(final String enclosure) {
     this.enclosure = enclosure;
+  }
+
+  /**
+   * Gets escapeString
+   *
+   * @return value of escapeString
+   */
+  public String getEscapeString() {
+    return escapeString;
+  }
+
+  /** @param escapeString The escapeString to set */
+  public void setEscapeString(String escapeString) {
+    this.escapeString = escapeString;
   }
 
   public String[] getFieldName() {
@@ -306,11 +324,6 @@ public class FieldSplitterMeta extends BaseTransformMeta
     this.fieldTrimType = fieldTrimType;
   }
 
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
   public void allocate(int nrFields) {
     fieldName = new String[nrFields];
     fieldID = new String[nrFields];
@@ -351,11 +364,13 @@ public class FieldSplitterMeta extends BaseTransformMeta
     return retval;
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
       splitField = XmlHandler.getTagValue(transformNode, "splitfield");
       delimiter = XmlHandler.getTagValue(transformNode, "delimiter");
       enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
+      escapeString = XmlHandler.getTagValue(transformNode, "escape_string");
 
       final Node fields = XmlHandler.getSubNode(transformNode, "fields");
       final int nrFields = XmlHandler.countNodes(fields, "field");
@@ -469,7 +484,9 @@ public class FieldSplitterMeta extends BaseTransformMeta
         .append("   ")
         .append(XmlHandler.addTagValue("delimiter", delimiter))
         .append("   ")
-        .append(XmlHandler.addTagValue("enclosure", enclosure));
+        .append(XmlHandler.addTagValue("enclosure", enclosure))
+        .append("   ")
+        .append(XmlHandler.addTagValue("escape_string", escapeString));
 
     retval.append("   ").append("<fields>");
     for (int i = 0; i < fieldName.length; i++) {
