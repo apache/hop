@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -29,12 +28,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
@@ -47,7 +45,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SortedMergeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SortedMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "SortedMergeSortWarning";
 
@@ -136,7 +134,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
         BaseMessages.getString( PKG, "SortedMergeDialog.Ascending.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
+          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
 
     wFields =
       new TableView(
@@ -234,8 +232,8 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
       ti.setText( 1, input.getFieldName()[ i ] );
-      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
-        .getString( PKG, SYSTEM_COMBO_NO ) );
+      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+        .getString( PKG, "System.Combo.No" ) );
     }
 
     wFields.setRowNums();
@@ -267,7 +265,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       TableItem ti = wFields.getNonEmpty( i );
       input.getFieldName()[ i ] = ti.getText( 1 );
       input.getAscending()[ i ] =
-        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 2 ) );
+        BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
     }
 
     // Show a warning (optional)
@@ -276,14 +274,11 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       MessageDialogWithToggle md =
         new MessageDialogWithToggle( shell,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.DialogTitle" ),
-          null,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.DialogMessage", Const.CR ) + Const.CR,
-          MessageDialog.WARNING,
+          SWT.ICON_WARNING,
           new String[] { BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.Option1" ) },
-          0,
           BaseMessages.getString( PKG, "SortedMergeDialog.InputNeedSort.Option2" ),
           "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
     }

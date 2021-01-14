@@ -332,7 +332,7 @@ public class HopGuiFileDelegate {
           }
           OutputStream outputStream = null;
           try {
-            outputStream = HopVfs.getOutputStream(file, true);
+            outputStream = HopVfs.getOutputStream(file, false);
             outputStream.write(svgXml.getBytes(Const.XML_ENCODING));
           } finally {
             if (outputStream != null) {

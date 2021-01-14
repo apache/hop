@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class TokenReplacementDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TokenReplacementMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
     BaseMessages.getString( PKG, "System.Combo.Yes" ) };
@@ -211,9 +211,9 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
   private Link wDevelopedBy;
   private FormData fdDevelopedBy;
 
-  private TokenReplacementMeta input;
+  private final TokenReplacementMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private boolean gotPreviousFields = false;
 
@@ -784,9 +784,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     props.setLook( wFormat );
 
     for ( int i = 0; i < TokenReplacementMeta.formatMapperLineTerminator.length; i++ ) {
-      // add e.g. TextFileOutputDialog.Format.DOS, .UNIX, .CR, .None
-      wFormat.add( BaseMessages.getString( PKG, "TokenReplacementDialog.Format."
-        + TokenReplacementMeta.formatMapperLineTerminator[i] ) );
+      wFormat.add( TokenReplacementMeta.formatMapperLineTerminatorDescriptions[i] );
     }
     wFormat.select( 0 );
     wFormat.addModifyListener( lsMod );
@@ -852,7 +850,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     // Include Transform NR in Output Filename
     //
     wlIncludeTransformNrInFilename = new Label( gOutputFile, SWT.RIGHT );
-    wlIncludeTransformNrInFilename.setText( BaseMessages.getString( PKG, "TokenReplacementDialog.IncludeStepnr.Label" ) );
+    wlIncludeTransformNrInFilename.setText( BaseMessages.getString( PKG, "TokenReplacementDialog.IncludeTransformnr.Label" ) );
     props.setLook(wlIncludeTransformNrInFilename);
     fdlIncludeTransformNrInFilename = new FormData();
     fdlIncludeTransformNrInFilename.left = new FormAttachment( 0, 0 );
@@ -1129,8 +1127,8 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     final Runnable runnable = new Runnable() {
       public void run() {
-        TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
-        if ( stepMeta != null ) {
+        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+        if ( transformMeta != null ) {
           try {
             IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
@@ -1487,11 +1485,10 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFilenameField.setText( Const.NVL( input.getOutputFileNameField(), "" ) );
     wAppendOutputFilename.setSelection( input.isAppendOutputFileName() );
     wCreateParentFolder.setSelection( input.isCreateParentFolder() );
-    wFormat.setText( BaseMessages.getString( PKG, "TokenReplacementDialog.Format."
-      + input.getOutputFileFormat() ) );
+    wFormat.setText( TokenReplacementMeta.getOutputFileFormatDescription( input.getOutputFileFormat() ) );
     wOutputFileEncoding.setText( Const.NVL( input.getOutputFileEncoding(), "" ) );
     wOutputSplitEvery.setText( Integer.toString( input.getSplitEvery() , 10 ) );
-    wIncludeTransformNrInFilename.setSelection( input.isIncludeStepNrInOutputFileName() );
+    wIncludeTransformNrInFilename.setSelection( input.isIncludeTransformNrInOutputFileName() );
     wIncludePartNrInFilename.setSelection( input.isIncludePartNrInOutputFileName() );
     wIncludeDateInFilename.setSelection( input.isIncludeDateInOutputFileName() );
     wIncludeTimeInFilename.setSelection( input.isIncludeTimeInOutputFileName() );
@@ -1549,7 +1546,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     tfoi.setOutputFileFormat( TokenReplacementMeta.formatMapperLineTerminator[wFormat.getSelectionIndex()] );
     tfoi.setOutputFileEncoding( wOutputFileEncoding.getText() );
     tfoi.setSplitEvery( Const.toInt( wOutputSplitEvery.getText(), 0 ) );
-    tfoi.setIncludeStepNrInOutputFileName( wIncludeTransformNrInFilename.getSelection() );
+    tfoi.setIncludeTransformNrInOutputFileName( wIncludeTransformNrInFilename.getSelection() );
     tfoi.setIncludePartNrInOutputFileName( wIncludePartNrInFilename.getSelection() );
     tfoi.setIncludeDateInOutputFileName( wIncludeDateInFilename.getSelection() );
     tfoi.setIncludeTimeInOutputFileName( wIncludeTimeInFilename.getSelection() );
@@ -1560,11 +1557,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     tfoi.setTokenStartString( wTokenStartString.getText() );
     tfoi.setTokenEndString( wTokenEndString.getText() );
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    tfoi.allocate( nrfields );
+    tfoi.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       TokenReplacementField field = new TokenReplacementField();
 
       TableItem item = wFields.getNonEmpty( i );
@@ -1628,18 +1625,18 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 		    int choice = 0;
 
 		    if ( keys.size() > 0 ) {
-		      // Ask what we should do with the existing data in the step.
+		      // Ask what we should do with the existing data in the transform.
 		      //
 		      MessageDialog md =
 		        new MessageDialog( tableView.getShell(),
-		          BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Title" ), // "Warning!"
+		          BaseMessages.getString( PKG, "BaseTransformDialog.GetFieldsChoice.Title" ), // "Warning!"
 		          null,
-		          BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Message", "" + keys.size(), "" + row.size() ),
-		          MessageDialog.WARNING, new String[] {
-		            BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
-		            BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
-		            BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
-		            BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
+		          BaseMessages.getString( PKG, "BaseTransformDialog.GetFieldsChoice.Message", "" + keys.size(), "" + row.size() ),
+		          SWT.ICON_WARNING, new String[] {
+		            BaseMessages.getString( PKG, "BaseTransformDialog.AddNew" ),
+		            BaseMessages.getString( PKG, "BaseTransformDialog.Add" ),
+		            BaseMessages.getString( PKG, "BaseTransformDialog.ClearAndAdd" ),
+		            BaseMessages.getString( PKG, "BaseTransformDialog.Cancel" ), }, 0 );
 		      MessageDialog.setDefaultImage( GuiResource.getInstance().getImageHop() );
 		      int idx = md.open();
 		      choice = idx & 0xFF;

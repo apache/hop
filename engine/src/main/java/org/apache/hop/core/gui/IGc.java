@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.gui;
 
@@ -32,8 +26,8 @@ public interface IGc {
 
 
   enum EColor {
-    BACKGROUND, BLACK, WHITE, RED, YELLOW, ORANGE, GREEN, BLUE, MAGENTA, GRAY, LIGHTGRAY, DARKGRAY, LIGHTBLUE, CRYSTAL,
-    HOP_DEFAULT, HOP_OK, DEPRECATED
+    BACKGROUND, BLACK, WHITE, RED, YELLOW, HOP_FALSE, GREEN, BLUE, MAGENTA, PURPULE, INDIGO, GRAY, LIGHTGRAY, DARKGRAY, LIGHTBLUE, CRYSTAL,
+    HOP_DEFAULT, HOP_TRUE, DEPRECATED
   }
 
   enum EFont {
@@ -45,9 +39,9 @@ public interface IGc {
   }
 
   enum EImage {
-    LOCK, TRANSFORM_ERROR, TRANSFORM_ERROR_RED, EDIT, CONTEXT_MENU, TRUE, FALSE, ERROR, INFO, TARGET, INPUT, OUTPUT, ARROW,
-    COPY_ROWS, UNCONDITIONAL, PARALLEL, BUSY, INJECT, LOAD_BALANCE, CHECKPOINT, DB, ARROW_DEFAULT, ARROW_OK,
-    ARROW_ERROR, ARROW_DISABLED, ARROW_CANDIDATE, DATA,
+    LOCK, EDIT, CONTEXT_MENU, TRUE, FALSE, ERROR, INFO, SUCCESS, FAILURE, TARGET, INPUT, OUTPUT, ARROW,
+    COPY_ROWS, UNCONDITIONAL, PARALLEL, BUSY, INJECT, LOAD_BALANCE, CHECKPOINT, DB, ARROW_DEFAULT, ARROW_TRUE, ARROW_FALSE,
+    ARROW_ERROR, ARROW_DISABLED, ARROW_CANDIDATE, DATA
     ;
   }
 

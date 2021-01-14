@@ -48,15 +48,14 @@ import java.util.List;
 
 @Action(
   id = "EVAL",
-  i18nPackageName = "org.apache.hop.workflow.actions.eval",
-  name = "ActionEval.Name",
-  description = "ActionEval.Description",
+  name = "i18n::ActionEval.Name",
+  description = "i18n::ActionEval.Description",
   image = "eval.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/eval.html"
 )
 public class ActionEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEval.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEval.class; // For Translator
 
   private String script;
 

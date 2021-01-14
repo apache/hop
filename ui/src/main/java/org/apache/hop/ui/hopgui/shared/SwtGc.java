@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.shared;
 
@@ -35,6 +29,7 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -58,17 +53,19 @@ public class SwtGc implements IGc {
   protected Color white;
   protected Color red;
   protected Color yellow;
-  protected Color orange;
+  protected Color hopFalse;
   protected Color green;
   protected Color blue;
   protected Color magenta;
+  protected Color purpule;
+  protected Color indigo;
   protected Color gray;
   protected Color lightGray;
   protected Color darkGray;
   protected Color lightBlue;
   protected Color crystal;
   protected Color hopDefault;
-  protected Color hopOK;
+  protected Color hopTrue;
   protected Color deprecated;
 
   private GC gc;
@@ -102,17 +99,19 @@ public class SwtGc implements IGc {
     this.white = GuiResource.getInstance().getColorWhite();
     this.red = GuiResource.getInstance().getColorRed();
     this.yellow = GuiResource.getInstance().getColorYellow();
-    this.orange = GuiResource.getInstance().getColorOrange();
+    this.hopFalse = GuiResource.getInstance().getColorOrange();
     this.green = GuiResource.getInstance().getColorGreen();
     this.blue = GuiResource.getInstance().getColorBlue();
     this.magenta = GuiResource.getInstance().getColorMagenta();
+    this.purpule = GuiResource.getInstance().getColorPurpule();
+    this.indigo = GuiResource.getInstance().getColorIndigo();
     this.gray = GuiResource.getInstance().getColorGray();
     this.lightGray = GuiResource.getInstance().getColorLightGray();
     this.darkGray = GuiResource.getInstance().getColorDarkGray();
     this.lightBlue = GuiResource.getInstance().getColorLightBlue();
     this.crystal = GuiResource.getInstance().getColorCrystalText();
     this.hopDefault = GuiResource.getInstance().getColorHopDefault();
-    this.hopOK = GuiResource.getInstance().getColorHopOK();
+    this.hopTrue = GuiResource.getInstance().getColorHopTrue();
     this.deprecated = GuiResource.getInstance().getColorDeprecated();
   }
 
@@ -169,10 +168,8 @@ public class SwtGc implements IGc {
     switch ( image ) {
       case LOCK:
         return GuiResource.getInstance().getSwtImageLocked();
-      case TRANSFORM_ERROR:
-        return GuiResource.getInstance().getSwtImageTransformError();
-      case TRANSFORM_ERROR_RED:
-        return GuiResource.getInstance().getSwtImageRedTransformError();
+      case FAILURE:
+        return GuiResource.getInstance().getSwtImageFailure();
       case EDIT:
         return GuiResource.getInstance().getSwtImageEdit();
       case CONTEXT_MENU:
@@ -183,6 +180,8 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageFalse();
       case ERROR:
         return GuiResource.getInstance().getSwtImageError();
+      case SUCCESS:
+        return GuiResource.getInstance().getSwtImageSuccess();
       case INFO:
         return GuiResource.getInstance().getSwtImageInfo();
       case TARGET:
@@ -211,8 +210,10 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT:
         return GuiResource.getInstance().getSwtImageArrowDefault();
-      case ARROW_OK:
-        return GuiResource.getInstance().getSwtImageArrowOk();
+      case ARROW_TRUE:
+        return GuiResource.getInstance().getSwtImageArrowTrue();
+      case ARROW_FALSE:
+        return GuiResource.getInstance().getSwtImageArrowFalse();
       case ARROW_ERROR:
         return GuiResource.getInstance().getSwtImageArrowError();
       case ARROW_DISABLED:
@@ -300,14 +301,16 @@ public class SwtGc implements IGc {
         return red;
       case YELLOW:
         return yellow;
-      case ORANGE:
-        return orange;
       case GREEN:
         return green;
       case BLUE:
         return blue;
       case MAGENTA:
         return magenta;
+      case PURPULE:
+        return purpule;
+      case INDIGO:
+        return indigo;        
       case GRAY:
         return gray;
       case LIGHTGRAY:
@@ -320,8 +323,10 @@ public class SwtGc implements IGc {
         return crystal;
       case HOP_DEFAULT:
         return hopDefault;
-      case HOP_OK:
-        return hopOK;
+      case HOP_TRUE:
+        return hopTrue;
+      case HOP_FALSE:
+        return hopFalse;        
       case DEPRECATED:
         return deprecated;
       default:
@@ -351,25 +356,37 @@ public class SwtGc implements IGc {
   }
 
   public void setLineStyle( ELineStyle lineStyle ) {
-    switch ( lineStyle ) {
-      case DASHDOT:
-        gc.setLineStyle( SWT.LINE_DASHDOT );
-        break;
-      case SOLID:
-        gc.setLineStyle( SWT.LINE_SOLID );
-        break;
-      case DOT:
-        gc.setLineStyle( SWT.LINE_DOT );
-        break;
-      case DASH:
-        gc.setLineStyle( SWT.LINE_DASH );
-        break;
-      case PARALLEL:
-        gc.setLineAttributes( new LineAttributes(
-          gc.getLineWidth(), SWT.CAP_FLAT, SWT.JOIN_MITER, SWT.LINE_CUSTOM, new float[] { 5, 3, }, 0, 10 ) );
-        break;
-      default:
-        break;
+    // RAP does not implement LineStyle and LineAttributes
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      switch (lineStyle) {
+        case DASHDOT:
+          gc.setLineStyle(SWT.LINE_DASHDOT);
+          break;
+        case SOLID:
+          gc.setLineStyle(SWT.LINE_SOLID);
+          break;
+        case DOT:
+          gc.setLineStyle(SWT.LINE_DOT);
+          break;
+        case DASH:
+          gc.setLineStyle(SWT.LINE_DASH);
+          break;
+        case PARALLEL:
+          gc.setLineAttributes(
+              new LineAttributes(
+                  gc.getLineWidth(),
+                  SWT.CAP_FLAT,
+                  SWT.JOIN_MITER,
+                  SWT.LINE_CUSTOM,
+                  new float[] {
+                    5, 3,
+                  },
+                  0,
+                  10));
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -398,7 +415,6 @@ public class SwtGc implements IGc {
   }
 
   public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
-    String transformType = transformMeta.getTransformPluginId();
     SwtUniversalImage swtImage = null;
     
     if ( transformMeta.isMissing() ) {
@@ -436,6 +452,9 @@ public class SwtGc implements IGc {
 
     if ( actionMeta.isMissing() ) {
 	  swtImage = GuiResource.getInstance().getSwtImageMissing();
+    }
+    else if ( actionMeta.isDeprecated() ) {
+      swtImage = GuiResource.getInstance().getSwtImageDeprecated();
     }
     else {
       String pluginId = actionMeta.getAction().getPluginId();

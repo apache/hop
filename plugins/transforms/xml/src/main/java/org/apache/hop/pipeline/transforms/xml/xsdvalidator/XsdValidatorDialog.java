@@ -46,7 +46,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class XsdValidatorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
 
   private LabelTextVar wResultField, wValidationMsg, wIfXMLValid, wIfXMLUnValid;
 

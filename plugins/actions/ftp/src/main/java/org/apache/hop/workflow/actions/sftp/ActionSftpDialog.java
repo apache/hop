@@ -51,7 +51,7 @@ import java.net.InetAddress;
  * @since 19-06-2003
  */
 public class ActionSftpDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSftp.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSftp.class; // For Translator
   private static final String[] FILETYPES =
     new String[] {
       BaseMessages.getString( PKG, "JobSFTP.Filetype.Pem" ),

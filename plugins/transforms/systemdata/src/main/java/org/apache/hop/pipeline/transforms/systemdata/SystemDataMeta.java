@@ -1,31 +1,25 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -44,76 +38,66 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
-import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@InjectionSupported( localizationPrefix = "SystemDataMeta.Injection." )
+@InjectionSupported(localizationPrefix = "SystemDataMeta.Injection.")
 @Transform(
-        id = "SystemInfo",
-        image = "systeminfo.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.systemdata",
-        name = "BaseTransform.TypeLongDesc.SystemInfo",
-        description = "BaseTransform.TypeTooltipDesc.SystemInfo",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/systemdata.html"
-)
-public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<SystemData, SystemDataData> {
-  private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator
+    id = "SystemInfo",
+    image = "systeminfo.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.SystemInfo",
+    description = "i18n::BaseTransform.TypeTooltipDesc.SystemInfo",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/systemdata.html")
+public class SystemDataMeta extends BaseTransformMeta
+    implements ITransformMeta<SystemData, SystemDataData> {
+  private static final Class<?> PKG = SystemDataMeta.class; // For Translator
 
-  @Injection( name = "FIELD_NAME" )
+  @Injection(name = "FIELD_NAME")
   private String[] fieldName;
 
-  @Injection( name = "FIELD_TYPE", converter = SystemDataMetaInjectionTypeConverter.class )
+  @Injection(name = "FIELD_TYPE", converter = SystemDataMetaInjectionTypeConverter.class)
   private SystemDataTypes[] fieldType;
 
   public SystemDataMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the fieldName.
-   */
+  /** @return Returns the fieldName. */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName( String[] fieldName ) {
+  /** @param fieldName The fieldName to set. */
+  public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return Returns the fieldType.
-   */
+  /** @return Returns the fieldType. */
   public SystemDataTypes[] getFieldType() {
     return fieldType;
   }
 
-  /**
-   * @param fieldType The fieldType to set.
-   */
-  public void setFieldType( SystemDataTypes[] fieldType ) {
+  /** @param fieldType The fieldType to set. */
+  public void setFieldType(SystemDataTypes[] fieldType) {
     this.fieldType = fieldType;
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
-  public void allocate( int count ) {
-    fieldName = new String[ count ];
-    fieldType = new SystemDataTypes[ count ];
+  public void allocate(int count) {
+    fieldName = new String[count];
+    fieldType = new SystemDataTypes[count];
   }
 
   @Override
@@ -122,36 +106,41 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
 
     int count = fieldName.length;
 
-    retval.allocate( count );
+    retval.allocate(count);
 
-    System.arraycopy( fieldName, 0, retval.fieldName, 0, count );
-    System.arraycopy( fieldType, 0, retval.fieldType, 0, count );
+    System.arraycopy(fieldName, 0, retval.fieldName, 0, count);
+    System.arraycopy(fieldType, 0, retval.fieldType, 0, count);
 
     return retval;
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, SystemDataData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new SystemData( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      SystemDataData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new SystemData(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int count = XmlHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      int count = XmlHandler.countNodes(fields, "field");
       String type;
 
-      allocate( count );
+      allocate(count);
 
-      for ( int i = 0; i < count; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+      for (int i = 0; i < count; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
 
-        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
-        type = XmlHandler.getTagValue( fnode, "type" );
-        fieldType[ i ] = SystemDataTypes.getTypeFromString( type );
+        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
+        type = XmlHandler.getTagValue(fnode, "type");
+        fieldType[i] = SystemDataTypes.getTypeFromString(type);
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to read transform information from XML", e );
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to read transform information from XML", e);
     }
   }
 
@@ -159,21 +148,27 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
   public void setDefault() {
     int count = 0;
 
-    allocate( count );
+    allocate(count);
 
-    for ( int i = 0; i < count; i++ ) {
-      fieldName[ i ] = "field" + i;
-      fieldType[ i ] = SystemDataTypes.TYPE_SYSTEM_INFO_SYSTEM_DATE;
+    for (int i = 0; i < count; i++) {
+      fieldName[i] = "field" + i;
+      fieldType[i] = SystemDataTypes.TYPE_SYSTEM_INFO_SYSTEM_DATE;
     }
   }
 
   @Override
-  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    for ( int i = 0; i < fieldName.length; i++ ) {
+  public void getFields(
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    for (int i = 0; i < fieldName.length; i++) {
       IValueMeta v;
 
-      switch ( fieldType[ i ] ) {
+      switch (fieldType[i]) {
         case TYPE_SYSTEM_INFO_SYSTEM_START: // All date values...
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM:
@@ -220,7 +215,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
         case TYPE_SYSTEM_INFO_THIS_YEAR_END:
         case TYPE_SYSTEM_INFO_NEXT_YEAR_START:
         case TYPE_SYSTEM_INFO_NEXT_YEAR_END:
-          v = new ValueMetaDate( fieldName[ i ] );
+          v = new ValueMetaDate(fieldName[i]);
           break;
         case TYPE_SYSTEM_INFO_PIPELINE_NAME:
         case TYPE_SYSTEM_INFO_FILENAME:
@@ -229,7 +224,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
         case TYPE_SYSTEM_INFO_HOSTNAME_REAL:
         case TYPE_SYSTEM_INFO_IP_ADDRESS:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_LOG_TEXT:
-          v = new ValueMetaString( fieldName[ i ] );
+          v = new ValueMetaString(fieldName[i]);
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
         case TYPE_SYSTEM_INFO_CURRENT_PID:
@@ -256,19 +251,19 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_REJECTED:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_UPDATED:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_WRITTEN:
-          v = new ValueMetaInteger( fieldName[ i ] );
-          v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
+          v = new ValueMetaInteger(fieldName[i]);
+          v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_RESULT:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_IS_STOPPED:
-          v = new ValueMetaBoolean( fieldName[ i ] );
+          v = new ValueMetaBoolean(fieldName[i]);
           break;
         default:
-          v = new ValueMetaNone( fieldName[ i ] );
+          v = new ValueMetaNone(fieldName[i]);
           break;
       }
-      v.setOrigin( name );
-      row.addValueMeta( v );
+      v.setOrigin(name);
+      row.addValueMeta(v);
     }
   }
 
@@ -276,42 +271,54 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    <fields>" + Const.CR );
+    retval.append("    <fields>" + Const.CR);
 
-    for ( int i = 0; i < fieldName.length; i++ ) {
-      retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XmlHandler.addTagValue( "name", fieldName[ i ] ) );
-      retval.append( "        " + XmlHandler.addTagValue( "type",
-        fieldType[ i ] != null ? fieldType[ i ].getCode() : "" ) );
-      retval.append( "        </field>" + Const.CR );
+    for (int i = 0; i < fieldName.length; i++) {
+      retval.append("      <field>" + Const.CR);
+      retval.append("        " + XmlHandler.addTagValue("name", fieldName[i]));
+      retval.append(
+          "        "
+              + XmlHandler.addTagValue("type", fieldType[i] != null ? fieldType[i].getCode() : ""));
+      retval.append("        </field>" + Const.CR);
     }
-    retval.append( "      </fields>" + Const.CR );
+    retval.append("      </fields>" + Const.CR);
 
     return retval.toString();
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
-    for ( int i = 0; i < fieldName.length; i++ ) {
-      if ( fieldType[ i ].ordinal() <= SystemDataTypes.TYPE_SYSTEM_INFO_NONE.ordinal() ) {
+    for (int i = 0; i < fieldName.length; i++) {
+      if (fieldType[i].ordinal() <= SystemDataTypes.TYPE_SYSTEM_INFO_NONE.ordinal()) {
         CheckResult cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fieldName[ i ] ), transformMeta );
-        remarks.add( cr );
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fieldName[i]),
+                transformMeta);
+        remarks.add(cr);
       }
     }
-    if ( remarks.size() == nrRemarks ) {
+    if (remarks.size() == nrRemarks) {
       CheckResult cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SystemDataMeta.CheckResult.AllTypesSpecified" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SystemDataMeta.CheckResult.AllTypesSpecified"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
-
 
   @Override
   public SystemDataData getTransformData() {
@@ -319,19 +326,19 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Override
-  public boolean equals( Object o ) {
-    if ( this == o ) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( !( o instanceof SystemDataMeta ) ) {
+    if (!(o instanceof SystemDataMeta)) {
       return false;
     }
     SystemDataMeta that = (SystemDataMeta) o;
 
-    if ( !Arrays.equals( fieldName, that.fieldName ) ) {
+    if (!Arrays.equals(fieldName, that.fieldName)) {
       return false;
     }
-    if ( !Arrays.equals( fieldType, that.fieldType ) ) {
+    if (!Arrays.equals(fieldType, that.fieldType)) {
       return false;
     }
 
@@ -340,8 +347,8 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override
   public int hashCode() {
-    int result = Arrays.hashCode( fieldName );
-    result = 31 * result + Arrays.hashCode( fieldType );
+    int result = Arrays.hashCode(fieldName);
+    result = 31 * result + Arrays.hashCode(fieldType);
     return result;
   }
 }

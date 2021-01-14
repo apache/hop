@@ -31,7 +31,7 @@ import org.w3c.dom.Node;
     id = "EndRepeat",
     name = "End Repeat",
     description = "End repeated execution of a workflow or a transformation",
-    categoryDescription = "General",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "endrepeat.svg",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/repeat-end.html")
 public class EndRepeat extends ActionBase implements IAction, Cloneable {

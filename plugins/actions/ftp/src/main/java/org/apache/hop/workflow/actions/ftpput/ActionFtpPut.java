@@ -62,18 +62,15 @@ import com.enterprisedt.net.ftp.FTPTransferType;
  * @author Samatar
  * @since 15-09-2007
  */
-
 @Action(
-  id = "FTP_PUT",
-  i18nPackageName = "org.apache.hop.workflow.actions.ftpput",
-  name = "ActionFTPPut.Name",
-  description = "ActionFTPPut.Description",
-  image = "FTPPut.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpput.html"
-)
+    id = "FTP_PUT",
+    name = "i18n::ActionFTPPut.Name",
+    description = "i18n::ActionFTPPut.Description",
+    image = "FTPPut.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpPut.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 
   public static final int FTP_DEFAULT_PORT = 21;
 
@@ -103,28 +100,24 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
   private String socksProxyUsername;
   private String socksProxyPassword;
 
-  /**
-   * Implicit encoding used before PDI v2.4.1
-   */
+  /** Implicit encoding used before PDI v2.4.1 */
   private static final String LEGACY_CONTROL_ENCODING = "US-ASCII";
 
-  /**
-   * Default encoding when making a new ftp action instance.
-   */
+  /** Default encoding when making a new ftp action instance. */
   private static final String DEFAULT_CONTROL_ENCODING = "ISO-8859-1";
 
-  public ActionFtpPut( String n ) {
-    super( n, "" );
+  public ActionFtpPut(String n) {
+    super(n, "");
     serverName = null;
     serverPort = "21";
     socksProxyPort = "1080";
     remoteDirectory = null;
     localDirectory = null;
-    setControlEncoding( DEFAULT_CONTROL_ENCODING );
+    setControlEncoding(DEFAULT_CONTROL_ENCODING);
   }
 
   public ActionFtpPut() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -133,118 +126,121 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 450 ); // 365 characters in spaces and tag names alone
+    StringBuilder retval = new StringBuilder(450); // 365 characters in spaces and tag names alone
 
-    retval.append( super.getXml() );
+    retval.append(super.getXml());
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "remoteDirectory", remoteDirectory ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "localDirectory", localDirectory ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "binary", binaryMode ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "remove", remove ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "only_new", onlyPuttingNewFiles ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "control_encoding", controlEncoding ) );
+    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
+    retval.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
+    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
+    retval.append("      ").append(XmlHandler.addTagValue("remoteDirectory", remoteDirectory));
+    retval.append("      ").append(XmlHandler.addTagValue("localDirectory", localDirectory));
+    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
+    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
+    retval.append("      ").append(XmlHandler.addTagValue("remove", remove));
+    retval.append("      ").append(XmlHandler.addTagValue("only_new", onlyPuttingNewFiles));
+    retval.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
+    retval.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "socksproxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( socksProxyPassword ) ) );
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    retval.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
+    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "socksproxy_password",
+                Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword)));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      serverName = XmlHandler.getTagValue( entrynode, "servername" );
-      serverPort = XmlHandler.getTagValue( entrynode, "serverport" );
-      userName = XmlHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
-      remoteDirectory = XmlHandler.getTagValue( entrynode, "remoteDirectory" );
-      localDirectory = XmlHandler.getTagValue( entrynode, "localDirectory" );
-      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
-      binaryMode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "binary" ) );
-      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
-      onlyPuttingNewFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "only_new" ) );
-      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
-      controlEncoding = XmlHandler.getTagValue( entrynode, "control_encoding" );
+      super.loadXml(entrynode);
+      serverName = XmlHandler.getTagValue(entrynode, "servername");
+      serverPort = XmlHandler.getTagValue(entrynode, "serverport");
+      userName = XmlHandler.getTagValue(entrynode, "username");
+      password =
+          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+      remoteDirectory = XmlHandler.getTagValue(entrynode, "remoteDirectory");
+      localDirectory = XmlHandler.getTagValue(entrynode, "localDirectory");
+      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
+      binaryMode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "binary"));
+      timeout = Const.toInt(XmlHandler.getTagValue(entrynode, "timeout"), 10000);
+      remove = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "remove"));
+      onlyPuttingNewFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "only_new"));
+      activeConnection = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "active"));
+      controlEncoding = XmlHandler.getTagValue(entrynode, "control_encoding");
 
-      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
+      proxyHost = XmlHandler.getTagValue(entrynode, "proxy_host");
+      proxyPort = XmlHandler.getTagValue(entrynode, "proxy_port");
+      proxyUsername = XmlHandler.getTagValue(entrynode, "proxy_username");
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
-      socksProxyHost = XmlHandler.getTagValue( entrynode, "socksproxy_host" );
-      socksProxyPort = XmlHandler.getTagValue( entrynode, "socksproxy_port" );
-      socksProxyUsername = XmlHandler.getTagValue( entrynode, "socksproxy_username" );
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, "proxy_password"));
+      socksProxyHost = XmlHandler.getTagValue(entrynode, "socksproxy_host");
+      socksProxyPort = XmlHandler.getTagValue(entrynode, "socksproxy_port");
+      socksProxyUsername = XmlHandler.getTagValue(entrynode, "socksproxy_username");
       socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "socksproxy_password" ) );
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, "socksproxy_password"));
 
-      if ( controlEncoding == null ) {
+      if (controlEncoding == null) {
         // if we couldn't retrieve an encoding, assume it's an old instance and
         // put in the the encoding used before v 2.4.0
         controlEncoding = LEGACY_CONTROL_ENCODING;
       }
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "JobFTPPUT.Log.UnableToLoadFromXml" ), xe );
+    } catch (HopXmlException xe) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "JobFTPPUT.Log.UnableToLoadFromXml"), xe);
     }
   }
 
-  /**
-   * @return Returns the binaryMode.
-   */
+  /** @return Returns the binaryMode. */
   public boolean isBinaryMode() {
     return binaryMode;
   }
 
-  /**
-   * @param binaryMode The binaryMode to set.
-   */
-  public void setBinaryMode( boolean binaryMode ) {
+  /** @param binaryMode The binaryMode to set. */
+  public void setBinaryMode(boolean binaryMode) {
     this.binaryMode = binaryMode;
   }
 
-  /**
-   * @param timeout The timeout to set.
-   */
-  public void setTimeout( int timeout ) {
+  /** @param timeout The timeout to set. */
+  public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
 
-  /**
-   * @return Returns the timeout.
-   */
+  /** @return Returns the timeout. */
   public int getTimeout() {
     return timeout;
   }
 
-  /**
-   * @return Returns the onlyGettingNewFiles.
-   */
+  /** @return Returns the onlyGettingNewFiles. */
   public boolean isOnlyPuttingNewFiles() {
     return onlyPuttingNewFiles;
   }
 
-  /**
-   * @param onlyPuttingNewFiles Only transfer new files to the remote host
-   */
-  public void setOnlyPuttingNewFiles( boolean onlyPuttingNewFiles ) {
+  /** @param onlyPuttingNewFiles Only transfer new files to the remote host */
+  public void setOnlyPuttingNewFiles(boolean onlyPuttingNewFiles) {
     this.onlyPuttingNewFiles = onlyPuttingNewFiles;
   }
 
@@ -258,109 +254,81 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
   }
 
   /**
-   * Set the encoding to be used for ftp'ing. This determines how names are translated in dir e.g. It does impact the
-   * contents of the files being ftp'ed.
+   * Set the encoding to be used for ftp'ing. This determines how names are translated in dir e.g.
+   * It does impact the contents of the files being ftp'ed.
    *
    * @param encoding The encoding to be used.
    */
-  public void setControlEncoding( String encoding ) {
+  public void setControlEncoding(String encoding) {
     this.controlEncoding = encoding;
   }
 
-  /**
-   * @return Returns the remoteDirectory.
-   */
+  /** @return Returns the remoteDirectory. */
   public String getRemoteDirectory() {
     return remoteDirectory;
   }
 
-  /**
-   * @param directory The remoteDirectory to set.
-   */
-  public void setRemoteDirectory( String directory ) {
+  /** @param directory The remoteDirectory to set. */
+  public void setRemoteDirectory(String directory) {
     this.remoteDirectory = directory;
   }
 
-  /**
-   * @return Returns the password.
-   */
+  /** @return Returns the password. */
   public String getPassword() {
     return password;
   }
 
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return Returns the serverName.
-   */
+  /** @return Returns the serverName. */
   public String getServerName() {
     return serverName;
   }
 
-  /**
-   * @param serverName The serverName to set.
-   */
-  public void setServerName( String serverName ) {
+  /** @param serverName The serverName to set. */
+  public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /**
-   * @return Returns the userName.
-   */
+  /** @return Returns the userName. */
   public String getUserName() {
     return userName;
   }
 
-  /**
-   * @param userName The userName to set.
-   */
-  public void setUserName( String userName ) {
+  /** @param userName The userName to set. */
+  public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /**
-   * @return Returns the wildcard.
-   */
+  /** @return Returns the wildcard. */
   public String getWildcard() {
     return wildcard;
   }
 
-  /**
-   * @param wildcard The wildcard to set.
-   */
-  public void setWildcard( String wildcard ) {
+  /** @param wildcard The wildcard to set. */
+  public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
 
-  /**
-   * @return Returns the localDirectory.
-   */
+  /** @return Returns the localDirectory. */
   public String getLocalDirectory() {
     return localDirectory;
   }
 
-  /**
-   * @param directory The localDirectory to set.
-   */
-  public void setLocalDirectory( String directory ) {
+  /** @param directory The localDirectory to set. */
+  public void setLocalDirectory(String directory) {
     this.localDirectory = directory;
   }
 
-  /**
-   * @param remove The remove to set.
-   */
-  public void setRemove( boolean remove ) {
+  /** @param remove The remove to set. */
+  public void setRemove(boolean remove) {
     this.remove = remove;
   }
 
-  /**
-   * @return Returns the remove.
-   */
+  /** @return Returns the remove. */
   public boolean getRemove() {
     return remove;
   }
@@ -369,143 +337,107 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
     return serverPort;
   }
 
-  public void setServerPort( String serverPort ) {
+  public void setServerPort(String serverPort) {
     this.serverPort = serverPort;
   }
 
-  /**
-   * @return the activeConnection
-   */
+  /** @return the activeConnection */
   public boolean isActiveConnection() {
     return activeConnection;
   }
 
-  /**
-   * @param activeConnection set to true to get an active FTP connection
-   */
-  public void setActiveConnection( boolean activeConnection ) {
+  /** @param activeConnection set to true to get an active FTP connection */
+  public void setActiveConnection(boolean activeConnection) {
     this.activeConnection = activeConnection;
   }
 
-  /**
-   * @return Returns the hostname of the ftp-proxy.
-   */
+  /** @return Returns the hostname of the ftp-proxy. */
   public String getProxyHost() {
     return proxyHost;
   }
 
-  /**
-   * @param proxyHost The hostname of the proxy.
-   */
-  public void setProxyHost( String proxyHost ) {
+  /** @param proxyHost The hostname of the proxy. */
+  public void setProxyHost(String proxyHost) {
     this.proxyHost = proxyHost;
   }
 
-  /**
-   * @return Returns the password which is used to authenticate at the proxy.
-   */
+  /** @return Returns the password which is used to authenticate at the proxy. */
   public String getProxyPassword() {
     return proxyPassword;
   }
 
-  /**
-   * @param proxyPassword The password which is used to authenticate at the proxy.
-   */
-  public void setProxyPassword( String proxyPassword ) {
+  /** @param proxyPassword The password which is used to authenticate at the proxy. */
+  public void setProxyPassword(String proxyPassword) {
     this.proxyPassword = proxyPassword;
   }
 
-  /**
-   * @return Returns the port of the ftp-proxy.
-   */
+  /** @return Returns the port of the ftp-proxy. */
   public String getProxyPort() {
     return proxyPort;
   }
 
-  /**
-   * @param proxyPort The port of the ftp-proxy.
-   */
-  public void setProxyPort( String proxyPort ) {
+  /** @param proxyPort The port of the ftp-proxy. */
+  public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
 
-  /**
-   * @return Returns the username which is used to authenticate at the proxy.
-   */
+  /** @return Returns the username which is used to authenticate at the proxy. */
   public String getProxyUsername() {
     return proxyUsername;
   }
 
-  /**
-   * @param socksProxyHost The socks proxy host to set
-   */
-  public void setSocksProxyHost( String socksProxyHost ) {
+  /** @param socksProxyHost The socks proxy host to set */
+  public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
 
-  /**
-   * @param socksProxyPort The socks proxy port to set
-   */
-  public void setSocksProxyPort( String socksProxyPort ) {
+  /** @param socksProxyPort The socks proxy port to set */
+  public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
 
-  /**
-   * @param socksProxyUsername The socks proxy username to set
-   */
-  public void setSocksProxyUsername( String socksProxyUsername ) {
+  /** @param socksProxyUsername The socks proxy username to set */
+  public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
 
-  /**
-   * @param socksProxyPassword The socks proxy password to set
-   */
-  public void setSocksProxyPassword( String socksProxyPassword ) {
+  /** @param socksProxyPassword The socks proxy password to set */
+  public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }
 
-  /**
-   * @return The sox proxy host name
-   */
+  /** @return The sox proxy host name */
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
-  /**
-   * @return The socks proxy port
-   */
+  /** @return The socks proxy port */
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
-  /**
-   * @return The socks proxy username
-   */
+  /** @return The socks proxy username */
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
-  /**
-   * @return The socks proxy password
-   */
+  /** @return The socks proxy password */
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }
 
-  /**
-   * @param proxyUsername The username which is used to authenticate at the proxy.
-   */
-  public void setProxyUsername( String proxyUsername ) {
+  /** @param proxyUsername The username which is used to authenticate at the proxy. */
+  public void setProxyUsername(String proxyUsername) {
     this.proxyUsername = proxyUsername;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
+    result.setResult(false);
     long filesput = 0;
 
-    if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.Starting" ) );
+    if (log.isDetailed()) {
+      logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.Starting"));
     }
 
     FTPClient ftpclient = null;
@@ -514,139 +446,150 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
       ftpclient = createAndSetUpFtpClient();
 
       // login to ftp host ...
-      String realUsername = environmentSubstitute( userName );
-      String realPassword = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( password ) );
+      String realUsername = environmentSubstitute(userName);
+      String realPassword =
+          Encr.decryptPasswordOptionallyEncrypted(environmentSubstitute(password));
       ftpclient.connect();
-      ftpclient.login( realUsername, realPassword );
+      ftpclient.login(realUsername, realPassword);
 
       // set BINARY
-      if ( binaryMode ) {
-        ftpclient.setType( FTPTransferType.BINARY );
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.BinaryMode" ) );
+      if (binaryMode) {
+        ftpclient.setType(FTPTransferType.BINARY);
+        if (log.isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.BinaryMode"));
         }
       }
 
       // Remove password from logging, you don't know where it ends up.
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.Logged", realUsername ) );
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.Logged", realUsername));
       }
 
       // Fix for PDI-2534 - add auxilliary FTP File List parsers to the ftpclient object.
-      this.hookInOtherParsers( ftpclient );
+      this.hookInOtherParsers(ftpclient);
 
       // move to spool dir ...
-      String realRemoteDirectory = environmentSubstitute( remoteDirectory );
-      if ( !Utils.isEmpty( realRemoteDirectory ) ) {
-        ftpclient.chdir( realRemoteDirectory );
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.ChangedDirectory", realRemoteDirectory ) );
+      String realRemoteDirectory = environmentSubstitute(remoteDirectory);
+      if (!Utils.isEmpty(realRemoteDirectory)) {
+        ftpclient.chdir(realRemoteDirectory);
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "JobFTPPUT.Log.ChangedDirectory", realRemoteDirectory));
         }
       }
 
-      String realLocalDirectory = environmentSubstitute( localDirectory );
-      if ( realLocalDirectory == null ) {
-        throw new FTPException( BaseMessages.getString( PKG, "JobFTPPUT.LocalDir.NotSpecified" ) );
+      String realLocalDirectory = environmentSubstitute(localDirectory);
+      if (realLocalDirectory == null) {
+        throw new FTPException(BaseMessages.getString(PKG, "JobFTPPUT.LocalDir.NotSpecified"));
       } else {
         // handle file:/// prefix
-        if ( realLocalDirectory.startsWith( "file:" ) ) {
-          realLocalDirectory = new URI( realLocalDirectory ).getPath();
+        if (realLocalDirectory.startsWith("file:")) {
+          realLocalDirectory = new URI(realLocalDirectory).getPath();
         }
       }
 
       final List<String> files;
-      File localFiles = new File( realLocalDirectory );
+      File localFiles = new File(realLocalDirectory);
       File[] children = localFiles.listFiles();
-      if ( children == null ) {
+      if (children == null) {
         files = Collections.emptyList();
       } else {
-        files = new ArrayList<>( children.length );
-        for ( File child : children ) {
+        files = new ArrayList<>(children.length);
+        for (File child : children) {
           // Get filename of file or directory
-          if ( !child.isDirectory() ) {
-            files.add( child.getName() );
+          if (!child.isDirectory()) {
+            files.add(child.getName());
           }
         }
       }
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString(
-          PKG, "JobFTPPUT.Log.FoundFileLocalDirectory", "" + files.size(), realLocalDirectory ) );
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "JobFTPPUT.Log.FoundFileLocalDirectory",
+                "" + files.size(),
+                realLocalDirectory));
       }
 
-      String realWildcard = environmentSubstitute( wildcard );
+      String realWildcard = environmentSubstitute(wildcard);
       Pattern pattern;
-      if ( !Utils.isEmpty( realWildcard ) ) {
-        pattern = Pattern.compile( realWildcard );
+      if (!Utils.isEmpty(realWildcard)) {
+        pattern = Pattern.compile(realWildcard);
       } else {
         pattern = null;
       }
 
-      for ( String file : files ) {
-        if ( parentWorkflow.isStopped() ) {
+      for (String file : files) {
+        if (parentWorkflow.isStopped()) {
           break;
         }
 
         boolean toBeProcessed = true;
 
         // First see if the file matches the regular expression!
-        if ( pattern != null ) {
-          Matcher matcher = pattern.matcher( file );
+        if (pattern != null) {
+          Matcher matcher = pattern.matcher(file);
           toBeProcessed = matcher.matches();
         }
 
-        if ( toBeProcessed ) {
+        if (toBeProcessed) {
           // File exists?
           boolean fileExist = false;
           try {
-            fileExist = ftpclient.exists( file );
-          } catch ( Exception e ) {
+            fileExist = ftpclient.exists(file);
+          } catch (Exception e) {
             // Assume file does not exist !!
           }
 
-          if ( log.isDebug() ) {
-            if ( fileExist ) {
-              logDebug( BaseMessages.getString( PKG, "JobFTPPUT.Log.FileExists", file ) );
+          if (log.isDebug()) {
+            if (fileExist) {
+              logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.FileExists", file));
             } else {
-              logDebug( BaseMessages.getString( PKG, "JobFTPPUT.Log.FileDoesNotExists", file ) );
+              logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.FileDoesNotExists", file));
             }
           }
 
-          if ( !fileExist || !onlyPuttingNewFiles ) {
-            if ( log.isDebug() ) {
-              logDebug( BaseMessages.getString(
-                PKG, "JobFTPPUT.Log.PuttingFileToRemoteDirectory", file, realRemoteDirectory ) );
+          if (!fileExist || !onlyPuttingNewFiles) {
+            if (log.isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG,
+                      "JobFTPPUT.Log.PuttingFileToRemoteDirectory",
+                      file,
+                      realRemoteDirectory));
             }
 
             String localFilename = realLocalDirectory + Const.FILE_SEPARATOR + file;
-            ftpclient.put( localFilename, file );
+            ftpclient.put(localFilename, file);
 
             filesput++;
 
             // Delete the file if this is needed!
-            if ( remove ) {
-              new File( localFilename ).delete();
-              if ( log.isDetailed() ) {
-                logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.DeletedFile", localFilename ) );
+            if (remove) {
+              new File(localFilename).delete();
+              if (log.isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(PKG, "JobFTPPUT.Log.DeletedFile", localFilename));
               }
             }
           }
         }
       }
 
-      result.setResult( true );
-      if ( log.isDetailed() ) {
-        logDebug( BaseMessages.getString( PKG, "JobFTPPUT.Log.WeHavePut", "" + filesput ) );
+      result.setResult(true);
+      if (log.isDetailed()) {
+        logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.WeHavePut", "" + filesput));
       }
-    } catch ( Exception e ) {
-      result.setNrErrors( 1 );
-      logError( BaseMessages.getString( PKG, "JobFTPPUT.Log.ErrorPuttingFiles", e.getMessage() ) );
-      logError( Const.getStackTracker( e ) );
+    } catch (Exception e) {
+      result.setNrErrors(1);
+      logError(BaseMessages.getString(PKG, "JobFTPPUT.Log.ErrorPuttingFiles", e.getMessage()));
+      logError(Const.getStackTracker(e));
     } finally {
-      if ( ftpclient != null && ftpclient.connected() ) {
+      if (ftpclient != null && ftpclient.connected()) {
         try {
           ftpclient.quit();
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "JobFTPPUT.Log.ErrorQuitingFTP", e.getMessage() ) );
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "JobFTPPUT.Log.ErrorQuitingFTP", e.getMessage()));
         }
       }
 
@@ -658,76 +601,83 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
 
   // package-local visibility for testing purposes
   FTPClient createAndSetUpFtpClient() throws IOException, FTPException {
-    String realServerName = environmentSubstitute( serverName );
-    String realServerPort = environmentSubstitute( serverPort );
+    String realServerName = environmentSubstitute(serverName);
+    String realServerPort = environmentSubstitute(serverPort);
 
     FTPClient ftpClient = createFtpClient();
-    ftpClient.setRemoteAddr( InetAddress.getByName( realServerName ) );
-    if ( !Utils.isEmpty( realServerPort ) ) {
-      ftpClient.setRemotePort( Const.toInt( realServerPort, FTP_DEFAULT_PORT ) );
+    ftpClient.setRemoteAddr(InetAddress.getByName(realServerName));
+    if (!Utils.isEmpty(realServerPort)) {
+      ftpClient.setRemotePort(Const.toInt(realServerPort, FTP_DEFAULT_PORT));
     }
 
-    if ( !Utils.isEmpty( proxyHost ) ) {
-      String realProxyHost = environmentSubstitute( proxyHost );
-      ftpClient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPPUT.OpenedProxyConnectionOn", realProxyHost ) );
+    if (!Utils.isEmpty(proxyHost)) {
+      String realProxyHost = environmentSubstitute(proxyHost);
+      ftpClient.setRemoteAddr(InetAddress.getByName(realProxyHost));
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionFTPPUT.OpenedProxyConnectionOn", realProxyHost));
       }
 
       // FIXME: Proper default port for proxy
-      int port = Const.toInt( environmentSubstitute( proxyPort ), FTP_DEFAULT_PORT );
-      if ( port != 0 ) {
-        ftpClient.setRemotePort( port );
+      int port = Const.toInt(environmentSubstitute(proxyPort), FTP_DEFAULT_PORT);
+      if (port != 0) {
+        ftpClient.setRemotePort(port);
       }
     } else {
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPPUT.OpenConnection", realServerName ) );
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionFTPPUT.OpenConnection", realServerName));
       }
     }
 
     // set activeConnection connectmode ...
-    if ( activeConnection ) {
-      ftpClient.setConnectMode( FTPConnectMode.ACTIVE );
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.SetActiveConnection" ) );
+    if (activeConnection) {
+      ftpClient.setConnectMode(FTPConnectMode.ACTIVE);
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetActiveConnection"));
       }
     } else {
-      ftpClient.setConnectMode( FTPConnectMode.PASV );
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.SetPassiveConnection" ) );
+      ftpClient.setConnectMode(FTPConnectMode.PASV);
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetPassiveConnection"));
       }
     }
 
     // Set the timeout
-    if ( timeout > 0 ) {
-      ftpClient.setTimeout( timeout );
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.SetTimeout", "" + timeout ) );
+    if (timeout > 0) {
+      ftpClient.setTimeout(timeout);
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetTimeout", "" + timeout));
       }
     }
 
-    ftpClient.setControlEncoding( controlEncoding );
-    if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "JobFTPPUT.Log.SetEncoding", controlEncoding ) );
+    ftpClient.setControlEncoding(controlEncoding);
+    if (log.isDetailed()) {
+      logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetEncoding", controlEncoding));
     }
 
     // If socks proxy server was provided
-    if ( !Utils.isEmpty( socksProxyHost ) ) {
+    if (!Utils.isEmpty(socksProxyHost)) {
       // if a port was provided
-      if ( !Utils.isEmpty( socksProxyPort ) ) {
-        FTPClient.initSOCKS( environmentSubstitute( socksProxyPort ), environmentSubstitute( socksProxyHost ) );
+      if (!Utils.isEmpty(socksProxyPort)) {
+        FTPClient.initSOCKS(
+            environmentSubstitute(socksProxyPort), environmentSubstitute(socksProxyHost));
       } else { // looks like we have a host and no port
-        throw new FTPException( BaseMessages.getString(
-          PKG, "JobFTPPUT.SocksProxy.PortMissingException", environmentSubstitute( socksProxyHost ) ) );
+        throw new FTPException(
+            BaseMessages.getString(
+                PKG,
+                "JobFTPPUT.SocksProxy.PortMissingException",
+                environmentSubstitute(socksProxyHost)));
       }
       // now if we have authentication information
-      if ( !Utils.isEmpty( socksProxyUsername )
-        && Utils.isEmpty( socksProxyPassword ) || Utils.isEmpty( socksProxyUsername )
-        && !Utils.isEmpty( socksProxyPassword ) ) {
+      if (!Utils.isEmpty(socksProxyUsername) && Utils.isEmpty(socksProxyPassword)
+          || Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
         // we have a username without a password or vica versa
-        throw new FTPException( BaseMessages.getString(
-          PKG, "JobFTPPUT.SocksProxy.IncompleteCredentials", environmentSubstitute( socksProxyHost ),
-          getName() ) );
+        throw new FTPException(
+            BaseMessages.getString(
+                PKG,
+                "JobFTPPUT.SocksProxy.IncompleteCredentials",
+                environmentSubstitute(socksProxyHost),
+                getName()));
       }
     }
 
@@ -736,95 +686,121 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
 
   // package-local visibility for testing purposes
   FTPClient createFtpClient() {
-    return new FtpClient( log );
+    return new FtpClient(log);
   }
 
   public boolean evaluates() {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
-    if ( !Utils.isEmpty( serverName ) ) {
-      String realServerName = environmentSubstitute( serverName );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realServerName, ResourceType.SERVER ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(workflowMeta);
+    if (!Utils.isEmpty(serverName)) {
+      String realServerName = environmentSubstitute(serverName);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realServerName, ResourceType.SERVER));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "serverName", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate(
-      this, "localDirectory", remarks, AndValidator.putValidators(
-        ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "userName", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "password", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "serverPort", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.integerValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "serverName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "localDirectory",
+            remarks,
+            AndValidator.putValidators(
+                ActionValidatorUtils.notBlankValidator(),
+                ActionValidatorUtils.fileExistsValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "userName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "password",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "serverPort",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
   }
 
   /**
-   * Hook in known parsers, and then those that have been specified in the variable ftp.file.parser.class.names
+   * Hook in known parsers, and then those that have been specified in the variable
+   * ftp.file.parser.class.names
    *
    * @param ftpClient
    * @throws FTPException
    * @throws IOException
    */
-  protected void hookInOtherParsers( FTPClient ftpClient ) throws FTPException, IOException {
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Hooking.Parsers" ) );
+  protected void hookInOtherParsers(FTPClient ftpClient) throws FTPException, IOException {
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Hooking.Parsers"));
     }
     String system = ftpClient.system();
-    MVSFileParser parser = new MVSFileParser( log );
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Created.MVS.Parser" ) );
+    MVSFileParser parser = new MVSFileParser(log);
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.MVS.Parser"));
     }
-    FTPFileFactory factory = new FTPFileFactory( system );
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Created.Factory" ) );
+    FTPFileFactory factory = new FTPFileFactory(system);
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Factory"));
     }
-    factory.addParser( parser );
-    ftpClient.setFTPFileFactory( factory );
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Get.Variable.Space" ) );
+    factory.addParser(parser);
+    ftpClient.setFTPFileFactory(factory);
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Get.Variable.Space"));
     }
     IVariables vs = this.getVariables();
-    if ( vs != null ) {
-      if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Getting.Other.Parsers" ) );
+    if (vs != null) {
+      if (log.isDebug()) {
+        logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Getting.Other.Parsers"));
       }
-      String otherParserNames = vs.getVariable( "ftp.file.parser.class.names" );
-      if ( otherParserNames != null ) {
-        if ( log.isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Creating.Parsers" ) );
+      String otherParserNames = vs.getVariable("ftp.file.parser.class.names");
+      if (otherParserNames != null) {
+        if (log.isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Creating.Parsers"));
         }
-        String[] parserClasses = otherParserNames.split( "|" );
+        String[] parserClasses = otherParserNames.split("|");
         String cName = null;
         Class<?> clazz = null;
         Object parserInstance = null;
-        for ( int i = 0; i < parserClasses.length; i++ ) {
-          cName = parserClasses[ i ].trim();
-          if ( cName.length() > 0 ) {
+        for (int i = 0; i < parserClasses.length; i++) {
+          cName = parserClasses[i].trim();
+          if (cName.length() > 0) {
             try {
-              clazz = Class.forName( cName );
+              clazz = Class.forName(cName);
               parserInstance = clazz.newInstance();
-              if ( parserInstance instanceof FTPFileParser ) {
-                if ( log.isDetailed() ) {
-                  logDetailed( BaseMessages.getString( PKG, "ActionFTP.DEBUG.Created.Other.Parser", cName ) );
+              if (parserInstance instanceof FTPFileParser) {
+                if (log.isDetailed()) {
+                  logDetailed(
+                      BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Other.Parser", cName));
                 }
-                factory.addParser( (FTPFileParser) parserInstance );
+                factory.addParser((FTPFileParser) parserInstance);
               }
-            } catch ( Exception ignored ) {
-              if ( log.isDebug() ) {
+            } catch (Exception ignored) {
+              if (log.isDebug()) {
                 ignored.printStackTrace();
-                logError( BaseMessages.getString( PKG, "ActionFTP.ERROR.Creating.Parser", cName ) );
+                logError(BaseMessages.getString(PKG, "ActionFTP.ERROR.Creating.Parser", cName));
               }
             }
           }

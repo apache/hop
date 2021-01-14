@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 26-02-2010
  */
 public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobEvalFilesMetrics.Filetype.All" ) };

@@ -49,7 +49,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements ITransform<ZipFileMeta, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
 
   public ZipFile(TransformMeta transformMeta, ZipFileMeta meta, ZipFileData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {

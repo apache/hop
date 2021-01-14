@@ -22,6 +22,7 @@
     <locale>en_US</locale>
     <locale>de_DE</locale>
     <locale>fr_FR</locale>
+    <locale>it_IT</locale>
     <locale>zh_CN</locale>
     <locale>ja_JP</locale>
     <locale>ko_KR</locale>
@@ -32,11 +33,6 @@
     <locale>es_ES</locale>
     <locale>es_AR</locale>
   </locale-list>
-
-  <scan-phrases>
-    <scan-phrase>BaseMessages.getString(PKG,</scan-phrase>
-    <scan-phrase>BaseMessages.getString( PKG,</scan-phrase>
-  </scan-phrases>
 
   <root-folder>../../../</root-folder>
   <folders-to-avoid>.*archive.*</folders-to-avoid>

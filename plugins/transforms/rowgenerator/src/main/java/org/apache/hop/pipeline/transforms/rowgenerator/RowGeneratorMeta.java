@@ -50,14 +50,13 @@ import java.util.List;
 @Transform(
     id = "RowGenerator",
     image = "rowgenerator.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.rowgenerator",
-    name = "BaseTransform.TypeLongDesc.GenerateRows",
-    description = "BaseTransform.TypeTooltipDesc.GenerateRows",
+    name = "i18n::BaseTransform.TypeLongDesc.GenerateRows",
+    description = "i18n::BaseTransform.TypeTooltipDesc.GenerateRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rowgenerator.html")
 public class RowGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<RowGenerator, RowGeneratorData> {
-  private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 
   private boolean neverEnding;
 

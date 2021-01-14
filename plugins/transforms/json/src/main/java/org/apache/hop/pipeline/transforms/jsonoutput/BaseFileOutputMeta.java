@@ -31,10 +31,10 @@ import java.util.Date;
 public abstract class BaseFileOutputMeta extends BaseTransformMeta {
 
   /**
-   * Flag: add the stepnr in the filename
+   * Flag: add the transformnr in the filename
    */
   @Injection( name = "INC_TRANSFORMNR_IN_FILENAME" )
-  protected boolean stepNrInFilename;
+  protected boolean transformNrInFilename;
 
   /**
    * Flag: add the partition number in the filename
@@ -151,7 +151,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
   public boolean isTransformNrInFilename() {
-    return stepNrInFilename;
+    return transformNrInFilename;
   }
 
   public String getFileCompression() {
@@ -203,11 +203,11 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
       String[] retval = new String[ nr ];
 
       int i = 0;
-      for ( int step = 0; step < copies; step++ ) {
+      for ( int transform = 0; transform < copies; transform++ ) {
         for ( int part = 0; part < parts; part++ ) {
           for ( int split = 0; split < splits; split++ ) {
             retval[ i ] = buildFilename(
-              realFileName, realExtension, step + "", getPartPrefix() + part, split + "", now, false, showSamples );
+              realFileName, realExtension, transform + "", getPartPrefix() + part, split + "", now, false, showSamples );
             i++;
           }
         }
@@ -218,7 +218,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
 
       return retval;
     } else {
-      return new String[] { buildFilename( realFileName, realExtension, "<step>", "<partition>", "<split>", now, false,
+      return new String[] { buildFilename( realFileName, realExtension, "<transform>", "<partition>", "<split>", now, false,
         showSamples ) };
     }
   }
@@ -234,33 +234,33 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
   public String buildFilename(
-    final IVariables variables, final String stepnr, final String partnr, final String splitnr,
+    final IVariables variables, final String transformnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
     String realFileName = variables.resolve( fileName );
     String realExtension = variables.resolve( extension );
 
-    return buildFilename( realFileName, realExtension, stepnr, partnr, splitnr, new Date(), ziparchive, showSamples );
+    return buildFilename( realFileName, realExtension, transformnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }
 
   private String buildFilename(
-    final String realFileName, final String realExtension, final String stepnr, final String partnr,
+    final String realFileName, final String realExtension, final String transformnr, final String partnr,
     final String splitnr,
     final Date date, final boolean ziparchive, final boolean showSamples ) {
-    return buildFilename( realFileName, realExtension, stepnr, partnr, splitnr, date, ziparchive, showSamples, this );
+    return buildFilename( realFileName, realExtension, transformnr, partnr, splitnr, date, ziparchive, showSamples, this );
   }
 
 
   protected String buildFilename(
-    final String realFileName, final String realExtension, final String stepnr, final String partnr,
+    final String realFileName, final String realExtension, final String transformnr, final String partnr,
     final String splitnr, final Date date, final boolean ziparchive, final boolean showSamples,
     final BaseFileOutputMeta meta ) {
-    return buildFilename( null, realFileName, realExtension, stepnr, partnr, splitnr, date, ziparchive, showSamples,
+    return buildFilename( null, realFileName, realExtension, transformnr, partnr, splitnr, date, ziparchive, showSamples,
       meta );
   }
 
   protected String buildFilename(
-    final IVariables variables, final String realFileName, final String realExtension, final String stepnr,
+    final IVariables variables, final String realFileName, final String realExtension, final String transformnr,
     final String partnr, final String splitnr, final Date date, final boolean ziparchive, final boolean showSamples,
     final BaseFileOutputMeta meta ) {
 
@@ -300,7 +300,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
       }
     }
     if ( meta.isTransformNrInFilename() ) {
-      retval += "_" + stepnr;
+      retval += "_" + transformnr;
     }
     if ( meta.isPartNrInFilename() ) {
       retval += "_" + partnr;

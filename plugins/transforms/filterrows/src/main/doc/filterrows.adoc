@@ -1,3 +1,19 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/filterrows/src/main/doc/filterrows.adoc
@@ -62,10 +78,10 @@ All fields of this transform support metadata injection. You can use this transf
 
 == Special considerations for the condition field
 
-The Filter Rows transform is a special MDI scenario, since it has a nested structure of filter conditions. The condition is given in XML format. The condition XML has the same format as we store the pipeline metadata in a .KTR file in XML format. We do not have a DTD (Document Type Definition) for the .KTR XML format, nor the condition.
+The Filter Rows transform is a special MDI scenario, since it has a nested structure of filter conditions. The condition is given in XML format. The condition XML has the same format as we store the pipeline metadata in a .HPL file in XML format. We do not have a DTD (Document Type Definition) for the .HPL XML format, nor the condition.
 
 It is easy to get to an XML condition:
 
 1. Create a sample Filter transform with the different conditions you need. This sample transform gives you all the information, such as the values for the functions you use.
-2. Select the transform, copy it to the clipboard, and then paste it into a text editor. Alternatively, you can store the .KTR, and then open the .KTR in a text editor.
+2. Select the transform, copy it to the clipboard, and then paste it into a text editor. Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 3. Find the <condition> element and its nested elements and modify it accordingly to use it in your MDI scenario.

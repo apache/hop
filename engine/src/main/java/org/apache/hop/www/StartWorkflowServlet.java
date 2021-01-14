@@ -44,7 +44,7 @@ import java.util.UUID;
 
 @HopServerServlet(id="startWorkflow", name = "Start a workflow")
 public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = StartWorkflowServlet.class; // for i18n purposes,
+  private static final Class<?> PKG = StartWorkflowServlet.class; // For Translator
   // needed by
   // Translator!!
 

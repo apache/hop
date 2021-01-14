@@ -44,7 +44,7 @@ import java.util.List;
   extensionPointId = "HopGuiStart"
 )
 /**
- * set the debug level right before the step starts to run
+ * set the debug level right before the transform starts to run
  */
 public class HopGuiStartProjectLoad implements IExtensionPoint {
 

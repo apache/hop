@@ -53,7 +53,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class CheckResultDialog extends Dialog {
-  private static final Class<?> PKG = CheckResultDialog.class; // Needed by Translator
+  private static final Class<?> PKG = CheckResultDialog.class; // For Translator
 
   private static final String STRING_HIDE_SUCESSFUL =
       BaseMessages.getString(PKG, "CheckResultDialog.HideSuccessful.Label");

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
@@ -51,7 +45,7 @@ import java.util.TimerTask;
 @GuiPlugin(description = "Workflow Graph Grid Delegate")
 public class HopGuiWorkflowGridDelegate {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
+  private static final Class<?> PKG = HopGuiWorkflowGridDelegate.class; // For Translator
 
   private HopGui hopGui;
 
@@ -60,7 +54,7 @@ public class HopGuiWorkflowGridDelegate {
   private static final String STRING_CHEF_LOG_TREE_NAME = "Workflow Log Tree";
 
   private HopGuiWorkflowGraph workflowGraph;
-  private CTabItem jobGridTab;
+  private CTabItem workflowGridTab;
   private Tree wTree;
 
   public WorkflowTracker workflowTracker;
@@ -78,32 +72,32 @@ public class HopGuiWorkflowGridDelegate {
   }
 
   /**
-   * Add a grid with the execution metrics per transform in a table view
+   * Add a grid with the execution metrics per action in a table view
    */
-  public void addJobGrid() {
+  public void addWorkflowGrid() {
 
     // First, see if we need to add the extra view...
     //
     if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
       workflowGraph.addExtraView();
     } else {
-      if ( jobGridTab != null && !jobGridTab.isDisposed() ) {
+      if ( workflowGridTab != null && !workflowGridTab.isDisposed() ) {
         // just set this one active and get out...
         //
-        workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
+        workflowGraph.extraViewTabFolder.setSelection( workflowGridTab );
         return;
       }
     }
 
-    jobGridTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
-    jobGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
-    jobGridTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.GridTab.Name" ) );
+    workflowGridTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
+    workflowGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
+    workflowGridTab.setText( BaseMessages.getString( PKG, "HopGui.WorkflowGraph.GridTab.Name" ) );
 
     addControls();
 
-    jobGridTab.setControl( wTree );
+    workflowGridTab.setControl( wTree );
 
-    workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
+    workflowGraph.extraViewTabFolder.setSelection( workflowGridTab );
   }
 
   /**
@@ -270,8 +264,8 @@ public class HopGuiWorkflowGridDelegate {
     }
   }
 
-  public CTabItem getJobGridTab() {
-    return jobGridTab;
+  public CTabItem getWorkflowGridTab() {
+    return workflowGridTab;
   }
 
   public void setWorkflowTracker( WorkflowTracker workflowTracker ) {

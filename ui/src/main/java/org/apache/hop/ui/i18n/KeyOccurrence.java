@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.i18n;
 
@@ -48,14 +43,9 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   private String messagesPackage;
 
   /**
-   * The row on which the occurrence takes place
+   * The index in the file on which the occurrence takes place
    */
-  private int row;
-
-  /**
-   * The column on which the occurrence takes place
-   */
-  private int column;
+  private int fileIndex;
 
   /**
    * The i18n key
@@ -84,12 +74,11 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   /**
    * @param fileObject      The java source file
    * @param messagesPackage The location of the messages file, derived from "^import .*Messages;"
-   * @param row             The row on which the occurrence takes place
-   * @param column          The column on which the occurrence takes place
+   * @param fileIndex       The position in the file
    * @param key             The i18n key
    * @param arguments       The arguments from the source code
    */
-  public KeyOccurrence( FileObject fileObject, String sourceFolder, String messagesPackage, int row, int column,
+  public KeyOccurrence( FileObject fileObject, String sourceFolder, String messagesPackage, int fileIndex,
                         String key, String arguments, String sourceLine ) {
     this();
     if (fileObject == null) {
@@ -102,8 +91,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     this.fileObject = fileObject;
     this.sourceFolder = sourceFolder;
     this.messagesPackage = messagesPackage;
-    this.row = row;
-    this.column = column;
+    this.fileIndex = fileIndex;
     this.key = key;
     this.arguments = arguments;
     this.occurrences = 1;
@@ -173,31 +161,19 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @return The row on which the occurrence takes place
+   * Gets fileIndex
+   *
+   * @return value of fileIndex
    */
-  public int getRow() {
-    return row;
+  public int getFileIndex() {
+    return fileIndex;
   }
 
   /**
-   * @param row The row on which the occurrence takes place
+   * @param fileIndex The fileIndex to set
    */
-  public void setRow( int row ) {
-    this.row = row;
-  }
-
-  /**
-   * @return The column on which the occurrence takes place
-   */
-  public int getColumn() {
-    return column;
-  }
-
-  /**
-   * @param column The column on which the occurrence takes place
-   */
-  public void setColumn( int column ) {
-    this.column = column;
+  public void setFileIndex( int fileIndex ) {
+    this.fileIndex = fileIndex;
   }
 
   /**

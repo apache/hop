@@ -46,7 +46,7 @@ import org.apache.hop.core.variables.IVariables;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = StringOperationsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
 
   private TableView wFields;
 

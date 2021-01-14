@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
-  private static final Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // For Translator
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-workflow-run-configurations";
   public static final String MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE = "workflow-run-configuration-usage";

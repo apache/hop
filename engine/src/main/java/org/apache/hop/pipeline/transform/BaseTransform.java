@@ -132,7 +132,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   implements ITransform<Meta, Data>,
   IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
-  private static final Class<?> PKG = BaseTransform.class; // Needed by Translator
+  private static final Class<?> PKG = BaseTransform.class; // For Translator
 
   protected IVariables variables = new Variables();
 
@@ -157,64 +157,41 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   protected Date executionEndDate;
 
   /**
-   * nr of lines read from previous transform(s)
-   *
-   * @deprecated use {@link #getLinesRead()}, {@link #incrementLinesRead()}, or {@link #decrementLinesRead()}
+   * Number of lines read from previous transform(s)
    */
-  @Deprecated
-  public long linesRead;
+  private long linesRead;
 
   /**
-   * nr of lines written to next transform(s)
-   *
-   * @deprecated use {@link #getLinesWritten()}, {@link #incrementLinesWritten()}, or {@link #decrementLinesWritten()}
+   * Number of lines written to next transform(s)
    */
-  @Deprecated
-  public long linesWritten;
+  private long linesWritten;
 
   /**
-   * nr of lines read from file or database
-   *
-   * @deprecated use {@link #getLinesInput()} or {@link #incrementLinesInput()}
+   * Number of lines read from file or database 
    */
-  @Deprecated
-  public long linesInput;
+  private long linesInput;
 
   /**
-   * nr of lines written to file or database
-   *
-   * @deprecated use {@link #getLinesOutput()} or {@link #incrementLinesOutput()}
+   * Number of lines written to file or database  
    */
-  @Deprecated
-  public long linesOutput;
+  private long linesOutput;
 
   /**
-   * nr of updates in a database table or file
-   *
-   * @deprecated use {@link #getLinesUpdated()} or {@link #incrementLinesUpdated()}
+   * Number of updates in a database table or file
    */
-  @Deprecated
-  public long linesUpdated;
+  private long linesUpdated;
 
   /**
-   * nr of lines skipped
-   *
-   * @deprecated use {@link #getLinesSkipped()} or {@link #incrementLinesSkipped()}
+   * Number of lines skipped
    */
-  @Deprecated
-  public long linesSkipped;
+  private long linesSkipped;
 
   /**
-   * total sleep time in ns caused by an empty input buffer (previous transform is slow)
-   *
-   * @deprecated use {@link #getLinesRejected()} or {@link #incrementLinesRejected()}
+   * Number of lines rejected to an error handling transform
    */
-  @Deprecated
-  public long linesRejected;
+  private long linesRejected;
 
   private boolean distributed;
-
-  private String rowDistributionCode;
 
   private IRowDistribution rowDistribution;
 
@@ -260,7 +237,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private int copyNr;
 
-  private Date startTime, stopTime;
+  private Date startTime;
+  
+  private Date stopTime;
 
   /**
    * if true then the row being processed is the first row
@@ -332,7 +311,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private boolean checkPipelineRunning;
 
-  private static int NR_OF_ROWS_IN_BLOCK = 500;
+  private static final int NR_OF_ROWS_IN_BLOCK = 500;
 
   private int blockPointer;
 
@@ -636,6 +615,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @return Returns the number of lines read from previous transforms
+   * 
+   * @see {@link #setLinesRead()}, {@link #incrementLinesRead()}, {@link #decrementLinesRead()}
    */
   @Override
   public long getLinesRead() {
@@ -646,7 +627,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * Increments the number of lines read from previous transforms by one
-   *
+   * @see {@link #getLinesRead()}, {@link #setLinesRead()}, {@link #decrementLinesRead()}
    * @return Returns the new value
    */
   public long incrementLinesRead() {
@@ -668,6 +649,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @param newLinesReadValue the new number of lines read from previous transforms
+   * 
+   * @see {@link #getLinesRead()}, {@link #incrementLinesRead()}, {@link #decrementLinesRead()}
    */
   public void setLinesRead( long newLinesReadValue ) {
     synchronized ( statusCountersLock ) {
@@ -676,6 +659,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
+   * 
+   * @see {@link #incrementLinesInput()}
    * @return Returns the number of lines read from an input source: database, file, socket, etc.
    */
   @Override
@@ -688,6 +673,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /**
    * Increments the number of lines read from an input source: database, file, socket, etc.
    *
+   * @see {@link #getLinesInput()}, {@link #setLinesInput()}
    * @return the new incremented value
    */
   public long incrementLinesInput() {
@@ -697,7 +683,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
+   * 
    * @param newLinesInputValue the new number of lines read from an input source: database, file, socket, etc.
+   * 
+   * @see {@link #getLinesInput()} or {@link #incrementLinesInput()}
    */
   public void setLinesInput( long newLinesInputValue ) {
     synchronized ( statusCountersLock ) {
@@ -707,6 +696,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @return Returns the number of lines written to an output target: database, file, socket, etc.
+   * 
+   * @see {@link #setLinesOutput()}, {@link #incrementLinesOutput()}
    */
   @Override
   public long getLinesOutput() {
@@ -719,6 +710,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Increments the number of lines written to an output target: database, file, socket, etc.
    *
    * @return the new incremented value
+   * 
+   * @see {@link #getLinesOutput()}, {@link #setLinesOutput()}
    */
   public long incrementLinesOutput() {
     synchronized ( statusCountersLock ) {
@@ -728,6 +721,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @param newLinesOutputValue the new number of lines written to an output target: database, file, socket, etc.
+   * 
+   * @see {@link #getLinesOutput()} or {@link #incrementLinesOutput()}
    */
   public void setLinesOutput( long newLinesOutputValue ) {
     synchronized ( statusCountersLock ) {
@@ -736,6 +731,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
+   * Get the number of lines written to next transforms
+   * 
+   * @see {@link #incrementLinesWritten()}, or {@link #decrementLinesWritten()}
    * @return Returns the linesWritten.
    */
   @Override
@@ -747,7 +745,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * Increments the number of lines written to next transforms by one
-   *
+   * 
+   * @see {@link #getLinesWritten()}, {@link #decrementLinesWritten()}
    * @return Returns the new value
    */
   public long incrementLinesWritten() {
@@ -758,7 +757,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * Decrements the number of lines written to next transforms by one
-   *
+   * 
+   * @see {@link #getLinesWritten()}, {@link #incrementLinesWritten()}
    * @return Returns the new value
    */
   public long decrementLinesWritten() {
@@ -768,7 +768,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
+   * Set the number of lines written to next transforms
+   * 
    * @param newLinesWrittenValue the new number of lines written to next transforms
+   * 
+   * @see {@link #getLinesWritten()}, {@link #incrementLinesWritten()}, or {@link #decrementLinesWritten()}
    */
   public void setLinesWritten( long newLinesWrittenValue ) {
     synchronized ( statusCountersLock ) {
@@ -778,6 +782,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @return Returns the number of lines updated in an output target: database, file, socket, etc.
+   * 
+   * @see {@link #setLinesUpdated()}, {@link #incrementLinesUpdated()}
    */
   @Override
   public long getLinesUpdated() {
@@ -790,6 +796,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Increments the number of lines updated in an output target: database, file, socket, etc.
    *
    * @return the new incremented value
+   * 
+   * @see {@link #getLinesUpdated()}, {@link #setLinesUpdated()}
    */
   public long incrementLinesUpdated() {
     synchronized ( statusCountersLock ) {
@@ -799,6 +807,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @param newLinesUpdatedValue the new number of lines updated in an output target: database, file, socket, etc.
+   * 
+   * @see {@link #getLinesUpdated()}, {@link #incrementLinesUpdated()}
    */
   public void setLinesUpdated( long newLinesUpdatedValue ) {
     synchronized ( statusCountersLock ) {
@@ -807,6 +817,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
+   * Get the number of lines rejected to an error handling transform
+   * 
+   * @see {@link #setLinesRejected()}, {@link #incrementLinesRejected()}
    * @return the number of lines rejected to an error handling transform
    */
   @Override
@@ -818,7 +831,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * Increments the number of lines rejected to an error handling transform
-   *
+   * 
+   * @see {@link #getLinesRejected()}, {@link #setLinesRejected()}
    * @return the new incremented value
    */
   public long incrementLinesRejected() {
@@ -829,6 +843,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @param newLinesRejectedValue lines number of lines rejected to an error handling transform
+   * 
+   * @see {@link #getLinesRejected()}, {@link #incrementLinesRejected()}
    */
   @Override
   public void setLinesRejected( long newLinesRejectedValue ) {
@@ -839,6 +855,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @return the number of lines skipped
+   * 
+   * @see {@link #setLinesSkipped()}, {@link #incrementLinesSkipped()}
    */
   public long getLinesSkipped() {
     synchronized ( statusCountersLock ) {
@@ -850,6 +868,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Increments the number of lines skipped
    *
    * @return the new incremented value
+   * 
+   * @see {@link #getLinesSkipped()}, {@link #setLinesSkipped()}
    */
   public long incrementLinesSkipped() {
     synchronized ( statusCountersLock ) {
@@ -859,6 +879,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /**
    * @param newLinesSkippedValue lines number of lines skipped
+   * 
+   * @see {@link #getLinesSkipped()}, {@link #incrementLinesSkipped()}
    */
   public void setLinesSkipped( long newLinesSkippedValue ) {
     synchronized ( statusCountersLock ) {

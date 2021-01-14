@@ -58,7 +58,7 @@ import java.util.List;
  * @since 31-10-2006
  */
 public class TransformErrorMetaDialog extends Dialog {
-  private static final Class<?> PKG = ITransform.class; // Needed by Translator
+  private static final Class<?> PKG = ITransform.class; // For Translator
 
   private final IVariables variables;
   private TransformErrorMeta transformErrorMeta;

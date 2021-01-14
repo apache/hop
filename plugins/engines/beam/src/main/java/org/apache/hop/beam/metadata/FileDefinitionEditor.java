@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
-  private static final Class<?> PKG = FileDefinitionEditor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = FileDefinitionEditor.class; // For Translator
 
   // Connection properties
   //

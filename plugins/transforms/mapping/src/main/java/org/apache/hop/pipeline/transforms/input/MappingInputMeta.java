@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.input;
 
@@ -49,13 +43,14 @@ import java.util.List;
 
 @Transform(
   id = "MappingInput",
-  name = "Mapping Input",
+  name = "i18n::BaseTransform.TypeLongDesc.MappingInput",
+  description = "i18n:BaseTransform.TypeTooltipDesc.MappingInput",
   image = "MPI.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class MappingInputMeta extends BaseTransformMeta implements ITransformMeta<MappingInput, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
   private String[] fieldName;
 

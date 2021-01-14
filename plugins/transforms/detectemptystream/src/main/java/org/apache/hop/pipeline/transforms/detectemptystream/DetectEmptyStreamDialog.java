@@ -33,7 +33,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   private final DetectEmptyStreamMeta input;
 

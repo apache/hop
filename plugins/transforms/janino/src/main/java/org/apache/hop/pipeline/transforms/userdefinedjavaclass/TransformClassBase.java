@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class TransformClassBase {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   protected boolean first = true;
   protected boolean updateRowMeta = true;

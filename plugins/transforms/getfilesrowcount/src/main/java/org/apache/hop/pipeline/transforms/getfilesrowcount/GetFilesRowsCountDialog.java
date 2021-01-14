@@ -48,7 +48,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

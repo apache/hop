@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     implements ITransform<LdapOutputMeta, LdapOutputData> {
   private static Class<?> classFromResourcesPackage =
-      LdapOutputMeta.class; // Needed by Translator
+      LdapOutputMeta.class; // For Translator
 
   public LdapOutput(
       TransformMeta transformMeta,

@@ -66,15 +66,14 @@ import java.util.stream.Collectors;
 @Transform(
     id = "UserDefinedJavaClass",
     image = "userdefinedjavaclass.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.userdefinedjavaclass",
-    name = "UserDefinedJavaClass.Name",
-    description = "UserDefinedJavaClass.Description",
+    name = "i18n::UserDefinedJavaClass.Name",
+    description = "i18n::UserDefinedJavaClass.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta extends BaseTransformMeta
     implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
     classType,

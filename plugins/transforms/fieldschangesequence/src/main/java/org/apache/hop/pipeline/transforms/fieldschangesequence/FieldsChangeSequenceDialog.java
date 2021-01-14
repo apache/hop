@@ -28,14 +28,13 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
@@ -47,7 +46,7 @@ import java.util.List;
 import java.util.*;
 
 public class FieldsChangeSequenceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   private final FieldsChangeSequenceMeta input;
 
@@ -368,14 +367,11 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
       MessageDialogWithToggle md =
         new MessageDialogWithToggle( shell,
           BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.DialogTitle" ),
-          null,
           BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.DialogMessage", Const.CR ) + Const.CR,
-          MessageDialog.WARNING,
+          SWT.ICON_WARNING,
           new String[] { BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.Option1" ) },
-          0,
           BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.Option2" ), "N".equalsIgnoreCase(
           props.getCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
     }

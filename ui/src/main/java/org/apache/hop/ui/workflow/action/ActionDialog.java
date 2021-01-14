@@ -50,11 +50,7 @@ import org.eclipse.swt.widgets.Shell;
  * implementing action dialogs.
  */
 public class ActionDialog extends Dialog {
-
-  /**
-   * The package name, used for internationalization.
-   */
-  private static final Class<?> PKG = ITransform.class; // Needed by Translator
+  private static final Class<?> PKG = ITransform.class; // For Translator
 
   /**
    * The loggingObject for the dialog

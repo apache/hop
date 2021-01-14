@@ -63,8 +63,7 @@ import static java.util.Optional.ofNullable;
 
 public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  // for i18n purposes, needed by Translator2!!
-  private static final Class<?> PKG = KafkaConsumerInputDialog.class;
+  private static final Class<?> PKG = KafkaConsumerInputDialog.class; // For Translator
 
   private static final Map<String, String> DEFAULT_OPTION_VALUES = ImmutableMap.of( ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest" );
 

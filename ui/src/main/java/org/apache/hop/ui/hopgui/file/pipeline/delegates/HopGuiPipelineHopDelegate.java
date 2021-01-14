@@ -28,12 +28,11 @@ import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelineHopDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
@@ -43,7 +42,7 @@ import java.util.List;
 public class HopGuiPipelineHopDelegate {
 
   // TODO: move i18n package to HopGui
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final int MESSAGE_DIALOG_WITH_TOGGLE_YES_BUTTON_ID = 256;
 
@@ -157,11 +156,10 @@ public class HopGuiPipelineHopDelegate {
         && !fr.getTransform().excludeFromCopyDistributeVerification() ) {
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
-            hopGui.getShell(), BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
+            hopGui.getShell(), BaseMessages.getString( PKG, "System.Warning" ), BaseMessages.getString(
             PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextTransforms ) ),
-            MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
+            SWT.ICON_WARNING, getRowDistributionLabels(), BaseMessages.getString(
             PKG, "HopGui.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
-        MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
 

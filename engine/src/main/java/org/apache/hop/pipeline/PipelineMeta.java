@@ -115,8 +115,7 @@ public class PipelineMeta extends AbstractMeta
 
   public static final String PIPELINE_EXTENSION = ".hpl";
 
-  /** The package name, used for internationalization of messages. */
-  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
+  private static final Class<?> PKG = Pipeline.class; // For Translator
 
   /** A constant specifying the tag value for the XML node of the pipeline. */
   public static final String XML_TAG = "pipeline";

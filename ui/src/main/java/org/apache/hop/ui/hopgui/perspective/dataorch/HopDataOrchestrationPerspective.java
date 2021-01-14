@@ -111,7 +111,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 	  hopGui.setActivePerspective(this);
   }
 
-  @Override public void perspectiveActivated() {
+  @Override
+  public void perspectiveActivated() {
+      HopGui.getInstance().handleFileCapabilities(getActiveFileTypeHandler().getFileType(), false, false);
   }
 	
   @Override public boolean isActive() {

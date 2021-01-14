@@ -54,7 +54,7 @@ import java.util.Calendar;
  * @since 19-06-2003
  */
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
+  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
   private Text wName;
 
@@ -210,7 +210,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     super( parent, workflowMeta );
     this.action = (ActionGetPOP) action;
     if ( this.action.getName() == null ) {
-      this.action.setName( BaseMessages.getString( PKG, "JobGetPOP.Name.Default" ) );
+      this.action.setName( BaseMessages.getString( PKG, "ActionGetPOP.Name.Default" ) );
     }
   }
 
@@ -242,14 +242,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "JobGetPOP.Title" ) );
+    shell.setText( BaseMessages.getString( PKG, "ActionGetPOP.Title" ) );
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText( BaseMessages.getString( PKG, "JobGetPOP.Name.Label" ) );
+    wlName.setText( BaseMessages.getString( PKG, "ActionGetPOP.Name.Label" ) );
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
@@ -273,7 +273,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText( BaseMessages.getString( PKG, "JobGetPOP.Tab.General.Label" ) );
+    wGeneralTab.setText( BaseMessages.getString( PKG, "ActionGetPOP.Tab.General.Label" ) );
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
     FormLayout generalLayout = new FormLayout();
@@ -286,7 +286,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wServerSettings);
-    wServerSettings.setText( BaseMessages.getString( PKG, "JobGetPOP.ServerSettings.Group.Label" ) );
+    wServerSettings.setText( BaseMessages.getString( PKG, "ActionGetPOP.ServerSettings.Group.Label" ) );
 
     FormLayout ServerSettingsgroupLayout = new FormLayout();
     ServerSettingsgroupLayout.marginWidth = 10;
@@ -295,7 +295,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
-    wlServerName.setText( BaseMessages.getString( PKG, "JobGetPOP.Server.Label" ) );
+    wlServerName.setText( BaseMessages.getString( PKG, "ActionGetPOP.Server.Label" ) );
     props.setLook(wlServerName);
     FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment( 0, 0 );
@@ -313,7 +313,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // USE connection with SSL
     Label wlUseSSL = new Label(wServerSettings, SWT.RIGHT);
-    wlUseSSL.setText( BaseMessages.getString( PKG, "JobGetPOP.UseSSLMails.Label" ) );
+    wlUseSSL.setText( BaseMessages.getString( PKG, "ActionGetPOP.UseSSLMails.Label" ) );
     props.setLook(wlUseSSL);
     FormData fdlUseSSL = new FormData();
     fdlUseSSL.left = new FormAttachment( 0, 0 );
@@ -323,7 +323,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wUseSSL = new Button(wServerSettings, SWT.CHECK );
     props.setLook( wUseSSL );
     FormData fdUseSSL = new FormData();
-    wUseSSL.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.UseSSLMails.Tooltip" ) );
+    wUseSSL.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.UseSSLMails.Tooltip" ) );
     fdUseSSL.left = new FormAttachment( middle, 0 );
     fdUseSSL.top = new FormAttachment( wServerName, margin );
     fdUseSSL.right = new FormAttachment( 100, 0 );
@@ -338,7 +338,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // port
     Label wlPort = new Label(wServerSettings, SWT.RIGHT);
-    wlPort.setText( BaseMessages.getString( PKG, "JobGetPOP.SSLPort.Label" ) );
+    wlPort.setText( BaseMessages.getString( PKG, "ActionGetPOP.SSLPort.Label" ) );
     props.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment( 0, 0 );
@@ -347,7 +347,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPort );
-    wPort.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.SSLPort.Tooltip" ) );
+    wPort.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.SSLPort.Tooltip" ) );
     wPort.addModifyListener( lsMod );
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment( middle, 0 );
@@ -357,7 +357,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // UserName line
     Label wlUserName = new Label(wServerSettings, SWT.RIGHT);
-    wlUserName.setText( BaseMessages.getString( PKG, "JobGetPOP.Username.Label" ) );
+    wlUserName.setText( BaseMessages.getString( PKG, "ActionGetPOP.Username.Label" ) );
     props.setLook(wlUserName);
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment( 0, 0 );
@@ -366,7 +366,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
-    wUserName.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.Username.Tooltip" ) );
+    wUserName.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.Username.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment( middle, 0 );
@@ -376,7 +376,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Password line
     Label wlPassword = new Label(wServerSettings, SWT.RIGHT);
-    wlPassword.setText( BaseMessages.getString( PKG, "JobGetPOP.Password.Label" ) );
+    wlPassword.setText( BaseMessages.getString( PKG, "ActionGetPOP.Password.Label" ) );
     props.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment( 0, 0 );
@@ -394,7 +394,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // USE proxy
     Label wlUseProxy = new Label(wServerSettings, SWT.RIGHT);
-    wlUseProxy.setText( BaseMessages.getString( PKG, "JobGetPOP.UseProxyMails.Label" ) );
+    wlUseProxy.setText( BaseMessages.getString( PKG, "ActionGetPOP.UseProxyMails.Label" ) );
     props.setLook(wlUseProxy);
     FormData fdlUseProxy = new FormData();
     fdlUseProxy.left = new FormAttachment( 0, 0 );
@@ -404,7 +404,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wUseProxy = new Button(wServerSettings, SWT.CHECK );
     props.setLook( wUseProxy );
     FormData fdUseProxy = new FormData();
-    wUseProxy.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.UseProxyMails.Tooltip" ) );
+    wUseProxy.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.UseProxyMails.Tooltip" ) );
     fdUseProxy.left = new FormAttachment( middle, 0 );
     fdUseProxy.top = new FormAttachment( wPassword, 2 * margin );
     fdUseProxy.right = new FormAttachment( 100, 0 );
@@ -419,7 +419,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // ProxyUsername line
     wlProxyUsername = new Label(wServerSettings, SWT.RIGHT );
-    wlProxyUsername.setText( BaseMessages.getString( PKG, "JobGetPOP.ProxyUsername.Label" ) );
+    wlProxyUsername.setText( BaseMessages.getString( PKG, "ActionGetPOP.ProxyUsername.Label" ) );
     props.setLook( wlProxyUsername );
     FormData fdlProxyUsername = new FormData();
     fdlProxyUsername.left = new FormAttachment( 0, 0 );
@@ -428,7 +428,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlProxyUsername.setLayoutData(fdlProxyUsername);
     wProxyUsername = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProxyUsername );
-    wProxyUsername.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ProxyUsername.Tooltip" ) );
+    wProxyUsername.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.ProxyUsername.Tooltip" ) );
     wProxyUsername.addModifyListener( lsMod );
     FormData fdProxyUsername = new FormData();
     fdProxyUsername.left = new FormAttachment( middle, 0 );
@@ -438,7 +438,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Protocol
     Label wlProtocol = new Label(wServerSettings, SWT.RIGHT);
-    wlProtocol.setText( BaseMessages.getString( PKG, "JobGetPOP.Protocol.Label" ) );
+    wlProtocol.setText( BaseMessages.getString( PKG, "ActionGetPOP.Protocol.Label" ) );
     props.setLook(wlProtocol);
     FormData fdlProtocol = new FormData();
     fdlProtocol.left = new FormAttachment( 0, 0 );
@@ -463,10 +463,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Test connection button
     Button wTest = new Button(wServerSettings, SWT.PUSH);
-    wTest.setText( BaseMessages.getString( PKG, "JobGetPOP.TestConnection.Label" ) );
+    wTest.setText( BaseMessages.getString( PKG, "ActionGetPOP.TestConnection.Label" ) );
     props.setLook(wTest);
     FormData fdTest = new FormData();
-    wTest.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.TestConnection.Tooltip" ) );
+    wTest.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.TestConnection.Tooltip" ) );
     // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment( wProtocol, margin );
     fdTest.right = new FormAttachment( 100, 0 );
@@ -486,7 +486,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wTargetFolder = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wTargetFolder);
-    wTargetFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.TargetFolder.Group.Label" ) );
+    wTargetFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.TargetFolder.Group.Label" ) );
 
     FormLayout TargetFoldergroupLayout = new FormLayout();
     TargetFoldergroupLayout.marginWidth = 10;
@@ -495,7 +495,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // OutputDirectory line
     wlOutputDirectory = new Label(wTargetFolder, SWT.RIGHT );
-    wlOutputDirectory.setText( BaseMessages.getString( PKG, "JobGetPOP.OutputDirectory.Label" ) );
+    wlOutputDirectory.setText( BaseMessages.getString( PKG, "ActionGetPOP.OutputDirectory.Label" ) );
     props.setLook( wlOutputDirectory );
     FormData fdlOutputDirectory = new FormData();
     fdlOutputDirectory.left = new FormAttachment( 0, 0 );
@@ -506,7 +506,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // Browse Source folders button ...
     wbDirectory = new Button(wTargetFolder, SWT.PUSH | SWT.CENTER );
     props.setLook( wbDirectory );
-    wbDirectory.setText( BaseMessages.getString( PKG, "JobGetPOP.BrowseFolders.Label" ) );
+    wbDirectory.setText( BaseMessages.getString( PKG, "ActionGetPOP.BrowseFolders.Label" ) );
     FormData fdbDirectory = new FormData();
     fdbDirectory.right = new FormAttachment( 100, -margin );
     fdbDirectory.top = new FormAttachment(wServerSettings, margin );
@@ -515,7 +515,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wOutputDirectory = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOutputDirectory );
-    wOutputDirectory.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OutputDirectory.Tooltip" ) );
+    wOutputDirectory.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.OutputDirectory.Tooltip" ) );
     wOutputDirectory.addModifyListener( lsMod );
     FormData fdOutputDirectory = new FormData();
     fdOutputDirectory.left = new FormAttachment( middle, 0 );
@@ -525,7 +525,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Create local folder
     wlcreateLocalFolder = new Label(wTargetFolder, SWT.RIGHT );
-    wlcreateLocalFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.createLocalFolder.Label" ) );
+    wlcreateLocalFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.createLocalFolder.Label" ) );
     props.setLook( wlcreateLocalFolder );
     FormData fdlcreateLocalFolder = new FormData();
     fdlcreateLocalFolder.left = new FormAttachment( 0, 0 );
@@ -535,7 +535,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wcreateLocalFolder = new Button(wTargetFolder, SWT.CHECK );
     props.setLook( wcreateLocalFolder );
     FormData fdcreateLocalFolder = new FormData();
-    wcreateLocalFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.createLocalFolder.Tooltip" ) );
+    wcreateLocalFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.createLocalFolder.Tooltip" ) );
     fdcreateLocalFolder.left = new FormAttachment( middle, 0 );
     fdcreateLocalFolder.top = new FormAttachment( wOutputDirectory, margin );
     fdcreateLocalFolder.right = new FormAttachment( 100, 0 );
@@ -543,7 +543,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Filename pattern line
     wlFilenamePattern = new Label(wTargetFolder, SWT.RIGHT );
-    wlFilenamePattern.setText( BaseMessages.getString( PKG, "JobGetPOP.FilenamePattern.Label" ) );
+    wlFilenamePattern.setText( BaseMessages.getString( PKG, "ActionGetPOP.FilenamePattern.Label" ) );
     props.setLook( wlFilenamePattern );
     FormData fdlFilenamePattern = new FormData();
     fdlFilenamePattern.left = new FormAttachment( 0, 0 );
@@ -552,7 +552,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlFilenamePattern.setLayoutData(fdlFilenamePattern);
     wFilenamePattern = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilenamePattern );
-    wFilenamePattern.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.FilenamePattern.Tooltip" ) );
+    wFilenamePattern.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.FilenamePattern.Tooltip" ) );
     wFilenamePattern.addModifyListener( lsMod );
     FormData fdFilenamePattern = new FormData();
     fdFilenamePattern.left = new FormAttachment( middle, 0 );
@@ -565,7 +565,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Get message?
     wlGetMessage = new Label(wTargetFolder, SWT.RIGHT );
-    wlGetMessage.setText( BaseMessages.getString( PKG, "JobGetPOP.GetMessageMails.Label" ) );
+    wlGetMessage.setText( BaseMessages.getString( PKG, "ActionGetPOP.GetMessageMails.Label" ) );
     props.setLook( wlGetMessage );
     FormData fdlGetMessage = new FormData();
     fdlGetMessage.left = new FormAttachment( 0, 0 );
@@ -575,7 +575,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wGetMessage = new Button(wTargetFolder, SWT.CHECK );
     props.setLook( wGetMessage );
     FormData fdGetMessage = new FormData();
-    wGetMessage.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.GetMessageMails.Tooltip" ) );
+    wGetMessage.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.GetMessageMails.Tooltip" ) );
     fdGetMessage.left = new FormAttachment( middle, 0 );
     fdGetMessage.top = new FormAttachment( wFilenamePattern, margin );
     fdGetMessage.right = new FormAttachment( 100, 0 );
@@ -591,7 +591,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Get attachment?
     wlGetAttachment = new Label(wTargetFolder, SWT.RIGHT );
-    wlGetAttachment.setText( BaseMessages.getString( PKG, "JobGetPOP.GetAttachmentMails.Label" ) );
+    wlGetAttachment.setText( BaseMessages.getString( PKG, "ActionGetPOP.GetAttachmentMails.Label" ) );
     props.setLook( wlGetAttachment );
     FormData fdlGetAttachment = new FormData();
     fdlGetAttachment.left = new FormAttachment( 0, 0 );
@@ -601,7 +601,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wGetAttachment = new Button(wTargetFolder, SWT.CHECK );
     props.setLook( wGetAttachment );
     FormData fdGetAttachment = new FormData();
-    wGetAttachment.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.GetAttachmentMails.Tooltip" ) );
+    wGetAttachment.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.GetAttachmentMails.Tooltip" ) );
     fdGetAttachment.left = new FormAttachment( middle, 0 );
     fdGetAttachment.top = new FormAttachment( wGetMessage, margin );
     fdGetAttachment.right = new FormAttachment( 100, 0 );
@@ -616,7 +616,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // different folder for attachment?
     wlDifferentFolderForAttachment = new Label(wTargetFolder, SWT.RIGHT );
     wlDifferentFolderForAttachment.setText( BaseMessages.getString(
-      PKG, "JobGetPOP.DifferentFolderForAttachmentMails.Label" ) );
+      PKG, "ActionGetPOP.DifferentFolderForAttachmentMails.Label" ) );
     props.setLook( wlDifferentFolderForAttachment );
     FormData fdlDifferentFolderForAttachment = new FormData();
     fdlDifferentFolderForAttachment.left = new FormAttachment( 0, 0 );
@@ -627,7 +627,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook( wDifferentFolderForAttachment );
     FormData fdDifferentFolderForAttachment = new FormData();
     wDifferentFolderForAttachment.setToolTipText( BaseMessages.getString(
-      PKG, "JobGetPOP.DifferentFolderForAttachmentMails.Tooltip" ) );
+      PKG, "ActionGetPOP.DifferentFolderForAttachmentMails.Tooltip" ) );
     fdDifferentFolderForAttachment.left = new FormAttachment( middle, 0 );
     fdDifferentFolderForAttachment.top = new FormAttachment( wGetAttachment, margin );
     fdDifferentFolderForAttachment.right = new FormAttachment( 100, 0 );
@@ -641,7 +641,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // AttachmentFolder line
     wlAttachmentFolder = new Label(wTargetFolder, SWT.RIGHT );
-    wlAttachmentFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentFolder.Label" ) );
+    wlAttachmentFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.AttachmentFolder.Label" ) );
     props.setLook( wlAttachmentFolder );
     FormData fdlAttachmentFolder = new FormData();
     fdlAttachmentFolder.left = new FormAttachment( 0, 0 );
@@ -652,7 +652,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // Browse Source folders button ...
     wbAttachmentFolder = new Button(wTargetFolder, SWT.PUSH | SWT.CENTER );
     props.setLook( wbAttachmentFolder );
-    wbAttachmentFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.BrowseFolders.Label" ) );
+    wbAttachmentFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.BrowseFolders.Label" ) );
     FormData fdbAttachmentFolder = new FormData();
     fdbAttachmentFolder.right = new FormAttachment( 100, -margin );
     fdbAttachmentFolder.top = new FormAttachment( wDifferentFolderForAttachment, margin );
@@ -661,7 +661,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wAttachmentFolder = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAttachmentFolder );
-    wAttachmentFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentFolder.Tooltip" ) );
+    wAttachmentFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.AttachmentFolder.Tooltip" ) );
     wAttachmentFolder.addModifyListener( lsMod );
     FormData fdAttachmentFolder = new FormData();
     fdAttachmentFolder.left = new FormAttachment( middle, 0 );
@@ -671,7 +671,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Limit attached files
     wlAttachmentWildcard = new Label(wTargetFolder, SWT.RIGHT );
-    wlAttachmentWildcard.setText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentWildcard.Label" ) );
+    wlAttachmentWildcard.setText( BaseMessages.getString( PKG, "ActionGetPOP.AttachmentWildcard.Label" ) );
     props.setLook( wlAttachmentWildcard );
     FormData fdlAttachmentWildcard = new FormData();
     fdlAttachmentWildcard.left = new FormAttachment( 0, 0 );
@@ -680,7 +680,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlAttachmentWildcard.setLayoutData(fdlAttachmentWildcard);
     wAttachmentWildcard = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAttachmentWildcard );
-    wAttachmentWildcard.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentWildcard.Tooltip" ) );
+    wAttachmentWildcard.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.AttachmentWildcard.Tooltip" ) );
     wAttachmentWildcard.addModifyListener( lsMod );
     FormData fdAttachmentWildcard = new FormData();
     fdAttachmentWildcard.left = new FormAttachment( middle, 0 );
@@ -720,7 +720,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSettingsTab.setText( BaseMessages.getString( PKG, "JobGetPOP.Tab.Pop.Label" ) );
+    wSettingsTab.setText( BaseMessages.getString( PKG, "ActionGetPOP.Tab.Pop.Label" ) );
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
     FormLayout PopLayout = new FormLayout();
@@ -730,7 +730,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Action type
     Label wlActionType = new Label(wSettingsComp, SWT.RIGHT);
-    wlActionType.setText( BaseMessages.getString( PKG, "JobGetPOP.ActionType.Label" ) );
+    wlActionType.setText( BaseMessages.getString( PKG, "ActionGetPOP.ActionType.Label" ) );
     props.setLook(wlActionType);
     FormData fdlActionType = new FormData();
     fdlActionType.left = new FormAttachment( 0, 0 );
@@ -757,7 +757,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Message: for POP3, only INBOX folder is available!
     wlPOP3Message = new Label(wSettingsComp, SWT.RIGHT );
-    wlPOP3Message.setText( BaseMessages.getString( PKG, "JobGetPOP.POP3Message.Label" ) );
+    wlPOP3Message.setText( BaseMessages.getString( PKG, "ActionGetPOP.POP3Message.Label" ) );
     props.setLook( wlPOP3Message );
     FormData fdlPOP3Message = new FormData();
     fdlPOP3Message.left = new FormAttachment( 0, margin );
@@ -770,7 +770,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wPOP3Settings = new Group(wSettingsComp, SWT.SHADOW_NONE);
     props.setLook(wPOP3Settings);
-    wPOP3Settings.setText( BaseMessages.getString( PKG, "JobGetPOP.POP3Settings.Group.Label" ) );
+    wPOP3Settings.setText( BaseMessages.getString( PKG, "ActionGetPOP.POP3Settings.Group.Label" ) );
 
     FormLayout POP3SettingsgroupLayout = new FormLayout();
     POP3SettingsgroupLayout.marginWidth = 10;
@@ -779,7 +779,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // List of mails of retrieve
     wlListmails = new Label(wPOP3Settings, SWT.RIGHT );
-    wlListmails.setText( BaseMessages.getString( PKG, "JobGetPOP.Listmails.Label" ) );
+    wlListmails.setText( BaseMessages.getString( PKG, "ActionGetPOP.Listmails.Label" ) );
     props.setLook( wlListmails );
     FormData fdlListmails = new FormData();
     fdlListmails.left = new FormAttachment( 0, 0 );
@@ -787,10 +787,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlListmails.top = new FormAttachment( wlPOP3Message, 2 * margin );
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wListmails.add( BaseMessages.getString( PKG, "JobGetPOP.RetrieveAllMails.Label" ) );
+    wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveAllMails.Label" ) );
     // PDI-7241 POP3 does not support retrive unread
-    // wListmails.add( BaseMessages.getString( PKG, "JobGetPOP.RetrieveUnreadMails.Label" ) );
-    wListmails.add( BaseMessages.getString( PKG, "JobGetPOP.RetrieveFirstMails.Label" ) );
+    // wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveUnreadMails.Label" ) );
+    wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveFirstMails.Label" ) );
     wListmails.select( 0 ); // +1: starts at -1
 
     props.setLook( wListmails );
@@ -810,7 +810,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Retrieve the first ... mails
     wlFirstmails = new Label(wPOP3Settings, SWT.RIGHT );
-    wlFirstmails.setText( BaseMessages.getString( PKG, "JobGetPOP.Firstmails.Label" ) );
+    wlFirstmails.setText( BaseMessages.getString( PKG, "ActionGetPOP.Firstmails.Label" ) );
     props.setLook( wlFirstmails );
     FormData fdlFirstmails = new FormData();
     fdlFirstmails.left = new FormAttachment( 0, 0 );
@@ -829,7 +829,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Delete mails after retrieval...
     wlDelete = new Label(wPOP3Settings, SWT.RIGHT );
-    wlDelete.setText( BaseMessages.getString( PKG, "JobGetPOP.DeleteMails.Label" ) );
+    wlDelete.setText( BaseMessages.getString( PKG, "ActionGetPOP.DeleteMails.Label" ) );
     props.setLook( wlDelete );
     FormData fdlDelete = new FormData();
     fdlDelete.left = new FormAttachment( 0, 0 );
@@ -839,7 +839,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wDelete = new Button(wPOP3Settings, SWT.CHECK );
     props.setLook( wDelete );
     FormData fdDelete = new FormData();
-    wDelete.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.DeleteMails.Tooltip" ) );
+    wDelete.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.DeleteMails.Tooltip" ) );
     fdDelete.left = new FormAttachment( middle, 0 );
     fdDelete.top = new FormAttachment( wFirstmails, margin );
     fdDelete.right = new FormAttachment( 100, 0 );
@@ -859,7 +859,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wIMAPSettings = new Group(wSettingsComp, SWT.SHADOW_NONE);
     props.setLook(wIMAPSettings);
-    wIMAPSettings.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPSettings.Groupp.Label" ) );
+    wIMAPSettings.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPSettings.Groupp.Label" ) );
 
     FormLayout IMAPSettingsgroupLayout = new FormLayout();
     IMAPSettingsgroupLayout.marginWidth = 10;
@@ -868,27 +868,27 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // SelectFolder button
     wSelectFolder = new Button(wIMAPSettings, SWT.PUSH );
-    wSelectFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectFolderConnection.Label" ) );
+    wSelectFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.SelectFolderConnection.Label" ) );
     props.setLook( wSelectFolder );
     FormData fdSelectFolder = new FormData();
-    wSelectFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.SelectFolderConnection.Tooltip" ) );
+    wSelectFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.SelectFolderConnection.Tooltip" ) );
     fdSelectFolder.top = new FormAttachment(wPOP3Settings, margin );
     fdSelectFolder.right = new FormAttachment( 100, 0 );
     wSelectFolder.setLayoutData(fdSelectFolder);
 
     // TestIMAPFolder button
     wTestIMAPFolder = new Button(wIMAPSettings, SWT.PUSH );
-    wTestIMAPFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.TestIMAPFolderConnection.Label" ) );
+    wTestIMAPFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.TestIMAPFolderConnection.Label" ) );
     props.setLook( wTestIMAPFolder );
     FormData fdTestIMAPFolder = new FormData();
-    wTestIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.TestIMAPFolderConnection.Tooltip" ) );
+    wTestIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.TestIMAPFolderConnection.Tooltip" ) );
     fdTestIMAPFolder.top = new FormAttachment(wPOP3Settings, margin );
     fdTestIMAPFolder.right = new FormAttachment( wSelectFolder, -margin );
     wTestIMAPFolder.setLayoutData(fdTestIMAPFolder);
 
     // IMAPFolder line
     wlIMAPFolder = new Label(wIMAPSettings, SWT.RIGHT );
-    wlIMAPFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolder.Label" ) );
+    wlIMAPFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFolder.Label" ) );
     props.setLook( wlIMAPFolder );
     FormData fdlIMAPFolder = new FormData();
     fdlIMAPFolder.left = new FormAttachment( 0, 0 );
@@ -897,7 +897,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlIMAPFolder.setLayoutData(fdlIMAPFolder);
     wIMAPFolder = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIMAPFolder );
-    wIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolder.Tooltip" ) );
+    wIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFolder.Tooltip" ) );
     wIMAPFolder.addModifyListener( lsMod );
     FormData fdIMAPFolder = new FormData();
     fdIMAPFolder.left = new FormAttachment( middle, 0 );
@@ -907,7 +907,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Include subfolders?
     wlIncludeSubFolders = new Label(wIMAPSettings, SWT.RIGHT );
-    wlIncludeSubFolders.setText( BaseMessages.getString( PKG, "JobGetPOP.IncludeSubFoldersMails.Label" ) );
+    wlIncludeSubFolders.setText( BaseMessages.getString( PKG, "ActionGetPOP.IncludeSubFoldersMails.Label" ) );
     props.setLook( wlIncludeSubFolders );
     FormData fdlIncludeSubFolders = new FormData();
     fdlIncludeSubFolders.left = new FormAttachment( 0, 0 );
@@ -917,7 +917,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wIncludeSubFolders = new Button(wIMAPSettings, SWT.CHECK );
     props.setLook( wIncludeSubFolders );
     FormData fdIncludeSubFolders = new FormData();
-    wIncludeSubFolders.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.IncludeSubFoldersMails.Tooltip" ) );
+    wIncludeSubFolders.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.IncludeSubFoldersMails.Tooltip" ) );
     fdIncludeSubFolders.left = new FormAttachment( middle, 0 );
     fdIncludeSubFolders.top = new FormAttachment( wIMAPFolder, margin );
     fdIncludeSubFolders.right = new FormAttachment( 100, 0 );
@@ -926,7 +926,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // List of mails of retrieve
     wlIMAPListmails = new Label(wIMAPSettings, SWT.RIGHT );
-    wlIMAPListmails.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPListmails.Label" ) );
+    wlIMAPListmails.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPListmails.Label" ) );
     props.setLook( wlIMAPListmails );
     FormData fdlIMAPListmails = new FormData();
     fdlIMAPListmails.left = new FormAttachment( 0, 0 );
@@ -953,7 +953,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Retrieve the first ... mails
     wlIMAPFirstmails = new Label(wIMAPSettings, SWT.RIGHT );
-    wlIMAPFirstmails.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFirstmails.Label" ) );
+    wlIMAPFirstmails.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFirstmails.Label" ) );
     props.setLook( wlIMAPFirstmails );
     FormData fdlIMAPFirstmails = new FormData();
     fdlIMAPFirstmails.left = new FormAttachment( 0, 0 );
@@ -972,7 +972,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // After get IMAP
     wlAfterGetIMAP = new Label(wIMAPSettings, SWT.RIGHT );
-    wlAfterGetIMAP.setText( BaseMessages.getString( PKG, "JobGetPOP.AfterGetIMAP.Label" ) );
+    wlAfterGetIMAP.setText( BaseMessages.getString( PKG, "ActionGetPOP.AfterGetIMAP.Label" ) );
     props.setLook( wlAfterGetIMAP );
     FormData fdlAfterGetIMAP = new FormData();
     fdlAfterGetIMAP.left = new FormAttachment( 0, 0 );
@@ -999,7 +999,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // MoveToFolder line
     wlMoveToFolder = new Label(wIMAPSettings, SWT.RIGHT );
-    wlMoveToFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.MoveToFolder.Label" ) );
+    wlMoveToFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.MoveToFolder.Label" ) );
     props.setLook( wlMoveToFolder );
     FormData fdlMoveToFolder = new FormData();
     fdlMoveToFolder.left = new FormAttachment( 0, 0 );
@@ -1009,29 +1009,29 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // SelectMoveToFolder button
     wSelectMoveToFolder = new Button(wIMAPSettings, SWT.PUSH );
-    wSelectMoveToFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectMoveToFolderConnection.Label" ) );
+    wSelectMoveToFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.SelectMoveToFolderConnection.Label" ) );
     props.setLook( wSelectMoveToFolder );
     FormData fdSelectMoveToFolder = new FormData();
     wSelectMoveToFolder.setToolTipText( BaseMessages.getString(
-      PKG, "JobGetPOP.SelectMoveToFolderConnection.Tooltip" ) );
+      PKG, "ActionGetPOP.SelectMoveToFolderConnection.Tooltip" ) );
     fdSelectMoveToFolder.top = new FormAttachment( wAfterGetIMAP, margin );
     fdSelectMoveToFolder.right = new FormAttachment( 100, 0 );
     wSelectMoveToFolder.setLayoutData(fdSelectMoveToFolder);
 
     // TestMoveToFolder button
     wTestMoveToFolder = new Button(wIMAPSettings, SWT.PUSH );
-    wTestMoveToFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.TestMoveToFolderConnection.Label" ) );
+    wTestMoveToFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.TestMoveToFolderConnection.Label" ) );
     props.setLook( wTestMoveToFolder );
     FormData fdTestMoveToFolder = new FormData();
     wTestMoveToFolder
-      .setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.TestMoveToFolderConnection.Tooltip" ) );
+      .setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.TestMoveToFolderConnection.Tooltip" ) );
     fdTestMoveToFolder.top = new FormAttachment( wAfterGetIMAP, margin );
     fdTestMoveToFolder.right = new FormAttachment( wSelectMoveToFolder, -margin );
     wTestMoveToFolder.setLayoutData(fdTestMoveToFolder);
 
     wMoveToFolder = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMoveToFolder );
-    wMoveToFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.MoveToFolder.Tooltip" ) );
+    wMoveToFolder.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.MoveToFolder.Tooltip" ) );
     wMoveToFolder.addModifyListener( lsMod );
     FormData fdMoveToFolder = new FormData();
     fdMoveToFolder.left = new FormAttachment( middle, 0 );
@@ -1041,7 +1041,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     // Create move to folder
     wlcreateMoveToFolder = new Label(wIMAPSettings, SWT.RIGHT );
-    wlcreateMoveToFolder.setText( BaseMessages.getString( PKG, "JobGetPOP.createMoveToFolderMails.Label" ) );
+    wlcreateMoveToFolder.setText( BaseMessages.getString( PKG, "ActionGetPOP.createMoveToFolderMails.Label" ) );
     props.setLook( wlcreateMoveToFolder );
     FormData fdlcreateMoveToFolder = new FormData();
     fdlcreateMoveToFolder.left = new FormAttachment( 0, 0 );
@@ -1052,7 +1052,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook( wcreateMoveToFolder );
     FormData fdcreateMoveToFolder = new FormData();
     wcreateMoveToFolder
-      .setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.createMoveToFolderMails.Tooltip" ) );
+      .setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.createMoveToFolderMails.Tooltip" ) );
     fdcreateMoveToFolder.left = new FormAttachment( middle, 0 );
     fdcreateMoveToFolder.top = new FormAttachment( wMoveToFolder, margin );
     fdcreateMoveToFolder.right = new FormAttachment( 100, 0 );
@@ -1087,7 +1087,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wSearchTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSearchTab.setText( BaseMessages.getString( PKG, "JobGetPOP.Tab.Search.Label" ) );
+    wSearchTab.setText( BaseMessages.getString( PKG, "ActionGetPOP.Tab.Search.Label" ) );
     Composite wSearchComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSearchComp);
     FormLayout searchLayout = new FormLayout();
@@ -1100,7 +1100,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wHeader = new Group(wSearchComp, SWT.SHADOW_NONE);
     props.setLook(wHeader);
-    wHeader.setText( BaseMessages.getString( PKG, "JobGetPOP.Header.Group.Label" ) );
+    wHeader.setText( BaseMessages.getString( PKG, "ActionGetPOP.Header.Group.Label" ) );
 
     FormLayout HeadergroupLayout = new FormLayout();
     HeadergroupLayout.marginWidth = 10;
@@ -1110,14 +1110,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wNegateSender = new Button(wHeader, SWT.CHECK );
     props.setLook( wNegateSender );
     FormData fdNegateSender = new FormData();
-    wNegateSender.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.NegateSender.Tooltip" ) );
+    wNegateSender.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.NegateSender.Tooltip" ) );
     fdNegateSender.top = new FormAttachment( 0, margin );
     fdNegateSender.right = new FormAttachment( 100, -margin );
     wNegateSender.setLayoutData(fdNegateSender);
 
     // From line
     Label wlSender = new Label(wHeader, SWT.RIGHT);
-    wlSender.setText( BaseMessages.getString( PKG, "JobGetPOP.wSender.Label" ) );
+    wlSender.setText( BaseMessages.getString( PKG, "ActionGetPOP.wSender.Label" ) );
     props.setLook(wlSender);
     FormData fdlSender = new FormData();
     fdlSender.left = new FormAttachment( 0, 0 );
@@ -1136,14 +1136,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wNegateReceipient = new Button(wHeader, SWT.CHECK );
     props.setLook( wNegateReceipient );
     FormData fdNegateReceipient = new FormData();
-    wNegateReceipient.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.NegateReceipient.Tooltip" ) );
+    wNegateReceipient.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.NegateReceipient.Tooltip" ) );
     fdNegateReceipient.top = new FormAttachment( wSender, margin );
     fdNegateReceipient.right = new FormAttachment( 100, -margin );
     wNegateReceipient.setLayoutData(fdNegateReceipient);
 
     // Receipient line
     Label wlReceipient = new Label(wHeader, SWT.RIGHT);
-    wlReceipient.setText( BaseMessages.getString( PKG, "JobGetPOP.Receipient.Label" ) );
+    wlReceipient.setText( BaseMessages.getString( PKG, "ActionGetPOP.Receipient.Label" ) );
     props.setLook(wlReceipient);
     FormData fdlReceipient = new FormData();
     fdlReceipient.left = new FormAttachment( 0, 0 );
@@ -1162,14 +1162,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wNegateSubject = new Button(wHeader, SWT.CHECK );
     props.setLook( wNegateSubject );
     FormData fdNegateSubject = new FormData();
-    wNegateSubject.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.NegateSubject.Tooltip" ) );
+    wNegateSubject.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.NegateSubject.Tooltip" ) );
     fdNegateSubject.top = new FormAttachment( wReceipient, margin );
     fdNegateSubject.right = new FormAttachment( 100, -margin );
     wNegateSubject.setLayoutData(fdNegateSubject);
 
     // Subject line
     Label wlSubject = new Label(wHeader, SWT.RIGHT);
-    wlSubject.setText( BaseMessages.getString( PKG, "JobGetPOP.Subject.Label" ) );
+    wlSubject.setText( BaseMessages.getString( PKG, "ActionGetPOP.Subject.Label" ) );
     props.setLook(wlSubject);
     FormData fdlSubject = new FormData();
     fdlSubject.left = new FormAttachment( 0, 0 );
@@ -1199,7 +1199,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wContent = new Group(wSearchComp, SWT.SHADOW_NONE);
     props.setLook(wContent);
-    wContent.setText( BaseMessages.getString( PKG, "JobGetPOP.Content.Group.Label" ) );
+    wContent.setText( BaseMessages.getString( PKG, "ActionGetPOP.Content.Group.Label" ) );
 
     FormLayout ContentgroupLayout = new FormLayout();
     ContentgroupLayout.marginWidth = 10;
@@ -1209,14 +1209,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wNegateBody = new Button(wContent, SWT.CHECK );
     props.setLook( wNegateBody );
     FormData fdNegateBody = new FormData();
-    wNegateBody.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.NegateBody.Tooltip" ) );
+    wNegateBody.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.NegateBody.Tooltip" ) );
     fdNegateBody.top = new FormAttachment(wHeader, margin );
     fdNegateBody.right = new FormAttachment( 100, -margin );
     wNegateBody.setLayoutData(fdNegateBody);
 
     // Body line
     Label wlBody = new Label(wContent, SWT.RIGHT);
-    wlBody.setText( BaseMessages.getString( PKG, "JobGetPOP.Body.Label" ) );
+    wlBody.setText( BaseMessages.getString( PKG, "ActionGetPOP.Body.Label" ) );
     props.setLook(wlBody);
     FormData fdlBody = new FormData();
     fdlBody.left = new FormAttachment( 0, 0 );
@@ -1246,7 +1246,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     // /
     Group wReceivedDate = new Group(wSearchComp, SWT.SHADOW_NONE);
     props.setLook(wReceivedDate);
-    wReceivedDate.setText( BaseMessages.getString( PKG, "JobGetPOP.ReceivedDate.Group.Label" ) );
+    wReceivedDate.setText( BaseMessages.getString( PKG, "ActionGetPOP.ReceivedDate.Group.Label" ) );
 
     FormLayout ReceivedDategroupLayout = new FormLayout();
     ReceivedDategroupLayout.marginWidth = 10;
@@ -1256,14 +1256,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wNegateReceivedDate = new Button(wReceivedDate, SWT.CHECK );
     props.setLook( wNegateReceivedDate );
     FormData fdNegateReceivedDate = new FormData();
-    wNegateReceivedDate.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.NegateReceivedDate.Tooltip" ) );
+    wNegateReceivedDate.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.NegateReceivedDate.Tooltip" ) );
     fdNegateReceivedDate.top = new FormAttachment(wContent, margin );
     fdNegateReceivedDate.right = new FormAttachment( 100, -margin );
     wNegateReceivedDate.setLayoutData(fdNegateReceivedDate);
 
     // Received Date Condition
     wlConditionOnReceivedDate = new Label(wReceivedDate, SWT.RIGHT );
-    wlConditionOnReceivedDate.setText( BaseMessages.getString( PKG, "JobGetPOP.ConditionOnReceivedDate.Label" ) );
+    wlConditionOnReceivedDate.setText( BaseMessages.getString( PKG, "ActionGetPOP.ConditionOnReceivedDate.Label" ) );
     props.setLook( wlConditionOnReceivedDate );
     FormData fdlConditionOnReceivedDate = new FormData();
     fdlConditionOnReceivedDate.left = new FormAttachment( 0, 0 );
@@ -1290,7 +1290,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     open = new Button(wReceivedDate, SWT.PUSH );
     open.setImage( GuiResource.getInstance().getImageCalendar() );
-    open.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OpenCalendar" ) );
+    open.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.OpenCalendar" ) );
     FormData fdlButton = new FormData();
     fdlButton.top = new FormAttachment( wConditionOnReceivedDate, margin );
     fdlButton.right = new FormAttachment( 100, 0 );
@@ -1298,7 +1298,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     open.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialog = new Shell( shell, SWT.DIALOG_TRIM );
-        dialog.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
+        dialog.setText( BaseMessages.getString( PKG, "ActionGetPOP.SelectDate" ) );
         dialog.setImage( GuiResource.getInstance().getImageHopUi() );
         dialog.setLayout( new GridLayout( 3, false ) );
 
@@ -1333,7 +1333,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     } );
 
     wlReadFrom = new Label(wReceivedDate, SWT.RIGHT );
-    wlReadFrom.setText( BaseMessages.getString( PKG, "JobGetPOP.ReadFrom.Label" ) );
+    wlReadFrom.setText( BaseMessages.getString( PKG, "ActionGetPOP.ReadFrom.Label" ) );
     props.setLook( wlReadFrom );
     FormData fdlReadFrom = new FormData();
     fdlReadFrom.left = new FormAttachment( 0, 0 );
@@ -1341,7 +1341,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlReadFrom.right = new FormAttachment( middle, -margin );
     wlReadFrom.setLayoutData(fdlReadFrom);
     wReadFrom = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wReadFrom.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ReadFrom.Tooltip" ) );
+    wReadFrom.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.ReadFrom.Tooltip" ) );
     props.setLook( wReadFrom );
     wReadFrom.addModifyListener( lsMod );
     FormData fdReadFrom = new FormData();
@@ -1352,7 +1352,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     opento = new Button(wReceivedDate, SWT.PUSH );
     opento.setImage( GuiResource.getInstance().getImageCalendar() );
-    opento.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OpenCalendar" ) );
+    opento.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.OpenCalendar" ) );
     FormData fdlButtonto = new FormData();
     fdlButtonto.top = new FormAttachment( wReadFrom, 2 * margin );
     fdlButtonto.right = new FormAttachment( 100, 0 );
@@ -1360,7 +1360,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     opento.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialogto = new Shell( shell, SWT.DIALOG_TRIM );
-        dialogto.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
+        dialogto.setText( BaseMessages.getString( PKG, "ActionGetPOP.SelectDate" ) );
         dialogto.setImage( GuiResource.getInstance().getImageHopUi() );
         dialogto.setLayout( new GridLayout( 3, false ) );
 
@@ -1393,7 +1393,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     } );
 
     wlReadTo = new Label(wReceivedDate, SWT.RIGHT );
-    wlReadTo.setText( BaseMessages.getString( PKG, "JobGetPOP.ReadTo.Label" ) );
+    wlReadTo.setText( BaseMessages.getString( PKG, "ActionGetPOP.ReadTo.Label" ) );
     props.setLook( wlReadTo );
     FormData fdlReadTo = new FormData();
     fdlReadTo.left = new FormAttachment( 0, 0 );
@@ -1401,7 +1401,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlReadTo.right = new FormAttachment( middle, -margin );
     wlReadTo.setLayoutData(fdlReadTo);
     wReadTo = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wReadTo.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ReadTo.Tooltip" ) );
+    wReadTo.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.ReadTo.Tooltip" ) );
     props.setLook( wReadTo );
     wReadTo.addModifyListener( lsMod );
     FormData fdReadTo = new FormData();
@@ -1538,9 +1538,9 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     if ( !retval ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "JobGetPOP.Connected.NOK.ConnectionBad", wServerName.getText() )
+      mb.setMessage( BaseMessages.getString( PKG, "ActionGetPOP.Connected.NOK.ConnectionBad", wServerName.getText() )
         + Const.CR + Const.NVL( errordescription, "" ) );
-      mb.setText( BaseMessages.getString( PKG, "JobGetPOP.Connected.Title.Bad" ) );
+      mb.setText( BaseMessages.getString( PKG, "ActionGetPOP.Connected.Title.Bad" ) );
       mb.open();
     }
 
@@ -1551,8 +1551,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private void test() {
     if ( connect() ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "JobGetPOP.Connected.OK", wServerName.getText() ) + Const.CR );
-      mb.setText( BaseMessages.getString( PKG, "JobGetPOP.Connected.Title.Ok" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "ActionGetPOP.Connected.OK", wServerName.getText() ) + Const.CR );
+      mb.setText( BaseMessages.getString( PKG, "ActionGetPOP.Connected.Title.Ok" ) );
       mb.open();
     }
   }
@@ -1578,14 +1578,14 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         // check folder
         if ( mailConn.folderExists( folderName ) ) {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolderExists.OK", folderName ) + Const.CR );
-          mb.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolderExists.Title.Ok" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFolderExists.OK", folderName ) + Const.CR );
+          mb.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFolderExists.Title.Ok" ) );
           mb.open();
         } else {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "JobGetPOP.Connected.NOK.IMAPFolderExists", folderName )
+          mb.setMessage( BaseMessages.getString( PKG, "ActionGetPOP.Connected.NOK.IMAPFolderExists", folderName )
             + Const.CR );
-          mb.setText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolderExists.Title.Bad" ) );
+          mb.setText( BaseMessages.getString( PKG, "ActionGetPOP.IMAPFolderExists.Title.Bad" ) );
           mb.open();
         }
       }
@@ -1895,8 +1895,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "JobGetPOP.NoNameMessageBox.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "JobGetPOP.NoNameMessageBox.Text" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "ActionGetPOP.NoNameMessageBox.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "ActionGetPOP.NoNameMessageBox.Text" ) );
       mb.open();
       return;
     }

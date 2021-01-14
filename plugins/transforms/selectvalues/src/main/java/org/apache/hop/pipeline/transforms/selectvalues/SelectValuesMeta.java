@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
@@ -58,15 +53,14 @@ import java.util.List;
 @Transform(
         id = "SelectValues",
         image = "selectvalues.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.selectvalues",
-        name = "BaseTransform.TypeLongDesc.SelectValues",
-        description = "BaseTransform.TypeTooltipDesc.SelectValues",
+        name = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeLongDesc.SelectValues",
+        description = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeTooltipDesc.SelectValues",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/selectvalues.html"
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {
-  private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public static final int UNDEFINED = -2;
 
@@ -275,7 +269,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
         selectFields[ i ] = new SelectField();
         selectFields[ i ].setName( XmlHandler.getTagValue( line, "name" ) );
         selectFields[ i ].setRename( XmlHandler.getTagValue( line, "rename" ) );
-        selectFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( line, "length" ), UNDEFINED ) ); // $NON-NtagLS-1$
+        selectFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( line, "length" ), UNDEFINED ) );
         selectFields[ i ].setPrecision( Const.toInt( XmlHandler.getTagValue( line, "precision" ), UNDEFINED ) );
       }
       selectingAndSortingUnspecifiedFields =

@@ -35,7 +35,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class BeamTimestampDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = BeamTimestampDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BeamTimestampDialog.class; // For Translator
   private final BeamTimestampMeta input;
 
   int middle;

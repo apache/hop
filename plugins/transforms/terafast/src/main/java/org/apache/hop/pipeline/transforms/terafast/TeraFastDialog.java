@@ -50,7 +50,7 @@ import org.apache.hop.core.variables.IVariables;
 
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = TeraFastMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TeraFastMeta.class; // For Translator
 
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 

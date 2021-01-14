@@ -18,7 +18,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -78,9 +77,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class GetXmlDataDialog extends BaseTransformDialog implements ITransformDialog {
-  private String XMLSource = null;
+  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
-  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private String XMLSource = null;
 
   private CTabFolder wTabFolder;
 
@@ -967,8 +966,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         new ColumnInfo( BaseMessages.getString( PKG, "GetXMLDataDialog.FieldsTable.TrimType.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, GetXmlDataField.trimTypeDesc, true ),
         new ColumnInfo( BaseMessages.getString( PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
@@ -1528,8 +1527,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG,
-            SYSTEM_COMBO_NO );
+          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
+            "System.Combo.No" );
 
         if ( name != null ) {
           item.setText( 1, name );
@@ -1680,7 +1679,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       field.setDecimalSymbol( item.getText( 10 ) );
       field.setGroupSymbol( item.getText( 11 ) );
       field.setTrimType( GetXmlDataField.getTrimTypeByDesc( item.getText( 12 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 13 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
 
       // CHECKSTYLE:Indentation:OFF
       in.getInputFields()[ i ] = field;
@@ -1711,7 +1710,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
   // Preview the data
   private void preview() {
     try {
-      // Create the XML input step
+      // Create the XML input transform
       GetXmlDataMeta oneMeta = new GetXmlDataMeta();
       getInfo( oneMeta );
 

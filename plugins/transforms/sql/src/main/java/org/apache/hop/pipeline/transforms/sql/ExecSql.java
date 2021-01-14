@@ -44,7 +44,7 @@ import java.util.ArrayList;
  */
 public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements ITransform<ExecSqlMeta, ExecSqlData> {
 
-  private static final Class<?> PKG = ExecSqlMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
   public ExecSql( TransformMeta transformMeta, ExecSqlMeta meta, ExecSqlData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {

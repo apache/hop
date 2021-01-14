@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
     implements ITransform<AddSequenceMeta, AddSequenceData> {
 
-  private static final Class<?> PKG = AddSequence.class; // Needed by Translator
+  private static final Class<?> PKG = AddSequence.class; // For Translator
 
   public AddSequence(
       TransformMeta transformMeta,

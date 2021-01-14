@@ -54,8 +54,8 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
 
   private OutputStream outputStream;
 
-  public XmlOutput(TransformMeta transformMeta, XmlOutputMeta meta, XmlOutputData stepDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
-    super( transformMeta, meta, stepDataInterface, copyNr, pipelineMeta, trans );
+  public XmlOutput(TransformMeta transformMeta, XmlOutputMeta meta, XmlOutputData transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, transformDataInterface, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {
@@ -280,7 +280,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
           // Add this to the result file names...
           ResultFile resultFile =
               new ResultFile( ResultFile.FILE_TYPE_GENERAL, file, getPipelineMeta().getName(), getTransformName() );
-          resultFile.setComment( "This file was created with a xml output step" );
+          resultFile.setComment( "This file was created with a xml output transform" );
           addResultFile( resultFile );
         }
 

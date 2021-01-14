@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
@@ -48,7 +43,7 @@ public class PoiWorkbook implements IKWorkbook {
   private String encoding;
   // for PDI-10251 we need direct access to streams
   private InputStream internalIS;
-  private POIFSFileSystem npoifs;
+  private POIFSFileSystem poifs;
   private OPCPackage opcpkg;
 
   public PoiWorkbook( String filename, String encoding ) throws HopException {
@@ -63,8 +58,8 @@ public class PoiWorkbook implements IKWorkbook {
         String localFilename = HopVfs.getFilename( fileObject );
         File excelFile = new File( localFilename );
         try {
-          npoifs = new POIFSFileSystem( excelFile );
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( npoifs );
+          poifs = new POIFSFileSystem( excelFile );
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( poifs );
         } catch ( Exception ofe ) {
           try {
             opcpkg = OPCPackage.open( excelFile );
@@ -97,8 +92,8 @@ public class PoiWorkbook implements IKWorkbook {
       if ( internalIS != null ) {
         internalIS.close();
       }
-      if ( npoifs != null ) {
-        npoifs.close();
+      if ( poifs != null ) {
+        poifs.close();
       }
       if ( opcpkg != null ) {
         //We should not save change in xls because it is input transform.

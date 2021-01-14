@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.*;
 
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 

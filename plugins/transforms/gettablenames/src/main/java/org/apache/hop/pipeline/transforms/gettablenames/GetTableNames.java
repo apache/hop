@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> implements ITransform<GetTableNamesMeta, GetTableNamesData> {
 
-  private static final Class<?> PKG = GetTableNamesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
 
   public GetTableNames( TransformMeta transformMeta, GetTableNamesMeta meta, GetTableNamesData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

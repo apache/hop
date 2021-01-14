@@ -46,7 +46,7 @@ import java.io.OutputStreamWriter;
  * @since 14-jan-2006
  */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> implements ITransform<JsonOutputMeta, JsonOutputData> {
-  private static final Class<?> PKG = JsonOutput.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonOutput.class; // For Translator
 
   public JsonOutput( TransformMeta transformMeta, JsonOutputMeta meta, JsonOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

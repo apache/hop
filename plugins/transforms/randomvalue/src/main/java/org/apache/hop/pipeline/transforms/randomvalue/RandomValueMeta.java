@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.CheckResult;
@@ -52,16 +46,14 @@ import java.util.List;
 @Transform(
     id = "RandomValue",
     image = "randomvalue.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.randomvalue",
-    name = "BaseTransform.TypeTooltipDesc.RandomValue",
-    description = "BaseTransform.TypeLongDesc.RandomValue",
+    name = "i18n::BaseTransform.TypeTooltipDesc.RandomValue",
+    description = "i18n::BaseTransform.TypeLongDesc.RandomValue",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/randomvalue.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/randomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static final Class<?> PKG = RandomValueMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 
   public static final int TYPE_RANDOM_NONE = 0;
 

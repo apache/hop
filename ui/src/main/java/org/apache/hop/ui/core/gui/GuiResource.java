@@ -34,8 +34,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -98,6 +96,10 @@ public class GuiResource {
 
   private ManagedColor colorMagenta;
 
+  private ManagedColor colorPurpule;
+
+  private ManagedColor colorIndigo;
+
   private ManagedColor colorBlack;
 
   private ManagedColor colorGray;
@@ -124,7 +126,7 @@ public class GuiResource {
 
   private ManagedColor colorHopDefault;
 
-  private ManagedColor colorHopOK;
+  private ManagedColor colorHopTrue;
 
   private ManagedColor colorDeprecated;
 
@@ -167,7 +169,8 @@ public class GuiResource {
   private SwtUniversalImage imagePartitionSchema;
   private SwtUniversalImage imageWorkflow;
   private SwtUniversalImage imageArrowDefault;
-  private SwtUniversalImage imageArrowOk;
+  private SwtUniversalImage imageArrowTrue;
+  private SwtUniversalImage imageArrowFalse;
   private SwtUniversalImage imageArrowError;
   private SwtUniversalImage imageArrowDisabled;
   private SwtUniversalImage imageArrowCandidate;
@@ -179,9 +182,9 @@ public class GuiResource {
   private SwtUniversalImage imageFolderConnections;
   private SwtUniversalImage imageEdit;
   private SwtUniversalImage imageClearText;
-  private SwtUniversalImage imageTransformError;
-  private SwtUniversalImage imageRedTransformError;
   private SwtUniversalImage imageCopyRows;
+  private SwtUniversalImage imageFailure;
+  private SwtUniversalImage imageSuccess;
   private SwtUniversalImage imageError;
   private SwtUniversalImage imageInfo;
   private SwtUniversalImage imageWarning;
@@ -344,6 +347,8 @@ public class GuiResource {
     colorBlue = new ManagedColor( display, 0, 0, 255 );
     colorYellow = new ManagedColor( display, 255, 255, 0 );
     colorMagenta = new ManagedColor( display, 255, 0, 255 );
+    colorPurpule = new ManagedColor( display, 128, 0, 128 );
+    colorIndigo = new ManagedColor( display, 75, 0, 130 );
     colorOrange = new ManagedColor( display, 255, 165, 0 );
 
     colorBlueCustomGrid = new ManagedColor( display, 240, 248, 255 );
@@ -357,7 +362,6 @@ public class GuiResource {
     colorLightBlue = new ManagedColor( display, 135, 206, 250 ); // light sky blue
 
     colorDirectory = new ManagedColor( display, 0, 0, 255 );
-    // colorHop = new ManagedColor(display, 239, 128, 51 ); // Orange
     colorHop = new ManagedColor( display, 188, 198, 82 );
     colorLight = new ManagedColor( display, 238, 248, 152 );
     colorCream = new ManagedColor( display, 248, 246, 231 );
@@ -366,9 +370,10 @@ public class GuiResource {
 
     colorHopDefault = new ManagedColor( display, 61, 99, 128 );
 
-    colorHopOK = new ManagedColor( display, 12, 178, 15 );
+    colorHopTrue = new ManagedColor( display, 12, 178, 15 );
 
     colorDeprecated = new ManagedColor( display, 246, 196, 56 );
+    
     // Load all images from files...
     loadFonts();
     loadCommonImages();
@@ -390,6 +395,8 @@ public class GuiResource {
     colorGray.dispose();
     colorYellow.dispose();
     colorMagenta.dispose();
+    colorPurpule.dispose();
+    colorIndigo.dispose();
     colorOrange.dispose();
     colorBlueCustomGrid.dispose();
 
@@ -455,8 +462,6 @@ public class GuiResource {
       imageShowResults.dispose();
       imageHideResults.dispose();
       imageCollapseAll.dispose();
-      imageTransformError.dispose();
-      imageRedTransformError.dispose();
       imageCopyRows.dispose();
       imageError.dispose();
       imageInfo.dispose();
@@ -474,6 +479,8 @@ public class GuiResource {
       imageTarget.dispose();
       imageTrue.dispose();
       imageFalse.dispose();
+      imageFailure.dispose();
+      imageSuccess.dispose();
       imageContextMenu.dispose();
       imageParallelHop.dispose();
       imageUnconditionalHop.dispose();
@@ -500,7 +507,8 @@ public class GuiResource {
       imageSearch.dispose();    
       
       imageArrowDefault.dispose();
-      imageArrowOk.dispose();
+      imageArrowTrue.dispose();
+      imageArrowFalse.dispose();
       imageArrowError.dispose();
       imageArrowDisabled.dispose();
       imageArrowCandidate.dispose();
@@ -730,9 +738,9 @@ public class GuiResource {
     imageLocked = SwtSvgImageUtil.getImageAsResource( display, "ui/images/lock.svg" );
     imageBol = SwtSvgImageUtil.getImageAsResource( display, "ui/images/bol.svg" );   
     imageClearText = SwtSvgImageUtil.getImageAsResource( display, "ui/images/clear-text.svg" );
-    imageTransformError = SwtSvgImageUtil.getImageAsResource( display, "ui/images/show-error-lines.svg" );
-    imageRedTransformError = SwtSvgImageUtil.getImageAsResource( display, "ui/images/transform-error.svg" );
     imageCopyRows = SwtSvgImageUtil.getImageAsResource( display, "ui/images/copy-rows.svg" );
+    imageFailure = SwtSvgImageUtil.getImageAsResource( display, "ui/images/failure.svg" );
+    imageSuccess = SwtSvgImageUtil.getImageAsResource( display, "ui/images/success.svg" );
     imageError = SwtSvgImageUtil.getImageAsResource( display, "ui/images/error.svg" );
     imageInfo = SwtSvgImageUtil.getImageAsResource( display, "ui/images/info.svg" );
     imageWarning = SwtSvgImageUtil.getImageAsResource( display, "ui/images/warning.svg" );    
@@ -754,7 +762,8 @@ public class GuiResource {
     // Hop arrow
     //
     imageArrowDefault = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-default.svg" );
-    imageArrowOk = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-ok.svg" );
+    imageArrowTrue = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-true.svg" );
+    imageArrowFalse = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-false.svg" );
     imageArrowError = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-error.svg" );
     imageArrowDisabled = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-disabled.svg" );
     imageArrowCandidate = SwtSvgImageUtil.getImageAsResource( display, "ui/images/hop-arrow-candidate.svg" );
@@ -925,6 +934,14 @@ public class GuiResource {
     return colorMagenta.getColor();
   }
 
+  public Color getColorPurpule() {
+    return colorPurpule.getColor();
+  }
+
+  public Color getColorIndigo() {
+    return colorIndigo.getColor();
+  }
+    
   /**
    * @return Returns the colorOrange.
    */
@@ -1297,8 +1314,8 @@ public class GuiResource {
   /**
    * @return the default color the hop lines for the "OK" condition
    */
-  public Color getColorHopOK() {
-    return colorHopOK.getColor();
+  public Color getColorHopTrue() {
+    return colorHopTrue.getColor();
   }
 
   /**
@@ -1324,38 +1341,6 @@ public class GuiResource {
       gc.setBackground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
       gc.fillGradientRectangle( rect.x, rect.y + 2 * rect.height / 3, rect.width, rect.height / 3 + 1, vertical );
     }
-  }
-
-  /**
-   * Generic popup with a toggle option
-   *
-   * @param dialogTitle
-   * @param image
-   * @param message
-   * @param dialogImageType
-   * @param buttonLabels
-   * @param defaultIndex
-   * @param toggleMessage
-   * @param toggleState
-   * @return
-   */
-  public Object[] messageDialogWithToggle( Shell shell, String dialogTitle, Image image, String message,
-                                           int dialogImageType, String[] buttonLabels, int defaultIndex,
-                                           String toggleMessage, boolean toggleState ) {
-    int imageType = 0;
-    switch ( dialogImageType ) {
-      case Const.WARNING:
-        imageType = MessageDialog.WARNING;
-        break;
-      default:
-        break;
-    }
-
-    MessageDialogWithToggle md =
-      new MessageDialogWithToggle( shell, dialogTitle, image, message, imageType, buttonLabels, defaultIndex,
-        toggleMessage, toggleState );
-    int idx = md.open();
-    return new Object[] { Integer.valueOf( idx ), Boolean.valueOf( md.getToggleState() ) };
   }
 
   public static Point calculateControlPosition( Control control ) {
@@ -1502,22 +1487,6 @@ public class GuiResource {
     return imageCollapseAll;
   }
 
-  public Image getImageTransformError() {
-    return getZoomedImaged( imageTransformError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  public SwtUniversalImage getSwtImageTransformError() {
-    return imageTransformError;
-  }
-
-  public Image getImageRedTransformError() {
-    return getZoomedImaged( imageRedTransformError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  public SwtUniversalImage getSwtImageRedTransformError() {
-    return imageRedTransformError;
-  }
-
   public Image getImageCopyHop() {
     return getZoomedImaged( imageCopyRows, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
@@ -1526,7 +1495,7 @@ public class GuiResource {
     return imageCopyRows;
   }
 
-  public Image getImageErrorHop() {
+  public Image getImageError() {
     return getZoomedImaged( imageError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
@@ -1720,11 +1689,27 @@ public class GuiResource {
   public Image getImageFalse() {
     return getZoomedImaged( imageFalse, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
-
+  
   public SwtUniversalImage getSwtImageFalse() {
     return imageFalse;
   }
 
+  public Image getImageFailure() {
+    return getZoomedImaged( imageFailure, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+  }
+  
+  public SwtUniversalImage getSwtImageFailure() {
+    return imageFailure;
+  }
+
+  public Image getImageSuccess() {
+    return getZoomedImaged( imageSuccess, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+  }
+  
+  public SwtUniversalImage getSwtImageSuccess() {
+    return imageSuccess;
+  }
+  
   /**
    * @return the imageContextMenu
    */
@@ -1828,10 +1813,14 @@ public class GuiResource {
     return imageArrowDefault;
   }
 
-  public SwtUniversalImage getSwtImageArrowOk() {
-    return imageArrowOk;
+  public SwtUniversalImage getSwtImageArrowTrue() {
+    return imageArrowTrue;
   }
 
+  public SwtUniversalImage getSwtImageArrowFalse() {
+    return imageArrowFalse;
+  }
+  
   public SwtUniversalImage getSwtImageArrowError() {
     return imageArrowError;
   }

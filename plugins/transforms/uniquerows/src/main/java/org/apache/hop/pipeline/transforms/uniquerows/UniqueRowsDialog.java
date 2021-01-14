@@ -29,13 +29,12 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
@@ -48,7 +47,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "UniqueSortWarning";
 
@@ -402,14 +401,11 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     if ( "Y".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) ) {
       MessageDialogWithToggle md = new MessageDialogWithToggle( shell,
         BaseMessages.getString( PKG, "UniqueRowsDialog.InputNeedSort.DialogTitle" ),
-        null,
         BaseMessages.getString( PKG, "UniqueRowsDialog.InputNeedSort.DialogMessage", Const.CR ) + Const.CR,
-        MessageDialog.WARNING,
+        SWT.ICON_WARNING,
         new String[] { BaseMessages.getString( PKG, "UniqueRowsDialog.InputNeedSort.Option1" ) },
-        0,
         BaseMessages.getString( PKG, "UniqueRowsDialog.InputNeedSort.Option2" ),
         "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
     }

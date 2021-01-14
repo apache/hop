@@ -142,35 +142,35 @@ public class UIGitTest extends RepositoryTestCase {
   @Test
   public void testGetUnstagedAndStagedObjects() throws Exception {
     // Create files
-    File a = writeTrashFile( "a.ktr", "1234567" );
-    File b = writeTrashFile( "b.kjb", "content" );
-    File c = writeTrashFile( "c.kjb", "abcdefg" );
+    File a = writeTrashFile( "a.hpl", "1234567" );
+    File b = writeTrashFile( "b.hwf", "content" );
+    File c = writeTrashFile( "c.hwf", "abcdefg" );
 
     // Test for unstaged
     List<UIFile> unStagedObjects = uiGit.getUnstagedFiles();
     assertEquals( 3, unStagedObjects.size() );
-    assertTrue( unStagedObjects.stream().anyMatch( obj -> obj.getName().equals( "a.ktr" ) ) );
+    assertTrue( unStagedObjects.stream().anyMatch( obj -> obj.getName().equals( "a.hpl" ) ) );
 
     // Test for staged
     git.add().addFilepattern( "." ).call();
     List<UIFile> stagedObjects = uiGit.getStagedFiles();
     assertEquals( 3, stagedObjects.size() );
-    assertTrue( stagedObjects.stream().anyMatch( obj -> obj.getName().equals( "a.ktr" ) ) );
+    assertTrue( stagedObjects.stream().anyMatch( obj -> obj.getName().equals( "a.hpl" ) ) );
 
     // Make a commit
     RevCommit commit = git.commit().setMessage( "initial commit" ).call();
     stagedObjects = uiGit.getStagedFiles( commit.getId().name() + "~", commit.getId().name() );
     assertEquals( 3, stagedObjects.size() );
-    assertTrue( stagedObjects.stream().anyMatch( obj -> obj.getName().equals( "b.kjb" ) ) );
+    assertTrue( stagedObjects.stream().anyMatch( obj -> obj.getName().equals( "b.hwf" ) ) );
 
     // Change
-    a.renameTo( new File( git.getRepository().getWorkTree(), "a2.ktr" ) );
+    a.renameTo( new File( git.getRepository().getWorkTree(), "a2.hpl" ) );
     b.delete();
     FileUtils.writeStringToFile( c, "A change" );
 
     // Test for unstaged
     unStagedObjects = uiGit.getUnstagedFiles();
-    assertEquals( ChangeType.DELETE, unStagedObjects.stream().filter( obj -> obj.getName().equals( "b.kjb" ) ).findFirst().get().getChangeType() );
+    assertEquals( ChangeType.DELETE, unStagedObjects.stream().filter( obj -> obj.getName().equals( "b.hwf" ) ).findFirst().get().getChangeType() );
 
     // Test for staged
     git.add().addFilepattern( "." ).call();
@@ -178,9 +178,9 @@ public class UIGitTest extends RepositoryTestCase {
     git.rm().addFilepattern( b.getName() ).call();
     stagedObjects = uiGit.getStagedFiles();
     assertEquals( 4, stagedObjects.size() );
-    assertEquals( ChangeType.DELETE, stagedObjects.stream().filter( obj -> obj.getName().equals( "b.kjb" ) ).findFirst().get().getChangeType() );
-    assertEquals( ChangeType.ADD, stagedObjects.stream().filter( obj -> obj.getName().equals( "a2.ktr" ) ).findFirst().get().getChangeType() );
-    assertEquals( ChangeType.MODIFY, stagedObjects.stream().filter( obj -> obj.getName().equals( "c.kjb" ) ).findFirst().get().getChangeType() );
+    assertEquals( ChangeType.DELETE, stagedObjects.stream().filter( obj -> obj.getName().equals( "b.hwf" ) ).findFirst().get().getChangeType() );
+    assertEquals( ChangeType.ADD, stagedObjects.stream().filter( obj -> obj.getName().equals( "a2.hpl" ) ).findFirst().get().getChangeType() );
+    assertEquals( ChangeType.MODIFY, stagedObjects.stream().filter( obj -> obj.getName().equals( "c.hwf" ) ).findFirst().get().getChangeType() );
   }
 
   @Test

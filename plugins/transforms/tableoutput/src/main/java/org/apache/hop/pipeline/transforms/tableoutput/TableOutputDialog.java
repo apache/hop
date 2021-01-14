@@ -59,7 +59,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -978,7 +978,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     String close = BaseMessages.getString( PKG, "System.Button.Close" );
 
     MessageDialog dialog =
-      new MessageDialog( shell, title, GuiResource.getInstance().getImageHopUi(), message, MessageDialog.WARNING,
+      new MessageDialog( shell, title, GuiResource.getInstance().getImageHopUi(), message, SWT.ICON_WARNING,
         new String[] { close }, 0 );
     dialog.open();
   }

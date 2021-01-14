@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 20-02-2008
  */
 public class ActionPGPEncryptFilesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobPGPEncryptFiles.Filetype.All" ) };

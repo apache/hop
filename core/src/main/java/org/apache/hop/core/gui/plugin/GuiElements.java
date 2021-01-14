@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.gui.plugin;
 
@@ -109,18 +104,11 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage() );
+    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), field.getDeclaringClass().getName() );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
-    this.label = calculateI18n( i18nPackage, guiElement.label() );
-    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip() );
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
-      this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
-    } else {
-      this.label = guiElement.label();
-      this.toolTip = guiElement.toolTip();
-    }
+    this.label = calculateI18n( i18nPackage, guiElement.label(), field.getDeclaringClass() );
+    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip(), field.getDeclaringClass() );
   }
 
 

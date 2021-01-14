@@ -42,7 +42,7 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implem
     super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -54,7 +54,7 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implem
       aggregates[ i ] = MemoryGroupByMeta.getTypeDesc( meta.getAggregateType()[ i ] );
     }
 
-    PTransform<PCollection<HopRow>, PCollection<HopRow>> stepTransform = new GroupByTransform(
+    PTransform<PCollection<HopRow>, PCollection<HopRow>> transformTransform = new GroupByTransform(
       transformMeta.getName(),
       JsonRowMeta.toJson( rowMeta ),  // The io row
       transformPluginClasses,
@@ -67,11 +67,11 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implem
 
     // Apply the transform transform to the previous io transform PCollection(s)
     //
-    PCollection<HopRow> stepPCollection = input.apply( transformMeta.getName(), stepTransform );
+    PCollection<HopRow> transformPCollection = input.apply( transformMeta.getName(), transformTransform );
 
     // Save this in the map
     //
-    stepCollectionMap.put( transformMeta.getName(), stepPCollection );
+    transformCollectionMap.put( transformMeta.getName(), transformPCollection );
     log.logBasic( "Handled Group By (STEP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
   }
 }

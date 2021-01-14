@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.*;
  * @since 05-11-2009
  */
 public class ActionWebServiceAvailableDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWebServiceAvailable.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
 
   private Text wName;
 

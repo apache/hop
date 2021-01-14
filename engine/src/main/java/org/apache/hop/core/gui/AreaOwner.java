@@ -1,31 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.gui;
 
 import java.util.List;
 
 /**
- * When we draw something in HopGui (PipelinePainter) we keep a list of all the things we draw and the object that's behind
+ * When we draw something in HopGui {@link org.apache.hop.pipeline.PipelinePainter} or {@link org.apache.hop.workflow.WorkflowPainter} we keep a list of all the things we draw and the object that's behind
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
  *
  * @author Matt
@@ -33,7 +28,7 @@ import java.util.List;
 public class AreaOwner<Parent, Owner> {
 
   public enum AreaType {
-    NOTE, TRANSFORM_PARTITIONING, TRANSFORM_ICON, TRANSFORM_NAME, TRANSFORM_ERROR_ICON, TRANSFORM_ERROR_RED_ICON,
+    NOTE, TRANSFORM_PARTITIONING, TRANSFORM_ICON, TRANSFORM_NAME, TRANSFORM_FAILURE_ICON,
     TRANSFORM_INPUT_HOP_ICON, TRANSFORM_OUTPUT_HOP_ICON, TRANSFORM_INFO_HOP_ICON,
     TRANSFORM_ERROR_HOP_ICON, TRANSFORM_TARGET_HOP_ICON,
     HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON,

@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 2-jun-2003
  */
 public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData> implements ITransform<RowsToResultMeta, RowsToResultData> {
-  private static final Class<?> PKG = RowsToResult.class; // Needed by Translator
+  private static final Class<?> PKG = RowsToResult.class; // For Translator
 
   public RowsToResult( TransformMeta transformMeta, RowsToResultMeta meta, RowsToResultData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

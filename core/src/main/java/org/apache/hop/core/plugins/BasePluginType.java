@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
@@ -56,7 +57,7 @@ import org.w3c.dom.Node;
 import com.google.common.annotations.VisibleForTesting;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
-  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // Needed by Translator
+  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // For Translator
 
   protected String id;
   protected String name;
@@ -257,7 +258,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       return null;
     }
 
-    if ( codedString.startsWith( "i18n:" ) ) {
+    if ( codedString.startsWith( Const.I18N_PREFIX ) ) {
       String[] parts = codedString.split( ":" );
       if ( parts.length != 3 ) {
         return codedString;
@@ -286,12 +287,32 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       return null;
     }
 
-    if ( string.startsWith( "i18n:" ) ) {
+    if ( string.startsWith( Const.I18N_PREFIX ) ) {
+
+      if (string.startsWith("i18n::BaseTransform.Category")) {
+        System.out.println("Debug");
+        try {
+          Thread.sleep( 10000 );
+        } catch ( InterruptedException e ) {
+          //
+        }
+        System.out.println("Debug");
+      }
       String[] parts = string.split( ":" );
       if ( parts.length != 3 ) {
         return string;
       } else {
-        return BaseMessages.getString( parts[ 1 ], parts[ 2 ] );
+        String i18nPackage = parts[1];
+        if ( StringUtils.isEmpty( i18nPackage )) {
+          i18nPackage = Const.NVL(packageName, altPackageName);
+        }
+        String i18nKey = parts[2];
+
+        String translation = BaseMessages.getString( i18nPackage, i18nKey, resourceClass );
+        if (translation.startsWith( "!" ) && translation.endsWith( "!" )) {
+          translation = BaseMessages.getString( i18nPackage, i18nKey );
+        }
+        return translation;
       }
     } else {
       // Try the default package name

@@ -67,7 +67,7 @@ import java.util.ArrayList;
 
 public class PipelineDialog extends Dialog {
 
-  private static final Class<?> PKG = PipelineDialog.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineDialog.class; // For Translator
 
   public enum Tabs {
     PIPELINE_TAB, PARAM_TAB, MISC_TAB, MONITOR_TAB, EXTRA_TAB,

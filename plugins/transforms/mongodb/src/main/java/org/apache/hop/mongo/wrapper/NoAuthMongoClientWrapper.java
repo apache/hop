@@ -45,7 +45,7 @@ import java.util.Set;
  * instantiated by MongoClientWrapperFactory.
  */
 class NoAuthMongoClientWrapper implements MongoClientWrapper {
-  private static Class<?> PKG = NoAuthMongoClientWrapper.class;
+  private static Class<?> PKG = NoAuthMongoClientWrapper.class; // For Translator
   public static final int MONGO_DEFAULT_PORT = 27017;
 
   public static final String LOCAL_DB = "local";

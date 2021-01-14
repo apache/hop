@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.getpop;
 
@@ -33,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 
 public class MailConnectionMeta {
-  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
+  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
   public static final String FOLDER_SEPARATOR = "/";
 
@@ -53,9 +47,9 @@ public class MailConnectionMeta {
   public static final int DEFAULT_SSL_IMAP_PORT = 993;
 
   public static final String[] actionTypeDesc = new String[] {
-    BaseMessages.getString( PKG, "JobGetPOP.ActionType.GetMessages.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ActionType.MoveMessages.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ActionType.DeleteMessages.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ActionType.GetMessages.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ActionType.MoveMessages.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ActionType.DeleteMessages.Label" ),
 
   };
   public static final String[] actionTypeCode = new String[] { "get", "move", "delete" };
@@ -64,11 +58,11 @@ public class MailConnectionMeta {
   public static final int ACTION_TYPE_DELETE = 2;
 
   public static final String[] conditionDateDesc = new String[] {
-    BaseMessages.getString( PKG, "JobGetPOP.ConditionIgnore.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ConditionEqual.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ConditionSmaller.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ConditionGreater.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.ConditionBetween.Label" )
+    BaseMessages.getString( PKG, "ActionGetPOP.ConditionIgnore.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ConditionEqual.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ConditionSmaller.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ConditionGreater.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.ConditionBetween.Label" )
 
   };
   public static final String[] conditionDateCode = new String[] {
@@ -80,17 +74,17 @@ public class MailConnectionMeta {
   public static final int CONDITION_DATE_BETWEEN = 4;
 
   public static final String[] valueIMAPListDesc = new String[] {
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetAll.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetNew.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetOld.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetRead.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetUnread.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetFlagged.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetUnFlagged.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetDraft.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetNotDraft.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetAnswered.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.IMAPListGetNotAnswered.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetAll.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetNew.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetOld.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetRead.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetUnread.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetFlagged.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetUnFlagged.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetDraft.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetNotDraft.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetAnswered.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.IMAPListGetNotAnswered.Label" ),
 
   };
   public static final String[] valueIMAPListCode = new String[] {
@@ -109,9 +103,9 @@ public class MailConnectionMeta {
   public static final int VALUE_IMAP_LIST_NOT_ANSWERED = 10;
 
   public static final String[] afterGetIMAPDesc = new String[] {
-    BaseMessages.getString( PKG, "JobGetPOP.afterGetIMAP.Nothing.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.afterGetIMAP.Delete.Label" ),
-    BaseMessages.getString( PKG, "JobGetPOP.afterGetIMAP.MoveTo.Label" )
+    BaseMessages.getString( PKG, "ActionGetPOP.afterGetIMAP.Nothing.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.afterGetIMAP.Delete.Label" ),
+    BaseMessages.getString( PKG, "ActionGetPOP.afterGetIMAP.MoveTo.Label" )
 
   };
   public static final String[] afterGetIMAPCode = new String[] { "nothing", "delete", "move" };

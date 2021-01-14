@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   private LabelTextVar wResultField;
   private CCombo wField, wXSLField;

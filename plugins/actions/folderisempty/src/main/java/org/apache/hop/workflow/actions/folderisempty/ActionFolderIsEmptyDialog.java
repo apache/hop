@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.*;
  */
 
 public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFolderIsEmpty.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
 
   private Text wName;
 

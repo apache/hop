@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  */
 public class PluginRegistry {
 
-  private static final Class<?> PKG = PluginRegistry.class; // Needed by Translator
+  private static final Class<?> PKG = PluginRegistry.class; // For Translator
 
   private static final PluginRegistry pluginRegistry = new PluginRegistry();
 
@@ -507,7 +507,7 @@ public class PluginRegistry {
     }
   }
 
-  private void registerType( IPluginType pluginType ) throws HopPluginException {
+  public void registerType( IPluginType pluginType ) throws HopPluginException {
     registerPluginType( pluginType.getClass() );
 
     // Search plugins for this type...

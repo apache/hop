@@ -78,9 +78,7 @@ import java.util.List;
 
 /** This class provides functionality common to Transform Dialogs. */
 public class BaseTransformDialog extends Dialog {
-
-  /** The package name used for internationalization */
-  private static final Class<?> PKG = ITransform.class; // Needed by Translator
+  private static final Class<?> PKG = ITransform.class; // For Translator
 
   /** The logging object interface for this dialog. */
   public static final ILoggingObject loggingObject =
@@ -975,7 +973,7 @@ public class BaseTransformDialog extends Dialog {
                 "BaseTransformDialog.GetFieldsChoice.Message",
                 "" + existingFields,
                 "" + newFields),
-            MessageDialog.WARNING,
+            SWT.ICON_WARNING,
             new String[] {
               BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Add"),

@@ -91,7 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Workflow extends Variables implements IVariables, INamedParameters, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IWorkflowEngine<WorkflowMeta> {
-  protected static Class<?> PKG = Workflow.class; // Needed by Translator
+  protected static Class<?> PKG = Workflow.class; // For Translator
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__workflow_execution_configuration__.xml";
 

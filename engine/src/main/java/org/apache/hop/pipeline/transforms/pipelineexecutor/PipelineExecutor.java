@@ -62,7 +62,7 @@ import java.util.Map;
  */
 public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> implements ITransform<PipelineExecutorMeta, PipelineExecutorData> {
 
-  private static final Class<?> PKG = PipelineExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
 
   public PipelineExecutor( TransformMeta transformMeta, PipelineExecutorMeta meta, PipelineExecutorData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {

@@ -61,7 +61,7 @@ import java.util.List;
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>
     implements ITransformMeta<MongoDbInput, MongoDbInputData> {
-  protected static Class<?> PKG = MongoDbInputMeta.class; // for i18n purposes
+  protected static Class<?> PKG = MongoDbInputMeta.class; // For Translator
 
   @Injection(name = "JSON_OUTPUT_FIELD")
   private String jsonFieldName;
@@ -100,8 +100,8 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   }
 
   @Override
-  public void loadXml(Node stepnode, IHopMetadataProvider metaStore) throws HopXmlException {
-    readData(stepnode);
+  public void loadXml(Node transformnode, IHopMetadataProvider metaStore) throws HopXmlException {
+    readData(transformnode);
   }
 
   @Override
@@ -110,59 +110,59 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
     return retval;
   }
 
-  private void readData(Node stepnode) throws HopXmlException {
+  private void readData(Node transformnode) throws HopXmlException {
     try {
-      setHostnames(XmlHandler.getTagValue(stepnode, "hostname"));
-      setPort(XmlHandler.getTagValue(stepnode, "port"));
-      setDbName(XmlHandler.getTagValue(stepnode, "db_name"));
-      fields = XmlHandler.getTagValue(stepnode, "fields_name");
-      setCollection(XmlHandler.getTagValue(stepnode, "collection"));
-      jsonFieldName = XmlHandler.getTagValue(stepnode, "json_field_name");
-      jsonQuery = XmlHandler.getTagValue(stepnode, "json_query");
-      setAuthenticationDatabaseName(XmlHandler.getTagValue(stepnode, "auth_database"));
-      setAuthenticationUser(XmlHandler.getTagValue(stepnode, "auth_user"));
+      setHostnames(XmlHandler.getTagValue(transformnode, "hostname"));
+      setPort(XmlHandler.getTagValue(transformnode, "port"));
+      setDbName(XmlHandler.getTagValue(transformnode, "db_name"));
+      fields = XmlHandler.getTagValue(transformnode, "fields_name");
+      setCollection(XmlHandler.getTagValue(transformnode, "collection"));
+      jsonFieldName = XmlHandler.getTagValue(transformnode, "json_field_name");
+      jsonQuery = XmlHandler.getTagValue(transformnode, "json_query");
+      setAuthenticationDatabaseName(XmlHandler.getTagValue(transformnode, "auth_database"));
+      setAuthenticationUser(XmlHandler.getTagValue(transformnode, "auth_user"));
       setAuthenticationPassword(
           Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(stepnode, "auth_password")));
+              XmlHandler.getTagValue(transformnode, "auth_password")));
 
-      setAuthenticationMechanism(XmlHandler.getTagValue(stepnode, "auth_mech"));
+      setAuthenticationMechanism(XmlHandler.getTagValue(transformnode, "auth_mech"));
       boolean kerberos = false;
-      String useKerberos = XmlHandler.getTagValue(stepnode, "auth_kerberos");
+      String useKerberos = XmlHandler.getTagValue(transformnode, "auth_kerberos");
       if (!StringUtils.isEmpty(useKerberos)) {
         kerberos = useKerberos.equalsIgnoreCase("Y");
       }
       setUseKerberosAuthentication(kerberos);
 
-      setConnectTimeout(XmlHandler.getTagValue(stepnode, "connect_timeout"));
-      setSocketTimeout(XmlHandler.getTagValue(stepnode, "socket_timeout"));
+      setConnectTimeout(XmlHandler.getTagValue(transformnode, "connect_timeout"));
+      setSocketTimeout(XmlHandler.getTagValue(transformnode, "socket_timeout"));
 
-      String useSSLSocketFactory = XmlHandler.getTagValue(stepnode, "use_ssl_socket_factory");
+      String useSSLSocketFactory = XmlHandler.getTagValue(transformnode, "use_ssl_socket_factory");
       if (!Utils.isEmpty(useSSLSocketFactory)) {
         setUseSSLSocketFactory(useSSLSocketFactory.equalsIgnoreCase("Y"));
       }
 
-      setReadPreference(XmlHandler.getTagValue(stepnode, "read_preference"));
+      setReadPreference(XmlHandler.getTagValue(transformnode, "read_preference"));
 
       outputJson = true; // default to true for backwards compatibility
-      String outputJson = XmlHandler.getTagValue(stepnode, "output_json");
+      String outputJson = XmlHandler.getTagValue(transformnode, "output_json");
       if (!StringUtils.isEmpty(outputJson)) {
         this.outputJson = outputJson.equalsIgnoreCase("Y");
       }
 
       setUseAllReplicaSetMembers(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(stepnode, "use_all_replica_members")));
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "use_all_replica_members")));
 
-      String queryIsPipe = XmlHandler.getTagValue(stepnode, "query_is_pipeline");
+      String queryIsPipe = XmlHandler.getTagValue(transformnode, "query_is_pipeline");
       if (!StringUtils.isEmpty(queryIsPipe)) {
         aggPipeline = queryIsPipe.equalsIgnoreCase("Y");
       }
 
-      String executeForEachR = XmlHandler.getTagValue(stepnode, "execute_for_each_row");
+      String executeForEachR = XmlHandler.getTagValue(transformnode, "execute_for_each_row");
       if (!StringUtils.isEmpty(executeForEachR)) {
         executeForEachIncomingRow = executeForEachR.equalsIgnoreCase("Y");
       }
 
-      Node mongo_fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
+      Node mongo_fields = XmlHandler.getSubNode(transformnode, "mongo_fields");
       if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
         int nrFields = XmlHandler.countNodes(mongo_fields, "mongo_field");
 
@@ -183,7 +183,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         }
       }
 
-      String tags = XmlHandler.getTagValue(stepnode, "tag_sets");
+      String tags = XmlHandler.getTagValue(transformnode, "tag_sets");
       if (!StringUtils.isEmpty(tags)) {
         setReadPrefTagSets( new ArrayList<>());
 

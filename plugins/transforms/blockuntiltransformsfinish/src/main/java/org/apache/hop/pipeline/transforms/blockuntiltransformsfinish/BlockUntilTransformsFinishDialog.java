@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // Needed by Translator
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 
   private String[] previousTransforms;
   private final BlockUntilTransformsFinishMeta input;
@@ -118,7 +118,7 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
     ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
     colinf[ 0 ] =
       new ColumnInfo(
-        BaseMessages.getString( PKG, "BlockUntilTransformsFinishDialog.Fieldname.Transform" ),
+        BaseMessages.getString( PKG, "BlockUntilTransformsFinishDialog.Fieldname.transform" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, previousTransforms, false );
     colinf[ 1 ] =
       new ColumnInfo(

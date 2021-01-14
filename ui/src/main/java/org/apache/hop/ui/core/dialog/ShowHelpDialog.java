@@ -1,15 +1,12 @@
 /*
- * Hop : The Hop Orchestration Platform
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- * **************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,10 +53,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
-
   private static final Class<?> PKG = HopGui.class;
 
-  private static final String DOC_URL = Const.getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
+  private static final String DOC_URL =
+      Const.getDocUrl(BasePropertyHandler.getProperty("documentationUrl"));
   private static final String PREFIX = "https://help";
   private static final String PRINT_PREFIX = "https://f1.help";
   private static final String PRINT_SCRIPT = "javascript:window.print();";
@@ -85,15 +82,15 @@ public class ShowHelpDialog extends Dialog {
   private ToolItem tltmPrint;
 
   private Image imageBackEnabled;
-  //private Image imageBackDisabled;
+  // private Image imageBackDisabled;
   private Image imageForwardEnabled;
-  //private Image imageForwardDisabled;
+  // private Image imageForwardDisabled;
   private Image imageRefreshEnabled;
-  //private Image imageRefreshDisabled;
+  // private Image imageRefreshDisabled;
   private Image imageHomeEnabled;
-  //private Image imageHomeDisabled;
+  // private Image imageHomeDisabled;
   private Image imagePrintEnabled;
-  //private Image imagePrintDisabled;
+  // private Image imagePrintDisabled;
   private Text textURL;
 
   private Cursor cursorEnabled;
@@ -103,143 +100,143 @@ public class ShowHelpDialog extends Dialog {
   private Display display;
   private PropsUi props;
 
-  public ShowHelpDialog( Shell parent, String dialogTitle, String url, String header ) {
-    super( parent, SWT.NONE );
+  public ShowHelpDialog(Shell parent, String dialogTitle, String url, String header) {
+    super(parent, SWT.NONE);
     props = PropsUi.getInstance();
-    this.dialogTitle = BaseMessages.getString( PKG, "HopGui.Documentation.Hop.Title" );
+    this.dialogTitle = BaseMessages.getString(PKG, "HopGui.Documentation.Hop.Title");
     this.url = url;
     try {
-      this.homeURL = new URL( DOC_URL ).toString();
-    } catch ( MalformedURLException e ) {
+      this.homeURL = new URL(DOC_URL).toString();
+    } catch (MalformedURLException e) {
     }
   }
 
-  public ShowHelpDialog( Shell parent, String dialogTitle, String url ) {
-    this( parent, dialogTitle, url, "" );
+  public ShowHelpDialog(Shell parent, String dialogTitle, String url) {
+    this(parent, dialogTitle, url, "");
   }
 
-  protected Shell createShell( Shell parent ) {
-    return new Shell( parent, SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.DIALOG_TRIM );
+  protected Shell createShell(Shell parent) {
+    return new Shell(parent, SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.DIALOG_TRIM);
   }
 
   public void open() {
     Shell parent = getParent();
     display = parent.getDisplay();
 
-    shell = createShell( parent );
-    shell.setImage( GuiResource.getInstance().getImageHopUi() );
-    props.setLook( shell );
+    shell = createShell(parent);
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    props.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
 
-    shell.setLayout( formLayout );
-    shell.setText( dialogTitle );
+    shell.setLayout(formLayout);
+    shell.setText(dialogTitle);
 
-    //Set Images
+    // Set Images
     setImages();
 
     // Canvas
-    wBrowser = new Browser( shell, SWT.NONE );
-    props.setLook( wBrowser );
+    wBrowser = new Browser(shell, SWT.NONE);
+    props.setLook(wBrowser);
 
     FormData fdBrowser = new FormData();
-    fdBrowser.top = new FormAttachment( 0, TOOLBAR_HEIGHT + MARGIN );
-    fdBrowser.right = new FormAttachment( 100, 0 );
-    fdBrowser.bottom = new FormAttachment( 100, 0 );
-    fdBrowser.left = new FormAttachment( 0, 0 );
-    wBrowser.setLayoutData( fdBrowser );
+    fdBrowser.top = new FormAttachment(0, TOOLBAR_HEIGHT + MARGIN);
+    fdBrowser.right = new FormAttachment(100, 0);
+    fdBrowser.bottom = new FormAttachment(100, 0);
+    fdBrowser.left = new FormAttachment(0, 0);
+    wBrowser.setLayoutData(fdBrowser);
 
-    toolBarBack = new ToolBar( shell, SWT.FLAT );
+    toolBarBack = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarBack = new FormData();
-    fdtoolBarBack.top = new FormAttachment( 0, MARGIN );
-    fdtoolBarBack.right = new FormAttachment( 0, 27 );
-    toolBarBack.setLayoutData( fdtoolBarBack );
-    toolBarBack.setCursor( cursorDisabled );
-    toolBarBack.setBackground( toolBarBack.getParent().getBackground() );
+    fdtoolBarBack.top = new FormAttachment(0, MARGIN);
+    fdtoolBarBack.right = new FormAttachment(0, 27);
+    toolBarBack.setLayoutData(fdtoolBarBack);
+    toolBarBack.setCursor(cursorDisabled);
+    toolBarBack.setBackground(toolBarBack.getParent().getBackground());
 
-    tltmBack = new ToolItem( toolBarBack, SWT.NONE );
-    tltmBack.setImage( imageBackEnabled );
-   // tltmBack.setDisabledImage( imageBackDisabled );
-    tltmBack.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Back" ) );
-    tltmBack.setEnabled( false );
+    tltmBack = new ToolItem(toolBarBack, SWT.NONE);
+    tltmBack.setImage(imageBackEnabled);
+    // tltmBack.setDisabledImage( imageBackDisabled );
+    tltmBack.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Back"));
+    tltmBack.setEnabled(false);
 
-    toolBarForward = new ToolBar( shell, SWT.FLAT );
+    toolBarForward = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarForward = new FormData();
-    fdtoolBarForward.top = new FormAttachment( 0, MARGIN );
-    fdtoolBarForward.right = new FormAttachment( toolBarBack, TOOL_ITEM_WIDTH );
-    toolBarForward.setLayoutData( fdtoolBarForward );
-    toolBarForward.setCursor( cursorDisabled );
-    toolBarForward.setBackground( toolBarForward.getParent().getBackground() );
+    fdtoolBarForward.top = new FormAttachment(0, MARGIN);
+    fdtoolBarForward.right = new FormAttachment(toolBarBack, TOOL_ITEM_WIDTH);
+    toolBarForward.setLayoutData(fdtoolBarForward);
+    toolBarForward.setCursor(cursorDisabled);
+    toolBarForward.setBackground(toolBarForward.getParent().getBackground());
 
-    tltmForward = new ToolItem( toolBarForward, SWT.NONE );
-    tltmForward.setImage( imageForwardEnabled );
-    //tltmForward.setDisabledImage( imageForwardDisabled );
-    tltmForward.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Forward" ) );
-    tltmForward.setEnabled( false );
+    tltmForward = new ToolItem(toolBarForward, SWT.NONE);
+    tltmForward.setImage(imageForwardEnabled);
+    // tltmForward.setDisabledImage( imageForwardDisabled );
+    tltmForward.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Forward"));
+    tltmForward.setEnabled(false);
 
-    ToolBar toolBarRefresh = new ToolBar( shell, SWT.FLAT );
+    ToolBar toolBarRefresh = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarRefresh = new FormData();
-    fdtoolBarRefresh.top = new FormAttachment( 0, MARGIN );
-    fdtoolBarRefresh.right = new FormAttachment( toolBarForward, TOOL_ITEM_WIDTH );
-    toolBarRefresh.setLayoutData( fdtoolBarRefresh );
-    toolBarRefresh.setCursor( cursorEnabled );
-    toolBarRefresh.setBackground( toolBarRefresh.getParent().getBackground() );
+    fdtoolBarRefresh.top = new FormAttachment(0, MARGIN);
+    fdtoolBarRefresh.right = new FormAttachment(toolBarForward, TOOL_ITEM_WIDTH);
+    toolBarRefresh.setLayoutData(fdtoolBarRefresh);
+    toolBarRefresh.setCursor(cursorEnabled);
+    toolBarRefresh.setBackground(toolBarRefresh.getParent().getBackground());
 
-    tltmRefresh = new ToolItem( toolBarRefresh, SWT.NONE );
-    tltmRefresh.setImage( imageRefreshEnabled );
-   // tltmRefresh.setDisabledImage( imageRefreshDisabled );
-    tltmRefresh.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Refresh" ) );
-    tltmRefresh.setEnabled( true );
+    tltmRefresh = new ToolItem(toolBarRefresh, SWT.NONE);
+    tltmRefresh.setImage(imageRefreshEnabled);
+    // tltmRefresh.setDisabledImage( imageRefreshDisabled );
+    tltmRefresh.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Refresh"));
+    tltmRefresh.setEnabled(true);
 
-    ToolBar toolBarHome = new ToolBar( shell, SWT.FLAT );
+    ToolBar toolBarHome = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarHome = new FormData();
-    fdtoolBarHome.top = new FormAttachment( 0, MARGIN );
-    fdtoolBarHome.right = new FormAttachment( toolBarRefresh, TOOL_ITEM_WIDTH );
-    toolBarHome.setLayoutData( fdtoolBarHome );
-    toolBarHome.setCursor( cursorEnabled );
-    toolBarHome.setBackground( toolBarHome.getParent().getBackground() );
+    fdtoolBarHome.top = new FormAttachment(0, MARGIN);
+    fdtoolBarHome.right = new FormAttachment(toolBarRefresh, TOOL_ITEM_WIDTH);
+    toolBarHome.setLayoutData(fdtoolBarHome);
+    toolBarHome.setCursor(cursorEnabled);
+    toolBarHome.setBackground(toolBarHome.getParent().getBackground());
 
-    tltmHome = new ToolItem( toolBarHome, SWT.NONE );
-    tltmHome.setImage( imageHomeEnabled );
- //  tltmHome.setDisabledImage( imageHomeDisabled );
-    tltmHome.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Home" ) );
-    tltmHome.setEnabled( true );
+    tltmHome = new ToolItem(toolBarHome, SWT.NONE);
+    tltmHome.setImage(imageHomeEnabled);
+    //  tltmHome.setDisabledImage( imageHomeDisabled );
+    tltmHome.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Home"));
+    tltmHome.setEnabled(true);
 
-    ToolBar toolBarPrint = new ToolBar( shell, SWT.FLAT );
+    ToolBar toolBarPrint = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarPrint = new FormData();
-    fdtoolBarPrint.top = new FormAttachment( 0, MARGIN );
-    fdtoolBarPrint.right = new FormAttachment( 100, -7 );
-    toolBarPrint.setLayoutData( fdtoolBarPrint );
-    toolBarPrint.setCursor( cursorEnabled );
-    toolBarPrint.setBackground( toolBarPrint.getParent().getBackground() );
+    fdtoolBarPrint.top = new FormAttachment(0, MARGIN);
+    fdtoolBarPrint.right = new FormAttachment(100, -7);
+    toolBarPrint.setLayoutData(fdtoolBarPrint);
+    toolBarPrint.setCursor(cursorEnabled);
+    toolBarPrint.setBackground(toolBarPrint.getParent().getBackground());
 
-    tltmPrint = new ToolItem( toolBarPrint, SWT.NONE );
-    tltmPrint.setImage( imagePrintEnabled );
-  //  tltmPrint.setDisabledImage( imagePrintDisabled );
-    tltmPrint.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Print" ) );
-    tltmPrint.setEnabled( true );
+    tltmPrint = new ToolItem(toolBarPrint, SWT.NONE);
+    tltmPrint.setImage(imagePrintEnabled);
+    //  tltmPrint.setDisabledImage( imagePrintDisabled );
+    tltmPrint.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Print"));
+    tltmPrint.setEnabled(true);
 
-    textURL = new Text( shell, SWT.BORDER );
+    textURL = new Text(shell, SWT.BORDER);
     FormData fdtext = new FormData();
-    fdtext.top = new FormAttachment( 0, MARGIN );
-    fdtext.right = new FormAttachment( toolBarPrint, -7 );
-    fdtext.bottom = new FormAttachment( 0, 25 );
-    fdtext.left = new FormAttachment( toolBarHome, TOOL_ITEM_SPACING );
-    textURL.setLayoutData( fdtext );
-    textURL.setForeground( new Color( display, 101, 101, 101 ) );
+    fdtext.top = new FormAttachment(0, MARGIN);
+    fdtext.right = new FormAttachment(toolBarPrint, -7);
+    fdtext.bottom = new FormAttachment(0, 25);
+    fdtext.left = new FormAttachment(toolBarHome, TOOL_ITEM_SPACING);
+    textURL.setLayoutData(fdtext);
+    textURL.setForeground(new Color(display, 101, 101, 101));
 
-    wBrowser.setUrl( url );
+    wBrowser.setUrl(url);
 
     setUpListeners();
 
-    // Specs are 760/530, but due to rendering differences, we need to adjust the actual hgt/wdt used
-    BaseTransformDialog.setSize( shell, 755, 538, true );
-    shell.setMinimumSize( 515, 408 );
-
+    // Specs are 760/530, but due to rendering differences, we need to adjust the actual hgt/wdt
+    // used
+    BaseTransformDialog.setSize(shell, 755, 538, true);
+    shell.setMinimumSize(515, 408);
 
     shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -247,17 +244,17 @@ public class ShowHelpDialog extends Dialog {
 
   private void setImages() {
     imageBackEnabled = GuiResource.getInstance().getImageBack();
-    //imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
+    // imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
     imageForwardEnabled = GuiResource.getInstance().getImageForward();
-    //imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
+    // imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
     imageRefreshEnabled = GuiResource.getInstance().getImageRefresh();
-    //imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
+    // imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
     imageHomeEnabled = GuiResource.getInstance().getImageHome();
-    //imageHomeDisabled = GuiResource.getInstance().getImageHomeDisabled();
+    // imageHomeDisabled = GuiResource.getInstance().getImageHomeDisabled();
     imagePrintEnabled = GuiResource.getInstance().getImagePrint();
-    //imagePrintDisabled = GuiResource.getInstance().getImagePrintDisabled();
-    cursorEnabled = new Cursor( display, SWT.CURSOR_HAND );
-    cursorDisabled = new Cursor( display, SWT.CURSOR_ARROW );
+    // imagePrintDisabled = GuiResource.getInstance().getImagePrintDisabled();
+    cursorEnabled = new Cursor(display, SWT.CURSOR_HAND);
+    cursorDisabled = new Cursor(display, SWT.CURSOR_ARROW);
   }
 
   private void setUpListeners() {
@@ -267,111 +264,113 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void setUpSelectionListeners() {
-    SelectionListener selectionListenerBack = new SelectionListener() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        back();
-      }
+    SelectionListener selectionListenerBack =
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            back();
+          }
 
-      @Override
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-      }
-    };
+          @Override
+          public void widgetDefaultSelected(SelectionEvent arg0) {}
+        };
 
-    SelectionListener selectionListenerForward = new SelectionListener() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        forward();
-      }
+    SelectionListener selectionListenerForward =
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            forward();
+          }
 
-      @Override
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-      }
-    };
+          @Override
+          public void widgetDefaultSelected(SelectionEvent arg0) {}
+        };
 
-    SelectionListener selectionListenerRefresh = new SelectionListener() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        refresh();
-      }
+    SelectionListener selectionListenerRefresh =
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            refresh();
+          }
 
-      @Override
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-      }
-    };
+          @Override
+          public void widgetDefaultSelected(SelectionEvent arg0) {}
+        };
 
-    SelectionListener selectionListenerHome = new SelectionListener() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        home();
-      }
+    SelectionListener selectionListenerHome =
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            home();
+          }
 
-      @Override
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-      }
-    };
+          @Override
+          public void widgetDefaultSelected(SelectionEvent arg0) {}
+        };
 
-    SelectionListener selectionListenerPrint = new SelectionListener() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        print();
-      }
+    SelectionListener selectionListenerPrint =
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            print();
+          }
 
-      @Override
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-      }
-    };
-    tltmBack.addSelectionListener( selectionListenerBack );
-    tltmForward.addSelectionListener( selectionListenerForward );
-    tltmRefresh.addSelectionListener( selectionListenerRefresh );
-    tltmHome.addSelectionListener( selectionListenerHome );
-    tltmPrint.addSelectionListener( selectionListenerPrint );
+          @Override
+          public void widgetDefaultSelected(SelectionEvent arg0) {}
+        };
+    tltmBack.addSelectionListener(selectionListenerBack);
+    tltmForward.addSelectionListener(selectionListenerForward);
+    tltmRefresh.addSelectionListener(selectionListenerRefresh);
+    tltmHome.addSelectionListener(selectionListenerHome);
+    tltmPrint.addSelectionListener(selectionListenerPrint);
   }
 
   private void addProgressAndLocationListener() {
-    ProgressListener progressListener = new ProgressListener() {
-      @Override
-      public void changed( ProgressEvent event ) {
-      }
+    ProgressListener progressListener =
+        new ProgressListener() {
+          @Override
+          public void changed(ProgressEvent event) {}
 
-      @Override
-      public void completed( ProgressEvent event ) {
-        if ( fromPrint ) {
-          wBrowser.execute( PRINT_SCRIPT );
-          fromPrint = false;
-        }
-        if (!EnvironmentUtils.getInstance().isWeb()) {
-          // Browser in RAP does not implement back() and forward()
-          setForwardBackEnable();
-        }
-      }
-    };
+          @Override
+          public void completed(ProgressEvent event) {
+            if (fromPrint) {
+              wBrowser.execute(PRINT_SCRIPT);
+              fromPrint = false;
+            }
+            if (!EnvironmentUtils.getInstance().isWeb()) {
+              // Browser in RAP does not implement back() and forward()
+              setForwardBackEnable();
+            }
+          }
+        };
 
-    LocationListener listener = new LocationListener() {
-      @Override
-      public void changing( LocationEvent event ) {
-        if ( event.location.endsWith( ".pdf" ) ) {
-          Program.launch( event.location );
-          event.doit = false;
-        }
-      }
+    LocationListener listener =
+        new LocationListener() {
+          @Override
+          public void changing(LocationEvent event) {
+            if (event.location.endsWith(".pdf")) {
+              Program.launch(event.location);
+              event.doit = false;
+            }
+          }
 
-      @Override
-      public void changed( LocationEvent event ) {
-        textURL.setText( event.location );
-      }
-    };
-    wBrowser.addProgressListener( progressListener );
-    wBrowser.addLocationListener( listener );
+          @Override
+          public void changed(LocationEvent event) {
+            textURL.setText(event.location);
+          }
+        };
+    wBrowser.addProgressListener(progressListener);
+    wBrowser.addLocationListener(listener);
   }
 
   private void addShellListener() {
     // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        ok();
-      }
-    } );
+    shell.addShellListener(
+        new ShellAdapter() {
+          public void shellClosed(ShellEvent e) {
+            ok();
+          }
+        });
   }
 
   private void back() {
@@ -387,33 +386,33 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void home() {
-    wBrowser.setUrl( homeURL != null ? homeURL : url );
+    wBrowser.setUrl(homeURL != null ? homeURL : url);
   }
 
   private void print() {
     String printURL = wBrowser.getUrl();
-    if ( printURL.startsWith( PREFIX ) ) {
-      printURL = printURL.replace( PREFIX, PRINT_PREFIX );
+    if (printURL.startsWith(PREFIX)) {
+      printURL = printURL.replace(PREFIX, PRINT_PREFIX);
       fromPrint = true;
-      wBrowser.setUrl( printURL );
+      wBrowser.setUrl(printURL);
     } else {
-      wBrowser.execute( PRINT_SCRIPT );
+      wBrowser.execute(PRINT_SCRIPT);
     }
   }
 
   private void setForwardBackEnable() {
-    setBackEnable( wBrowser.isBackEnabled() );
-    setForwardEnable( wBrowser.isForwardEnabled() );
+    setBackEnable(wBrowser.isBackEnabled());
+    setForwardEnable(wBrowser.isForwardEnabled());
   }
 
-  private void setBackEnable( boolean enable ) {
-    tltmBack.setEnabled( enable );
-    toolBarBack.setCursor( enable ? cursorEnabled : cursorDisabled );
+  private void setBackEnable(boolean enable) {
+    tltmBack.setEnabled(enable);
+    toolBarBack.setCursor(enable ? cursorEnabled : cursorDisabled);
   }
 
-  private void setForwardEnable( boolean enable ) {
-    tltmForward.setEnabled( enable );
-    toolBarForward.setCursor( enable ? cursorEnabled : cursorDisabled );
+  private void setForwardEnable(boolean enable) {
+    tltmForward.setEnabled(enable);
+    toolBarForward.setCursor(enable ? cursorEnabled : cursorDisabled);
   }
 
   public void dispose() {

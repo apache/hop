@@ -47,7 +47,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> implements ITransform<BlockingTransformMeta, BlockingTransformData> {
 
-  private static final Class<?> PKG = BlockingTransformMeta.class; // Needed by Translator
+  private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
   private Object[] lastRow;
 

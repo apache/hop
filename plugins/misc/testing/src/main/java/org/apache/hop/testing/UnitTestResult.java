@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnitTestResult {
-  private static final Class<?> PKG = UnitTestResult.class; // For i18n
+  private static final Class<?> PKG = UnitTestResult.class; // For Translator
 
   private String pipelineName;
   private String unitTestName;

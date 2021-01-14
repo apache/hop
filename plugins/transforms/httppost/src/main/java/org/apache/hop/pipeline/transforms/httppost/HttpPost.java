@@ -76,7 +76,7 @@ import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_E
 
 public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implements ITransform<HttpPostMeta, HttpPostData> {
 
-  private static final Class<?> PKG = HttpPostMeta.class; // Needed by Translator $NON-NLS-1$
+  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
 
   private static final String CONTENT_TYPE = "Content-type";
   private static final String CONTENT_TYPE_TEXT_XML = "text/xml";

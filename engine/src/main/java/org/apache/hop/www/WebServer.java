@@ -64,7 +64,7 @@ import java.util.List;
 public class WebServer {
 
   private static final int DEFAULT_DETECTION_TIMER = 20000;
-  private static final Class<?> PKG = WebServer.class; // Needed by Translator
+  private static final Class<?> PKG = WebServer.class; // For Translator
 
   private ILogChannel log;
   private IVariables variables;

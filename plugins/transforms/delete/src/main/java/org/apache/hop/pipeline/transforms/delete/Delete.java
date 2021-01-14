@@ -42,7 +42,7 @@ import java.sql.SQLException;
  */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData> implements ITransform<DeleteMeta, DeleteData> {
 
-  private static final Class<?> PKG = DeleteMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
   public Delete( TransformMeta transformMeta, DeleteMeta meta, DeleteData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

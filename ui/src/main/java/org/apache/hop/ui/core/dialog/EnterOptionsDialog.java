@@ -36,8 +36,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -82,7 +80,7 @@ import java.util.List;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static final Class<?> PKG = EnterOptionsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
@@ -1087,7 +1085,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlAutoCollapse.right = new FormAttachment(middle, -margin);
     wlAutoCollapse.setLayoutData(fdlAutoCollapse);
     wAutoCollapse = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wAutoCollapse );
+    props.setLook(wAutoCollapse);
     wAutoCollapse.setSelection(props.getAutoCollapseCoreObjectsTree());
     FormData fdAutoCollapse = new FormData();
     fdAutoCollapse.left = new FormAttachment(middle, 0);
@@ -1106,7 +1104,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlToolTip.right = new FormAttachment(middle, -margin);
     wlToolTip.setLayoutData(fdlToolTip);
     wToolTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wToolTip );
+    props.setLook(wToolTip);
     wToolTip.setSelection(props.showToolTips());
     FormData fdbToolTip = new FormData();
     fdbToolTip.left = new FormAttachment(middle, 0);
@@ -1125,7 +1123,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlHelpTip.right = new FormAttachment(middle, -margin);
     wlHelpTip.setLayoutData(fdlHelpTip);
     wHelpTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wHelpTip );
+    props.setLook(wHelpTip);
     wHelpTip.setSelection(props.isShowingHelpToolTips());
     FormData fdbHelpTip = new FormData();
     fdbHelpTip.left = new FormAttachment(middle, 0);
@@ -1359,9 +1357,9 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
-    props.setShowToolTips( wToolTip.getSelection());
-    props.setAutoCollapseCoreObjectsTree( wAutoCollapse.getSelection());
-    props.setShowingHelpToolTips( wHelpTip.getSelection());
+    props.setShowToolTips(wToolTip.getSelection());
+    props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
+    props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
@@ -1379,18 +1377,15 @@ public class EnterOptionsDialog extends Dialog {
           new MessageDialogWithToggle(
               shell,
               BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.DialogTitle"),
-              null,
               BaseMessages.getString(
                       PKG, "EnterOptionsDialog.RestartWarning.DialogMessage", Const.CR)
                   + Const.CR,
-              MessageDialog.WARNING,
+              SWT.ICON_WARNING,
               new String[] {
                 BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.Option1")
               },
-              0,
               BaseMessages.getString(PKG, "EnterOptionsDialog.RestartWarning.Option2"),
               "N".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_WARNING_PARAMETER, "Y")));
-      MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
       md.open();
       props.setCustomParameter(STRING_USAGE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y");
     }

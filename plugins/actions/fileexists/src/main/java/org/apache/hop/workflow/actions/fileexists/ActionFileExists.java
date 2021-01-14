@@ -53,15 +53,14 @@ import java.util.Map;
 
 @Action(
   id = "FILE_EXISTS",
-  i18nPackageName = "org.apache.hop.workflow.actions.fileexists",
-  name = "ActionFileExists.Name",
-  description = "ActionFileExists.Description",
+  name = "i18n::ActionFileExists.Name",
+  description = "i18n::ActionFileExists.Description",
   image = "FileExists.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/fileexists.html"
 )
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFileExists.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFileExists.class; // For Translator
 
   private String filename;
 

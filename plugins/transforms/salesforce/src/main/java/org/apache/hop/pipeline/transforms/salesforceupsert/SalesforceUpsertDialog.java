@@ -82,7 +82,7 @@ import java.util.Set;
 
 public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceUpsertMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;
@@ -922,7 +922,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   }
 
   /**
-   * Reads in the fields from the previous steps and from the ONE next step and opens an EnterMappingDialog with this
+   * Reads in the fields from the previous transforms and from the ONE next transform and opens an EnterMappingDialog with this
    * information. After the user did the mapping, those information is put into the Select/Rename table.
    */
   private void generateMappings() {

@@ -52,8 +52,7 @@ import java.io.File;
 import java.util.List;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
-  private static final Class<?> PKG =
-      DataSetEditor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = DataSetEditor.class; // For Translator
 
   private Text wName;
   private Text wDescription;

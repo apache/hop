@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     implements ITransform<LdapInputMeta, LdapInputData> {
-  private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   public LdapInput(
       TransformMeta transformMeta,

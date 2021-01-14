@@ -1367,7 +1367,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
         logError(BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), e);
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage." + "UnableToConnect"),
+            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             e);
       }
@@ -1417,7 +1417,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
         logError(BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), e);
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage." + "UnableToConnect"),
+            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             e);
       }
@@ -1483,7 +1483,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
         logError(BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), e);
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage." + "UnableToConnect"),
+            BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
             e);
       }
@@ -1651,7 +1651,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
               BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), ex);
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage." + "UnableToConnect"),
+              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
               BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
               ex);
         }
@@ -1688,7 +1688,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       concatenated =
           concatenated
               + ((concatenated.length() > 0) ? ((!concatenated.endsWith(",")) ? ", " : "") : "")
-              + t; //$NON-NLS-3$ //$NON-NLS-4$
+              + t; // //
     }
     TableItem item = new TableItem(wTags.table, SWT.NONE);
     item.setText(1, concatenated);

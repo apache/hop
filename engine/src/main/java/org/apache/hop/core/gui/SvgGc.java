@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.gui;
 
@@ -51,7 +46,7 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageLocked;
 
-  private static SvgFile imageTransformError;
+  private static SvgFile imageFailure;
 
   private static SvgFile imageEdit;
 
@@ -87,12 +82,17 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageBusy;
 
+  private static SvgFile imageMissing;
+  
+  private static SvgFile imageDeprecated;
+
   private static SvgFile imageInject;
 
   private static SvgFile imageData;
 
   private static SvgFile imageArrowDefault;
-  private static SvgFile imageArrowOk;
+  private static SvgFile imageArrowTrue;
+  private static SvgFile imageArrowFalse;
   private static SvgFile imageArrowError;
   private static SvgFile imageArrowDisabled;
 
@@ -101,17 +101,20 @@ public class SvgGc implements IGc {
   protected Color black;
   protected Color red;
   protected Color yellow;
-  protected Color orange;
   protected Color green;
   protected Color blue;
   protected Color magenta;
+  protected Color purpule;
+  protected Color indigo;
   protected Color gray;
   protected Color lightGray;
   protected Color darkGray;
   protected Color lightBlue;
   protected Color crystal;
   protected Color hopDefault;
-  protected Color hopOK;
+  protected Color hopTrue;
+  protected Color hopFalse;
+  protected Color deprecated;
 
   private HopSvgGraphics2D gc;
 
@@ -189,20 +192,23 @@ public class SvgGc implements IGc {
     this.black = new Color( 0, 0, 0 );
     this.red = new Color( 255, 0, 0 );
     this.yellow = new Color( 255, 255, 0 );
-    this.orange = new Color( 255, 165, 0 );
     this.green = new Color( 0, 255, 0 );
     this.blue = new Color( 0, 0, 255 );
     this.magenta = new Color( 255, 0, 255 );
-    this.gray = new Color( 128, 128, 128 );
-    this.lightGray = new Color( 200, 200, 200 );
-    this.darkGray = new Color( 80, 80, 80 );
+    this.purpule = new Color( 128, 0, 128 );
+    this.indigo = new Color( 75, 0, 130 );
+    this.gray = new Color( 215, 215, 215 );    
+    this.lightGray = new Color( 225, 225, 225 );
+    this.darkGray = new Color( 100, 100, 100 );
     this.lightBlue = new Color( 135, 206, 250 ); // light sky blue
     this.crystal = new Color( 61, 99, 128 );
     this.hopDefault = new Color( 61, 99, 128 );
-    this.hopOK = new Color( 12, 178, 15 );
+    this.hopTrue = new Color( 12, 178, 15 );
+    this.hopFalse = new Color( 255, 165, 0 );
+    this.deprecated = new Color( 246, 196, 56 );
     
     imageLocked = new SvgFile("ui/images/lock.svg", this.getClass().getClassLoader() );
-    imageTransformError = new SvgFile("ui/images/transform-error.svg", this.getClass().getClassLoader() );
+    imageFailure = new SvgFile("ui/images/failure.svg", this.getClass().getClassLoader() );
     imageEdit = new SvgFile("ui/images/edit.svg", this.getClass().getClassLoader() );
     imageContextMenu = new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader() ); // Used ?
     imageTrue = new SvgFile("ui/images/true.svg", this.getClass().getClassLoader() );
@@ -217,15 +223,18 @@ public class SvgGc implements IGc {
     imageLoadBalance = new SvgFile("ui/images/scales.svg", this.getClass().getClassLoader() );
     imageCheckpoint = new SvgFile("ui/images/checkpoint.svg" , this.getClass().getClassLoader() );
     imageDatabase = new SvgFile("ui/images/database.svg", this.getClass().getClassLoader() );
-    imageParallel = new SvgFile("ui/images/parallel.svg", this.getClass().getClassLoader() );
+    imageParallel = new SvgFile("ui/images/parallel-hop.svg", this.getClass().getClassLoader() );
     imageUnconditional = new SvgFile("ui/images/unconditional-hop.svg", this.getClass().getClassLoader() );
     imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader() );
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader() );
+    imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader() );
+    imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader() );
        
     // Hop arrow
     //
     imageArrowDefault = new SvgFile("ui/images/hop-arrow-default.svg", this.getClass().getClassLoader() );
-    imageArrowOk = new SvgFile("ui/images/hop-arrow-ok.svg", this.getClass().getClassLoader() );
+    imageArrowFalse = new SvgFile("ui/images/hop-arrow-false.svg", this.getClass().getClassLoader() );
+    imageArrowTrue = new SvgFile("ui/images/hop-arrow-true.svg", this.getClass().getClassLoader() );
     imageArrowError = new SvgFile("ui/images/hop-arrow-error.svg", this.getClass().getClassLoader() );
     imageArrowDisabled = new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader() );
    
@@ -353,14 +362,16 @@ public class SvgGc implements IGc {
         return red;
       case YELLOW:
         return yellow;
-      case ORANGE:
-        return orange;
       case GREEN:
         return green;
       case BLUE:
         return blue;
       case MAGENTA:
         return magenta;
+      case PURPULE:
+        return purpule;
+      case INDIGO:
+        return indigo;
       case GRAY:
         return gray;
       case LIGHTGRAY:
@@ -373,8 +384,12 @@ public class SvgGc implements IGc {
         return crystal;
       case HOP_DEFAULT:
         return hopDefault;
-      case HOP_OK:
-        return hopOK;
+      case HOP_TRUE:
+        return hopTrue;
+      case HOP_FALSE:
+        return hopFalse;
+      case DEPRECATED:
+        return deprecated;
       default:
         break;
     }
@@ -524,8 +539,8 @@ public class SvgGc implements IGc {
     switch ( image ) {
       case LOCK:
         return imageLocked;
-      case TRANSFORM_ERROR:
-        return imageTransformError;
+      case FAILURE:
+        return imageFailure;
       case EDIT:
         return imageEdit;
       case CONTEXT_MENU:
@@ -564,8 +579,10 @@ public class SvgGc implements IGc {
         return imageInject;
       case ARROW_DEFAULT:
         return imageArrowDefault;
-      case ARROW_OK:
-        return imageArrowOk;
+      case ARROW_TRUE:
+        return imageArrowTrue;
+      case ARROW_FALSE:
+        return imageArrowFalse;
       case ARROW_ERROR:
         return imageArrowError;
       case ARROW_DISABLED:
@@ -587,24 +604,40 @@ public class SvgGc implements IGc {
   @Override
   public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
     SvgFile svgFile = getNativeImage( image );
-    if (Math.abs(angle)>0.0001) {
-      drawImage( svgFile, x + xOffset - miniIconSize / 2, y + yOffset - miniIconSize / 2, miniIconSize, miniIconSize, magnification, angle );
-    } else {
-      drawImage( svgFile, x+xOffset, y+yOffset, miniIconSize, miniIconSize, magnification, 0 );
-    }
+    drawImage( svgFile, x + xOffset - miniIconSize / 2, y + yOffset - miniIconSize / 2, miniIconSize, miniIconSize, magnification, angle );
   }
 
   public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
-    String transformType = transformMeta.getTransformPluginId();
-    SvgFile svgFile = transformImages.get( transformType );
+
+    SvgFile svgFile;    
+    if ( transformMeta.isMissing() ) {
+      svgFile = imageMissing;
+    } else if ( transformMeta.isDeprecated() ) {
+      svgFile = imageDeprecated;
+    }
+    else {
+      String transformType = transformMeta.getTransformPluginId();
+      svgFile = transformImages.get( transformType );
+    }
+    
     if ( svgFile != null ) { // Draw the icon!
       drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
     }
   }
 
   public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) throws HopException {
-    String actionType = actionMeta.getAction().getPluginId();
-    SvgFile svgFile = actionImages.get( actionType );
+    
+    SvgFile svgFile;    
+    if ( actionMeta.isMissing() ) {
+      svgFile = imageMissing;
+    } else if ( actionMeta.isDeprecated() ) {
+      svgFile = imageDeprecated;
+    }
+    else {
+      String actionType = actionMeta.getAction().getPluginId();
+      svgFile = actionImages.get( actionType );
+    }
+
     if ( svgFile != null ) { // Draw the icon!
       drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
     }
@@ -624,7 +657,6 @@ public class SvgGc implements IGc {
       SVGDocument svgDocument = cacheEntry.getSvgDocument();
 
       // How much more do we need to scale the image.
-      // How much more do we need to scale the image.
       // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
       //
       float xScaleFactor = magnification * desiredWidth / cacheEntry.getWidth();
@@ -638,7 +670,7 @@ public class SvgGc implements IGc {
       gc.embedSvg(
         svgDocument.getRootElement(),
         svgFile.getFilename(),
-        x-cacheEntry.getX(),
+        x-cacheEntry.getX(),        
         y-cacheEntry.getY(),
         cacheEntry.getWidth(),
         cacheEntry.getHeight(),

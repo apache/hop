@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HopGuiPipelineRunDelegate {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGuiPipelineGraph pipelineGraph;
   private HopGui hopGui;

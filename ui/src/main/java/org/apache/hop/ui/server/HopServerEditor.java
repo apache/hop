@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
  * @see HopServer
  */
 public class HopServerEditor extends MetadataEditor<HopServer> {
-  private static final Class<?> PKG = HopServerEditor.class; // Needed by Translator!!
+  private static final Class<?> PKG = HopServerEditor.class; // For Translator
 
   private CTabFolder wTabFolder;
 

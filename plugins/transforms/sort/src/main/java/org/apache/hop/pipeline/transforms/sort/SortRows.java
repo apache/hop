@@ -50,7 +50,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 29-apr-2003
  */
 public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implements ITransform<SortRowsMeta, SortRowsData> {
-  private static final Class<?> PKG = SortRows.class; // for i18n
+  private static final Class<?> PKG = SortRows.class; // For Translator
 
   public SortRows( TransformMeta transformMeta, SortRowsMeta meta, SortRowsData data,
                    int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {

@@ -53,7 +53,7 @@ import java.net.InetAddress;
  * @since 19-06-2003
  */
 public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSyslog.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSyslog.class; // For Translator
 
   private LabelText wName;
 

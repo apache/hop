@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.*;
 
 public class ExcelWriterTransformDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   private TextVar wFilename;
 

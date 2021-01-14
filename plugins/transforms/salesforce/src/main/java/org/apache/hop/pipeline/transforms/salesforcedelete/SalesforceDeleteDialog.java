@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceDeleteDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

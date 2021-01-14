@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 
 public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidatorData> implements ITransform<MailValidatorMeta, MailValidatorData> {
-  private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailValidator.class; // For Translator
 
   public MailValidator(TransformMeta transformMeta, MailValidatorMeta meta, MailValidatorData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

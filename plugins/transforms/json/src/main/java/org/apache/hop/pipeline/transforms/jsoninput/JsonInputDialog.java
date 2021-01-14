@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
-import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -57,7 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 
@@ -424,8 +423,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
         new ColumnInfo(
           BaseMessages.getString( PKG, "JsonInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
-          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
@@ -1202,8 +1201,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
-            PKG, SYSTEM_COMBO_NO );
+          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
+            PKG, "System.Combo.No" );
 
         if ( name != null ) {
           item.setText( 1, name );
@@ -1339,7 +1338,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       field.setDecimalSymbol( item.getText( 8 ) );
       field.setGroupSymbol( item.getText( 9 ) );
       field.setTrimType( ValueMetaBase.getTrimTypeByDesc( item.getText( 10 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 11 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       in.getInputFields()[ i ] = field;
     }

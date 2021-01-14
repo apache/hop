@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 15-06-2008
  */
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionColumnsExist.class; // Needed by Translator
+  private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
 
   private Text wName;
 

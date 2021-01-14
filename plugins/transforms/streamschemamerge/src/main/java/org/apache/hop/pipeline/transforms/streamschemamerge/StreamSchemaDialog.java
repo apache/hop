@@ -42,14 +42,14 @@ import java.util.List;
 
 public class StreamSchemaDialog extends BaseTransformDialog implements ITransformDialog {
 
-	private static final Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
+	private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
 
 	// this is the object the stores the transform's settings
 	// the dialog reads the settings from it when opening
 	// the dialog writes the settings to it when confirmed 
 	private StreamSchemaMeta meta;
 
-	private String[] previousTransforms;  // steps sending data in to this transform
+	private String[] previousTransforms;  // transforms sending data in to this transform
 
 	// text field holding the name of the field to add to the row stream
 	private Label wlTransforms;
@@ -135,7 +135,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
         setButtonPositions(new Button[]{wOk, wGet, wCancel}, margin, null);
 
-		// Table with fields for inputting step names
+		// Table with fields for inputting transform names
 		wlTransforms = new Label( shell, SWT.NONE );
 		wlTransforms.setText(BaseMessages.getString(PKG, "StreamSchemaTransformDialog.Transforms.Label"));
 		props.setLook(wlTransforms);
@@ -217,7 +217,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	}
 	
 	/**
-	 * This helper method puts the step configuration stored in the meta object
+	 * This helper method puts the transform configuration stored in the meta object
 	 * and puts it into the dialog controls.
 	 */
     private void populateDialog() {
@@ -275,7 +275,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
     /**
      * Helping method to update meta information when ok is selected
-     * @param inputTransforms Names of the steps that are being merged together
+     * @param inputTransforms Names of the transforms that are being merged together
      */
     private void getMeta(String[] inputTransforms) {
         List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
@@ -300,12 +300,12 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
         }
         int streamCount = infoStreams.size();
 
-        String[] stepsToMerge = meta.getTransformsToMerge();
+        String[] transformsToMerge = meta.getTransformsToMerge();
         for ( int i = 0; i < streamCount; i++ ) {
-            String step = stepsToMerge[i];
+            String transform = transformsToMerge[i];
             IStream infoStream = infoStreams.get( i );
-            infoStream.setTransformMeta( pipelineMeta.findTransform( step ) );
-            infoStream.setSubject(step);
+            infoStream.setTransformMeta( pipelineMeta.findTransform( transform ) );
+            infoStream.setSubject(transform);
         }
     }
 	
@@ -314,14 +314,14 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	 */
 	private void ok() {
 		// The "TransformName" variable will be the return value for the open() method.
-		// Setting to step name from the dialog control
+		// Setting to transform name from the dialog control
 		transformName = wTransformName.getText();
 		// set output field name
 
         // TODO eliminate copying here and copying when placed in meta
-        int nrsteps = wTransforms.nrNonEmpty();
-        String[] TransformNames = new String[nrsteps];
-        for ( int i = 0; i < nrsteps; i++ ) {
+        int nrtransforms = wTransforms.nrNonEmpty();
+        String[] TransformNames = new String[nrtransforms];
+        for ( int i = 0; i < nrtransforms; i++ ) {
             TableItem ti = wTransforms.getNonEmpty(i);
             TransformMeta tm = pipelineMeta.findTransform(ti.getText(1));
             if (tm != null) {

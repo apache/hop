@@ -34,10 +34,7 @@ import java.util.regex.Pattern;
 
 
 public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implements ITransform<RegexEvalMeta,RegexEvalData> {
-  private static final Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
-  // needed by
-  // Translator!!
-
+  private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
   public RegexEval(TransformMeta transformMeta, RegexEvalMeta meta, RegexEvalData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

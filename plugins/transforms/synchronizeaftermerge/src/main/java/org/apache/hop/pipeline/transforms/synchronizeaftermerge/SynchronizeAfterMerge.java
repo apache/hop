@@ -43,7 +43,7 @@ import java.util.List;
 
 public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> implements ITransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
 
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   public SynchronizeAfterMerge( TransformMeta transformMeta, SynchronizeAfterMergeMeta meta, SynchronizeAfterMergeData data, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {

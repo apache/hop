@@ -72,7 +72,7 @@ import java.util.Map;
  */
 @Deprecated
 public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData> implements ITransform<TextFileInputMeta, TextFileInputData> {
-  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 

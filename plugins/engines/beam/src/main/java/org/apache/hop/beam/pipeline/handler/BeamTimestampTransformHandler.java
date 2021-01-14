@@ -43,7 +43,7 @@ public class BeamTimestampTransformHandler extends BeamBaseTransformHandler impl
     super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -55,7 +55,7 @@ public class BeamTimestampTransformHandler extends BeamBaseTransformHandler impl
       }
     }
 
-    PCollection<HopRow> stepPCollection = input.apply( ParDo.of(
+    PCollection<HopRow> transformPCollection = input.apply( ParDo.of(
       new TimestampFn(
         transformMeta.getName(),
         JsonRowMeta.toJson( rowMeta ),
@@ -68,7 +68,7 @@ public class BeamTimestampTransformHandler extends BeamBaseTransformHandler impl
 
     // Save this in the map
     //
-    stepCollectionMap.put( transformMeta.getName(), stepPCollection );
+    transformCollectionMap.put( transformMeta.getName(), transformPCollection );
     log.logBasic( "Handled transform (TIMESTAMP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
   }
 }

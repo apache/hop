@@ -65,6 +65,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -104,8 +105,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
@@ -165,7 +164,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         IHopFileTypeHandler,
         IGuiRefresher {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiWorkflowGraph-ToolBar-10010-Run";
@@ -753,20 +752,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   new MessageDialogWithToggle(
                       hopShell(),
                       BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Title"),
-                      null,
                       BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Message")
                           + Const.CR
                           + hi.toString(),
-                      MessageDialog.QUESTION,
+                      SWT.ICON_QUESTION,
                       new String[] {
                         BaseMessages.getString(PKG, "System.Button.Yes"),
                         BaseMessages.getString(PKG, "System.Button.No")
                       },
-                      0,
                       BaseMessages.getString(
                           PKG, "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
                       hopGui.getProps().getAutoSplit());
-              MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
               id = md.open();
               hopGui.getProps().setAutoSplit(md.getToggleState());
             }
@@ -1706,7 +1702,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "Parallel execution",
       tooltip = "Enable of disable parallel execution of next actions",
-      image = "ui/images/parallel-hop.svg",
+      image = "ui/images/parallel.svg",
       category = "Advanced",
       categoryOrder = "3")
   public void editActionParallel(HopGuiWorkflowActionContext context) {
@@ -1734,22 +1730,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             new MessageDialogWithToggle(
                 hopShell(),
                 BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.DialogTitle"),
-                null,
                 BaseMessages.getString(
                         PKG, "WorkflowGraph.ParallelActionsWarning.DialogMessage", Const.CR)
                     + Const.CR,
-                MessageDialog.WARNING,
+                SWT.ICON_WARNING,
                 new String[] {
                   BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option1")
                 },
-                0,
                 BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option2"),
                 "N"
                     .equalsIgnoreCase(
                         hopGui
                             .getProps()
                             .getCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, "Y")));
-        MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
         md.open();
         hopGui
             .getProps()
@@ -2317,10 +2310,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           Result result = actionResult.getResult();
           tip.append("'").append(actionCopy.getName()).append("' ");
           if (result.getResult()) {
-            tipImage = GuiResource.getInstance().getImageTrue();
+            tipImage = GuiResource.getInstance().getImageSuccess();
             tip.append("finished successfully.");
           } else {
-            tipImage = GuiResource.getInstance().getImageFalse();
+            tipImage = GuiResource.getInstance().getImageFailure();
             tip.append("failed.");
           }
           tip.append(Const.CR).append("------------------------").append(Const.CR).append(Const.CR);
@@ -3309,12 +3302,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     workflowLogDelegate.addJobLog();
-    workflowGridDelegate.addJobGrid();
+    workflowGridDelegate.addWorkflowGrid();
 
     if (tabItemSelection != null) {
       extraViewTabFolder.setSelection(tabItemSelection);
     } else {
-      extraViewTabFolder.setSelection(workflowGridDelegate.getJobGridTab());
+      extraViewTabFolder.setSelection(workflowGridDelegate.getWorkflowGridTab());
     }
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
@@ -3636,17 +3629,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             new MessageDialogWithToggle(
                 hopShell(),
                 BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveChangedFile.Title"),
-                null,
                 BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveChangedFile.Message")
                     + Const.CR
                     + BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveChangedFile.Message2")
                     + Const.CR,
-                MessageDialog.QUESTION,
+                SWT.ICON_QUESTION,
                 new String[] {
                   BaseMessages.getString(PKG, "System.Button.Yes"),
                   BaseMessages.getString(PKG, "System.Button.No")
                 },
-                0,
                 BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveChangedFile.Toggle"),
                 hopGui.getProps().getAutoSave());
         int answer = md.open();

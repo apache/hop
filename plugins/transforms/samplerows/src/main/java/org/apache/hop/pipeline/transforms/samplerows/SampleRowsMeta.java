@@ -32,8 +32,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -44,16 +46,16 @@ import java.util.List;
  */
 
 @Transform(
-        id = "SampleRows",
-        image = "samplerows.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.samplerows",
-        name = "BaseTransform.TypeLongDesc.SampleRows",
-        description = "BaseTransform.TypeTooltipDesc.SampleRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/samplerows.html"
-)
-public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<SampleRows, SampleRowsData> {
-  private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator
+    id = "SampleRows",
+    image = "samplerows.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.SampleRows",
+    description = "i18n::BaseTransform.TypeTooltipDesc.SampleRows",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/samplerows.html")
+public class SampleRowsMeta extends BaseTransformMeta
+    implements ITransformMeta<SampleRows, SampleRowsData> {
+  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   private String linesrange;
   private String linenumfield;
@@ -63,8 +65,9 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode, metadataProvider );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode, metadataProvider);
   }
 
   public Object clone() {
@@ -72,24 +75,31 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    if ( !Utils.isEmpty( linenumfield ) ) {
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    if (!Utils.isEmpty(linenumfield)) {
 
-      IValueMeta v = new ValueMetaInteger( variables.resolve( linenumfield ) );
-      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
-      v.setOrigin( name );
-      inputRowMeta.addValueMeta( v );
+      IValueMeta v = new ValueMetaInteger(variables.resolve(linenumfield));
+      v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
+      v.setOrigin(name);
+      inputRowMeta.addValueMeta(v);
     }
   }
 
-  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      linesrange = XmlHandler.getTagValue( transformNode, "linesrange" );
-      linenumfield = XmlHandler.getTagValue( transformNode, "linenumfield" );
-    } catch ( Exception e ) {
+      linesrange = XmlHandler.getTagValue(transformNode, "linesrange");
+      linenumfield = XmlHandler.getTagValue(transformNode, "linenumfield");
+    } catch (Exception e) {
       throw new HopXmlException(
-        BaseMessages.getString( PKG, "SampleRowsMeta.Exception.UnableToReadTransformMeta" ), e );
+          BaseMessages.getString(PKG, "SampleRowsMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
@@ -97,7 +107,7 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return this.linesrange;
   }
 
-  public void setLinesRange( String linesrange ) {
+  public void setLinesRange(String linesrange) {
     this.linesrange = linesrange;
   }
 
@@ -105,7 +115,7 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return this.linenumfield;
   }
 
-  public void setLineNumberField( String linenumfield ) {
+  public void setLineNumberField(String linenumfield) {
     this.linenumfield = linenumfield;
   }
 
@@ -116,60 +126,84 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XmlHandler.addTagValue( "linesrange", linesrange ) );
-    retval.append( "    " + XmlHandler.addTagValue( "linenumfield", linenumfield ) );
+    retval.append("    " + XmlHandler.addTagValue("linesrange", linesrange));
+    retval.append("    " + XmlHandler.addTagValue("linenumfield", linenumfield));
 
     return retval.toString();
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if ( Utils.isEmpty( linesrange ) ) {
+    if (Utils.isEmpty(linesrange)) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.LinesRangeMissing" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeMissing"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.LinesRangeOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
-    if ( prev == null || prev.size() == 0 ) {
+    if (prev == null || prev.size() == 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.NotReceivingFields" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.NotReceivingFields"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "SampleRowsMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.TransformRecevingData2" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.TransformRecevingData2"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SampleRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "SampleRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, SampleRowsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new SampleRows( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      SampleRowsData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new SampleRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
-
 
   public SampleRowsData getTransformData() {
     return new SampleRowsData();
   }
-
 }

@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class HopEnvironment {
 
-  private static final Class<?> PKG = Const.class; // Needed by Translator
+  private static final Class<?> PKG = Const.class; // For Translator
 
   /**
    * Indicates whether the Hop environment has been initialized.

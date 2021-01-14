@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.variables.IVariables;
 
 public class SampleRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   private LabelTextVar wLinesRange;
   private FormData fdLinesRange, fdLineNumberField;

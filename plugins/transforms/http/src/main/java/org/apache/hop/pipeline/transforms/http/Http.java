@@ -64,7 +64,7 @@ import java.util.List;
  */
 public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransform<HttpMeta, HttpData> {
 
-  private static final Class<?> PKG = HttpMeta.class; // Needed by Translator $NON-NLS-1$
+  private static final Class<?> PKG = HttpMeta.class; // For Translator
 
   public Http( TransformMeta transformMeta, HttpMeta meta, HttpData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

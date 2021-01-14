@@ -35,7 +35,6 @@
   <properties>
 
     <!-- third party -->
-    <geronimo-servlet_3.0_spec.version>1.0</geronimo-servlet_3.0_spec.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
     <apache-log4j-extras>1.2.17</apache-log4j-extras>
@@ -73,6 +72,16 @@
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.servlet</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
@@ -100,18 +109,6 @@
     <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-servlet_3.0_spec</artifactId>
-      <version>${geronimo-servlet_3.0_spec.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- Other third-party dependencies -->
@@ -290,12 +287,6 @@
     </dependency>
 
     <!-- SWT dependencies -->
-    <dependency>
-      <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.jface</artifactId>
-      <version>${org.eclipse.jface.version}</version>
-      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
-    </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.common</artifactId>

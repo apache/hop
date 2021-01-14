@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-
+import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ import static org.apache.hop.core.gui.IGc.ELineStyle;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
-  private static final Class<?> PKG = PipelinePainter.class; // Needed by Translator
+  private static final Class<?> PKG = PipelinePainter.class; // For Translator
 
   public static final String STRING_PARTITIONING_CURRENT_TRANSFORM = "PartitioningCurrentTransform";
   public static final String STRING_TRANSFORM_ERROR_LOG = "TransformErrorLog";
@@ -619,8 +619,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               && transformStatus.equalsIgnoreCase(
                   EngineComponent.ComponentExecutionStatus.STATUS_FINISHED.getDescription())) {
             gc.drawImage(
-                EImage.TRUE,
-                (x + iconSize) - (miniIconSize / 2) + 4,
+                EImage.SUCCESS,
+                (x + iconSize) - (miniIconSize / 2) + 1,
                 y - (miniIconSize / 2) - 1,
                 magnification);
           }
@@ -716,7 +716,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     //
     if (transformMeta.isPartitioned()) {
       gc.setLineWidth(1);
-      gc.setForeground(EColor.RED);
+      gc.setForeground(EColor.MAGENTA);
       gc.setBackground(EColor.BACKGROUND);
       gc.setFont(EFont.GRAPH);
 
@@ -748,7 +748,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         // Also draw the name of the partition schema below the box
         //
-        gc.setForeground(EColor.GRAY);
+        gc.setForeground(EColor.PURPULE);
         gc.drawText(
             Const.NVL(partitionSchema.getName(), "<no partition name>"),
             point.x,
@@ -799,13 +799,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       gc.setForeground(EColor.DEPRECATED);
     } else {
       gc.setForeground(EColor.CRYSTAL);
-    }
-    if (transformMeta.isSelected()) {
-      if (isDeprecated) {
-        gc.setForeground(EColor.DEPRECATED);
-      } else {
-        gc.setForeground(0, 93, 166);
-      }
     }
     gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
 
@@ -894,15 +887,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       // Show an error lines icon in the upper right corner of the transform...
       //
-      int xError = (x + iconSize) - (miniIconSize / 2) + 4;
+      int xError = (x + iconSize) - (miniIconSize / 2) + 1;
       int yError = y - (miniIconSize / 2) - 1;
-      gc.drawImage(EImage.TRANSFORM_ERROR_RED, xError, yError, magnification);
+      gc.drawImage(EImage.FAILURE, xError, yError, magnification);
 
       areaOwners.add(
           new AreaOwner(
-              AreaType.TRANSFORM_ERROR_RED_ICON,
-              pt.x + iconSize - 3,
-              pt.y - 8,
+              AreaType.TRANSFORM_FAILURE_ICON,
+              xError,
+              yError,
               16,
               16,
               offset,
@@ -936,35 +929,49 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   private void drawLine(
-      TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean is_candidate)
+      TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean isCandidate)
       throws HopException {
     int[] line = getLine(fs, ts);
 
-    EColor col;
+    EColor color;
     ELineStyle linestyle = ELineStyle.SOLID;
     int activeLinewidth = lineWidth;
 
     EImage arrow;
-    if (is_candidate) {
-      col = EColor.BLUE;
+    if (isCandidate) {
+      color = EColor.BLUE;
       arrow = EImage.ARROW_CANDIDATE;
     } else {
       if (hi.isEnabled()) {
         if (fs.isSendingErrorRowsToTransform(ts)) {
-          col = EColor.RED;
+          color = EColor.RED;
           linestyle = ELineStyle.DASH;
           // activeLinewidth = lineWidth + 1;
           arrow = EImage.ARROW_ERROR;
         } else {
-          col = EColor.HOP_DEFAULT;
+          color = EColor.HOP_DEFAULT;
           arrow = EImage.ARROW_DEFAULT;
         }
+        
+        ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
+        IStream targetStream = ioMeta.findTargetStream(ts);
+        
+        if (targetStream != null) {
+          if ( targetStream.getStreamIcon()==StreamIcon.TRUE ) {
+            color = EColor.HOP_TRUE;
+            arrow = EImage.ARROW_TRUE;
+          } 
+          else if ( targetStream.getStreamIcon()==StreamIcon.FALSE ) {
+            color = EColor.HOP_FALSE;
+            arrow = EImage.ARROW_FALSE;
+          }             
+        }
       } else {
-        col = EColor.GRAY;
+        color = EColor.GRAY;
         arrow = EImage.ARROW_DISABLED;
       }
     }
-    if (hi.split) {
+    if (hi.isSplit()) {
       activeLinewidth = lineWidth + 2;
     }
 
@@ -989,20 +996,20 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             // As such, it's better not to give feedback on it.
             // We do this by drawing an error icon over the hop...
             //
-            col = EColor.RED;
+            color = EColor.RED;
             arrow = EImage.ARROW_ERROR;
           }
         }
       }
     }
 
-    gc.setForeground(col);
+    gc.setForeground(color);
     gc.setLineStyle(linestyle);
     gc.setLineWidth(activeLinewidth);
 
     drawArrow(arrow, line, hi, fs, ts);
 
-    if (hi.split) {
+    if (hi.isSplit()) {
       gc.setLineWidth(lineWidth);
     }
 
@@ -1031,10 +1038,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     gc.drawLine(x1, y1, x2, y2);
 
-    // in between 2 points
-    mx = x1 + (x2 - x1) / 2;
-    my = y1 + (y2 - y1) / 2;
 
+    // What's the distance between the 2 points?
     a = Math.abs(x2 - x1);
     b = Math.abs(y2 - y1);
     dist = (int) Math.sqrt(a * a + b * b);
@@ -1054,16 +1059,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     my = (int) (y1 + factor * (y2 - y1) / 2);
 
     // calculate points for arrowhead
-    // calculate points for arrowhead
     angle = Math.atan2(y2 - y1, x2 - x1) + (Math.PI / 2);
 
-    boolean q1 = Math.toDegrees(angle) >= 0 && Math.toDegrees(angle) <= 90;
-    boolean q2 = Math.toDegrees(angle) > 90 && Math.toDegrees(angle) <= 180;
-    boolean q3 = Math.toDegrees(angle) > 180 && Math.toDegrees(angle) <= 270;
-    boolean q4 = Math.toDegrees(angle) > 270 || Math.toDegrees(angle) < 0;
+    boolean q1 = Math.toDegrees(angle) >= 0 && Math.toDegrees(angle) < 90;
+    boolean q2 = Math.toDegrees(angle) >= 90 && Math.toDegrees(angle) < 180;
+    boolean q3 = Math.toDegrees(angle) >= 180 && Math.toDegrees(angle) < 270;
+    boolean q4 = Math.toDegrees(angle) >= 270 || Math.toDegrees(angle) < 0;
 
     if (q1 || q3) {
-      gc.drawImage(arrow, mx + 1, my, magnification, angle);
+      gc.drawImage(arrow, mx , my+1, magnification, angle);
     } else if (q2 || q4) {
       gc.drawImage(arrow, mx, my, magnification, angle);
     }
@@ -1136,7 +1140,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       }
 
       if (errorHop) {
-        gc.drawImage(EImage.FALSE, mx, my, magnification);
+        gc.drawImage(EImage.ERROR, mx, my, magnification);
         areaOwners.add(new AreaOwner(AreaType.HOP_ERROR_ICON, mx, my, 16, 16, offset, fs, ts));
         mx += 16;
       }

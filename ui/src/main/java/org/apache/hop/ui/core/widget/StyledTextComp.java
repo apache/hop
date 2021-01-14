@@ -64,7 +64,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StyledTextComp extends Composite {
-  private static final Class<?> PKG = StyledTextComp.class; // Needed by Translator
+  private static final Class<?> PKG = StyledTextComp.class; // For Translator
 
   // Modification for Undo/Redo on Styled Text
   private static final int MAX_STACK_SIZE = 25;

@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 public class MongoField implements Comparable<MongoField> {
-  protected static Class<?> PKG = MongoField.class; // for i18n purposes
+  protected static Class<?> PKG = MongoField.class; // For Translator
 
   /** The name the the field will take in the outputted Hop stream */
   @Injection(name = "FIELD_NAME", group = "FIELDS")

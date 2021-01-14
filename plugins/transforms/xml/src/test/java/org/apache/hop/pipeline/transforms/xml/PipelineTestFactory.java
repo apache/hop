@@ -42,10 +42,10 @@ import java.util.Map;
 
 
 /**
- * We can use this factory to create transformations with a source and target step.<br>
- * The source step is an Injector step.<br>
- * The target step is a dummy step.<br>
- * The middle step is the step specified.<br>
+ * We can use this factory to create transformations with a source and target transform.<br>
+ * The source transform is an Injector transform.<br>
+ * The target transform is a dummy transform.<br>
+ * The middle transform is the transform specified.<br>
  * 
  *
  */
@@ -65,22 +65,22 @@ public class PipelineTestFactory {
                                                         String oneTransformName ) {
     PipelineMeta previewMeta = new PipelineMeta();
 
-    // First the injector step...
+    // First the injector transform...
     TransformMeta zero = getInjectorTransformMeta();
     previewMeta.addTransform( zero );
 
-    // Then the middle step to test...
+    // Then the middle transform to test...
     //
     TransformMeta one = new TransformMeta( registry.getPluginId( TransformPluginType.class, oneMeta ), oneTransformName, oneMeta );
     one.setLocation( 150, 50 );
 //    one.setDraw( true );
     previewMeta.addTransform( one );
 
-    // Then we add the dummy step to read the results from
+    // Then we add the dummy transform to read the results from
     TransformMeta two = getReadTransformMeta();
     previewMeta.addTransform( two );
 
-    // Add the hops between the 3 steps.
+    // Add the hops between the 3 transforms.
     PipelineHopMeta zeroOne = new PipelineHopMeta( zero, one );
     previewMeta.addPipelineHop( zeroOne );
     PipelineHopMeta oneTwo = new PipelineHopMeta( one, two );
@@ -97,26 +97,26 @@ public class PipelineTestFactory {
       parent = new Variables();
     }
 
-    // First the injector step...
+    // First the injector transform...
     TransformMeta zero = getInjectorTransformMeta();
     previewMeta.addTransform( zero );
 
-    // Then the middle step to test...
+    // Then the middle transform to test...
     //
     TransformMeta one = new TransformMeta( registry.getPluginId( TransformPluginType.class, oneMeta ), oneTransformName, oneMeta );
     one.setLocation( 150, 50 );
 //    one.setDraw( true );
     previewMeta.addTransform( one );
 
-    // Then we add the dummy step to read the results from
+    // Then we add the dummy transform to read the results from
     TransformMeta two = getReadTransformMeta();
     previewMeta.addTransform( two );
 
-    // error handling step
+    // error handling transform
     TransformMeta err = getReadTransformMeta( ERROR_TRANSFORMNAME );
     previewMeta.addTransform( err );
 
-    // Add the hops between the 3 steps.
+    // Add the hops between the 3 transforms.
     PipelineHopMeta zeroOne = new PipelineHopMeta( zero, one );
     previewMeta.addPipelineHop( zeroOne );
     PipelineHopMeta oneTwo = new PipelineHopMeta( one, two );
@@ -144,7 +144,7 @@ public class PipelineTestFactory {
 
     trans.prepareExecution(  );
 
-    // Capture the rows that come out of the dummy step...
+    // Capture the rows that come out of the dummy transform...
     //
     ITransform si = trans.getTransformInterface( dummyTransformName, 0 );
     RowTransformCollector dummyRc = new RowTransformCollector();
@@ -154,7 +154,7 @@ public class PipelineTestFactory {
     //
     RowProducer rp = trans.addRowProducer( injectorTransformName, 0 );
 
-    // Start the steps...
+    // Start the transforms...
     //
     trans.startThreads();
 
@@ -178,7 +178,7 @@ public class PipelineTestFactory {
       throw new HopException( "Test transformation finished with errors. Check the log." );
     }
 
-    // Return the result from the dummy step...
+    // Return the result from the dummy transform...
     //
     return dummyRc.getRowsRead();
   }
@@ -197,7 +197,7 @@ public class PipelineTestFactory {
 
     trans.prepareExecution(  );
 
-    // Capture the rows that come out of the dummy step...
+    // Capture the rows that come out of the dummy transform...
     //
     ITransform si = trans.getTransformInterface( dummyTransformName, 0 );
     RowTransformCollector dummyRc = new RowTransformCollector();
@@ -216,7 +216,7 @@ public class PipelineTestFactory {
     //
     RowProducer rp = trans.addRowProducer( injectorTransformName, 0 );
 
-    // Start the steps...
+    // Start the transforms...
     //
     trans.startThreads();
 
@@ -240,7 +240,7 @@ public class PipelineTestFactory {
       throw new HopException( "Test transformation finished with errors. Check the log." );
     }
 
-    // Return the result from the dummy step...
+    // Return the result from the dummy transform...
     Map<String, RowTransformCollector> ret = new HashMap<>();
     ret.put( dummyTransformName, dummyRc );
     ret.put( errorTransformName, erColl );

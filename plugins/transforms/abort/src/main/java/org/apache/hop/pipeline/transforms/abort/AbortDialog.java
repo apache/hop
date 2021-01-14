@@ -36,7 +36,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class AbortDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AbortDialog.class; // Needed by Translator
+  private static final Class<?> PKG = AbortDialog.class; // For Translator
 
   private TextVar wRowThreshold;
 

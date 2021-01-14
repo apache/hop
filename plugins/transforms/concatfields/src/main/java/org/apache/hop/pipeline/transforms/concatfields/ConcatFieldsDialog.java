@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
  *
  */
 public class ConcatFieldsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ConcatFieldsMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ConcatFieldsMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

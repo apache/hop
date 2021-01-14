@@ -55,11 +55,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_NO;
-import static org.apache.hop.i18n.ConstMessages.SYSTEM_COMBO_YES;
-
 public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 
   private Label wlLimit;
   private TextVar wLimit;
@@ -288,8 +285,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
               BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, SYSTEM_COMBO_NO)
+                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, "System.Combo.No")
               })
         };
 
@@ -407,8 +404,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
         item.setText(
             col++,
             input.isSetEmptyString()[i]
-                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
-                : BaseMessages.getString(PKG, SYSTEM_COMBO_NO));
+                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+                : BaseMessages.getString(PKG, "System.Combo.No"));
       }
     }
 
@@ -470,7 +467,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       meta.getDecimal()[i] = item.getText(7);
       meta.getGroup()[i] = item.getText(8);
       meta.isSetEmptyString()[i] =
-          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(10));
+          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10));
 
       meta.getValue()[i] = meta.isSetEmptyString()[i] ? "" : item.getText(9);
       meta.getFieldType()[i] = meta.isSetEmptyString()[i] ? "String" : item.getText(2);

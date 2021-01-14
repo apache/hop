@@ -43,7 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Test class for the "Get XML Data" step.
+ * Test class for the "Get XML Data" transform.
  * 
  * @author Sven Boden
  */
@@ -178,7 +178,7 @@ public class GetXMLDataTest extends TestCase {
   }
 
   /**
-   * Test case for Get XML Data step, very simple example.
+   * Test case for Get XML Data transform, very simple example.
    * 
    * @throws Exception
    *           Upon any exception
@@ -196,9 +196,9 @@ public class GetXMLDataTest extends TestCase {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     //
-    // create an injector step...
+    // create an injector transform...
     //
-    String injectorTransformName = "injector step";
+    String injectorTransformName = "injector transform";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
@@ -207,9 +207,9 @@ public class GetXMLDataTest extends TestCase {
     pipelineMeta.addTransform( injectorTransform );
 
     //
-    // Create a Get XML Data step
+    // Create a Get XML Data transform
     //
-    String getXMLDataName = "get xml data step";
+    String getXMLDataName = "get xml data transform";
     GetXmlDataMeta gxdm = new GetXmlDataMeta();
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
@@ -293,9 +293,9 @@ public class GetXMLDataTest extends TestCase {
     pipelineMeta.addPipelineHop( hi );
 
     //
-    // Create a dummy step 1
+    // Create a dummy transform 1
     //
-    String dummyTransformName1 = "dummy step 1";
+    String dummyTransformName1 = "dummy transform 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
@@ -348,9 +348,9 @@ public class GetXMLDataTest extends TestCase {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     //
-    // create an injector step...
+    // create an injector transform...
     //
-    String injectorTransformName = "injector step";
+    String injectorTransformName = "injector transform";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
@@ -359,9 +359,9 @@ public class GetXMLDataTest extends TestCase {
     pipelineMeta.addTransform( injectorTransform );
 
     //
-    // Create a Get XML Data step
+    // Create a Get XML Data transform
     //
-    String getXMLDataName = "get xml data step";
+    String getXMLDataName = "get xml data transform";
     GetXmlDataMeta gxdm = new GetXmlDataMeta();
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
@@ -397,9 +397,9 @@ public class GetXMLDataTest extends TestCase {
     pipelineMeta.addPipelineHop( hi );
 
     //
-    // Create a dummy step 1
+    // Create a dummy transform 1
     //
-    String dummyTransformName1 = "dummy step 1";
+    String dummyTransformName1 = "dummy transform 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );

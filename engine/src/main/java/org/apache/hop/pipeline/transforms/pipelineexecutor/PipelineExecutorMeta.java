@@ -66,17 +66,16 @@ import java.util.List;
 @Transform(
   id = "PipelineExecutor",
   image = "ui/images/pipelineexecutor.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transform",
-  name = "BaseTransform.TypeLongDesc.PipelineExecutor",
-  description = "BaseTransform.TypeTooltipDesc.PipelineExecutor",
-  categoryDescription = "BaseTransform.Category.Flow",
+  name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.PipelineExecutor",
+  description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.PipelineExecutor",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
   keywords = ""
 )
 public class PipelineExecutorMeta
   extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
   implements ITransformMeta<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG = PipelineExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
 
   static final String F_EXECUTION_RESULT_TARGET_TRANSFORM = "execution_result_target_transform";
   static final String F_RESULT_FILE_TARGET_TRANSFORM = "result_files_target_transform";

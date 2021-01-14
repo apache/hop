@@ -66,7 +66,7 @@ public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
 
-  private static Class<?> PKG = SalesforceConnection.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceConnection.class; // For Translator
 
   private String url;
   private String username;
@@ -125,16 +125,16 @@ public class SalesforceConnection {
 
     // check target URL
     if ( Utils.isEmpty( getURL() ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.TargetURLMissing.Error" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.TargetURLMissing.Error" ) );
     }
 
     // check username
     if ( Utils.isEmpty( getUsername() ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.UsernameMissing.Error" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.UsernameMissing.Error" ) );
     }
 
     if ( log.isDetailed() ) {
-      logInterface.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.NewConnection" ) );
+      logInterface.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.NewConnection" ) );
     }
   }
 
@@ -175,16 +175,16 @@ public class SalesforceConnection {
     this.endDate = endDate;
     this.recordsFilter = recordsFilter;
     if ( this.startDate == null || this.endDate == null ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.EmptyStartDateOrEndDate" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.EmptyStartDateOrEndDate" ) );
     }
     if ( this.startDate.getTime().compareTo( this.endDate.getTime() ) >= 0 ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.WrongDates" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.WrongDates" ) );
     }
     // Calculate difference in days
     long diffDays =
       ( this.endDate.getTime().getTime() - this.startDate.getTime().getTime() ) / ( 24 * 60 * 60 * 1000 );
     if ( diffDays > 30 ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.StartDateTooOlder" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.StartDateTooOlder" ) );
     }
   }
 
@@ -286,7 +286,7 @@ public class SalesforceConnection {
     // Set timeout
     if ( getTimeOut() > 0 ) {
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.SettingTimeout", "" + this.timeout ) );
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.SettingTimeout", "" + this.timeout ) );
       }
       config.setConnectionTimeout( getTimeOut() );
       config.setReadTimeout( getTimeOut() );
@@ -296,7 +296,7 @@ public class SalesforceConnection {
       PartnerConnection pConnection = createBinding( config );
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.LoginURL", config.getAuthEndpoint() ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.LoginURL", config.getAuthEndpoint() ) );
       }
 
       if ( isRollbackAllChangesOnError() ) {
@@ -307,12 +307,12 @@ public class SalesforceConnection {
 
       // Attempt the login giving the user feedback
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.LoginNow" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.LoginNow" ) );
         log.logDetailed( "----------------------------------------->" );
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.LoginURL", getURL() ) );
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.LoginUsername", getUsername() ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.LoginURL", getURL() ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.LoginUsername", getUsername() ) );
         if ( getModule() != null ) {
-          log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.LoginModule", getModule() ) );
+          log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.LoginModule", getModule() ) );
         }
         log.logDetailed( "<-----------------------------------------" );
       }
@@ -322,9 +322,9 @@ public class SalesforceConnection {
         pConnection.login( config.getUsername(), Encr.decryptPasswordOptionallyEncrypted( config.getPassword() ) );
 
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.SessionId" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.SessionId" )
           + " : " + this.loginResult.getSessionId() );
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.NewServerURL" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.NewServerURL" )
           + " : " + this.loginResult.getServerUrl() );
       }
 
@@ -336,27 +336,27 @@ public class SalesforceConnection {
       // Return the user Infos
       this.userInfo = pConnection.getUserInfo();
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.UserInfos" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.UserInfos" )
           + " : " + this.userInfo.getUserFullName() );
         log.logDebug( "----------------------------------------->" );
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.UserName" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.UserName" )
           + " : " + this.userInfo.getUserFullName() );
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.UserEmail" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.UserEmail" )
           + " : " + this.userInfo.getUserEmail() );
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.UserLanguage" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.UserLanguage" )
           + " : " + this.userInfo.getUserLanguage() );
-        log.logDebug( BaseMessages.getString( PKG, "SalesforceInput.Log.UserOrganization" )
+        log.logDebug( BaseMessages.getString( PKG, "SalesforceConnection.Log.UserOrganization" )
           + " : " + this.userInfo.getOrganizationName() );
         log.logDebug( "<-----------------------------------------" );
       }
 
       this.serverTimestamp = pConnection.getServerTimestamp().getTimestamp().getTime();
       if ( log.isDebug() ) {
-        BaseMessages.getString( PKG, "SalesforceInput.Log.ServerTimestamp", getServerTimestamp() );
+        BaseMessages.getString( PKG, "SalesforceConnection.Log.ServerTimestamp", getServerTimestamp() );
       }
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.Connected" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.Connected" ) );
       }
 
     } catch ( LoginFault ex ) {
@@ -368,18 +368,18 @@ public class SalesforceConnection {
         || exCode == ExceptionCode.LOGIN_DURING_RESTRICTED_TIME || exCode == ExceptionCode.ORG_LOCKED
         || exCode == ExceptionCode.PASSWORD_LOCKOUT || exCode == ExceptionCode.SERVER_UNAVAILABLE
         || exCode == ExceptionCode.TRIAL_EXPIRED || exCode == ExceptionCode.UNSUPPORTED_CLIENT ) {
-        throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.InvalidUsernameOrPassword" ) );
+        throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.InvalidUsernameOrPassword" ) );
       }
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.Connection" ), ex );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.Connection" ), ex );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.Connection" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.Connection" ), e );
     }
   }
 
   public void query( boolean specifyQuery ) throws HopException {
 
     if ( getBinding() == null ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Exception.CanNotGetBiding" ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Exception.CanNotGetBiding" ) );
     }
 
     try {
@@ -387,24 +387,24 @@ public class SalesforceConnection {
         // check if we can query this Object
         DescribeSObjectResult describeSObjectResult = getBinding().describeSObject( getModule() );
         if ( describeSObjectResult == null ) {
-          throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.ErrorGettingObject" ) );
+          throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.ErrorGettingObject" ) );
         }
         if ( !describeSObjectResult.isQueryable() ) {
           throw new HopException( BaseMessages.getString(
-            PKG, "SalesforceInputDialog.ObjectNotQueryable", module ) );
+            PKG, "SalesforceConnection.ObjectNotQueryable", module ) );
         }
         if ( this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED
           || this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_DELETED ) {
           // The object must be replicateable
           if ( !describeSObjectResult.isReplicateable() ) {
             throw new HopException( BaseMessages.getString(
-              PKG, "SalesforceInput.Error.ObjectNotReplicateable", getModule() ) );
+              PKG, "SalesforceConnection.Error.ObjectNotReplicable", getModule() ) );
           }
         }
       }
 
       if ( getSQL() != null && log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.SQLString" ) + " : " + getSQL() );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.SQLString" ) + " : " + getSQL() );
       }
 
       switch ( this.recordsFilter ) {
@@ -508,10 +508,10 @@ public class SalesforceConnection {
         getDeletedList = null;
       }
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.ConnectionClosed" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "SalesforceConnection.Log.ConnectionClosed" ) );
       }
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.ClosingConnection" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.ClosingConnection" ), e );
     }
   }
 
@@ -675,7 +675,7 @@ public class SalesforceConnection {
         return false;
       }
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.QueringMore" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.QueringMore" ), e );
     }
   }
 
@@ -700,7 +700,7 @@ public class SalesforceConnection {
       }
       return objects.toArray( new String[ objects.size() ] );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.Error.GettingModules" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.Error.GettingModules" ), e );
     } finally {
       if ( dgr != null ) {
         dgr = null;
@@ -726,14 +726,14 @@ public class SalesforceConnection {
 
       if ( !describeSObjectResult.isQueryable() ) {
         throw new HopException( BaseMessages.getString(
-          PKG, "SalesforceInputDialog.ObjectNotQueryable", this.module ) );
+          PKG, "SalesforceConnection.ObjectNotQueryable", this.module ) );
       } else {
         // we can query this object
         return describeSObjectResult.getFields();
       }
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString(
-        PKG, "SalesforceInput.Error.GettingModuleFields", this.module ), e );
+        PKG, "SalesforceConnection.Error.GettingModuleFields", this.module ), e );
     } finally {
       if ( describeSObjectResult != null ) {
         describeSObjectResult = null;
@@ -857,7 +857,7 @@ public class SalesforceConnection {
     try {
       return getBinding().upsert( upsertField, sfBuffer );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.ErrorUpsert", e ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.ErrorUpsert", e ) );
     }
   }
 
@@ -871,7 +871,7 @@ public class SalesforceConnection {
       }
       return getBinding().create( normalizedSfBuffer.toArray( new SObject[ normalizedSfBuffer.size() ] ) );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.ErrorInsert", e ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.ErrorInsert", e ) );
     }
   }
 
@@ -879,7 +879,7 @@ public class SalesforceConnection {
     try {
       return getBinding().update( sfBuffer );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.ErrorUpdate", e ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.ErrorUpdate", e ) );
     }
   }
 
@@ -887,7 +887,7 @@ public class SalesforceConnection {
     try {
       return getBinding().delete( id );
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SalesforceInput.ErrorDelete", e ) );
+      throw new HopException( BaseMessages.getString( PKG, "SalesforceConnection.ErrorDelete", e ) );
     }
   }
 
