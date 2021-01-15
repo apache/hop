@@ -1,5 +1,5 @@
 {
-  "base_filename": "golden-concat-fields",
+  "base_filename": "golden-concat-fields.csv",
   "name": "golden-concat-fields",
   "description": "Testing the output of the concat fields transform",
   "dataset_fields": [

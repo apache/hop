@@ -859,7 +859,9 @@
                         <exclude>**/test/**/*.xlsx</exclude>
                         <exclude>**/test/**/*.edi</exclude>
 
+
                         <!-- Integration Test Exclusion -->
+                        <exclude>**/datasets/*.csv</exclude>
                         <exclude>**/it/**/*.csv</exclude>
 
                         <!-- External Integration Test Exclusion -->
