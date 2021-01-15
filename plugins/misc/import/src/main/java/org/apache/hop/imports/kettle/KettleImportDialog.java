@@ -414,10 +414,18 @@ public class KettleImportDialog extends Dialog {
 
         String eol = System.getProperty("line.separator");
         String messageString = "Imported: " + eol;
-        messageString += kettleImport.kjbCounter + " jobs" + eol;
-        messageString += kettleImport.ktrCounter + " transformations" + eol;
-        messageString += kettleImport.otherCounter + " other files"  + eol;
-        messageString += kettleImport.variableCounter + " variables" + eol;
+        if(kettleImport.kjbCounter > 0){
+            messageString += kettleImport.kjbCounter + " jobs" + eol;
+        }
+        if(kettleImport.ktrCounter > 0){
+            messageString += kettleImport.ktrCounter + " transformations" + eol;
+        }
+        if(kettleImport.otherCounter > 0){
+            messageString += kettleImport.otherCounter + " other files"  + eol;
+        }
+        if(kettleImport.variableCounter > 0){
+            messageString += kettleImport.variableCounter + " variables" + eol;
+        }
         if(kettleImport.connectionCounter > 0){
             messageString += kettleImport.connectionCounter + " database connections" + eol + eol;
             messageString += "Connections with the same name and different configurations have only been saved once." + eol;
