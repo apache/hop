@@ -125,10 +125,10 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
     if (success.get()) {
       prevResult.setNrErrors(0);
-      prevResult.setResult( false );
+      prevResult.setResult( true );
     } else {
       prevResult.setNrErrors(prevResult.getNrErrors() + 1);
-      prevResult.setResult( true );
+      prevResult.setResult( false );
     }
 
     clearBusyIcon();
