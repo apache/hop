@@ -72,8 +72,11 @@ public class KettleImport extends HopImport implements IHopImport {
             // TODO: add a proper way to exclude folders instead of hard coded .git exclude.
             List<String> otherFilesList = kettleWalk.map(x -> x.toString()).filter(f -> !f.endsWith(".ktr") && !f.endsWith(".kjb") && !f.contains(".git/")).collect(Collectors.toList());
             otherFilesList.forEach(otherFilename -> {
-                migratedFilesMap.put(otherFilename, null);
-                otherCounter++;
+                File otherFile = new File(otherFilename);
+                if(!otherFile.isDirectory()){
+                    migratedFilesMap.put(otherFilename, null);
+                    otherCounter++;
+                }
             });
         } catch (IOException e) {
             e.printStackTrace();
@@ -224,6 +227,7 @@ public class KettleImport extends HopImport implements IHopImport {
                 }catch (HopPluginException e) {
                     e.printStackTrace();
                 }catch(NullPointerException e){
+                    log.logError("Failed to parse connection of type '" + databaseType + "' for file '" + kettleFile.getAbsolutePath() + "'");
                     log.logError("Exception processing connection: " + e.getMessage());
                     e.printStackTrace();
                 }

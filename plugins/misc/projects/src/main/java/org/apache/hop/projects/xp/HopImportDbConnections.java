@@ -29,6 +29,7 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.hopgui.HopGui;
 
 import java.io.FileWriter;
@@ -51,14 +52,16 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
 
         HopGui hopGui = HopGui.getInstance();
         ILogChannel log = hopGui.getLog();
+
         ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
         ProjectConfig projectConfig = config.findProjectConfig(projectName);
         Project project = projectConfig.loadProject( hopGui.getVariables() );
-        projectConfig.getProjectHome();
-
-        IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
+//        project.setMetadataBaseFolder(projectConfig.getProjectHome() + System.getProperty("file.separator") + "metadata");
+        ProjectsUtil.enableProject(hopGui.getLog(), projectName, project, variables, Collections.emptyList(), null, hopGui);
+        IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
         IHopMetadataSerializer<DatabaseMeta> databaseSerializer = metadataProvider.getSerializer(DatabaseMeta.class);
+        projectConfig.getProjectHome();
 
         Iterator<DatabaseMeta> connectionIterator = connectionList.iterator();
         while(connectionIterator.hasNext()){

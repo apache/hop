@@ -335,7 +335,8 @@ public class KettleImportDialog extends Dialog {
     }
 
     private void browseHomeFolder( Event event ) {
-        String homeFolder = BaseDialog.presentDirectoryDialog( shell, wImportFrom, variables );
+        String homeFolder = BaseDialog.presentDirectoryDialog( shell, wImportFrom, variables);
+//        String homeFolder = BaseDialog.presentDirectoryDialog( shell, wImportFrom, variables, new String[]{"*.kjb", "*.ktr", "*.*"}, new String[]{"Kettle/PDI Job (*.kjb)", "Kettle/PDI Transformations (*.ktr)", "All Files (*.*)"}, true);
     }
 
     private void browseTargetFolder( Event event ) {
@@ -355,6 +356,12 @@ public class KettleImportDialog extends Dialog {
     }
 
     private void doImport(){
+
+        kettleImport.otherCounter = 0;
+        kettleImport.kjbCounter = 0;
+        kettleImport.ktrCounter = 0;
+        kettleImport.connectionCounter = 0;
+        kettleImport.variableCounter = 0;
 
         String projectName = "";
 
@@ -410,7 +417,7 @@ public class KettleImportDialog extends Dialog {
         messageString += kettleImport.kjbCounter + " jobs" + eol;
         messageString += kettleImport.ktrCounter + " transformations" + eol;
         messageString += kettleImport.otherCounter + " other files"  + eol;
-        messageString += variables.getVariableNames().length + " variables" + eol;
+        messageString += kettleImport.variableCounter + " variables" + eol;
         if(kettleImport.connectionCounter > 0){
             messageString += kettleImport.connectionCounter + " database connections" + eol + eol;
             messageString += "Connections with the same name and different configurations have only been saved once." + eol;

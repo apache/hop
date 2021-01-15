@@ -49,7 +49,7 @@ public class HopImport implements IHopImport{
 
     public HashMap<String, DOMSource> migratedFilesMap;
 
-    public int connectionCounter = 0;
+    public int connectionCounter, variableCounter = 0;
 
     private ProjectsConfig config;
 
@@ -116,6 +116,7 @@ public class HopImport implements IHopImport{
 
         properties.forEach((k,v) -> {
             projectVars.setVariable((String)k, (String)v);
+            variableCounter++; 
             log.logBasic("Saved variable " + (String)k + ": " + (String)v);
         });
 
