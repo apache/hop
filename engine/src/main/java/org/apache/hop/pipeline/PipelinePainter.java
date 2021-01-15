@@ -1079,8 +1079,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       TransformMeta ts = (TransformMeta) endObject;
 
       // in between 2 points
-      mx = (int) (x1 + factor * (x2 - x1) / 2) - 8;
-      my = (int) (y1 + factor * (y2 - y1) / 2) - 8;
+      mx = (int) (x1 + factor * (x2 - x1) / 2) - miniIconSize / 2;
+      my = (int) (y1 + factor * (y2 - y1) / 2) - miniIconSize / 2;
 
       boolean errorHop =
           fs.isSendingErrorRowsToTransform(ts)
