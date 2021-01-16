@@ -6,36 +6,27 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.pipeline.transforms.fieldsplitter;
+package org.apache.hop.testing.util;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.testing.UnitTestResult;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
-public class FieldSplitterData extends BaseTransformData implements ITransformData {
-  public IRowMeta previousMeta;
-  public IRowMeta outputMeta;
-  public IRowMeta conversionMeta;
-  public int fieldnr;
-  public String delimiter;
-  public String enclosure;
-  public String escapeString;
+import java.util.List;
 
-  public FieldSplitterData() {
-    super();
-  }
+public interface ITestResultsEvaluator {
+
+  void evaluateTestResults( IPipelineEngine pipeline, List<UnitTestResult> testResults ) throws HopException;
 
 }

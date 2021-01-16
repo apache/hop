@@ -604,6 +604,19 @@ public class ConstTest {
     assertEquals( result[ 2 ], "Hello\\, 3rd rock" );
   }
 
+  @Test
+  public void testSplitStringWithEscapeString() {
+    String string = "aaa:123.4:c:ddd-dd:eeee\\\\:\\\\:eee:fff";
+    String chunks[] = new String[] { "aaa", "123.4", "c", "ddd-dd", "eeee::eee", "fff", };
+    String parts[] = Const.splitString( string, ":", null, false, "\\\\" );
+    assertSplit( chunks, parts );
+
+    string = "cpe:2.3:a:lemonldap-ng:lemonldap\\\\:\\\\::2.0.3:*:*:*:*:*:*:*";
+    chunks = new String[] { "cpe", "2.3", "a", "lemonldap-ng", "lemonldap::", "2.0.3", "*", "*", "*", "*", "*", "*", "*" };
+    parts = Const.splitString( string, ":", null, false, "\\\\" );
+    assertSplit( chunks, parts );
+  }
+
   /**
    * Test splitPath.
    */

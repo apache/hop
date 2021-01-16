@@ -31,6 +31,9 @@ You can use the Split Fields transform to split a field into multiple fields bas
 |Transform name|Name of the transform; this name has to be unique in a single pipeline
 |Field to split|The name of the field you want to split
 |Delimiter|Delimiter that determines the field. Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
+|Enclosure|You can specify an enclosure string which when placed around a value allows delimiters to be present in it.  For example with a comma (,) delimiter:  ```aaaa,"123,456",ccc``` can be resolved to 3 fields using enclosure ```"```.
+| Escape string|To include delimiter characters in values sometimes an escape string is used like backslash, double backslash and so on.
+For example with a comma (,) delimiter:  ```aaaa,123\\,456,ccc``` can be resolved to 3 fields using escape character ```\\```.
 |Fields table|This table is where you define the properties for each new field created by the split. For each new field, you must define the field name, data type, and other properties.
 |===
 

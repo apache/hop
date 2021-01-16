@@ -125,7 +125,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     int margin = (int)(Const.MARGIN*props.getZoomFactor());
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText("Workflow entry name");
+    wlName.setText("Action name");
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -618,7 +618,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     if (Utils.isEmpty(wName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setText("Warning");
-      mb.setMessage("The name of the workflow entry is missing!");
+      mb.setMessage("The name of the action is missing!");
       mb.open();
       return;
     }
