@@ -94,7 +94,7 @@ for (var i = 0 ; i&lt;expectedValues.length ; i++) {
 ok;</script>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>528</xloc>
+      <xloc>464</xloc>
       <yloc>96</yloc>
       <attributes_hac/>
     </action>
