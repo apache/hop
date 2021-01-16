@@ -86,7 +86,7 @@ pipeline {
             }
             steps{
                 script {
-                    env.POM_VERSION = sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim()
+                    env.POM_VERSION = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
                 }
                 echo "The version fo the pom is: ${env.POM_VERSION}"
             }
