@@ -145,7 +145,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     props.setLook( wPurpose );
     FormData fdPurpose = new FormData();
     fdPurpose.left = new FormAttachment( middle, margin );
-    fdPurpose.right = new FormAttachment( 100, -margin );
+    fdPurpose.right = new FormAttachment( 100, 0 );
     fdPurpose.top = new FormAttachment( wlPurpose, 0, SWT.CENTER );
     wPurpose.setLayoutData( fdPurpose );
     lastControl = wPurpose;
@@ -167,12 +167,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wProject.setLayoutData( fdProject );
     lastControl = wProject;
 
-    Label wlConfigFiles = new Label( shell, SWT.RIGHT );
+    Label wlConfigFiles = new Label( shell, SWT.LEFT );
     props.setLook( wlConfigFiles );
     wlConfigFiles.setText( "Configuration files: " );
     FormData fdlConfigFiles = new FormData();
     fdlConfigFiles.left = new FormAttachment( 0, 0 );
-    fdlConfigFiles.right = new FormAttachment( middle, 0 );
+    fdlConfigFiles.right = new FormAttachment( 100, 0 );
     fdlConfigFiles.top = new FormAttachment( lastControl, margin );
     wlConfigFiles.setLayoutData( fdlConfigFiles );
 
@@ -199,7 +199,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     };
     columnInfo[ 0 ].setUsingVariables( true );
 
-    wConfigFiles = new TableView( variables, shell, SWT.SINGLE, columnInfo, environment.getConfigurationFiles().size(), null, props );
+    wConfigFiles = new TableView( variables, shell, SWT.SINGLE | SWT.BORDER, columnInfo, environment.getConfigurationFiles().size(), null, props );
     props.setLook( wConfigFiles );
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment( 0, 0 );
@@ -268,7 +268,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
   private void addConfigFile( Event event ) {
     String configFile = BaseDialog.presentFileDialog( shell, null, variables,
-      new String[] { "*.json", "*.*"},
+      new String[] { "*.json", "*"},
       new String[] { "Config JSON files", "All files" },
       true);
     if (configFile!=null) {
