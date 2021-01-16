@@ -40,6 +40,7 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
     check( "FIELD_TO_SPLIT", () -> meta.getSplitField() );
     check( "DELIMITER", () -> meta.getDelimiter() );
     check( "ENCLOSURE", () -> meta.getEnclosure() );
+    check( "ESCAPE_STRING", () -> meta.getEscapeString() );
     check( "NAME", () -> meta.getFieldName()[ 0 ] );
     check( "ID", () -> meta.getFieldID()[ 0 ] );
     check( "REMOVE_ID", () -> meta.getFieldRemoveID()[ 0 ] );

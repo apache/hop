@@ -25,7 +25,7 @@
     <parent>
         <artifactId>hop-assemblies-plugins</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.60-SNAPSHOT</version>
+        <version>0.70-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
 
@@ -36,9 +36,10 @@
 
     <modules>
         <module>debug</module>
+        <module>git</module>
+        <module>import</module>
         <module>projects</module>
         <module>testing</module>
-        <module>git</module>
     </modules>
 
 </project>

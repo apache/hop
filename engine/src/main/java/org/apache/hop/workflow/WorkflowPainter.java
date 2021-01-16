@@ -450,8 +450,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     factor = 0.8;
 
     // in between 2 points
-    mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 ) - 8;
-    my = (int) ( y1 + factor * ( y2 - y1 ) / 2 ) - 8;
+    mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 ) - miniIconSize / 2;
+    my = (int) ( y1 + factor * ( y2 - y1 ) / 2 ) - miniIconSize / 2;
 
     if ( workflowHop != null ) {
 

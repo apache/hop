@@ -1210,7 +1210,7 @@ public class TestingGuiPlugin {
               metadataProvider.getSerializer(PipelineUnitTest.class).load(unitTestName);
 
           if (targetTest != null) {
-            String completeFilename = targetTest.calculateCompleteFilename(variables);
+            String completeFilename = targetTest.calculateCompletePipelineFilename(variables);
             hopGui.fileDelegate.fileOpen(completeFilename);
 
             PipelineMeta pipelineMeta = getActivePipelineMeta();

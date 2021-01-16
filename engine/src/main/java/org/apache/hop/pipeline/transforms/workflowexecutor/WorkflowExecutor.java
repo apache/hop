@@ -365,7 +365,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       // First we need to load the mapping (pipeline)
       try {
 
-        data.executorWorkflowMeta = WorkflowExecutorMeta.loadWorkflowMeta( meta, this );
+        data.executorWorkflowMeta = WorkflowExecutorMeta.loadWorkflowMeta( meta, metadataProvider, this );
 
         // Do we have a workflow at all?
         //

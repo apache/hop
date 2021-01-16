@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fields",
+          "data_set_field": "fields"
+        }
+      ],
+      "field_order": [
+        "fields"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-concat-fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-concat-fields UNIT",
+  "description": "Tests the output of the concat fields step",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0004-concat-fields.hpl",
+  "test_type": "UNIT_TEST"
+}

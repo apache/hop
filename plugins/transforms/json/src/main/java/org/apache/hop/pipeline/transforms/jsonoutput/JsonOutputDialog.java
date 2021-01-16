@@ -713,12 +713,12 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
       }
     };
+    wGet.addListener( SWT.Selection, e -> get() );
 
     wTransformName.addSelectionListener( lsDef );
     // Detect X or ALT-F4 or something that kills this window...

@@ -308,12 +308,12 @@ public class ProjectDialog extends Dialog {
     wEnforceHomeExecution.setLayoutData(fdEnforceHomeExecution);
     lastControl = wEnforceHomeExecution;
 
-    Label wlVariables = new Label(shell, SWT.RIGHT);
+    Label wlVariables = new Label(shell, SWT.LEFT);
     props.setLook(wlVariables);
     wlVariables.setText("Project variables to set : ");
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment(0, 0);
-    fdlVariables.right = new FormAttachment(middle, 0);
+    fdlVariables.right = new FormAttachment(100, 0);
     fdlVariables.top = new FormAttachment(lastControl, margin);
     wlVariables.setLayoutData(fdlVariables);
 
@@ -331,7 +331,7 @@ public class ProjectDialog extends Dialog {
         new TableView(
             new Variables(),
             shell,
-            SWT.NONE,
+            SWT.BORDER,
             columnInfo,
             project.getDescribedVariables().size(),
             null,

@@ -215,7 +215,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
     String pipelineUri = pipelineFile.getName().getURI();
 
-    String testPipelineFilename = calculateCompleteFilename(variables);
+    String testPipelineFilename = calculateCompletePipelineFilename(variables);
     if (Utils.isEmpty(testPipelineFilename)) {
       return false;
     }
@@ -225,7 +225,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return pipelineUri.equals( testPipelineUri );
   }
 
-  public String calculateCompleteFilename(IVariables variables) {
+  public String calculateCompletePipelineFilename( IVariables variables) {
 
     // Without a filename we don't have any work
     //

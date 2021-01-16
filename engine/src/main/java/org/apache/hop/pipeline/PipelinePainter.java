@@ -650,8 +650,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       RowBuffer rowBuffer = outputRowsMap.get(transformMeta.getName());
       if (rowBuffer != null && !rowBuffer.isEmpty()) {
         int iconWidth = miniIconSize;
-        int iconX = x + iconSize - iconWidth + 10;
-        int iconY = y + iconSize - iconWidth + 10;
+        int iconX = x + iconSize - (miniIconSize / 2) + 1;
+        int iconY = y + iconSize - (miniIconSize / 2) + 1;
         gc.drawImage(EImage.DATA, iconX, iconY, magnification);
         areaOwners.add(
             new AreaOwner(
@@ -1079,8 +1079,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       TransformMeta ts = (TransformMeta) endObject;
 
       // in between 2 points
-      mx = (int) (x1 + factor * (x2 - x1) / 2) - 8;
-      my = (int) (y1 + factor * (y2 - y1) / 2) - 8;
+      mx = (int) (x1 + factor * (x2 - x1) / 2) - miniIconSize / 2;
+      my = (int) (y1 + factor * (y2 - y1) / 2) - miniIconSize / 2;
 
       boolean errorHop =
           fs.isSendingErrorRowsToTransform(ts)
