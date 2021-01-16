@@ -25,12 +25,12 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.60-SNAPSHOT</version>
+        <version>0.60</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-postgresql</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.60</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases PostgreSQL</name>

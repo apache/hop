@@ -25,12 +25,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.60-SNAPSHOT</version>
+        <version>0.60</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-syslog</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.60</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Syslog Message</name>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-syslog</artifactId>
-            <version>0.60-SNAPSHOT</version>
+            <version>0.60</version>
         </dependency>
         <dependency>
             <groupId>org.syslog4j</groupId>

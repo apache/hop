@@ -23,7 +23,7 @@
   <parent>
     <artifactId>hop-assemblies-plugins</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.60</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -531,7 +531,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-action-repeat</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1834,7 +1834,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-randomvalue</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1847,7 +1847,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-regexeval</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1860,7 +1860,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-replacestring</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2942,7 +2942,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2955,7 +2955,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2968,7 +2968,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-googledrive</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2981,7 +2981,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-s3</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <type>zip</type>
       <exclusions>
         <exclusion>

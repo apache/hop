@@ -25,12 +25,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.60-SNAPSHOT</version>
+        <version>0.60</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.60</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Mail Input</name>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-getpop</artifactId>
-            <version>0.60-SNAPSHOT</version>
+            <version>0.60</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

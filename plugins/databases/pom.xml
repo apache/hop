@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-databases</artifactId>
-  <version>0.60-SNAPSHOT</version>
+  <version>0.60</version>
     <modules>
     </modules>
     <packaging>pom</packaging>
@@ -33,7 +33,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.60</version>
   </parent>
 
   <properties>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.60</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
