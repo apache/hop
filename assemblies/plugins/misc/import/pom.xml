@@ -23,23 +23,27 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>hop-assemblies-plugins</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-misc</artifactId>
         <version>0.60-SNAPSHOT</version>
     </parent>
+
+    <artifactId>hop-assemblies-plugins-misc-import</artifactId>
+    <version>0.60-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <artifactId>hop-assemblies-plugins-misc</artifactId>
-
-    <name>Hop Assemblies Plugins Miscellaneous</name>
+    <name>Hop Assemblies Plugins Miscellaneous Import</name>
     <description></description>
 
-    <modules>
-        <module>debug</module>
-        <module>git</module>
-        <module>import</module>
-        <module>projects</module>
-        <module>testing</module>
-    </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-misc-import</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.10</version>
+        </dependency>
+    </dependencies>
 </project>
