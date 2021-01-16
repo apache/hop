@@ -650,8 +650,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       RowBuffer rowBuffer = outputRowsMap.get(transformMeta.getName());
       if (rowBuffer != null && !rowBuffer.isEmpty()) {
         int iconWidth = miniIconSize;
-        int iconX = x + iconSize - iconWidth + 10;
-        int iconY = y + iconSize - iconWidth + 10;
+        int iconX = x + iconSize - (miniIconSize / 2) + 1;
+        int iconY = y + iconSize - (miniIconSize / 2) + 1;
         gc.drawImage(EImage.DATA, iconX, iconY, magnification);
         areaOwners.add(
             new AreaOwner(
