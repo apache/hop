@@ -28,8 +28,6 @@
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
       <intervalSeconds>0</intervalSeconds>
@@ -55,7 +53,37 @@ TEST2_PARAMETER2 = >${TEST2_PARAMETER2}&lt;</logmessage>
       <logsubject>Log parameter value</logsubject>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>320</xloc>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check DB connections</name>
+      <description/>
+      <type>CHECK_DB_CONNECTIONS</type>
+      <attributes/>
+      <connections>
+        <connection>
+          <name>testdb</name>
+          <waitfor>0</waitfor>
+          <waittime>millisecond</waittime>
+        </connection>
+      </connections>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>560</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Problem checking testdb connection</message>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>720</xloc>
       <yloc>96</yloc>
       <attributes_hac/>
     </action>
@@ -69,6 +97,24 @@ TEST2_PARAMETER2 = >${TEST2_PARAMETER2}&lt;</logmessage>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Log parameter value</from>
+      <to>Check DB connections</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check DB connections</from>
+      <to>Abort workflow</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

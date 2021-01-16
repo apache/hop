@@ -479,8 +479,8 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     return targetTransforms.toArray( new String[ targetTransforms.size() ] );
   }
 
-  public static final synchronized WorkflowMeta loadWorkflowMeta( WorkflowExecutorMeta executorMeta, IVariables variables ) throws HopException {
-    return loadWorkflowMeta( executorMeta, null, variables );
+  public static final synchronized WorkflowMeta loadWorkflowMeta( WorkflowExecutorMeta executorMeta, IVariables variables, IHopMetadataProvider metadataProvider ) throws HopException {
+    return loadWorkflowMeta( executorMeta, metadataProvider, variables );
   }
 
   public static final synchronized WorkflowMeta loadWorkflowMeta( WorkflowExecutorMeta executorMeta, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
@@ -566,13 +566,14 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
    * without using PowerMock
    *
    * @param executorMeta
+   * @param metadataProvider
    * @param variables
    * @return WorkflowMeta
    * @throws HopException
    */
-  WorkflowMeta loadWorkflowMetaProxy( WorkflowExecutorMeta executorMeta,
+  WorkflowMeta loadWorkflowMetaProxy( WorkflowExecutorMeta executorMeta, IHopMetadataProvider metadataProvider,
                                  IVariables variables ) throws HopException {
-    return loadWorkflowMeta( executorMeta, variables );
+    return loadWorkflowMeta( executorMeta, metadataProvider, variables );
   }
 
   @Override
@@ -587,7 +588,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       //
       // First load the executor workflow metadata...
       //
-      WorkflowMeta executorWorkflowMeta = loadWorkflowMetaProxy( this, variables );
+      WorkflowMeta executorWorkflowMeta = loadWorkflowMetaProxy( this, metadataProvider, variables );
 
       // Also go down into the mapping pipeline and export the files
       // there. (mapping recursively down)

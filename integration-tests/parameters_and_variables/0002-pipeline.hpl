@@ -68,7 +68,7 @@
       </variablemapping>
       <inherit_all_vars>Y</inherit_all_vars>
     </parameters>
-    <execution_result_target_transform/>
+    <execution_result_target_transform>One row</execution_result_target_transform>
     <execution_time_field>ExecutionTime</execution_time_field>
     <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
