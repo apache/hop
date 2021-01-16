@@ -22,11 +22,7 @@
 		<swt.version>4.6</swt.version>
 		<cassandra-driver.version>3.4.0</cassandra-driver.version>
 		<mockito.version>1.9.5</mockito.version>
-		<apache.commons.lang3.version>3.0</apache.commons.lang3.version>
-		<commons-lang.version>2.6</commons-lang.version>
-		<jface.version>3.3.0-I20070606-0010</jface.version>
-		<commons-xul.version>9.2.0.0-SNAPSHOT</commons-xul.version>
-		<guava.version>17.0</guava.version>
+        <guava.version>17.0</guava.version>
 		<snakeyaml.version>1.11</snakeyaml.version>
 		<netty.version>4.0.44.Final</netty.version>
 		<clearspring-stream.version>2.8.0</clearspring-stream.version>
@@ -43,18 +39,6 @@
 
 <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.eclipse.swt</groupId>
-        <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-        <version>${swt.version}</version>
-        <scope>compile</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>*</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <dependency>
         <groupId>org.eclipse</groupId>
         <artifactId>jface</artifactId>
