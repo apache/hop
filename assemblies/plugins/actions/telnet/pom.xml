@@ -25,11 +25,11 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-actions</artifactId>
-        <version>0.60-SNAPSHOT</version>
+        <version>0.70-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins-action-telnet</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.70-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Actions Telnet a host</name>
     <description></description>

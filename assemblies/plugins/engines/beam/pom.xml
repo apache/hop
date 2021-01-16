@@ -25,11 +25,11 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies-plugins-engines</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.70-SNAPSHOT</version>
   </parent>
 
   <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-  <version>0.60-SNAPSHOT</version>
+  <version>0.70-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Engines Beam</name>
   <description></description>
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-plugins-engines-beam</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
 
     <!-- The Apache Beam dependencies -->
@@ -247,47 +247,47 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-sort</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-uniquerows</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-memgroupby</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-constant</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-filterrows</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-streamlookup</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-rowgenerator</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-switchcase</artifactId>
-      <version>0.60-SNAPSHOT</version>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
 
   </dependencies>
