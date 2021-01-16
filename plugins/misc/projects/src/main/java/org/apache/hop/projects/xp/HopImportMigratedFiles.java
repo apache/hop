@@ -34,6 +34,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -82,21 +83,11 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                             File projectFile = new File(outFilename);
                             String folderName = projectFile.getParent();
                             Files.createDirectories(Paths.get(folderName));
-                            is = new FileInputStream(sourceFile);
-                            os = new FileOutputStream(projectFile);
-                            byte[] buffer = new byte[1024];
-                            int length;
-                            while ((length = is.read(buffer)) > 0) {
-                                os.write(buffer, 0, length);
-                            }
+                            Files.copy(Paths.get(sourceFile.getAbsolutePath()), Paths.get(projectFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
                         }
-                    }finally {
-                        if(is != null){
-                            is.close();
-                        }
-                        if(os != null){
-                            os.close();
-                        }
+                    }catch(IOException e) {
+                        iLogChannel.logError("Error copying file '" + filename + " to Hop.");
+                        e.printStackTrace();
                     }
                 }else{
                     String outFilename = "";
