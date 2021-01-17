@@ -56,10 +56,6 @@ public class UnitTestUtil {
     //
     unitTestPipelineMeta.setMetadataProvider( metadataProvider );
 
-    // clear and load attributes for unit test...
-    //
-    TestingGuiPlugin.selectUnitTest( unitTestPipelineMeta, test );
-
     return unitTestPipelineMeta;
   }
 
