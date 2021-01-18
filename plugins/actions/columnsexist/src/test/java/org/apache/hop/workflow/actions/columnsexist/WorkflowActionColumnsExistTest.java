@@ -23,7 +23,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -85,7 +84,7 @@ public class WorkflowActionColumnsExistTest {
     parentWorkflow.setLogLevel( LogLevel.NOTHING );
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     action.setDatabase( dbMeta );
-    db = spy( new Database( action, dbMeta ) );
+    db = spy( new Database( action, action, dbMeta ) );
     action.setParentWorkflow( parentWorkflow );
     action.setTablename( TABLENAME );
     action.setArguments( COLUMNS );

@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -501,14 +502,14 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava( scmO, ScriptValuesMod.class );
         String strDBName = Context.toString( ArgList[ 0 ] );
         String strSql = Context.toString( ArgList[ 1 ] );
-        DatabaseMeta ci = DatabaseMeta.findDatabase( scm.getPipelineMeta().getDatabases(), strDBName );
-        if ( ci == null ) {
+        DatabaseMeta databaseMeta = DatabaseMeta.findDatabase( scm.getPipelineMeta().getDatabases(), strDBName );
+        if ( databaseMeta == null ) {
           throw Context.reportRuntimeError( "Database connection not found: " + strDBName );
         }
 
-        Database db = new Database( scm, ci );
         // TODO: figure out how to set variables on the connection?
         //
+        Database db = new Database(scm, Variables.getADefaultVariableSpace(), databaseMeta);
         db.setQueryLimit( 0 );
         try {
           db.connect( scm.getPartitionId() );

@@ -285,8 +285,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
         logError( BaseMessages.getString( PKG, "DynmaicSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, variables, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 

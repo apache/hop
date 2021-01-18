@@ -835,10 +835,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     return true;
   }
 
-  protected Database createDataBase( DatabaseMeta databaseMeta ) {
-    return new Database( this, databaseMeta );
-  }
-
   public boolean isInitialized() {
     int exist = status.get() & BitMaskStatus.INITIALIZED.mask;
     return exist != 0;

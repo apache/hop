@@ -229,8 +229,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
       }
     }
     if (connection != null) {
-      Database db = new Database(this, connection);
-      db.shareWith(this);
+      Database db = new Database(this, this, connection );
       try {
         db.connect();
         if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments

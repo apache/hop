@@ -531,8 +531,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -888,7 +887,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
         }
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, databaseMeta);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             db.connect();
 
@@ -1028,7 +1027,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     String realSchemaName = variables.resolve(schemaName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 

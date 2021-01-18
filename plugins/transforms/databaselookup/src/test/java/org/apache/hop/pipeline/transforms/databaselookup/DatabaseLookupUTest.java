@@ -31,6 +31,7 @@ import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -85,6 +86,7 @@ public class DatabaseLookupUTest {
   private static final String BINARY_FIELD = "aBinaryFieldInDb";
   private static final String ID_FIELD = "id";
   private TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -98,6 +100,7 @@ public class DatabaseLookupUTest {
 
   @Before
   public void setUp() {
+    variables = new Variables();
     mockHelper = createMockHelper();
   }
 
@@ -200,7 +203,7 @@ public class DatabaseLookupUTest {
     Connection connection = mock( Connection.class );
     when( connection.prepareStatement( anyString() ) ).thenReturn( ps );
 
-    Database db = new Database( mock( ILoggingObject.class ), meta );
+    Database db = new Database( mock( ILoggingObject.class ), variables, meta );
     db.setConnection( connection );
 
     db = spy( db );

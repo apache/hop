@@ -268,8 +268,7 @@ public class AddSequenceMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     if (useDatabase) {
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
         if (db.checkSequenceExists(
@@ -333,8 +332,7 @@ public class AddSequenceMeta extends BaseTransformMeta
     if (useDatabase) {
       // Otherwise, don't bother!
       if (databaseMeta != null) {
-        Database db = new Database(loggingObject, databaseMeta);
-        db.shareWith(variables);
+        Database db = new Database(loggingObject, variables, databaseMeta );
         try {
           db.connect();
           if (!db.checkSequenceExists(schemaName, sequenceName)) {

@@ -234,8 +234,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
     if (connections != null) {
       for (int i = 0; i < connections.length && !parentWorkflow.isStopped(); i++) {
-        Database db = new Database(this, connections[i]);
-        db.shareWith(this);
+        Database db = new Database(this, this, connections[i] );
         try {
           db.connect();
 

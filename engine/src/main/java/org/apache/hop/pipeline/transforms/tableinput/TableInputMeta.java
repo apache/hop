@@ -180,11 +180,6 @@ public class TableInputMeta extends BaseTransformMeta
     rowLimit = "0";
   }
 
-  protected Database getDatabase() {
-    // Added for test purposes
-    return new Database(loggingObject, databaseMeta);
-  }
-
   public void getFields(
       IRowMeta row,
       String origin,
@@ -199,7 +194,7 @@ public class TableInputMeta extends BaseTransformMeta
 
     boolean param = false;
 
-    Database db = getDatabase();
+    Database db = new Database(loggingObject, variables, databaseMeta );
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
@@ -293,8 +288,7 @@ public class TableInputMeta extends BaseTransformMeta
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
       try {

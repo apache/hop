@@ -268,8 +268,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         logError( BaseMessages.getString( PKG, "ExecSql.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
 
       // Connect to the database
       try {

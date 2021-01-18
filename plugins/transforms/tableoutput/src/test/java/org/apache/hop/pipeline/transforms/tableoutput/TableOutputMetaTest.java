@@ -21,6 +21,7 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -42,12 +43,14 @@ import static org.mockito.Mockito.when;
 
 public class TableOutputMetaTest {
 
+  private IVariables variables;
   private List<DatabaseMeta> databases;
   private IHopMetadataProvider metadataProvider;
 
   @SuppressWarnings( "unchecked" )
   @Before
   public void setUp() {
+    variables = mock( IVariables.class );
     databases = mock( List.class );
     metadataProvider = new MemoryMetadataProvider();
   }
@@ -82,7 +85,7 @@ public class TableOutputMetaTest {
 
     TableOutputData tableOutputData = new TableOutputData();
     tableOutputData.insertRowMeta = mock( RowMeta.class );
-    assertEquals( tableOutputData.insertRowMeta, tableOutputMeta.getRowMeta( tableOutputData ) );
+    assertEquals( tableOutputData.insertRowMeta, tableOutputMeta.getRowMeta( variables, tableOutputData ) );
 
     tableOutputMeta.setSpecifyFields( false );
     assertEquals( 0, tableOutputMeta.getDatabaseFields().size() );

@@ -23,6 +23,8 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -48,12 +50,14 @@ import static org.junit.Assert.assertEquals;
 public class CombinationLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<CombinationLookupMeta> testMetaClass = CombinationLookupMeta.class;
+  private IVariables variables;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
+    variables = new Variables();
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "databaseMeta", "replaceFields", "keyField", "keyLookup",
         "useHash", "hashField", "technicalKeyField", "sequenceFrom", "commitSize", "preloadCache", "cacheSize",
@@ -103,7 +107,7 @@ public class CombinationLookupMetaTest implements IInitializer<ITransformMeta> {
 
     final RowMeta rowMeta = Mockito.mock( RowMeta.class );
     final CombinationLookupMeta combinationLookupMeta = new CombinationLookupMeta() {
-      @Override Database createDatabaseObject() {
+      @Override Database createDatabaseObject(IVariables variables) {
         return Mockito.mock( Database.class );
       }
 
@@ -120,7 +124,7 @@ public class CombinationLookupMetaTest implements IInitializer<ITransformMeta> {
     combinationLookupMeta.setTablename( "aDimTable" );
 
     final CombinationLookupData dimensionLookupData = new CombinationLookupData();
-    assertEquals( rowMeta, combinationLookupMeta.getRowMeta( dimensionLookupData ) );
+    assertEquals( rowMeta, combinationLookupMeta.getRowMeta( variables, dimensionLookupData ) );
     assertEquals( 3, combinationLookupMeta.getDatabaseFields().size() );
     assertEquals( "f1", combinationLookupMeta.getDatabaseFields().get( 0 ) );
     assertEquals( "f2", combinationLookupMeta.getDatabaseFields().get( 1 ) );

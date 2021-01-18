@@ -1732,20 +1732,6 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
     // TODO: inform the active audit manager that the pipeline started processing
   }
 
-  protected Database createDataBase( DatabaseMeta meta ) {
-    return new Database( this, meta );
-  }
-
-  private void disconnectDb( Database db ) throws HopDatabaseException {
-    if ( db == null ) {
-      return;
-    }
-    if ( !db.isAutoCommit() ) {
-      db.commit( true );
-    }
-    db.disconnect();
-  }
-
   /**
    * Gets the result of the pipeline. The Result object contains such measures as the number of errors, number of
    * lines read/written/input/output/updated/rejected, etc.

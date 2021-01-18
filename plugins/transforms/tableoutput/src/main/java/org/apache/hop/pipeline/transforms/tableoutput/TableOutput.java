@@ -509,9 +509,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           throw new HopException( dbInterface.getUnsupportedTableOutputMessage() );
         }
 
-        data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareWith( this );
-
+        data.db = new Database( this, this, meta.getDatabaseMeta() );
         data.db.connect( getPartitionId() );
 
         if ( log.isBasic() ) {

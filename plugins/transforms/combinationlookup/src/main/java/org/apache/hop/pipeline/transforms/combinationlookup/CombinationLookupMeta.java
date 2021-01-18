@@ -485,7 +485,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -689,7 +689,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
         if (!Utils.isEmpty(tableName)) {
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-          Database db = new Database(loggingObject, databaseMeta);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             boolean doHash = false;
             String crTable = null;
@@ -1126,14 +1126,14 @@ public class CombinationLookupMeta extends BaseTransformMeta
     return extraFields;
   }
 
-  Database createDatabaseObject() {
-    return new Database(loggingObject, databaseMeta);
+  Database createDatabaseObject(IVariables variables) {
+    return new Database(loggingObject, variables, databaseMeta );
   }
 
   @Override
-  public RowMeta getRowMeta(ITransformData transformData) {
+  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     try {
-      return (RowMeta) getDatabaseTableFields(createDatabaseObject(), schemaName, getTableName());
+      return (RowMeta) getDatabaseTableFields(createDatabaseObject(variables), schemaName, getTableName());
     } catch (HopDatabaseException e) {
       log.logError("", e);
       return new RowMeta();

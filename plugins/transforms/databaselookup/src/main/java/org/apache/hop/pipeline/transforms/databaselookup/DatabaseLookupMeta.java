@@ -517,8 +517,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
@@ -679,7 +678,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   public IRowMeta getTableFields(IVariables variables) {
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
@@ -813,7 +812,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   }
 
   @Override
-  public RowMeta getRowMeta(ITransformData transformData) {
+  public RowMeta getRowMeta( IVariables variables, ITransformData transformData ) {
     return (RowMeta) ((DatabaseLookupData) transformData).returnMeta;
   }
 

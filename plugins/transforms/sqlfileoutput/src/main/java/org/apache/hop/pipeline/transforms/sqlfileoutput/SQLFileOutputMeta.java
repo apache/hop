@@ -472,7 +472,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -718,8 +718,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, databaseMeta);
-          db.shareWith(variables);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             db.connect();
 
@@ -759,7 +758,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     String realSchemaName = variables.resolve(schemaName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 

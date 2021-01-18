@@ -204,7 +204,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
       return;
     }
 
-    Database db = new Database(loggingObject, databaseMeta);
+    Database db = new Database(loggingObject, variables, databaseMeta );
     databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
     // First try without connecting to the database... (can be S L O W)
@@ -327,7 +327,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
