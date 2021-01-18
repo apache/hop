@@ -314,8 +314,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -483,8 +482,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, databaseMeta);
-          db.shareWith(variables);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             db.connect();
 

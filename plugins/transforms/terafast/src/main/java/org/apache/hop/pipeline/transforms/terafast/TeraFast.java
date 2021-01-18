@@ -268,7 +268,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    */
   public void execute() throws HopException {
     if ( this.meta.getTruncateTable().getValue() ) {
-      Database db = new Database( this, this.meta.getDbMeta() );
+      Database db = new Database( this, this, this.meta.getDbMeta() );
       db.connect();
       db.truncateTable( this.meta.getTargetTable().getValue() );
       db.commit();

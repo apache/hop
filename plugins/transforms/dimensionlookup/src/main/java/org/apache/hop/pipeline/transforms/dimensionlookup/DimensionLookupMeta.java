@@ -713,7 +713,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
       try {
         // Get the rows from the table...
         if (databaseMeta != null) {
-          db = createDatabaseObject();
+          db = createDatabaseObject(variables);
 
           IRowMeta extraFields = getDatabaseTableFields(db, schemaName, tableName);
 
@@ -1008,8 +1008,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = createDatabaseObject();
-      db.shareWith(variables);
+      Database db = createDatabaseObject(variables);
 
       try {
         db.connect();
@@ -1252,8 +1251,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
     CheckResult cr;
 
     if (databaseMeta != null) {
-      Database db = createDatabaseObject();
-      db.shareWith(variables);
+      Database db = createDatabaseObject(variables);
 
       try {
         db.connect();
@@ -1488,7 +1486,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
   public IRowMeta getTableFields(IVariables variables) {
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = createDatabaseObject();
+      Database db = createDatabaseObject(variables);
       try {
         db.connect();
         fields = db.getTableFieldsMeta(schemaName, tableName);
@@ -1520,8 +1518,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
           if (!Utils.isEmpty(schemaTable)) {
-            Database db = createDatabaseObject();
-            db.shareWith(variables);
+            Database db = createDatabaseObject(variables);
             try {
               db.connect();
 
@@ -1912,14 +1909,14 @@ public class DimensionLookupMeta extends BaseTransformMeta
     return extraFields;
   }
 
-  Database createDatabaseObject() {
-    return new Database(loggingObject, databaseMeta);
+  Database createDatabaseObject(IVariables variables) {
+    return new Database(loggingObject, variables, databaseMeta );
   }
 
   @Override
-  public RowMeta getRowMeta(final ITransformData transformData) {
+  public RowMeta getRowMeta( IVariables variables, final ITransformData transformData ) {
     try {
-      return (RowMeta) getDatabaseTableFields(createDatabaseObject(), schemaName, tableName);
+      return (RowMeta) getDatabaseTableFields(createDatabaseObject(variables), schemaName, tableName);
     } catch (HopDatabaseException e) {
       log.logError("", e);
       return new RowMeta();

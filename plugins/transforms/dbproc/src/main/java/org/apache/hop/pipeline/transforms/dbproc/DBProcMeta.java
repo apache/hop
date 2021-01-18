@@ -334,7 +334,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     String errorMessage = "";
 
     if (database != null) {
-      Database db = new Database(pipelineMeta, database);
+      Database db = new Database(pipelineMeta, variables, database );
       try {
         db.connect();
 

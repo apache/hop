@@ -272,8 +272,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     // connect and disconnect
     Database dbchecked = null;
     try {
-      dbchecked = new Database( this, connection );
-      dbchecked.shareWith( this );
+      dbchecked = new Database( this, this, connection );
       dbchecked.connect( null );
     } finally {
       if ( dbchecked != null ) {
@@ -429,8 +428,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     boolean successOK = false;
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
-    Database db = new Database( this, connection );
-    db.shareWith( this );
+    Database db = new Database( this, this, connection );
     try {
       db.connect();
       if ( isCustomSql ) {

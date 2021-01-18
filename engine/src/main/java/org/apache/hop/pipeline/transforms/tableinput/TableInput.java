@@ -317,9 +317,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
         logError( BaseMessages.getString( PKG, "TableInput.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
-
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
       data.db.setQueryLimit( Const.toInt( resolve( meta.getRowLimit() ), 0 ) );
 
       try {

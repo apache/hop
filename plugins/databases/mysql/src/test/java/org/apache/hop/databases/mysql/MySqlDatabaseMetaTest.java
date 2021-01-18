@@ -16,24 +16,6 @@
  */
 package org.apache.hop.databases.mysql;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Map;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -54,12 +36,31 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class MySqlDatabaseMetaTest {
@@ -444,6 +445,7 @@ public class MySqlDatabaseMetaTest {
 	ILoggingObject log = mock( ILoggingObject.class );
 	PreparedStatement ps = mock( PreparedStatement.class );  
 	DatabaseMetaData dbMetaData = mock( DatabaseMetaData.class );
+  IVariables variables = mock (IVariables.class);
 	ResultSet rs = mock( ResultSet.class );
     ResultSetMetaData rsMeta = mock( ResultSetMetaData.class );
     
@@ -457,7 +459,7 @@ public class MySqlDatabaseMetaTest {
     DatabaseMeta meta = new DatabaseMeta();
     meta.setIDatabase( new MySqlDatabaseMeta() );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.getLookup( ps, false );
 

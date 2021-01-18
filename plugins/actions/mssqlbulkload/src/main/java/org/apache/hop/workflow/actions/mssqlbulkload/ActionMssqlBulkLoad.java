@@ -320,7 +320,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
           if ( connection != null ) {
             // User has specified a connection, We can continue ...
-            Database db = new Database( this, connection );
+            Database db = new Database( this, this, connection );
 
             if ( !"MSSQL".equals(db.getDatabaseMeta().getPluginId()) ) {
 
@@ -330,7 +330,6 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 .getDatabaseName() ) );
               return result;
             }
-            db.shareWith( this );
             try {
               db.connect();
               // Get schemaname

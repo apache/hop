@@ -289,7 +289,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // keep track of it for cancelling purposes...
 
       try {

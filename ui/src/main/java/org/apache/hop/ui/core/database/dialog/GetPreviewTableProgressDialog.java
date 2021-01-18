@@ -43,6 +43,7 @@ import java.util.List;
  */
 public class GetPreviewTableProgressDialog {
   private static final Class<?> PKG = GetPreviewTableProgressDialog.class; // For Translator
+  private final IVariables variables;
 
   private Shell shell;
   private DatabaseMeta dbMeta;
@@ -59,6 +60,7 @@ public class GetPreviewTableProgressDialog {
   public GetPreviewTableProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String schemaName, String tableName,
                                         int limit ) {
     this.shell = shell;
+    this.variables = variables;
     this.dbMeta = dbInfo;
     this.tableName = dbInfo.getQuotedSchemaTableCombination( variables, schemaName, tableName );
     this.limit = limit;
@@ -66,7 +68,7 @@ public class GetPreviewTableProgressDialog {
 
   public List<Object[]> open() {
     IRunnableWithProgress op = monitor -> {
-      db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
+      db = new Database( HopGui.getInstance().getLoggingObject(), variables, dbMeta );
       try {
         db.connect();
 

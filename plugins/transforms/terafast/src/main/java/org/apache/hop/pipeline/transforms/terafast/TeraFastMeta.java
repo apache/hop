@@ -225,9 +225,9 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
    * @return the database.
    * @throws HopException if an error occurs.
    */
-  public Database connectToDatabase() throws HopException {
+  public Database connectToDatabase(IVariables variables) throws HopException {
     if ( this.getDbMeta() != null ) {
-      Database db = new Database( loggingObject, this.getDbMeta() );
+      Database db = new Database( loggingObject, variables, this.getDbMeta() );
       db.connect();
       return db;
     }
@@ -286,9 +286,7 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
   @Override
   public IRowMeta getRequiredFields( final IVariables variables ) throws HopException {
     if ( !this.useControlFile.getValue() ) {
-      final Database database = connectToDatabase();
-      database.shareWith( variables );
-
+      final Database database = connectToDatabase(variables);
       IRowMeta fields =
         database.getTableFieldsMeta(
           StringUtils.EMPTY,

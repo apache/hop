@@ -25,6 +25,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -54,11 +56,13 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DatabaseLookupMeta> testMetaClass = DatabaseLookupMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  private IVariables variables;
 
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init( false );
+    variables = new Variables();
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "databaseMeta", "orderByClause", "cached",
         "cacheSize", "loadingAllDataInCache", "failingOnMultipleResults", "eatingRowOnLookupFailure",
@@ -141,7 +145,7 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
 
     DatabaseLookupData databaseLookupData = new DatabaseLookupData();
     databaseLookupData.returnMeta = Mockito.mock( RowMeta.class );
-    assertEquals( databaseLookupData.returnMeta, databaseLookupMeta.getRowMeta( databaseLookupData ) );
+    assertEquals( databaseLookupData.returnMeta, databaseLookupMeta.getRowMeta( variables, databaseLookupData ) );
     assertEquals( 3, databaseLookupMeta.getDatabaseFields().size() );
     assertEquals( "f1", databaseLookupMeta.getDatabaseFields().get( 0 ) );
     assertEquals( "f2", databaseLookupMeta.getDatabaseFields().get( 1 ) );

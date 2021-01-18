@@ -45,8 +45,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     success = true; // default
 
     StringBuilder report = new StringBuilder();
-    Database db = new Database( loggingObject, databaseMeta );
-    db.initializeFrom( variables );
+    Database db = new Database( loggingObject, variables, databaseMeta );
     try {
       db.connect();
       report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionOk", databaseMeta.getName() )

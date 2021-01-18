@@ -148,8 +148,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
       data.realSchemaName = resolve(meta.getSchemaName());
       data.realSequenceName = resolve(meta.getSequenceName());
       if (meta.isDatabaseUsed()) {
-        Database db = new Database(this, meta.getDatabaseMeta());
-        db.shareWith(this);
+        Database db = new Database(this, this, meta.getDatabaseMeta() );
         data.setDb(db);
         try {
           data.getDb().connect(getPartitionId());

@@ -188,8 +188,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
         data.readsRows = true;
       }
 
-      data.db = new Database( this, meta.getDatabase() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabase() );
       try {
         data.db.connect( getPartitionId() );
 

@@ -189,9 +189,8 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
 
     if ( connection != null ) {
-      Database db = new Database( this, connection );
+      Database db = new Database( this, this, connection );
       FileObject sqlFile = null;
-      db.shareWith( this );
       try {
         String theSql = null;
         db.connect();

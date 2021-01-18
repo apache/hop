@@ -333,9 +333,9 @@ public class SqlStatementsDialog extends Dialog {
     if (errors == 0) {
       for (int i = 0; i < idx.length; i++) {
         SqlStatement stat = stats.get(idx[i]);
-        DatabaseMeta di = stat.getDatabase();
-        if (di != null && !stat.hasError()) {
-          Database db = new Database(loggingObject, di);
+        DatabaseMeta databaseMeta = stat.getDatabase();
+        if (databaseMeta != null && !stat.hasError()) {
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             db.connect();
             try {
@@ -356,7 +356,7 @@ public class SqlStatementsDialog extends Dialog {
                 BaseMessages.getString(
                     PKG,
                     "SQLStatementDialog.Error.CouldNotConnect",
-                    (di == null ? "" : di.getName())),
+                    (databaseMeta == null ? "" : databaseMeta.getName())),
                 dbe);
           } finally {
             db.disconnect();

@@ -655,7 +655,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
             wSql.setText(sql);
             break;
           case SWT.YES:
-            Database db = new Database(loggingObject, inf);
+            Database db = new Database(loggingObject, variables, inf );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);

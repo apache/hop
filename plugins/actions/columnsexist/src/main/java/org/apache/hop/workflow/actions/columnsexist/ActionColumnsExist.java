@@ -203,7 +203,6 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     }
     if (connection != null) {
       Database db = getNewDatabaseFromMeta();
-      db.shareWith(this);
       try {
         String realSchemaname = resolve(schemaname);
         String realTablename = resolve(tableName);
@@ -268,7 +267,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   Database getNewDatabaseFromMeta() {
-    return new Database(this, connection);
+    return new Database(this, this, connection );
   }
 
   @Override

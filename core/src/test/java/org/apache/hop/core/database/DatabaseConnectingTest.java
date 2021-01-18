@@ -21,6 +21,8 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -204,7 +206,7 @@ public class DatabaseConnectingTest {
 
   private DatabaseStub createStubDatabase( Connection sharedConnection ) {
     DatabaseMeta meta = new DatabaseMeta( "test", "None", "", "", "", "", "", "" );
-    return new DatabaseStub( null, meta, sharedConnection );
+    return new DatabaseStub(null, Variables.getADefaultVariableSpace(), meta, sharedConnection);
   }
 
 
@@ -214,8 +216,8 @@ public class DatabaseConnectingTest {
     private boolean connected;
 
     public DatabaseStub( ILoggingObject parentObject,
-                         DatabaseMeta databaseMeta, Connection sharedConnection ) {
-      super( parentObject, databaseMeta );
+                         IVariables variables, DatabaseMeta databaseMeta, Connection sharedConnection ) {
+      super( parentObject, variables, databaseMeta );
       this.sharedConnection = sharedConnection;
       this.connected = false;
     }

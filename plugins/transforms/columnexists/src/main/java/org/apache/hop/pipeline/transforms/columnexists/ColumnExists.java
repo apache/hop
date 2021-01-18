@@ -175,8 +175,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
         logError( BaseMessages.getString( PKG, "ColumnExists.Error.ResultFieldMissing" ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabase() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabase() );
       try {
         data.db.connect( getPartitionId() );
 

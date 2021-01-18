@@ -122,8 +122,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
         return false;
       }
 
-      data.db = new Database( this, meta.getDatabase() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabase() );
       if ( !Utils.isEmpty( meta.getSchemaname() ) ) {
         data.realSchemaname = resolve( meta.getSchemaname() );
       }

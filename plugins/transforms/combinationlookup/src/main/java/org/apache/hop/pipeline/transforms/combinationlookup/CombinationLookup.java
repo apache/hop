@@ -674,8 +674,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         logError( BaseMessages.getString( PKG, "CombinationLookup.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 
