@@ -168,7 +168,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       public void widgetSelected( SelectionEvent arg0 ) {
         DatabaseMeta dbInfo = pipelineMeta.findDatabase( wConnection.getText() );
         if ( dbInfo != null ) {
-          Database db = new Database( loggingObject, dbInfo );
+          Database db = new Database( loggingObject, variables, dbInfo );
           try {
             db.connect();
             String[] procs = db.getProcedures();

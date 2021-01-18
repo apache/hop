@@ -177,7 +177,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       dbMeta.setDBName( dbNameOverride.trim() );
       logDebug( "DB name overridden to the value: " + dbNameOverride );
     }
-    return new Database( parentObject, dbMeta );
+    return new Database( parentObject, variables, dbMeta );
   }
 
   void connect() throws HopException {

@@ -44,7 +44,7 @@ public class GetTableSizeProgressDialog {
 
   private Shell shell;
   private IVariables variables;
-  private DatabaseMeta dbMeta;
+  private DatabaseMeta databaseMeta;
   private String tableName;
   private Long size;
 
@@ -53,23 +53,23 @@ public class GetTableSizeProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while we're doing the hard work.
    */
-  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String tableName ) {
-    this( shell, variables, dbInfo, tableName, null );
+  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta databaseMeta, String tableName ) {
+    this( shell, variables, databaseMeta, tableName, null );
   }
 
-  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String tableName, String schemaName ) {
+  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta databaseMeta, String tableName, String schemaName ) {
     this.shell = shell;
-    this.dbMeta = dbInfo;
-    this.tableName = dbInfo.getQuotedSchemaTableCombination( variables, schemaName, tableName );
+    this.databaseMeta = databaseMeta;
+    this.tableName = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
   }
 
   public Long open() {
     IRunnableWithProgress op = monitor -> {
-      db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
+      db = new Database( HopGui.getInstance().getLoggingObject(), variables, databaseMeta );
       try {
         db.connect();
 
-        String sql = dbMeta.getIDatabase().getSelectCountStatement( tableName );
+        String sql = databaseMeta.getIDatabase().getSelectCountStatement( tableName );
         RowMetaAndData row = db.getOneRow( sql );
         size = row.getRowMeta().getInteger( row.getData(), 0 );
 
@@ -86,7 +86,7 @@ public class GetTableSizeProgressDialog {
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
-      // Run something in the background to cancel active database queries, forecably if needed!
+      // Run something in the background to cancel active database queries, forcibly if needed!
       Runnable run = () -> {
         IProgressMonitor monitor = pmd.getProgressMonitor();
         while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {

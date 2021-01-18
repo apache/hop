@@ -247,8 +247,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
           if ( connection != null ) {
             // User has specified a connection, We can continue ...
-            Database db = new Database( this, connection );
-            db.shareWith( this );
+            Database db = new Database( this, this, connection );
             try {
               db.connect();
               // Get schemaname

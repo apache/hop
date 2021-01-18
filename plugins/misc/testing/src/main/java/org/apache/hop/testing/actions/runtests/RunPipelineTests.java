@@ -70,8 +70,6 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   @Override
   public Result execute(Result prevResult, int nr) throws HopException {
 
-    setBusyIcon();
-
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
         metadataProvider.getSerializer(PipelineUnitTest.class);
 
@@ -131,28 +129,8 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
       prevResult.setResult( false );
     }
 
-    clearBusyIcon();
-
     return prevResult;
   }
-
-  private void setBusyIcon() {
-    // Set the busy icon the the graph
-    //
-    ActionPipeline actionPipeline = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(actionPipeline);
-    parentWorkflow.getActiveActionPipeline().put(key, actionPipeline);
-  }
-
-  private void clearBusyIcon() {
-    // Remove the busy icon in the graph
-    //
-    ActionPipeline actionPipeline = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(actionPipeline);
-    parentWorkflow.getActiveActionPipeline().remove(key);
-  }
-
-
 
 
   @Override

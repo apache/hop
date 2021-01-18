@@ -276,8 +276,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           logError( BaseMessages.getString( PKG, "SQLFileOutput.Init.ConnectionMissing", getTransformName() ) );
           return false;
         }
-        data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareWith( this );
+        data.db = new Database( this, this, meta.getDatabaseMeta() );
 
         logBasic( "Connected to database [" + meta.getDatabaseMeta() + "]" );
 

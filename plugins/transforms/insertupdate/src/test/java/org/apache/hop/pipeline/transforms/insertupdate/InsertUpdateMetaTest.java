@@ -25,8 +25,10 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -40,7 +42,13 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.sql.Connection;
@@ -53,6 +61,7 @@ public class InsertUpdateMetaTest {
   LoadSaveTester loadSaveTester;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
+  private IVariables variables;
   private TransformMeta transformMeta;
   private InsertUpdate upd;
   private InsertUpdateData ud;
@@ -66,6 +75,7 @@ public class InsertUpdateMetaTest {
 
   @Before
   public void setUp() {
+    variables = new Variables();
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( "delete1" );
 
@@ -117,7 +127,7 @@ public class InsertUpdateMetaTest {
 
     InsertUpdateData tableOutputData = new InsertUpdateData();
     tableOutputData.insertRowMeta = Mockito.mock( RowMeta.class );
-    Assert.assertEquals( tableOutputData.insertRowMeta, insertUpdateMeta.getRowMeta( tableOutputData ) );
+    Assert.assertEquals( tableOutputData.insertRowMeta, insertUpdateMeta.getRowMeta( variables, tableOutputData ) );
     Assert.assertEquals( 3, insertUpdateMeta.getDatabaseFields().size() );
     Assert.assertEquals( "f1", insertUpdateMeta.getDatabaseFields().get( 0 ) );
     Assert.assertEquals( "f2", insertUpdateMeta.getDatabaseFields().get( 1 ) );

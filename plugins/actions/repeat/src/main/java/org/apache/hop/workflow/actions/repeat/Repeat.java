@@ -164,8 +164,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
     ExecutionResult executionResult = null;
 
-    setBusyIcon();
-
     boolean repeat = true;
     int repetitionNr = 0;
     while (repeat && !parentWorkflow.isStopped()) {
@@ -213,8 +211,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       }
     }
 
-    clearBusyIcon();
-
     // Add last execution results
     //
     if (executionResult != null) {
@@ -222,22 +218,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     }
 
     return prevResult;
-  }
-
-  private void setBusyIcon() {
-    // Set the busy icon the the graph
-    //
-    ActionPipeline jeTrans = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(jeTrans);
-    parentWorkflow.getActiveActionPipeline().put(key, jeTrans);
-  }
-
-  private void clearBusyIcon() {
-    // Remove the busy icon in the graph
-    //
-    ActionPipeline jeTrans = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(jeTrans);
-    parentWorkflow.getActiveActionPipeline().remove(key);
   }
 
   private ExecutionResult executeTransformationOrWorkflow(

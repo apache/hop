@@ -205,8 +205,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> implements ITr
         logError( BaseMessages.getString( PKG, "Delete.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, variables, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 

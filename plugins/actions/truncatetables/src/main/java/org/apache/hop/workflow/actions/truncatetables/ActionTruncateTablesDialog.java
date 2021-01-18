@@ -365,7 +365,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   private void getTableName() {
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] tableNames = database.getTablenames();

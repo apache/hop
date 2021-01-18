@@ -108,7 +108,7 @@ public class DatabaseTest {
   public void setUp() throws Exception {
     conn = mockConnection( mock( DatabaseMetaData.class ) );
     when( log.getLogLevel() ).thenReturn( LogLevel.NOTHING );
-    variables = mock(IVariables.class);
+    variables = new Variables();
   }
 
   @After
@@ -132,7 +132,7 @@ public class DatabaseTest {
     when( rs.getString( "SOURCE_DATA_TYPE" ) ).thenReturn( columnType );
     when( rs.getInt( "COLUMN_SIZE" ) ).thenReturn( columnSize );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( conn );
     IRowMeta iRowMeta = db.getQueryFieldsFromDatabaseMetaData();
 
@@ -162,7 +162,7 @@ public class DatabaseTest {
     when( rs.getMetaData() ).thenReturn( rsMetaData );
     when( rsMetaData.getColumnCount() ).thenReturn( 0 );
     when( ps.getMetaData() ).thenReturn( rsMetaData );
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     Connection conn = mock( Connection.class );
     when( conn.prepareStatement( anyString() ) ).thenReturn( ps );
 
@@ -188,7 +188,7 @@ public class DatabaseTest {
     when( rsMetaData.getColumnCount() ).thenReturn( 0 );
     when( ps.getMetaData() ).thenReturn( rsMetaData );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.getLookup( ps );
     verify( rsMetaData, times( 1 ) ).getColumnCount();
   }
@@ -224,7 +224,7 @@ public class DatabaseTest {
     Connection conn = mockConnection( dbMetaData );
     when( ps.executeBatch() ).thenThrow( new SQLException() );
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setCommit( 1 );
     database.setConnection( conn );
     database.insertRow( ps, true, true );
@@ -236,7 +236,7 @@ public class DatabaseTest {
     when( dbMetaData.supportsBatchUpdates() ).thenReturn( true );
     when( ps.executeUpdate() ).thenThrow( new SQLException() );
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setConnection( conn );
     try {
       database.insertRow( ps, true, true );
@@ -253,7 +253,7 @@ public class DatabaseTest {
     Connection mockConnection = mockConnection( dbMetaData );
     when( ps.executeBatch() ).thenThrow( new SQLException() );
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setCommit( 1 );
     database.setConnection( mockConnection );
     database.emptyAndCommit( ps, true, 1 );
@@ -267,7 +267,7 @@ public class DatabaseTest {
     Connection mockConnection = mockConnection( dbMetaData );
     doThrow( new SQLException() ).when( ps ).close();
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setConnection( mockConnection );
     try {
       database.emptyAndCommit( ps, true, 1 );
@@ -284,7 +284,7 @@ public class DatabaseTest {
     Connection mockConnection = mockConnection( dbMetaData );
     when( ps.executeBatch() ).thenThrow( new SQLException() );
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setCommit( 1 );
     database.setConnection( mockConnection );
     database.insertFinished( ps, true );
@@ -298,7 +298,7 @@ public class DatabaseTest {
     Connection mockConnection = mockConnection( dbMetaData );
     doThrow( new SQLException() ).when( ps ).close();
 
-    Database database = new Database( log, meta );
+    Database database = new Database( log, variables, meta );
     database.setConnection( mockConnection );
     try {
       database.insertFinished( ps, true );
@@ -312,7 +312,7 @@ public class DatabaseTest {
     when( meta.supportsBatchUpdates() ).thenReturn( true );
     when( dbMetaData.supportsBatchUpdates() ).thenReturn( true );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.setCommit( 1 );
     db.insertRow( ps, true, false );
@@ -328,7 +328,7 @@ public class DatabaseTest {
     when( meta.supportsBatchUpdates() ).thenReturn( false );
     when( dbMetaData.supportsBatchUpdates() ).thenReturn( false );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.setCommit( 1 );
     db.insertRow( ps, true, false );
@@ -342,7 +342,7 @@ public class DatabaseTest {
     when( meta.supportsSequenceNoMaxValueOption() ).thenReturn( true );
     doReturn( iDatabase ).when( meta ).getIDatabase();
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.setCommit( 1 );
     db.getCreateSequenceStatement( "schemaName", "seq", "10", "1", "-1", false );
@@ -353,7 +353,7 @@ public class DatabaseTest {
   public void testPrepareSql() throws Exception {
     doReturn( iDatabase ).when( meta ).getIDatabase();
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.setCommit( 1 );
     db.prepareSql( "SELECT * FROM DUMMY" );
@@ -369,7 +369,7 @@ public class DatabaseTest {
     doReturn( "CREATE TABLE " ).when( iDatabase ).getCreateTableStatement();
 
     doReturn( iDatabase ).when( meta ).getIDatabase();
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.setCommit( 1 );
 
@@ -406,7 +406,7 @@ public class DatabaseTest {
     when( rs.next() ).thenReturn( true, false );
     when( rs.getString( "TABLE_NAME" ) ).thenReturn( EXISTING_TABLE_NAME );
     when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) ).thenReturn( rs );
-    Database db = new Database( log, dbMetaMock );
+    Database db = new Database( log, variables, dbMetaMock );
     db.setConnection( mockConnection( dbMetaDataMock ) );
 
     assertTrue( "The table " + EXISTING_TABLE_NAME + " is not in db meta data but should be here",
@@ -418,7 +418,7 @@ public class DatabaseTest {
     when( rs.next() ).thenReturn( true, false );
     when( rs.getString( "TABLE_NAME" ) ).thenReturn( EXISTING_TABLE_NAME );
     when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) ).thenReturn( rs );
-    Database db = new Database( log, dbMetaMock );
+    Database db = new Database( log, variables, dbMetaMock );
     db.setConnection( mockConnection( dbMetaDataMock ) );
 
     assertFalse( "The table " + NOT_EXISTING_TABLE_NAME + " is in db meta data but should not be here",
@@ -436,7 +436,7 @@ public class DatabaseTest {
       when( rs.next() ).thenReturn( true, false );
       when( rs.getString( "TABLE_NAME" ) ).thenThrow( SQL_EXCEPTION );
       when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) ).thenReturn( rs );
-      Database db = new Database( log, dbMetaMock );
+      Database db = new Database( log, variables, dbMetaMock );
       db.setConnection( mockConnection( dbMetaDataMock ) );
       db.checkTableExistsByDbMeta( SCHEMA_TO_CHECK, EXISTING_TABLE_NAME );
       fail( "There should be thrown HopDatabaseException but was not." );
@@ -455,7 +455,7 @@ public class DatabaseTest {
     try {
       when( rs.next() ).thenReturn( true, false );
       when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) ).thenReturn( rs );
-      Database db = new Database( log, dbMetaMock );
+      Database db = new Database( log, variables, dbMetaMock );
       db.setConnection( mockConnection( null ) );
       db.checkTableExistsByDbMeta( SCHEMA_TO_CHECK, EXISTING_TABLE_NAME );
       fail( "There should be thrown HopDatabaseException but was not." );
@@ -475,7 +475,7 @@ public class DatabaseTest {
       when( rs.next() ).thenReturn( true, false );
       when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) )
         .thenThrow( SQL_EXCEPTION );
-      Database db = new Database( log, dbMetaMock );
+      Database db = new Database( log, variables, dbMetaMock );
       db.setConnection( mockConnection( dbMetaDataMock ) );
       db.checkTableExistsByDbMeta( SCHEMA_TO_CHECK, EXISTING_TABLE_NAME );
       fail( "There should be thrown HopDatabaseException but was not." );
@@ -495,7 +495,7 @@ public class DatabaseTest {
       when( rs.next() ).thenReturn( true, false );
       when( dbMetaDataMock.getTables( any(), anyString(), anyString(), aryEq( TABLE_TYPES_TO_GET ) ) )
         .thenReturn( null );
-      Database db = new Database( log, dbMetaMock );
+      Database db = new Database( log, variables, dbMetaMock );
       db.setConnection( mockConnection( dbMetaDataMock ) );
       db.checkTableExistsByDbMeta( SCHEMA_TO_CHECK, EXISTING_TABLE_NAME );
       fail( "There should be thrown HopDatabaseException but was not." );
@@ -517,7 +517,7 @@ public class DatabaseTest {
   @Test
   public void testDisconnectPstmCloseFail()
     throws SQLException, HopDatabaseException, NoSuchFieldException, IllegalAccessException {
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     Connection connection = mockConnection( dbMetaData );
     db.setConnection( connection );
     db.setCommit( 1 );
@@ -537,7 +537,7 @@ public class DatabaseTest {
     when( meta.supportsEmptyTransactions() ).thenReturn( true );
     when( dbMetaData.supportsTransactions() ).thenReturn( true );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( conn );
     db.setCommit( 1 );
 
@@ -553,7 +553,7 @@ public class DatabaseTest {
 
   @Test
   public void testDisconnectConnectionGroup() throws SQLException {
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( conn );
     db.setConnectionGroup( "1" );
     db.disconnect();
@@ -565,7 +565,7 @@ public class DatabaseTest {
     when( rs.next() ).thenReturn( true, false );
     when( rs.getString( "TABLE_NAME" ) ).thenReturn( EXISTING_TABLE_NAME );
     when( dbMetaDataMock.getTables( any(), anyString(), anyString(), any() ) ).thenReturn( rs );
-    Database db = new Database( log, dbMetaMock );
+    Database db = new Database( log, variables, dbMetaMock );
     db.setConnection( mockConnection( dbMetaDataMock ) );
 
     String[] tableNames = db.getTablenames();
@@ -575,7 +575,7 @@ public class DatabaseTest {
   @Test
   public void testCheckTableExistsNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
 
     db.checkTableExists( any(), any() );
     verify( db, times( 1 ) ).checkTableExists( any() );
@@ -585,7 +585,7 @@ public class DatabaseTest {
   @Test
   public void testCheckTableExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.checkTableExists( any(), any() );
@@ -596,7 +596,7 @@ public class DatabaseTest {
   @Test
   public void testCheckTableExistsTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
@@ -614,7 +614,7 @@ public class DatabaseTest {
   @Test
   public void testCheckColumnExistsNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
 
     db.checkColumnExists( any(), any(), any() );
     verify( db, times( 1 ) ).checkColumnExists( any(), any() );
@@ -624,7 +624,7 @@ public class DatabaseTest {
   @Test
   public void testCheckColumnExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.checkColumnExists( any(), any(), any() );
@@ -635,7 +635,7 @@ public class DatabaseTest {
   @Test
   public void testCheckColumnExistsTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
@@ -653,7 +653,7 @@ public class DatabaseTest {
   @Test
   public void testGetTableFieldsMetaNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
 
     try {
       db.getTableFieldsMeta( any(), any() );
@@ -667,7 +667,7 @@ public class DatabaseTest {
   @Test
   public void testGetTableFieldsMetaFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.getTableFieldsMeta( any(), any() );
@@ -679,7 +679,7 @@ public class DatabaseTest {
   @Ignore // TODO figure out why it gives a different error
   public void testGetTableFieldsMetaTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy( new Database( log, databaseMeta ) );
+    Database db = spy( new Database( log, variables, databaseMeta ) );
     db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
@@ -715,7 +715,7 @@ public class DatabaseTest {
     when( conn.prepareStatement( sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY ) ).thenReturn( ps );
     when( ps.getMetaData() ).thenReturn( rsMetaData );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( conn );
     IRowMeta iRowMeta = db.getQueryFieldsFromPreparedStatement( sql );
 
@@ -737,7 +737,7 @@ public class DatabaseTest {
     when( conn.prepareStatement( sql ) ).thenReturn( ps );
     when( rs.getMetaData() ).thenReturn( rsMetaData );
 
-    Database db = new Database( log, meta );
+    Database db = new Database( log, variables, meta );
     db.setConnection( conn );
     IRowMeta iRowMeta = db.getQueryFieldsFallback( sql, false, null, null );
 

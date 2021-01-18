@@ -262,7 +262,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       return;
     }
 
-    Database db = new Database(loggingObject, databaseMeta);
+    Database db = new Database(loggingObject, variables, databaseMeta );
     databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
     // Which fields are parameters?
@@ -353,7 +353,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
@@ -495,7 +495,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
 
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {

@@ -530,8 +530,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
         if ( !Utils.isEmpty( tableName ) ) {
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
-            db.shareWith( variables );
+            Database db = new Database( loggingObject, variables, ci );
             try {
               db.connect();
 
@@ -768,8 +767,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   private void getlookup() {
     DatabaseMeta ci = pipelineMeta.findDatabase( wConnection.getText() );
     if ( ci != null ) {
-      Database db = new Database( loggingObject, ci );
-      db.shareWith( variables );
+      Database db = new Database( loggingObject, variables, ci );
       try {
         db.connect();
 
@@ -809,7 +807,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

@@ -417,8 +417,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         return false;
       }
 
-      data.db = new Database( this, meta.getDatabase() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabase() );
       try {
         data.db.connect( getPartitionId() );
 

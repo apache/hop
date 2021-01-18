@@ -847,10 +847,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
           colInfo.setComboValues( new String[] {} );
         }
         if ( !Utils.isEmpty( tableName ) ) {
-          DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
-          if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
-            db.shareWith( variables );
+          DatabaseMeta databaseMeta = pipelineMeta.findDatabase( connectionName );
+          if ( databaseMeta != null ) {
+            Database db = new Database( loggingObject, variables, databaseMeta );
             try {
               db.connect();
 
@@ -1202,7 +1201,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

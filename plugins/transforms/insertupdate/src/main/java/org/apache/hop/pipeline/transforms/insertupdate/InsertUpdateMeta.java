@@ -449,8 +449,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
-      db.shareWith(variables);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -693,8 +692,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
                 prev, keyLookup, keyStream, updateLookup, updateStream);
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, databaseMeta);
-          db.shareWith(variables);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             db.connect();
 
@@ -832,7 +830,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     String realTableName = variables.resolve(tableName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
@@ -880,7 +878,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
   }
 
   @Override
-  public RowMeta getRowMeta(ITransformData transformData) {
+  public RowMeta getRowMeta( IVariables variables, ITransformData transformData ) {
     return (RowMeta) ((InsertUpdateData) transformData).insertRowMeta;
   }
 

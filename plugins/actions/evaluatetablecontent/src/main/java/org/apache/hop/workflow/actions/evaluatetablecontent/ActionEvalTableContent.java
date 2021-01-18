@@ -256,8 +256,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     }
 
     if ( connection != null ) {
-      Database db = new Database( this, connection );
-      db.shareWith( this );
+      Database db = new Database( this, this, connection );
       try {
         db.connect();
 

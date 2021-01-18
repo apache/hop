@@ -143,8 +143,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     result.setResult( false );
 
     if ( connection != null ) {
-      Database db = new Database( this, connection );
-      db.shareWith( this );
+      Database db = new Database( this, this, connection );
       try {
         db.connect();
         String realTablename = resolve( tableName );

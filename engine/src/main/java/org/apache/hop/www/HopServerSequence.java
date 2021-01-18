@@ -97,7 +97,7 @@ public class HopServerSequence {
 
     Database db = null;
     try {
-      db = new Database( log, databaseMeta );
+      db = new Database( log, variables, databaseMeta );
       db.connect();
 
       String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
