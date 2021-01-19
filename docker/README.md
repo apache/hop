@@ -71,7 +71,7 @@ docker run -it --rm \
   --env HOP_RUN_PARAMETERS=PARAM_LOG_MESSAGE=Hello,PARAM_WAIT_FOR_X_MINUTES=1 \
   -v /path/to/local/dir:/files \
   --name my-simple-hop-container \
-  docker pull projecthop/hop:<tag>
+  docker pull docker.io/apache/incubator-hop:<tag>
 ```
 
 If you need a **long-lived container**, this option is also available. Run this command e.g.:
@@ -88,7 +88,7 @@ docker run -it --rm \
   -p 8080:8080
   -v /path/to/local/dir:/files \
   --name my-simple-hop-container \
-  docker pull projecthop/hop:<tag>
+  docker pull docker.io/apache/incubator-hop:<tag>
 ```
 
 You can then access the hop-server UI from your dockerhost at `http://localhost:8080`
