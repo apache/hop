@@ -4010,12 +4010,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
 
+          // Set the variables from the execution configuration...
+          //
+          Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
+          Set<String> variableKeys = variablesMap.keySet();
+          for (String key : variableKeys) {
+            pipeline.setVariable( key, Const.NVL(variablesMap.get(key), "") );
+          }
+
           // Set the named parameters
           //
-          Map<String, String> paramMap = executionConfiguration.getParametersMap();
-          Set<String> keys = paramMap.keySet();
-          for (String key : keys) {
-            pipeline.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
+          Map<String, String> parametersMap = executionConfiguration.getParametersMap();
+          Set<String> parametersKeys = parametersMap.keySet();
+          for (String key : parametersKeys) {
+            pipeline.setParameterValue(key, Const.NVL(parametersMap.get(key), ""));
           }
           pipeline.activateParameters(pipeline);
 
