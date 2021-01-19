@@ -113,7 +113,7 @@ pipeline {
         }
         stage('Unzip Apache Hop'){
             when {
-                branch "${BRANCH_NAME}"
+                branch 'master'
             }
             steps{
                 sh "cd assemblies/client/target/ && unzip hop-client-*.zip"
@@ -121,7 +121,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             when {
-                branch "${BRANCH_NAME}"
+                branch 'master'
             }
             steps {
                 echo 'Building Docker Image'
