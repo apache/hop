@@ -101,7 +101,7 @@ public class MessageDialogWithToggle {
     shellLayout.marginBottom = zoomedMargin;
     shell.setLayout(shellLayout);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    shell.addDisposeListener(e -> cancel());
+    // shell.addDisposeListener(e -> cancel());
     shell.setText(Const.NVL(title, ""));
 
     // An image at the right hand side...
