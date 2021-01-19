@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /plugins/actions/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/actions/as400command/src/main/doc/mysqlbulkload.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/actions/as400command/src/main/doc/as400command.adoc
 = AS/400 Command
 
 == Description
