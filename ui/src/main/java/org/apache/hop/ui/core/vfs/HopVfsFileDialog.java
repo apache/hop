@@ -169,6 +169,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private int sortIndex = 0;
   private boolean ascending = true;
 
+  private String usedNamespace;
+
   public HopVfsFileDialog() {}
 
   public HopVfsFileDialog(
@@ -189,9 +191,16 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
     props = PropsUi.getInstance();
 
+    if (props.useGlobalFileBookmarks()) {
+      usedNamespace = HopGui.DEFAULT_HOP_GUI_NAMESPACE;
+    } else {
+      usedNamespace = HopNamespace.getNamespace();
+    }
+
     try {
+
       bookmarks =
-          AuditManager.getActive().loadMap(HopNamespace.getNamespace(), BOOKMARKS_AUDIT_TYPE);
+          AuditManager.getActive().loadMap(usedNamespace, BOOKMARKS_AUDIT_TYPE);
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading bookmarks", e);
       bookmarks = new HashMap<>();
@@ -199,7 +208,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     try {
       AuditList auditList =
-          AuditManager.getActive().retrieveList(HopNamespace.getNamespace(), BOOKMARKS_AUDIT_TYPE);
+          AuditManager.getActive().retrieveList(usedNamespace, BOOKMARKS_AUDIT_TYPE);
       navigationHistory = auditList.getNames();
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading navigation history", e);
@@ -484,8 +493,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           public void dragSetData(DragSourceEvent event) {
             // Set the data to be the first selected item's text
             TreeItem[] selection = wBrowser.getSelection();
-            System.out.println("drag: " + getTreeItemPath(selection[0]));
-
             event.data = getTreeItemPath(selection[0]);
           }
         });
@@ -981,7 +988,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     try {
       AuditManager.getActive()
           .storeList(
-              HopNamespace.getNamespace(), BOOKMARKS_AUDIT_TYPE, new AuditList(navigationHistory));
+            usedNamespace, BOOKMARKS_AUDIT_TYPE, new AuditList(navigationHistory));
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error storing navigation history", e);
     }
@@ -1035,7 +1042,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void saveBookmarks() {
     try {
       AuditManager.getActive()
-          .saveMap(HopNamespace.getNamespace(), BOOKMARKS_AUDIT_TYPE, bookmarks);
+          .saveMap(usedNamespace, BOOKMARKS_AUDIT_TYPE, bookmarks);
     } catch (Throwable e) {
       showError("Error saving bookmarks: '" + activeFileObject.toString(), e);
     }

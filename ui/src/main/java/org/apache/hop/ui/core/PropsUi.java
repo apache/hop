@@ -79,6 +79,8 @@ public class PropsUi extends Props {
 
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
 
+  private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
+
   private static PropsUi instance;
 
   public static PropsUi getInstance() {
@@ -145,6 +147,8 @@ public class PropsUi extends Props {
       setProperty( STRING_LINE_WIDTH, "" + getLineWidth() );
       setProperty( STRING_MAX_UNDO, "" + getMaxUndo() );
     }
+
+    setUseGlobalFileBookmarks( true );
   }
 
   public void setFixedFont( FontData fd ) {
@@ -601,6 +605,14 @@ public class PropsUi extends Props {
 
   public void setUseDoubleClickOnCanvas( boolean use ) {
     setProperty( USE_DOUBLE_CLICK_ON_CANVAS, use ? YES : NO );
+  }
+
+  public boolean useGlobalFileBookmarks() {
+    return YES.equalsIgnoreCase( getProperty( USE_GLOBAL_FILE_BOOKMARKS, YES) );
+  }
+
+  public void setUseGlobalFileBookmarks( boolean use ) {
+    setProperty( USE_GLOBAL_FILE_BOOKMARKS, use ? YES : NO );
   }
 
 
