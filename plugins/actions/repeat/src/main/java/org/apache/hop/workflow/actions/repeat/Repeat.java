@@ -235,10 +235,10 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   private ExecutionResult executePipeline(
       String realFilename, int nr, ExecutionResult previousResult, int repetitionNr)
       throws HopException {
-    PipelineMeta pipelineMeta = loadPipeline(realFilename, metadataProvider, this);
+    PipelineMeta pipelineMeta = loadPipeline(realFilename, getMetadataProvider(), this);
     IPipelineEngine<PipelineMeta> pipeline =
         PipelineEngineFactory.createPipelineEngine( this,
-            runConfigurationName, metadataProvider, pipelineMeta);
+            runConfigurationName, getMetadataProvider(), pipelineMeta);
     pipeline.setParentWorkflow(getParentWorkflow());
     pipeline.setParent( this );
     if (keepingValues && previousResult != null) {
@@ -260,7 +260,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     updateParameters(pipeline, previousVars, getParentWorkflow(), previousParams);
 
     pipeline.setLogLevel(getLogLevel());
-    pipeline.setMetadataProvider(metadataProvider);
+    pipeline.setMetadataProvider(getMetadataProvider());
 
     // Inform the parent workflow we started something here...
     /*
@@ -349,11 +349,11 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       String realFilename, int nr, ExecutionResult previousResult, int repetitionNr)
       throws HopException {
 
-    WorkflowMeta workflowMeta = loadWorkflow(realFilename, metadataProvider, this);
+    WorkflowMeta workflowMeta = loadWorkflow(realFilename, getMetadataProvider(), this);
     IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine(
       this,
       runConfigurationName,
-      metadataProvider,
+      getMetadataProvider(),
       workflowMeta,
       this
     );
@@ -633,7 +633,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

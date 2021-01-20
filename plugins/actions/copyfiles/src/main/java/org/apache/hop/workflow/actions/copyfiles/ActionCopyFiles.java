@@ -1193,7 +1193,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

@@ -167,7 +167,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

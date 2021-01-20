@@ -175,7 +175,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -210,7 +210,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
         db.connect();
 
         if (db.checkTableExists(realSchemaname, realTablename)) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTablename));
           }
@@ -219,7 +219,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
             String realColumnname = resolve(arguments[i]);
 
             if (db.checkColumnExists(realSchemaname, realTablename, realColumnname)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTablename));

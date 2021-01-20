@@ -229,7 +229,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

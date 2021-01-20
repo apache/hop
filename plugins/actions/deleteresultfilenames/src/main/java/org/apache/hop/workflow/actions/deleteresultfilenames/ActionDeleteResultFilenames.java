@@ -220,7 +220,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     return getIt;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

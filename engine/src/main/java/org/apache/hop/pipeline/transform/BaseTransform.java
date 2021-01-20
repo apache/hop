@@ -109,13 +109,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Formally the method must conform to the following rules:
  * <ul>
  * <li>If the transform is done processing all rows, the method must call setOutputDone() and return false</li>
- * <li>If the transform is not done processing all rows, the method must return true. PDI will call processRow() again in
+ * <li>If the transform is not done processing all rows, the method must return true. Hop will call processRow() again in
  * this case.</li>
  * </ul>
  * </li>
  * <p>
  * <li>Transform Clean-Up<br/>
- * Once the pipeline is complete, PDI calls dispose() on all transforms.
+ * Once the pipeline is complete, Hop calls dispose() on all transforms.
  * <p>
  * <pre>
  * <a href="#dispose(org.apache.hop.pipeline.transform.ITransformMeta,

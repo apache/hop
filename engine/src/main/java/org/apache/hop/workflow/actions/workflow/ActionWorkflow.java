@@ -376,7 +376,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       //
       logDetailed("Loading workflow from XML file : [" + resolve(filename) + "]");
 
-      WorkflowMeta workflowMeta = getWorkflowMeta(metadataProvider, this);
+      WorkflowMeta workflowMeta = getWorkflowMeta(getMetadataProvider(), this);
 
       // Verify that we loaded something, complain if we did not...
       //
@@ -532,7 +532,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         //
         workflow =
             WorkflowEngineFactory.createWorkflowEngine(
-                this, resolve(runConfiguration), metadataProvider, workflowMeta, this);
+                this, resolve(runConfiguration), getMetadataProvider(), workflowMeta, this);
         workflow.setParentWorkflow(parentWorkflow);
         workflow.setLogLevel(jobLogLevel);
         workflow.shareWith(this);
@@ -782,7 +782,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

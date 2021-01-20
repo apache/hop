@@ -162,15 +162,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     filename = n;
   }
 
-  /**
-   * @return the filename
-   * @deprecated use getFilename() instead
-   */
-  @Deprecated
-  public String getFileName() {
-    return filename;
-  }
-
   @Override
   public String getFilename() {
     return filename;
@@ -396,7 +387,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     //
     PipelineMeta pipelineMeta = null;
     try {
-      pipelineMeta = getPipelineMeta( metadataProvider, this );
+      pipelineMeta = getPipelineMeta( getMetadataProvider(), this );
     } catch ( HopException e ) {
       logError( BaseMessages.getString( PKG, "ActionPipeline.Exception.UnableToRunWorkflow", parentWorkflowMeta.getName(),
         getName(), StringUtils.trim( e.getMessage() ) ), e );
@@ -551,7 +542,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
         // Create the pipeline from meta-data
         //
-        pipeline = PipelineEngineFactory.createPipelineEngine( this, runConfiguration, metadataProvider, pipelineMeta );
+        pipeline = PipelineEngineFactory.createPipelineEngine( this, runConfiguration, getMetadataProvider(), pipelineMeta );
         pipeline.setParent( this );
 
         // set the parent workflow on the pipeline, variables are taken from here...
@@ -562,7 +553,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline.setPreviousResult( previousResult );
 
         // inject the metadataProvider
-        pipeline.setMetadataProvider( metadataProvider );
+        pipeline.setMetadataProvider( getMetadataProvider() );
 
         // Handle parameters...
         //
@@ -680,7 +671,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

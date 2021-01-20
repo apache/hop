@@ -113,33 +113,29 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   public Result execute(Result previousResult, int nr) throws HopWorkflowException {
     Result result = previousResult;
 
-    if (isStart()) {
-      try {
-        long sleepTime = getNextExecutionTime();
-        if (sleepTime > 0) {
-          parentWorkflow
-              .getLogChannel()
-              .logBasic(
-                  parentWorkflow.getWorkflowName(),
-                  "Sleeping: "
-                      + (sleepTime / 1000 / 60)
-                      + " minutes (sleep time="
-                      + sleepTime
-                      + ")");
-          long totalSleep = 0L;
-          while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
-            Thread.sleep(1000L);
-            totalSleep += 1000L;
-          }
+    try {
+      long sleepTime = getNextExecutionTime();
+      if (sleepTime > 0) {
+        parentWorkflow
+            .getLogChannel()
+            .logBasic(
+                parentWorkflow.getWorkflowName(),
+                "Sleeping: "
+                    + (sleepTime / 1000 / 60)
+                    + " minutes (sleep time="
+                    + sleepTime
+                    + ")");
+        long totalSleep = 0L;
+        while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
+          Thread.sleep(1000L);
+          totalSleep += 1000L;
         }
-      } catch (InterruptedException e) {
-        throw new HopWorkflowException(e);
       }
-      result = previousResult;
-      result.setResult(true);
-    } else if (isDummy()) {
-      result = previousResult;
+    } catch (InterruptedException e) {
+      throw new HopWorkflowException(e);
     }
+    result = previousResult;
+    result.setResult(true);
     return result;
   }
 

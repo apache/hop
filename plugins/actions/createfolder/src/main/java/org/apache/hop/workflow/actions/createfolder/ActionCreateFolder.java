@@ -170,7 +170,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     return result;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

@@ -23,6 +23,7 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -64,16 +65,16 @@ import java.util.Map;
  * construct the XML string.<br/>
  * <br/>
  * <a href="#loadXml(org.w3c.dom.Node)">
- * <code>void loadXml(...)</code></a></br> This method is called by PDI whenever a action needs to read its
+ * <code>void loadXml(...)</code></a></br> This method is called by Hop whenever a action needs to read its
  * settings from XML. The XML node containing the action's settings is passed in as an argument. Again, the helper
  * class org.apache.hop.core.xml.XmlHandler is typically used to conveniently read the settings from the XML node.<br/>
  * <br/>
  * <br/>
  * <quote>Hint: When developing plugins, make sure the serialization code is in sync with the settings available from
- * the action dialog. When testing a plugin in HopGui, PDI will internally first save and load a copy of the
+ * the action dialog. When testing a plugin in HopGui, Hop will internally first save and load a copy of the
  * workflow.</quote></li><br/>
  * <li><b>Provide access to dialog class</b><br/>
- * PDI needs to know which class will take care of the settings dialog for the action. The interface method
+ * Hop needs to know which class will take care of the settings dialog for the action. The interface method
  * getDialogClassName() must return the name of the class implementing the IActionDialog.</li></br>
  * <li><b>Provide information about possible outcomes</b><br/>
  * A action may support up to three types of outgoing hops: true, false, and unconditional. Sometimes it does not
@@ -84,7 +85,7 @@ import java.util.Map;
  * <br/>
  * The action plugin class must implement two methods to indicate to PDI which outgoing hops it supports:<br/>
  * <br/>
- * <a href="#evaluates()"><code>boolean evaluates()</code></a><br/>
+ * <a href="#isEvaluation()"><code>boolean isEvaluation()</code></a><br/>
  * This method must return true if the action supports the true/false outgoing hops. If the action does not
  * support distinct outcomes, it must return false.<br/>
  * <br/>
@@ -96,7 +97,7 @@ import java.util.Map;
  * <br/>
  * <br/>
  * <a href="#execute(org.apache.hop.core.Result, int)"><code>Result execute(..)</code></a><br/>
- * The execute() method is going to be called by PDI when it is time for the action to execute its logic. The
+ * The execute() method is going to be called by Hop when it is time for the action to execute its logic. The
  * arguments are a result object, which is passed in from the previously executed action and an integer number
  * indicating the distance of the action from the start entry of the workflow.<br/>
  * <br/>
@@ -120,7 +121,7 @@ import java.util.Map;
  * @since 18-06-04
  */
 
-public interface IAction {
+public interface IAction extends IVariables, IHasLogChannel {
 
   /**
    * Execute the action. The previous result and number of rows are provided to the method for the purpose of
@@ -278,7 +279,7 @@ public interface IAction {
    *
    * @return true if the action supports the true/false outgoing hops, false otherwise
    */
-  boolean evaluates();
+  boolean isEvaluation();
 
   /**
    * This method must return true if the action supports the unconditional outgoing hop. If the action does not
@@ -288,12 +289,6 @@ public interface IAction {
    */
   boolean isUnconditional();
 
-  /**
-   * Checks if the action is an evaluation
-   *
-   * @return true if the action is an evaluation, false otherwise
-   */
-  boolean isEvaluation();
 
   /**
    * Checks if this action executes a pipeline
@@ -307,21 +302,7 @@ public interface IAction {
    *
    * @return true if the action executes a workflow, false otherwise
    */
-  boolean isJob();
-
-  /**
-   * Checks if the action executes a shell program
-   *
-   * @return true if the action executes a shell program, false otherwise
-   */
-  boolean isShell();
-
-  /**
-   * Checks if the action sends email
-   *
-   * @return true if the action sends email, false otherwise
-   */
-  boolean isMail();
+  boolean isWorkflow();
 
   /**
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables.

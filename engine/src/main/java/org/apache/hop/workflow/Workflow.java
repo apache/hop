@@ -26,8 +26,6 @@ import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -359,7 +357,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   private Result executeFromStart() throws HopException {
     try {
-      log.snap( Metrics.METRIC_JOB_START );
+      log.snap( Metrics.METRIC_WORKFLOW_START );
 
       setFinished( false );
       setStopped( false );
@@ -434,7 +432,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       }
       return res;
     } finally {
-      log.snap( Metrics.METRIC_JOB_STOP );
+      log.snap( Metrics.METRIC_WORKFLOW_STOP );
     }
   }
 
@@ -571,27 +569,27 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       final long start = System.currentTimeMillis();
 
       cloneJei.getLogChannel().logDetailed( "Starting action" );
-      for ( IActionListener jobEntryListener : actionListeners ) {
-        jobEntryListener.beforeExecution( this, actionMeta, cloneJei );
+      for ( IActionListener actionListener : actionListeners ) {
+        actionListener.beforeExecution( this, actionMeta, cloneJei );
       }
       if ( interactive ) {
         if ( actionMeta.isPipeline() ) {
           getActiveActionPipeline().put( actionMeta, (ActionPipeline) cloneJei );
         }
-        if ( actionMeta.isJob() ) {
+        if ( actionMeta.isWorkflow() ) {
           getActiveActionWorkflows().put( actionMeta, (ActionWorkflow) cloneJei );
         }
       }
-      log.snap( Metrics.METRIC_JOBENTRY_START, cloneJei.toString() );
+      log.snap( Metrics.METRIC_ACTION_START, cloneJei.toString() );
       newResult = cloneJei.execute( prevResult, nr );
-      log.snap( Metrics.METRIC_JOBENTRY_STOP, cloneJei.toString() );
+      log.snap( Metrics.METRIC_ACTION_STOP, cloneJei.toString() );
 
       final long end = System.currentTimeMillis();
       if ( interactive ) {
         if ( actionMeta.isPipeline() ) {
           getActiveActionPipeline().remove( actionMeta );
         }
-        if ( actionMeta.isJob() ) {
+        if ( actionMeta.isWorkflow() ) {
           getActiveActionWorkflows().remove( actionMeta );
         }
       }
@@ -602,8 +600,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
           log.logMinimal( throughput );
         }
       }
-      for ( IActionListener jobEntryListener : actionListeners ) {
-        jobEntryListener.afterExecution( this, actionMeta, cloneJei, newResult );
+      for ( IActionListener actionListener : actionListeners ) {
+        actionListener.afterExecution( this, actionMeta, cloneJei, newResult );
       }
 
       Thread.currentThread().setContextClassLoader( cl );
@@ -677,7 +675,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // If the start point was an evaluation and the link color is correct:
       // green or red, execute the next action...
       //
-      if ( hi.isUnconditional() || ( actionMeta.evaluates() && ( !( hi.getEvaluation() ^ newResult.getResult() ) ) ) ) {
+      if ( hi.isUnconditional() || ( actionMeta.isEvaluation() && ( !( hi.getEvaluation() ^ newResult.getResult() ) ) ) ) {
         // Start this next transform!
         if ( log.isBasic() ) {
           log.logBasic( BaseMessages.getString( PKG, "Workflow.Log.StartingAction", nextAction.getName() ) );

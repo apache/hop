@@ -158,19 +158,19 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     if (deleteallbefore) {
       // clear result filenames
       int size = result.getResultFiles().size();
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionAddResultFilenames.log.FilesFound", "" + size));
       }
 
       result.getResultFiles().clear();
-      if (log.isDetailed()) {
+      if (this.isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "ActionAddResultFilenames.log.DeletedFiles", "" + size));
       }
     }
 
     if (argFromPrevious) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -188,7 +188,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
         String fileMasksPrevious = resultRow.getString(1, null);
 
         // ok we can process this file/folder
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -206,7 +206,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
 
         // ok we can process this file/folder
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionAddResultFilenames.ProcessingArg", arguments[i], filemasks[i]));
@@ -243,7 +243,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
         if (filefolder.getType() == FileType.FILE) {
           // Add filename to Resultfilenames ...
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionAddResultFilenames.AddingFileToResult", filefolder.toString()));
@@ -261,7 +261,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
           for (int i = 0; i < list.length && !parentWorkflow.isStopped(); i++) {
             // Add filename to Resultfilenames ...
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ActionAddResultFilenames.AddingFileToResult", list[i].toString()));
@@ -278,7 +278,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
       } else {
         // File can not be found
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "ActionAddResultFilenames.FileCanNotbeFound", realFilefoldername));
@@ -386,7 +386,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     this.deleteallbefore = deleteallbefore;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
