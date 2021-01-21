@@ -203,11 +203,7 @@
     =======================================================================================
     Eclipse Public License 1.0 (EPL) For details, see licenses/LICENSE-EPL10
     =======================================================================================
-    plugins/transforms/userdefinedjavaclass/src/main/java/org/apache/hop/pipeline/transforms/userdefinedjavaclass/UserDefinedJavaClassHighlight.java
-    plugins/transforms/javascript/src/main/java/org/apache/hop/pipeline/transforms/javascript/ScriptValuesHighlight.java
-    plugins/transforms/salesforce/src/main/java/org/apache/hop/pipeline/transforms/salesforce/SOQLValuesHighlight.java
     ui/src/main/java/org/apache/hop/ui/hopgui/shared/Sleak.java
-    ui/src/main/java/org/apache/hop/ui/pipeline/transforms/tableinput/SqlValuesHighlight.java
     ui/src/main/java/org/apache/hop/ui/util/ImageUtil.java
 
     =======================================================================================
