@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -1280,7 +1281,11 @@ public class GuiResource {
    * @return the imageLogoSmall
    */
   public Image getImageHopUi() {
-    return getZoomedImaged( imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    if(OsHelper.isMac()){
+      return getZoomedImaged(imageLogo, display, 512, 512);
+    } else {
+      return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    }
   }
 
   /**
