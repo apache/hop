@@ -17,7 +17,166 @@ under the License.
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/jsonoutput/src/main/doc/enhancedjsonoutput.adoc
-= JSON Output Enhanced
+= Enhanced JSON Output
 
 == Description
+Enhanced Json Output transform allows to generate json blocks based on input transform values. Output json will be available as java script array or java script object depends on transform settings.
 
+This transform loops over the fields defined as Group Key and serializes JSON output accordingly. Because of this it is extremely important that the input transform data will be sorted by the group key to prevent generation errors.
+
+
+== Options
+
+=== General Tab
+
+General tab allows to specify type of transform operation, output json structure, transform output file. This file will be used to dump all generated json.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; this name has to be unique in a single pipeline.
+|Operation a|Specify transform operation type. Currently available 3 types of operation:
+
+1. Output value - only pass output json as a transform output field, do not dump to output file
+2. Write to file - only write to fie, do not pass to output field
+3. Output value and write to file - dump to file and pass generated json as a transform output file
+
+|Json block name|This value will be used as a name for json block. Can be empty string that will affect output json structure, see detailed description below.
+|Output value|This value will be used as a transform output field. Will contain generated json output block depending on transform settings.
+|Force Arrays In JSON| If checked, JSON output will be forced as a single item array.
+|Pritty Print JSON|If checked, JSON output will be pritty printed.
+|===
+
+
+=== Output File
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Filename|full path to output file
+|Append|If not checked new file will be created every time transform is running. If file with specified name already existed - it will be replaced by a new one. If checked - new json output will be appended at the end of existing file. Or if existing file is not exists - it will be created as in previous case.
+|Split JSON after n rows|If this number N is larger than zero, split the resulting JSON file into multiple parts of N rows.
+|Create Parent folder|Usually file name contains some path folder as a parent folder. If parent folder does not exists and this option is checked - parent folder will be created as a new folder. Otherwise - file not be found and transform will fail.
+|Do not open create at start|If not checked - file (and in some cases parent folder) will be created/opened to write during pipeline initialization. If checked - file and parent folder will be created only after transform will get any first input data.
+|Extension|Output file extension. Default value is 'js'
+|Encoding|Output file encoding
+|Include date in filename?|If checked - output file name will contains File name value + current date. This may help to generate unique output files.
+|Include time in filename|If checked - output file name will contains file creation time. Same as for 'Include date in filename' option
+|Show filename(s) button|Can be useful to test full output file path
+|Add file to result filenames?|If checked - created output file path will be accessible form transform result
+|===
+
+=== Group Key Tab
+
+This tab is used to map input transform fields key used to properly generate output json values
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Fieldname|Input transform field name that will ccontribute to define the input transform fields key. Use 'Get Fields' button to discover available input fields
+|Element name|Json element name. For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
+|===
+
+=== Fields Tab
+
+This tab is used to map input transform fields to output json values
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Fieldname|Input transform field name. Use 'Get Fields' button to discover available input fields
+|Element name|Json element name as a key. For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
+|JSON Fragment|If the value is set to Y the value contained in the filed is a JSON chunk and will be treated accordingly
+|Remove if Blank|If the value is set to Y and value in incoming field is null the related attribute will be omitted from JSON output
+
+|===
+
+== A Quick Example
+As an example suppose we have, as input, a flow with the following fields and values
+
+|===
+|Field1|Field2|Field3
+|A|B|1
+|A|B|2
+|B|C|1
+|B|C|2
+|B|D|4
+|C|F|5
+|C|F|6
+|C|V|6
+|C|B|7
+|===
+
+=== Tab General - Configuration
+|===
+|Option|Assigned Value
+|Operation|Write To File
+|JSON Block Name|result
+|Output Value|lvl1Detail
+|Pritty Print JSON|Checked
+|Filename|Set to a convenient filename for JSON output
+|===
+
+=== Tab Group Key - Configuration
+|===
+|Field Name|Element Name
+|field1|recordKey
+|===
+
+=== Fields Group Key - Configuration
+|===
+|Field Name|Element Name|JSON Fragment|Remove If Blank
+|field3||N|N
+|field3||N|N
+|===
+
+=== Output file result
+
+[source, json]
+----
+{
+  "result" : [ {
+    "key2" : "C",
+    "lvl1Details" : {
+      "result" : [ {
+        "campo2" : "F",
+        "campo3" : "5"
+      }, {
+        "campo2" : "F",
+        "campo3" : "6"
+      }, {
+        "campo2" : "V",
+        "campo3" : "6"
+      }, {
+        "campo2" : "B",
+        "campo3" : "7"
+      } ]
+    }
+  }, {
+    "key2" : "B",
+    "lvl1Details" : {
+      "result" : [ {
+        "campo2" : "C",
+        "campo3" : "1"
+      }, {
+        "campo2" : "C",
+        "campo3" : "2"
+      }, {
+        "campo2" : "D",
+        "campo3" : "4"
+      } ]
+    }
+  }, {
+    "key2" : "A",
+    "lvl1Details" : {
+      "result" : [ {
+        "campo2" : "B",
+        "campo3" : "1"
+      }, {
+        "campo2" : "B",
+        "campo3" : "2"
+      } ]
+    }
+  } ]
+}
+----
