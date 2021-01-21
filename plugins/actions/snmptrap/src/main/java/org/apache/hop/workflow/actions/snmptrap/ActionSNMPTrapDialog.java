@@ -360,7 +360,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wlMessage.setLayoutData(fdlMessage);
 
     wMessage = new StyledTextComp( action, wMessageGroup, SWT.MULTI
-        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
     FormData fdMessage = new FormData();

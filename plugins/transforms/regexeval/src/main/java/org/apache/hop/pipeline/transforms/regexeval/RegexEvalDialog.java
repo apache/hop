@@ -292,7 +292,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     Composite wBottom = new Composite(wSash, SWT.NONE);
     props.setLook(wBottom);
 
-    wScript = new StyledTextComp( variables, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wScript = new StyledTextComp( variables, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     wScript.setText( BaseMessages.getString( PKG, "RegexEvalDialog.Script.Label" ) );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
     wScript.addModifyListener( lsMod );

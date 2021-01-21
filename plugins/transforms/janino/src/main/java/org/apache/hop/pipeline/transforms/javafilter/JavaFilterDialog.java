@@ -186,7 +186,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     wlCondition.setLayoutData( fdlCondition );
     wCondition =
       new StyledTextComp( variables, wSettingsGroup, SWT.MULTI
-        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wCondition );
     wCondition.addModifyListener( lsMod );
     FormData fdCondition = new FormData();

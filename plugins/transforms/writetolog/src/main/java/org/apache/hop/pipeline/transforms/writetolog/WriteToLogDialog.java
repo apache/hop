@@ -215,7 +215,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     fdlLogMessage.right = new FormAttachment( middle, -margin );
     wlLogMessage.setLayoutData( fdlLogMessage );
 
-    wLogMessage = new StyledTextComp( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wLogMessage = new StyledTextComp( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wLogMessage, Props.WIDGET_STYLE_FIXED );
     wLogMessage.addModifyListener( lsMod );
     FormData fdLogMessage = new FormData();

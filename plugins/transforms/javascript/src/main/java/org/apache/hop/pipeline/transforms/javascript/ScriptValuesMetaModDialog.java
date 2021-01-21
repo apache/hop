@@ -232,7 +232,8 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     fdlTree.bottom = new FormAttachment( 100, -margin );
     wTree.setLayoutData(fdlTree);
 
-    // Script line
+    // Script line at the very top
+    //
     Label wlScript = new Label(wTop, SWT.NONE);
     wlScript.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Javascript.Label" ) );
     props.setLook(wlScript);
@@ -241,32 +242,16 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     fdlScript.top = new FormAttachment( 0, 0 );
     wlScript.setLayoutData(fdlScript);
 
-    folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE );
-    folder.setUnselectedImageVisible( true );
-    folder.setUnselectedCloseVisible( true );
-    FormData fdScript = new FormData();
-    fdScript.left = new FormAttachment( wTree, margin );
-    fdScript.top = new FormAttachment(wlScript, margin );
-    fdScript.right = new FormAttachment( 100, -5 );
-    fdScript.bottom = new FormAttachment( 100, -50 );
-    folder.setLayoutData(fdScript);
-
-    wlPosition = new Label(wTop, SWT.NONE );
-    wlPosition.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Position.Label" ) );
-    props.setLook( wlPosition );
-    FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment( wTree, margin );
-    fdlPosition.right = new FormAttachment( 30, 0 );
-    fdlPosition.top = new FormAttachment( folder, margin );
-    wlPosition.setLayoutData(fdlPosition);
-
-
+    // some information at the bottom...
+    //
+    // The optimisation level...
+    //
     Label wlOptimizationLevel = new Label(wTop, SWT.NONE );
     wlOptimizationLevel.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.OptimizationLevel.Label" ) );
     props.setLook( wlOptimizationLevel );
     FormData fdlOptimizationLevel = new FormData();
     fdlOptimizationLevel.left = new FormAttachment( wTree, margin * 2 );
-    fdlOptimizationLevel.top = new FormAttachment( wlPosition, margin );
+    fdlOptimizationLevel.bottom = new FormAttachment( 100, -2*margin );
     wlOptimizationLevel.setLayoutData( fdlOptimizationLevel );
 
     wOptimizationLevel = new TextVar( variables, wTop, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -275,23 +260,32 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     props.setLook( wOptimizationLevel );
     FormData fdOptimizationLevel = new FormData();
     fdOptimizationLevel.left = new FormAttachment( wlOptimizationLevel, margin );
-    fdOptimizationLevel.top = new FormAttachment( wlPosition, margin );
+    fdOptimizationLevel.top = new FormAttachment( wlOptimizationLevel, 0, SWT.CENTER );
     fdOptimizationLevel.right = new FormAttachment( 100, margin );
     wOptimizationLevel.setLayoutData( fdOptimizationLevel );
     wOptimizationLevel.addModifyListener( lsMod );
 
-    Text wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
-    wlHelpLabel.setEditable( false );
-    wlHelpLabel.setText( "Hallo" );
-    props.setLook(wlHelpLabel);
-    // private Listener lsHelp;
-    FormData fdHelpLabel = new FormData();
-    fdHelpLabel.left = new FormAttachment( wlPosition, margin );
-    fdHelpLabel.top = new FormAttachment( folder, margin );
-    fdHelpLabel.right = new FormAttachment( 100, -5 );
-    fdHelpLabel.bottom = new FormAttachment( 100, 0 );
-    wlHelpLabel.setLayoutData(fdHelpLabel);
-    wlHelpLabel.setVisible( false );
+    // The position just above that and below the script...
+    //
+    wlPosition = new Label(wTop, SWT.LEFT );
+    wlPosition.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Position.Label" ) );
+    props.setLook( wlPosition );
+    FormData fdlPosition = new FormData();
+    fdlPosition.left = new FormAttachment( wTree, 2*margin );
+    fdlPosition.right = new FormAttachment( 100, 0 );
+    fdlPosition.bottom = new FormAttachment( wOptimizationLevel, -2*margin );
+    wlPosition.setLayoutData(fdlPosition);
+
+
+    folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE );
+    folder.setUnselectedImageVisible( true );
+    folder.setUnselectedCloseVisible( true );
+    FormData fdScript = new FormData();
+    fdScript.left = new FormAttachment( wTree, margin );
+    fdScript.top = new FormAttachment(wlScript, margin );
+    fdScript.right = new FormAttachment( 100, -5 );
+    fdScript.bottom = new FormAttachment( wlPosition, -2*margin );
+    folder.setLayoutData(fdScript);
 
     FormData fdTop = new FormData();
     fdTop.left = new FormAttachment( 0, 0 );
@@ -567,8 +561,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
         break;
     }
     StyledTextComp wScript =
-      new StyledTextComp( variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
-        .getText(), false );
+      new StyledTextComp( variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false );
     if ( ( strScript != null ) && strScript.length() > 0 ) {
       wScript.setText( strScript );
     } else {
@@ -612,9 +605,6 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
 
     wScript.addModifyListener( lsMod );
 
-    // Text Higlighting
-    ScriptValuesHighlight lineStyler = new ScriptValuesHighlight(ScriptValuesAddedFunctions.jsFunctionList);
-    wScript.addLineStyleListener(lineStyler);
     item.setControl( wScript );
 
     // Adding new Item to Tree
@@ -761,20 +751,10 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   }
 
   public void setPosition() {
-
     StyledTextComp wScript = getStyledTextComp();
-    String scr = wScript.getText();
-    int linenr = wScript.getLineAtOffset( wScript.getCaretOffset() ) + 1;
-    int posnr = wScript.getCaretOffset();
-
-    // Go back from position to last CR: how many positions?
-    int colnr = 0;
-    while ( posnr > 0 && scr.charAt( posnr - 1 ) != '\n' && scr.charAt( posnr - 1 ) != '\r' ) {
-      posnr--;
-      colnr++;
-    }
-    wlPosition.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Position.Label2" )
-      + linenr + ", " + colnr );
+    int lineNumber = wScript.getLineNumber();
+    int columnNumber = wScript.getColumnNumber();
+    wlPosition.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Position.Label2", "" + lineNumber, "" + columnNumber ) );
   }
 
   /**
@@ -1550,7 +1530,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
       if ( item.getParentItem().equals( wTreeScriptsItem ) ) {
         setActiveCtab( item.getText() );
       } else if ( !item.getData().equals( "Function" ) ) {
-        int iStart = wScript.getCaretOffset();
+        int iStart = wScript.getTextWidget().getCaretPosition();
         int selCount = wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
         iStart = iStart - selCount; // when a selection is already there we need to subtract the position
         if ( iStart < 0 ) {

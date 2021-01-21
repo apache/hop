@@ -729,8 +729,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
         new StyledTextComp(
             variables,
             wQueryComp,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            "");
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
+        );
     props.setLook(wJsonQuery, PropsUi.WIDGET_STYLE_FIXED);
     wJsonQuery.addModifyListener(lsMod);
 

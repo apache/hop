@@ -26,8 +26,6 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -44,6 +42,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class GoogleAuthorizationDialog extends Dialog {
 
@@ -104,9 +103,8 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpButtonFormData.bottom = new FormAttachment(100, -24);
       helpButton.setLayoutData(helpButtonFormData);
 
-      StyledText helpLabel = new StyledText(dialog, SWT.NONE);
+      Text helpLabel = new Text(dialog, SWT.NONE);
       helpLabel.setText("Help");
-      helpLabel.setCaret(null);
       helpLabel.setEditable(false);
 
       props.setLook(helpLabel);
@@ -122,11 +120,6 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.addListener(
           SWT.MouseEnter,
           event -> {
-            StyleRange style1 = new StyleRange();
-            style1.start = 0;
-            style1.length = 4;
-            style1.underline = true;
-            helpLabel.setStyleRange(style1);
             helpLabel.setForeground(new Color(display, 0, 0, 0));
             helpLabel.setCursor(new Cursor(display, SWT.CURSOR_HAND));
           });
@@ -134,11 +127,6 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.addListener(
           SWT.MouseExit,
           event -> {
-            StyleRange style1 = new StyleRange();
-            style1.start = 0;
-            style1.length = 4;
-            style1.underline = false;
-            helpLabel.setStyleRange(style1);
             helpLabel.setForeground(new Color(display, 0, 94, 170));
           });
 
