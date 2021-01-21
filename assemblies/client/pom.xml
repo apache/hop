@@ -33,15 +33,6 @@
   </parent>
 
   <properties>
-    <!-- jetty -->
-    <jetty-plus.version>9.4.22.v20191022</jetty-plus.version>
-    <jetty-server.version>9.4.24.v20191120</jetty-server.version>
-    <jetty-security.version>9.4.22.v20191022</jetty-security.version>
-    <jetty-servlets.version>9.4.22.v20191022</jetty-servlets.version>
-    <jetty-xml.version>9.4.22.v20191022</jetty-xml.version>
-    <jetty-webapp.version>9.4.34.v20201102</jetty-webapp.version>
-    <jetty-jaas.version>9.4.22.v20191022</jetty-jaas.version>
-    <jetty-util.version>9.4.22.v20191022</jetty-util.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <!-- swt -->
     <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
@@ -110,7 +101,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
-      <version>${jetty-server.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.jetty.orbit</groupId>
@@ -121,7 +112,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-security</artifactId>
-      <version>${jetty-security.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -132,7 +123,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlets</artifactId>
-      <version>${jetty-servlets.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -143,7 +134,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>${jetty-servlets.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -154,7 +145,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-xml</artifactId>
-      <version>${jetty-xml.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -165,7 +156,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
-      <version>${jetty-webapp.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -176,7 +167,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jaas</artifactId>
-      <version>${jetty-jaas.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -187,7 +178,7 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
-      <version>${jetty-util.version}</version>
+      <version>${jetty.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
