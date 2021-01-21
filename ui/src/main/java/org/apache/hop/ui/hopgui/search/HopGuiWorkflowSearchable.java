@@ -81,7 +81,7 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
       // Select and open the found action?
       //
       if (searchResult.getComponent()!=null) {
-        ActionMeta action = workflowMeta.findAction( searchResult.getComponent(), 0 );
+        ActionMeta action = workflowMeta.findAction( searchResult.getComponent() );
         if (action!=null) {
           action.setSelected( true );
           workflowGraph.editAction(action);

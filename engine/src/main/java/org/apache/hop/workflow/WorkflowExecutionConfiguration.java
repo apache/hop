@@ -53,8 +53,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   private String startActionName;
 
-  private int startActionNr;
-
   private boolean gatheringMetrics;
 
   private boolean expandingRemoteWorkflow;
@@ -233,7 +231,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     xml.append( "    " ).append( XmlHandler.addTagValue( "clear_log", clearingLog ) );
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_name", startActionName ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_nr", startActionNr ) );
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "gather_metrics", gatheringMetrics ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_workflow", expandingRemoteWorkflow ) );
@@ -285,7 +282,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "clear_log" ) );
 
     startActionName = XmlHandler.getTagValue( configNode, "start_copy_name" );
-    startActionNr = Const.toInt( XmlHandler.getTagValue( configNode, "start_copy_nr" ), 0 );
 
     gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "gather_metrics" ) );
 
@@ -356,20 +352,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
    */
   public void setStartActionName( String name ) {
     this.startActionName = name;
-  }
-
-  /**
-   * @return the startCopyNr
-   */
-  public int getStartActionNr() {
-    return startActionNr;
-  }
-
-  /**
-   * @param startCopyNr the startCopyNr to set
-   */
-  public void setStartActionNr( int startCopyNr ) {
-    this.startActionNr = startCopyNr;
   }
 
   /**

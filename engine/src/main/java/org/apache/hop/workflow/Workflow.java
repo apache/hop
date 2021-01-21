@@ -342,7 +342,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   private void emergencyWriteJobTracker( Result res ) {
     ActionResult jerFinalResult =
       new ActionResult( res, this.getLogChannelId(), BaseMessages.getString( PKG, "Workflow.Comment.WorkflowFinished" ), null,
-        null, 0, null );
+        null, null );
     WorkflowTracker finalTrack = new WorkflowTracker( this.getWorkflowMeta(), jerFinalResult );
     // workflowTracker is up to date too.
     this.workflowTracker.addWorkflowTracker( finalTrack );
@@ -370,7 +370,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // Start the tracking...
       ActionResult jerStart =
         new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), BaseMessages
-          .getString( PKG, "Workflow.Reason.Started" ), null, 0, null );
+          .getString( PKG, "Workflow.Reason.Started" ), null, null );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerStart ) );
 
       setActive( true );
@@ -415,12 +415,12 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         }
         jerEnd =
           new ActionResult( res, jes.getLogChannelId(), BaseMessages.getString( PKG, "Workflow.Comment.WorkflowFinished" ),
-            BaseMessages.getString( PKG, "Workflow.Reason.Finished" ), null, 0, null );
+            BaseMessages.getString( PKG, "Workflow.Reason.Finished" ), null, null );
       } else {
         res = executeFromStart( 0, res, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.Started" ) );
         jerEnd =
           new ActionResult( res, startpoint.getAction().getLogChannel().getLogChannelId(), BaseMessages.getString(
-            PKG, "Workflow.Comment.WorkflowFinished" ), BaseMessages.getString( PKG, "Workflow.Reason.Finished" ), null, 0, null );
+            PKG, "Workflow.Comment.WorkflowFinished" ), BaseMessages.getString( PKG, "Workflow.Reason.Finished" ), null, null );
       }
       // Save this result...
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerEnd ) );
@@ -555,7 +555,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
 
       // Track the fact that we are going to launch the next action...
       ActionResult jerBefore = new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), reason,
-        actionMeta.getName(), actionMeta.getNr(), resolve( actionMeta.getAction().getFilename() ) );
+        actionMeta.getName(), resolve( actionMeta.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerBefore ) );
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -617,7 +617,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       //
       ActionResult jerAfter =
         new ActionResult( newResult, cloneJei.getLogChannel().getLogChannelId(), BaseMessages.getString( PKG,
-          "Workflow.Comment.WorkflowFinished" ), null, actionMeta.getName(), actionMeta.getNr(), resolve(
+          "Workflow.Comment.WorkflowFinished" ), null, actionMeta.getName(), resolve(
           actionMeta.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerAfter ) );
       synchronized ( actionResults ) {

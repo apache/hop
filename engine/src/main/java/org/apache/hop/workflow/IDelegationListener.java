@@ -17,14 +17,13 @@
 
 package org.apache.hop.workflow;
 
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public interface IDelegationListener {
-  void jobDelegationStarted( IWorkflowEngine<WorkflowMeta> delegatedWorkflow, WorkflowExecutionConfiguration workflowExecutionConfiguration );
+  void workflowDelegationStarted( IWorkflowEngine<WorkflowMeta> delegatedWorkflow, WorkflowExecutionConfiguration workflowExecutionConfiguration );
 
   void pipelineDelegationStarted( IPipelineEngine<PipelineMeta> delegatedPipeline, PipelineExecutionConfiguration pipelineExecutionConfiguration );
 }

@@ -317,7 +317,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setAlpha( alpha );
   }
 
-  private ActionResult findActionResult( ActionMeta actionCopy ) {
+  private ActionResult findActionResult( ActionMeta actionMeta ) {
     if ( actionResults == null ) {
       return null;
     }
@@ -326,8 +326,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     while ( iterator.hasNext() ) {
       ActionResult actionResult = iterator.next();
 
-      if ( actionResult.getActionName().equals( actionCopy.getName() )
-        && actionResult.getActionNr() == actionCopy.getNr() ) {
+      if ( actionResult.getActionName().equals( actionMeta.getName() ) ) {
         return actionResult;
       }
     }

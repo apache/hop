@@ -120,7 +120,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     String[] names = new String[ workflowMeta.getActions().size() ];
     for ( int i = 0; i < names.length; i++ ) {
       ActionMeta actionMeta = workflowMeta.getActions().get( i );
-      names[ i ] = getActionName( actionMeta );
+      names[ i ] = actionMeta.getName();
     }
     wStartAction.setItems( names );
   }
@@ -160,10 +160,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     fdRunConfiguration.top = new FormAttachment( 0, props.getMargin() );
     fdRunConfiguration.left = new FormAttachment( 0, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
-  }
-
-  private String getActionName( ActionMeta meta ) {
-    return meta.getName() + ( meta.getNr() > 0 ? meta.getNr() : "" );
   }
 
   private void getVariablesData() {
@@ -245,9 +241,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     String startAction = "";
     if ( !Utils.isEmpty( getConfiguration().getStartActionName() ) ) {
       ActionMeta action =
-        ( (WorkflowMeta) abstractMeta ).findAction( getConfiguration().getStartActionName(), getConfiguration().getStartActionNr() );
+        ( (WorkflowMeta) abstractMeta ).findAction( getConfiguration().getStartActionName() );
       if ( action != null ) {
-        startAction = getActionName( action );
+        startAction = action.getName();
       }
     }
     wStartAction.setText( startAction );
@@ -300,16 +296,13 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 
       String startActionName = null;
-      int startActionNr = 0;
       if ( !Utils.isEmpty( wStartAction.getText() ) ) {
         if ( wStartAction.getSelectionIndex() >= 0 ) {
           ActionMeta action = ( (WorkflowMeta) abstractMeta ).getActions().get( wStartAction.getSelectionIndex() );
           startActionName = action.getName();
-          startActionNr = action.getNr();
         }
       }
       getConfiguration().setStartActionName( startActionName );
-      getConfiguration().setStartActionNr( startActionNr );
 
       // The lower part of the dialog...
       getInfoParameters();

@@ -76,8 +76,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Check if there is a starting point specified.
     String startActionName = workflowExecutionConfiguration.getStartActionName();
     if ( startActionName != null && !startActionName.isEmpty() ) {
-      int startCopyNr = workflowExecutionConfiguration.getStartActionNr();
-      ActionMeta startActionMeta = workflowMeta.findAction( startActionName, startCopyNr );
+      ActionMeta startActionMeta = workflowMeta.findAction( startActionName );
       workflow.setStartActionMeta( startActionMeta );
     }
 

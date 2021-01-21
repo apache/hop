@@ -106,17 +106,12 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     try {
       String fromName = XmlHandler.getTagValue( hopNode, XML_FROM_TAG );
       String toName = XmlHandler.getTagValue( hopNode, XML_TO_TAG );
-      String sFromNr = XmlHandler.getTagValue( hopNode, "from_nr" );
-      String sToNr = XmlHandler.getTagValue( hopNode, "to_nr" );
       String sEnabled = XmlHandler.getTagValue( hopNode, "enabled" );
       String sEvaluation = XmlHandler.getTagValue( hopNode, "evaluation" );
       String sUnconditional = XmlHandler.getTagValue( hopNode, "unconditional" );
 
-      int fromNr = Const.toInt( sFromNr, 0 );
-      int toNr = Const.toInt( sToNr, 0 );
-
-      this.from = workflow.findAction( fromName, fromNr );
-      this.to = workflow.findAction( toName, toNr );
+      this.from = workflow.findAction( fromName );
+      this.to = workflow.findAction( toName );
 
       if ( sEnabled == null ) {
         enabled = true;
@@ -141,8 +136,6 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
       retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
       retval.append( "      " ).append( XmlHandler.addTagValue( XML_FROM_TAG, this.from.getName() ) );
       retval.append( "      " ).append( XmlHandler.addTagValue( XML_TO_TAG, this.to.getName() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "from_nr", this.from.getNr() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "to_nr", this.to.getNr() ) );
       retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
       retval.append( "      " ).append( XmlHandler.addTagValue( "evaluation", evaluation ) );
       retval.append( "      " ).append( XmlHandler.addTagValue( "unconditional", unconditional ) );

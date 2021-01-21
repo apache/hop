@@ -41,17 +41,17 @@ public class HopGuiWorkflowUndoDelegate {
     this.workflowGraph = workflowGraph;
   }
 
-  public void undoJobAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta ) {
+  public void undoWorkflowAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta ) {
     ChangeAction changeAction = workflowMeta.previousUndo();
     if ( changeAction == null ) {
       return;
     }
-    undoJobAction( handler, workflowMeta, changeAction );
+    undoWorkflowAction( handler, workflowMeta, changeAction );
     handler.updateGui();
   }
 
 
-  public void undoJobAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta, ChangeAction changeAction ) {
+  public void undoWorkflowAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       // We created a new transform : undo this...
       case NewAction:
@@ -185,21 +185,21 @@ public class HopGuiWorkflowUndoDelegate {
     // OK, now check if we need to do this again...
     if ( workflowMeta.viewNextUndo() != null ) {
       if ( workflowMeta.viewNextUndo().getNextAlso() ) {
-        undoJobAction( handler, workflowMeta );
+        undoWorkflowAction( handler, workflowMeta );
       }
     }
   }
 
-  public void redoJobAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta ) {
+  public void redoWorkflowAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta ) {
     ChangeAction changeAction = workflowMeta.nextUndo();
     if ( changeAction == null ) {
       return;
     }
-    redoJobAction( handler, workflowMeta, changeAction );
+    redoWorkflowAction( handler, workflowMeta, changeAction );
     handler.updateGui();
   }
 
-  public void redoJobAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta, ChangeAction changeAction ) {
+  public void redoWorkflowAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       case NewAction:
         // re-delete the transform at correct location:
@@ -317,7 +317,7 @@ public class HopGuiWorkflowUndoDelegate {
     // OK, now check if we need to do this again...
     if ( workflowMeta.viewNextUndo() != null ) {
       if ( workflowMeta.viewNextUndo().getNextAlso() ) {
-        redoJobAction( handler, workflowMeta );
+        redoWorkflowAction( handler, workflowMeta );
       }
     }
   }
@@ -327,14 +327,14 @@ public class HopGuiWorkflowUndoDelegate {
    *
    * @return value of workflowGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
+  public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;
   }
 
   /**
    * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
     this.workflowGraph = workflowGraph;
   }
 

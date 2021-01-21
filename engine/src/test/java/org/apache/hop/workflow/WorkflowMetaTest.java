@@ -131,10 +131,10 @@ public class WorkflowMetaTest {
 
   @Test
   public void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
-    Point jobEntryPoint = new Point( 500, 500 );
+    Point actionPoint = new Point( 500, 500 );
     Point notePadMetaPoint = new Point( 400, 400 );
-    ActionMeta actionCopy = mock( ActionMeta.class );
-    when( actionCopy.getLocation() ).thenReturn( jobEntryPoint );
+    ActionMeta actionMeta = mock( ActionMeta.class );
+    when( actionMeta.getLocation() ).thenReturn( actionPoint );
     NotePadMeta notePadMeta = mock( NotePadMeta.class );
     when( notePadMeta.getLocation() ).thenReturn( notePadMetaPoint );
 
@@ -144,10 +144,10 @@ public class WorkflowMetaTest {
     assertEquals( 0, point.y );
 
     // when Workflow contains a single transform or note, then workflowMeta should return coordinates of it, subtracting borders
-    workflowMeta.addAction( 0, actionCopy );
+    workflowMeta.addAction( 0, actionMeta );
     Point actualTransformPoint = workflowMeta.getMinimum();
-    assertEquals( jobEntryPoint.x - WorkflowMeta.BORDER_INDENT, actualTransformPoint.x );
-    assertEquals( jobEntryPoint.y - WorkflowMeta.BORDER_INDENT, actualTransformPoint.y );
+    assertEquals( actionPoint.x - WorkflowMeta.BORDER_INDENT, actualTransformPoint.x );
+    assertEquals( actionPoint.y - WorkflowMeta.BORDER_INDENT, actualTransformPoint.y );
 
     // when Workflow contains transform or notes, then workflowMeta should return minimal coordinates of them, subtracting borders
     workflowMeta.addNote( notePadMeta );
@@ -247,9 +247,9 @@ public class WorkflowMetaTest {
   public void testHasLoop_simpleLoop() throws Exception {
     //main->2->3->main
     WorkflowMeta workflowMetaSpy = spy( workflowMeta );
-    ActionMeta actionCopyMain = createJobEntryCopy( "mainTransform" );
-    ActionMeta actionCopy2 = createJobEntryCopy( "transform2" );
-    ActionMeta actionCopy3 = createJobEntryCopy( "transform3" );
+    ActionMeta actionCopyMain = createAction( "mainTransform" );
+    ActionMeta actionCopy2 = createAction( "transform2" );
+    ActionMeta actionCopy3 = createAction( "transform3" );
     when( workflowMetaSpy.findNrPrevActions( actionCopyMain ) ).thenReturn( 1 );
     when( workflowMetaSpy.findPrevAction( actionCopyMain, 0 ) ).thenReturn( actionCopy2 );
     when( workflowMetaSpy.findNrPrevActions( actionCopy2 ) ).thenReturn( 1 );
@@ -263,10 +263,10 @@ public class WorkflowMetaTest {
   public void testHasLoop_loopInPrevTransforms() throws Exception {
     //main->2->3->4->3
     WorkflowMeta workflowMetaSpy = spy( workflowMeta );
-    ActionMeta actionCopyMain = createJobEntryCopy( "mainTransform" );
-    ActionMeta actionCopy2 = createJobEntryCopy( "transform2" );
-    ActionMeta actionCopy3 = createJobEntryCopy( "transform3" );
-    ActionMeta actionCopy4 = createJobEntryCopy( "transform4" );
+    ActionMeta actionCopyMain = createAction( "mainTransform" );
+    ActionMeta actionCopy2 = createAction( "transform2" );
+    ActionMeta actionCopy3 = createAction( "transform3" );
+    ActionMeta actionCopy4 = createAction( "transform4" );
     when( workflowMetaSpy.findNrPrevActions( actionCopyMain ) ).thenReturn( 1 );
     when( workflowMetaSpy.findPrevAction( actionCopyMain, 0 ) ).thenReturn( actionCopy2 );
     when( workflowMetaSpy.findNrPrevActions( actionCopy2 ) ).thenReturn( 1 );
@@ -279,12 +279,11 @@ public class WorkflowMetaTest {
     assertFalse( workflowMetaSpy.hasLoop( actionCopyMain ) );
   }
 
-  private ActionMeta createJobEntryCopy( String name ) {
+  private ActionMeta createAction( String name ) {
     IAction action = mock( IAction.class );
-    ActionMeta actionCopy = new ActionMeta( action );
-    when( actionCopy.getName() ).thenReturn( name );
-    actionCopy.setNr( 0 );
-    return actionCopy;
+    ActionMeta actionMeta = new ActionMeta( action );
+    when( actionMeta.getName() ).thenReturn( name );
+    return actionMeta;
   }
 
   @Test

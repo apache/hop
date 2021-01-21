@@ -77,10 +77,10 @@ public class HopGuiWorkflowActionDelegate {
         //
         String actionName = pluginName;
         int nr = 2;
-        ActionMeta check = workflowMeta.findAction(actionName, 0);
+        ActionMeta check = workflowMeta.findAction(actionName);
         while (check != null) {
           actionName = pluginName + " " + nr++;
-          check = workflowMeta.findAction(actionName, 0);
+          check = workflowMeta.findAction(actionName);
         }
 
         // Generate the appropriate class...
@@ -99,41 +99,39 @@ public class HopGuiWorkflowActionDelegate {
         if (openIt) {
           IActionDialog d = getActionDialog(action, workflowMeta);
           if (d != null && d.open() != null) {
-            ActionMeta jge = new ActionMeta();
-            jge.setAction(action);
+            ActionMeta actionMeta = new ActionMeta();
+            actionMeta.setAction(action);
             if (location != null) {
-              jge.setLocation(location.x, location.y);
+              actionMeta.setLocation(location.x, location.y);
             } else {
-              jge.setLocation(50, 50);
+              actionMeta.setLocation(50, 50);
             }
-            jge.setNr(0);
-            workflowMeta.addAction(jge);
+            workflowMeta.addAction(actionMeta);
 
             // Verify that the name is not already used in the workflow.
             //
-            workflowMeta.renameActionIfNameCollides(jge);
+            workflowMeta.renameActionIfNameCollides(actionMeta);
 
             hopGui.undoDelegate.addUndoNew(
-                workflowMeta, new ActionMeta[] {jge}, new int[] {workflowMeta.indexOfAction(jge)});
+                workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
             workflowGraph.updateGui();
-            return jge;
+            return actionMeta;
           } else {
             return null;
           }
         } else {
-          ActionMeta jge = new ActionMeta();
-          jge.setAction(action);
+          ActionMeta actionMeta = new ActionMeta();
+          actionMeta.setAction(action);
           if (location != null) {
-            jge.setLocation(location.x, location.y);
+            actionMeta.setLocation(location.x, location.y);
           } else {
-            jge.setLocation(50, 50);
-          }
-          jge.setNr(0);
-          workflowMeta.addAction(jge);
+            actionMeta.setLocation(50, 50);
+          }          
+          workflowMeta.addAction(actionMeta);
           hopGui.undoDelegate.addUndoNew(
-              workflowMeta, new ActionMeta[] {jge}, new int[] {workflowMeta.indexOfAction(jge)});
+              workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
           workflowGraph.updateGui();
-          return jge;
+          return actionMeta;
         }
       } else {
         return null;
@@ -323,9 +321,7 @@ public class HopGuiWorkflowActionDelegate {
       return;
     }
 
-    ActionMeta copyOfAction = action.clone();
-    copyOfAction.setNr(workflowMeta.findUnusedNr(copyOfAction.getName()));
-
+    ActionMeta copyOfAction = action.clone();  
     Point p = action.getLocation();
     copyOfAction.setLocation(p.x + 10, p.y + 10);
 

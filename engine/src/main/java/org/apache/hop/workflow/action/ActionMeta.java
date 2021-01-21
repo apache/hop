@@ -60,8 +60,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
 
   private String suggestion = "";
 
-  private int nr; // Copy nr. 0 is the base copy...
-
   private boolean selected;
 
   private boolean isDeprecated;
@@ -94,7 +92,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     retval.append( action.getXml() );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "parallel", launchingInParallel ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr", nr ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "xloc", location.x ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "yloc", location.y ) );
 
@@ -124,8 +121,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
         action.setMetadataProvider( metadataProvider ); // inject metadata
         action.loadXml( actionNode, metadataProvider, variables);
 
-        // Handle GUI information: nr & location?
-        setNr( Const.toInt( XmlHandler.getTagValue( actionNode, "nr" ), 0 ) );
+        // Handle GUI information: location?
         setLaunchingInParallel( "Y".equalsIgnoreCase( XmlHandler.getTagValue( actionNode, "parallel" ) ) );
         int x = Const.toInt( XmlHandler.getTagValue( actionNode, "xloc" ), 0 );
         int y = Const.toInt( XmlHandler.getTagValue( actionNode, "yloc" ), 0 );
@@ -154,7 +150,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   public void clear() {
     location = new Point(0,0);
     action = null;
-    nr = 0;
     launchingInParallel = false;
     attributesMap = new HashMap<>();
   }
@@ -172,8 +167,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
 
   public void replaceMeta( ActionMeta actionCopy ) {
     action = (IAction) actionCopy.action.clone();
-    nr = actionCopy.nr; // Copy nr. 0 is the base copy...
-
     selected = actionCopy.selected;
     if ( actionCopy.location != null ) {
       location = new Point( actionCopy.location.x, actionCopy.location.y );
@@ -197,12 +190,12 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
       return false;
     }
     ActionMeta je = (ActionMeta) o;
-    return je.action.getName().equalsIgnoreCase( action.getName() ) && je.getNr() == getNr();
+    return je.action.getName().equalsIgnoreCase( action.getName() );
   }
 
   @Override
   public int hashCode() {
-    return action.getName().hashCode() ^ Integer.valueOf( getNr() ).hashCode();
+    return action.getName().hashCode();
   }
 
   public void setAction( IAction je ) {
@@ -266,14 +259,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     return action.hasChanged();
   }
 
-  public int getNr() {
-    return nr;
-  }
-
-  public void setNr( int n ) {
-    nr = n;
-  }
-
   public void setLaunchingInParallel( boolean p ) {
     launchingInParallel = p;
   }
@@ -334,9 +319,9 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
  
   public String toString() {
     if ( action != null ) {
-      return action.getName() + "." + getNr();
+      return action.getName();
     } else {
-      return "null." + getNr();
+      return "null";
     }
   }
 
