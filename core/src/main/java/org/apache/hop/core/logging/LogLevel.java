@@ -24,10 +24,7 @@ public enum LogLevel {
   NOTHING( 0, "Nothing" ), ERROR( 1, "Error" ), MINIMAL( 2, "Minimal" ), BASIC( 3, "Basic" ), DETAILED(
     4, "Detailed" ), DEBUG( 5, "Debug" ), ROWLEVEL( 6, "Rowlevel" );
 
-  /**
-   * for i18n purposes, needed by Translator!!
-   */
-  private static final Class<?> PKG = LogLevel.class;
+  private static final Class<?> PKG = LogLevel.class; // For Translator
 
   public static final String[] logLevelDescriptions = {
     BaseMessages.getString( PKG, "LogWriter.Level.Nothing.LongDesc" ),

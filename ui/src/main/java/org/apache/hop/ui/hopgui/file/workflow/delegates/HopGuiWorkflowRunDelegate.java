@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HopGuiWorkflowRunDelegate {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;

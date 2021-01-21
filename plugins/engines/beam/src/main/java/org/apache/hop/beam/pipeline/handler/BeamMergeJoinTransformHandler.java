@@ -60,7 +60,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     return false;
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -77,7 +77,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     if ( leftInfoTransform == null ) {
       throw new HopException( "The left source transform isn't defined in the Merge Join transform called '" + transformMeta.getName() + "'" );
     }
-    PCollection<HopRow> leftPCollection = stepCollectionMap.get( leftInfoTransform.getName() );
+    PCollection<HopRow> leftPCollection = transformCollectionMap.get( leftInfoTransform.getName() );
     if ( leftPCollection == null ) {
       throw new HopException( "The left source collection in the pipeline couldn't be found (probably a programming error)" );
     }
@@ -87,7 +87,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     if ( rightInfoTransform == null ) {
       throw new HopException( "The right source transform isn't defined in the Merge Join transform called '" + transformMeta.getName() + "'" );
     }
-    PCollection<HopRow> rightPCollection = stepCollectionMap.get( rightInfoTransform.getName() );
+    PCollection<HopRow> rightPCollection = transformCollectionMap.get( rightInfoTransform.getName() );
     if ( rightPCollection == null ) {
       throw new HopException( "The right source collection in the pipeline couldn't be found (probably a programming error)" );
     }
@@ -187,11 +187,11 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
 
     // Apply the transform transform to the previous io transform PCollection(s)
     //
-    PCollection<HopRow> stepPCollection = kvpCollection.apply( ParDo.of( assemblerFn ) );
+    PCollection<HopRow> transformPCollection = kvpCollection.apply( ParDo.of( assemblerFn ) );
 
     // Save this in the map
     //
-    stepCollectionMap.put( transformMeta.getName(), stepPCollection );
+    transformCollectionMap.put( transformMeta.getName(), transformPCollection );
 
     log.logBasic( "Handled Merge Join (STEP) : " + transformMeta.getName() );
   }

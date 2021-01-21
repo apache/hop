@@ -57,7 +57,7 @@ import java.util.List;
  */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> implements ITransform<DimensionLookupMeta, DimensionLookupData> {
 
-  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   private static final int CREATION_METHOD_AUTOINC = 1;
   private static final int CREATION_METHOD_SEQUENCE = 2;
@@ -1691,8 +1691,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         logError( BaseMessages.getString( PKG, "DimensionLookup.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 

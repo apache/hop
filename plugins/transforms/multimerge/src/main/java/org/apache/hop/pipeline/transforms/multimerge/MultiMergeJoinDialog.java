@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.*;
 
 public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MultiMergeJoinSortWarning";
 

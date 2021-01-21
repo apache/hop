@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class WebServiceAvailableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = WebServiceAvailableMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   private CCombo wURL;
 

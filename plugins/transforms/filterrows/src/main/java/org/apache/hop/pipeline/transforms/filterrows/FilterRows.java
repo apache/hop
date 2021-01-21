@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> implements ITransform<FilterRowsMeta, FilterRowsData> {
 
-  private static final Class<?> PKG = FilterRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
   public FilterRows( TransformMeta transformMeta, FilterRowsMeta meta, FilterRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

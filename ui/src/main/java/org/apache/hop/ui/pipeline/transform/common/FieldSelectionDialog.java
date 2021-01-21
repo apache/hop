@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Shell;
  * dialog is opened to load fields.
  */
 public class FieldSelectionDialog extends BaseDialog {
-  private static final Class<?> PKG = FieldSelectionDialog.class;
+  private static final Class<?> PKG = FieldSelectionDialog.class; // For Translator
 
   private int numFields;
   protected boolean reloadAllFields;

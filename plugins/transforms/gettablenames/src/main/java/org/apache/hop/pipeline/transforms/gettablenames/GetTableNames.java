@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> implements ITransform<GetTableNamesMeta, GetTableNamesData> {
 
-  private static final Class<?> PKG = GetTableNamesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
 
   public GetTableNames( TransformMeta transformMeta, GetTableNamesMeta meta, GetTableNamesData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
@@ -417,8 +417,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         return false;
       }
 
-      data.db = new Database( this, meta.getDatabase() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabase() );
       try {
         data.db.connect( getPartitionId() );
 

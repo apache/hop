@@ -43,7 +43,7 @@ import java.io.OutputStreamWriter;
 
 public class GPG {
 
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
   private ILogChannel log;
 

@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public final class WsdlTypes implements Serializable {
 
-  private static final Class<?> PKG = WsdlTypes.class; // Needed by Translator
+  private static final Class<?> PKG = WsdlTypes.class; // For Translator
 
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;

@@ -65,7 +65,7 @@ import java.util.Map;
  * @since version 3.0 RC1
  */
 public class PipelineDebugDialog extends Dialog {
-  private static final Class<?> PKG = PipelineDebugDialog.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineDebugDialog.class; // For Translator
 
   public static final int DEBUG_CANCEL = 0;
   public static final int DEBUG_LAUNCH = 1;

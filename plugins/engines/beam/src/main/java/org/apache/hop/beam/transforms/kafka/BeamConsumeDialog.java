@@ -43,8 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG =
-      BeamConsume.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BeamConsume.class; // For Translator
   private final BeamConsumeMeta input;
 
   int middle;

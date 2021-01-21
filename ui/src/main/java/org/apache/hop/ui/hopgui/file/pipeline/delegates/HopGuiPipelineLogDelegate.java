@@ -35,11 +35,11 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -48,7 +48,7 @@ import java.util.Map;
 
 @GuiPlugin(description = "Pipeline Graph Log Delegate")
 public class HopGuiPipelineLogDelegate {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
@@ -61,7 +61,7 @@ public class HopGuiPipelineLogDelegate {
   private HopGui hopGui;
   private CTabItem pipelineLogTab;
 
-  private StyledText pipelineLogText;
+  private Text pipelineLogText;
 
   private ToolBar toolbar;
   private GuiToolbarWidgets toolBarWidgets;
@@ -109,7 +109,7 @@ public class HopGuiPipelineLogDelegate {
     fd.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fd );
 
-    pipelineLogText = new StyledText( pipelineLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
+    pipelineLogText = new Text( pipelineLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     hopGui.getProps().setLook( pipelineLogText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( 0, 0 );

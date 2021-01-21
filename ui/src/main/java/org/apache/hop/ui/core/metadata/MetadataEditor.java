@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
     implements IMetadataEditor {
 
-  private static final Class<?> PKG = MetadataEditorDialog.class; // Needed by Translator
+  private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator
 
   protected HopGui hopGui;
   protected MetadataManager<T> manager;
@@ -209,31 +209,31 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   @Override
   public void save() throws HopException {
 
-    getWidgetsContent(this.getMetadata());
-      
+    getWidgetsContent(metadata);
+    String name = metadata.getName();
+
     boolean isCreated = false;
     boolean isRename = false;
-    String name = metadata.getName();
 
     if (StringUtils.isEmpty(name)) {
       throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
     }
 
-    if (originalName == null) {
+    if (StringUtils.isEmpty(originalName)) {
       isCreated = true;
     }
     // If rename
     //
-    else if (!originalName.equals(metadata.getName())) {
+    else if (!originalName.equals(name)) {
 
       // See if the name collides with an existing one...
       //
       IHopMetadataSerializer<T> serializer = manager.getSerializer();
 
-      if (serializer.exists(metadata.getName())) {
+      if (serializer.exists(name)) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "MetadataEditor.Error.NameAlreadyExists", metadata.getName()));
+                PKG, "MetadataEditor.Error.NameAlreadyExists", name));
       } else {
         isRename = true;
       }

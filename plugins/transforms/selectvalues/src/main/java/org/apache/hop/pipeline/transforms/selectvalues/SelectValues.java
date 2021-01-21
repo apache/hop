@@ -48,8 +48,7 @@ import java.util.List;
  * @since 5-apr-2003
  */
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> implements ITransform<SelectValuesMeta, SelectValuesData> {
-
-  private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public SelectValues( TransformMeta transformMeta, SelectValuesMeta meta, SelectValuesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

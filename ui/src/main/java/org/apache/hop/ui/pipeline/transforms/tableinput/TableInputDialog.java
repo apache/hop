@@ -73,7 +73,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.List;
 
 public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -470,14 +470,14 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getSql() {
-    DatabaseMeta inf = pipelineMeta.findDatabase( wConnection.getText() );
-    if ( inf != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, inf, pipelineMeta.getDatabases(), false, true );
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
+    if ( databaseMeta != null ) {
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases(), false, true );
       if ( std.open() ) {
         String sql =
           "SELECT *"
             + Const.CR + "FROM "
-            + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() ) + Const.CR;
+            + databaseMeta.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() ) + Const.CR;
         wSql.setText( sql );
 
         MessageBox yn = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
@@ -491,8 +491,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
             wSql.setText( sql );
             break;
           case SWT.YES:
-            Database db = new Database( loggingObject, inf );
-            db.shareWith( variables );
+            Database db = new Database( loggingObject, variables, databaseMeta );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields( sql, false );
@@ -505,11 +504,11 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
                   } else {
                     sql += ", ";
                   }
-                  sql += inf.quoteField( field.getName() ) + Const.CR;
+                  sql += databaseMeta.quoteField( field.getName() ) + Const.CR;
                 }
                 sql +=
                   "FROM "
-                    + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() )
+                    + databaseMeta.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() )
                     + Const.CR;
                 wSql.setText( sql );
               } else {

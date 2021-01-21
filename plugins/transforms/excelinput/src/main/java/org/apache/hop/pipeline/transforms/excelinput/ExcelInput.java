@@ -60,7 +60,7 @@ import java.util.TimeZone;
  */
 public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> implements ITransform<ExcelInputMeta, ExcelInputData> {
 
-  private static final Class<?> PKG = ExcelInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
   public ExcelInput( TransformMeta transformMeta, ExcelInputMeta meta, ExcelInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

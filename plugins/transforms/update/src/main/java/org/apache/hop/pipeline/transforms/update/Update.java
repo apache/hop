@@ -43,7 +43,7 @@ import java.util.ArrayList;
  *
  */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITransform<UpdateMeta, UpdateData> {
-  private static final Class<?> PKG = UpdateMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UpdateMeta.class; // For Translator
 
   public Update(TransformMeta transformMeta, UpdateMeta meta, UpdateData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {
@@ -469,8 +469,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITr
         logError( BaseMessages.getString( PKG, "Update.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 

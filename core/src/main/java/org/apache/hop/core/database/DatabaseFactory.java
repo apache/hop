@@ -31,7 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class DatabaseFactory implements IDatabaseFactory {
 
-  private static final Class<?> PKG = Database.class; // Needed by Translator
+  private static final Class<?> PKG = Database.class; // For Translator
   private boolean success;
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
@@ -45,7 +45,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     success = true; // default
 
     StringBuilder report = new StringBuilder();
-    Database db = new Database( loggingObject, databaseMeta );
+    Database db = new Database( loggingObject, variables, databaseMeta );
     try {
       db.connect();
       report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionOk", databaseMeta.getName() )

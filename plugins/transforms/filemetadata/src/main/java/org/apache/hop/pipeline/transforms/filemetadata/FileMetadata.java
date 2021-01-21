@@ -58,9 +58,9 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
   /**
    * The constructor should simply pass on its arguments to the parent class.
    *
-   * @param transformMeta                 step description
-   * @param data  step data class
-   * @param copyNr                 step copy
+   * @param transformMeta                 transform description
+   * @param data  transform data class
+   * @param copyNr                 transform copy
    * @param pipelineMeta                 transformation description
    * @param pipeline               transformation executing
    */
@@ -81,7 +81,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     if (first) {
       first = false;
-      // remember whether the step is consuming a stream, or generating a row
+      // remember whether the transform is consuming a stream, or generating a row
       data.isReceivingInput = getPipelineMeta().findNrPrevTransforms(getTransformMeta()) > 0;
 
       // processing existing rows?
@@ -105,7 +105,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     //-------------------------------------------------------------------------------
     if (data.isReceivingInput) {
 
-      // if no more rows are expected, indicate step is finished and processRow() should not be called again
+      // if no more rows are expected, indicate transform is finished and processRow() should not be called again
       if (r == null) {
         setOutputDone();
         return false;
@@ -171,10 +171,10 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     for (String candidate : meta.getDelimiterCandidates()) {
       candidate = resolve(candidate);
       if (candidate.length() == 0){
-        logBasic("Warning: file metadata step ignores empty delimiter candidate");
+        logBasic("Warning: file metadata transform ignores empty delimiter candidate");
       }
       else if (candidate.length() > 1){
-        logBasic("Warning: file metadata step ignores non-character delimiter candidate: "+candidate);
+        logBasic("Warning: file metadata transform ignores non-character delimiter candidate: "+candidate);
       }
       else{
         delimiterCandidates.add(candidate.charAt(0));
@@ -185,10 +185,10 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     for (String candidate : meta.getEnclosureCandidates()) {
       candidate = resolve(candidate);
       if (candidate.length() == 0){
-        logBasic("Warning: file metadata step ignores empty enclosure candidate");
+        logBasic("Warning: file metadata transform ignores empty enclosure candidate");
       }
       else if (candidate.length() > 1){
-        logBasic("Warning: file metadata step ignores non-character enclosure candidate: "+candidate);
+        logBasic("Warning: file metadata transform ignores non-character enclosure candidate: "+candidate);
       }
       else{
         enclosureCandidates.add(candidate.charAt(0));

@@ -32,7 +32,7 @@ public interface IBeamTransformHandler {
 
   void handleTransform( ILogChannel log,
                         TransformMeta transformMeta,
-                        Map<String, PCollection<HopRow>> stepCollectionMap,
+                        Map<String, PCollection<HopRow>> transformCollectionMap,
                         Pipeline pipeline,
                         IRowMeta rowMeta,
                         List<TransformMeta> previousTransforms,

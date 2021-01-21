@@ -36,8 +36,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 4-aug-2003
  */
 public class NullIf extends BaseTransform<NullIfMeta,NullIfData> implements ITransform<NullIfMeta,NullIfData> {
-  private static final Class<?> PKG = NullIfMeta.class; // Needed by Translator
-
+  private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
   public NullIf( TransformMeta transformMeta,NullIfMeta meta, NullIfData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

@@ -58,7 +58,7 @@ import java.util.Map;
     id = "Repeat",
     name = "Repeat",
     description = "Repeat execution of a workflow or a transformation",
-    categoryDescription = "General",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "repeat.svg",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {
@@ -164,8 +164,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
     ExecutionResult executionResult = null;
 
-    setBusyIcon();
-
     boolean repeat = true;
     int repetitionNr = 0;
     while (repeat && !parentWorkflow.isStopped()) {
@@ -187,7 +185,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
         repeat = false;
       } else {
-        // End repeat if the End Repeat workflow entry is executed
+        // End repeat if the End Repeat workflow action is executed
         //
         if (executionResult.flagSet) {
           repeat = false;
@@ -213,8 +211,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       }
     }
 
-    clearBusyIcon();
-
     // Add last execution results
     //
     if (executionResult != null) {
@@ -222,22 +218,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     }
 
     return prevResult;
-  }
-
-  private void setBusyIcon() {
-    // Set the busy icon the the graph
-    //
-    ActionPipeline jeTrans = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(jeTrans);
-    parentWorkflow.getActiveActionPipeline().put(key, jeTrans);
-  }
-
-  private void clearBusyIcon() {
-    // Remove the busy icon in the graph
-    //
-    ActionPipeline jeTrans = new ActionPipeline(getName());
-    ActionMeta key = new ActionMeta(jeTrans);
-    parentWorkflow.getActiveActionPipeline().remove(key);
   }
 
   private ExecutionResult executeTransformationOrWorkflow(
@@ -355,7 +335,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
         variablesMap.put(variableName, previousResult.variables.getVariable(variableName));
       }
     } else {
-      // Initialize the values of the defined parameters in the workflow entry
+      // Initialize the values of the defined parameters in the workflow action
       //
       for (ParameterDetails parameter : parameters) {
         String value = resolve(parameter.getField());
@@ -449,7 +429,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       }
     }
 
-    // Any parameters to initialize from the workflow entry?
+    // Any parameters to initialize from the workflow action?
     //
     String[] parameterNames = subParams.listParameters();
     for (ParameterDetails parameter : parameters) {
@@ -541,28 +521,28 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public void loadXml( Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables )
+  public void loadXml( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables )
       throws HopXmlException {
-    super.loadXml(entryNode);
+    super.loadXml(actionNode);
 
-    filename = XmlHandler.getTagValue(entryNode, FILENAME);
-    runConfigurationName = XmlHandler.getTagValue(entryNode, RUN_CONFIGURATION);
-    variableName = XmlHandler.getTagValue(entryNode, VARIABLE_NAME);
-    variableValue = XmlHandler.getTagValue(entryNode, VARIABLE_VALUE);
-    delay = XmlHandler.getTagValue(entryNode, DELAY);
-    keepingValues = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, KEEP_VALUES));
+    filename = XmlHandler.getTagValue(actionNode, FILENAME);
+    runConfigurationName = XmlHandler.getTagValue(actionNode, RUN_CONFIGURATION);
+    variableName = XmlHandler.getTagValue(actionNode, VARIABLE_NAME);
+    variableValue = XmlHandler.getTagValue(actionNode, VARIABLE_VALUE);
+    delay = XmlHandler.getTagValue(actionNode, DELAY);
+    keepingValues = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, KEEP_VALUES));
 
-    logFileEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, LOGFILE_ENABLED));
-    logFileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, LOGFILE_APPENDED));
-    logFileDateAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, LOGFILE_ADD_DATE));
-    logFileTimeAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, LOGFILE_ADD_TIME));
+    logFileEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ENABLED));
+    logFileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_APPENDED));
+    logFileDateAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_DATE));
+    logFileTimeAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_TIME));
     logFileRepetitionAdded =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, LOGFILE_ADD_REPETITION));
-    logFileBase = XmlHandler.getTagValue(entryNode, LOGFILE_BASE);
-    logFileExtension = XmlHandler.getTagValue(entryNode, LOGFILE_EXTENSION);
-    logFileUpdateInterval = XmlHandler.getTagValue(entryNode, LOGFILE_UPDATE_INTERVAL);
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_REPETITION));
+    logFileBase = XmlHandler.getTagValue(actionNode, LOGFILE_BASE);
+    logFileExtension = XmlHandler.getTagValue(actionNode, LOGFILE_EXTENSION);
+    logFileUpdateInterval = XmlHandler.getTagValue(actionNode, LOGFILE_UPDATE_INTERVAL);
 
-    Node parametersNode = XmlHandler.getSubNode(entryNode, PARAMETERS);
+    Node parametersNode = XmlHandler.getSubNode(actionNode, PARAMETERS);
     List<Node> parameterNodes = XmlHandler.getNodes(parametersNode, PARAMETER);
     parameters = new ArrayList<>();
     for (Node parameterNode : parameterNodes) {

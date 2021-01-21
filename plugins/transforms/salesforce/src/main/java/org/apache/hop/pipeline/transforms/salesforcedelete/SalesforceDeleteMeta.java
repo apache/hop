@@ -39,14 +39,13 @@ import java.util.List;
 
 @Transform(
   id = "SalesforceDelete",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.salesforcedelete",
-  name = "SalesforceDelete.TypeLongDesc.SalesforceDelete",
-  description = "SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
+  name = "i18n::SalesforceDelete.TypeLongDesc.SalesforceDelete",
+  description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
   image = "SFD.svg",
   documentationUrl = "Products/Salesforce_Delete" )
 public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   /**
    * Deletefield
@@ -138,7 +137,7 @@ public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDele
       setRollbackAllChangesOnError(
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rollbackAllChangesOnError" ) ) );
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

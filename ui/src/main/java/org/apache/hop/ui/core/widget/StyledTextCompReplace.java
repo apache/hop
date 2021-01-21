@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class StyledTextCompReplace extends org.eclipse.swt.widgets.Dialog {
 
-  private static final Class<?> PKG = StyledTextCompReplace.class; // Needed by Translator
+  private static final Class<?> PKG = StyledTextCompReplace.class; // For Translator
 
   private Shell sShell = null;
   private Text searchText;

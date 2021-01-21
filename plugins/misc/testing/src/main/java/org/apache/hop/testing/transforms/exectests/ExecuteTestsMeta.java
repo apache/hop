@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
   description = "Execute Unit Tests",
   name = "Execute Unit Tests",
   image = "executetests.svg",
-  categoryDescription = "Flow"
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
 )
 public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
 

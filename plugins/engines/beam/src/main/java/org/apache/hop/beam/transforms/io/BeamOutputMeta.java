@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
         image = "beam-output.svg",
         name = "Beam Output",
         description = "Describes a Beam Output",
-        categoryDescription = "Big Data",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamoutput.html"
 )
 public class BeamOutputMeta extends BaseTransformMeta implements ITransformMeta<BeamOutput, BeamOutputData> {

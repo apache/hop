@@ -30,10 +30,7 @@ import java.util.List;
 
 public class RunThread implements Runnable {
 
-  /**
-   * for i18n purposes, needed byTranslator!!
-   */
-  private static final Class<?> PKG = BaseTransform.class;
+  private static final Class<?> PKG = BaseTransform.class; // For Translator
 
   private ITransform transform;
   private ILogChannel log;

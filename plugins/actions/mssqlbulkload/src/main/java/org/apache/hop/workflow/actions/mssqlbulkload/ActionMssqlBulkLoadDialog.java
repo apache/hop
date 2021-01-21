@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.*;
  * @since Jan-2007
  */
 public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobMssqlBulkLoad.Filetype.Text" ),
@@ -1176,8 +1176,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
-        Database database = new Database( loggingObject, databaseMeta );
-        database.shareWith( variables );
+        Database database = new Database( loggingObject, variables, databaseMeta );
         try {
           database.connect();
           IRowMeta row =

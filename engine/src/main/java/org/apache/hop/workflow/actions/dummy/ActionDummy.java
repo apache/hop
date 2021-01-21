@@ -34,9 +34,8 @@ import java.util.List;
 @Action(
     id = "DUMMY",
     image = "ui/images/dummy.svg",
-    i18nPackageName = "org.apache.hop.workflow.actions.dummy",
-    name = "ActionDummy.Name",
-    description = "ActionDummy.Description",
+    name = "i18n::ActionDummy.Name",
+    description = "i18n::ActionDummy.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dummy.html")
 public class ActionDummy extends ActionBase implements IAction {

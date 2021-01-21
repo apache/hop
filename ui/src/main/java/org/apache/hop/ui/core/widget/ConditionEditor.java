@@ -72,7 +72,7 @@ import java.util.ArrayList;
  */
 
 public class ConditionEditor extends Canvas {
-  private static final Class<?> PKG = ConditionEditor.class; // Needed by Translator
+  private static final Class<?> PKG = ConditionEditor.class; // For Translator
 
   private static final int X_PADDING = 18;
   private static final String STRING_NOT = BaseMessages.getString( PKG, "ConditionEditor.StringNot" );

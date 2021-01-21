@@ -67,7 +67,7 @@ import java.util.zip.GZIPInputStream;
  * @since 20-06-2007
  */
 public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> implements ITransform<GetXmlDataMeta, GetXmlDataData> {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row
 
@@ -851,7 +851,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
       if ( irow == null ) {
         data.previousRow = outputRowData;
       } else {
-        // clone to previously allocated array to make sure next step doesn't
+        // clone to previously allocated array to make sure next transform doesn't
         // change it in between...
         System.arraycopy( outputRowData, 0, this.prevRow, 0, outputRowData.length );
         // Pick up everything else that needs a real deep clone

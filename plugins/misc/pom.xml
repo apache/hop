@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-misc</artifactId>
-  <version>0.60-SNAPSHOT</version>
+  <version>0.70-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins Miscellaneous</name>
@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.70-SNAPSHOT</version>
   </parent>
 
   <profiles>
@@ -43,12 +43,32 @@
       </property>
     </activation>
     <modules>
-      <module>projects</module>
       <module>debug</module>
-      <module>testing</module>
       <module>git</module>
+      <module>import</module>
+      <module>projects</module>
+      <module>testing</module>
     </modules>
   </profile>
   </profiles>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.svg</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.svg</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
 
 </project>

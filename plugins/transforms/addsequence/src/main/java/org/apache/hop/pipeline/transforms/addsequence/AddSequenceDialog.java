@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.*;
 
 
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AddSequenceMeta.class; // Needed by Translator
+  private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
 
   private Text wValuename;
 
@@ -506,7 +506,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
   private void getSequences() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] sequences = database.getSequences();
@@ -547,7 +547,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

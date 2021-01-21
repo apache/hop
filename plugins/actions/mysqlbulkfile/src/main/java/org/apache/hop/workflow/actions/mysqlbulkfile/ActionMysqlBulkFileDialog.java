@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.*;
  * @since 06-03-2006
  */
 public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobMysqlBulkFile.Filetype.Text" ),
@@ -715,8 +715,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
-        Database database = new Database( loggingObject, databaseMeta );
-        database.shareWith( variables );
+        Database database = new Database( loggingObject, variables, databaseMeta );
         try {
           database.connect();
           IRowMeta row =

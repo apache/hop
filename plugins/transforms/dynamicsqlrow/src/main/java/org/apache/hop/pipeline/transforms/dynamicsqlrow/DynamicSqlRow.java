@@ -41,7 +41,7 @@ import java.sql.ResultSet;
  */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   public DynamicSqlRow( TransformMeta transformMeta, DynamicSqlRowMeta meta, DynamicSqlRowData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
@@ -285,8 +285,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
         logError( BaseMessages.getString( PKG, "DynmaicSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, variables, meta.getDatabaseMeta() );
       try {
         data.db.connect( getPartitionId() );
 

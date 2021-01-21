@@ -58,15 +58,14 @@ import java.util.List;
 	 
 @Action(
   id = "MYSQL_BULK_FILE",
-  i18nPackageName = "org.apache.hop.workflow.actions.mysqlbulkfile",
-  name = "ActionMysqlBulkFile.Name",
-  description = "ActionMysqlBulkFile.Description",
+  name = "i18n::ActionMysqlBulkFile.Name",
+  description = "i18n::ActionMysqlBulkFile.Description",
   image = "MysqlBulkFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mysqlbulkfile.html"
 )
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
 
   private String tableName;
   private String schemaName;
@@ -255,8 +254,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
         if ( connection != null ) {
           // User has specified a connection, We can continue ...
-          Database db = new Database( this, connection );
-          db.shareWith( this );
+          Database db = new Database( this, this, connection );
           try {
             db.connect();
             // Get schemaname

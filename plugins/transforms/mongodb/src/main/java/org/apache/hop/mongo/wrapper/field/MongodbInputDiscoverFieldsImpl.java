@@ -57,7 +57,7 @@ import java.util.Map;
 
 /** Created by bryan on 8/7/14. */
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
-  private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class;
+  private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator
 
   public List<MongoField> discoverFields(
       final MongoProperties.Builder properties,

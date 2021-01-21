@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DeleteMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -417,14 +417,14 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
           colInfo.setComboValues( new String[] {} );
         }
         if ( !Utils.isEmpty( tableName ) ) {
-          DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
-          if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
+          DatabaseMeta databaseMeta = pipelineMeta.findDatabase( connectionName );
+          if ( databaseMeta != null ) {
+            Database database = new Database( loggingObject, variables, databaseMeta );
             try {
-              db.connect();
+              database.connect();
 
               IRowMeta r =
-                db.getTableFieldsMeta(
+                database.getTableFieldsMeta(
                   variables.resolve( schemaName ),
                   variables.resolve( tableName ) );
               if ( null != r ) {
@@ -443,12 +443,12 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
               // filled, but no problem for the user
             } finally {
               try {
-                if ( db != null ) {
-                  db.disconnect();
+                if ( database != null ) {
+                  database.disconnect();
                 }
               } catch ( Exception ignored ) {
                 // ignore any errors here.
-                db = null;
+                database = null;
               }
             }
           }
@@ -507,7 +507,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

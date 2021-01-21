@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.*;
 
 public class ExcelOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExcelOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExcelOutputMeta.class; // For Translator
 
   private Label wlTempDirectory;
   private TextVar wTempDirectory;

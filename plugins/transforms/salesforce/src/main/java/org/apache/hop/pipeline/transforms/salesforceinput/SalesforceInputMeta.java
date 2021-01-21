@@ -49,9 +49,8 @@ import java.util.List;
 
 @Transform(
   id = "SalesforceInput",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceinput",
-  name = "SalesforceInput.TypeLongDesc.SalesforceInput",
-  description = "SalesforceInput.TypeTooltipDesc.SalesforceInput",
+  name = "i18n::SalesforceInput.TypeLongDesc.SalesforceInput",
+  description = "i18n::SalesforceInput.TypeTooltipDesc.SalesforceInput",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
   image = "SFI.svg",
   documentationUrl = "Products/Salesforce_Input" )
@@ -59,7 +58,7 @@ import java.util.List;
 public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput, SalesforceInputData> {
   public static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-  private static Class<?> PKG = SalesforceInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   /**
    * Flag indicating that we should include the generated SQL in the output
@@ -573,7 +572,7 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
       // Is there a limit on the number of rows we process?
       setRowLimit( XmlHandler.getTagValue( transformNode, "limit" ) );
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

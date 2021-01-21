@@ -49,7 +49,7 @@ import java.util.List;
  */
 
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> implements ITransform<MailInputMeta, MailInputData> {
-  private static final Class<?> PKG = MailInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailInputMeta.class; // For Translator
 
   private MessageParser instance = new MessageParser();
 

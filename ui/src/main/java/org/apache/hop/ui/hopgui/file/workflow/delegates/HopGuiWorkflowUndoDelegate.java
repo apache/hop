@@ -28,7 +28,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 
 public class HopGuiWorkflowUndoDelegate {
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;

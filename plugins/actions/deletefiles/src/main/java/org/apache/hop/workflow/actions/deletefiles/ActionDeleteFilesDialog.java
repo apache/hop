@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 06-05-2007
  */
 public class ActionDeleteFilesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDeleteFiles.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobDeleteFiles.Filetype.All" ) };

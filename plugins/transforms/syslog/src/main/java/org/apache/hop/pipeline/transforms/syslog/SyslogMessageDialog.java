@@ -44,7 +44,7 @@ import java.net.InetAddress;
 import org.apache.hop.core.variables.IVariables;
 
 public class SyslogMessageDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SyslogMessageMeta.class; // For Translator
 
   private CCombo wMessageField;
 

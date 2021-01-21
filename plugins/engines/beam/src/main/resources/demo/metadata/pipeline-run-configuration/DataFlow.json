@@ -14,7 +14,7 @@
       "gcpAppName": "Hop",
       "gcpInitialNumberOfWorkers": "8",
       "gcpStagingLocation": "gs://kettledataflow/binaries/",
-      "fatJar": "/home/matt/parking/hop-0.50-fat.jar",
+      "fatJar": "/home/matt/parking/hop-0.60-fat.jar",
       "streamingHopTransformsFlushInterval": "1000",
       "transformPluginClasses": "",
       "gcpDiskSizeGb": "",

@@ -39,6 +39,11 @@ public @interface ImportRulePlugin {
 
   String description();
 
+  /**
+   * Please use the i18n:package:key format in name, description and categoryDescription
+   * @return
+   */
+  @Deprecated
   String i18nPackageName();
 
   String classLoaderGroup() default "";

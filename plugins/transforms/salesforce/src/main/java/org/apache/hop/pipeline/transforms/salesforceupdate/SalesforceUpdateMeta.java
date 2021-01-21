@@ -39,14 +39,13 @@ import java.util.List;
 
 @Transform(
     id = "SalesforceUpdate",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.salesforceupdate",
-    name = "SalesforceUpdate.TypeLongDesc.SalesforceUpdate",
-    description = "SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
+    name = "i18n::SalesforceUpdate.TypeLongDesc.SalesforceUpdate",
+    description = "i18n::SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFUD.svg",
     documentationUrl = "Products/Salesforce_Update" )
 public class SalesforceUpdateMeta extends SalesforceTransformMeta<SalesforceUpdate,SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;
@@ -218,7 +217,7 @@ public class SalesforceUpdateMeta extends SalesforceTransformMeta<SalesforceUpda
       setRollbackAllChangesOnError(
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rollbackAllChangesOnError" ) ) );
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

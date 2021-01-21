@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
 
   private Label wlEncoding;
   private ComboVar wEncoding;
@@ -713,12 +713,12 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
       }
     };
+    wGet.addListener( SWT.Selection, e -> get() );
 
     wTransformName.addSelectionListener( lsDef );
     // Detect X or ALT-F4 or something that kills this window...

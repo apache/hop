@@ -35,8 +35,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
 
-  private static final Class<?> PKG =
-      GitRepositoryEditor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GitRepositoryEditor.class; // For Translator
 
   private Text nameText;
   private Text descText;

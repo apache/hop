@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by bmorrise on 6/27/18.
- */
+/** Created by bmorrise on 6/27/18. */
 public class TreeNode {
   private String label;
   private Image image;
@@ -41,10 +39,9 @@ public class TreeNode {
   private Map<String, Object> data = new HashMap<>();
   private int index = -1;
 
-  public TreeNode() {
-  }
+  public TreeNode() {}
 
-  public TreeNode( String label, Image image, boolean expanded ) {
+  public TreeNode(String label, Image image, boolean expanded) {
     this.label = label;
     this.image = image;
     this.expanded = expanded;
@@ -54,8 +51,8 @@ public class TreeNode {
     return children;
   }
 
-  public void addChild( TreeNode treeNode ) {
-    children.add( treeNode );
+  public void addChild(TreeNode treeNode) {
+    children.add(treeNode);
   }
 
   public boolean hasChildren() {
@@ -66,7 +63,7 @@ public class TreeNode {
     return label;
   }
 
-  public void setLabel( String label ) {
+  public void setLabel(String label) {
     this.label = label;
   }
 
@@ -74,7 +71,7 @@ public class TreeNode {
     return image;
   }
 
-  public void setImage( Image image ) {
+  public void setImage(Image image) {
     this.image = image;
   }
 
@@ -82,7 +79,7 @@ public class TreeNode {
     return font;
   }
 
-  public void setFont( Font font ) {
+  public void setFont(Font font) {
     this.font = font;
   }
 
@@ -90,7 +87,7 @@ public class TreeNode {
     return foreground;
   }
 
-  public void setForeground( Color foreground ) {
+  public void setForeground(Color foreground) {
     this.foreground = foreground;
   }
 
@@ -98,7 +95,7 @@ public class TreeNode {
     return background;
   }
 
-  public void setBackground( Color background ) {
+  public void setBackground(Color background) {
     this.background = background;
   }
 
@@ -106,7 +103,7 @@ public class TreeNode {
     return expanded;
   }
 
-  public void setExpanded( boolean expanded ) {
+  public void setExpanded(boolean expanded) {
     this.expanded = expanded;
   }
 
@@ -118,12 +115,12 @@ public class TreeNode {
     return hidden;
   }
 
-  public void setHidden( boolean hidden ) {
+  public void setHidden(boolean hidden) {
     this.hidden = hidden;
   }
 
-  public void setData( String key, Object value ) {
-    data.put( key, value );
+  public void setData(String key, Object value) {
+    data.put(key, value);
   }
 
   public Map<String, Object> getData() {
@@ -134,7 +131,7 @@ public class TreeNode {
     return index;
   }
 
-  public void setIndex( int index ) {
+  public void setIndex(int index) {
     this.index = index;
   }
 }

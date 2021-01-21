@@ -55,15 +55,14 @@ import java.util.List;
 
 @Action(
   id = "WAIT_FOR_SQL",
-  i18nPackageName = "org.apache.hop.workflow.actions.waitforsql",
-  name = "ActionWaitForSQL.Name",
-  description = "ActionWaitForSQL.Description",
+  name = "i18n::ActionWaitForSQL.Name",
+  description = "i18n::ActionWaitForSQL.Description",
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforsql.html"
 )
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 
   public boolean isClearResultList;
 
@@ -273,8 +272,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     // connect and disconnect
     Database dbchecked = null;
     try {
-      dbchecked = new Database( this, connection );
-      dbchecked.shareWith( this );
+      dbchecked = new Database( this, this, connection );
       dbchecked.connect( null );
     } finally {
       if ( dbchecked != null ) {
@@ -430,8 +428,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     boolean successOK = false;
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
-    Database db = new Database( this, connection );
-    db.shareWith( this );
+    Database db = new Database( this, this, connection );
     try {
       db.connect();
       if ( isCustomSql ) {

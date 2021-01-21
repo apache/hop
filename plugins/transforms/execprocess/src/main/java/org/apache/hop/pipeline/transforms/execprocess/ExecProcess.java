@@ -44,7 +44,7 @@ import java.util.List;
 
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> implements ITransform<ExecProcessMeta, ExecProcessData> {
 
-  private static final Class<?> PKG = ExecProcessMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 
   public ExecProcess( TransformMeta transformMeta, ExecProcessMeta meta, ExecProcessData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

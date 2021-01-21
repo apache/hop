@@ -78,7 +78,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   private static int FIELD_DESCRIPTION = 1;
   private static int FIELD_NAME = 2;

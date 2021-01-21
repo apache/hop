@@ -27,6 +27,7 @@ import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -83,13 +84,14 @@ import java.util.List;
  *     <p>
  */
 public class DatabaseExplorerDialog extends Dialog {
+  private static final Class<?> PKG = DatabaseExplorerDialog.class; // For Translator
+
   private ILogChannel log;
   private PropsUi props;
   private DatabaseMeta dbMeta;
   private IVariables variables;
   private DbCache dbcache;
-
-  private static final Class<?> PKG = DatabaseExplorerDialog.class;
+  private ILoggingObject loggingObject;
 
   private static final String STRING_CATALOG =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Catalogs.Label");
@@ -155,6 +157,7 @@ public class DatabaseExplorerDialog extends Dialog {
     this.databases = databases;
     this.justLook = look;
     this.splitSchemaAndTable = splitSchemaAndTable;
+    this.loggingObject = new LoggingObject( "Database Explorer" );
 
     selectedSchema = null;
     selectedTable = null;
@@ -500,7 +503,7 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   private boolean getData() {
-    GetDatabaseInfoProgressDialog gdipd = new GetDatabaseInfoProgressDialog(shell, dbMeta);
+    GetDatabaseInfoProgressDialog gdipd = new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
     DatabaseMetaInformation dmi = gdipd.open();
     if (dmi != null) {
       // Clear the tree top entry
@@ -782,7 +785,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void showTable(String tableName) {
     String sql = dbMeta.getSqlQueryFields(tableName);
-    GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog(shell, dbMeta, sql);
+    GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
     IRowMeta result = pd.open();
     if (result != null) {
       TransformFieldsDialog sfd =
@@ -805,7 +808,7 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getDDL(String tableName) {
-    Database db = new Database(dbMeta);
+    Database db = new Database(loggingObject, variables, dbMeta );
     try {
       db.connect();
       IRowMeta r = db.getTableFields(tableName);
@@ -825,39 +828,39 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void getDDLForOther(String tableName) {
     if (databases != null) {
-      Database db = new Database(dbMeta);
+      Database database = new Database(loggingObject, variables, dbMeta );
       try {
-        db.connect();
+        database.connect();
 
-        IRowMeta r = db.getTableFields(tableName);
+        IRowMeta rowMeta = database.getTableFields(tableName);
 
         // Now select the other connection...
 
         // Only take non-SAP ERP connections....
-        List<DatabaseMeta> dbs = new ArrayList<>();
+        List<DatabaseMeta> databaseMetaList = new ArrayList<>();
         for (int i = 0; i < databases.size(); i++) {
-          dbs.add(databases.get(i));
+          databaseMetaList.add(databases.get(i));
         }
 
-        String conn[] = new String[dbs.size()];
-        for (int i = 0; i < conn.length; i++) {
-          conn[i] = (dbs.get(i)).getName();
+        String connectionNames[] = new String[databaseMetaList.size()];
+        for (int i = 0; i < connectionNames.length; i++) {
+          connectionNames[i] = (databaseMetaList.get(i)).getName();
         }
 
-        EnterSelectionDialog esd =
+        EnterSelectionDialog enterSelectionDialog =
             new EnterSelectionDialog(
                 shell,
-                conn,
+                connectionNames,
                 BaseMessages.getString(PKG, "DatabaseExplorerDialog.TargetDatabase.Title"),
                 BaseMessages.getString(PKG, "DatabaseExplorerDialog.TargetDatabase.Message"));
-        String target = esd.open();
+        String target = enterSelectionDialog.open();
         if (target != null) {
-          DatabaseMeta targetdbi = DatabaseMeta.findDatabase(dbs, target);
-          Database targetdb = new Database(targetdbi);
+          DatabaseMeta targetDatabaseMeta = DatabaseMeta.findDatabase(databaseMetaList, target);
+          Database targetDatabase = new Database(loggingObject, variables, targetDatabaseMeta );
 
-          String sql = targetdb.getCreateTableStatement(tableName, r, null, false, null, true);
-          SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
-          se.open();
+          String sql = targetDatabase.getCreateTableStatement(tableName, rowMeta, null, false, null, true);
+          SqlEditor sqlEditor = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
+          sqlEditor.open();
         }
       } catch (HopDatabaseException dbe) {
         new ErrorDialog(
@@ -866,7 +869,7 @@ public class DatabaseExplorerDialog extends Dialog {
             BaseMessages.getString(PKG, "DatabaseExplorerDialog.Error.GenDDL"),
             dbe);
       } finally {
-        db.disconnect();
+        database.disconnect();
       }
     } else {
       MessageBox mb = new MessageBox(shell, SWT.NONE | SWT.ICON_INFORMATION);
@@ -878,9 +881,9 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getSql(String tableName) {
-    SqlEditor sql =
+    SqlEditor sqlEditor =
         new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + tableName);
-    sql.open();
+    sqlEditor.open();
   }
 
   /**
@@ -890,7 +893,7 @@ public class DatabaseExplorerDialog extends Dialog {
    */
   public void profileTable(String tableName) {
     try {
-      PipelineProfileFactory profileFactory = new PipelineProfileFactory(dbMeta, tableName);
+      PipelineProfileFactory profileFactory = new PipelineProfileFactory(variables, dbMeta, tableName);
       PipelineMeta pipelineMeta = profileFactory.generatePipeline(new LoggingObject(tableName));
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(

@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  *
  */
 public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> implements ITransform<UniqueRowsMeta, UniqueRowsData> {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   public UniqueRows( TransformMeta transformMeta, UniqueRowsMeta meta, UniqueRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

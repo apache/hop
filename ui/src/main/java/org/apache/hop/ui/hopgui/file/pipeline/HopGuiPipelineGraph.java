@@ -214,7 +214,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         IHopFileTypeHandler,
         IGuiRefresher {
 
-  private static final Class<?> PKG = HopGui.class; // Needed by Translator
+  private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiPipelineGraph-ToolBar-10010-Run";
@@ -2704,14 +2704,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 .append(Const.CR);
           }
           break;
-        case TRANSFORM_ERROR_ICON:
-          String log = (String) areaOwner.getParent();
-          tip.append(log);          
-          tipImage = GuiResource.getInstance().getImageError();
-          break;
         case TRANSFORM_FAILURE_ICON:
-          String redLog = (String) areaOwner.getParent();
-          tip.append(redLog);
+          String log = (String) areaOwner.getParent();
+          tip.append(log);
           tipImage = GuiResource.getInstance().getImageFailure();
           break;
         case HOP_COPY_ICON:
@@ -4015,12 +4010,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
 
+          // Set the variables from the execution configuration...
+          //
+          Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
+          Set<String> variableKeys = variablesMap.keySet();
+          for (String key : variableKeys) {
+            pipeline.setVariable( key, Const.NVL(variablesMap.get(key), "") );
+          }
+
           // Set the named parameters
           //
-          Map<String, String> paramMap = executionConfiguration.getParametersMap();
-          Set<String> keys = paramMap.keySet();
-          for (String key : keys) {
-            pipeline.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
+          Map<String, String> parametersMap = executionConfiguration.getParametersMap();
+          Set<String> parametersKeys = parametersMap.keySet();
+          for (String key : parametersKeys) {
+            pipeline.setParameterValue(key, Const.NVL(parametersMap.get(key), ""));
           }
           pipeline.activateParameters(pipeline);
 

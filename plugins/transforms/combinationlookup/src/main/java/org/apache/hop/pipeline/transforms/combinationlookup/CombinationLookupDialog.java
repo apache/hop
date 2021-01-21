@@ -72,7 +72,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CombinationLookupDialog.class; // Needed by Translator
+  private static final Class<?> PKG = CombinationLookupDialog.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -641,7 +641,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         if ( !Utils.isEmpty( tableName ) ) {
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
+            Database db = new Database( loggingObject, variables, ci );
             try {
               db.connect();
 
@@ -876,7 +876,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

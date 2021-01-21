@@ -39,10 +39,10 @@ import java.util.Hashtable;
 
 public class MailValidation {
 
-  private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MailValidation.class; // For Translator
 
-  public static boolean isRegExValid( String emailAdress ) {
-    return GenericValidator.isEmail( emailAdress );
+  public static boolean isRegExValid( String emailAddress ) {
+    return GenericValidator.isEmail( emailAddress );
   }
 
   /**
@@ -127,9 +127,9 @@ public class MailValidation {
   /**
    * Validate an email address This code is from : http://www.rgagnon.com/javadetails/java-0452.html
    *
-   * @param email     address
-   * @param sender    email address
-   * @param default   SMTP Server
+   * @param address     address
+   * @param senderAddress    email address
+   * @param defaultSMTPServer   SMTP Server
    * @param timeout   for socket connection
    * @param deepCheck (if we want to perform a SMTP check
    * @return true or false

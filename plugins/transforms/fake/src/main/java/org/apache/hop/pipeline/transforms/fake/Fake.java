@@ -39,7 +39,7 @@ import java.util.Locale;
  */
 public class Fake extends BaseTransform<FakeMeta, FakeData> implements ITransform<FakeMeta, FakeData> {
 
-  private static final Class<?> PKG = FakeMeta.class; // Needed by Translator
+  private static final Class<?> PKG = FakeMeta.class; // For Translator
 
   public Fake( TransformMeta transformMeta, FakeMeta meta, FakeData data, int copyNr, PipelineMeta pipelineMeta,
                Pipeline pipeline ) {

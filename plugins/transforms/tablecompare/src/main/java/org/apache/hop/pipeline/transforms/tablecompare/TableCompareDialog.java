@@ -40,7 +40,7 @@ import java.util.Arrays;
 import org.apache.hop.core.variables.IVariables;
 
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableCompare.class; // Needed by Translator
+  private static final Class<?> PKG = TableCompare.class; // For Translator
 
   private final TableCompareMeta input;
 

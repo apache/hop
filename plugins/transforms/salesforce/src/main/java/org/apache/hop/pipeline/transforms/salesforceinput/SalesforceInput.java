@@ -44,7 +44,7 @@ import java.util.GregorianCalendar;
  * @since 10-06-2007
  */
 public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, SalesforceInputData> {
-  private static Class<?> PKG = SalesforceInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   public SalesforceInput( TransformMeta transformMeta, SalesforceInputMeta meta, SalesforceInputData data,
                           int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {

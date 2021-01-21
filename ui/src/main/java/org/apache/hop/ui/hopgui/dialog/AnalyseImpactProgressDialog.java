@@ -39,7 +39,7 @@ import java.util.List;
  * @since 04-apr-2005
  */
 public class AnalyseImpactProgressDialog {
-  private static final Class<?> PKG = AnalyseImpactProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = AnalyseImpactProgressDialog.class; // For Translator
 
   private Shell shell;
   private final IVariables variables;

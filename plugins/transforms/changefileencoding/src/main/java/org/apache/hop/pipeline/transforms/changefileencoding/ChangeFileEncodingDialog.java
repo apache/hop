@@ -42,7 +42,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ChangeFileEncodingDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ChangeFileEncodingDialog.class; // For Translator
 
   private CCombo wFileName;
 

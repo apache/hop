@@ -81,8 +81,8 @@ import static org.mockito.Mockito.when;
 
 /** Unit tests for MongoDbOutput */
 public class MongoDbOutputTest extends BaseMongoDbTransformTest {
+  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
-  private static final Class<?> PKG = MongoDbOutputMeta.class;
   @Mock private MongoDbOutputData iTransformData;
   @Mock private MongoDbOutputMeta iTransformMeta;
 

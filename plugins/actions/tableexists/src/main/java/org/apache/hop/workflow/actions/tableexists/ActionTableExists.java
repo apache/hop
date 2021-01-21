@@ -50,15 +50,14 @@ import java.util.List;
 
 @Action(
   id = "TABLE_EXISTS",
-  i18nPackageName = "org.apache.hop.workflow.actions.tableexists",
-  name = "ActionTableExists.Name",
-  description = "ActionTableExists.Description",
+  name = "i18n::ActionTableExists.Name",
+  description = "i18n::ActionTableExists.Description",
   image = "TableExists.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/tableexists.html"
 )
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTableExists.class; // Needed by Translator
+  private static final Class<?> PKG = ActionTableExists.class; // For Translator
 
   private String tableName;
   private String schemaname;
@@ -144,8 +143,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     result.setResult( false );
 
     if ( connection != null ) {
-      Database db = new Database( this, connection );
-      db.shareWith( this );
+      Database db = new Database( this, this, connection );
       try {
         db.connect();
         String realTablename = resolve( tableName );

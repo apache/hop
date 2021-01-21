@@ -35,12 +35,12 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 
 @GuiPlugin(description = "Workflow Graph Log Delegate")
 public class HopGuiWorkflowLogDelegate {
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // For Translator
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
@@ -62,7 +62,7 @@ public class HopGuiWorkflowLogDelegate {
 
   private CTabItem jobLogTab;
 
-  public StyledText jobLogText;
+  public Text jobLogText;
 
   /**
    * The number of lines in the log tab
@@ -114,7 +114,7 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fd );
 
-    jobLogText = new StyledText( jobLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
+    jobLogText = new Text( jobLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     hopGui.getProps().setLook( jobLogText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( 0, 0 );

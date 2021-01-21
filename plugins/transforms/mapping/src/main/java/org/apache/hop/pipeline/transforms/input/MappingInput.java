@@ -34,7 +34,7 @@ public class MappingInput
   extends BaseTransform<MappingInputMeta, MappingInputData>
   implements ITransform<MappingInputMeta, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
   public MappingInput( TransformMeta transformMeta, MappingInputMeta meta, MappingInputData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

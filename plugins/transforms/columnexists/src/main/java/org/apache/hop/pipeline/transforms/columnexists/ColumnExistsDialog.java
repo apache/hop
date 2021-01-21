@@ -45,7 +45,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ColumnExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ColumnExistsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ColumnExistsDialog.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -459,8 +459,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
-      database.shareWith( variables );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

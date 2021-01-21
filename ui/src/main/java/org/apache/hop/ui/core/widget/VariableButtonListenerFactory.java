@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.Arrays;
 
 public class VariableButtonListenerFactory {
-  private static final Class<?> PKG = VariableButtonListenerFactory.class; // Needed by Translator
+  private static final Class<?> PKG = VariableButtonListenerFactory.class; // For Translator
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final TextVar destination,

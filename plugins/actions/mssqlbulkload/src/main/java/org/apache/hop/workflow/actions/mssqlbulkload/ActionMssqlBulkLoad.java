@@ -61,15 +61,14 @@ import java.util.List;
  */
 @Action(
 	  id = "MSSQL_BULK_LOAD",
-	  i18nPackageName = "org.apache.hop.workflow.actions.mssqlbulkload",
-	  name = "ActionMssqlBulkLoad.Name",
-	  description = "ActionMssqlBulkLoad.Description",
+	  name = "i18n::ActionMssqlBulkLoad.Name",
+	  description = "i18n::ActionMssqlBulkLoad.Description",
 	  image = "MssqlBulkLoad.svg",
 	  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
 	  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mssqlbulkload.html"
 )
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
 
   private String schemaname;
   private String tableName;
@@ -321,7 +320,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
           if ( connection != null ) {
             // User has specified a connection, We can continue ...
-            Database db = new Database( this, connection );
+            Database db = new Database( this, this, connection );
 
             if ( !"MSSQL".equals(db.getDatabaseMeta().getPluginId()) ) {
 
@@ -331,7 +330,6 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 .getDatabaseName() ) );
               return result;
             }
-            db.shareWith( this );
             try {
               db.connect();
               // Get schemaname

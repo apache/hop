@@ -38,15 +38,14 @@ import java.util.List;
 
 @Action(
         id = "MAIL_VALIDATOR",
-        i18nPackageName = "org.apache.hop.workflow.actions.mailvalidator",
-        name = "ActionMailValidator.Name",
-        description = "ActionMailValidator.Description",
+        name = "i18n::ActionMailValidator.Name",
+        description = "i18n::ActionMailValidator.Description",
         image = "MailValidator.svg",
         categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mailvalidator.html"
 )
 public class ActionMailValidator extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMailValidator.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMailValidator.class; // For Translator
 
   private boolean smtpCheck;
   private String timeout;

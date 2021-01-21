@@ -43,13 +43,14 @@ import java.util.List;
 
 @Transform(
   id = "MappingInput",
-  name = "Mapping Input",
+  name = "i18n::BaseTransform.TypeLongDesc.MappingInput",
+  description = "i18n:BaseTransform.TypeTooltipDesc.MappingInput",
   image = "MPI.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class MappingInputMeta extends BaseTransformMeta implements ITransformMeta<MappingInput, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
   private String[] fieldName;
 

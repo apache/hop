@@ -50,7 +50,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HopVfs {
-  private static final Class<?> PKG = HopVfs.class; // Needed by Translator
+  private static final Class<?> PKG = HopVfs.class; // For Translator
 
   public static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 

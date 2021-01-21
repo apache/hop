@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class TransformDebugLevelDialog extends Dialog {
-  private static final Class<?> PKG = TransformDebugLevelDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = TransformDebugLevelDialog.class; // For Translator
 
   private TransformDebugLevel input;
   private TransformDebugLevel debugLevel;

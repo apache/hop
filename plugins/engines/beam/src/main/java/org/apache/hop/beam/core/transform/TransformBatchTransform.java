@@ -81,8 +81,8 @@ public class TransformBatchTransform extends TransformTransform {
       int batchSize,
       int flushIntervalMs,
       String transformName,
-      String stepPluginId,
-      String stepMetaInterfaceXml,
+      String transformPluginId,
+      String transformMetaInterfaceXml,
       String inputRowMetaJson,
       boolean inputTransform,
       List<String> targetTransforms,
@@ -97,8 +97,8 @@ public class TransformBatchTransform extends TransformTransform {
         batchSize,
         flushIntervalMs,
         transformName,
-        stepPluginId,
-        stepMetaInterfaceXml,
+        transformPluginId,
+        transformMetaInterfaceXml,
         inputRowMetaJson,
         inputTransform,
         targetTransforms,
@@ -136,15 +136,15 @@ public class TransformBatchTransform extends TransformTransform {
 
       // Create a new transform function, initializes the transform
       //
-      TransformBatchFn stepBatchFn =
+      TransformBatchFn transformBatchFn =
           new TransformBatchFn(
               variableValues,
               metastoreJson,
               transformPluginClasses,
               xpPluginClasses,
               transformName,
-              stepPluginId,
-              stepMetaInterfaceXml,
+              transformPluginId,
+              transformMetaInterfaceXml,
               inputRowMetaJson,
               inputTransform,
               targetTransforms,
@@ -153,7 +153,7 @@ public class TransformBatchTransform extends TransformTransform {
 
       // The actual transform functionality
       //
-      ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of(stepBatchFn);
+      ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of(transformBatchFn);
 
       // Add optional side inputs...
       //
@@ -193,8 +193,8 @@ public class TransformBatchTransform extends TransformTransform {
     protected List<String> transformPluginClasses;
     protected List<String> xpPluginClasses;
     protected String transformName;
-    protected String stepPluginId;
-    protected String stepMetaInterfaceXml;
+    protected String transformPluginId;
+    protected String transformMetaInterfaceXml;
     protected String inputRowMetaJson;
     protected List<String> targetTransforms;
     protected List<String> infoTransforms;
@@ -211,7 +211,7 @@ public class TransformBatchTransform extends TransformTransform {
     private transient TransformMeta transformMeta;
     private transient IRowMeta inputRowMeta;
     private transient IRowMeta outputRowMeta;
-    private transient List<TransformMetaDataCombi> stepCombis;
+    private transient List<TransformMetaDataCombi> transformCombis;
     private transient LocalPipelineEngine pipeline;
     private transient RowProducer rowProducer;
     private transient IRowListener rowListener;
@@ -248,8 +248,8 @@ public class TransformBatchTransform extends TransformTransform {
         List<String> transformPluginClasses,
         List<String> xpPluginClasses,
         String transformName,
-        String stepPluginId,
-        String stepMetaInterfaceXml,
+        String transformPluginId,
+        String transformMetaInterfaceXml,
         String inputRowMetaJson,
         boolean inputTransform,
         List<String> targetTransforms,
@@ -261,8 +261,8 @@ public class TransformBatchTransform extends TransformTransform {
       this.transformPluginClasses = transformPluginClasses;
       this.xpPluginClasses = xpPluginClasses;
       this.transformName = transformName;
-      this.stepPluginId = stepPluginId;
-      this.stepMetaInterfaceXml = stepMetaInterfaceXml;
+      this.transformPluginId = transformPluginId;
+      this.transformMetaInterfaceXml = transformMetaInterfaceXml;
       this.inputRowMetaJson = inputRowMetaJson;
       this.inputTransform = inputTransform;
       this.targetTransforms = targetTransforms;
@@ -279,7 +279,7 @@ public class TransformBatchTransform extends TransformTransform {
     @StartBundle
     public void startBundle(StartBundleContext startBundleContext) {
       Metrics.counter("startBundle", transformName).inc();
-      if ("ScriptValueMod".equals(stepPluginId) && pipeline != null) {
+      if ("ScriptValueMod".equals(transformPluginId) && pipeline != null) {
         initialize = true;
       }
     }
@@ -389,28 +389,28 @@ public class TransformBatchTransform extends TransformTransform {
             infoTransformMetas.add(infoTransformMeta);
           }
 
-          stepCombis = new ArrayList<>();
+          transformCombis = new ArrayList<>();
 
           // The main transform inflated from XML metadata...
           //
           PluginRegistry registry = PluginRegistry.getInstance();
           ITransformMeta iTransformMeta =
-              registry.loadClass(TransformPluginType.class, stepPluginId, ITransformMeta.class);
+              registry.loadClass(TransformPluginType.class, transformPluginId, ITransformMeta.class);
           if (iTransformMeta == null) {
             throw new HopException(
                 "Unable to load transform plugin with ID "
-                    + stepPluginId
+                    + transformPluginId
                     + ", this plugin isn't in the plugin registry or classpath");
           }
 
           HopBeamUtil.loadTransformMetadataFromXml(
               transformName,
               iTransformMeta,
-              stepMetaInterfaceXml,
+              transformMetaInterfaceXml,
               pipelineMeta.getMetadataProvider());
 
           transformMeta = new TransformMeta(transformName, iTransformMeta);
-          transformMeta.setTransformPluginId(stepPluginId);
+          transformMeta.setTransformPluginId(transformPluginId);
           transformMeta.setLocation(400, 200);
           pipelineMeta.addTransform(transformMeta);
           if (!inputTransform) {
@@ -466,11 +466,11 @@ public class TransformBatchTransform extends TransformTransform {
           //
           if (!inputTransform) {
             TransformMetaDataCombi injectorCombi = findCombi(pipeline, INJECTOR_TRANSFORM_NAME);
-            stepCombis.add(injectorCombi);
+            transformCombis.add(injectorCombi);
           }
 
-          TransformMetaDataCombi stepCombi = findCombi(pipeline, transformName);
-          stepCombis.add(stepCombi);
+          TransformMetaDataCombi transformCombi = findCombi(pipeline, transformName);
+          transformCombis.add(transformCombi);
           outputRowMeta = pipelineMeta.getTransformFields(pipeline, transformName);
 
           if (targetTransforms.isEmpty()) {
@@ -481,7 +481,7 @@ public class TransformBatchTransform extends TransformTransform {
                     resultRows.add(row);
                   }
                 };
-            stepCombi.transform.addRowListener(rowListener);
+            transformCombi.transform.addRowListener(rowListener);
           }
 
           // Create a list of TupleTag to direct the target rows
@@ -498,8 +498,8 @@ public class TransformBatchTransform extends TransformTransform {
 
           for (String targetTransform : targetTransforms) {
             TransformMetaDataCombi targetCombi = findCombi(pipeline, targetTransform);
-            stepCombis.add(targetCombi);
-            targetRowMetas.add(pipelineMeta.getTransformFields(pipeline, stepCombi.transformName));
+            transformCombis.add(targetCombi);
+            targetRowMetas.add(pipelineMeta.getTransformFields(pipeline, transformCombi.transformName));
 
             String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};

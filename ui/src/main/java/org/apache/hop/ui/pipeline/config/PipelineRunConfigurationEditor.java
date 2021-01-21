@@ -66,8 +66,7 @@ import org.eclipse.swt.widgets.Text;
  * Don't move this class around as it's sync'ed with the PipelineRunConfiguration package to find the dialog.
  */
 public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunConfiguration> {
-
-  private static final Class<?> PKG = PipelineRunConfigurationEditor.class; // Needed by Translator
+  private static final Class<?> PKG = PipelineRunConfigurationEditor.class; // For Translator
   
   private PipelineRunConfiguration runConfiguration;
   private PipelineRunConfiguration workingConfiguration;

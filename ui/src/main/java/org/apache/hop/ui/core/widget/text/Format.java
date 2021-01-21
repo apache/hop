@@ -22,9 +22,7 @@ import org.eclipse.swt.custom.StyleRange;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by bmorrise on 9/15/17.
- */
+/** Created by bmorrise on 9/15/17. */
 public class Format {
   private String text;
   private List<StyleRange> styleRanges = new ArrayList<>();
@@ -33,7 +31,7 @@ public class Format {
     return text;
   }
 
-  public void setText( String text ) {
+  public void setText(String text) {
     this.text = text;
   }
 
@@ -41,12 +39,12 @@ public class Format {
     return styleRanges;
   }
 
-  public void setStyleRanges( List<StyleRange> styleRanges ) {
+  public void setStyleRanges(List<StyleRange> styleRanges) {
     this.styleRanges = styleRanges;
   }
 
-  public void add( Format format ) {
+  public void add(Format format) {
     text = format.getText();
-    styleRanges.addAll( format.getStyleRanges() );
+    styleRanges.addAll(format.getStyleRanges());
   }
 }

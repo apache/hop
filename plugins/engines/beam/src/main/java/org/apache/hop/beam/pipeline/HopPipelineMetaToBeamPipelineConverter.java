@@ -128,8 +128,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     if ( StringUtils.isNotEmpty( pluginsToStage ) ) {
       String[] pluginFolders = pluginsToStage.split( "," );
       for ( String pluginFolder : pluginFolders ) {
-        List<String> stepClasses = findAnnotatedClasses( pluginFolder, Transform.class.getName() );
-        transformPluginClasses.addAll( stepClasses );
+        List<String> transformClasses = findAnnotatedClasses( pluginFolder, Transform.class.getName() );
+        transformPluginClasses.addAll( transformClasses );
         List<String> xpClasses = findAnnotatedClasses( pluginFolder, ExtensionPoint.class.getName() );
         xpPluginClasses.addAll( xpClasses );
       }
@@ -217,19 +217,19 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
     // Keep track of which transform outputs which Collection
     //
-    Map<String, PCollection<HopRow>> stepCollectionMap = new HashMap<>();
+    Map<String, PCollection<HopRow>> transformCollectionMap = new HashMap<>();
 
     // Handle io
     //
-    handleBeamInputTransforms( log, stepCollectionMap, pipeline );
+    handleBeamInputTransforms( log, transformCollectionMap, pipeline );
 
     // Transform all the other transforms...
     //
-    handleGenericTransform( stepCollectionMap, pipeline );
+    handleGenericTransform( transformCollectionMap, pipeline );
 
     // Output handling
     //
-    handleBeamOutputTransforms( log, stepCollectionMap, pipeline );
+    handleBeamOutputTransforms( log, transformCollectionMap, pipeline );
 
     return pipeline;
   }
@@ -252,19 +252,19 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     }
   }
 
-  private void handleBeamInputTransforms( ILogChannel log, Map<String, PCollection<HopRow>> stepCollectionMap, Pipeline pipeline ) throws HopException, IOException {
+  private void handleBeamInputTransforms( ILogChannel log, Map<String, PCollection<HopRow>> transformCollectionMap, Pipeline pipeline ) throws HopException, IOException {
 
     List<TransformMeta> beamInputTransformMetas = findBeamInputs();
     for ( TransformMeta transformMeta : beamInputTransformMetas ) {
-      IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
-      stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, pipelineMeta.getTransformFields( variables, transformMeta ), null, null );
+      IBeamTransformHandler transformHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
+      transformHandler.handleTransform( log, transformMeta, transformCollectionMap, pipeline, pipelineMeta.getTransformFields( variables, transformMeta ), null, null );
     }
   }
 
-  private void handleBeamOutputTransforms( ILogChannel log, Map<String, PCollection<HopRow>> stepCollectionMap, Pipeline pipeline ) throws HopException, IOException {
+  private void handleBeamOutputTransforms( ILogChannel log, Map<String, PCollection<HopRow>> transformCollectionMap, Pipeline pipeline ) throws HopException, IOException {
     List<TransformMeta> beamOutputTransformMetas = findBeamOutputs();
     for ( TransformMeta transformMeta : beamOutputTransformMetas ) {
-      IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamTransformHandler transformHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
 
       List<TransformMeta> previousTransforms = pipelineMeta.findPreviousTransforms( transformMeta, false );
       if ( previousTransforms.size() > 1 ) {
@@ -272,7 +272,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       }
       TransformMeta previousTransform = previousTransforms.get( 0 );
 
-      PCollection<HopRow> input = stepCollectionMap.get( previousTransform.getName() );
+      PCollection<HopRow> input = transformCollectionMap.get( previousTransform.getName() );
       if ( input == null ) {
         throw new HopException( "Previous PCollection for transform " + previousTransform.getName() + " could not be found" );
       }
@@ -281,11 +281,11 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       //
       IRowMeta rowMeta = pipelineMeta.getTransformFields( variables, previousTransform );
 
-      stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, rowMeta, previousTransforms, input );
+      transformHandler.handleTransform( log, transformMeta, transformCollectionMap, pipeline, rowMeta, previousTransforms, input );
     }
   }
 
-  private void handleGenericTransform( Map<String, PCollection<HopRow>> stepCollectionMap, Pipeline pipeline ) throws HopException, IOException {
+  private void handleGenericTransform( Map<String, PCollection<HopRow>> transformCollectionMap, Pipeline pipeline ) throws HopException, IOException {
 
     ILogChannel log = LogChannel.GENERAL;
 
@@ -297,8 +297,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
       // Input and output transforms are handled else where.
       //
-      IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
-      if ( stepHandler == null || ( !stepHandler.isInput() && !stepHandler.isOutput() ) ) {
+      IBeamTransformHandler transformHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
+      if ( transformHandler == null || ( !transformHandler.isInput() && !transformHandler.isOutput() ) ) {
 
         // Generic transform
         //
@@ -333,9 +333,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
           // Check in the map to see if previousTransform isn't targeting this one
           //
           String targetName = HopBeamUtil.createTargetTupleId( firstPreviousTransform.getName(), transformMeta.getName() );
-          input = stepCollectionMap.get( targetName );
+          input = transformCollectionMap.get( targetName );
           if ( input == null ) {
-            input = stepCollectionMap.get( firstPreviousTransform.getName() );
+            input = transformCollectionMap.get( firstPreviousTransform.getName() );
           } else {
             log.logBasic( "Transform " + transformMeta.getName() + " reading from previous transform targeting this one using : " + targetName );
           }
@@ -349,9 +349,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
               TransformMeta previousTransform = previousTransforms.get( i );
               PCollection<HopRow> previousPCollection;
               targetName = HopBeamUtil.createTargetTupleId( previousTransform.getName(), transformMeta.getName() );
-              previousPCollection = stepCollectionMap.get( targetName );
+              previousPCollection = transformCollectionMap.get( targetName );
               if ( previousPCollection == null ) {
-                previousPCollection = stepCollectionMap.get( previousTransform.getName() );
+                previousPCollection = transformCollectionMap.get( previousTransform.getName() );
               } else {
                 log.logBasic( "Transform " + transformMeta.getName() + " reading from previous transform targetting this one using : " + targetName );
               }
@@ -376,13 +376,13 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
           }
         }
 
-        if ( stepHandler != null ) {
+        if ( transformHandler != null ) {
 
-          stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, rowMeta, previousTransforms, input );
+          transformHandler.handleTransform( log, transformMeta, transformCollectionMap, pipeline, rowMeta, previousTransforms, input );
 
         } else {
 
-          genericTransformHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, rowMeta, previousTransforms, input );
+          genericTransformHandler.handleTransform( log, transformMeta, transformCollectionMap, pipeline, rowMeta, previousTransforms, input );
 
         }
       }
@@ -412,8 +412,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     List<TransformMeta> transforms = new ArrayList<>();
     for ( TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms( false ) ) {
 
-      IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
-      if ( stepHandler != null && stepHandler.isInput() ) {
+      IBeamTransformHandler transformHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
+      if ( transformHandler != null && transformHandler.isInput() ) {
         transforms.add( transformMeta );
       }
     }
@@ -423,8 +423,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   private List<TransformMeta> findBeamOutputs() throws HopException {
     List<TransformMeta> transforms = new ArrayList<>();
     for ( TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms( false ) ) {
-      IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
-      if ( stepHandler != null && stepHandler.isOutput() ) {
+      IBeamTransformHandler transformHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
+      if ( transformHandler != null && transformHandler.isOutput() ) {
         transforms.add( transformMeta );
       }
     }
@@ -459,8 +459,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     // flying blind.
     //
 
-    int stepsMinSize = 0;
-    int stepsSize = transforms.size();
+    int transformsMinSize = 0;
+    int transformsSize = transforms.size();
 
     // Noticed a problem with an immediate shrinking iteration window
     // trapping rows that need to be sorted.
@@ -474,12 +474,12 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     // After this many iterations enable trimming inner iteration
     // window on no change being detected.
     //
-    int windowShrinkThreshold = (int) Math.round( stepsSize * 0.75 );
+    int windowShrinkThreshold = (int) Math.round( transformsSize * 0.75 );
 
     // give ourselves some room to sort big lists. the window threshold should
     // stop us before reaching this anyway.
     //
-    int totalIterations = stepsSize * 2;
+    int totalIterations = transformsSize * 2;
 
     boolean isBefore = false;
     boolean forwardChange = false;
@@ -498,7 +498,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       // Go forward through the list
       //
       if ( keepSortingForward ) {
-        for ( int y = stepsMinSize; y < stepsSize - 1; y++ ) {
+        for ( int y = transformsMinSize; y < transformsSize - 1; y++ ) {
           one = transforms.get( y );
           two = transforms.get( y + 1 );
           isBefore = pipelineMeta.findPrevious( one, two );
@@ -516,7 +516,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
       // Go backward through the list
       //
-      for ( int z = stepsSize - 1; z > stepsMinSize; z-- ) {
+      for ( int z = transformsSize - 1; z > transformsMinSize; z-- ) {
         one = transforms.get( z );
         two = transforms.get( z - 1 );
 
@@ -531,26 +531,26 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
         }
       }
 
-      // Shrink stepsSize(max) if there was no forward change
+      // Shrink transformsSize(max) if there was no forward change
       //
       if ( x > windowShrinkThreshold && !forwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsSize--;
-        if ( stepsSize <= stepsMinSize ) {
+        transformsSize--;
+        if ( transformsSize <= transformsMinSize ) {
           break;
         }
       }
 
-      // shrink stepsMinSize(min) if there was no backward change
+      // shrink transformsMinSize(min) if there was no backward change
       //
       if ( x > windowShrinkThreshold && !backwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsMinSize++;
-        if ( stepsMinSize >= stepsSize ) {
+        transformsMinSize++;
+        if ( transformsMinSize >= transformsSize ) {
           break;
         }
       }
@@ -579,16 +579,16 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   }
 
   /**
-   * Gets stepHandlers
+   * Gets transformHandlers
    *
-   * @return value of stepHandlers
+   * @return value of transformHandlers
    */
   public Map<String, IBeamTransformHandler> getTransformHandlers() {
     return transformHandlers;
   }
 
   /**
-   * @param transformHandlers The stepHandlers to set
+   * @param transformHandlers The transformHandlers to set
    */
   public void setTransformHandlers( Map<String, IBeamTransformHandler> transformHandlers ) {
     this.transformHandlers = transformHandlers;

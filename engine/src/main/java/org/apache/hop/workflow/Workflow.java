@@ -91,7 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Workflow extends Variables implements IVariables, INamedParameters, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IWorkflowEngine<WorkflowMeta> {
-  protected static Class<?> PKG = Workflow.class; // Needed by Translator
+  protected static Class<?> PKG = Workflow.class; // For Translator
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__workflow_execution_configuration__.xml";
 
@@ -833,10 +833,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowBeginProcessing.id, extension );
 
     return true;
-  }
-
-  protected Database createDataBase( DatabaseMeta databaseMeta ) {
-    return new Database( this, databaseMeta );
   }
 
   public boolean isInitialized() {

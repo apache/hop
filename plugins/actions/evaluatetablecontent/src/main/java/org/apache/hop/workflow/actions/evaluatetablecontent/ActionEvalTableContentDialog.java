@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.*;
  * @since 22-07-2008
  */
 public class ActionEvalTableContentDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionEvalTableContent.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
 
   private Button wbTable, wbSqlTable;
 
@@ -543,7 +543,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
             wSql.setText( sql );
             break;
           case SWT.YES:
-            Database db = new Database( loggingObject, inf );
+            Database db = new Database( loggingObject, variables, inf );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields( sql, false );

@@ -215,7 +215,7 @@ public class HopServerConfig {
       DatabaseMeta databaseMeta = autoSequence.getDatabaseMeta();
       ILoggingObject loggingInterface =
         new SimpleLoggingObject( "auto-sequence", LoggingObjectType.GENERAL, null );
-      database = new Database( loggingInterface, databaseMeta );
+      database = new Database( loggingInterface, variables, databaseMeta );
       database.connect();
       String schemaTable =
         databaseMeta.getQuotedSchemaTableCombination( variables, autoSequence.getSchemaName(), autoSequence.getTableName() );

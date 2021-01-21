@@ -95,7 +95,7 @@ import java.util.Map;
 
 @GuiPlugin
 public class TestingGuiPlugin {
-  protected static Class<?> PKG = TestingGuiPlugin.class; // for i18n
+  protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
   public static final String ID_TOOLBAR_UNIT_TESTS_LABEL =
       "HopGuiPipelineGraph-ToolBar-20000-unit-tests-label";
@@ -1210,7 +1210,7 @@ public class TestingGuiPlugin {
               metadataProvider.getSerializer(PipelineUnitTest.class).load(unitTestName);
 
           if (targetTest != null) {
-            String completeFilename = targetTest.calculateCompleteFilename(variables);
+            String completeFilename = targetTest.calculateCompletePipelineFilename(variables);
             hopGui.fileDelegate.fileOpen(completeFilename);
 
             PipelineMeta pipelineMeta = getActivePipelineMeta();

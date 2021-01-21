@@ -104,8 +104,7 @@ import java.util.Set;
  * @since 05-04-2003
  */
 public class Database implements IVariables, ILoggingObject {
-  /** for i18n purposes, needed by Translator!! */
-  private static final Class<?> PKG = Database.class;
+  private static final Class<?> PKG = Database.class; // For Translator
 
   private static final Map<String, Set<String>> registeredDrivers = new HashMap<>();
 
@@ -176,53 +175,14 @@ public class Database implements IVariables, ILoggingObject {
 
   /**
    * Construct a new Database Connection
-   *
-   * @param databaseMeta The Database Connection Info to construct the connection with.
-   * @deprecated Please specify the parent object so that we can see which object is initiating a
-   *     database connection
-   */
-  @Deprecated
-  public Database(DatabaseMeta databaseMeta) {
-    this.parentLoggingObject = null;
-    this.databaseMeta = databaseMeta;
-
-    // In this case we don't have the parent object, so we don't know which
-    // object makes the connection.
-    // We also don't know what log level to attach to it, so we have to stick to
-    // the default
-    // As such, this constructor is @deprecated.
-    //
-    log = new LogChannel(this);
-    logLevel = log.getLogLevel();
-    containerObjectId = log.getContainerObjectId();
-
-    pstmt = null;
-    rowMeta = null;
-    dbmd = null;
-
-    rowlimit = 0;
-
-    written = 0;
-
-    opened = copy = 0;
-
-    if (log.isDetailed()) {
-      log.logDetailed("New database connection defined");
-    }
-  }
-
-  /**
-   * Construct a new Database Connection
-   *
+   *  @param parentObject The parent
+   * @param variables
    * @param databaseMeta The Database Connection Info to construct the connection with.
    */
-  public Database(ILoggingObject parentObject, DatabaseMeta databaseMeta) {
+  public Database( ILoggingObject parentObject, IVariables variables, DatabaseMeta databaseMeta ) {
     this.parentLoggingObject = parentObject;
+    this.variables = variables;
     this.databaseMeta = databaseMeta;
-
-    if (parentObject instanceof IVariables) {
-      shareWith((IVariables) parentObject);
-    }
 
     log = new LogChannel(this, parentObject);
     this.containerObjectId = log.getContainerObjectId();

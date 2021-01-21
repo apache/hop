@@ -45,7 +45,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetVariableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GetVariableMeta.class; // Needed by Translator
+  private static final Class<?> PKG = GetVariableMeta.class; // For Translator
 
   private Text wTransformName;
 

@@ -147,7 +147,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
   /**
    * The package name, used for internationalization of messages.
    */
-  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
+  private static final Class<?> PKG = Pipeline.class; // For Translator
 
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;
@@ -1730,20 +1730,6 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    */
   public void beginProcessing() throws HopPipelineException {
     // TODO: inform the active audit manager that the pipeline started processing
-  }
-
-  protected Database createDataBase( DatabaseMeta meta ) {
-    return new Database( this, meta );
-  }
-
-  private void disconnectDb( Database db ) throws HopDatabaseException {
-    if ( db == null ) {
-      return;
-    }
-    if ( !db.isAutoCommit() ) {
-      db.commit( true );
-    }
-    db.disconnect();
   }
 
   /**

@@ -21,13 +21,11 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
 
 @Transform(
-        id = "RecordsFromStream",
-        image = "recordsfromstream.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.recordsfromstream",
-        name = "RecordsFromStream.Name",
-        description = "RecordsFromStream.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/recordsfromstream.html"
-)
-public class RecordsFromStreamMeta extends RowsFromResultMeta {
-}
+    id = "RecordsFromStream",
+    image = "recordsfromstream.svg",
+    name = "i18n::RecordsFromStream.Name",
+    description = "i18n::RecordsFromStream.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/transforms/recordsfromstream.html")
+public class RecordsFromStreamMeta extends RowsFromResultMeta {}

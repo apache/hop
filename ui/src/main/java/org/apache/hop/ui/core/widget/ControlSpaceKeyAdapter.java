@@ -54,7 +54,7 @@ import java.util.Set;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
-  private static final Class<?> PKG = ControlSpaceKeyAdapter.class; // Needed by Translator
+  private static final Class<?> PKG = ControlSpaceKeyAdapter.class; // For Translator
 
   private static final PropsUi props = PropsUi.getInstance();
 

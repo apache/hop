@@ -41,24 +41,23 @@ import java.util.List;
  *
  */
 @Transform(
-  id = "Dummy",
-  image = "ui/images/dummy.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transform",
-  name = "BaseTransform.TypeLongDesc.Dummy",
-  description = "BaseTransform.TypeTooltipDesc.Dummy",
-  categoryDescription = "BaseTransform.Category.Flow",
-  keywords = ""
-)
+    id = "Dummy",
+    image = "ui/images/dummy.svg",
+    name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Dummy",
+    description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "")
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
-  private static final Class<?> PKG = DummyMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DummyMeta.class; // For Translator
 
   public DummyMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -66,50 +65,74 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
     return retval;
   }
 
-  private void readData( Node transformNode ) {
-  }
+  private void readData(Node transformNode) {}
 
-  public void setDefault() {
-  }
+  public void setDefault() {}
 
-  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta rowMeta,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if ( prev == null || prev.size() == 0 ) {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-          PKG, "DummyMeta.CheckResult.NotReceivingFields" ), transformMeta );
-      remarks.add( cr );
+    if (prev == null || prev.size() == 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "DummyMeta.CheckResult.NotReceivingFields"),
+              transformMeta);
+      remarks.add(cr);
     } else {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DummyMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
-      remarks.add( cr );
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DummyMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+              transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "DummyMeta.CheckResult.TransformRecevingData2" ), transformMeta );
-      remarks.add( cr );
+    if (input.length > 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "DummyMeta.CheckResult.TransformRecevingData2"),
+              transformMeta);
+      remarks.add(cr);
     } else {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "DummyMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "DummyMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr,
-                                     Pipeline pipeline ) {
-    return new Dummy( transformMeta, this, data, cnr, tr, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
+    return new Dummy(transformMeta, this, data, cnr, tr, pipeline);
   }
 
   public DummyData getTransformData() {
     return new DummyData();
   }
-
 }

@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.variables.IVariables;
 
 public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SSHMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SSHMeta.class; // For Translator
 
   private Label wlCommandField;
   private CCombo wCommandField;

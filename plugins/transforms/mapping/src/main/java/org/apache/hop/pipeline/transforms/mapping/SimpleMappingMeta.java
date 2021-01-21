@@ -59,13 +59,14 @@ import java.util.List;
 
 @Transform(
   id = "SimpleMapping",
-  name = "Simple Mapping",
+  name = "i18n::BaseTransform.TypeLongDesc.SimpleMapping",
+  description = "i18n::BaseTransform.TypeTooltipDesc.SimpleMapping",
   image = "MAP.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData> implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG = SimpleMappingMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
   private MappingIODefinition inputMapping;
   private MappingIODefinition outputMapping;

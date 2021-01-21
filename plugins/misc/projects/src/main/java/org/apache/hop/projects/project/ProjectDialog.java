@@ -51,8 +51,7 @@ import java.io.File;
 import java.util.Collections;
 
 public class ProjectDialog extends Dialog {
-  private static final Class<?> PKG =
-      ProjectDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ProjectDialog.class; // For Translator
 
   private final Project project;
   private final ProjectConfig projectConfig;
@@ -309,12 +308,12 @@ public class ProjectDialog extends Dialog {
     wEnforceHomeExecution.setLayoutData(fdEnforceHomeExecution);
     lastControl = wEnforceHomeExecution;
 
-    Label wlVariables = new Label(shell, SWT.RIGHT);
+    Label wlVariables = new Label(shell, SWT.LEFT);
     props.setLook(wlVariables);
     wlVariables.setText("Project variables to set : ");
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment(0, 0);
-    fdlVariables.right = new FormAttachment(middle, 0);
+    fdlVariables.right = new FormAttachment(100, 0);
     fdlVariables.top = new FormAttachment(lastControl, margin);
     wlVariables.setLayoutData(fdlVariables);
 
@@ -332,7 +331,7 @@ public class ProjectDialog extends Dialog {
         new TableView(
             new Variables(),
             shell,
-            SWT.NONE,
+            SWT.BORDER,
             columnInfo,
             project.getDescribedVariables().size(),
             null,
@@ -415,13 +414,13 @@ public class ProjectDialog extends Dialog {
       // Renaming the project is not supported.
       //
       String projectName = wName.getText();
-      if (StringUtils.isEmpty( projectName )) {
+      if (StringUtils.isEmpty(projectName)) {
         throw new HopException("Please give your new project a name");
       }
-      if (StringUtils.isNotEmpty( originalName )) {
-        if (!projectName.equals( originalName )) {
-          wName.setText( originalName );
-          throw new HopException("Sorry, renaming project '"+originalName+"' is not supported");
+      if (StringUtils.isNotEmpty(originalName)) {
+        if (!projectName.equals(originalName)) {
+          wName.setText(originalName);
+          throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
         }
       }
 

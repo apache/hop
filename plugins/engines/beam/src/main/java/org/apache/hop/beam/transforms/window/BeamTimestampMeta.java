@@ -41,7 +41,7 @@ import org.w3c.dom.Node;
         name = "Beam Timestamp",
         description = "Add timestamps to a bounded data source",
         image = "beam-timestamp.svg",
-        categoryDescription = "Big Data",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamtimestamp.html"
 )
 public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {

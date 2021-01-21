@@ -51,7 +51,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
     super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
                                          Pipeline pipeline, IRowMeta inputRowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
@@ -64,7 +64,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
     String duration = variables.resolve( beamWindowMeta.getDuration() );
     long durationSeconds = Const.toLong( duration, -1L );
 
-    PCollection<HopRow> stepPCollection;
+    PCollection<HopRow> transformPCollection;
 
     if ( BeamDefaults.WINDOW_TYPE_FIXED.equals( beamWindowMeta.getWindowType() ) ) {
 
@@ -74,7 +74,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
 
       FixedWindows fixedWindows = FixedWindows
         .of( Duration.standardSeconds( durationSeconds ) );
-      stepPCollection = input.apply( Window.into( fixedWindows ) );
+      transformPCollection = input.apply( Window.into( fixedWindows ) );
 
     } else if ( BeamDefaults.WINDOW_TYPE_SLIDING.equals( beamWindowMeta.getWindowType() ) ) {
 
@@ -88,7 +88,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
       SlidingWindows slidingWindows = SlidingWindows
         .of( Duration.standardSeconds( durationSeconds ) )
         .every( Duration.standardSeconds( everySeconds ) );
-      stepPCollection = input.apply( Window.into( slidingWindows ) );
+      transformPCollection = input.apply( Window.into( slidingWindows ) );
 
     } else if ( BeamDefaults.WINDOW_TYPE_SESSION.equals( beamWindowMeta.getWindowType() ) ) {
 
@@ -99,11 +99,11 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
 
       Sessions sessionWindows = Sessions
         .withGapDuration( Duration.standardSeconds( durationSeconds ) );
-      stepPCollection = input.apply( Window.into( sessionWindows ) );
+      transformPCollection = input.apply( Window.into( sessionWindows ) );
 
     } else if ( BeamDefaults.WINDOW_TYPE_GLOBAL.equals( beamWindowMeta.getWindowType() ) ) {
 
-      stepPCollection = input.apply( Window.into( new GlobalWindows() ) );
+      transformPCollection = input.apply( Window.into( new GlobalWindows() ) );
 
     } else {
       throw new HopException( "Beam Window type '" + beamWindowMeta.getWindowType() + " is not supported in transform '" + transformMeta.getName() + "'" );
@@ -125,12 +125,12 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
         xpPluginClasses
       );
 
-      stepPCollection = stepPCollection.apply( ParDo.of( windowInfoFn ) );
+      transformPCollection = transformPCollection.apply( ParDo.of( windowInfoFn ) );
     }
 
     // Save this in the map
     //
-    stepCollectionMap.put( transformMeta.getName(), stepPCollection );
+    transformCollectionMap.put( transformMeta.getName(), transformPCollection );
     log.logBasic( "Handled transform (WINDOW) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
   }
 }

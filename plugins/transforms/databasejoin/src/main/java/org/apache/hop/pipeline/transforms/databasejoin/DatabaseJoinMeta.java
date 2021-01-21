@@ -50,15 +50,14 @@ import java.util.List;
 @Transform(
     id = "DBJoin",
     image = "dbjoin.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.databasejoin",
-    name = "BaseTransform.TypeLongDesc.DatabaseJoin",
-    description = "BaseTransform.TypeTooltipDesc.DatabaseJoin",
+    name = "i18n::BaseTransform.TypeLongDesc.DatabaseJoin",
+    description = "i18n::BaseTransform.TypeTooltipDesc.DatabaseJoin",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/databasejoin.html")
 public class DatabaseJoinMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
   /** database connection */
   private DatabaseMeta databaseMeta;
@@ -263,7 +262,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       return;
     }
 
-    Database db = new Database(loggingObject, databaseMeta);
+    Database db = new Database(loggingObject, variables, databaseMeta );
     databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
     // Which fields are parameters?
@@ -276,9 +275,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
     //
     IRowMeta add = null;
     try {
-      add =
-          db.getQueryFields(
-              variables.resolve(sql), true, param, new Object[param.size()]);
+      add = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
     } catch (HopDatabaseException dbe) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields")
@@ -298,9 +295,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       //
       try {
         db.connect();
-        add =
-            db.getQueryFields(
-                variables.resolve(sql), true, param, new Object[param.size()]);
+        add = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
         for (int i = 0; i < add.size(); i++) {
           IValueMeta v = add.getValueMeta(i);
           v.setOrigin(name);
@@ -358,7 +353,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
@@ -369,8 +364,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
           errorMessage = "";
 
           IRowMeta r =
-              db.getQueryFields(
-                  variables.resolve(sql), true, param, new Object[param.size()]);
+              db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
           if (r != null) {
             cr =
                 new CheckResult(
@@ -501,14 +495,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta
 
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, databaseMeta);
+      Database db = new Database(loggingObject, variables, databaseMeta );
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
         db.connect();
-        fields =
-            db.getQueryFields(
-                variables.resolve(sql), true, param, new Object[param.size()]);
+        fields = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
       } catch (HopDatabaseException dbe) {
         logError(
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Log.DatabaseErrorOccurred")

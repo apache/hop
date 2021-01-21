@@ -20,7 +20,7 @@ package org.apache.hop.core.gui;
 import java.util.List;
 
 /**
- * When we draw something in HopGui (PipelinePainter) we keep a list of all the things we draw and the object that's behind
+ * When we draw something in HopGui {@link org.apache.hop.pipeline.PipelinePainter} or {@link org.apache.hop.workflow.WorkflowPainter} we keep a list of all the things we draw and the object that's behind
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
  *
  * @author Matt
@@ -28,7 +28,7 @@ import java.util.List;
 public class AreaOwner<Parent, Owner> {
 
   public enum AreaType {
-    NOTE, TRANSFORM_PARTITIONING, TRANSFORM_ICON, TRANSFORM_NAME, TRANSFORM_ERROR_ICON, TRANSFORM_FAILURE_ICON,
+    NOTE, TRANSFORM_PARTITIONING, TRANSFORM_ICON, TRANSFORM_NAME, TRANSFORM_FAILURE_ICON,
     TRANSFORM_INPUT_HOP_ICON, TRANSFORM_OUTPUT_HOP_ICON, TRANSFORM_INFO_HOP_ICON,
     TRANSFORM_ERROR_HOP_ICON, TRANSFORM_TARGET_HOP_ICON,
     HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON,

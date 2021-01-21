@@ -47,7 +47,7 @@ import java.util.Set;
  */
 public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData>
     implements ITransform<MongoDbOutputMeta, MongoDbOutputData> {
-  private static Class<?> PKG = MongoDbOutputMeta.class;
+  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   protected MongoDbOutputData.MongoTopLevel m_mongoTopLevelStructure =
       MongoDbOutputData.MongoTopLevel.INCONSISTENT;

@@ -56,8 +56,8 @@ import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME
  */
 public abstract class TransformWithMappingMeta<Main extends ITransform, Data extends ITransformData>
   extends BaseSerializingMeta<Main, Data> implements ITransformMeta<Main, Data> {
-  //default value
-  private static final Class<?> PKG = TransformWithMappingMeta.class;
+
+  private static final Class<?> PKG = TransformWithMappingMeta.class; // For Translator
 
   protected String filename;
 

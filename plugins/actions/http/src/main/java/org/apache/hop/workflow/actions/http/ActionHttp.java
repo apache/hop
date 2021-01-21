@@ -67,15 +67,14 @@ import java.util.List;
 
 @Action(
   id = "HTTP",
-  i18nPackageName = "org.apache.hop.workflow.actions.http",
-  name = "ActionHTTP.Name",
-  description = "ActionHTTP.Description",
+  name = "i18n::ActionHTTP.Name",
+  description = "i18n::ActionHTTP.Description",
   image = "HTTP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/http.html"
 )
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionHttp.class; // Needed by Translator
+  private static final Class<?> PKG = ActionHttp.class; // For Translator
 
   private static final String URL_FIELDNAME = "URL";
   private static final String UPLOADFILE_FIELDNAME = "UPLOAD";

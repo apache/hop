@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.*;
 
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
 
@@ -1485,7 +1485,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         if ( !Utils.isEmpty( tableName ) ) {
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
+            Database db = new Database( loggingObject, variables, ci );
             try {
               db.connect();
 
@@ -1532,8 +1532,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private void getLookup() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database db = new Database( loggingObject, databaseMeta );
-      db.shareWith( variables );
+      Database db = new Database( loggingObject, variables, databaseMeta );
       try {
         db.connect();
         IRowMeta r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
@@ -1586,7 +1585,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       if ( !Utils.isEmpty( wTable.getText() ) ) {
         DatabaseMeta ci = pipelineMeta.findDatabase( wConnection.getText() );
         if ( ci != null ) {
-          Database db = new Database( loggingObject, ci );
+          Database db = new Database( loggingObject, variables, ci );
           try {
             db.connect();
             IRowMeta r =
@@ -1747,7 +1746,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

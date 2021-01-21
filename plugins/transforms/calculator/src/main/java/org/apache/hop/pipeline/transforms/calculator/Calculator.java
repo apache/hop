@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> implements ITransform<CalculatorMeta, CalculatorData> {
 
-  private static final Class<?> PKG = CalculatorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
   public class FieldIndexes {
     public int indexName;

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.*;
  */
 
 public class ActionShellDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionShell.class; // Needed by Translator
+  private static final Class<?> PKG = ActionShell.class; // For Translator
 
   private static final String[] FILEFORMATS = new String[] {
     BaseMessages.getString( PKG, "JobShell.Fileformat.Scripts" ),

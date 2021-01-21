@@ -61,6 +61,12 @@ public @interface Transform {
 
   String categoryDescription() default "";
 
+  /**
+   * This is a deprecated method: please use the i18n:package:key format in name, description and categoryDescription
+   *
+   * @return
+   */
+  @Deprecated
   String i18nPackageName() default "";
 
   /**

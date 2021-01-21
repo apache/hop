@@ -58,15 +58,14 @@ import java.util.List;
 
 @Action(
   id = "SQL",
-  i18nPackageName = "org.apache.hop.workflow.actions.sql",
-  name = "ActionSQL.Name",
-  description = "ActionSQL.Description",
+  name = "i18n::ActionSQL.Name",
+  description = "i18n::ActionSQL.Description",
   image = "sql.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sql.html"
 )
 public class ActionSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSql.class; // For Translator
 
   private String sql;
   private DatabaseMeta connection;
@@ -190,9 +189,8 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
 
     if ( connection != null ) {
-      Database db = new Database( this, connection );
+      Database db = new Database( this, this, connection );
       FileObject sqlFile = null;
-      db.shareWith( this );
       try {
         String theSql = null;
         db.connect();

@@ -32,8 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -44,15 +44,14 @@ import java.util.List;
  */
 
 @Transform(
-        id = "ClosureGenerator",
-        image = "closuregenerator.svg",
-        name = "ClosureGenerator.Name",
-        description = "ClosureGenerator.Description",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/closure.html"
-)
-public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
+    id = "ClosureGenerator",
+    image = "closuregenerator.svg",
+    name = "i18n::ClosureGenerator.Name",
+    description = "i18n::ClosureGenerator.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/closure.html")
+public class ClosureGeneratorMeta extends BaseTransformMeta
+    implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 
   private boolean rootIdZero;
 
@@ -65,8 +64,9 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode, metadataProvider );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode, metadataProvider);
   }
 
   @Override
@@ -75,24 +75,30 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      parentIdFieldName = XmlHandler.getTagValue( transformNode, "parent_id_field" );
-      childIdFieldName = XmlHandler.getTagValue( transformNode, "child_id_field" );
-      distanceFieldName = XmlHandler.getTagValue( transformNode, "distance_field" );
-      rootIdZero = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "is_root_zero" ) );
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load transform info from XML", e );
+      parentIdFieldName = XmlHandler.getTagValue(transformNode, "parent_id_field");
+      childIdFieldName = XmlHandler.getTagValue(transformNode, "child_id_field");
+      distanceFieldName = XmlHandler.getTagValue(transformNode, "distance_field");
+      rootIdZero = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "is_root_zero"));
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
   @Override
-  public void setDefault() {
-  }
+  public void setDefault() {}
 
   @Override
-  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta row,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     // The output for the closure table is:
     //
     // - parentId
@@ -102,75 +108,92 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
     // Nothing else.
     //
     IRowMeta result = new RowMeta();
-    IValueMeta parentValueMeta = row.searchValueMeta( parentIdFieldName );
-    if ( parentValueMeta != null ) {
-      result.addValueMeta( parentValueMeta );
+    IValueMeta parentValueMeta = row.searchValueMeta(parentIdFieldName);
+    if (parentValueMeta != null) {
+      result.addValueMeta(parentValueMeta);
     }
 
-    IValueMeta childValueMeta = row.searchValueMeta( childIdFieldName );
-    if ( childValueMeta != null ) {
-      result.addValueMeta( childValueMeta );
+    IValueMeta childValueMeta = row.searchValueMeta(childIdFieldName);
+    if (childValueMeta != null) {
+      result.addValueMeta(childValueMeta);
     }
 
-    IValueMeta distanceValueMeta = new ValueMetaInteger( distanceFieldName );
-    distanceValueMeta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
-    result.addValueMeta( distanceValueMeta );
+    IValueMeta distanceValueMeta = new ValueMetaInteger(distanceFieldName);
+    distanceValueMeta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH);
+    result.addValueMeta(distanceValueMeta);
 
     row.clear();
-    row.addRowMeta( result );
+    row.addRowMeta(result);
   }
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder retval = new StringBuilder(300);
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "parent_id_field", parentIdFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "child_id_field", childIdFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "distance_field", distanceFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "is_root_zero", rootIdZero ) );
+    retval.append("    ").append(XmlHandler.addTagValue("parent_id_field", parentIdFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("child_id_field", childIdFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("distance_field", distanceFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("is_root_zero", rootIdZero));
 
     return retval.toString();
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    IValueMeta parentValueMeta = prev.searchValueMeta( parentIdFieldName );
-    if ( parentValueMeta != null ) {
+    IValueMeta parentValueMeta = prev.searchValueMeta(parentIdFieldName);
+    if (parentValueMeta != null) {
       cr =
-        new CheckResult(
-          ICheckResult.TYPE_RESULT_ERROR, "The fieldname of the parent id could not be found.",
-          transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              "The fieldname of the parent id could not be found.",
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult(
-          ICheckResult.TYPE_RESULT_OK, "The fieldname of the parent id could be found", transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              "The fieldname of the parent id could be found",
+              transformMeta);
+      remarks.add(cr);
     }
 
-    IValueMeta childValueMeta = prev.searchValueMeta( childIdFieldName );
-    if ( childValueMeta != null ) {
+    IValueMeta childValueMeta = prev.searchValueMeta(childIdFieldName);
+    if (childValueMeta != null) {
       cr =
-        new CheckResult(
-          ICheckResult.TYPE_RESULT_ERROR, "The fieldname of the child id could not be found.",
-          transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              "The fieldname of the child id could not be found.",
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult(
-          ICheckResult.TYPE_RESULT_OK, "The fieldname of the child id could be found", transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              "The fieldname of the child id could be found",
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
   @Override
-  public ClosureGenerator createTransform( TransformMeta transformMeta, ClosureGeneratorData data, int cnr,
-                                           PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ClosureGenerator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public ClosureGenerator createTransform(
+      TransformMeta transformMeta,
+      ClosureGeneratorData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new ClosureGenerator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -178,59 +201,43 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
     return new ClosureGeneratorData();
   }
 
-  /**
-   * @return the rootIdZero
-   */
+  /** @return the rootIdZero */
   public boolean isRootIdZero() {
     return rootIdZero;
   }
 
-  /**
-   * @param rootIdZero the rootIdZero to set
-   */
-  public void setRootIdZero( boolean rootIdZero ) {
+  /** @param rootIdZero the rootIdZero to set */
+  public void setRootIdZero(boolean rootIdZero) {
     this.rootIdZero = rootIdZero;
   }
 
-  /**
-   * @return the parentIdFieldName
-   */
+  /** @return the parentIdFieldName */
   public String getParentIdFieldName() {
     return parentIdFieldName;
   }
 
-  /**
-   * @param parentIdFieldName the parentIdFieldName to set
-   */
-  public void setParentIdFieldName( String parentIdFieldName ) {
+  /** @param parentIdFieldName the parentIdFieldName to set */
+  public void setParentIdFieldName(String parentIdFieldName) {
     this.parentIdFieldName = parentIdFieldName;
   }
 
-  /**
-   * @return the childIdFieldName
-   */
+  /** @return the childIdFieldName */
   public String getChildIdFieldName() {
     return childIdFieldName;
   }
 
-  /**
-   * @param childIdFieldName the childIdFieldName to set
-   */
-  public void setChildIdFieldName( String childIdFieldName ) {
+  /** @param childIdFieldName the childIdFieldName to set */
+  public void setChildIdFieldName(String childIdFieldName) {
     this.childIdFieldName = childIdFieldName;
   }
 
-  /**
-   * @return the distanceFieldName
-   */
+  /** @return the distanceFieldName */
   public String getDistanceFieldName() {
     return distanceFieldName;
   }
 
-  /**
-   * @param distanceFieldName the distanceFieldName to set
-   */
-  public void setDistanceFieldName( String distanceFieldName ) {
+  /** @param distanceFieldName the distanceFieldName to set */
+  public void setDistanceFieldName(String distanceFieldName) {
     this.distanceFieldName = distanceFieldName;
   }
 }

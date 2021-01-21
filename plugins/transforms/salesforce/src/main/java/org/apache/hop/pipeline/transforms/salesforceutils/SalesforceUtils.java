@@ -34,7 +34,7 @@ public class SalesforceUtils {
   private SalesforceUtils() {
   }
 
-  private static Class<?> PKG = SalesforceUtils.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceUtils.class; // For Translator
 
   private static final String EXTID_SEPARATOR = "/";
 

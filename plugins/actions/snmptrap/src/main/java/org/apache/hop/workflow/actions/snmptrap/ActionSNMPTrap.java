@@ -64,15 +64,14 @@ import java.net.InetAddress;
 
 @Action(
   id = "SNMP_TRAP",
-  i18nPackageName = "org.apache.hop.workflow.actions.snmptrap",
-  name = "ActionSNMPTrap.Name",
-  description = "ActionSNMPTrap.Description",
+  name = "i18n::ActionSNMPTrap.Name",
+  description = "i18n::ActionSNMPTrap.Description",
   image = "SNMP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/snmptrap.html"
 )
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
 
   private String serverName;
   private String port;

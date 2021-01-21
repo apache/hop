@@ -47,7 +47,7 @@ import java.util.Properties;
 
 public class FtpsConnection implements FTPListener {
 
-  private static final Class<?> PKG = ActionFtpsGet.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFtpsGet.class; // For Translator
   private ILogChannel logger;
 
   public static final String HOME_FOLDER = "/";

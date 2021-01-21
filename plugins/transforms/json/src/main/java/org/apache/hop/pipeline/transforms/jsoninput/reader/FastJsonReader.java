@@ -43,7 +43,7 @@ import java.util.List;
  * @since 2015-08-18
  */
 public class FastJsonReader implements IJsonReader {
-  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   // as per RFC 7159, the default JSON encoding shall be UTF-8
   // see https://tools.ietf.org/html/rfc7159#section-8.1

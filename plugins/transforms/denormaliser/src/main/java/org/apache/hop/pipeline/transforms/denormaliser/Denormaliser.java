@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> implements ITransform<DenormaliserMeta, DenormaliserData> {
 
-  private static final Class<?> PKG = DenormaliserMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

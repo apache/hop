@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-concat-fields.csv",
+  "name": "golden-concat-fields",
+  "description": "Testing the output of the concat fields transform",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "fields"
+    }
+  ],
+  "folder_name": ""
+}

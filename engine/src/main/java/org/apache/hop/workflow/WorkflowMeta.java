@@ -83,10 +83,9 @@ import java.util.Map;
  */
 public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<WorkflowMeta>,
   IXml, IResourceExport, ILoggingObject, IHasFilename {
+  private static final Class<?> PKG = WorkflowMeta.class; // For Translator
 
   public static final String WORKFLOW_EXTENSION = ".hwf";
-
-  private static final Class<?> PKG = WorkflowMeta.class; // Needed by Translator
 
   public static final String XML_TAG = "workflow";
 

@@ -46,16 +46,14 @@ import java.util.List;
 @Transform(
     id = "RandomValue",
     image = "randomvalue.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.randomvalue",
-    name = "BaseTransform.TypeTooltipDesc.RandomValue",
-    description = "BaseTransform.TypeLongDesc.RandomValue",
+    name = "i18n::BaseTransform.TypeTooltipDesc.RandomValue",
+    description = "i18n::BaseTransform.TypeLongDesc.RandomValue",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/randomvalue.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/randomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static final Class<?> PKG = RandomValueMeta.class; // Needed by Translator
+  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 
   public static final int TYPE_RANDOM_NONE = 0;
 

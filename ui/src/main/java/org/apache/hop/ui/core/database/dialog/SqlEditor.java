@@ -70,7 +70,7 @@ import java.util.List;
  * @since 13-10-2003
  */
 public class SqlEditor {
-  private static final Class<?> PKG = SqlEditor.class; // Needed by Translator
+  private static final Class<?> PKG = SqlEditor.class; // For Translator
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Editor", LoggingObjectType.HOP_GUI, null );
@@ -306,14 +306,14 @@ public class SqlEditor {
   }
 
   private void exec() {
-    DatabaseMeta ci = connection;
-    if ( ci == null ) {
+    DatabaseMeta databaseMeta = connection;
+    if ( databaseMeta == null ) {
       return;
     }
 
     StringBuilder message = new StringBuilder();
 
-    Database db = new Database( loggingObject, ci );
+    Database db = new Database( loggingObject, variables, databaseMeta );
     boolean first = true;
 
     try {
@@ -323,7 +323,7 @@ public class SqlEditor {
 
       // Multiple statements in the script need to be split into individual
       // executable statements
-      statements = ci.getIDatabase().getSqlScriptStatements( sqlScript + Const.CR );
+      statements = databaseMeta.getIDatabase().getSqlScriptStatements( sqlScript + Const.CR );
 
       int nrstats = 0;
       for ( SqlScriptStatement sql : statements ) {
@@ -366,7 +366,7 @@ public class SqlEditor {
 
             // Clear the database cache, in case we're using one...
             if ( dbcache != null ) {
-              dbcache.clear( ci.getName() );
+              dbcache.clear( databaseMeta.getName() );
             }
 
             // mark the statement in green in the dialog...

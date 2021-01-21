@@ -39,15 +39,15 @@ public class StreamSchemaData extends BaseTransformData implements ITransformDat
 
 	public SchemaMapper schemaMapping;  // object that does row mapping
 
-	public List<IStream> infoStreams;  // streams of the incoming steps
+	public List<IStream> infoStreams;  // streams of the incoming transforms
 
-	public List<IRowSet> rowSets;  // a list of rowsets that are sending data to this step
+	public List<IRowSet> rowSets;  // a list of rowsets that are sending data to this transform
 
 	public IRowMeta[] rowMetas;  // a list of row meta information for incoming rows
 
 	public int[][] mapping;  // mappings for all incoming rows
 
-	public int numTransforms, streamNum;  // incoming steps and what stream the current row is from
+	public int numTransforms, streamNum;  // incoming transforms and what stream the current row is from
 
 	public String currentName;  // name of the rowset that sent the current row
 

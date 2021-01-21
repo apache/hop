@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 15-06-2008
  */
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionColumnsExist.class; // Needed by Translator
+  private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
 
   private Text wName;
 
@@ -449,8 +449,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (!Utils.isEmpty(wTablename.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, databaseMeta);
-        database.shareWith(variables);
+        Database database = new Database(loggingObject, variables, databaseMeta );
         try {
           database.connect();
           IRowMeta row =
@@ -493,8 +492,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     }
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, databaseMeta);
-      database.shareWith(variables);
+      Database database = new Database(loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

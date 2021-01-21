@@ -79,7 +79,7 @@ import org.apache.hop.core.variables.IVariables;
 
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
-  private static final Class<?> PKG = CsvInput.class; // Needed by Translator
+  private static final Class<?> PKG = CsvInput.class; // For Translator
 
   private final CsvInputMeta inputMeta;
 

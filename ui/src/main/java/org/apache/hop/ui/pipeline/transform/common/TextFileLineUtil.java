@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextFileLineUtil {
+  private static final Class<?> PKG = TextFileLineUtil.class; // For Translator
+
   public static final int FILE_FORMAT_DOS = 0;
   public static final int FILE_FORMAT_UNIX = 1;
   public static final int FILE_FORMAT_MIXED = 2;
   public static final int FILE_TYPE_CSV = 0;
   public static final int FILE_TYPE_FIXED = 1;
-
-  private static final Class<?> PKG = TextFileLineUtil.class; // Needed by Translator
 
   public static final String getLine( ILogChannel log, InputStreamReader reader, int formatNr,
                                       StringBuilder line ) throws HopFileException {

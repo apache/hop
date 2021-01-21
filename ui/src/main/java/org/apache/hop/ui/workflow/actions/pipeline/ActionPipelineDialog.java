@@ -67,7 +67,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionPipeline.class; // Needed by Translator
+  private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
   protected ActionPipeline action;
 

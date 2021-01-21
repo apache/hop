@@ -44,7 +44,7 @@ import java.util.ArrayList;
  */
 public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements ITransform<ExecSqlMeta, ExecSqlData> {
 
-  private static final Class<?> PKG = ExecSqlMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
   public ExecSql( TransformMeta transformMeta, ExecSqlMeta meta, ExecSqlData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
@@ -268,8 +268,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         logError( BaseMessages.getString( PKG, "ExecSql.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
 
       // Connect to the database
       try {

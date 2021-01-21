@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class UniqueRowsByHashSet extends BaseTransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> implements ITransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> {
-  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // For Translator
 
   public UniqueRowsByHashSet( TransformMeta transformMeta, UniqueRowsByHashSetMeta meta, UniqueRowsByHashSetData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {

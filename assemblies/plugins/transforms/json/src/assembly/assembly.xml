@@ -50,7 +50,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>com.fasterxml.jackson.core:jackson-core:jar</include>
                 <include>org.apache.poi:poi:jar</include>
                 <include>com.jayway.jsonpath:json-path:jar</include>
                 <include>net.minidev:json-smart:jar</include>

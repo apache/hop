@@ -3,6 +3,7 @@
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -13,42 +14,8 @@
    id="svg4"
    sodipodi:docname="folder-add.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
-  <metadata
-     id="metadata10">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs8" />
-  <sodipodi:namedview
-     inkscape:document-rotation="0"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="2691"
-     inkscape:window-height="1022"
-     id="namedview6"
-     showgrid="false"
-     inkscape:zoom="42"
-     inkscape:cx="12"
-     inkscape:cy="13.904762"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg4" />
   <path
-     d="m 9.6310027,2.5 2.3948323,2.4530856 h 9.579332 A 2.3948329,2.4530856 0 0 1 24,7.4061712 V 19.671599 a 2.3948329,2.4530856 0 0 1 -2.394833,2.453085 H 2.446504 c -1.3291323,0 -2.39483293,-1.103888 -2.39483293,-2.453085 V 4.9530856 C 0.05167107,3.5916231 1.1173717,2.5 2.446504,2.5 h 7.1844987 m 5.9870823,6.132714 v 3.679628 h -3.59225 v 2.453085 h 3.59225 v 3.679629 h 2.394833 v -3.679629 h 3.592249 V 12.312342 H 18.012918 V 8.632714 Z"
+     d="M 9.8,3 12,5.2500001 h 8.8 A 2.2,2.2500001 0 0 1 23,7.5000002 V 18.750001 A 2.2,2.2500001 0 0 1 20.8,21 H 3.2 C 1.979,21 1,19.9875 1,18.750001 V 5.2500001 C 1,4.0012501 1.979,3 3.2,3 h 6.6 m 5.5,5.6250003 V 12 H 12 v 2.249999 h 3.3 V 17.625 h 2.2 v -3.375001 h 3.3 V 12 H 17.5 V 8.6250003 Z"
      id="path2"
-     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.2119" />
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.11245" />
 </svg>

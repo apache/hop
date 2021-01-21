@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
  * @since 10-06-2007
  */
 public class SalesforceInputField implements Cloneable {
-  private static Class<?> PKG = SalesforceInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

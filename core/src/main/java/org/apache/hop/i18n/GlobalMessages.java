@@ -29,7 +29,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class GlobalMessages extends AbstractMessageHandler {
-  protected static Class<?> PKG = GlobalMessages.class;
+  protected static Class<?> PKG = GlobalMessages.class; // For Translator
 
   protected static final String SYSTEM_BUNDLE_PACKAGE = PKG.getPackage().getName();
 

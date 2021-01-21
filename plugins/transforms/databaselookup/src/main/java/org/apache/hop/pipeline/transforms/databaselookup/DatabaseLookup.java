@@ -50,7 +50,7 @@ import java.util.List;
  */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> implements ITransform<DatabaseLookupMeta, DatabaseLookupData> {
 
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 
   public DatabaseLookup( TransformMeta transformMeta, DatabaseLookupMeta meta, DatabaseLookupData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -600,11 +600,10 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
    * (@see org.apache.hop.pipeline.transforms.databaselookup.PDI5436Test)
    */
   Database getDatabase( DatabaseMeta meta ) {
-    return new Database( this, meta );
+    return new Database( this, this, meta );
   }
 
   private void connectDatabase( Database database ) throws HopDatabaseException {
-    database.shareWith( this );
     database.connect( getPartitionId() );
 
     database.setCommit( 100 ); // we never get a commit, but it just turns off auto-commit.

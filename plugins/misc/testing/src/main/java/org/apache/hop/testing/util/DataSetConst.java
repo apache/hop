@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataSetConst {
-  private static final Class<?> PKG = DataSetConst.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = DataSetConst.class; // For Translator
 
   public static final String DATABASE_FACTORY_KEY = "DatabaseMetaFactory";
   public static final String GROUP_FACTORY_KEY = "DataSetGroupFactory";

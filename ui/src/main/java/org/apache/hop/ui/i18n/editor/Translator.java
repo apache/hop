@@ -88,11 +88,9 @@ import java.util.zip.ZipOutputStream;
  * @author matt
  */
 public class Translator {
+  private static final Class<?> PKG = Translator.class; // For Translator
+
   private static final String TRANSLATOR_NAMESPACE = "hop-translator";
-  /**
-   * for i18n purposes, needed by Translator!
-   */
-  private static final Class<?> PKG = Translator.class;
 
   public static final String APP_NAME = BaseMessages.getString( PKG, "i18nDialog.ApplicationName" );
 
@@ -162,7 +160,6 @@ public class Translator {
   protected String searchString;
   protected String lastFoundKey;
   private String singleMessagesFile;
-  private java.util.List<String> scanPhrases;
 
   private String selectedSourceFolder;
   private java.util.List<String> filesToAvoid;
@@ -172,7 +169,6 @@ public class Translator {
     this.log = new LogChannel( APP_NAME );
     this.props = PropsUi.getInstance();
     this.filesToAvoid = new ArrayList<>();
-    this.scanPhrases = new ArrayList<>(  );
   }
 
   public boolean showKey( String key, String messagesPackage ) {
@@ -190,7 +186,6 @@ public class Translator {
       // Find all the source directories in the root folder and crawl through them
       //
       crawler = new MessagesSourceCrawler( log, rootFolder, bundlesStore );
-      crawler.setScanPhrases( scanPhrases );
       crawler.setFilesToAvoid( filesToAvoid );
       crawler.crawl();
 
@@ -309,13 +304,6 @@ public class Translator {
           Node localeNode = XmlHandler.getSubNodeByNr( localeListNode, "locale", i );
           String locale = XmlHandler.getNodeValue( localeNode );
           localeList.add( locale );
-        }
-
-        Node scanPhrasesNode = XmlHandler.getSubNode( configNode, "scan-phrases" );
-        java.util.List<Node> scanPhraseNodes = XmlHandler.getNodes( scanPhrasesNode, "scan-phrase" );
-        scanPhrases = new ArrayList<>(  );
-        for ( Node scanPhraseNode : scanPhraseNodes ) {
-          scanPhrases.add( XmlHandler.getNodeValue( scanPhraseNode ) );
         }
 
         Node filesToAvoidNode = XmlHandler.getSubNode( configNode, "files-to-avoid" );

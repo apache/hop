@@ -47,7 +47,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "UniqueSortWarning";
 

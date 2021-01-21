@@ -29,10 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.sql.ResultSet;
 
@@ -42,7 +40,7 @@ import java.sql.ResultSet;
  */
 
 public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> implements ITransform<TableCompareMeta, TableCompareData> {
-  private static final Class<?> PKG = TableCompare.class; // Needed by Translator
+  private static final Class<?> PKG = TableCompare.class; // For Translator
 
   public TableCompare( TransformMeta transformMeta, TableCompareMeta meta, TableCompareData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
@@ -576,7 +574,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     if ( super.init() ) {
 
       try {
-        data.referenceDb = new Database( this, meta.getReferenceConnection() );
+        data.referenceDb = new Database( this, this, meta.getReferenceConnection() );
         data.referenceDb.connect();
 
       } catch ( Exception e ) {
@@ -587,7 +585,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       }
 
       try {
-        data.compareDb = new Database( this, meta.getCompareConnection() );
+        data.compareDb = new Database( this, this, meta.getCompareConnection() );
         data.compareDb.connect();
 
       } catch ( Exception e ) {

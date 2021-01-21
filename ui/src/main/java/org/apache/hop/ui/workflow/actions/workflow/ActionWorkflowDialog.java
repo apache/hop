@@ -71,7 +71,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWorkflow.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
   protected ActionWorkflow action;
 

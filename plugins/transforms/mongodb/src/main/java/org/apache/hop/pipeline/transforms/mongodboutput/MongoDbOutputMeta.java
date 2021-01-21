@@ -60,7 +60,7 @@ import java.util.List;
 public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData>
     implements ITransformMeta<MongoDbOutput, MongoDbOutputData> {
 
-  private static Class<?> PKG = MongoDbOutputMeta.class; // for i18n purposes
+  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   /** Class encapsulating paths to document fields */
   public static class MongoField {
@@ -650,52 +650,52 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   }
 
   @Override
-  public void loadXml(Node stepnode, IHopMetadataProvider metaStore) throws HopXmlException {
-    setHostnames(XmlHandler.getTagValue(stepnode, "mongo_host"));
-    setPort(XmlHandler.getTagValue(stepnode, "mongo_port"));
-    setAuthenticationDatabaseName(XmlHandler.getTagValue(stepnode, "mongo_auth_database"));
-    setAuthenticationUser(XmlHandler.getTagValue(stepnode, "mongo_user"));
-    setAuthenticationPassword(XmlHandler.getTagValue(stepnode, "mongo_password"));
+  public void loadXml(Node transformnode, IHopMetadataProvider metaStore) throws HopXmlException {
+    setHostnames(XmlHandler.getTagValue(transformnode, "mongo_host"));
+    setPort(XmlHandler.getTagValue(transformnode, "mongo_port"));
+    setAuthenticationDatabaseName(XmlHandler.getTagValue(transformnode, "mongo_auth_database"));
+    setAuthenticationUser(XmlHandler.getTagValue(transformnode, "mongo_user"));
+    setAuthenticationPassword(XmlHandler.getTagValue(transformnode, "mongo_password"));
     if (!StringUtils.isEmpty(getAuthenticationPassword())) {
       setAuthenticationPassword(
           Encr.decryptPasswordOptionallyEncrypted(getAuthenticationPassword()));
     }
 
-    setAuthenticationMechanism(XmlHandler.getTagValue(stepnode, "auth_mech"));
+    setAuthenticationMechanism(XmlHandler.getTagValue(transformnode, "auth_mech"));
 
     setUseKerberosAuthentication(
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(stepnode, "auth_kerberos")));
-    setDbName(XmlHandler.getTagValue(stepnode, "mongo_db"));
-    setCollection(XmlHandler.getTagValue(stepnode, "mongo_collection"));
-    m_batchInsertSize = XmlHandler.getTagValue(stepnode, "batch_insert_size");
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "auth_kerberos")));
+    setDbName(XmlHandler.getTagValue(transformnode, "mongo_db"));
+    setCollection(XmlHandler.getTagValue(transformnode, "mongo_collection"));
+    m_batchInsertSize = XmlHandler.getTagValue(transformnode, "batch_insert_size");
 
-    setConnectTimeout(XmlHandler.getTagValue(stepnode, "connect_timeout"));
-    setSocketTimeout(XmlHandler.getTagValue(stepnode, "socket_timeout"));
+    setConnectTimeout(XmlHandler.getTagValue(transformnode, "connect_timeout"));
+    setSocketTimeout(XmlHandler.getTagValue(transformnode, "socket_timeout"));
 
-    String useSSLSocketFactory = XmlHandler.getTagValue(stepnode, "use_ssl_socket_factory");
+    String useSSLSocketFactory = XmlHandler.getTagValue(transformnode, "use_ssl_socket_factory");
     if (!Utils.isEmpty(useSSLSocketFactory)) {
       setUseSSLSocketFactory(useSSLSocketFactory.equalsIgnoreCase("Y"));
     }
 
-    setReadPreference(XmlHandler.getTagValue(stepnode, "read_preference"));
-    setWriteConcern(XmlHandler.getTagValue(stepnode, "write_concern"));
-    setWTimeout(XmlHandler.getTagValue(stepnode, "w_timeout"));
-    String journaled = XmlHandler.getTagValue(stepnode, "journaled_writes");
+    setReadPreference(XmlHandler.getTagValue(transformnode, "read_preference"));
+    setWriteConcern(XmlHandler.getTagValue(transformnode, "write_concern"));
+    setWTimeout(XmlHandler.getTagValue(transformnode, "w_timeout"));
+    String journaled = XmlHandler.getTagValue(transformnode, "journaled_writes");
     if (!StringUtils.isEmpty(journaled)) {
       setJournal(journaled.equalsIgnoreCase("Y"));
     }
 
-    m_truncate = XmlHandler.getTagValue(stepnode, "truncate").equalsIgnoreCase("Y");
+    m_truncate = XmlHandler.getTagValue(transformnode, "truncate").equalsIgnoreCase("Y");
 
     // for backwards compatibility with older ktrs
-    String update = XmlHandler.getTagValue(stepnode, "update");
+    String update = XmlHandler.getTagValue(transformnode, "update");
     if (!StringUtils.isEmpty(update)) {
       m_update = update.equalsIgnoreCase("Y");
     }
 
-    m_upsert = XmlHandler.getTagValue(stepnode, "upsert").equalsIgnoreCase("Y");
-    m_multi = XmlHandler.getTagValue(stepnode, "multi").equalsIgnoreCase("Y");
-    m_modifierUpdate = XmlHandler.getTagValue(stepnode, "modifier_update").equalsIgnoreCase("Y");
+    m_upsert = XmlHandler.getTagValue(transformnode, "upsert").equalsIgnoreCase("Y");
+    m_multi = XmlHandler.getTagValue(transformnode, "multi").equalsIgnoreCase("Y");
+    m_modifierUpdate = XmlHandler.getTagValue(transformnode, "modifier_update").equalsIgnoreCase("Y");
 
     // for backwards compatibility with older ktrs (to maintain correct
     // operation)
@@ -704,18 +704,18 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     }
 
     setUseAllReplicaSetMembers(
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(stepnode, "use_all_replica_members")));
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "use_all_replica_members")));
 
-    String writeRetries = XmlHandler.getTagValue(stepnode, "write_retries");
+    String writeRetries = XmlHandler.getTagValue(transformnode, "write_retries");
     if (!StringUtils.isEmpty(writeRetries)) {
       m_writeRetries = writeRetries;
     }
-    String writeRetryDelay = XmlHandler.getTagValue(stepnode, "write_retry_delay");
+    String writeRetryDelay = XmlHandler.getTagValue(transformnode, "write_retry_delay");
     if (!StringUtils.isEmpty(writeRetryDelay)) {
       m_writeRetryDelay = writeRetryDelay;
     }
 
-    Node fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
+    Node fields = XmlHandler.getSubNode(transformnode, "mongo_fields");
     if (fields != null && XmlHandler.countNodes(fields, "mongo_field") > 0) {
       int nrFields = XmlHandler.countNodes(fields, "mongo_field");
       m_mongoFields = new ArrayList<>();
@@ -749,7 +749,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       }
     }
 
-    fields = XmlHandler.getSubNode(stepnode, "mongo_indexes");
+    fields = XmlHandler.getSubNode(transformnode, "mongo_indexes");
     if (fields != null && XmlHandler.countNodes(fields, "mongo_index") > 0) {
       int nrFields = XmlHandler.countNodes(fields, "mongo_index");
 

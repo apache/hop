@@ -86,7 +86,7 @@ pipeline {
             }
             steps{
                 script {
-                    env.POM_VERSION = sh(script: "mvn help:evaluate -Dexpression=project.version | sed -n -e '/^\\[.*\\]/ !{ /^[0-9]/ { p; q } }'", returnStdout: true).trim()
+                    env.POM_VERSION = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
                 }
                 echo "The version fo the pom is: ${env.POM_VERSION}"
             }
@@ -113,7 +113,7 @@ pipeline {
         }
         stage('Unzip Apache Hop'){
             when {
-                branch "${BRANCH_NAME}"
+                branch 'master'
             }
             steps{
                 sh "cd assemblies/client/target/ && unzip hop-client-*.zip"
@@ -121,7 +121,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             when {
-                branch "${BRANCH_NAME}"
+                branch 'master'
             }
             steps {
                 echo 'Building Docker Image'

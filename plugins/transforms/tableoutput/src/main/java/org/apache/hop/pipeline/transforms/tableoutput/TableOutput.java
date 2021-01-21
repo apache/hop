@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> implements ITransform<TableOutputMeta, TableOutputData> {
 
-  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   public TableOutput( TransformMeta transformMeta, TableOutputMeta meta, TableOutputData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
@@ -509,9 +509,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           throw new HopException( dbInterface.getUnsupportedTableOutputMessage() );
         }
 
-        data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareWith( this );
-
+        data.db = new Database( this, this, meta.getDatabaseMeta() );
         data.db.connect( getPartitionId() );
 
         if ( log.isBasic() ) {

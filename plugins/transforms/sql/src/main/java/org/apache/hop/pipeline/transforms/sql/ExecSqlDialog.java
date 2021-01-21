@@ -49,7 +49,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExecSqlMeta.class; // Needed by Translator
+  private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

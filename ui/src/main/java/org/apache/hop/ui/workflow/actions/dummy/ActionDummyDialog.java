@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ActionDummyDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDummy.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDummy.class; // For Translator
 
   private Shell shell;
 

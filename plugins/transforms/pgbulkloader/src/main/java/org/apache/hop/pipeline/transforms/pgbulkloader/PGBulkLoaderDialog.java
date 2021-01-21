@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.*;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -814,14 +814,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
           colInfo.setComboValues( new String[] {} );
         }
         if ( !Utils.isEmpty( tableName ) ) {
-          DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
-          if ( ci != null ) {
-            Database db = new Database( loggingObject, ci );
+          DatabaseMeta databaseMeta = pipelineMeta.findDatabase( connectionName );
+          if ( databaseMeta != null ) {
+            Database db = new Database( loggingObject, variables, databaseMeta );
             try {
               db.connect();
 
               String schemaTable =
-                ci.getQuotedSchemaTableCombination( variables, schemaName, tableName );
+                databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
               IRowMeta r = db.getTableFields( schemaTable );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();

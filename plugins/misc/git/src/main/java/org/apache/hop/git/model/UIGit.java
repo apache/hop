@@ -155,9 +155,9 @@ public class UIGit extends VCS implements IVCS {
       PersonIdent author = commit.getAuthorIdent();
       final StringBuilder r = new StringBuilder();
       r.append(author.getName());
-      r.append(" <"); // $NON-NLS-1$
+      r.append(" <"); //
       r.append(author.getEmailAddress());
-      r.append(">"); // $NON-NLS-1$
+      r.append(">"); //
       return r.toString();
     }
   }

@@ -80,7 +80,7 @@ import java.util.List;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static final Class<?> PKG = EnterOptionsDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
@@ -150,6 +150,8 @@ public class EnterOptionsDialog extends Dialog {
   private Button wHelpTip;
 
   private Button wbUseDoubleClick;
+  
+  private Button wbUseGlobalFileBookmarks;
 
   private Button wAutoCollapse;
 
@@ -1085,7 +1087,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlAutoCollapse.right = new FormAttachment(middle, -margin);
     wlAutoCollapse.setLayoutData(fdlAutoCollapse);
     wAutoCollapse = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wAutoCollapse );
+    props.setLook(wAutoCollapse);
     wAutoCollapse.setSelection(props.getAutoCollapseCoreObjectsTree());
     FormData fdAutoCollapse = new FormData();
     fdAutoCollapse.left = new FormAttachment(middle, 0);
@@ -1104,7 +1106,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlToolTip.right = new FormAttachment(middle, -margin);
     wlToolTip.setLayoutData(fdlToolTip);
     wToolTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wToolTip );
+    props.setLook(wToolTip);
     wToolTip.setSelection(props.showToolTips());
     FormData fdbToolTip = new FormData();
     fdbToolTip.left = new FormAttachment(middle, 0);
@@ -1123,7 +1125,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlHelpTip.right = new FormAttachment(middle, -margin);
     wlHelpTip.setLayoutData(fdlHelpTip);
     wHelpTip = new Button(wGeneralComp, SWT.CHECK);
-    props.setLook( wHelpTip );
+    props.setLook(wHelpTip);
     wHelpTip.setSelection(props.isShowingHelpToolTips());
     FormData fdbHelpTip = new FormData();
     fdbHelpTip.left = new FormAttachment(middle, 0);
@@ -1150,6 +1152,27 @@ public class EnterOptionsDialog extends Dialog {
     fdbUseDoubleClick.top = new FormAttachment(wlUseDoubleClick, 0, SWT.CENTER);
     fdbUseDoubleClick.right = new FormAttachment(100, 0);
     wbUseDoubleClick.setLayoutData(fdbUseDoubleClick);
+    lastControl = wlUseDoubleClick;
+
+    // Use global file bookmarks?
+    Label wlUseGlobalFileBookmarks = new Label(wGeneralComp, SWT.RIGHT);
+    wlUseGlobalFileBookmarks.setText(
+      BaseMessages.getString(PKG, "EnterOptionsDialog.UseGlobalFileBookmarks.Label"));
+    props.setLook(wlUseGlobalFileBookmarks);
+    FormData fdlUseGlobalFileBookmarks = new FormData();
+    fdlUseGlobalFileBookmarks.left = new FormAttachment(0, 0);
+    fdlUseGlobalFileBookmarks.top = new FormAttachment(lastControl, margin);
+    fdlUseGlobalFileBookmarks.right = new FormAttachment(middle, -margin);
+    wlUseGlobalFileBookmarks.setLayoutData(fdlUseGlobalFileBookmarks);
+    wbUseGlobalFileBookmarks = new Button(wGeneralComp, SWT.CHECK);
+    props.setLook(wbUseGlobalFileBookmarks);
+    wbUseGlobalFileBookmarks.setSelection(props.useGlobalFileBookmarks());
+    FormData fdbUseGlobalFileBookmarks = new FormData();
+    fdbUseGlobalFileBookmarks.left = new FormAttachment(middle, 0);
+    fdbUseGlobalFileBookmarks.top = new FormAttachment(wlUseGlobalFileBookmarks, 0, SWT.CENTER);
+    fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
+    wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
+    lastControl = wbUseGlobalFileBookmarks;
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -1357,10 +1380,11 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
-    props.setShowToolTips( wToolTip.getSelection());
-    props.setAutoCollapseCoreObjectsTree( wAutoCollapse.getSelection());
-    props.setShowingHelpToolTips( wHelpTip.getSelection());
+    props.setShowToolTips(wToolTip.getSelection());
+    props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
+    props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
+    props.setUseGlobalFileBookmarks( wbUseGlobalFileBookmarks.getSelection() );
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {

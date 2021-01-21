@@ -24,11 +24,11 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -39,35 +39,32 @@ import java.util.List;
  * @author Samatar
  * @since 12-02-2007
  */
-
 @Action(
-  id = "ABORT",
-  i18nPackageName = "org.apache.hop.workflow.actions.abort",
-  name = "ActionAbort.Name",
-  description = "ActionAbort.Description",
-  image = "Abort.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/abort.html"
-)
+    id = "ABORT",
+    name = "i18n::ActionAbort.Name",
+    description = "i18n::ActionAbort.Description",
+    image = "Abort.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/abort.html")
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAbort.class; // Needed by Translator
+  private static final Class<?> PKG = ActionAbort.class; // For Translator
 
   private String message;
 
-  public ActionAbort( String name, String description ) {
-    super( name, description );
+  public ActionAbort(String name, String description) {
+    super(name, description);
     message = null;
   }
 
   public ActionAbort() {
-    this( "", "" );
+    this("", "");
   }
 
-  public ActionAbort( ActionAbort other) {
-	this( "", "" );
-	this.message = other.message;
+  public ActionAbort(ActionAbort other) {
+    this("", "");
+    this.message = other.message;
   }
-  
+
   public Object clone() {
     return new ActionAbort(this);
   }
@@ -76,47 +73,51 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( super.getXml() );
-    retval.append( XmlHandler.addTagValue( "message", message ) );
+    retval.append(super.getXml());
+    retval.append(XmlHandler.addTagValue("message", message));
 
     return retval.toString();
   }
 
   @Override
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      message = XmlHandler.getTagValue( entrynode, "message" );
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "ActionAbort.UnableToLoadFromXml.Label" ), e );
+      super.loadXml(entrynode);
+      message = XmlHandler.getTagValue(entrynode, "message");
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "ActionAbort.UnableToLoadFromXml.Label"), e);
     }
   }
 
   /**
-   * Execute this action and return the result. In this case it means, just set the result boolean in the Result
-   * class.
+   * Execute this action and return the result. In this case it means, just set the result boolean
+   * in the Result class.
    *
    * @param result The result of the previous execution
    * @return The Result of the execution.
    */
   @Override
-  public Result execute( Result result, int nr ) {
+  public Result execute(Result result, int nr) {
     try {
-   	  String msg = resolve( getMessageAbort() );
+      String msg = resolve(getMessageAbort());
 
-      if ( msg == null ) {
-        msg = BaseMessages.getString( PKG, "ActionAbort.Meta.CheckResult.Label" );
+      if (msg == null) {
+        msg = BaseMessages.getString(PKG, "ActionAbort.Meta.CheckResult.Label");
       }
-      
-      result.setNrErrors( 1 );
+
+      result.setNrErrors(1);
       result.setResult(false);
-      logError( msg );
-    } catch ( Exception e ) {
-      result.setNrErrors( 1 );
+      logError(msg);
+    } catch (Exception e) {
+      result.setNrErrors(1);
       result.setResult(false);
-      logError( BaseMessages.getString( PKG, "ActionAbort.Meta.CheckResult.CouldNotExecute" ) + e.toString() );
-    }  
-    
+      logError(
+          BaseMessages.getString(PKG, "ActionAbort.Meta.CheckResult.CouldNotExecute")
+              + e.toString());
+    }
+
     // we fail so stop workflow execution
     parentWorkflow.stopExecution();
     return result;
@@ -138,17 +139,19 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   public boolean isUnconditional() {
     return false;
   }
-  
+
   /**
    * Set the message to display in the log
+   *
    * @param message
    */
-  public void setMessageAbort( String message ) {
+  public void setMessageAbort(String message) {
     this.message = message;
   }
 
   /**
    * Get the message to display in the log
+   *
    * @return the message
    */
   public String getMessageAbort() {
@@ -156,8 +159,11 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.addOkRemark( this, "messageabort", remarks );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.addOkRemark(this, "messageabort", remarks);
   }
 }

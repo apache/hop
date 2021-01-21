@@ -41,7 +41,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // Needed by Translator
+  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
   private boolean gotPreviousFields = false;
 
   private TextVar wGPGLocation;

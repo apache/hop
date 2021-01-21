@@ -38,15 +38,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-  id = "Fake",
-  image = "fake.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.fake",
-  name = "BaseTransform.TypeLongDesc.Fake",
-  description = "BaseTransform.TypeTooltipDesc.Fake",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-  keywords = { "fake", "data", "generator", "synthetic" }, //TODO : i18n
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fake.html"
-)
+    id = "Fake",
+    image = "fake.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.Fake",
+    description = "i18n::BaseTransform.TypeTooltipDesc.Fake",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = {"fake", "data", "generator", "synthetic"}, // TODO : i18n
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fake.html")
 public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, FakeData> {
 
   private String locale;
@@ -62,8 +60,8 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
     FakeMeta copy = (FakeMeta) super.clone();
     copy.locale = locale;
     copy.fields = new ArrayList<>();
-    for ( FakeField field : fields ) {
-      copy.fields.add( new FakeField( field ) );
+    for (FakeField field : fields) {
+      copy.fields.add(new FakeField(field));
     }
     return copy;
   }
@@ -74,32 +72,39 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
   }
 
   @Override
-  public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    for ( FakeField field : fields ) {
-      if ( field.isValid() ) {
-        IValueMeta v = new ValueMetaString( field.getName() );
-        v.setOrigin( name );
-        rowMeta.addValueMeta( v );
+  public void getFields(
+      IRowMeta rowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    for (FakeField field : fields) {
+      if (field.isValid()) {
+        IValueMeta v = new ValueMetaString(field.getName());
+        v.setOrigin(name);
+        rowMeta.addValueMeta(v);
       }
     }
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
-      locale = XmlHandler.getTagValue( transformNode, "locale" );
+      locale = XmlHandler.getTagValue(transformNode, "locale");
 
-      Node fieldsNode = XmlHandler.getSubNode( transformNode, "fields" );
-      List<Node> fieldNodes = XmlHandler.getNodes( fieldsNode, "field" );
-      for ( Node fieldNode : fieldNodes ) {
-        String name = XmlHandler.getTagValue( fieldNode, "name" );
-        String type = XmlHandler.getTagValue( fieldNode, "type" );
-        String topic = XmlHandler.getTagValue( fieldNode, "topic" );
-        fields.add( new FakeField( name, type, topic ) );
+      Node fieldsNode = XmlHandler.getSubNode(transformNode, "fields");
+      List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
+      for (Node fieldNode : fieldNodes) {
+        String name = XmlHandler.getTagValue(fieldNode, "name");
+        String type = XmlHandler.getTagValue(fieldNode, "type");
+        String topic = XmlHandler.getTagValue(fieldNode, "topic");
+        fields.add(new FakeField(name, type, topic));
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load transform metadata from XML", e );
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to load transform metadata from XML", e);
     }
   }
 
@@ -107,25 +112,29 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XmlHandler.addTagValue( "locale", locale ) );
+    xml.append(XmlHandler.addTagValue("locale", locale));
 
-    xml.append( "    <fields>" ).append( Const.CR );
-    for ( FakeField field : fields ) {
-      xml.append( "      <field>" ).append( Const.CR );
-      xml.append( "        " ).append( XmlHandler.addTagValue( "name", field.getName() ) );
-      xml.append( "        " ).append( XmlHandler.addTagValue( "type", field.getType() ) );
-      xml.append( "        " ).append( XmlHandler.addTagValue( "topic", field.getTopic() ) );
-      xml.append( "      </field>" ).append( Const.CR );
+    xml.append("    <fields>").append(Const.CR);
+    for (FakeField field : fields) {
+      xml.append("      <field>").append(Const.CR);
+      xml.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
+      xml.append("        ").append(XmlHandler.addTagValue("type", field.getType()));
+      xml.append("        ").append(XmlHandler.addTagValue("topic", field.getTopic()));
+      xml.append("      </field>").append(Const.CR);
     }
-    xml.append( "    </fields>" ).append( Const.CR );
+    xml.append("    </fields>").append(Const.CR);
 
     return xml.toString();
   }
 
   @Override
-  public Fake createTransform( TransformMeta transformMeta, FakeData data, int cnr,
-                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Fake( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public Fake createTransform(
+      TransformMeta transformMeta,
+      FakeData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new Fake(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -196,7 +205,6 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
     };
   }
 
-
   /**
    * Gets locale
    *
@@ -206,10 +214,8 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
     return locale;
   }
 
-  /**
-   * @param locale The locale to set
-   */
-  public void setLocale( String locale ) {
+  /** @param locale The locale to set */
+  public void setLocale(String locale) {
     this.locale = locale;
   }
 
@@ -222,10 +228,8 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
     return fields;
   }
 
-  /**
-   * @param fields The fields to set
-   */
-  public void setFields( List<FakeField> fields ) {
+  /** @param fields The fields to set */
+  public void setFields(List<FakeField> fields) {
     this.fields = fields;
   }
 }

@@ -29,6 +29,8 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -70,6 +72,7 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
   Class<DimensionLookupMeta> testMetaClass = DimensionLookupMeta.class;
   private ThreadLocal<DimensionLookupMeta> holdTestingMeta = new ThreadLocal<>();
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  private IVariables variables;
 
   @BeforeClass
   public static void setupClass() throws HopException {
@@ -78,6 +81,7 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
 
   @Before
   public void setUpLoadSave() throws Exception {
+    variables = new Variables();
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "update", "dateField", "dateFrom", "dateTo", "keyField", "keyRename",
         "autoIncrement", "versionField", "commitSize", "useBatchUpdate", "minYear", "maxYear", "techKeyCreation",
@@ -179,7 +183,7 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
 
     final RowMeta rowMeta = Mockito.mock( RowMeta.class );
     final DimensionLookupMeta dimensionLookupMeta = new DimensionLookupMeta() {
-      @Override Database createDatabaseObject() {
+      @Override Database createDatabaseObject(IVariables variables) {
         return mock( Database.class );
       }
 
@@ -198,7 +202,7 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
     dimensionLookupMeta.setTableName( "aDimTable" );
 
     final DimensionLookupData dimensionLookupData = new DimensionLookupData();
-    assertEquals( rowMeta, dimensionLookupMeta.getRowMeta( dimensionLookupData ) );
+    assertEquals( rowMeta, dimensionLookupMeta.getRowMeta( variables, dimensionLookupData ) );
     assertEquals( 4, dimensionLookupMeta.getDatabaseFields().size() );
     assertEquals( "f1", dimensionLookupMeta.getDatabaseFields().get( 0 ) );
     assertEquals( "f2", dimensionLookupMeta.getDatabaseFields().get( 1 ) );

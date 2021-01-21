@@ -49,7 +49,7 @@ import java.util.Date;
 @HopServerServlet(id="pipelineStatus", name = "Get the status of a pipeline")
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = GetPipelineStatusServlet.class; // Needed by Translator
+  private static final Class<?> PKG = GetPipelineStatusServlet.class; // For Translator
 
   private static final long serialVersionUID = 3634806745372015720L;
 

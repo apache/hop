@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecuteTestsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ExecuteTestsDialog.class; // i18n
+  private static final Class<?> PKG = ExecuteTestsDialog.class; // For Translator
 
   private ExecuteTestsMeta input;
 

@@ -40,7 +40,7 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
   extends BaseTransformMeta
   implements ITransformMeta<Main, Data> {
 
-  private static Class<?> PKG = SalesforceTransformMeta.class;
+  private static Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
   /** The Salesforce Target URL */
   @Injection( name = "SALESFORCE_URL" )
@@ -109,11 +109,11 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
     if ( Utils.isEmpty( getTargetUrl() ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.NoURL" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.NoURL" ), transformMeta );
     } else {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.URLOk" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.URLOk" ), transformMeta );
     }
     remarks.add( cr );
 
@@ -121,11 +121,11 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
     if ( Utils.isEmpty( getUsername() ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.NoUsername" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.NoUsername" ), transformMeta );
     } else {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.UsernameOk" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.UsernameOk" ), transformMeta );
     }
     remarks.add( cr );
 
@@ -133,11 +133,11 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
     if ( Utils.isEmpty( getModule() ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.NoModule" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.NoModule" ), transformMeta );
     } else {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceMeta.CheckResult.ModuleOk" ), transformMeta );
+          PKG, "SalesforceTransformMeta.CheckResult.ModuleOk" ), transformMeta );
     }
     remarks.add( cr );
   }

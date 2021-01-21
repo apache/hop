@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * @since 01-02-2007
  */
 public class ActionFileCompareDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFileCompare.class; // Needed by Translator
+  private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobFileCompare.Filetype.All" ) };

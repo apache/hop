@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
  */
 public class XmlOutputTest {
 
-  private TransformMockHelper<XmlOutputMeta, XmlOutputData> stepMockHelper;
+  private TransformMockHelper<XmlOutputMeta, XmlOutputData> transformMockHelper;
   private XmlOutput xmlOutput;
   private XmlOutputMeta xmlOutputMeta;
   private XmlOutputData xmlOutputData;
@@ -71,12 +71,12 @@ public class XmlOutputTest {
   @Before
   public void setup() throws Exception {
 
-    stepMockHelper =
+    transformMockHelper =
       new TransformMockHelper<>( "XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class );
-    when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        stepMockHelper.iLogChannel );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
+        transformMockHelper.iLogChannel );
     TransformMeta mockMeta = mock( TransformMeta.class );
-    when( stepMockHelper.pipelineMeta.findTransform( Matchers.anyString() ) ).thenReturn( mockMeta );
+    when( transformMockHelper.pipelineMeta.findTransform( Matchers.anyString() ) ).thenReturn( mockMeta );
     when( trans.getLogLevel() ).thenReturn( LogLevel.DEBUG );
 
     // Create and set Meta with some realistic data
@@ -91,7 +91,7 @@ public class XmlOutputTest {
     xmlOutputData.OpenedNewFile = true;
 
     TransformMeta transformMeta = new TransformMeta( "TransformMetaId", "TransformMetaName", xmlOutputMeta );
-    xmlOutput = spy( new XmlOutput( transformMeta, xmlOutputMeta, xmlOutputData, 0, stepMockHelper.pipelineMeta, stepMockHelper.pipeline ) );
+    xmlOutput = spy( new XmlOutput( transformMeta, xmlOutputMeta, xmlOutputData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );
   }
 
   @Test

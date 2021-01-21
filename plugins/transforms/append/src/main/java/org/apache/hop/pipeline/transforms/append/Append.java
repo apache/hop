@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class Append extends BaseTransform<AppendMeta, AppendData> implements ITransform<AppendMeta, AppendData> {
 
-  private static final Class<?> PKG = Append.class; // Needed by Translator
+  private static final Class<?> PKG = Append.class; // For Translator
 
   public Append( TransformMeta transformMeta, AppendMeta meta, AppendData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

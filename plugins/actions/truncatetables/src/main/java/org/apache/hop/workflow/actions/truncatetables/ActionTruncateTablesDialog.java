@@ -52,7 +52,7 @@ import java.util.Arrays;
  * @since 22-07-2008
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionTruncateTables.class; // Needed by Translator
+  private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
 
   private Shell shell;
   
@@ -365,7 +365,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   private void getTableName() {
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] tableNames = database.getTablenames();

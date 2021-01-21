@@ -46,7 +46,7 @@ import java.sql.SQLException;
  */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData> implements ITransform<TableInputMeta, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
   public TableInput( TransformMeta transformMeta, TableInputMeta meta, TableInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
@@ -317,9 +317,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
         logError( BaseMessages.getString( PKG, "TableInput.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
-      data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareWith( this );
-
+      data.db = new Database( this, this, meta.getDatabaseMeta() );
       data.db.setQueryLimit( Const.toInt( resolve( meta.getRowLimit() ), 0 ) );
 
       try {

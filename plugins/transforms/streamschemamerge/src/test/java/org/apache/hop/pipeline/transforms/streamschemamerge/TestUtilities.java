@@ -149,14 +149,14 @@ public class TestUtilities {
   }
 
   /**
-   * Create an injector step.
+   * Create an injector transform.
    *
    * @param name
    * @param pluginRegistry
    * @return TransformMeta
    */
   public static synchronized TransformMeta createInjectorTransform( String name, PluginRegistry pluginRegistry ) {
-    // create an injector step...
+    // create an injector transform...
     InjectorMeta injectorMeta = new InjectorMeta();
 
     // Set the information of the injector
@@ -248,7 +248,7 @@ public class TestUtilities {
   }
 
   /**
-   * Create and return a SortRows step.
+   * Create and return a SortRows transform.
    *
    * @param name
    * @param sortFields     [] Fields to sort by

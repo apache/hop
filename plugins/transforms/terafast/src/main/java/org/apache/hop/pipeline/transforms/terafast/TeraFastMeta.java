@@ -48,9 +48,8 @@ import java.util.List;
 @Transform(
   id = "TeraFast",
   image = "TeraFast.svg",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
-  description = "TeraFast.Description",
-  name = "TeraFast.Name",
+  description = "i18n::TeraFast.Description",
+  name = "i18n::TeraFast.Name",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/terafast.html"
 )
@@ -226,9 +225,9 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
    * @return the database.
    * @throws HopException if an error occurs.
    */
-  public Database connectToDatabase() throws HopException {
+  public Database connectToDatabase(IVariables variables) throws HopException {
     if ( this.getDbMeta() != null ) {
-      Database db = new Database( loggingObject, this.getDbMeta() );
+      Database db = new Database( loggingObject, variables, this.getDbMeta() );
       db.connect();
       return db;
     }
@@ -287,9 +286,7 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
   @Override
   public IRowMeta getRequiredFields( final IVariables variables ) throws HopException {
     if ( !this.useControlFile.getValue() ) {
-      final Database database = connectToDatabase();
-      database.shareWith( variables );
-
+      final Database database = connectToDatabase(variables);
       IRowMeta fields =
         database.getTableFieldsMeta(
           StringUtils.EMPTY,

@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 06-05-2007
  */
 public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // For Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "ActionAddResultFilenames.Filetype.All" ) };

@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.database.dialog;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -37,22 +38,24 @@ import java.lang.reflect.InvocationTargetException;
  * @since 07-apr-2005
  */
 public class GetDatabaseInfoProgressDialog {
-  private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class; // Needed by Translator
+  private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class; // For Translator
 
   private Shell shell;
-  private DatabaseMeta dbInfo;
+  private final IVariables variables;
+  private DatabaseMeta databaseMeta;
 
   /**
    * Creates a new dialog that will handle the wait while we're finding out what tables, views etc we can reach in the
    * database.
    */
-  public GetDatabaseInfoProgressDialog( Shell shell, DatabaseMeta dbInfo ) {
+  public GetDatabaseInfoProgressDialog( Shell shell, IVariables variables, DatabaseMeta databaseMeta ) {
     this.shell = shell;
-    this.dbInfo = dbInfo;
+    this.variables = variables;
+    this.databaseMeta = databaseMeta;
   }
 
   public DatabaseMetaInformation open() {
-    final DatabaseMetaInformation dmi = new DatabaseMetaInformation( dbInfo );
+    final DatabaseMetaInformation dmi = new DatabaseMetaInformation( variables, databaseMeta );
     IRunnableWithProgress op = monitor -> {
       try {
         dmi.getData( HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter( monitor ) );

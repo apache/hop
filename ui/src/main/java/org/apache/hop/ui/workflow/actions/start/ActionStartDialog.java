@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 public class ActionStartDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionStart.class; // Needed by Translator
+  private static final Class<?> PKG = ActionStart.class; // For Translator
 
   private static final String NOSCHEDULING = BaseMessages.getString( PKG, "ActionStart.Type.NoScheduling" );
 
@@ -113,7 +113,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "ActionStart.Dummy.Label" ) );
+    shell.setText( BaseMessages.getString( PKG, "ActionStart.Name" ) );
 
     int margin = props.getMargin();
 

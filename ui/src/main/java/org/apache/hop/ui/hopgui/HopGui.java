@@ -109,8 +109,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -169,8 +167,7 @@ public class HopGui
 
   public static final String ID_MAIN_MENU_HELP_PARENT_ID = "90000-menu-help";
   public static final String ID_MAIN_MENU_HELP_ABOUT = "90009-menu-help-about";
-  
-  
+
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
   public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
@@ -270,9 +267,11 @@ public class HopGui
   }
 
   private static final ISingletonProvider PROVIDER;
+
   static {
-    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( HopGui.class );
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(HopGui.class);
   }
+
   public static final HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
   }
@@ -286,7 +285,6 @@ public class HopGui
 
       // Note: this needs to be done before the look and feel is set
       OsHelper.initOsHandlers(display);
-      UIManager.setLookAndFeel(new MetalLookAndFeel());
 
       // Initialize the logging backend
       //
@@ -304,7 +302,7 @@ public class HopGui
 
       try {
         ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), hopGui.variables, HopExtensionPoint.HopGuiInit.id, hopGui );
+            hopGui.getLog(), hopGui.variables, HopExtensionPoint.HopGuiInit.id, hopGui);
       } catch (Exception e) {
         hopGui.getLog().logError("Error calling extension point plugin(s) for HopGuiInit", e);
       }
@@ -360,7 +358,8 @@ public class HopGui
     openingLastFiles = true; // TODO: make this configurable.
 
     try {
-      ExtensionPointHandler.callExtensionPoint(log, variables, HopExtensionPoint.HopGuiStart.id, this );
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopExtensionPoint.HopGuiStart.id, this);
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -374,7 +373,7 @@ public class HopGui
       auditDelegate.openLastFiles();
     }
     // On RAP, return here otherwise UIThread doesn't get terminated properly.
-    if ( EnvironmentUtils.getInstance().isWeb() ) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
       return;
     }
     boolean retry = true;
@@ -412,7 +411,7 @@ public class HopGui
 
       // Sort by id
       //
-      Collections.sort(perspectivePlugins, Comparator.comparing( p -> p.getIds()[ 0 ] ));
+      Collections.sort(perspectivePlugins, Comparator.comparing(p -> p.getIds()[0]));
 
       for (Plugin perspectivePlugin : perspectivePlugins) {
         Class<IHopPerspective> perspectiveClass =
@@ -503,7 +502,7 @@ public class HopGui
     mainMenuWidgets.registerGuiPluginObject(this);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
 
-    if ( EnvironmentUtils.getInstance().isWeb() ) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
     }
 
@@ -514,7 +513,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE,
-      label = "&File",
+      label = "i18n::HopGui.Menu.File",
       parentId = ID_MAIN_MENU)
   public void menuFile() {
     // Nothing is done here.
@@ -523,14 +522,14 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_NEW,
-      label = "New",
+      label = "i18n::HopGui.Menu.File.New",
       image = "ui/images/add.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_NEW,
       image = "ui/images/add.svg",
-      toolTip = "New")
+      toolTip = "i18n::HopGui.Menu.File.New")
   @GuiKeyboardShortcut(control = true, key = 'n')
   @GuiOsxKeyboardShortcut(command = true, key = 'n')
   public void menuFileNew() {
@@ -540,14 +539,14 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_OPEN,
-      label = "Open",
+      label = "i18n::HopGui.Menu.File.Open",
       image = "ui/images/open.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_OPEN,
       image = "ui/images/open.svg",
-      toolTip = "Open",
+      toolTip = "i18n::HopGui.Menu.File.Open",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'o')
   @GuiOsxKeyboardShortcut(command = true, key = 'o')
@@ -558,7 +557,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_OPEN_RECENT,
-      label = "Open recent...",
+      label = "i18n::HopGui.Menu.File.Open.Recent",
       image = "ui/images/open.svg",
       parentId = ID_MAIN_MENU_FILE)
   public void menuFileOpenRecent() {
@@ -568,14 +567,14 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_SAVE,
-      label = "Save",
+      label = "i18n::HopGui.Menu.File.Save",
       image = "ui/images/save.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_SAVE,
       image = "ui/images/save.svg",
-      toolTip = "Save")
+      toolTip = "i18n::HopGui.Menu.File.Save")
   @GuiKeyboardShortcut(control = true, key = 's')
   @GuiOsxKeyboardShortcut(command = true, key = 's')
   public void menuFileSave() {
@@ -585,34 +584,33 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_SAVE_AS,
-      label = "Save As...",
+      label = "i18n::HopGui.Menu.File.SaveAs",
       image = "ui/images/save-as.svg",
       parentId = ID_MAIN_MENU_FILE)
   @GuiToolbarElement(
       root = ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_SAVE_AS,
       image = "ui/images/save-as.svg",
-      toolTip = "Save as...")
+      toolTip = "i18n::HopGui.Menu.File.SaveAs")
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
 
   @GuiMenuElement(
-    root = ID_MAIN_MENU,
-    id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
-    separator = true,
-    label = "Export to SVG",
-    image = "ui/images/image.svg",
-    parentId = ID_MAIN_MENU_FILE)
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
+      separator = true,
+      label = "i18n::HopGui.Menu.File.ExportToSVG",
+      image = "ui/images/image.svg",
+      parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
     fileDelegate.exportToSvg();
   }
 
-
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_CLOSE,
-      label = "Close",
+      label = "i18n::HopGui.Menu.File.Close",
       parentId = ID_MAIN_MENU_FILE,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'w')
@@ -624,7 +622,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_CLOSE_ALL,
-      label = "Close all",
+      label = "i18n::HopGui.Menu.File.Close.All",
       parentId = ID_MAIN_MENU_FILE)
   @GuiKeyboardShortcut(control = true, shift=true, key = 'w')
   @GuiOsxKeyboardShortcut(command = true, shift=true, key = 'w')
@@ -637,7 +635,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_EXIT,
-      label = "Exit",
+      label = "i18n::HopGui.Menu.File.Quit",
       parentId = ID_MAIN_MENU_FILE,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'q')
@@ -656,7 +654,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_PARENT_ID,
-      label = "Edit",
+      label = "i18n::HopGui.Menu.Edit",
       parentId = ID_MAIN_MENU)
   public void menuEdit() {
     // Nothing is done here.
@@ -665,7 +663,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_UNDO,
-      label = "Undo",
+      label = "i18n::HopGui.Menu.Edit.Undo",
       image = "ui/images/undo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'z')
@@ -677,7 +675,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_REDO,
-      label = "Redo",
+      label = "i18n::HopGui.Menu.Edit.Redo",
       image = "ui/images/redo.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
@@ -689,7 +687,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_SELECT_ALL,
-      label = "Select all",
+      label = "i18n::HopGui.Menu.Edit.SelectAll",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'a')
@@ -701,7 +699,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_UNSELECT_ALL,
-      label = "Clear selection",
+      label = "i18n::HopGui.Menu.Edit.ClearSelection",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(key = SWT.ESC)
   @GuiOsxKeyboardShortcut(key = SWT.ESC)
@@ -712,7 +710,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_FIND,
-      label = "Find...",
+      label = "i18n::HopGui.Menu.Edit.Find",
       image = "ui/images/search.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(key = 'f', control = true)
@@ -727,8 +725,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_COPY,
-      label = "Copy selected to clipboard",
-      image = "ui/images/copy.svg",      
+      label = "i18n::HopGui.Menu.Edit.CopyToClipboard",
+      image = "ui/images/copy.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'c')
@@ -740,7 +738,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_PASTE,
-      label = "Paste from clipboard",
+      label = "i18n::HopGui.Menu.Edit.PasteFromClipboard",
       image = "ui/images/paste.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'v')
@@ -752,7 +750,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_CUT,
-      label = "Cut selected to clipboard",
+      label = "i18n::HopGui.Menu.Edit.Cut",
       image = "ui/images/cut.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = true, key = 'x')
@@ -764,7 +762,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_DELETE,
-      label = "Delete selected",
+      label = "i18n::HopGui.Menu.Edit.Delete",
       image = "ui/images/delete.svg",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(control = false, key = SWT.DEL)
@@ -776,7 +774,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_NAV_PREV,
-      label = "Go to previous file",
+      label = "i18n::HopGui.Menu.Edit.Navigate.Previous",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       separator = true)
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_LEFT)
@@ -787,7 +785,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_NAV_NEXT,
-      label = "Go to next file",
+      label = "i18n::HopGui.Menu.Edit.Navigate.Next",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void menuEditNavigateNextFile() {
@@ -797,7 +795,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PARENT_ID,
-      label = "Run",
+      label = "i18n::HopGui.Menu.Run",
       parentId = ID_MAIN_MENU)
   public void menuRun() {
     // Nothing is done here.
@@ -806,7 +804,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_START,
-      label = "Start execution",
+      label = "i18n::HopGui.Menu.Run.StartExecution",
       image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   @GuiKeyboardShortcut(key = SWT.F8)
@@ -817,7 +815,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_STOP,
-      label = "Stop execution",
+      label = "i18n::HopGui.Menu.Run.StopExecution",
       image = "ui/images/stop.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunStop() {
@@ -827,7 +825,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PAUSE,
-      label = "Pause execution",
+      label = "i18n::HopGui.Menu.Run.PauseExecution",
       image = "ui/images/pause.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
@@ -838,7 +836,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_RESUME,
-      label = "Resume execution",
+      label = "i18n::HopGui.Menu.Run.ResumeExecution",
       image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunResume() {
@@ -848,7 +846,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PREVIEW,
-      label = "Preview",
+      label = "i18n::HopGui.Menu.Run.Preview",
       image = "ui/images/preview.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
@@ -859,7 +857,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_DEBUG,
-      label = "Debug",
+      label = "i18n::HopGui.Menu.Run.Debug",
       image = "ui/images/debug.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunDebug() {
@@ -869,7 +867,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      label = "Tools",
+      label = "i18n::HopGui.Menu.Tools",
       parentId = ID_MAIN_MENU)
   public void menuTools() {
     // Nothing is done here.
@@ -878,7 +876,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_OPTIONS,
-      label = "Options...",
+      label = "i18n::HopGui.Menu.Edit.Options",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID)
   public void menuToolsOptions() {
     if (new EnterOptionsDialog(getShell()).open() != null) {
@@ -899,7 +897,7 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_SYSPROPS,
-      label = "Edit config variables...",
+      label = "i18n::HopGui.Menu.Tools.EditConfigVariables",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID)
   public void menuToolsEditConfigVariables() {
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
@@ -925,23 +923,21 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_HELP_PARENT_ID,
-      label = "&Help",
+      label = "i18n::HopGui.Menu.Help",
       parentId = ID_MAIN_MENU)
   public void menuHelp() {
     // Nothing is done here.
-  }  
-
+  }
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_HELP_ABOUT,
-      label = "About...",
+      label = "i18n::HopGui.Menu.Help.About",
       parentId = ID_MAIN_MENU_HELP_PARENT_ID)
   public void menuHelpAbout() {
     AboutDialog dialog = new AboutDialog(getShell());
     dialog.open();
   }
-  
 
   protected void addMainToolbar() {
     mainToolbar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
@@ -1150,7 +1146,7 @@ public class HopGui
     return shell;
   }
 
-  public void setShell( Shell shell ) {
+  public void setShell(Shell shell) {
     this.shell = shell;
   }
 
@@ -1434,7 +1430,7 @@ public class HopGui
     //
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.HopGuiGetSearchablesLocations.name(), locations );
+          log, variables, HopExtensionPoint.HopGuiGetSearchablesLocations.name(), locations);
     } catch (Exception e) {
       log.logError("Error adding to the list of searchables locations", e);
     }

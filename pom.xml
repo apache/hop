@@ -29,7 +29,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.60-SNAPSHOT</version>
+    <version>0.70-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>
@@ -859,7 +859,9 @@
                         <exclude>**/test/**/*.xlsx</exclude>
                         <exclude>**/test/**/*.edi</exclude>
 
+
                         <!-- Integration Test Exclusion -->
+                        <exclude>**/datasets/*.csv</exclude>
                         <exclude>**/it/**/*.csv</exclude>
 
                         <!-- External Integration Test Exclusion -->

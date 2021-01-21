@@ -90,7 +90,7 @@ import java.util.Set;
 
 public class SalesforceInputDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   private String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'XXX";
   private String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";

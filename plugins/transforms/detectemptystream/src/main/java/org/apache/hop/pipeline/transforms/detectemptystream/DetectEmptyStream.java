@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData> implements ITransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
 
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // Needed by Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStream( TransformMeta transformMeta, DetectEmptyStreamMeta meta, DetectEmptyStreamData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {

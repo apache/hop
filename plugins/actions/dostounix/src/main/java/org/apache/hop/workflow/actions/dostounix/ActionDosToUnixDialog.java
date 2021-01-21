@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 26-03-2008
  */
 public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDosToUnix.class; // Needed by Translator
+  private static final Class<?> PKG = ActionDosToUnix.class; // For Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobDosToUnix.Filetype.Xml" ),

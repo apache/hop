@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
  * @since Jan-2007
  */
 public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // Needed by Translator
+  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
 
   private static final String[] FILETYPES =
       new String[] {
@@ -727,8 +727,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     if (!Utils.isEmpty(wTablename.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, databaseMeta);
-        database.shareWith(variables);
+        Database database = new Database(loggingObject, variables, databaseMeta );
         try {
           database.connect();
           String schemaTable =

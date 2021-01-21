@@ -61,15 +61,14 @@ import java.util.regex.Pattern;
 
 @Action(
   id = "EVAL_FILES_METRICS",
-  i18nPackageName = "org.apache.hop.workflow.actions.evalfilesmetrics",
-  name = "ActionEvalFilesMetrics.Name",
-  description = "ActionEvalFilesMetrics.Description",
+  name = "i18n::ActionEvalFilesMetrics.Name",
+  description = "i18n::ActionEvalFilesMetrics.Description",
   image = "EvalFilesMetrics.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
   documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/evalfilesmetrics.html"
 )
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // Needed by Translator
+  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 
   
   public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;

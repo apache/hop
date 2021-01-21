@@ -35,7 +35,7 @@ import java.util.TimeZone;
  */
 public class SyslogDefs {
 
-  private static final Class<?> PKG = ActionSyslog.class; // Needed by Translator
+  private static final Class<?> PKG = ActionSyslog.class; // For Translator
 
   public static final String DEFAULT_PROTOCOL_UDP = "udp";
 

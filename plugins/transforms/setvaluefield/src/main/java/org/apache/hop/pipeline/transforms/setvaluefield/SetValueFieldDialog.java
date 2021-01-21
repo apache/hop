@@ -42,7 +42,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SetValueFieldDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
 
   private Text wTransformName;
 

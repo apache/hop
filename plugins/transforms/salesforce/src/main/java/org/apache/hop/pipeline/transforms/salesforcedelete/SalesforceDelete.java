@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
  * @since 10-06-2007
  */
 public class SalesforceDelete extends SalesforceTransform<SalesforceDeleteMeta,SalesforceDeleteData> implements ITransform<SalesforceDeleteMeta,SalesforceDeleteData> {
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   public SalesforceDelete( TransformMeta transformMeta, SalesforceDeleteMeta meta, SalesforceDeleteData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
@@ -189,7 +189,7 @@ public class SalesforceDelete extends SalesforceTransform<SalesforceDeleteMeta,S
       }
       // Simply add this row to the error row
       if ( log.isDebug() ) {
-        logDebug( "Passing row to error step" );
+        logDebug( "Passing row to error transform" );
       }
 
       for ( int i = 0; i < data.iBufferPos; i++ ) {

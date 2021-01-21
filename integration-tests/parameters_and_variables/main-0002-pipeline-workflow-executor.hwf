@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow>
+  <name>main-0002-pipeline-job-executor</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <workflow_status>0</workflow_status>
+  <created_user>-</created_user>
+  <created_date>2020/12/08 11:04:11.897</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2020/12/08 11:04:11.897</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>START</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0002-pipeline.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0002-pipeline.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check log</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>
+var txt = previous_result.getLogText();
+
+var ok = true;
+
+var expectedValues = [ 
+   [ "TEST2_PARAMETER1",   "TEST2_PARAMETER1 = >A1&lt;",        "A1" ],
+   [ "TEST2_PARAMETER1",   "TEST2_PARAMETER1 = >&lt;",          "an empty string" ],
+   [ "TEST2_PARAMETER1",   "TEST2_PARAMETER1 = >C1&lt;",        "C1" ],
+   [ "TEST2_PARAMETER1",   "TEST2_PARAMETER1 = >D1&lt;",        "D1" ],
+   [ "TEST2_PARAMETER2",   "TEST2_PARAMETER2 = >A2&lt;",        "A2" ],
+   [ "TEST2_PARAMETER2",   "TEST2_PARAMETER2 = >B2&lt;",        "B2" ],
+   [ "TEST2_PARAMETER2",   "TEST2_PARAMETER2 = >default2&lt;",  "default parameter value 'default2'" ],
+   [ "TEST2_PARAMETER2",   "TEST2_PARAMETER2 = >D2&lt;",        "D2" ]
+ ];
+
+for (var i = 0 ; i&lt;expectedValues.length ; i++) {
+  var expectedValue = expectedValues[i];
+  if ( !txt.contains(expectedValue[1])) {
+    ok = false;
+    log.logError("Expected variable '"+expectedValue[0]+"' to be set to '"+expectedValue[2]+"' at least once");
+  }
+}
+
+ok;</script>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>464</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>START</from>
+      <to>0002-pipeline.hpl</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0002-pipeline.hpl</from>
+      <to>Check log</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The test data contains 3 rows with values and one empty row.
+The parameter needs to contain all 4 values, even the empty value.
+The log needs to contain these values.
+</note>
+      <xloc>160</xloc>
+      <yloc>160</yloc>
+      <width>350</width>
+      <heigth>73</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

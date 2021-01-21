@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 27-10-2008
  */
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator
+  private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 
   private Button wbTable, wbSqlTable;
 
@@ -655,7 +655,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
             wSql.setText(sql);
             break;
           case SWT.YES:
-            Database db = new Database(loggingObject, inf);
+            Database db = new Database(loggingObject, variables, inf );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);

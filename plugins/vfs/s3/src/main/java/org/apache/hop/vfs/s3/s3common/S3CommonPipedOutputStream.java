@@ -45,7 +45,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /** Custom OutputStream that enables chunked uploads into S3 */
 public class S3CommonPipedOutputStream extends PipedOutputStream {
 
-  private static final Class<?> PKG = S3CommonPipedOutputStream.class;
+  private static final Class<?> PKG = S3CommonPipedOutputStream.class; // For Translator
   private static final Logger logger = LoggerFactory.getLogger(S3CommonPipedOutputStream.class);
   private static final ILogChannel consoleLog =
       new LogChannel(BaseMessages.getString(PKG, "TITLE.S3File"));

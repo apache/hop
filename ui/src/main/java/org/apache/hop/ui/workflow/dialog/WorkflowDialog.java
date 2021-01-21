@@ -71,7 +71,8 @@ import java.util.ArrayList;
  * @since 02-jul-2003
  */
 public class WorkflowDialog extends Dialog {
-  private static final Class<?> PKG = WorkflowDialog.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowDialog.class; // For Translator
+
   private static Class<?> PKGBASE = WorkflowMeta.class;
 
   private CTabFolder wTabFolder;

@@ -26,6 +26,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
@@ -38,8 +39,9 @@ import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 public class PipelineProfileFactory {
   public static final String RESULT_TRANSFORM_NAME = "calc stats";
 
-  private DatabaseMeta databaseMeta;
-  private String schemaTable;
+  private final IVariables variables;
+  private final DatabaseMeta databaseMeta;
+  private final String schemaTable;
 
   private IRowMeta tableLayout;
 
@@ -47,7 +49,8 @@ public class PipelineProfileFactory {
    * @param databaseMeta
    * @param schemaTable  the properly quoted schema-table combination
    */
-  public PipelineProfileFactory( DatabaseMeta databaseMeta, String schemaTable ) {
+  public PipelineProfileFactory( IVariables variables, DatabaseMeta databaseMeta, String schemaTable ) {
+    this.variables = variables;
     this.databaseMeta = databaseMeta;
     this.schemaTable = schemaTable;
   }
@@ -197,7 +200,7 @@ public class PipelineProfileFactory {
   }
 
   private IRowMeta getTableFields( ILoggingObject parentLoggingObject ) throws HopDatabaseException {
-    Database database = new Database( parentLoggingObject, databaseMeta );
+    Database database = new Database( parentLoggingObject, variables, databaseMeta );
     try {
       database.connect();
       return database.getTableFields( schemaTable );

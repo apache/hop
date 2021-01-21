@@ -63,15 +63,14 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
  * 
  */
 @Action( id = "XSLT",
-        i18nPackageName = "org.apache.hop.workflow.actions.xml.xslt",
-        name = "XSLT.Name",
-        description = "XSLT.Description",
+        name = "i18n::XSLT.Name",
+        description = "i18n::XSLT.Description",
         image = "XSLT.svg",
-        categoryDescription = "XSLT.Category",               
+        categoryDescription = "i18n::XSLT.Category",
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/xslt.html"
 )
 public class Xslt extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = Xslt.class; // For Translator
 
   public static String FACTORY_JAXP = "JAXP";
   public static String FACTORY_SAXON = "SAXON";

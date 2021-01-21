@@ -18,5 +18,5 @@
 package org.apache.hop.ui.core.widget.warning;
 
 public interface ISupportsWarning {
-  void addWarning( IWarning warningInterface );
+  void addWarning(IWarning warningInterface);
 }

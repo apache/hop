@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableExistsMeta.class; // Needed by Translator
+  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -317,8 +317,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, databaseMeta );
-      database.shareWith( variables );
+      Database database = new Database( loggingObject, variables, databaseMeta );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

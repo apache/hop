@@ -14,47 +14,12 @@
    id="svg6"
    sodipodi:docname="folder.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
-  <metadata
-     id="metadata12">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs10" />
-  <sodipodi:namedview
-     inkscape:document-rotation="0"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="2010"
-     inkscape:window-height="1276"
-     id="namedview8"
-     showgrid="false"
-     inkscape:zoom="42"
-     inkscape:cx="12"
-     inkscape:cy="12"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg6" />
   <path
      d="M0 0h24v24H0z"
      fill="none"
      id="path2" />
   <path
-     d="m 21.581913,4.8876829 h -9.57711 L 9.6105256,2.4285715 H 2.4276932 c -1.3168526,0 -2.38230606,1.1066001 -2.38230606,2.4591114 L 0.03341569,19.642352 c 0,1.352511 1.07742491,2.459112 2.39427751,2.459112 H 21.581913 c 1.316853,0 2.394278,-1.106601 2.394278,-2.459112 V 7.3467946 c 0,-1.3525114 -1.077425,-2.4591117 -2.394278,-2.4591117 z m 0,14.7546691 H 2.4276932 V 7.3467946 H 21.581913 Z"
+     d="m 20.799999,5.2499999 h -8.8 L 9.8,3 H 3.2 C 1.99,3 1.0110001,4.0124999 1.0110001,5.2499999 L 1,18.749999 C 1,19.987499 1.99,21 3.2,21 H 20.799999 C 22.01,21 23,19.987499 23,18.749999 V 7.5000001 C 23,6.2625 22.01,5.2499999 20.799999,5.2499999 Z m 0,13.4999991 H 3.2 V 7.5000001 h 17.599999 z"
      id="path4"
-     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.21323" />
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.11243" />
 </svg>

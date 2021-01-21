@@ -50,6 +50,11 @@ public @interface Action {
 
   String categoryDescription() default "";
 
+  /**
+   * Please use the i18n:package:key format in name, description and categoryDescription
+   * @return
+   */
+  @Deprecated
   String i18nPackageName() default "";
 
   String documentationUrl() default "";

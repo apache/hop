@@ -61,7 +61,7 @@ import java.util.ArrayList;
  */
 public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> implements ITransform<WorkflowExecutorMeta, WorkflowExecutorData> {
 
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // Needed by Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   public WorkflowExecutor( TransformMeta transformMeta, WorkflowExecutorMeta meta, WorkflowExecutorData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
@@ -365,7 +365,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       // First we need to load the mapping (pipeline)
       try {
 
-        data.executorWorkflowMeta = WorkflowExecutorMeta.loadWorkflowMeta( meta, this );
+        data.executorWorkflowMeta = WorkflowExecutorMeta.loadWorkflowMeta( meta, metadataProvider, this );
 
         // Do we have a workflow at all?
         //

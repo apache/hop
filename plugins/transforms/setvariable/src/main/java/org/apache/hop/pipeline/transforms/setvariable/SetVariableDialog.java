@@ -45,7 +45,7 @@ import java.util.*;
 import org.apache.hop.core.variables.IVariables;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SetVariableMeta.class; // Needed by Translator
+  private static final Class<?> PKG = SetVariableMeta.class; // For Translator
 
   public static final String STRING_USAGE_WARNING_PARAMETER = "SetVariableUsageWarning";
 

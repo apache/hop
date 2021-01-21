@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
@@ -62,87 +62,63 @@ import java.util.Objects;
  *       functionality is now taken over by techKeyCreation (which is cleaner).
  */
 @Transform(
-        id = "CombinationLookup",
-        image = "combinationlookup.svg",
-        name = "CombinationLookup.Name",
-        description = "CombinationLookup.Description",
-        categoryDescription = "BaseTransform.Category.DataWarehouse",
-        i18nPackageName = "org.apache.hop.pipeline.transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/combinationlookup.html"
-)
-@InjectionSupported( localizationPrefix = "CombinationLookup.Injection." )
-public class CombinationLookupMeta extends BaseTransformMeta implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
+    id = "CombinationLookup",
+    image = "combinationlookup.svg",
+    name = "i18n::CombinationLookup.Name",
+    description = "i18n::CombinationLookup.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/plugins/transforms/combinationlookup.html")
+@InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
+public class CombinationLookupMeta extends BaseTransformMeta
+    implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
 
-  private static final Class<?> PKG = CombinationLookupMeta.class; // Needed by Translator
+  private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
-  /**
-   * Default cache size: 0 will cache everything
-   */
+  /** Default cache size: 0 will cache everything */
   public static final int DEFAULT_CACHE_SIZE = 9999;
 
-  /**
-   * what's the lookup schema?
-   */
-  @Injection( name = "SCHEMA_NAME" )
+  /** what's the lookup schema? */
+  @Injection(name = "SCHEMA_NAME")
   private String schemaName;
 
-  /**
-   * what's the lookup table?
-   */
-  @Injection( name = "TABLE_NAME" )
+  /** what's the lookup table? */
+  @Injection(name = "TABLE_NAME")
   private String tableName;
 
-  /**
-   * database connection
-   */
+  /** database connection */
   private DatabaseMeta databaseMeta;
 
-  /**
-   * replace fields with technical key?
-   */
-  @Injection( name = "REPLACE_FIELDS" )
+  /** replace fields with technical key? */
+  @Injection(name = "REPLACE_FIELDS")
   private boolean replaceFields;
 
-  /**
-   * which fields do we use to look up a value?
-   */
-  @Injection( name = "KEY_FIELDS" )
+  /** which fields do we use to look up a value? */
+  @Injection(name = "KEY_FIELDS")
   private String[] keyField;
 
-  /**
-   * With which fields in dimension do we look up?
-   */
-  @Injection( name = "KEY_LOOKUP" )
+  /** With which fields in dimension do we look up? */
+  @Injection(name = "KEY_LOOKUP")
   private String[] keyLookup;
 
-  /**
-   * Use checksum algorithm to limit index size?
-   */
-  @Injection( name = "USE_HASH" )
+  /** Use checksum algorithm to limit index size? */
+  @Injection(name = "USE_HASH")
   private boolean useHash;
 
-  /**
-   * Name of the CRC field in the dimension
-   */
-  @Injection( name = "HASH_FIELD" )
+  /** Name of the CRC field in the dimension */
+  @Injection(name = "HASH_FIELD")
   private String hashField;
 
-  /**
-   * Technical Key field to return
-   */
-  @Injection( name = "TECHNICAL_KEY_FIELD" )
+  /** Technical Key field to return */
+  @Injection(name = "TECHNICAL_KEY_FIELD")
   private String technicalKeyField;
 
-  /**
-   * Where to get the sequence from...
-   */
-  @Injection( name = "SEQUENCE_FROM" )
+  /** Where to get the sequence from... */
+  @Injection(name = "SEQUENCE_FROM")
   private String sequenceFrom;
 
-  /**
-   * Commit size for insert / update
-   */
-  @Injection( name = "COMMIT_SIZE" )
+  /** Commit size for insert / update */
+  @Injection(name = "COMMIT_SIZE")
   private int commitSize;
 
   /**
@@ -150,51 +126,43 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
    *
    * @author nicow2
    */
-  @Injection( name = "PRELOAD_CACHE" )
+  @Injection(name = "PRELOAD_CACHE")
   private boolean preloadCache = false;
 
-  /**
-   * Limit the cache size to this!
-   */
-  @Injection( name = "CACHE_SIZE" )
+  /** Limit the cache size to this! */
+  @Injection(name = "CACHE_SIZE")
   private int cacheSize;
 
-  /**
-   * Use the auto-increment feature of the database to generate keys.
-   */
-  @Injection( name = "AUTO_INC" )
+  /** Use the auto-increment feature of the database to generate keys. */
+  @Injection(name = "AUTO_INC")
   private boolean useAutoinc;
 
-  /**
-   * Which method to use for the creation of the tech key
-   */
-  @Injection( name = "TECHNICAL_KEY_CREATION" )
+  /** Which method to use for the creation of the tech key */
+  @Injection(name = "TECHNICAL_KEY_CREATION")
   private String techKeyCreation = null;
 
-  @Injection( name = "LAST_UPDATE_FIELD" )
+  @Injection(name = "LAST_UPDATE_FIELD")
   private String lastUpdateField;
 
   public static String CREATION_METHOD_AUTOINC = "autoinc";
   public static String CREATION_METHOD_SEQUENCE = "sequence";
   public static String CREATION_METHOD_TABLEMAX = "tablemax";
 
-  @Injection( name = "CONNECTIONNAME" )
-  public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( getParentTransformMeta().getParentPipelineMeta().getDatabases(), connectionName );
+  @Injection(name = "CONNECTIONNAME")
+  public void setConnection(String connectionName) {
+    databaseMeta =
+        DatabaseMeta.findDatabase(
+            getParentTransformMeta().getParentPipelineMeta().getDatabases(), connectionName);
   }
 
-  /**
-   * @return Returns the database.
-   */
+  /** @return Returns the database. */
   @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
 
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabaseMeta( DatabaseMeta database ) {
+  /** @param database The database to set. */
+  public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
   }
 
@@ -203,7 +171,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
    *
    * @param techKeyCreation which method to use for the creation of the technical key.
    */
-  public void setTechKeyCreation( String techKeyCreation ) {
+  public void setTechKeyCreation(String techKeyCreation) {
     this.techKeyCreation = techKeyCreation;
   }
 
@@ -216,183 +184,136 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     return this.techKeyCreation;
   }
 
-  /**
-   * @return Returns the commitSize.
-   */
+  /** @return Returns the commitSize. */
   public int getCommitSize() {
     return commitSize;
   }
 
-  /**
-   * @param commitSize The commitSize to set.
-   */
-  public void setCommitSize( int commitSize ) {
+  /** @param commitSize The commitSize to set. */
+  public void setCommitSize(int commitSize) {
     this.commitSize = commitSize;
   }
 
-  /**
-   * @return Returns the cacheSize.
-   */
+  /** @return Returns the cacheSize. */
   public int getCacheSize() {
     return cacheSize;
   }
 
-  /**
-   * @param cacheSize The cacheSize to set.
-   */
-  public void setCacheSize( int cacheSize ) {
+  /** @param cacheSize The cacheSize to set. */
+  public void setCacheSize(int cacheSize) {
     this.cacheSize = cacheSize;
   }
 
-  /**
-   * @return Returns the hashField.
-   */
+  /** @return Returns the hashField. */
   public String getHashField() {
     return hashField;
   }
 
-  /**
-   * @param hashField The hashField to set.
-   */
-  public void setHashField( String hashField ) {
+  /** @param hashField The hashField to set. */
+  public void setHashField(String hashField) {
     this.hashField = hashField;
   }
 
-  /**
-   * @return Returns the keyField (names in the stream).
-   */
+  /** @return Returns the keyField (names in the stream). */
   public String[] getKeyField() {
     return keyField;
   }
 
-  /**
-   * @param keyField The keyField to set.
-   */
-  public void setKeyField( String[] keyField ) {
+  /** @param keyField The keyField to set. */
+  public void setKeyField(String[] keyField) {
     this.keyField = keyField;
   }
 
-  /**
-   * @return Returns the keyLookup (names in the dimension table)
-   */
+  /** @return Returns the keyLookup (names in the dimension table) */
   public String[] getKeyLookup() {
     return keyLookup;
   }
 
-  /**
-   * @param keyLookup The keyLookup to set.
-   */
-  public void setKeyLookup( String[] keyLookup ) {
+  /** @param keyLookup The keyLookup to set. */
+  public void setKeyLookup(String[] keyLookup) {
     this.keyLookup = keyLookup;
   }
 
-  /**
-   * @return Returns the replaceFields.
-   */
+  /** @return Returns the replaceFields. */
   public boolean replaceFields() {
     return replaceFields;
   }
 
-  /**
-   * @param replaceFields The replaceFields to set.
-   */
-  public void setReplaceFields( boolean replaceFields ) {
+  /** @param replaceFields The replaceFields to set. */
+  public void setReplaceFields(boolean replaceFields) {
     this.replaceFields = replaceFields;
   }
 
-  /**
-   * @param preloadCache true to preload the cache
-   */
-  public void setPreloadCache( boolean preloadCache ) {
+  /** @param preloadCache true to preload the cache */
+  public void setPreloadCache(boolean preloadCache) {
     this.preloadCache = preloadCache;
   }
 
-  /**
-   * @return Returns true if preload the cache.
-   */
+  /** @return Returns true if preload the cache. */
   public boolean getPreloadCache() {
     return preloadCache;
   }
 
-  /**
-   * @return Returns the sequenceFrom.
-   */
+  /** @return Returns the sequenceFrom. */
   public String getSequenceFrom() {
     return sequenceFrom;
   }
 
-  /**
-   * @param sequenceFrom The sequenceFrom to set.
-   */
-  public void setSequenceFrom( String sequenceFrom ) {
+  /** @param sequenceFrom The sequenceFrom to set. */
+  public void setSequenceFrom(String sequenceFrom) {
     this.sequenceFrom = sequenceFrom;
   }
 
-  /**
-   * @return Returns the tablename.
-   */
+  /** @return Returns the tablename. */
   @Override
   public String getTableName() {
     return tableName;
   }
 
-  /**
-   * @param tableName The tablename to set.
-   */
-  public void setTablename( String tableName ) {
+  /** @param tableName The tablename to set. */
+  public void setTablename(String tableName) {
     this.tableName = tableName;
   }
 
-  /**
-   * @return Returns the technicalKeyField.
-   */
+  /** @return Returns the technicalKeyField. */
   public String getTechnicalKeyField() {
     return technicalKeyField;
   }
 
-  /**
-   * @param technicalKeyField The technicalKeyField to set.
-   */
-  public void setTechnicalKeyField( String technicalKeyField ) {
+  /** @param technicalKeyField The technicalKeyField to set. */
+  public void setTechnicalKeyField(String technicalKeyField) {
     this.technicalKeyField = technicalKeyField;
   }
 
-  /**
-   * @return Returns the useAutoinc.
-   */
+  /** @return Returns the useAutoinc. */
   public boolean isUseAutoinc() {
     return useAutoinc;
   }
 
-  /**
-   * @param useAutoinc The useAutoinc to set.
-   */
-  public void setUseAutoinc( boolean useAutoinc ) {
+  /** @param useAutoinc The useAutoinc to set. */
+  public void setUseAutoinc(boolean useAutoinc) {
     this.useAutoinc = useAutoinc;
   }
 
-  /**
-   * @return Returns the useHash.
-   */
+  /** @return Returns the useHash. */
   public boolean useHash() {
     return useHash;
   }
 
-  /**
-   * @param useHash The useHash to set.
-   */
-  public void setUseHash( boolean useHash ) {
+  /** @param useHash The useHash to set. */
+  public void setUseHash(boolean useHash) {
     this.useHash = useHash;
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode, metadataProvider );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode, metadataProvider);
   }
 
-  public void allocate( int nrkeys ) {
-    keyField = new String[ nrkeys ];
-    keyLookup = new String[ nrkeys ];
+  public void allocate(int nrkeys) {
+    keyField = new String[nrkeys];
+    keyLookup = new String[nrkeys];
   }
 
   @Override
@@ -401,65 +322,67 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
     int nrkeys = keyField.length;
 
-    retval.allocate( nrkeys );
-    System.arraycopy( keyField, 0, retval.keyField, 0, nrkeys );
-    System.arraycopy( keyLookup, 0, retval.keyLookup, 0, nrkeys );
+    retval.allocate(nrkeys);
+    System.arraycopy(keyField, 0, retval.keyField, 0, nrkeys);
+    System.arraycopy(keyLookup, 0, retval.keyLookup, 0, nrkeys);
 
     return retval;
   }
 
-  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     this.databases = databases;
     try {
       String commit, csize;
 
-      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
-      tableName = XmlHandler.getTagValue( transformNode, "table" );
-      String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
-      commit = XmlHandler.getTagValue( transformNode, "commit" );
-      commitSize = Const.toInt( commit, 0 );
-      csize = XmlHandler.getTagValue( transformNode, "cache_size" );
-      cacheSize = Const.toInt( csize, 0 );
+      schemaName = XmlHandler.getTagValue(transformNode, "schema");
+      tableName = XmlHandler.getTagValue(transformNode, "table");
+      String con = XmlHandler.getTagValue(transformNode, "connection");
+      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
+      commit = XmlHandler.getTagValue(transformNode, "commit");
+      commitSize = Const.toInt(commit, 0);
+      csize = XmlHandler.getTagValue(transformNode, "cache_size");
+      cacheSize = Const.toInt(csize, 0);
 
-      replaceFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace" ) );
-      preloadCache = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "preloadCache" ) );
-      useHash = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "crc" ) );
+      replaceFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "replace"));
+      preloadCache = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "preloadCache"));
+      useHash = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "crc"));
 
-      hashField = XmlHandler.getTagValue( transformNode, "crcfield" );
+      hashField = XmlHandler.getTagValue(transformNode, "crcfield");
 
-      Node keys = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrkeys = XmlHandler.countNodes( keys, "key" );
+      Node keys = XmlHandler.getSubNode(transformNode, "fields");
+      int nrkeys = XmlHandler.countNodes(keys, "key");
 
-      allocate( nrkeys );
+      allocate(nrkeys);
 
       // Read keys to dimension
-      for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XmlHandler.getSubNodeByNr( keys, "key", i );
-        keyField[ i ] = XmlHandler.getTagValue( knode, "name" );
-        keyLookup[ i ] = XmlHandler.getTagValue( knode, "lookup" );
+      for (int i = 0; i < nrkeys; i++) {
+        Node knode = XmlHandler.getSubNodeByNr(keys, "key", i);
+        keyField[i] = XmlHandler.getTagValue(knode, "name");
+        keyLookup[i] = XmlHandler.getTagValue(knode, "lookup");
       }
 
       // If this is empty: use auto-increment field!
-      sequenceFrom = XmlHandler.getTagValue( transformNode, "sequence" );
+      sequenceFrom = XmlHandler.getTagValue(transformNode, "sequence");
 
-      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      Node retkey = XmlHandler.getSubNode( fields, "return" );
-      technicalKeyField = XmlHandler.getTagValue( retkey, "name" );
-      useAutoinc = !"N".equalsIgnoreCase( XmlHandler.getTagValue( retkey, "use_autoinc" ) );
-      lastUpdateField = XmlHandler.getTagValue( transformNode, "last_update_field" );
+      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      Node retkey = XmlHandler.getSubNode(fields, "return");
+      technicalKeyField = XmlHandler.getTagValue(retkey, "name");
+      useAutoinc = !"N".equalsIgnoreCase(XmlHandler.getTagValue(retkey, "use_autoinc"));
+      lastUpdateField = XmlHandler.getTagValue(transformNode, "last_update_field");
 
-      setTechKeyCreation( XmlHandler.getTagValue( retkey, "creation_method" ) );
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "CombinationLookupMeta.Exception.UnableToLoadTransformMeta" ), e );
+      setTechKeyCreation(XmlHandler.getTagValue(retkey, "creation_method"));
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "CombinationLookupMeta.Exception.UnableToLoadTransformMeta"),
+          e);
     }
   }
 
   @Override
   public void setDefault() {
     schemaName = "";
-    tableName = BaseMessages.getString( PKG, "CombinationLookupMeta.DimensionTableName.Label" );
+    tableName = BaseMessages.getString(PKG, "CombinationLookupMeta.DimensionTableName.Label");
     databaseMeta = null;
     commitSize = 100;
     cacheSize = DEFAULT_CACHE_SIZE;
@@ -469,12 +392,12 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     hashField = "hashcode";
     int nrkeys = 0;
 
-    allocate( nrkeys );
+    allocate(nrkeys);
 
     // Read keys to dimension
-    for ( int i = 0; i < nrkeys; i++ ) {
-      keyField[ i ] = "key" + i;
-      keyLookup[ i ] = "keylookup" + i;
+    for (int i = 0; i < nrkeys; i++) {
+      keyField[i] = "key" + i;
+      keyLookup[i] = "keylookup" + i;
     }
 
     technicalKeyField = "technical/surrogate key field";
@@ -482,19 +405,25 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    IValueMeta v = new ValueMetaInteger( technicalKeyField );
-    v.setLength( 10 );
-    v.setPrecision( 0 );
-    v.setOrigin( origin );
-    row.addValueMeta( v );
+  public void getFields(
+      IRowMeta row,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    IValueMeta v = new ValueMetaInteger(technicalKeyField);
+    v.setLength(10);
+    v.setPrecision(0);
+    v.setOrigin(origin);
+    row.addValueMeta(v);
 
-    if ( replaceFields ) {
-      for ( int i = 0; i < keyField.length; i++ ) {
-        int idx = row.indexOfValue( keyField[ i ] );
-        if ( idx >= 0 ) {
-          row.removeValueMeta( idx );
+    if (replaceFields) {
+      for (int i = 0; i < keyField.length; i++) {
+        int idx = row.indexOfValue(keyField[i]);
+        if (idx >= 0) {
+          row.removeValueMeta(idx);
         }
       }
     }
@@ -502,221 +431,265 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 512 );
+    StringBuilder retval = new StringBuilder(512);
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "connection",
-      databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "replace", replaceFields ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "preloadCache", preloadCache ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "crc", useHash ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "crcfield", hashField ) );
+    retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
+    retval.append("      ").append(XmlHandler.addTagValue("table", tableName));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
+    retval.append("      ").append(XmlHandler.addTagValue("commit", commitSize));
+    retval.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
+    retval.append("      ").append(XmlHandler.addTagValue("replace", replaceFields));
+    retval.append("      ").append(XmlHandler.addTagValue("preloadCache", preloadCache));
+    retval.append("      ").append(XmlHandler.addTagValue("crc", useHash));
+    retval.append("      ").append(XmlHandler.addTagValue("crcfield", hashField));
 
-    retval.append( "      <fields>" ).append( Const.CR );
-    for ( int i = 0; i < keyField.length; i++ ) {
-      retval.append( "        <key>" ).append( Const.CR );
-      retval.append( "          " ).append( XmlHandler.addTagValue( "name", keyField[ i ] ) );
-      retval.append( "          " ).append( XmlHandler.addTagValue( "lookup", keyLookup[ i ] ) );
-      retval.append( "        </key>" ).append( Const.CR );
+    retval.append("      <fields>").append(Const.CR);
+    for (int i = 0; i < keyField.length; i++) {
+      retval.append("        <key>").append(Const.CR);
+      retval.append("          ").append(XmlHandler.addTagValue("name", keyField[i]));
+      retval.append("          ").append(XmlHandler.addTagValue("lookup", keyLookup[i]));
+      retval.append("        </key>").append(Const.CR);
     }
 
-    retval.append( "        <return>" ).append( Const.CR );
-    retval.append( "          " ).append( XmlHandler.addTagValue( "name", technicalKeyField ) );
-    retval.append( "          " ).append( XmlHandler.addTagValue( "creation_method", techKeyCreation ) );
-    retval.append( "          " ).append( XmlHandler.addTagValue( "use_autoinc", useAutoinc ) );
-    retval.append( "        </return>" ).append( Const.CR );
+    retval.append("        <return>").append(Const.CR);
+    retval.append("          ").append(XmlHandler.addTagValue("name", technicalKeyField));
+    retval.append("          ").append(XmlHandler.addTagValue("creation_method", techKeyCreation));
+    retval.append("          ").append(XmlHandler.addTagValue("use_autoinc", useAutoinc));
+    retval.append("        </return>").append(Const.CR);
 
-    retval.append( "      </fields>" ).append( Const.CR );
+    retval.append("      </fields>").append(Const.CR);
 
     // If sequence is empty: use auto-increment field!
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sequence", sequenceFrom ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "last_update_field", lastUpdateField ) );
+    retval.append("      ").append(XmlHandler.addTagValue("sequence", sequenceFrom));
+    retval.append("      ").append(XmlHandler.addTagValue("last_update_field", lastUpdateField));
 
     return retval.toString();
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
 
-    if ( databaseMeta != null ) {
-      Database db = new Database( loggingObject, databaseMeta );
+    if (databaseMeta != null) {
+      Database db = new Database(loggingObject, variables, databaseMeta );
       try {
         db.connect();
 
-        if ( !Utils.isEmpty( tableName ) ) {
+        if (!Utils.isEmpty(tableName)) {
           boolean first = true;
           boolean errorFound = false;
           errorMessage = "";
 
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
-          IRowMeta r = db.getTableFields( schemaTable );
-          if ( r != null ) {
-            for ( int i = 0; i < keyLookup.length; i++ ) {
-              String lufield = keyLookup[ i ];
+          String schemaTable =
+              databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+          IRowMeta r = db.getTableFields(schemaTable);
+          if (r != null) {
+            for (int i = 0; i < keyLookup.length; i++) {
+              String lufield = keyLookup[i];
 
-              IValueMeta v = r.searchValueMeta( lufield );
-              if ( v == null ) {
-                if ( first ) {
+              IValueMeta v = r.searchValueMeta(lufield);
+              if (v == null) {
+                if (first) {
                   first = false;
                   errorMessage +=
-                    BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.MissingCompareFields" )
-                      + Const.CR;
+                      BaseMessages.getString(
+                              PKG, "CombinationLookupMeta.CheckResult.MissingCompareFields")
+                          + Const.CR;
                 }
                 errorFound = true;
                 errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( errorFound ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+            if (errorFound) {
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               cr =
-                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-                  PKG, "CombinationLookupMeta.CheckResult.AllFieldsFound" ), transformMeta );
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_OK,
+                      BaseMessages.getString(
+                          PKG, "CombinationLookupMeta.CheckResult.AllFieldsFound"),
+                      transformMeta);
             }
-            remarks.add( cr );
+            remarks.add(cr);
 
             /* Also, check the fields: tk, version, from-to, ... */
-            if ( r.indexOfValue( technicalKeyField ) < 0 ) {
+            if (r.indexOfValue(technicalKeyField) < 0) {
               errorMessage =
-                BaseMessages.getString(
-                  PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyNotFound", technicalKeyField )
-                  + Const.CR;
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+                  BaseMessages.getString(
+                          PKG,
+                          "CombinationLookupMeta.CheckResult.TechnicalKeyNotFound",
+                          technicalKeyField)
+                      + Const.CR;
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               errorMessage =
-                BaseMessages.getString(
-                  PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyFound", technicalKeyField )
-                  + Const.CR;
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
+                  BaseMessages.getString(
+                          PKG,
+                          "CombinationLookupMeta.CheckResult.TechnicalKeyFound",
+                          technicalKeyField)
+                      + Const.CR;
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
             }
-            remarks.add( cr );
+            remarks.add(cr);
           } else {
             errorMessage =
-              BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-            remarks.add( cr );
+                BaseMessages.getString(
+                    PKG, "CombinationLookupMeta.CheckResult.CouldNotReadTableInfo");
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            remarks.add(cr);
           }
         }
 
         // Look up fields in the input stream <prev>
-        if ( prev != null && prev.size() > 0 ) {
+        if (prev != null && prev.size() > 0) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;
 
-          for ( int i = 0; i < keyField.length; i++ ) {
-            IValueMeta v = prev.searchValueMeta( keyField[ i ] );
-            if ( v == null ) {
-              if ( first ) {
+          for (int i = 0; i < keyField.length; i++) {
+            IValueMeta v = prev.searchValueMeta(keyField[i]);
+            if (v == null) {
+              if (first) {
                 first = false;
                 errorMessage +=
-                  BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.MissingFields" ) + Const.CR;
+                    BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.MissingFields")
+                        + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + keyField[ i ] + Const.CR;
+              errorMessage += "\t\t" + keyField[i] + Const.CR;
             }
           }
-          if ( errorFound ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
+          if (errorFound) {
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
             cr =
-              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-                PKG, "CombinationLookupMeta.CheckResult.AllFieldsFoundInInputStream" ), transformMeta );
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(
+                        PKG, "CombinationLookupMeta.CheckResult.AllFieldsFoundInInputStream"),
+                    transformMeta);
           }
-          remarks.add( cr );
+          remarks.add(cr);
         } else {
           errorMessage =
-            BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-          remarks.add( cr );
+              BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields")
+                  + Const.CR;
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          remarks.add(cr);
         }
 
         // Check sequence
-        if ( databaseMeta.supportsSequences() && CREATION_METHOD_SEQUENCE.equals( getTechKeyCreation() ) ) {
-          if ( Utils.isEmpty( sequenceFrom ) ) {
+        if (databaseMeta.supportsSequences()
+            && CREATION_METHOD_SEQUENCE.equals(getTechKeyCreation())) {
+          if (Utils.isEmpty(sequenceFrom)) {
             errorMessage +=
-              BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorNoSequenceName" ) + "!";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-            remarks.add( cr );
+                BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.ErrorNoSequenceName")
+                    + "!";
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            remarks.add(cr);
           } else {
             // It doesn't make sense to check the sequence name
             // if it's not filled in.
-            if ( db.checkSequenceExists( sequenceFrom ) ) {
+            if (db.checkSequenceExists(sequenceFrom)) {
               errorMessage =
-                BaseMessages
-                  .getString( PKG, "CombinationLookupMeta.CheckResult.ReadingSequenceOK", sequenceFrom );
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
-              remarks.add( cr );
+                  BaseMessages.getString(
+                      PKG, "CombinationLookupMeta.CheckResult.ReadingSequenceOK", sequenceFrom);
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+              remarks.add(cr);
             } else {
               errorMessage +=
-                BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorReadingSequence" )
-                  + sequenceFrom + "!";
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-              remarks.add( cr );
+                  BaseMessages.getString(
+                          PKG, "CombinationLookupMeta.CheckResult.ErrorReadingSequence")
+                      + sequenceFrom
+                      + "!";
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              remarks.add(cr);
             }
           }
         }
 
-        if ( techKeyCreation != null ) {
+        if (techKeyCreation != null) {
           // post 2.2 version
-          if ( !( CREATION_METHOD_AUTOINC.equals( techKeyCreation )
-            || CREATION_METHOD_SEQUENCE.equals( techKeyCreation ) || CREATION_METHOD_TABLEMAX
-            .equals( techKeyCreation ) ) ) {
+          if (!(CREATION_METHOD_AUTOINC.equals(techKeyCreation)
+              || CREATION_METHOD_SEQUENCE.equals(techKeyCreation)
+              || CREATION_METHOD_TABLEMAX.equals(techKeyCreation))) {
             errorMessage +=
-              BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorTechKeyCreation" )
-                + ": " + techKeyCreation + "!";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-            remarks.add( cr );
+                BaseMessages.getString(
+                        PKG, "CombinationLookupMeta.CheckResult.ErrorTechKeyCreation")
+                    + ": "
+                    + techKeyCreation
+                    + "!";
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            remarks.add(cr);
           }
-
         }
-      } catch ( HopException e ) {
+      } catch (HopException e) {
         errorMessage =
-          BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-        remarks.add( cr );
+            BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.ErrorOccurred")
+                + e.getMessage();
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        remarks.add(cr);
       } finally {
         db.disconnect();
       }
     } else {
-      errorMessage = BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
-      remarks.add( cr );
+      errorMessage =
+          BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.InvalidConnection");
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this transform!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "CombinationLookupMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
+      remarks.add(cr);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "CombinationLookupMeta.CheckResult.NoInputReceived" ), transformMeta );
-      remarks.add( cr );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.NoInputReceived"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 
   @Override
-  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IHopMetadataProvider metadataProvider ) {
-    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+  public SqlStatement getSqlStatements(
+      IVariables variables,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      IHopMetadataProvider metadataProvider) {
+    SqlStatement retval =
+        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     int i;
 
-    if ( databaseMeta != null ) {
-      if ( prev != null && prev.size() > 0 ) {
-        if ( !Utils.isEmpty( tableName ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
-          Database db = new Database( loggingObject, databaseMeta );
+    if (databaseMeta != null) {
+      if (prev != null && prev.size() > 0) {
+        if (!Utils.isEmpty(tableName)) {
+          String schemaTable =
+              databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+          Database db = new Database(loggingObject, variables, databaseMeta );
           try {
             boolean doHash = false;
             String crTable = null;
@@ -727,120 +700,129 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
             IRowMeta fields = new RowMeta();
 
             // First, the new technical key...
-            IValueMeta vkeyfield = new ValueMetaInteger( technicalKeyField );
-            vkeyfield.setLength( 10 );
-            vkeyfield.setPrecision( 0 );
+            IValueMeta vkeyfield = new ValueMetaInteger(technicalKeyField);
+            vkeyfield.setLength(10);
+            vkeyfield.setPrecision(0);
 
             // Then the hashcode (optional)
             IValueMeta vhashfield = null;
-            if ( useHash && !Utils.isEmpty( hashField ) ) {
-              vhashfield = new ValueMetaInteger( hashField );
-              vhashfield.setLength( 15 );
-              vhashfield.setPrecision( 0 );
+            if (useHash && !Utils.isEmpty(hashField)) {
+              vhashfield = new ValueMetaInteger(hashField);
+              vhashfield.setLength(15);
+              vhashfield.setPrecision(0);
               doHash = true;
             }
 
             // Then the last update field (optional)
             IValueMeta vLastUpdateField = null;
-            if ( !Utils.isEmpty( lastUpdateField ) ) {
-              vLastUpdateField = new ValueMetaDate( lastUpdateField );
+            if (!Utils.isEmpty(lastUpdateField)) {
+              vLastUpdateField = new ValueMetaDate(lastUpdateField);
             }
 
-            if ( !db.checkTableExists( schemaTable ) ) {
+            if (!db.checkTableExists(schemaTable)) {
               // Add technical key field.
-              fields.addValueMeta( vkeyfield );
+              fields.addValueMeta(vkeyfield);
 
               // Add the keys only to the table
-              if ( keyField != null && keyLookup != null ) {
+              if (keyField != null && keyLookup != null) {
                 int cnt = keyField.length;
-                for ( i = 0; i < cnt; i++ ) {
+                for (i = 0; i < cnt; i++) {
                   String errorField = "";
 
                   // Find the value in the stream
-                  IValueMeta v = prev.searchValueMeta( keyField[ i ] );
-                  if ( v != null ) {
-                    String name = keyLookup[ i ];
+                  IValueMeta v = prev.searchValueMeta(keyField[i]);
+                  if (v != null) {
+                    String name = keyLookup[i];
                     IValueMeta newValue = v.clone();
-                    newValue.setName( name );
+                    newValue.setName(name);
 
-                    if ( name.equals( vkeyfield.getName() )
-                      || ( doHash == true && name.equals( vhashfield.getName() ) ) ) {
+                    if (name.equals(vkeyfield.getName())
+                        || (doHash == true && name.equals(vhashfield.getName()))) {
                       errorField += name;
                     }
-                    if ( errorField.length() > 0 ) {
-                      retval.setError( BaseMessages.getString(
-                        PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField ) );
+                    if (errorField.length() > 0) {
+                      retval.setError(
+                          BaseMessages.getString(
+                              PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField));
                     } else {
-                      fields.addValueMeta( newValue );
+                      fields.addValueMeta(newValue);
                     }
                   }
                 }
               }
 
-              if ( doHash == true ) {
-                fields.addValueMeta( vhashfield );
+              if (doHash == true) {
+                fields.addValueMeta(vhashfield);
               }
 
-              if ( vLastUpdateField != null ) {
-                fields.addValueMeta( vLastUpdateField );
+              if (vLastUpdateField != null) {
+                fields.addValueMeta(vLastUpdateField);
               }
             } else {
               // Table already exists
 
               // Get the fields that are in the table now:
-              IRowMeta tabFields = db.getTableFields( schemaTable );
+              IRowMeta tabFields = db.getTableFields(schemaTable);
 
               // Don't forget to quote these as well...
-              databaseMeta.quoteReservedWords( tabFields );
+              databaseMeta.quoteReservedWords(tabFields);
 
-              if ( tabFields.searchValueMeta( vkeyfield.getName() ) == null ) {
+              if (tabFields.searchValueMeta(vkeyfield.getName()) == null) {
                 // Add technical key field if it didn't exist yet
-                fields.addValueMeta( vkeyfield );
+                fields.addValueMeta(vkeyfield);
               }
 
               // Add the already existing fields
               int cnt = tabFields.size();
-              for ( i = 0; i < cnt; i++ ) {
-                IValueMeta v = tabFields.getValueMeta( i );
+              for (i = 0; i < cnt; i++) {
+                IValueMeta v = tabFields.getValueMeta(i);
 
-                fields.addValueMeta( v );
+                fields.addValueMeta(v);
               }
 
               // Find the missing fields in the real table
               String[] keyLookup = getKeyLookup();
               String[] keyField = getKeyField();
-              if ( keyField != null && keyLookup != null ) {
+              if (keyField != null && keyLookup != null) {
                 cnt = keyField.length;
-                for ( i = 0; i < cnt; i++ ) {
+                for (i = 0; i < cnt; i++) {
                   // Find the value in the stream
-                  IValueMeta v = prev.searchValueMeta( keyField[ i ] );
-                  if ( v != null ) {
+                  IValueMeta v = prev.searchValueMeta(keyField[i]);
+                  if (v != null) {
                     IValueMeta newValue = v.clone();
-                    newValue.setName( keyLookup[ i ] );
+                    newValue.setName(keyLookup[i]);
 
                     // Does the corresponding name exist in the table
-                    if ( tabFields.searchValueMeta( newValue.getName() ) == null ) {
-                      fields.addValueMeta( newValue ); // nope --> add
+                    if (tabFields.searchValueMeta(newValue.getName()) == null) {
+                      fields.addValueMeta(newValue); // nope --> add
                     }
                   }
                 }
               }
 
-              if ( doHash == true && tabFields.searchValueMeta( vhashfield.getName() ) == null ) {
+              if (doHash == true && tabFields.searchValueMeta(vhashfield.getName()) == null) {
                 // Add hash field
-                fields.addValueMeta( vhashfield );
+                fields.addValueMeta(vhashfield);
               }
 
-              if ( vLastUpdateField != null && tabFields.searchValueMeta( vLastUpdateField.getName() ) == null ) {
-                fields.addValueMeta( vLastUpdateField );
+              if (vLastUpdateField != null
+                  && tabFields.searchValueMeta(vLastUpdateField.getName()) == null) {
+                fields.addValueMeta(vLastUpdateField);
               }
             }
 
             crTable =
-              db.getDDL(
-                schemaTable, fields, ( CREATION_METHOD_SEQUENCE.equals( getTechKeyCreation() )
-                  && sequenceFrom != null && sequenceFrom.length() != 0 ) ? null : technicalKeyField,
-                CREATION_METHOD_AUTOINC.equals( getTechKeyCreation() ), null, true );
+                db.getDDL(
+                    schemaTable,
+                    fields,
+                    (CREATION_METHOD_SEQUENCE.equals(getTechKeyCreation())
+                            && sequenceFrom != null
+                            && sequenceFrom.length() != 0)
+                        ? null
+                        : technicalKeyField,
+                    CREATION_METHOD_AUTOINC.equals(getTechKeyCreation()),
+                    null,
+                    true);
 
             //
             // OK, now let's build the index
@@ -851,50 +833,52 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
             String crIndex = "";
             String cr_uniqIndex = "";
             String[] idxFields = null;
-            if ( useHash ) {
-              if ( hashField != null && hashField.length() > 0 ) {
-                idxFields = new String[] { hashField };
+            if (useHash) {
+              if (hashField != null && hashField.length() > 0) {
+                idxFields = new String[] {hashField};
               } else {
-                retval.setError( BaseMessages.getString(
-                  PKG, "CombinationLookupMeta.ReturnValue.NotHashFieldSpecified" ) );
+                retval.setError(
+                    BaseMessages.getString(
+                        PKG, "CombinationLookupMeta.ReturnValue.NotHashFieldSpecified"));
               }
             } else {
               // index on all key fields...
-              if ( !Utils.isEmpty( keyLookup ) ) {
+              if (!Utils.isEmpty(keyLookup)) {
                 int nrFields = keyLookup.length;
                 int maxFields = databaseMeta.getMaxColumnsInIndex();
-                if ( maxFields > 0 && nrFields > maxFields ) {
+                if (maxFields > 0 && nrFields > maxFields) {
                   nrFields = maxFields; // For example, oracle indexes are limited to 32 fields...
                 }
-                idxFields = new String[ nrFields ];
-                for ( i = 0; i < nrFields; i++ ) {
-                  idxFields[ i ] = keyLookup[ i ];
+                idxFields = new String[nrFields];
+                for (i = 0; i < nrFields; i++) {
+                  idxFields[i] = keyLookup[i];
                 }
               } else {
-                retval.setError( BaseMessages.getString(
-                  PKG, "CombinationLookupMeta.ReturnValue.NotFieldsSpecified" ) );
+                retval.setError(
+                    BaseMessages.getString(
+                        PKG, "CombinationLookupMeta.ReturnValue.NotFieldsSpecified"));
               }
             }
 
             // OK, now get the create index statement...
 
-            if ( !Utils.isEmpty( technicalKeyField ) ) {
-              String[] techKeyArr = new String[] { technicalKeyField };
-              if ( !db.checkIndexExists( schemaTable, techKeyArr ) ) {
+            if (!Utils.isEmpty(technicalKeyField)) {
+              String[] techKeyArr = new String[] {technicalKeyField};
+              if (!db.checkIndexExists(schemaTable, techKeyArr)) {
                 String indexname = "idx_" + tableName + "_pk";
                 cr_uniqIndex =
-                  db.getCreateIndexStatement(
-                    schemaTable, indexname, techKeyArr, true, true, false, true );
+                    db.getCreateIndexStatement(
+                        schemaTable, indexname, techKeyArr, true, true, false, true);
                 cr_uniqIndex += Const.CR;
               }
             }
 
             // OK, now get the create lookup index statement...
-            if ( !Utils.isEmpty( idxFields ) && !db.checkIndexExists( schemaTable, idxFields ) ) {
+            if (!Utils.isEmpty(idxFields) && !db.checkIndexExists(schemaTable, idxFields)) {
               String indexname = "idx_" + tableName + "_lookup";
               crIndex =
-                db.getCreateIndexStatement(
-                  schemaTable, indexname, idxFields, false, false, false, true );
+                  db.getCreateIndexStatement(
+                      schemaTable, indexname, idxFields, false, false, false, true);
               crIndex += Const.CR;
             }
 
@@ -902,34 +886,43 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
             // Don't forget the sequence (optional)
             //
             String crSeq = "";
-            if ( databaseMeta.supportsSequences() && !Utils.isEmpty( sequenceFrom ) ) {
-              if ( !db.checkSequenceExists( schemaName, sequenceFrom ) ) {
-                crSeq += db.getCreateSequenceStatement( schemaName, sequenceFrom, 1L, 1L, -1L, true );
+            if (databaseMeta.supportsSequences() && !Utils.isEmpty(sequenceFrom)) {
+              if (!db.checkSequenceExists(schemaName, sequenceFrom)) {
+                crSeq += db.getCreateSequenceStatement(schemaName, sequenceFrom, 1L, 1L, -1L, true);
                 crSeq += Const.CR;
               }
             }
-            retval.setSql( variables.resolve( crTable + cr_uniqIndex + crIndex + crSeq ) );
-          } catch ( HopException e ) {
-            retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred" )
-              + Const.CR + e.getMessage() );
+            retval.setSql(variables.resolve(crTable + cr_uniqIndex + crIndex + crSeq));
+          } catch (HopException e) {
+            retval.setError(
+                BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred")
+                    + Const.CR
+                    + e.getMessage());
           }
         } else {
-          retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.NotTableDefined" ) );
+          retval.setError(
+              BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.NotTableDefined"));
         }
       } else {
-        retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.NotReceivingField" ) );
+        retval.setError(
+            BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.NotReceivingField"));
       }
     } else {
-      retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.NotConnectionDefined" ) );
+      retval.setError(
+          BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.NotConnectionDefined"));
     }
 
     return retval;
   }
 
   @Override
-  public CombinationLookup createTransform( TransformMeta transformMeta, CombinationLookupData data, int cnr,
-                                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new CombinationLookup( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public CombinationLookup createTransform(
+      TransformMeta transformMeta,
+      CombinationLookupData data,
+      int cnr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new CombinationLookup(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -938,101 +931,131 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IHopMetadataProvider metadataProvider ) {
+  public void analyseImpact(
+      IVariables variables,
+      List<DatabaseImpact> impact,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IHopMetadataProvider metadataProvider) {
     // The keys are read-only...
-    for ( int i = 0; i < keyField.length; i++ ) {
-      IValueMeta v = prev.searchValueMeta( keyField[ i ] );
+    for (int i = 0; i < keyField.length; i++) {
+      IValueMeta v = prev.searchValueMeta(keyField[i]);
       DatabaseImpact ii =
-        new DatabaseImpact(
-          DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-          .getDatabaseName(), tableName, keyLookup[ i ], keyField[ i ], v != null ? v.getOrigin() : "?", "",
-          useHash ? BaseMessages.getString( PKG, "CombinationLookupMeta.ReadAndInsert.Label" ) : BaseMessages
-            .getString( PKG, "CombinationLookupMeta.LookupAndInsert.Label" ) );
-      impact.add( ii );
+          new DatabaseImpact(
+              DatabaseImpact.TYPE_IMPACT_READ_WRITE,
+              pipelineMeta.getName(),
+              transformMeta.getName(),
+              databaseMeta.getDatabaseName(),
+              tableName,
+              keyLookup[i],
+              keyField[i],
+              v != null ? v.getOrigin() : "?",
+              "",
+              useHash
+                  ? BaseMessages.getString(PKG, "CombinationLookupMeta.ReadAndInsert.Label")
+                  : BaseMessages.getString(PKG, "CombinationLookupMeta.LookupAndInsert.Label"));
+      impact.add(ii);
     }
 
     // Do we lookup-on the hash-field?
-    if ( useHash ) {
+    if (useHash) {
       DatabaseImpact ii =
-        new DatabaseImpact(
-          DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
-          databaseMeta.getDatabaseName(), tableName, hashField, "", "", "",
-          BaseMessages.getString( PKG, "CombinationLookupMeta.KeyLookup.Label" ) );
-      impact.add( ii );
+          new DatabaseImpact(
+              DatabaseImpact.TYPE_IMPACT_READ_WRITE,
+              pipelineMeta.getName(),
+              transformMeta.getName(),
+              databaseMeta.getDatabaseName(),
+              tableName,
+              hashField,
+              "",
+              "",
+              "",
+              BaseMessages.getString(PKG, "CombinationLookupMeta.KeyLookup.Label"));
+      impact.add(ii);
     }
   }
 
   @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    if ( databaseMeta != null ) {
-      return new DatabaseMeta[] { databaseMeta };
+    if (databaseMeta != null) {
+      return new DatabaseMeta[] {databaseMeta};
     } else {
       return super.getUsedDatabaseConnections();
     }
   }
 
   @Override
-  public boolean equals( Object other ) {
-    if ( other == this ) {
+  public boolean equals(Object other) {
+    if (other == this) {
       return true;
     }
-    if ( other == null ) {
+    if (other == null) {
       return false;
     }
-    if ( getClass() != other.getClass() ) {
+    if (getClass() != other.getClass()) {
       return false;
     }
     CombinationLookupMeta o = (CombinationLookupMeta) other;
 
-    if ( getCommitSize() != o.getCommitSize() ) {
+    if (getCommitSize() != o.getCommitSize()) {
       return false;
     }
-    if ( getCacheSize() != o.getCacheSize() ) {
+    if (getCacheSize() != o.getCacheSize()) {
       return false;
     }
-    if ( !getTechKeyCreation().equals( o.getTechKeyCreation() ) ) {
+    if (!getTechKeyCreation().equals(o.getTechKeyCreation())) {
       return false;
     }
-    if ( replaceFields() != o.replaceFields() ) {
+    if (replaceFields() != o.replaceFields()) {
       return false;
     }
-    if ( useHash() != o.useHash() ) {
+    if (useHash() != o.useHash()) {
       return false;
     }
-    if ( getPreloadCache() != o.getPreloadCache() ) {
+    if (getPreloadCache() != o.getPreloadCache()) {
       return false;
     }
-    if ( ( getSequenceFrom() == null && o.getSequenceFrom() != null )
-      || ( getSequenceFrom() != null && o.getSequenceFrom() == null )
-      || ( getSequenceFrom() != null && o.getSequenceFrom() != null && !getSequenceFrom().equals(
-      o.getSequenceFrom() ) ) ) {
-      return false;
-    }
-
-    if ( ( getSchemaName() == null && o.getSchemaName() != null )
-      || ( getSchemaName() != null && o.getSchemaName() == null )
-      || ( getSchemaName() != null && o.getSchemaName() != null && !getSchemaName().equals( o.getSchemaName() ) ) ) {
+    if ((getSequenceFrom() == null && o.getSequenceFrom() != null)
+        || (getSequenceFrom() != null && o.getSequenceFrom() == null)
+        || (getSequenceFrom() != null
+            && o.getSequenceFrom() != null
+            && !getSequenceFrom().equals(o.getSequenceFrom()))) {
       return false;
     }
 
-    if ( ( getTableName() == null && o.getTableName() != null )
-      || ( getTableName() != null && o.getTableName() == null )
-      || ( getTableName() != null && o.getTableName() != null && !getTableName().equals( o.getTableName() ) ) ) {
+    if ((getSchemaName() == null && o.getSchemaName() != null)
+        || (getSchemaName() != null && o.getSchemaName() == null)
+        || (getSchemaName() != null
+            && o.getSchemaName() != null
+            && !getSchemaName().equals(o.getSchemaName()))) {
       return false;
     }
 
-    if ( ( getHashField() == null && o.getHashField() != null )
-      || ( getHashField() != null && o.getHashField() == null )
-      || ( getHashField() != null && o.getHashField() != null && !getHashField().equals( o.getHashField() ) ) ) {
+    if ((getTableName() == null && o.getTableName() != null)
+        || (getTableName() != null && o.getTableName() == null)
+        || (getTableName() != null
+            && o.getTableName() != null
+            && !getTableName().equals(o.getTableName()))) {
       return false;
     }
 
-    if ( ( getTechnicalKeyField() == null && o.getTechnicalKeyField() != null )
-      || ( getTechnicalKeyField() != null && o.getTechnicalKeyField() == null )
-      || ( getTechnicalKeyField() != null && o.getTechnicalKeyField() != null && !getTechnicalKeyField().equals(
-      o.getTechnicalKeyField() ) ) ) {
+    if ((getHashField() == null && o.getHashField() != null)
+        || (getHashField() != null && o.getHashField() == null)
+        || (getHashField() != null
+            && o.getHashField() != null
+            && !getHashField().equals(o.getHashField()))) {
+      return false;
+    }
+
+    if ((getTechnicalKeyField() == null && o.getTechnicalKeyField() != null)
+        || (getTechnicalKeyField() != null && o.getTechnicalKeyField() == null)
+        || (getTechnicalKeyField() != null
+            && o.getTechnicalKeyField() != null
+            && !getTechnicalKeyField().equals(o.getTechnicalKeyField()))) {
       return false;
     }
 
@@ -1046,40 +1069,43 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
   @Override
   public int hashCode() {
-    return Objects.hash( getCommitSize(), getCacheSize(), getTechKeyCreation(), replaceFields(), useHash(),
-      getPreloadCache(), getSequenceFrom(), getSchemaName(), getTableName(), getHashField(), getTechnicalKeyField() );
+    return Objects.hash(
+        getCommitSize(),
+        getCacheSize(),
+        getTechKeyCreation(),
+        replaceFields(),
+        useHash(),
+        getPreloadCache(),
+        getSequenceFrom(),
+        getSchemaName(),
+        getTableName(),
+        getHashField(),
+        getTechnicalKeyField());
   }
 
-  /**
-   * @return the schemaName
-   */
+  /** @return the schemaName */
   @Override
   public String getSchemaName() {
     return schemaName;
   }
 
-  @Override public String getMissingDatabaseConnectionInformationMessage() {
+  @Override
+  public String getMissingDatabaseConnectionInformationMessage() {
     return null;
   }
 
-  /**
-   * @param schemaName the schemaName to set
-   */
-  public void setSchemaName( String schemaName ) {
+  /** @param schemaName the schemaName to set */
+  public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 
-  /**
-   * @return the lastUpdateField
-   */
+  /** @return the lastUpdateField */
   public String getLastUpdateField() {
     return lastUpdateField;
   }
 
-  /**
-   * @param lastUpdateField the lastUpdateField to set
-   */
-  public void setLastUpdateField( String lastUpdateField ) {
+  /** @param lastUpdateField the lastUpdateField to set */
+  public void setLastUpdateField(String lastUpdateField) {
     this.lastUpdateField = lastUpdateField;
   }
 
@@ -1088,50 +1114,53 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     return true;
   }
 
-  protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
-    throws HopDatabaseException {
+  protected IRowMeta getDatabaseTableFields(Database db, String schemaName, String tableName)
+      throws HopDatabaseException {
     // First try without connecting to the database... (can be S L O W)
-    String schemaTable = databaseMeta.getQuotedSchemaTableCombination( db, schemaName, tableName );
-    IRowMeta extraFields = db.getTableFields( schemaTable );
-    if ( extraFields == null ) { // now we need to connect
+    String schemaTable = databaseMeta.getQuotedSchemaTableCombination(db, schemaName, tableName);
+    IRowMeta extraFields = db.getTableFields(schemaTable);
+    if (extraFields == null) { // now we need to connect
       db.connect();
-      extraFields = db.getTableFields( schemaTable );
+      extraFields = db.getTableFields(schemaTable);
     }
     return extraFields;
   }
 
-  Database createDatabaseObject() {
-    return new Database( loggingObject, databaseMeta );
+  Database createDatabaseObject(IVariables variables) {
+    return new Database(loggingObject, variables, databaseMeta );
   }
 
-  @Override public RowMeta getRowMeta( ITransformData transformData ) {
+  @Override
+  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     try {
-      return (RowMeta) getDatabaseTableFields( createDatabaseObject(), schemaName, getTableName() );
-    } catch ( HopDatabaseException e ) {
-      log.logError( "", e );
+      return (RowMeta) getDatabaseTableFields(createDatabaseObject(variables), schemaName, getTableName());
+    } catch (HopDatabaseException e) {
+      log.logError("", e);
       return new RowMeta();
     }
   }
 
-  @Override public List<String> getDatabaseFields() {
-    return Arrays.asList( keyLookup );
+  @Override
+  public List<String> getDatabaseFields() {
+    return Arrays.asList(keyLookup);
   }
 
-  @Override public List<String> getStreamFields() {
-    return Arrays.asList( keyField );
+  @Override
+  public List<String> getStreamFields() {
+    return Arrays.asList(keyField);
   }
 
   /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for consistency behavior with
-   * UI
+   * If we use injection we can have different arrays lengths. We need synchronize them for
+   * consistency behavior with UI
    */
   @AfterInjection
   public void afterInjectionSynchronization() {
-    int nrFields = ( keyField == null ) ? -1 : keyField.length;
-    if ( nrFields <= 0 ) {
+    int nrFields = (keyField == null) ? -1 : keyField.length;
+    if (nrFields <= 0) {
       return;
     }
-    String[][] rtn = Utils.normalizeArrays( nrFields, keyLookup );
-    keyLookup = rtn[ 0 ];
+    String[][] rtn = Utils.normalizeArrays(nrFields, keyLookup);
+    keyLookup = rtn[0];
   }
 }
