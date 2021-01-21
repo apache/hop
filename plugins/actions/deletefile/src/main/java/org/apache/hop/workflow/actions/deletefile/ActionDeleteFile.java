@@ -193,7 +193,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this.failIfFileNotExists = failIfFileExists;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

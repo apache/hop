@@ -406,7 +406,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     this.argFromPrevious = argFromPrevious;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

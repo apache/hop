@@ -192,7 +192,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     return false;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

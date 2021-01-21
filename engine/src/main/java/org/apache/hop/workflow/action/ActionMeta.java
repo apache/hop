@@ -314,13 +314,13 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     return action.isPipeline();
   }
 
-  public boolean isJob() {
-    return action.isJob();
+  public boolean isWorkflow() {
+    return action.isWorkflow();
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     if ( action != null ) {
-      return action.evaluates();
+      return action.isEvaluation();
     }
     return false;
   }
@@ -331,15 +331,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     }
     return true;
   }
-
-  public boolean isEvaluation() {
-    return action.isEvaluation();
-  }
-
-  public boolean isMail() {
-    return action.isMail();
-  }
-
+ 
   public String toString() {
     if ( action != null ) {
       return action.getName() + "." + getNr();

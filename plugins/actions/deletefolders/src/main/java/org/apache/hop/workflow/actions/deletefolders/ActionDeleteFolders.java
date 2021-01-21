@@ -349,7 +349,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

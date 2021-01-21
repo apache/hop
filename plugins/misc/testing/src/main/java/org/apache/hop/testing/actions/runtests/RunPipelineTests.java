@@ -71,7 +71,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   public Result execute(Result prevResult, int nr) throws HopException {
 
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
-        metadataProvider.getSerializer(PipelineUnitTest.class);
+        getMetadataProvider().getSerializer(PipelineUnitTest.class);
 
     AtomicBoolean success=new AtomicBoolean(true);
 
@@ -83,13 +83,13 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
           test,
           this,
           getLogLevel(),
-          metadataProvider,
+          getMetadataProvider(),
           this,
           // Something went wrong executing the pipeline itself.
           //
           (pipeline, result) -> {
             if (result.getNrErrors() > 0) {
-              log.logError(
+              this.logError(
                   "There was an error running the pipeline for unit test '" + test.getName() + "'");
               success.set(false);
             }
@@ -99,7 +99,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
             int errorCount = 0;
             for (UnitTestResult testResult : testResults) {
               if (testResult.isError()) {
-                log.logError(
+                this.logError(
                     "Error in validating test data set '"
                         + testResult.getDataSetName()
                         + " : "
@@ -108,14 +108,14 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
               }
             }
             if (errorCount > 0) {
-              log.logError(
+              this.logError(
                   "There were test result evaluation errors in pipeline unit test '"
                       + test.getName());
               success.set(false);
             }
           },
           (test1, pipelineMeta, e) -> {
-            log.logError(
+            this.logError(
                 "There was an exception executing pipeline unit test '" + test.getName(), e);
             success.set(false);
           });
@@ -193,7 +193,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

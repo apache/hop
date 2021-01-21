@@ -372,7 +372,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
       try {
         int size = result.getResultFiles().size();
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.log.FilesFound", "" + size));
@@ -488,13 +488,13 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         } else {
           return false;
         }
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.Log.FolderCreated", folderName));
         }
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.Log.FolderExists", folderName));
@@ -534,7 +534,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
       if (deleteFile) {
         // delete file
         if (sourcefile.delete()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionCopyMoveResultFilenames.log.DeletedFile", sourcefile.toString()));
@@ -542,7 +542,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
           // Remove source file from result files list
           result.getResultFiles().remove(sourcefile.toString());
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -563,7 +563,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         FileObject destinationfile = HopVfs.getFileObject(destinationFilename);
         boolean filexists = destinationfile.exists();
         if (filexists) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionCopyMoveResultFilenames.Log.FileExists", destinationFilename));
@@ -573,7 +573,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           if (getAction().equals("copy")) {
             // Copy file
             FileUtil.copyContent(sourcefile, destinationfile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -584,7 +584,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           } else {
             // Move file
             sourcefile.moveTo(destinationfile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -596,7 +596,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           if (isRemovedSourceFilename()) {
             // Remove source file from result files list
             result.getResultFiles().remove(sourcefile.toString());
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -613,7 +613,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
                     parentWorkflow.getWorkflowName(),
                     toString());
             result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -683,7 +683,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     return getIt;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
