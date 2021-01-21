@@ -542,7 +542,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdlCommand.right = new FormAttachment( middle, -2 * margin );
     wlCommand.setLayoutData( fdlCommand );
 
-    wCommand = new StyledTextComp( variables, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wCommand = new StyledTextComp( variables, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     wCommand.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.Command.Tooltip" ) );
     props.setLook( wCommand );
     wCommand.addModifyListener( lsMod );

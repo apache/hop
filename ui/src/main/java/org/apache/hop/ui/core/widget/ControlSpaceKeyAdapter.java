@@ -30,7 +30,6 @@ import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -230,8 +229,6 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
             extra); // We can't know the location of the cursor yet. All we can do is overwrite.
       } else if (control instanceof StyledTextComp) {
         ((StyledTextComp) control).insert(extra);
-      } else if (control instanceof StyledText) {
-        ((StyledText) control).insert(extra);
       }
     }
     if (!shell.isDisposed()) {
@@ -266,33 +263,48 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
     // The Hop system settings variables
     //
-    Set<String> hopSystemSettings = new HashSet( Arrays.asList( Const.HOP_SYSTEM_SETTING_VARIABLES ) );
+    Set<String> hopSystemSettings = new HashSet(Arrays.asList(Const.HOP_SYSTEM_SETTING_VARIABLES));
 
     Map<String, String> pluginsPrefixesMap = new HashMap<>();
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI,
-        variables,
-        HopExtensionPoint.HopGuiGetControlSpaceSortOrderPrefix.name(),
-        pluginsPrefixesMap
-        );
-    } catch ( Exception e ) {
-      LogChannel.UI.logError( "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI,
+          variables,
+          HopExtensionPoint.HopGuiGetControlSpaceSortOrderPrefix.name(),
+          pluginsPrefixesMap);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
     }
 
     Arrays.sort(
         variableNames,
         (var1, var2) -> {
-          String str1 = addPrefix(var1, systemProperties, hopVariablesSet, deprecatedSet, hopSystemSettings, pluginsPrefixesMap);
-          String str2 = addPrefix(var2, systemProperties, hopVariablesSet, deprecatedSet, hopSystemSettings, pluginsPrefixesMap);
+          String str1 =
+              addPrefix(
+                  var1,
+                  systemProperties,
+                  hopVariablesSet,
+                  deprecatedSet,
+                  hopSystemSettings,
+                  pluginsPrefixesMap);
+          String str2 =
+              addPrefix(
+                  var2,
+                  systemProperties,
+                  hopVariablesSet,
+                  deprecatedSet,
+                  hopSystemSettings,
+                  pluginsPrefixesMap);
           return str1.compareTo(str2);
         });
     return variableNames;
   }
 
   /**
-   * Get a prefix to steer sorting of variables.
-   * Please note that variables can appear in multiple sets so we check back to front.
+   * Get a prefix to steer sorting of variables. Please note that variables can appear in multiple
+   * sets so we check back to front.
    *
    * @param variableName The variable name to prefix
    * @param systemProperties
@@ -300,9 +312,13 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
    * @param deprecatedSet
    * @return a prefixed variable name
    */
-  private static String addPrefix( String variableName, Properties systemProperties,
-                                   Set<String> hopVariablesSet, Set<String> deprecatedSet,
-                                   Set<String> hopSystemSettings, Map<String,String> pluginsPrefixesMap) {
+  private static String addPrefix(
+      String variableName,
+      Properties systemProperties,
+      Set<String> hopVariablesSet,
+      Set<String> deprecatedSet,
+      Set<String> hopSystemSettings,
+      Map<String, String> pluginsPrefixesMap) {
     String prefix = "300_";
     String systemValue = systemProperties.getProperty(variableName);
     if (systemValue != null) {
@@ -313,18 +329,18 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       prefix = "800_";
     }
     if (hopSystemSettings.contains(variableName)) {
-      prefix = "700_" ;
+      prefix = "700_";
     }
     if (deprecatedSet.contains(variableName)) {
-      prefix = "600_" ;
+      prefix = "600_";
     }
-    if (variableName.startsWith( Const.INTERNAL_VARIABLE_PREFIX )) {
-      prefix = "500_" ;
+    if (variableName.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
+      prefix = "500_";
     }
     // Finally allow plugins to override a sort order...
     //
     String pluginPrefix = pluginsPrefixesMap.get(variableName);
-    if (pluginPrefix!=null) {
+    if (pluginPrefix != null) {
       prefix = pluginPrefix;
     }
     return prefix;

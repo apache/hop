@@ -28,7 +28,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -263,7 +262,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdlSql.top = new FormAttachment( wUseSubs, margin );
     wlSql.setLayoutData(fdlSql);
 
-    wSql = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wSql = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
     FormData fdSql = new FormData();
@@ -330,9 +329,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     } );
     wSql.addModifyListener( lsMod );
 
-    // Text Higlighting
-    wSql.addLineStyleListener( new SqlValuesHighlight() );
-
     getData();
     activeSqlFromFile();
 
@@ -349,19 +345,9 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   }
 
   public void setPosition() {
-
-    String scr = wSql.getText();
-    int linenr = wSql.getLineAtOffset( wSql.getCaretOffset() ) + 1;
-    int posnr = wSql.getCaretOffset();
-
-    // Go back from position to last CR: how many positions?
-    int colnr = 0;
-    while ( posnr > 0 && scr.charAt( posnr - 1 ) != '\n' && scr.charAt( posnr - 1 ) != '\r' ) {
-      posnr--;
-      colnr++;
-    }
-    wlPosition.setText( BaseMessages.getString( PKG, "JobSQL.Position.Label", "" + linenr, "" + colnr ) );
-
+    int lineNumber = wSql.getLineNumber();
+    int columnNumber = wSql.getColumnNumber();
+    wlPosition.setText( BaseMessages.getString( PKG, "JobSQL.Position.Label", "" + lineNumber, "" + columnNumber ) );
   }
 
   public void dispose() {

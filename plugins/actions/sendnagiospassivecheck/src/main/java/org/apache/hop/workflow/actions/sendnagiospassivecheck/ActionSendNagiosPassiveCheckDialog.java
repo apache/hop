@@ -349,7 +349,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     wMessage =
       new StyledTextComp( variables, wMessageGroup, SWT.MULTI
-        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
     FormData fdMessage = new FormData();

@@ -208,7 +208,7 @@ public class NotePadDialog extends Dialog {
     wlDesc.setLayoutData( fdlDesc );
     wDesc =
       new StyledTextComp( variables, wNoteContentComp, SWT.MULTI
-        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+        | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
 
     wDesc.setText( "" );
     // props.setLook(wDesc, PropsUi.WIDGET_STYLE_FIXED);
