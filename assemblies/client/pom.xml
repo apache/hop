@@ -33,8 +33,6 @@
   </parent>
 
   <properties>
-    <!-- jetty -->
-    <jetty.version>9.4.35.v20201120</jetty.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <!-- swt -->
     <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>

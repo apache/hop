@@ -124,6 +124,7 @@
 
 
         <!-- Third-party dependencies -->
+        <jetty.version>9.4.35.v20201120</jetty.version>
         <org.eclipse.platform.version>3.114.0</org.eclipse.platform.version>
         <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
         <org.eclipse.jface.version>3.18.0</org.eclipse.jface.version>
