@@ -581,18 +581,18 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow.getWorkflowTracker().setParentWorkflowTracker(parentWorkflow.getWorkflowTracker());
 
         ActionWorkflowRunner runner = new ActionWorkflowRunner(workflow, result, nr, log);
-        Thread jobRunnerThread = new Thread(runner);
+        Thread workflowRunnerThread = new Thread(runner);
         // PDI-6518
-        // added UUID to thread name, otherwise threads do share names if workflows entries are
+        // added UUID to thread name, otherwise threads do share names if workflows actions are
         // executed in parallel in a
         // parent workflow
         // if that happens, contained pipelines start closing each other's connections
-        jobRunnerThread.setName(
+        workflowRunnerThread.setName(
             Const.NVL(
                     workflow.getWorkflowMeta().getName(), workflow.getWorkflowMeta().getFilename())
                 + " UUID: "
                 + UUID.randomUUID().toString());
-        jobRunnerThread.start();
+        workflowRunnerThread.start();
 
         // Keep running until we're done.
         //

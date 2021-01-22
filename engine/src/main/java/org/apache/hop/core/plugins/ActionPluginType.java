@@ -35,12 +35,13 @@ import java.util.Map;
 public class ActionPluginType extends BasePluginType<Action> implements IPluginType<Action> {
   private static final Class<?> PKG = WorkflowMeta.class; // For Translator
 
+  public static final String ID = "ACTION";
   public static final String GENERAL_CATEGORY = BaseMessages.getString( PKG, "ActionCategory.Category.General" );
 
   private static ActionPluginType pluginType;
 
   private ActionPluginType() {
-    super( Action.class, "ACTION", "Action" );
+    super( Action.class, ID, "Action" );
     populateFolders( "actions" );
   }
 
