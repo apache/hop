@@ -37,7 +37,8 @@ import java.util.stream.Collectors;
 public class HopImport implements IHopImport{
 
     private static IHopMetadataProvider metadataProvider;
-    private static String inputFolderName, outputFolderName;
+    private String inputFolderName;
+    private String outputFolderName;
 
     public TreeMap<String, String> connectionFileList;
     public List<DatabaseMeta> connectionsList;
