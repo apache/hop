@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -511,6 +512,30 @@ public class ContextDialog extends Dialog {
     }
     wCanvas.addKeyListener(keyAdapter);
 
+    // If the shell is re-sized we need to recalculate things...
+    //
+    shell.addListener(
+        SWT.Resize,
+        e -> {
+          shell.layout(true, true);
+          totalContentHeight = 0;
+          previousTotalContentHeight = 0;
+          wCanvas.redraw();
+          updateVerticalBar();
+        });
+
+    // OS Specific listeners...
+    //
+    if (OsHelper.isWindows()) {
+      wScrolledComposite
+          .getVerticalBar()
+          .addListener(
+              SWT.Selection,
+              e -> {
+                wCanvas.redraw();
+              });
+    }
+
     // Layout all the widgets in the shell.
     //
     shell.layout();
@@ -747,7 +772,11 @@ public class ContextDialog extends Dialog {
 
       if (totalContentHeight > scrolledCompositeBounds.height) {
         heightOffSet =
-            totalContentHeight * verticalBar.getSelection() / (100 - verticalBar.getThumb());
+            (int)
+                Math.floor(
+                    (float) totalContentHeight
+                        * verticalBar.getSelection()
+                        / (100 - verticalBar.getThumb()));
       } else {
         heightOffSet = 0;
       }
