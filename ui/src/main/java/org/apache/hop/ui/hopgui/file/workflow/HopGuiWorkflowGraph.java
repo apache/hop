@@ -1397,7 +1397,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                     () -> {
                       try {
                         workflowRunDelegate.executeWorkflow(
-                            hopGui.getVariables(), workflowMeta, null, 0);
+                            hopGui.getVariables(), workflowMeta, null);
                       } catch (Exception e) {
                         new ErrorDialog(
                             getShell(),
@@ -2954,7 +2954,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut(control = true, key = 'z')
   @Override
   public void undo() {
-    workflowUndoDelegate.undoJobAction(this, workflowMeta);
+    workflowUndoDelegate.undoWorkflowAction(this, workflowMeta);
     forceFocus();
   }
 
@@ -2968,7 +2968,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @Override
   public void redo() {
-    workflowUndoDelegate.redoJobAction(this, workflowMeta);
+    workflowUndoDelegate.redoWorkflowAction(this, workflowMeta);
     forceFocus();
   }
 
@@ -3497,9 +3497,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           //
           if (!Utils.isEmpty(executionConfiguration.getStartActionName())) {
             ActionMeta startActionMeta =
-                runWorkflowMeta.findAction(
-                    executionConfiguration.getStartActionName(),
-                    executionConfiguration.getStartActionNr());
+                runWorkflowMeta.findAction(executionConfiguration.getStartActionName());
             workflow.setStartActionMeta(startActionMeta);
           }
 
@@ -3673,7 +3671,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Is the lastChained action still valid?
     //
     if (lastChained != null
-        && workflowMeta.findAction(lastChained.getName(), lastChained.getNr()) == null) {
+        && workflowMeta.findAction(lastChained.getName()) == null) {
       lastChained = null;
     }
 

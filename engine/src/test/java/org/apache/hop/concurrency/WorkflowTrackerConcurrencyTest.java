@@ -106,7 +106,7 @@ public class WorkflowTrackerConcurrencyTest {
     for ( int i = 0; i < searchersAmount; i++ ) {
       int lookingFor = updatersAmount * updatersCycles / 2 + i;
       assertTrue( "We are looking for reachable index", lookingFor < updatersAmount * updatersCycles );
-      searchers.add( new Searcher( condition, tracker, mockJobEntryCopy( "workflow-action-" + lookingFor, lookingFor ) ) );
+      searchers.add( new Searcher( condition, tracker, mockActionMeta( "workflow-action-" + lookingFor ) ) );
     }
 
     final AtomicInteger generator = new AtomicInteger( 0 );
@@ -120,10 +120,9 @@ public class WorkflowTrackerConcurrencyTest {
     assertEquals( updatersAmount * updatersCycles, generator.get() );
   }
 
-  static ActionMeta mockJobEntryCopy( String name, int number ) {
+  static ActionMeta mockActionMeta( String name ) {
     ActionMeta copy = mock( ActionMeta.class );
     when( copy.getName() ).thenReturn( name );
-    when( copy.getNr() ).thenReturn( number );
     return copy;
   }
 
@@ -198,7 +197,6 @@ public class WorkflowTrackerConcurrencyTest {
           int id = idGenerator.getAndIncrement();
           ActionResult result = new ActionResult();
           result.setActionName( String.format( resultNameTemplate, id ) );
-          result.setActionNr( id );
           WorkflowTracker child = new WorkflowTracker( mockWorkflowMeta( "child-" + id ), result );
           tracker.addWorkflowTracker( child );
         }

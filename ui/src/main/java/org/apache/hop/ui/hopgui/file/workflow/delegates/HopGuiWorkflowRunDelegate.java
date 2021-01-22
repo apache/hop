@@ -67,7 +67,7 @@ public class HopGuiWorkflowRunDelegate {
     jobMap = new ArrayList<>();
   }
 
-  public void executeWorkflow( IVariables variables, WorkflowMeta workflowMeta, String startActionName, int startActionNr ) throws HopException {
+  public void executeWorkflow( IVariables variables, WorkflowMeta workflowMeta, String startActionName ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -82,7 +82,6 @@ public class HopGuiWorkflowRunDelegate {
     executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( workflowMeta, variables );
     executionConfiguration.setStartActionName( startActionName );
-    executionConfiguration.setStartActionNr( startActionNr );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
 
     WorkflowExecutionConfigurationDialog dialog = newWorkflowExecutionConfigurationDialog( executionConfiguration, workflowMeta );
@@ -176,14 +175,14 @@ public class HopGuiWorkflowRunDelegate {
    *
    * @return value of workflowMap
    */
-  public List<WorkflowMeta> getJobMap() {
+  public List<WorkflowMeta> getWorkflowMap() {
     return jobMap;
   }
 
   /**
    * @param jobMap The workflowMap to set
    */
-  public void setJobMap( List<WorkflowMeta> jobMap ) {
+  public void setWorkflowMap( List<WorkflowMeta> jobMap ) {
     this.jobMap = jobMap;
   }
 }

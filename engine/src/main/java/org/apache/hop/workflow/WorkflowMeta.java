@@ -55,7 +55,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
@@ -73,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The definition of a PDI workflow is represented by a WorkflowMeta object. It is typically loaded from a .hwf file or it is generated dynamically.
+ * The definition of a Hop workflow is represented by a WorkflowMeta object. It is typically loaded from a .hwf file or it is generated dynamically.
  * The declared parameters of the workflow definition are then queried using
  * listParameters() and assigned values using calls to setParameterValue(..). WorkflowMeta provides methods to load, save,
  * verify, etc.
@@ -276,11 +275,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       for ( ActionMeta action : workflowActions ) {
         workflowMeta.workflowActions.add( (ActionMeta) action.cloneDeep() );
       }
-      for ( WorkflowHopMeta action : workflowHops ) {
-        workflowMeta.workflowHops.add( (WorkflowHopMeta) action.clone() );
+      for ( WorkflowHopMeta hop : workflowHops ) {
+        workflowMeta.workflowHops.add( hop.clone() );
       }
-      for ( NotePadMeta action : notes ) {
-        workflowMeta.notes.add( (NotePadMeta) action.clone() );
+      for ( NotePadMeta notePad : notes ) {
+        workflowMeta.notes.add( notePad.clone() );
       }
 
       for ( String key : listParameters() ) {
@@ -308,9 +307,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       ActionMeta action = getAction( i );
       action.setChanged( false );
     }
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
-      hi.setChanged( false );
+      hop.setChanged( false );
     }
     super.clearChanged();
   }
@@ -543,40 +542,21 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       Node actionsNode = XmlHandler.getSubNode( workflowNode, "actions" );
       List<Node> actionNodes = XmlHandler.getNodes( actionsNode, ActionMeta.XML_TAG );
       for ( Node actionNode : actionNodes ) {
-        ActionMeta ac = new ActionMeta( actionNode, metadataProvider, variables);
+        ActionMeta actionMeta = new ActionMeta( actionNode, metadataProvider, variables);
 
-        if ( ac.isMissing() ) {
-          addMissingAction( (MissingAction) ac.getAction() );
+        if ( actionMeta.isMissing() ) {
+          addMissingAction( (MissingAction) actionMeta.getAction() );
         }
-        ActionMeta prev = findAction( ac.getName(), 0 );
+        ActionMeta prev = findAction( actionMeta.getName() );
         if ( prev != null ) {
-          // See if the #0 (root action) already exists!
+          // See if the action already exists!          
+          // Replace previous version with this one: remove it first
           //
-          if ( ac.getNr() == 0 ) {
-
-            // Replace previous version with this one: remove it first
-            //
-            int idx = indexOfAction( prev );
-            removeAction( idx );
-
-          } else if ( ac.getNr() > 0 ) {
-
-            // Use previously defined Action info!
-            //
-            ac.setAction( prev.getAction() );
-
-            // See if action already exists...
-            prev = findAction( ac.getName(), ac.getNr() );
-            if ( prev != null ) {
-              // remove the old one!
-              //
-              int idx = indexOfAction( prev );
-              removeAction( idx );
-            }
-          }
+          int idx = indexOfAction( prev );
+          removeAction( idx );                   
         }
         // Add the ActionCopy...
-        addAction( ac );
+        addAction( actionMeta );
       }
 
       Node hopsNode = XmlHandler.getSubNode( workflowNode, "hops" );
@@ -621,11 +601,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( i = s - 1; i >= 0; i-- ) {
       // Back to front because drawing goes from start to end
 
-      ActionMeta je = getAction( i );
-      Point p = je.getLocation();
+      ActionMeta action = getAction( i );
+      Point p = action.getLocation();
       if ( p != null ) {
         if ( x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize ) {
-          return je;
+          return action;
         }
       }
     }
@@ -673,21 +653,21 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Adds the action.
    *
-   * @param je the je
+   * @param action the je
    */
-  public void addAction( ActionMeta je ) {
-    workflowActions.add( je );
-    je.setParentWorkflowMeta( this );
+  public void addAction( ActionMeta action ) {
+    workflowActions.add( action );
+    action.setParentWorkflowMeta( this );
     setChanged();
   }
 
   /**
    * Adds the workflow hop.
    *
-   * @param hi the hi
+   * @param hop the hi
    */
-  public void addWorkflowHop( WorkflowHopMeta hi ) {
-    workflowHops.add( hi );
+  public void addWorkflowHop( WorkflowHopMeta hop ) {
+    workflowHops.add( hop );
     setChanged();
   }
 
@@ -695,10 +675,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Adds the action.
    *
    * @param p  the p
-   * @param si the si
+   * @param action the si
    */
-  public void addAction( int p, ActionMeta si ) {
-    workflowActions.add( p, si );
+  public void addAction( int p, ActionMeta action ) {
+    workflowActions.add( p, action );
     changedActions = true;
   }
 
@@ -706,13 +686,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Adds the workflow hop.
    *
    * @param p  the p
-   * @param hi the hi
+   * @param hop the hi
    */
-  public void addWorkflowHop( int p, WorkflowHopMeta hi ) {
+  public void addWorkflowHop( int p, WorkflowHopMeta hop ) {
     try {
-      workflowHops.add( p, hi );
+      workflowHops.add( p, hop );
     } catch ( IndexOutOfBoundsException e ) {
-      workflowHops.add( hi );
+      workflowHops.add( hop );
     }
     changedHops = true;
   }
@@ -758,63 +738,44 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Index of workflow hop.
    *
-   * @param he the he
+   * @param hop the workflow hop
    * @return the int
    */
-  public int indexOfWorkflowHop( WorkflowHopMeta he ) {
-    return workflowHops.indexOf( he );
+  public int indexOfWorkflowHop( WorkflowHopMeta hop ) {
+    return workflowHops.indexOf( hop );
   }
 
   /**
    * Index of action.
    *
-   * @param ge the ge
+   * @param action the ActionMeta
    * @return the int
    */
-  public int indexOfAction( ActionMeta ge ) {
-    return workflowActions.indexOf( ge );
+  public int indexOfAction( ActionMeta action ) {
+    return workflowActions.indexOf( action );
   }
 
   /**
    * Sets the action.
    *
    * @param idx the idx
-   * @param jec the jec
+   * @param action the jec
    */
-  public void setAction( int idx, ActionMeta jec ) {
-    workflowActions.set( idx, jec );
+  public void setAction( int idx, ActionMeta action ) {
+    workflowActions.set( idx, action );
   }
 
   /**
    * Find an existing ActionMeta by it's name and number
    *
    * @param name The name of the action meta
-   * @param nr   The number of the action meta
    * @return The ActionMeta or null if nothing was found!
    */
-  public ActionMeta findAction( String name, int nr) {
+  public ActionMeta findAction( String name) {
     for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta jec = getAction( i );
-      if ( jec.getName().equalsIgnoreCase( name ) && jec.getNr() == nr ) {
-        return jec;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find action.
-   *
-   * @param full_name_nr the full_name_nr
-   * @return the action copy
-   */
-  public ActionMeta findAction( String full_name_nr ) {
-    int i;
-    for ( i = 0; i < nrActions(); i++ ) {
-      ActionMeta jec = getAction( i );
-      IAction je = jec.getAction();
-      if ( je.toString().equalsIgnoreCase( full_name_nr ) ) {
-        return jec;
+      ActionMeta action = getAction( i );
+      if ( action.getName().equalsIgnoreCase( name ) ) {
+        return action;
       }
     }
     return null;
@@ -827,11 +788,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the workflow hop meta
    */
   public WorkflowHopMeta findWorkflowHop( String name ) {
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.toString().equalsIgnoreCase( name ) ) {
-        return hi;
+      if ( hop.toString().equalsIgnoreCase( name ) ) {
+        return hop;
       }
     }
     return null;
@@ -840,17 +801,17 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Find workflow hop from.
    *
-   * @param jge the jge
+   * @param action the action meta
    * @return the workflow hop meta
    */
-  public WorkflowHopMeta findWorkflowHopFrom( ActionMeta jge ) {
-    if ( jge != null ) {
-      for ( WorkflowHopMeta hi : workflowHops ) {
+  public WorkflowHopMeta findWorkflowHopFrom( ActionMeta action ) {
+    if ( action != null ) {
+      for ( WorkflowHopMeta hop : workflowHops ) {
 
         // Return the first we find!
         //
-        if ( hi != null && ( hi.getFromAction() != null ) && hi.getFromAction().equals( jge ) ) {
-          return hi;
+        if ( hop != null && ( hop.getFromAction() != null ) && hop.getFromAction().equals( action ) ) {
+          return hop;
         }
       }
     }
@@ -877,11 +838,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the workflow hop meta
    */
   public WorkflowHopMeta findWorkflowHop( ActionMeta from, ActionMeta to, boolean includeDisabled ) {
-    for ( WorkflowHopMeta hi : workflowHops ) {
-      if ( hi.isEnabled() || includeDisabled ) {
-        if ( hi != null && hi.getFromAction() != null && hi.getToAction() != null && hi.getFromAction().equals( from )
-          && hi.getToAction().equals( to ) ) {
-          return hi;
+    for ( WorkflowHopMeta hop : workflowHops ) {
+      if ( hop.isEnabled() || includeDisabled ) {
+        if ( hop != null && hop.getFromAction() != null && hop.getToAction() != null && hop.getFromAction().equals( from )
+          && hop.getToAction().equals( to ) ) {
+          return hop;
         }
       }
     }
@@ -891,14 +852,14 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Find workflow hop to.
    *
-   * @param jge the jge
+   * @param actionMeta the action meta
    * @return the workflow hop meta
    */
-  public WorkflowHopMeta findWorkflowHopTo( ActionMeta jge ) {
-    for ( WorkflowHopMeta hi : workflowHops ) {
-      if ( hi != null && hi.getToAction() != null && hi.getToAction().equals( jge ) ) {
+  public WorkflowHopMeta findWorkflowHopTo( ActionMeta actionMeta ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
+      if ( hop != null && hop.getToAction() != null && hop.getToAction().equals( actionMeta ) ) {
         // Return the first!
-        return hi;
+        return hop;
       }
     }
     return null;
@@ -935,10 +896,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public int findNrPrevActions( ActionMeta to, boolean info ) {
     int count = 0;
 
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && hi.getToAction().equals( to ) ) {
+      if ( hop.isEnabled() && hop.getToAction().equals( to ) ) {
         count++;
       }
     }
@@ -956,12 +917,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public ActionMeta findPrevAction( ActionMeta to, int nr, boolean info ) {
     int count = 0;
 
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && hi.getToAction().equals( to ) ) {
+      if ( hop.isEnabled() && hop.getToAction().equals( to ) ) {
         if ( count == nr ) {
-          return hi.getFromAction();
+          return hop.getFromAction();
         }
         count++;
       }
@@ -977,10 +938,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public int findNrNextActions( ActionMeta from ) {
     int count = 0;
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && ( hi.getFromAction() != null ) && hi.getFromAction().equals( from ) ) {
+      if ( hop.isEnabled() && ( hop.getFromAction() != null ) && hop.getFromAction().equals( from ) ) {
         count++;
       }
     }
@@ -997,12 +958,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public ActionMeta findNextAction( ActionMeta from, int cnt ) {
     int count = 0;
 
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && ( hi.getFromAction() != null ) && hi.getFromAction().equals( from ) ) {
+      if ( hop.isEnabled() && ( hop.getFromAction() != null ) && hop.getFromAction().equals( from ) ) {
         if ( count == cnt ) {
-          return hi.getToAction();
+          return hop.getToAction();
         }
         count++;
       }
@@ -1019,14 +980,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public boolean hasLoop( ActionMeta action ) {
     clearLoopCache();
     return hasLoop( action, null );
-  }
-
-  /**
-   * @deprecated use {@link #hasLoop(ActionMeta, ActionMeta)}}
-   */
-  @Deprecated
-  public boolean hasLoop( ActionMeta action, ActionMeta lookup, boolean info ) {
-    return hasLoop( action, lookup );
   }
 
   /**
@@ -1048,9 +1001,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param lookup the lookup
    * @return true, if successful
    */
-  private boolean hasLoop( ActionMeta action, ActionMeta lookup, HashSet<ActionMeta> checkedEntries ) {
-    String cacheKey =
-      action.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
+  private boolean hasLoop( ActionMeta action, ActionMeta lookup, HashSet<ActionMeta> checkedActions ) {
+    String cacheKey = action.getName() + " - " + (lookup != null ? lookup.getName() : "");
 
     Boolean hasLoop = loopCache.get( cacheKey );
 
@@ -1060,13 +1012,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
     hasLoop = false;
 
-    checkedEntries.add( action );
+    checkedActions.add( action );
 
     int nr = findNrPrevActions( action );
     for ( int i = 0; i < nr; i++ ) {
       ActionMeta prevWorkflowMeta = findPrevAction( action, i );
       if ( prevWorkflowMeta != null && ( prevWorkflowMeta.equals( lookup )
-        || ( !checkedEntries.contains( prevWorkflowMeta ) && hasLoop( prevWorkflowMeta, lookup == null ? action : lookup, checkedEntries ) ) ) ) {
+        || ( !checkedActions.contains( prevWorkflowMeta ) && hasLoop( prevWorkflowMeta, lookup == null ? action : lookup, checkedActions ) ) ) ) {
         hasLoop = true;
         break;
       }
@@ -1086,13 +1038,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Checks if is action used in hops.
    *
-   * @param jge the jge
+   * @param action the jge
    * @return true, if is action used in hops
    */
-  public boolean isEntryUsedInHops( ActionMeta jge ) {
-    WorkflowHopMeta fr = findWorkflowHopFrom( jge );
-    WorkflowHopMeta to = findWorkflowHopTo( jge );
-    if ( fr != null || to != null ) {
+  public boolean isEntryUsedInHops( ActionMeta action ) {
+    WorkflowHopMeta from = findWorkflowHopFrom( action );
+    WorkflowHopMeta to = findWorkflowHopTo( action );
+    if ( from != null || to != null ) {
       return true;
     }
     return false;
@@ -1110,48 +1062,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( i = 0; i < nrActions(); i++ ) {
       // Look at all the hops;
 
-      ActionMeta je = getAction( i );
-      if ( je.getName().equalsIgnoreCase( name ) ) {
+      ActionMeta actionMeta = getAction( i );
+      if ( actionMeta.getName().equalsIgnoreCase( name ) ) {
         count++;
       }
     }
     return count;
-  }
-
-  /**
-   * Find unused nr.
-   *
-   * @param name the name
-   * @return the int
-   */
-  public int findUnusedNr( String name ) {
-    int nr = 1;
-    ActionMeta je = findAction( name, nr );
-    while ( je != null ) {
-      nr++;
-      // log.logDebug("findUnusedNr()", "Trying unused nr: "+nr);
-      je = findAction( name, nr );
-    }
-    return nr;
-  }
-
-  /**
-   * Find max nr.
-   *
-   * @param name the name
-   * @return the int
-   */
-  public int findMaxNr( String name ) {
-    int max = 0;
-    for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta je = getAction( i );
-      if ( je.getName().equalsIgnoreCase( name ) ) {
-        if ( je.getNr() > max ) {
-          max = je.getNr();
-        }
-      }
-    }
-    return max;
   }
 
   /**
@@ -1162,12 +1078,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public String getAlternativeActionName( String name ) {
     String newname = name;
-    ActionMeta jec = findAction( newname );
+    ActionMeta action = findAction( newname );
     int nr = 1;
-    while ( jec != null ) {
+    while ( action != null ) {
       nr++;
       newname = name + " " + nr;
-      jec = findAction( newname );
+      action = findAction( newname );
     }
 
     return newname;
@@ -1182,8 +1098,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public ActionMeta[] getAllWorkflowGraphActions( String name ) {
     int count = 0;
     for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta je = getAction( i );
-      if ( je.getName().equalsIgnoreCase( name ) ) {
+      ActionMeta actionMeta = getAction( i );
+      if ( actionMeta.getName().equalsIgnoreCase( name ) ) {
         count++;
       }
     }
@@ -1191,9 +1107,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
     count = 0;
     for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta je = getAction( i );
-      if ( je.getName().equalsIgnoreCase( name ) ) {
-        retval[ count ] = je;
+      ActionMeta actionMeta = getAction( i );
+      if ( actionMeta.getName().equalsIgnoreCase( name ) ) {
+        retval[ count ] = actionMeta;
         count++;
       }
     }
@@ -1209,13 +1125,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public WorkflowHopMeta[] getAllWorkflowHopsUsing( String name ) {
     List<WorkflowHopMeta> hops = new ArrayList<>();
 
-    for ( WorkflowHopMeta hi : workflowHops ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.getFromAction() != null && hi.getToAction() != null ) {
-        if ( hi.getFromAction().getName().equalsIgnoreCase( name ) || hi.getToAction().getName()
+      if ( hop.getFromAction() != null && hop.getToAction() != null ) {
+        if ( hop.getFromAction().getName().equalsIgnoreCase( name ) || hop.getToAction().getName()
           .equalsIgnoreCase( name ) ) {
-          hops.add( hi );
+          hops.add( hop );
         }
       }
     }
@@ -1223,13 +1139,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   public boolean isPathExist( IAction from, IAction to ) {
-    for ( WorkflowHopMeta hi : workflowHops ) {
-      if ( hi.getFromAction() != null && hi.getToAction() != null ) {
-        if ( hi.getFromAction().getName().equalsIgnoreCase( from.getName() ) ) {
-          if ( hi.getToAction().getName().equalsIgnoreCase( to.getName() ) ) {
+    for ( WorkflowHopMeta hop : workflowHops ) {
+      if ( hop.getFromAction() != null && hop.getToAction() != null ) {
+        if ( hop.getFromAction().getName().equalsIgnoreCase( from.getName() ) ) {
+          if ( hop.getToAction().getName().equalsIgnoreCase( to.getName() ) ) {
             return true;
           }
-          if ( isPathExist( hi.getToAction().getAction(), to ) ) {
+          if ( isPathExist( hop.getToAction().getAction(), to ) ) {
             return true;
           }
         }
@@ -1245,8 +1161,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public void selectAll() {
     int i;
     for ( i = 0; i < nrActions(); i++ ) {
-      ActionMeta ce = getAction( i );
-      ce.setSelected( true );
+      ActionMeta action = getAction( i );
+      action.setSelected( true );
     }
     for ( i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
@@ -1262,8 +1178,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public void unselectAll() {
     int i;
     for ( i = 0; i < nrActions(); i++ ) {
-      ActionMeta ce = getAction( i );
-      ce.setSelected( false );
+      ActionMeta action = getAction( i );
+      action.setSelected( false );
     }
     for ( i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
@@ -1311,8 +1227,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     int minx = Integer.MAX_VALUE;
     int miny = Integer.MAX_VALUE;
     for ( int i = 0; i < nrActions(); i++ ) {
-      ActionMeta actionCopy = getAction( i );
-      Point loc = actionCopy.getLocation();
+      ActionMeta actionMeta = getAction( i );
+      Point loc = actionMeta.getLocation();
       if ( loc.x < minx ) {
         minx = loc.x;
       }
@@ -1351,11 +1267,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the selected locations
    */
   public Point[] getSelectedLocations() {
-    List<ActionMeta> selectedEntries = getSelectedActions();
-    Point[] retval = new Point[ selectedEntries.size() ];
+    List<ActionMeta> actions = getSelectedActions();
+    Point[] retval = new Point[ actions.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
-      ActionMeta si = selectedEntries.get( i );
-      Point p = si.getLocation();
+      ActionMeta action = actions.get( i );
+      Point p = action.getLocation();
       retval[ i ] = new Point( p.x, p.y ); // explicit copy of location
     }
     return retval;
@@ -1384,9 +1300,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public List<ActionMeta> getSelectedActions() {
     List<ActionMeta> selection = new ArrayList<>();
-    for ( ActionMeta je : workflowActions ) {
-      if ( je.isSelected() ) {
-        selection.add( je );
+    for ( ActionMeta actionMeta : workflowActions ) {
+      if ( actionMeta.isSelected() ) {
+        selection.add( actionMeta );
       }
     }
     return selection;
@@ -1484,28 +1400,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Gets the arguments used for this workflow.
-   *
-   * @return Returns the arguments.
-   * @deprecated Moved to the Workflow class
-   */
-  @Deprecated
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  /**
-   * Sets the arguments.
-   *
-   * @param arguments The arguments to set.
-   * @deprecated moved to the workflow class
-   */
-  @Deprecated
-  public void setArguments( String[] arguments ) {
-    this.arguments = arguments;
-  }
-
-  /**
    * Get a list of all the strings used in this workflow.
    *
    * @return A list of StringSearchResult with strings used in the workflow
@@ -1517,15 +1411,15 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       // Loop over all transforms in the pipeline and see what the used
       // vars are...
       for ( int i = 0; i < nrActions(); i++ ) {
-        ActionMeta entryMeta = getAction( i );
-        stringList.add( new StringSearchResult( entryMeta.getName(), entryMeta, this,
+        ActionMeta actionMeta = getAction( i );
+        stringList.add( new StringSearchResult( actionMeta.getName(), actionMeta, this,
           BaseMessages.getString( PKG, "WorkflowMeta.SearchMetadata.ActionName" ) ) );
-        if ( entryMeta.getDescription() != null ) {
-          stringList.add( new StringSearchResult( entryMeta.getDescription(), entryMeta, this,
+        if ( actionMeta.getDescription() != null ) {
+          stringList.add( new StringSearchResult( actionMeta.getDescription(), actionMeta, this,
             BaseMessages.getString( PKG, "WorkflowMeta.SearchMetadata.ActionDescription" ) ) );
         }
-        IAction metaInterface = entryMeta.getAction();
-        StringSearcher.findMetaData( metaInterface, 1, stringList, entryMeta, this );
+        IAction action = actionMeta.getAction();
+        StringSearcher.findMetaData( action, 1, stringList, actionMeta, this );
       }
     }
 
@@ -1672,10 +1566,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Set the status of the workflow.
    *
-   * @param jobStatus The new status description of the workflow
+   * @param status The new status description of the workflow
    */
-  public void setWorkflowStatus( int jobStatus ) {
-    this.workflowStatus = jobStatus;
+  public void setWorkflowStatus( int status ) {
+    this.workflowStatus = status;
   }
 
   /**
@@ -1842,8 +1736,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
           // loop over transforms, databases will be exported to XML anyway.
           //
-          for ( ActionMeta action : workflowMeta.workflowActions ) {
-            action.getAction().exportResources( variables, definitions, namingInterface, metadataProvider );
+          for ( ActionMeta actionMeta : workflowMeta.workflowActions ) {
+            actionMeta.getAction().exportResources( variables, definitions, namingInterface, metadataProvider );
           }
 
           // Set a number of parameters for all the data files referenced so far...
@@ -1858,9 +1752,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
           // At the end, add ourselves to the map...
           //
-          String jobMetaContent = workflowMeta.getXml();
-
-          definition = new ResourceDefinition( resourceName, jobMetaContent );
+          definition = new ResourceDefinition( resourceName, workflowMeta.getXml() );
 
           // Also remember the original filename (if any), including variables etc.
           //
@@ -1886,16 +1778,16 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
 
   /**
-   * See if the name of the supplied action copy doesn't collide with any other action copy in the workflow.
+   * See if the name of the supplied action doesn't collide with any other action in the workflow.
    *
-   * @param je The action copy to verify the name for.
+   * @param actionMeta The action copy to verify the name for.
    */
-  public void renameActionIfNameCollides( ActionMeta je ) {
+  public void renameActionIfNameCollides( ActionMeta actionMeta ) {
     // First see if the name changed.
     // If so, we need to verify that the name is not already used in the
     // workflow.
     //
-    String newname = je.getName();
+    String newname = actionMeta.getName();
 
     // See if this name exists in the other actions
     //
@@ -1903,20 +1795,20 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     int nr = 1;
     do {
       found = false;
-      for ( ActionMeta copy : workflowActions ) {
-        if ( copy != je && copy.getName().equalsIgnoreCase( newname ) && copy.getNr() == 0 ) {
+      for ( ActionMeta action : workflowActions ) {
+        if ( action != actionMeta && action.getName().equalsIgnoreCase( newname ) ) {
           found = true;
         }
       }
       if ( found ) {
         nr++;
-        newname = je.getName() + " (" + nr + ")";
+        newname = actionMeta.getName() + " (" + nr + ")";
       }
     } while ( found );
 
     // Rename if required.
     //
-    je.setName( newname );
+    actionMeta.setName( newname );
   }
 
   /**
@@ -1929,9 +1821,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Gets the jobhops.
+   * Gets the workflow hops.
    *
-   * @return the jobhops
+   * @return the workflow hops
    */
   public List<WorkflowHopMeta> getWorkflowHops() {
     return workflowHops;

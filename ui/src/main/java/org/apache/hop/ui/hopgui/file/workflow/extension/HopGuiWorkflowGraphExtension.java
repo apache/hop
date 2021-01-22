@@ -39,22 +39,6 @@ public class HopGuiWorkflowGraphExtension {
   }
 
   /**
-   * Gets workflowGraph
-   *
-   * @return value of workflowGraph
-   */
-  public HopGuiWorkflowGraph getJobGraph() {
-    return workflowGraph;
-  }
-
-  /**
-   * @param workflowGraph The workflowGraph to set
-   */
-  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
-    this.workflowGraph = workflowGraph;
-  }
-
-  /**
    * Gets event
    *
    * @return value of event

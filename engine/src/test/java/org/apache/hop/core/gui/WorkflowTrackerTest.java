@@ -76,7 +76,7 @@ public class WorkflowTrackerTest {
   public void findJobTracker_EntryNameNotFound() {
     WorkflowTracker workflowTracker = createTracker();
     for ( int i = 0; i < 3; i++ ) {
-      workflowTracker.addWorkflowTracker( createTracker( Integer.toString( i ), 1 ) );
+      workflowTracker.addWorkflowTracker( createTracker( Integer.toString( i ) ) );
     }
 
     ActionMeta copy = createActionMeta( "not match" );
@@ -88,9 +88,9 @@ public class WorkflowTrackerTest {
   public void findJobTracker_EntryNameFound() {
     WorkflowTracker workflowTracker = createTracker();
     WorkflowTracker[] children = new WorkflowTracker[] {
-      createTracker( "0", 1 ),
-      createTracker( "1", 1 ),
-      createTracker( "2", 1 )
+      createTracker( "0" ),
+      createTracker( "1" ),
+      createTracker( "2" )
     };
     for ( WorkflowTracker child : children ) {
       workflowTracker.addWorkflowTracker( child );
@@ -103,16 +103,15 @@ public class WorkflowTrackerTest {
 
 
   private static WorkflowTracker createTracker() {
-    return createTracker( null, -1 );
+    return createTracker( null );
   }
 
-  private static WorkflowTracker createTracker( String actionName, int actionNr ) {
+  private static WorkflowTracker createTracker( String actionName ) {
     WorkflowMeta workflowMeta = mock( WorkflowMeta.class );
     WorkflowTracker workflowTracker = new WorkflowTracker( workflowMeta );
     if ( actionName != null ) {
       ActionResult result = mock( ActionResult.class );
       when( result.getActionName() ).thenReturn( actionName );
-      when( result.getActionNr() ).thenReturn( actionNr );
       workflowTracker.setActionResult( result );
     }
     return workflowTracker;
@@ -123,7 +122,6 @@ public class WorkflowTrackerTest {
     when( action.getName() ).thenReturn( actionName );
 
     ActionMeta actionMeta = new ActionMeta( action );
-    actionMeta.setNr( 1 );
     return actionMeta;
   }
 

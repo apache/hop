@@ -60,7 +60,7 @@ public class WorkflowConfiguration {
     return xml.toString();
   }
 
-  public WorkflowConfiguration( Node configNode, IVariables variables ) throws HopException, HopException, ParseException, IOException {
+  public WorkflowConfiguration( Node configNode, IVariables variables ) throws HopException, ParseException, IOException {
     Node workflowNode = XmlHandler.getSubNode( configNode, WorkflowMeta.XML_TAG );
     Node trecNode = XmlHandler.getSubNode( configNode, WorkflowExecutionConfiguration.XML_TAG );
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration( trecNode );
@@ -69,7 +69,7 @@ public class WorkflowConfiguration {
     workflowMeta = new WorkflowMeta( workflowNode, metadataProvider, variables );
   }
 
-  public static final WorkflowConfiguration fromXml( String xml, IVariables variables ) throws HopException, HopException, ParseException, IOException {
+  public static final WorkflowConfiguration fromXml( String xml, IVariables variables ) throws HopException, ParseException, IOException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new WorkflowConfiguration( configNode, variables);
