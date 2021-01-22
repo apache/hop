@@ -132,7 +132,7 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
   /**
    * Instantiates a new action base object.
    */
-  public ActionBase() {
+  protected ActionBase() {
     name = null;
     description = null;
     log = new LogChannel( this );
@@ -146,7 +146,7 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
    * @param name        the name of the action
    * @param description the description of the action
    */
-  public ActionBase( String name, String description ) {
+  protected ActionBase( String name, String description ) {
     setName( name );
     setDescription( description );
     log = new LogChannel( this );
@@ -220,8 +220,8 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
    *
    * @param Description the new description
    */
-  public void setDescription( String Description ) {
-    this.description = Description;
+  public void setDescription( String description ) {
+    this.description = description;
   }
 
   /**
@@ -235,7 +235,7 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
   }
 
   @Override public String getTypeId() {
-    return "ACTION";
+    return ActionPluginType.ID;
   }
 
   /**
@@ -292,10 +292,8 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
     return "PIPELINE".equals( pluginId );
   }
 
-  // Add here for the new types?
-
   /**
-   * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving
+   * This method is called by Hop whenever a action needs to serialize its settings to XML. It is called when saving
    * a workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series
    * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used
    * to construct the XML string.
@@ -314,21 +312,21 @@ public abstract class ActionBase implements IAction, Cloneable, ILoggingObject,
   }
 
   /**
-   * This method is called by PDI whenever a action needs to read its settings from XML. The XML node containing the
+   * This method is called by Hop whenever a action needs to read its settings from XML. The XML node containing the
    * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
    * typically used to conveniently read the settings from the XML node.
    *
-   * @param entrynode the top-level XML node
+   * @param node the top-level XML node
    * @throws HopXmlException if any errors occur during the loading of the XML
    */
-  public void loadXml( Node entrynode ) throws HopXmlException {
+  public void loadXml( Node node ) throws HopXmlException {
     try {
-      setName( XmlHandler.getTagValue( entrynode, "name" ) );
-      setDescription( XmlHandler.getTagValue( entrynode, "description" ) );
+      setName( XmlHandler.getTagValue( node, "name" ) );
+      setDescription( XmlHandler.getTagValue( node, "description" ) );
 
       // Load the attribute groups map
       //
-      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( entrynode, AttributesUtil.XML_TAG ) );
+      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( node, AttributesUtil.XML_TAG ) );
 
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load base info for action", e );
