@@ -102,7 +102,20 @@ public class KettleImport extends HopImport implements IHopImport {
         processNode(doc, doc.getDocumentElement());
 
         DOMSource domSource = new DOMSource(doc);
-        String outFilename = kettleFile.getAbsolutePath().replaceAll(inputFolder.getAbsolutePath(), outputFolder.getAbsolutePath()).replaceAll(".ktr", ".hpl").replaceAll(".kjb", ".hwf");
+        String outFilename = "";
+
+        if(System.getProperty("os.name").contains("Windows")){
+            outFilename = kettleFile.getAbsolutePath().replaceAll("\\\\", "/")
+                    .replaceAll(inputFolder.getAbsolutePath()
+                            .replaceAll("\\\\", "/"), outputFolder.getAbsolutePath().replaceAll("\\\\", "/"))
+                    .replaceAll(".ktr", ".hpl")
+                    .replaceAll(".kjb", ".hwf");
+        }else{
+            outFilename = kettleFile.getAbsolutePath()
+                    .replaceAll(inputFolder.getAbsolutePath(), outputFolder.getAbsolutePath())
+                    .replaceAll(".ktr", ".hpl")
+                    .replaceAll(".kjb", ".hwf");
+        }
         migratedFilesMap.put(outFilename, domSource);
 
     }
