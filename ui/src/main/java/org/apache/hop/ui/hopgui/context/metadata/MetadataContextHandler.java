@@ -17,8 +17,11 @@
 
 package org.apache.hop.ui.hopgui.context.metadata;
 
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -26,12 +29,13 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MetadataContextHandler implements IGuiContextHandler {
 
+  private static final Class<?> PKG = MetadataContextHandler.class; // For Translator
+  
   public static final String CONTEXT_ID = "HopGuiMetadataContext";
 
   private HopGui hopGui;
@@ -62,7 +66,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
     GuiAction newAction = new GuiAction(
       "CREATE_" + hopMetadata.name(),
       GuiActionType.Create,
-      hopMetadata.name(),
+      hopMetadata.name(),      
       "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
       hopMetadata.image(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadataWithEditor() );
@@ -94,6 +98,23 @@ public class MetadataContextHandler implements IGuiContextHandler {
     deleteAction.setCategory( "Metadata" );
     deleteAction.setCategoryOrder( "2" );
     actions.add( deleteAction );
+
+    // Database meta
+    if (metadataObjectClass.isAssignableFrom(DatabaseMeta.class)) {
+      GuiAction databaseClearCacheAction =
+          new GuiAction(
+              "DATABASE_CLEAR_CACHE",
+              GuiActionType.Custom,
+              BaseMessages.getString( PKG, "HopGui.Context.Database.Menu.ClearDatabaseCache.Label" ),
+              BaseMessages.getString( PKG, "HopGui.Context.Database.Menu.ClearDatabaseCache.Tooltip" ),
+              null,
+              (shiftClicked, controlClicked, parameters) ->
+                  DbCache.getInstance().clear((String) parameters[0]));
+      newAction.setClassLoader(metadataObjectClass.getClassLoader());
+      newAction.setCategory("Metadata");
+      newAction.setCategoryOrder("3");
+      actions.add(databaseClearCacheAction);
+    }
 
     return actions;
   }

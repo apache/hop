@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.DescribedVariable;
@@ -164,6 +165,7 @@ public class HopGui
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
   public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
   public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
+  public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE = "40030-menu-tools-database-clearcache";
 
   public static final String ID_MAIN_MENU_HELP_PARENT_ID = "90000-menu-help";
   public static final String ID_MAIN_MENU_HELP_ABOUT = "90009-menu-help-about";
@@ -919,6 +921,16 @@ public class HopGui
       }
     }
   }
+  
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE,
+      label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
+      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID, 
+      separator = true)
+  public void menuToolsDatabaseClearCache() {
+    DbCache.getInstance().clear(null);    
+  } 
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
