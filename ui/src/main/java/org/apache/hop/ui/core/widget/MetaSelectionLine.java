@@ -17,12 +17,16 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -34,6 +38,8 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.metadata.MetadataContextHandler;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -58,7 +64,7 @@ import org.eclipse.swt.widgets.ToolItem;
  * The goal of this composite is to add a line on a dialog which contains:
  * - A label (for example: Database connection)
  * - A Combo Variable selection (editable ComboBox, for example containing all connection values in the MetaStore)
- * - New, Edit and Manage buttons (The latter opens up a generic MetaStore editor)
+ * - New and Edit buttons (The latter opens up a generic Metadata editor)
  *
  * @author Matt
  * @since 2019-12-17
@@ -123,21 +129,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wLabel.setToolTipText( toolTipText );
     wLabel.requestLayout(); // Avoid GTK error in log
 
-    HopMetadata hopMetadata = HopMetadataUtil.getHopMetadataAnnotation( managedClass );
-    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), hopMetadata.image(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-    
-    final Menu menu = new Menu (getShell(), SWT.POP_UP);
-    
-    MenuItem itemNew = new MenuItem (menu, SWT.PUSH);
-    itemNew.setText( BaseMessages.getString( PKG, "System.Button.New" ) );
-    itemNew.addListener( SWT.Selection, e -> newMetadata() );    
-    MenuItem itemEdit = new MenuItem (menu, SWT.PUSH);
-    itemEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
-    itemEdit.addListener( SWT.Selection, e -> editMetadata() );
-//    MenuItem itemManage = new MenuItem (menu, SWT.PUSH);
-//    itemManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );
-//    itemManage.addListener( SWT.Selection, e -> manageMetadata() );
-//        
+    // Toolbar for default actions
+    //
+    HopMetadata metadata = HopMetadataUtil.getHopMetadataAnnotation( managedClass );
+    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), metadata.image(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+         
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL );    
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment( 100, 0 );
@@ -164,9 +160,50 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wCombo.setLayoutData( fdCombo );
     wCombo.setToolTipText( toolTipText );
 
-    props.setLook( wCombo );
+    // Menu for gui actions
+    //
+    final Menu menu = new Menu (getShell(), SWT.POP_UP);
+    
+    MenuItem itemNew = new MenuItem (menu, SWT.PUSH);
+    itemNew.setText( BaseMessages.getString( PKG, "System.Button.New" ) );   
+    itemNew.addListener( SWT.Selection, e -> newMetadata() );    
+    final MenuItem itemEdit = new MenuItem (menu, SWT.PUSH);
+    itemEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
+    itemEdit.addListener( SWT.Selection, e -> editMetadata() );
+        
+    
+    MetadataContextHandler contextHandler = new MetadataContextHandler(HopGui.getInstance(), metadataProvider, managedClass);
+
+    // Filter custom action
+    //
+    List<GuiAction> actions = new ArrayList<>();
+    for (GuiAction action : contextHandler.getSupportedActions()) {
+      if (action.getType() == GuiActionType.Custom) {
+        actions.add(action);
+      }
+    }
 
     
+    if (!actions.isEmpty()) {
+      new MenuItem(menu, SWT.SEPARATOR);
+      // Add custom action
+      for (GuiAction action : actions) {
+        if (action.getType() == GuiActionType.Custom) {
+          MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
+          menuItem.setText(action.getShortName());
+          menuItem.setToolTipText(action.getTooltip());
+          menuItem.addListener(
+              SWT.Selection,
+              e -> {
+                IGuiActionLambda actionLambda = action.getActionLambda();
+                actionLambda.executeAction(false,false,wCombo.getText());
+              });
+        }
+      }
+    }
+
+    props.setLook( wCombo );
+   
     item.addListener(SWT.Selection,(event) -> {
         if (event.detail == SWT.ARROW) {
            Rectangle rect = item.getBounds ();
@@ -200,13 +237,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     return manager.editMetadata( selected );
   }
-//
-//  private void openMetaDialog( T element, IHopMetadataSerializer<T> serializer ) throws Exception {
-//    if ( manager.openMetaDialog( element, serializer ) ) {
-//      fillItems();
-//      wCombo.setText( element.getName() );
-//    }
-//  }
 
   private T newMetadata() {
     T element = manager.newMetadata();
