@@ -207,11 +207,6 @@
     ui/src/main/java/org/apache/hop/ui/util/ImageUtil.java
 
     =======================================================================================
-    GNU Lesser General Public License Version 2.1 (LGPL 2.1) For details, see licenses/LICENSE-LGPL21
-    =======================================================================================
-    plugins/actions/ftp/src/main/java/org/apache/hop/workflow/actions/ftpput/FtpClient.java
-
-    =======================================================================================
     Creative Commons Attribution-Share Alike 4.0 International For details, see licenses/LICENSE-CC-BY-SA
     =======================================================================================
     plugins/misc/testing/src/main/resources/Test_tube_icon.svg (Original location: https://commons.wikimedia.org/wiki/File:Test_tube_icon.svg, Created By: Townie: https://commons.wikimedia.org/wiki/User:Townie)
