@@ -1071,12 +1071,4 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     action.setOriginalModificationDate( wSetModificationDateToOriginal.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

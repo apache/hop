@@ -52,21 +52,7 @@
 			<useProjectArtifact>false</useProjectArtifact>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
-				<include>com.enterprisedt:edtftpj:jar</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
-			<useProjectArtifact>false</useProjectArtifact>
-			<outputDirectory>lib</outputDirectory>
-			<includes>
-				<include>trilead-ssh2:trilead-ssh2:jar</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
-			<useProjectArtifact>false</useProjectArtifact>
-			<outputDirectory>lib</outputDirectory>
-			<includes>
-				<include>ftp4che:ftp4che:jar</include>
+				<include>commons-net:commons-net:jar</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>

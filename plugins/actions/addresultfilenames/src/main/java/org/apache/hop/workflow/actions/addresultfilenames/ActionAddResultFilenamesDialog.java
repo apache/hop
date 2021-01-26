@@ -540,12 +540,4 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     }
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

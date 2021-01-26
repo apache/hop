@@ -929,12 +929,4 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlMaxValue.setVisible( !compareValue );
     wMaxValue.setVisible( !compareValue );
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

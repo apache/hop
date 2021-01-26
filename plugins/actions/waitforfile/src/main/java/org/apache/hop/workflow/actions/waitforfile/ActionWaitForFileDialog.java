@@ -343,12 +343,4 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     action.setAddFilenameToResult( wAddFilenameResult.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

@@ -526,12 +526,4 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

@@ -791,12 +791,4 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     action.setSourceWildcards( wildcard );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

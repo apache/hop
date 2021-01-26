@@ -218,12 +218,4 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     action.scaleTime = wScaleTime.getSelectionIndex();
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

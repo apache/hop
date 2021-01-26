@@ -229,7 +229,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

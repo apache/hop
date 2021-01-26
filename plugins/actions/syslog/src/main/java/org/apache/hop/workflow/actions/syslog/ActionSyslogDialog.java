@@ -544,12 +544,4 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     action.addHostName( wAddHostName.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

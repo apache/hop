@@ -583,14 +583,6 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     dispose();
   }
 
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
   protected Image getImage() {
     return GuiResource.getInstance().getImage( "ui/images/CPY.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
   }

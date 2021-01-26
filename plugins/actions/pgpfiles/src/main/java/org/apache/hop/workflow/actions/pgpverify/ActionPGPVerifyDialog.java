@@ -366,12 +366,4 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbDetachedFilename.setEnabled( wuseDetachedSignature.getSelection() );
   }
 
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
 }

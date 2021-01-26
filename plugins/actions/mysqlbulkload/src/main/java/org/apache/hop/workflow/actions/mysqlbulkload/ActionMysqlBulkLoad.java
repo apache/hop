@@ -192,7 +192,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     return connection;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

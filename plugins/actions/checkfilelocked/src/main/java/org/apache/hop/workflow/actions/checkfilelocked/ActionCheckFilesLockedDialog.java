@@ -503,12 +503,4 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     }
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

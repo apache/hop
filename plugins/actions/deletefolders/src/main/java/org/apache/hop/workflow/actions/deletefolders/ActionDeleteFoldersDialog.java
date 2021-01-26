@@ -542,12 +542,4 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

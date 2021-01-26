@@ -491,7 +491,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

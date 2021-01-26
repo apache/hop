@@ -583,7 +583,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return resultFilenames;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

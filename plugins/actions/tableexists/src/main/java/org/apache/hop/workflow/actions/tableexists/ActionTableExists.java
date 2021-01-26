@@ -130,7 +130,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     return connection;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

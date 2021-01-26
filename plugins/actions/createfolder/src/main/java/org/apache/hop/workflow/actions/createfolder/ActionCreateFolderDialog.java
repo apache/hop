@@ -241,12 +241,4 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     action.setFailOfFolderExists( wAbortExists.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

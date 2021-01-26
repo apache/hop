@@ -672,12 +672,4 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     action.setSuccessWhenVarSet( wSuccessWhenSet.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

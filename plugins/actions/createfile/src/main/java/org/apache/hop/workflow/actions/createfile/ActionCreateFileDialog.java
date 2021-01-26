@@ -270,12 +270,4 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     action.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }
