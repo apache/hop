@@ -270,12 +270,4 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     dispose();
   }
 
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
 }

@@ -240,7 +240,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

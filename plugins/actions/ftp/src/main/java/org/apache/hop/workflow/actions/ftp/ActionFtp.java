@@ -17,14 +17,9 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FTPException;
-import com.enterprisedt.net.ftp.FTPFile;
-import com.enterprisedt.net.ftp.FTPFileFactory;
-import com.enterprisedt.net.ftp.FTPFileParser;
-import com.enterprisedt.net.ftp.FTPTransferType;
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -49,11 +44,13 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.actions.util.FtpClientUtil;
+import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -75,7 +72,7 @@ import java.util.regex.Pattern;
     image = "FTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftp.html")
-public class ActionFtp extends ActionBase implements Cloneable, IAction {
+public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtp.class; // For Translator
 
   private String serverName;
@@ -84,7 +81,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   private String password;
 
-  private String ftpDirectory;
+  private String remoteDirectory;
 
   private String targetDirectory;
 
@@ -108,13 +105,13 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   /** Default encoding when making a new ftp action instance. */
   private static String DEFAULT_CONTROL_ENCODING = "ISO-8859-1";
 
-  private boolean movefiles;
+  private boolean moveFiles;
 
-  private String movetodirectory;
+  private String moveToDirectory;
 
-  private boolean adddate;
+  private boolean addDate;
 
-  private boolean addtime;
+  private boolean addTime;
 
   private boolean specifyFormat;
 
@@ -122,11 +119,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   private boolean addDateBeforeExtension;
 
-  private boolean isaddresult;
+  private boolean isAddResult;
 
-  private boolean createmovefolder;
+  private boolean createMoveFolder;
 
-  private String port;
+  private String serverPort;
 
   private String proxyHost;
 
@@ -146,19 +143,19 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   public int ifFileExistsSkip = 0;
 
-  public String SifFileExistsSkip = "ifFileExistsSkip";
+  public static final String STRING_IF_FILE_EXISTS_SKIP = "ifFileExistsSkip";
 
   public int ifFileExistsCreateUniq = 1;
 
-  public String SifFileExistsCreateUniq = "ifFileExistsCreateUniq";
+  public static final String STRING_IF_FILE_EXISTS_CREATE_UNIQ = "ifFileExistsCreateUniq";
 
   public int ifFileExistsFail = 2;
 
-  public String SifFileExistsFail = "ifFileExistsFail";
+  public static final String STRING_IF_FILE_EXISTS_FAIL = "ifFileExistsFail";
 
   public int ifFileExists;
 
-  public String SifFileExists;
+  public String stringIfFileExists;
 
   public String SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED = "success_when_at_least";
 
@@ -172,7 +169,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   long nrErrors = 0;
 
-  long NrfilesRetrieved = 0;
+  long nrFilesRetrieved = 0;
 
   boolean successConditionBroken = false;
 
@@ -185,21 +182,21 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   public ActionFtp(String n) {
     super(n, "");
     nrLimit = "10";
-    port = "21";
+    serverPort = "21";
     socksProxyPort = "1080";
     successCondition = SUCCESS_IF_NO_ERRORS;
     ifFileExists = ifFileExistsSkip;
-    SifFileExists = SifFileExistsSkip;
+    stringIfFileExists = STRING_IF_FILE_EXISTS_SKIP;
 
     serverName = null;
-    movefiles = false;
-    movetodirectory = null;
-    adddate = false;
-    addtime = false;
+    moveFiles = false;
+    moveToDirectory = null;
+    addDate = false;
+    addTime = false;
     specifyFormat = false;
     addDateBeforeExtension = false;
-    isaddresult = true;
-    createmovefolder = false;
+    isAddResult = true;
+    createMoveFolder = false;
 
     setControlEncoding(DEFAULT_CONTROL_ENCODING);
   }
@@ -214,446 +211,142 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(650); // 528 chars in spaces and tags alone
+    StringBuilder xml = new StringBuilder(650); // 528 chars in spaces and tags alone
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("port", port));
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
-    retval
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("port", serverPort ));
+    xml.append("      ").append(XmlHandler.addTagValue("servername", serverName));
+    xml.append("      ").append(XmlHandler.addTagValue("username", userName));
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-    retval.append("      ").append(XmlHandler.addTagValue("ftpdirectory", ftpDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("targetdirectory", targetDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-    retval.append("      ").append(XmlHandler.addTagValue("remove", remove));
-    retval.append("      ").append(XmlHandler.addTagValue("only_new", onlyGettingNewFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
-    retval.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
-    retval.append("      ").append(XmlHandler.addTagValue("movefiles", movefiles));
-    retval.append("      ").append(XmlHandler.addTagValue("movetodirectory", movetodirectory));
+    xml.append("      ").append(XmlHandler.addTagValue("ftpdirectory", remoteDirectory ));
+    xml.append("      ").append(XmlHandler.addTagValue("targetdirectory", targetDirectory));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
+    xml.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
+    xml.append("      ").append(XmlHandler.addTagValue("remove", remove));
+    xml.append("      ").append(XmlHandler.addTagValue("only_new", onlyGettingNewFiles));
+    xml.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
+    xml.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
+    xml.append("      ").append(XmlHandler.addTagValue("movefiles", moveFiles ));
+    xml.append("      ").append(XmlHandler.addTagValue("movetodirectory", moveToDirectory ));
 
-    retval.append("      ").append(XmlHandler.addTagValue("adddate", adddate));
-    retval.append("      ").append(XmlHandler.addTagValue("addtime", addtime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("adddate", addDate ));
+    xml.append("      ").append(XmlHandler.addTagValue("addtime", addTime ));
+    xml.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    xml.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    xml
         .append("      ")
         .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    retval.append("      ").append(XmlHandler.addTagValue("isaddresult", isaddresult));
-    retval.append("      ").append(XmlHandler.addTagValue("createmovefolder", createmovefolder));
+    xml.append("      ").append(XmlHandler.addTagValue("isaddresult", isAddResult ));
+    xml.append("      ").append(XmlHandler.addTagValue("createmovefolder", createMoveFolder ));
 
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue(
                 "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    xml
         .append("      ")
         .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
-    retval
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue(
                 "socksproxy_password",
                 Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword)));
 
-    retval.append("      ").append(XmlHandler.addTagValue("ifFileExists", SifFileExists));
+    xml.append("      ").append(XmlHandler.addTagValue("ifFileExists", stringIfFileExists ));
 
-    retval.append("      ").append(XmlHandler.addTagValue("nr_limit", nrLimit));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    xml.append("      ").append(XmlHandler.addTagValue("nr_limit", nrLimit));
+    xml.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
 
-    return retval.toString();
+    return xml.toString();
   }
 
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
+  @Override
+  public void loadXml(Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
-      super.loadXml(entrynode);
-      port = XmlHandler.getTagValue(entrynode, "port");
-      serverName = XmlHandler.getTagValue(entrynode, "servername");
-      userName = XmlHandler.getTagValue(entrynode, "username");
+      super.loadXml(entryNode);
+      serverPort = XmlHandler.getTagValue(entryNode, "port");
+      serverName = XmlHandler.getTagValue(entryNode, "servername");
+      userName = XmlHandler.getTagValue(entryNode, "username");
       password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
-      ftpDirectory = XmlHandler.getTagValue(entrynode, "ftpdirectory");
-      targetDirectory = XmlHandler.getTagValue(entrynode, "targetdirectory");
-      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-      binaryMode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "binary"));
-      timeout = Const.toInt(XmlHandler.getTagValue(entrynode, "timeout"), 10000);
-      remove = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "remove"));
-      onlyGettingNewFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "only_new"));
-      activeConnection = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "active"));
-      controlEncoding = XmlHandler.getTagValue(entrynode, "control_encoding");
+          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entryNode, "password"));
+      remoteDirectory = XmlHandler.getTagValue(entryNode, "ftpdirectory");
+      targetDirectory = XmlHandler.getTagValue(entryNode, "targetdirectory");
+      wildcard = XmlHandler.getTagValue(entryNode, "wildcard");
+      binaryMode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "binary"));
+      timeout = Const.toInt(XmlHandler.getTagValue(entryNode, "timeout"), 10000);
+      remove = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "remove"));
+      onlyGettingNewFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "only_new"));
+      activeConnection = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "active"));
+      controlEncoding = XmlHandler.getTagValue(entryNode, "control_encoding");
       if (controlEncoding == null) {
         // if we couldn't retrieve an encoding, assume it's an old instance and
         // put in the the encoding used before v 2.4.0
         controlEncoding = LEGACY_CONTROL_ENCODING;
       }
-      movefiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "movefiles"));
-      movetodirectory = XmlHandler.getTagValue(entrynode, "movetodirectory");
+      moveFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "movefiles"));
+      moveToDirectory = XmlHandler.getTagValue(entryNode, "movetodirectory");
 
-      adddate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "adddate"));
-      addtime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addtime"));
-      specifyFormat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "SpecifyFormat"));
-      dateTimeFormat = XmlHandler.getTagValue(entrynode, "date_time_format");
+      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "adddate"));
+      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "addtime"));
+      specifyFormat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "SpecifyFormat"));
+      dateTimeFormat = XmlHandler.getTagValue(entryNode, "date_time_format");
       addDateBeforeExtension =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "AddDateBeforeExtension"));
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "AddDateBeforeExtension"));
 
-      String addresult = XmlHandler.getTagValue(entrynode, "isaddresult");
+      String addresult = XmlHandler.getTagValue(entryNode, "isaddresult");
 
       if (Utils.isEmpty(addresult)) {
-        isaddresult = true;
+        isAddResult = true;
       } else {
-        isaddresult = "Y".equalsIgnoreCase(addresult);
+        isAddResult = "Y".equalsIgnoreCase(addresult);
       }
 
-      createmovefolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createmovefolder"));
+      createMoveFolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "createmovefolder"));
 
-      proxyHost = XmlHandler.getTagValue(entrynode, "proxy_host");
-      proxyPort = XmlHandler.getTagValue(entrynode, "proxy_port");
-      proxyUsername = XmlHandler.getTagValue(entrynode, "proxy_username");
+      proxyHost = XmlHandler.getTagValue(entryNode, "proxy_host");
+      proxyPort = XmlHandler.getTagValue(entryNode, "proxy_port");
+      proxyUsername = XmlHandler.getTagValue(entryNode, "proxy_username");
       proxyPassword =
           Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(entrynode, "proxy_password"));
-      socksProxyHost = XmlHandler.getTagValue(entrynode, "socksproxy_host");
-      socksProxyPort = XmlHandler.getTagValue(entrynode, "socksproxy_port");
-      socksProxyUsername = XmlHandler.getTagValue(entrynode, "socksproxy_username");
+              XmlHandler.getTagValue(entryNode, "proxy_password"));
+      socksProxyHost = XmlHandler.getTagValue(entryNode, "socksproxy_host");
+      socksProxyPort = XmlHandler.getTagValue(entryNode, "socksproxy_port");
+      socksProxyUsername = XmlHandler.getTagValue(entryNode, "socksproxy_username");
       socksProxyPassword =
           Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(entrynode, "socksproxy_password"));
-      SifFileExists = XmlHandler.getTagValue(entrynode, "ifFileExists");
-      if (Utils.isEmpty(SifFileExists)) {
+              XmlHandler.getTagValue(entryNode, "socksproxy_password"));
+      stringIfFileExists = XmlHandler.getTagValue(entryNode, "ifFileExists");
+      if (Utils.isEmpty( stringIfFileExists )) {
         ifFileExists = ifFileExistsSkip;
       } else {
-        if (SifFileExists.equals(SifFileExistsCreateUniq)) {
+        if ( stringIfFileExists.equals( STRING_IF_FILE_EXISTS_CREATE_UNIQ )) {
           ifFileExists = ifFileExistsCreateUniq;
-        } else if (SifFileExists.equals(SifFileExistsFail)) {
+        } else if ( stringIfFileExists.equals( STRING_IF_FILE_EXISTS_FAIL )) {
           ifFileExists = ifFileExistsFail;
         } else {
           ifFileExists = ifFileExistsSkip;
         }
       }
-      nrLimit = XmlHandler.getTagValue(entrynode, "nr_limit");
+      nrLimit = XmlHandler.getTagValue(entryNode, "nr_limit");
       successCondition =
-          Const.NVL(XmlHandler.getTagValue(entrynode, "success_condition"), SUCCESS_IF_NO_ERRORS);
+          Const.NVL(XmlHandler.getTagValue(entryNode, "success_condition"), SUCCESS_IF_NO_ERRORS);
 
     } catch (HopXmlException xe) {
       throw new HopXmlException("Unable to load action of type 'ftp' from XML node", xe);
     }
-  }
-
-  public void setLimit(String nrLimitin) {
-    this.nrLimit = nrLimitin;
-  }
-
-  public String getLimit() {
-    return nrLimit;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
-  }
-
-  public void setCreateMoveFolder(boolean createmovefolderin) {
-    this.createmovefolder = createmovefolderin;
-  }
-
-  public boolean isCreateMoveFolder() {
-    return createmovefolder;
-  }
-
-  public void setAddDateBeforeExtension(boolean addDateBeforeExtension) {
-    this.addDateBeforeExtension = addDateBeforeExtension;
-  }
-
-  public boolean isAddDateBeforeExtension() {
-    return addDateBeforeExtension;
-  }
-
-  public void setAddToResult(boolean isaddresultin) {
-    this.isaddresult = isaddresultin;
-  }
-
-  public boolean isAddToResult() {
-    return isaddresult;
-  }
-
-  public void setDateInFilename(boolean adddate) {
-    this.adddate = adddate;
-  }
-
-  public boolean isDateInFilename() {
-    return adddate;
-  }
-
-  public void setTimeInFilename(boolean addtime) {
-    this.addtime = addtime;
-  }
-
-  public boolean isTimeInFilename() {
-    return addtime;
-  }
-
-  public boolean isSpecifyFormat() {
-    return specifyFormat;
-  }
-
-  public void setSpecifyFormat(boolean specifyFormat) {
-    this.specifyFormat = specifyFormat;
-  }
-
-  public String getDateTimeFormat() {
-    return dateTimeFormat;
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    this.dateTimeFormat = dateTimeFormat;
-  }
-
-  /** @return Returns the movefiles. */
-  public boolean isMoveFiles() {
-    return movefiles;
-  }
-
-  /** @param movefilesin The movefiles to set. */
-  public void setMoveFiles(boolean movefilesin) {
-    this.movefiles = movefilesin;
-  }
-
-  /** @return Returns the movetodirectory. */
-  public String getMoveToDirectory() {
-    return movetodirectory;
-  }
-
-  /** @param movetoin The movetodirectory to set. */
-  public void setMoveToDirectory(String movetoin) {
-    this.movetodirectory = movetoin;
-  }
-
-  /** @return Returns the binaryMode. */
-  public boolean isBinaryMode() {
-    return binaryMode;
-  }
-
-  /** @param binaryMode The binaryMode to set. */
-  public void setBinaryMode(boolean binaryMode) {
-    this.binaryMode = binaryMode;
-  }
-
-  /** @return Returns the directory. */
-  public String getFtpDirectory() {
-    return ftpDirectory;
-  }
-
-  /** @param directory The directory to set. */
-  public void setFtpDirectory(String directory) {
-    this.ftpDirectory = directory;
-  }
-
-  /** @return Returns the password. */
-  public String getPassword() {
-    return password;
-  }
-
-  /** @param password The password to set. */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /** @return Returns the serverName. */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /** @param serverName The serverName to set. */
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  /** @return Returns the port. */
-  public String getPort() {
-    return port;
-  }
-
-  /** @param port The port to set. */
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  /** @return Returns the userName. */
-  public String getUserName() {
-    return userName;
-  }
-
-  /** @param userName The userName to set. */
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  /** @return Returns the wildcard. */
-  public String getWildcard() {
-    return wildcard;
-  }
-
-  /** @param wildcard The wildcard to set. */
-  public void setWildcard(String wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  /** @return Returns the targetDirectory. */
-  public String getTargetDirectory() {
-    return targetDirectory;
-  }
-
-  /** @param targetDirectory The targetDirectory to set. */
-  public void setTargetDirectory(String targetDirectory) {
-    this.targetDirectory = targetDirectory;
-  }
-
-  /** @param timeout The timeout to set. */
-  public void setTimeout(int timeout) {
-    this.timeout = timeout;
-  }
-
-  /** @return Returns the timeout. */
-  public int getTimeout() {
-    return timeout;
-  }
-
-  /** @param remove The remove to set. */
-  public void setRemove(boolean remove) {
-    this.remove = remove;
-  }
-
-  /** @return Returns the remove. */
-  public boolean getRemove() {
-    return remove;
-  }
-
-  /** @return Returns the onlyGettingNewFiles. */
-  public boolean isOnlyGettingNewFiles() {
-    return onlyGettingNewFiles;
-  }
-
-  /** @param onlyGettingNewFilesin The onlyGettingNewFiles to set. */
-  public void setOnlyGettingNewFiles(boolean onlyGettingNewFilesin) {
-    this.onlyGettingNewFiles = onlyGettingNewFilesin;
-  }
-
-  /**
-   * Get the control encoding to be used for ftp'ing
-   *
-   * @return the used encoding
-   */
-  public String getControlEncoding() {
-    return controlEncoding;
-  }
-
-  /**
-   * Set the encoding to be used for ftp'ing. This determines how names are translated in dir e.g.
-   * It does impact the contents of the files being ftp'ed.
-   *
-   * @param encoding The encoding to be used.
-   */
-  public void setControlEncoding(String encoding) {
-    this.controlEncoding = encoding;
-  }
-
-  /** @return Returns the hostname of the ftp-proxy. */
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  /** @param proxyHost The hostname of the proxy. */
-  public void setProxyHost(String proxyHost) {
-    this.proxyHost = proxyHost;
-  }
-
-  /** @param proxyPassword The password which is used to authenticate at the socks proxy. */
-  public void setProxyPassword(String proxyPassword) {
-    this.proxyPassword = proxyPassword;
-  }
-
-  /** @return Returns the password which is used to authenticate at the proxy. */
-  public String getProxyPassword() {
-    return proxyPassword;
-  }
-
-  /** @param socksProxyPassword The password which is used to authenticate at the proxy. */
-  public void setSocksProxyPassword(String socksProxyPassword) {
-    this.socksProxyPassword = socksProxyPassword;
-  }
-
-  /** @return Returns the password which is used to authenticate at the socks proxy. */
-  public String getSocksProxyPassword() {
-    return socksProxyPassword;
-  }
-
-  /** @param proxyPort The port of the ftp-proxy. */
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  /** @return Returns the port of the ftp-proxy. */
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  /** @return Returns the username which is used to authenticate at the proxy. */
-  public String getProxyUsername() {
-    return proxyUsername;
-  }
-
-  /** @param proxyUsername The username which is used to authenticate at the proxy. */
-  public void setProxyUsername(String proxyUsername) {
-    this.proxyUsername = proxyUsername;
-  }
-
-  /** @return Returns the username which is used to authenticate at the socks proxy. */
-  public String getSocksProxyUsername() {
-    return socksProxyUsername;
-  }
-
-  /** @param socksPoxyUsername The username which is used to authenticate at the socks proxy. */
-  public void setSocksProxyUsername(String socksPoxyUsername) {
-    this.socksProxyUsername = socksPoxyUsername;
-  }
-
-  /** @param socksProxyHost The host name of the socks proxy host */
-  public void setSocksProxyHost(String socksProxyHost) {
-    this.socksProxyHost = socksProxyHost;
-  }
-
-  /** @return The host name of the socks proxy host */
-  public String getSocksProxyHost() {
-    return this.socksProxyHost;
-  }
-
-  /** @param socksProxyPort The port number the socks proxy host is using */
-  public void setSocksProxyPort(String socksProxyPort) {
-    this.socksProxyPort = socksProxyPort;
-  }
-
-  /** @return The port number the socks proxy host is using */
-  public String getSocksProxyPort() {
-    return this.socksProxyPort;
-  }
-
-  protected FTPClient initFtpClient() {
-    return new FTPClient();
   }
 
   protected InetAddress getInetAddress(String realServername) throws UnknownHostException {
@@ -667,14 +360,14 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     result.setNrErrors(1);
     result.setResult(false);
     nrErrors = 0;
-    NrfilesRetrieved = 0;
+    nrFilesRetrieved = 0;
     successConditionBroken = false;
     boolean exitaction = false;
-    limitFiles = Const.toInt(environmentSubstitute(getLimit()), 10);
+    limitFiles = Const.toInt(resolve(getNrLimit()), 10);
 
     // Here let's put some controls before stating the workflow
-    if (movefiles) {
-      if (Utils.isEmpty(movetodirectory)) {
+    if ( moveFiles ) {
+      if (Utils.isEmpty( moveToDirectory )) {
         logError(BaseMessages.getString(PKG, "ActionFTP.MoveToFolderEmpty"));
         return result;
       }
@@ -684,157 +377,52 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       logDetailed(BaseMessages.getString(PKG, "ActionFTP.Start"));
     }
 
-    FTPClient ftpclient = null;
+    FTPClient ftpClient = null;
     String realMoveToFolder = null;
 
     try {
-      // Create ftp client to host:port ...
-      ftpclient = initFtpClient();
-      String realServername = environmentSubstitute(serverName);
-      String realServerPort = environmentSubstitute(port);
-      ftpclient.setRemoteAddr(getInetAddress(realServername));
-      if (!Utils.isEmpty(realServerPort)) {
-        ftpclient.setRemotePort(Const.toInt(realServerPort, 21));
-      }
-
-      if (!Utils.isEmpty(proxyHost)) {
-        String realProxyHost = environmentSubstitute(proxyHost);
-        ftpclient.setRemoteAddr(InetAddress.getByName(realProxyHost));
-        if (isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "ActionFTP.OpenedProxyConnectionOn", realProxyHost));
-        }
-
-        // FIXME: Proper default port for proxy
-        int port = Const.toInt(environmentSubstitute(proxyPort), 21);
-        if (port != 0) {
-          ftpclient.setRemotePort(port);
-        }
-      } else {
-        ftpclient.setRemoteAddr(getInetAddress(realServername));
-
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "ActionFTP.OpenedConnectionTo", realServername));
-        }
-      }
-
-      // set activeConnection connectmode ...
-      if (activeConnection) {
-        ftpclient.setConnectMode(FTPConnectMode.ACTIVE);
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetActive"));
-        }
-      } else {
-        ftpclient.setConnectMode(FTPConnectMode.PASV);
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetPassive"));
-        }
-      }
-
-      // Set the timeout
-      ftpclient.setTimeout(timeout);
-      if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetTimeout", String.valueOf(timeout)));
-      }
-
-      ftpclient.setControlEncoding(controlEncoding);
-      if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetEncoding", controlEncoding));
-      }
-
-      // If socks proxy server was provided
-      if (!Utils.isEmpty(socksProxyHost)) {
-        if (!Utils.isEmpty(socksProxyPort)) {
-          FTPClient.initSOCKS(
-              environmentSubstitute(socksProxyPort), environmentSubstitute(socksProxyHost));
-        } else {
-          throw new FTPException(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionFTP.SocksProxy.PortMissingException",
-                  environmentSubstitute(socksProxyHost),
-                  getName()));
-        }
-        // then if we have authentication information
-        if (!Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
-          FTPClient.initSOCKSAuthentication(
-              environmentSubstitute(socksProxyUsername),
-              Utils.resolvePassword(this, socksProxyPassword));
-        } else if (!Utils.isEmpty(socksProxyUsername) && Utils.isEmpty(socksProxyPassword)
-            || Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
-          // we have a username without a password or vica versa
-          throw new FTPException(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionFTP.SocksProxy.IncompleteCredentials",
-                  environmentSubstitute(socksProxyHost),
-                  getName()));
-        }
-      }
-
-      // login to ftp host ...
-      ftpclient.connect();
-
-      String realUsername =
-          environmentSubstitute(userName)
-              + (!Utils.isEmpty(proxyHost) ? "@" + realServername : "")
-              + (!Utils.isEmpty(proxyUsername) ? " " + environmentSubstitute(proxyUsername) : "");
-
-      String realPassword =
-          Utils.resolvePassword(this, password)
-              + (!Utils.isEmpty(proxyPassword)
-                  ? " " + Utils.resolvePassword(this, proxyPassword)
-                  : "");
-
-      ftpclient.login(realUsername, realPassword);
-      // Remove password from logging, you don't know where it ends up.
-      if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionFTP.LoggedIn", realUsername));
-      }
-
-      // Fix for PDI-2534 - add auxilliary FTP File List parsers to the ftpclient object.
-      this.hookInOtherParsers(ftpclient);
+      ftpClient = FtpClientUtil.connectAndLogin( log, this, this, getName() );
 
       // move to spool dir ...
-      if (!Utils.isEmpty(ftpDirectory)) {
-        String realFtpDirectory = environmentSubstitute(ftpDirectory);
+      if (!Utils.isEmpty( remoteDirectory )) {
+        String realFtpDirectory = resolve( remoteDirectory );
         realFtpDirectory = normalizePath(realFtpDirectory);
-        ftpclient.chdir(realFtpDirectory);
+        ftpClient.changeWorkingDirectory(realFtpDirectory);
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionFTP.ChangedDir", realFtpDirectory));
         }
       }
 
       // Create move to folder if necessary
-      if (movefiles && !Utils.isEmpty(movetodirectory)) {
-        realMoveToFolder = environmentSubstitute(movetodirectory);
+      if ( moveFiles && !Utils.isEmpty( moveToDirectory )) {
+        realMoveToFolder = resolve( moveToDirectory );
         realMoveToFolder = normalizePath(realMoveToFolder);
         // Folder exists?
         boolean folderExist = true;
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionFTP.CheckMoveToFolder", realMoveToFolder));
         }
-        String originalLocation = ftpclient.pwd();
+        String originalLocation = ftpClient.printWorkingDirectory();
         try {
           // does not work for folders, see PDI-2567:
-          // folderExist=ftpclient.exists(realMoveToFolder);
+          // folderExist=ftpClient.exists(realMoveToFolder);
           // try switching to the 'move to' folder.
-          ftpclient.chdir(realMoveToFolder);
+          ftpClient.changeWorkingDirectory(realMoveToFolder);
           // Switch back to the previous location.
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionFTP.CheckMoveToFolderSwitchBack", originalLocation));
           }
-          ftpclient.chdir(originalLocation);
+          ftpClient.changeWorkingDirectory(originalLocation);
         } catch (Exception e) {
           folderExist = false;
           // Assume folder does not exist !!
         }
 
         if (!folderExist) {
-          if (createmovefolder) {
-            ftpclient.mkdir(realMoveToFolder);
+          if ( createMoveFolder ) {
+            ftpClient.makeDirectory(realMoveToFolder);
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "ActionFTP.MoveToFolderCreated", realMoveToFolder));
@@ -849,7 +437,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
       if (!exitaction) {
         // Get all the files in the current directory...
-        FTPFile[] ftpFiles = ftpclient.dirDetails(null);
+        //
+        FTPFile[] ftpFiles = ftpClient.listFiles();
 
         if (isDetailed()) {
           logDetailed(
@@ -857,40 +446,27 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
                   PKG, "ActionFTP.FoundNFiles", String.valueOf(ftpFiles.length)));
         }
 
-        // set transfertype ...
-        if (binaryMode) {
-          ftpclient.setType(FTPTransferType.BINARY);
-          if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetBinary"));
-          }
-        } else {
-          ftpclient.setType(FTPTransferType.ASCII);
-          if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionFTP.SetAscii"));
-          }
-        }
-
         // Some FTP servers return a message saying no files found as a string in the filenlist
         // e.g. Solaris 8
         // CHECK THIS !!!
 
         if (ftpFiles.length == 1) {
-          String translatedWildcard = environmentSubstitute(wildcard);
+          String translatedWildcard = resolve(wildcard);
           if (!Utils.isEmpty(translatedWildcard)) {
             if (ftpFiles[0].getName().startsWith(translatedWildcard)) {
-              throw new FTPException(ftpFiles[0].getName());
+              throw new HopException(ftpFiles[0].getName());
             }
           }
         }
 
         Pattern pattern = null;
         if (!Utils.isEmpty(wildcard)) {
-          String realWildcard = environmentSubstitute(wildcard);
+          String realWildcard = resolve(wildcard);
           pattern = Pattern.compile(realWildcard);
         }
 
         if (!getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS)) {
-          limitFiles = Const.toInt(environmentSubstitute(getLimit()), 10);
+          limitFiles = Const.toInt(resolve(getNrLimit()), 10);
         }
 
         // Get the files in the list...
@@ -898,7 +474,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
           if (parentWorkflow.isStopped()) {
             exitaction = true;
-            throw new Exception(BaseMessages.getString(PKG, "ActionFTP.JobStopped"));
+            throw new Exception(BaseMessages.getString(PKG, "ActionFTP.WorkflowStopped"));
           }
 
           if (successConditionBroken) {
@@ -914,7 +490,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
           }
 
           // We get only files
-          if (ftpFile.isDir()) {
+          if (ftpFile.isDirectory()) {
             // not a file..so let's skip it!
             getIt = false;
             if (isDebug()) {
@@ -929,12 +505,12 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
                 getIt = matcher.matches();
               }
               if (getIt) {
-                downloadFile(ftpclient, filename, realMoveToFolder, parentWorkflow, result);
+                downloadFile(ftpClient, filename, realMoveToFolder, parentWorkflow, result);
               }
             } catch (Exception e) {
               // Update errors number
               updateErrors();
-              logError(BaseMessages.getString(PKG, "JobFTP.UnexpectedError", e.toString()));
+              logError(BaseMessages.getString(PKG, "ActionFtp.UnexpectedError", e.toString()));
             }
           }
         } // end for
@@ -945,18 +521,18 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       }
       logError(BaseMessages.getString(PKG, "ActionFTP.ErrorGetting", e.getMessage()));
     } finally {
-      if (ftpclient != null) {
+      if (ftpClient != null) {
         try {
-          ftpclient.quit();
+          ftpClient.quit();
         } catch (Exception e) {
           logError(BaseMessages.getString(PKG, "ActionFTP.ErrorQuitting", e.getMessage()));
         }
       }
-      FTPClient.clearSOCKS();
+      FtpClientUtil.clearSocksJvmSettings();
     }
 
     result.setNrErrors(nrErrors);
-    result.setNrFilesRetrieved(NrfilesRetrieved);
+    result.setNrFilesRetrieved( nrFilesRetrieved );
     if (getSuccessStatus()) {
       result.setResult(true);
     }
@@ -981,9 +557,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "ActionFTP.GettingFile", filename, environmentSubstitute(targetDirectory)));
+                PKG, "ActionFTP.GettingFile", filename, resolve(targetDirectory)));
       }
-      ftpclient.get(targetFilename, filename);
+      try ( OutputStream outputStream = HopVfs.getOutputStream(targetFilename, false)) {
+        ftpclient.retrieveFile(filename, outputStream);
+      }
 
       // Update retrieved files
       updateRetrievedFiles();
@@ -996,14 +574,14 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
       // Delete the file if this is needed!
       if (remove) {
-        ftpclient.delete(filename);
+        ftpclient.deleteFile(filename);
         if (isDetailed()) {
           if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionFTP.DeletedFile", filename));
           }
         }
       } else {
-        if (movefiles) {
+        if ( moveFiles ) {
           // Try to move file to destination folder ...
           ftpclient.rename(filename, realMoveToFolder + FILE_SEPARATOR + filename);
 
@@ -1036,7 +614,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   private void addFilenameToResultFilenames(
       Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, String filename)
       throws HopException {
-    if (isaddresult) {
+    if ( isAddResult ) {
       FileObject targetFile = null;
       try {
         targetFile = HopVfs.getFileObject(filename);
@@ -1072,7 +650,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       logDetailed("=======================================");
       logDetailed(BaseMessages.getString(PKG, "ActionFTP.Log.Info.FilesInError", "" + nrErrors));
       logDetailed(
-          BaseMessages.getString(PKG, "ActionFTP.Log.Info.FilesRetrieved", "" + NrfilesRetrieved));
+          BaseMessages.getString(PKG, "ActionFTP.Log.Info.FilesRetrieved", "" + nrFilesRetrieved ));
       logDetailed("=======================================");
     }
   }
@@ -1081,7 +659,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     boolean retval = false;
 
     if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (NrfilesRetrieved >= limitFiles
+        || ( nrFilesRetrieved >= limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
         || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
       retval = true;
@@ -1108,7 +686,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateRetrievedFiles() {
-    NrfilesRetrieved++;
+    nrFilesRetrieved++;
   }
 
   /**
@@ -1145,12 +723,12 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       String dt = daf.format(now);
       retval += dt;
     } else {
-      if (adddate) {
+      if ( addDate ) {
         daf.applyPattern("yyyyMMdd");
         String d = daf.format(now);
         retval += "_" + d;
       }
-      if (addtime) {
+      if ( addTime ) {
         daf.applyPattern("HHmmssSSS");
         String t = daf.format(now);
         retval += "_" + t;
@@ -1162,12 +740,16 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     }
 
     // Add foldername to filename
-    retval = environmentSubstitute(targetDirectory) + Const.FILE_SEPARATOR + retval;
+    retval = resolve(targetDirectory) + Const.FILE_SEPARATOR + retval;
     return retval;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
+  }
+
+  @Override public boolean isUnconditional() {
+    return false;
   }
 
   /**
@@ -1266,10 +848,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
             AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
   }
 
-  public List<ResourceReference> getResourceDependencies(WorkflowMeta workflowMeta) {
-    List<ResourceReference> references = super.getResourceDependencies(workflowMeta);
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     if (!Utils.isEmpty(serverName)) {
-      String realServername = environmentSubstitute(serverName);
+      String realServername = resolve(serverName);
       ResourceReference reference = new ResourceReference(this);
       reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
       references.add(reference);
@@ -1277,68 +859,661 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     return references;
   }
 
+
+
   /**
-   * Hook in known parsers, and then those that have been specified in the variable
-   * ftp.file.parser.class.names
+   * Gets serverName
    *
-   * @param ftpClient
-   * @throws FTPException
-   * @throws IOException
+   * @return value of serverName
    */
-  protected void hookInOtherParsers(FTPClient ftpClient) throws FTPException, IOException {
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Hooking.Parsers"));
-    }
-    String system = ftpClient.system();
-    MVSFileParser parser = new MVSFileParser(log);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.MVS.Parser"));
-    }
-    FTPFileFactory factory = new FTPFileFactory(system);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Factory"));
-    }
-    factory.addParser(parser);
-    ftpClient.setFTPFileFactory(factory);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Get.Variable.Space"));
-    }
-    IVariables vs = this.getVariables();
-    if (vs != null) {
-      if (log.isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Getting.Other.Parsers"));
-      }
-      String otherParserNames = vs.getVariable("ftp.file.parser.class.names");
-      if (otherParserNames != null) {
-        if (log.isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Creating.Parsers"));
-        }
-        String[] parserClasses = otherParserNames.split("|");
-        String cName = null;
-        Class<?> clazz = null;
-        Object parserInstance = null;
-        for (int i = 0; i < parserClasses.length; i++) {
-          cName = parserClasses[i].trim();
-          if (cName.length() > 0) {
-            try {
-              clazz = Class.forName(cName);
-              parserInstance = clazz.newInstance();
-              if (parserInstance instanceof FTPFileParser) {
-                if (log.isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Other.Parser", cName));
-                }
-                factory.addParser((FTPFileParser) parserInstance);
-              }
-            } catch (Exception ignored) {
-              if (log.isDebug()) {
-                ignored.printStackTrace();
-                logError(BaseMessages.getString(PKG, "ActionFTP.ERROR.Creating.Parser", cName));
-              }
-            }
-          }
-        }
-      }
-    }
+  public String getServerName() {
+    return serverName;
+  }
+
+  /**
+   * @param serverName The serverName to set
+   */
+  public void setServerName( String serverName ) {
+    this.serverName = serverName;
+  }
+
+  /**
+   * Gets userName
+   *
+   * @return value of userName
+   */
+  public String getUserName() {
+    return userName;
+  }
+
+  /**
+   * @param userName The userName to set
+   */
+  public void setUserName( String userName ) {
+    this.userName = userName;
+  }
+
+  /**
+   * Gets password
+   *
+   * @return value of password
+   */
+  public String getPassword() {
+    return password;
+  }
+
+  /**
+   * @param password The password to set
+   */
+  public void setPassword( String password ) {
+    this.password = password;
+  }
+
+  /**
+   * Gets ftpDirectory
+   *
+   * @return value of ftpDirectory
+   */
+  public String getRemoteDirectory() {
+    return remoteDirectory;
+  }
+
+  /**
+   * @param remoteDirectory The ftpDirectory to set
+   */
+  public void setRemoteDirectory( String remoteDirectory ) {
+    this.remoteDirectory = remoteDirectory;
+  }
+
+  /**
+   * Gets targetDirectory
+   *
+   * @return value of targetDirectory
+   */
+  public String getTargetDirectory() {
+    return targetDirectory;
+  }
+
+  /**
+   * @param targetDirectory The targetDirectory to set
+   */
+  public void setTargetDirectory( String targetDirectory ) {
+    this.targetDirectory = targetDirectory;
+  }
+
+  /**
+   * Gets wildcard
+   *
+   * @return value of wildcard
+   */
+  public String getWildcard() {
+    return wildcard;
+  }
+
+  /**
+   * @param wildcard The wildcard to set
+   */
+  public void setWildcard( String wildcard ) {
+    this.wildcard = wildcard;
+  }
+
+  /**
+   * Gets binaryMode
+   *
+   * @return value of binaryMode
+   */
+  public boolean isBinaryMode() {
+    return binaryMode;
+  }
+
+  /**
+   * @param binaryMode The binaryMode to set
+   */
+  public void setBinaryMode( boolean binaryMode ) {
+    this.binaryMode = binaryMode;
+  }
+
+  /**
+   * Gets timeout
+   *
+   * @return value of timeout
+   */
+  public int getTimeout() {
+    return timeout;
+  }
+
+  /**
+   * @param timeout The timeout to set
+   */
+  public void setTimeout( int timeout ) {
+    this.timeout = timeout;
+  }
+
+  /**
+   * Gets remove
+   *
+   * @return value of remove
+   */
+  public boolean isRemove() {
+    return remove;
+  }
+
+  /**
+   * @param remove The remove to set
+   */
+  public void setRemove( boolean remove ) {
+    this.remove = remove;
+  }
+
+  /**
+   * Gets onlyGettingNewFiles
+   *
+   * @return value of onlyGettingNewFiles
+   */
+  public boolean isOnlyGettingNewFiles() {
+    return onlyGettingNewFiles;
+  }
+
+  /**
+   * @param onlyGettingNewFiles The onlyGettingNewFiles to set
+   */
+  public void setOnlyGettingNewFiles( boolean onlyGettingNewFiles ) {
+    this.onlyGettingNewFiles = onlyGettingNewFiles;
+  }
+
+  /**
+   * Gets controlEncoding
+   *
+   * @return value of controlEncoding
+   */
+  public String getControlEncoding() {
+    return controlEncoding;
+  }
+
+  /**
+   * @param controlEncoding The controlEncoding to set
+   */
+  public void setControlEncoding( String controlEncoding ) {
+    this.controlEncoding = controlEncoding;
+  }
+
+  /**
+   * Gets movefiles
+   *
+   * @return value of movefiles
+   */
+  public boolean isMoveFiles() {
+    return moveFiles;
+  }
+
+  /**
+   * @param moveFiles The movefiles to set
+   */
+  public void setMoveFiles( boolean moveFiles ) {
+    this.moveFiles = moveFiles;
+  }
+
+  /**
+   * Gets movetodirectory
+   *
+   * @return value of movetodirectory
+   */
+  public String getMoveToDirectory() {
+    return moveToDirectory;
+  }
+
+  /**
+   * @param moveToDirectory The movetodirectory to set
+   */
+  public void setMoveToDirectory( String moveToDirectory ) {
+    this.moveToDirectory = moveToDirectory;
+  }
+
+  /**
+   * Gets adddate
+   *
+   * @return value of adddate
+   */
+  public boolean isAddDate() {
+    return addDate;
+  }
+
+  /**
+   * @param addDate The adddate to set
+   */
+  public void setAddDate( boolean addDate ) {
+    this.addDate = addDate;
+  }
+
+  /**
+   * Gets addtime
+   *
+   * @return value of addtime
+   */
+  public boolean isAddTime() {
+    return addTime;
+  }
+
+  /**
+   * @param addTime The addtime to set
+   */
+  public void setAddTime( boolean addTime ) {
+    this.addTime = addTime;
+  }
+
+  /**
+   * Gets specifyFormat
+   *
+   * @return value of specifyFormat
+   */
+  public boolean isSpecifyFormat() {
+    return specifyFormat;
+  }
+
+  /**
+   * @param specifyFormat The specifyFormat to set
+   */
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
+  }
+
+  /**
+   * Gets dateTimeFormat
+   *
+   * @return value of dateTimeFormat
+   */
+  public String getDateTimeFormat() {
+    return dateTimeFormat;
+  }
+
+  /**
+   * @param dateTimeFormat The dateTimeFormat to set
+   */
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
+  }
+
+  /**
+   * Gets addDateBeforeExtension
+   *
+   * @return value of addDateBeforeExtension
+   */
+  public boolean isAddDateBeforeExtension() {
+    return addDateBeforeExtension;
+  }
+
+  /**
+   * @param addDateBeforeExtension The addDateBeforeExtension to set
+   */
+  public void setAddDateBeforeExtension( boolean addDateBeforeExtension ) {
+    this.addDateBeforeExtension = addDateBeforeExtension;
+  }
+
+  /**
+   * Gets isaddresult
+   *
+   * @return value of isaddresult
+   */
+  public boolean isAddResult() {
+    return isAddResult;
+  }
+
+  /**
+   * @param addResult The isaddresult to set
+   */
+  public void setAddResult( boolean addResult ) {
+    this.isAddResult = addResult;
+  }
+
+  /**
+   * Gets createmovefolder
+   *
+   * @return value of createmovefolder
+   */
+  public boolean isCreateMoveFolder() {
+    return createMoveFolder;
+  }
+
+  /**
+   * @param createMoveFolder The createmovefolder to set
+   */
+  public void setCreateMoveFolder( boolean createMoveFolder ) {
+    this.createMoveFolder = createMoveFolder;
+  }
+
+  /**
+   * Gets port
+   *
+   * @return value of port
+   */
+  public String getServerPort() {
+    return serverPort;
+  }
+
+  /**
+   * @param serverPort The port to set
+   */
+  public void setServerPort( String serverPort ) {
+    this.serverPort = serverPort;
+  }
+
+  /**
+   * Gets proxyHost
+   *
+   * @return value of proxyHost
+   */
+  public String getProxyHost() {
+    return proxyHost;
+  }
+
+  /**
+   * @param proxyHost The proxyHost to set
+   */
+  public void setProxyHost( String proxyHost ) {
+    this.proxyHost = proxyHost;
+  }
+
+  /**
+   * Gets proxyPort
+   *
+   * @return value of proxyPort
+   */
+  public String getProxyPort() {
+    return proxyPort;
+  }
+
+  /**
+   * @param proxyPort The proxyPort to set
+   */
+  public void setProxyPort( String proxyPort ) {
+    this.proxyPort = proxyPort;
+  }
+
+  /**
+   * Gets proxyUsername
+   *
+   * @return value of proxyUsername
+   */
+  public String getProxyUsername() {
+    return proxyUsername;
+  }
+
+  /**
+   * @param proxyUsername The proxyUsername to set
+   */
+  public void setProxyUsername( String proxyUsername ) {
+    this.proxyUsername = proxyUsername;
+  }
+
+  /**
+   * Gets proxyPassword
+   *
+   * @return value of proxyPassword
+   */
+  public String getProxyPassword() {
+    return proxyPassword;
+  }
+
+  /**
+   * @param proxyPassword The proxyPassword to set
+   */
+  public void setProxyPassword( String proxyPassword ) {
+    this.proxyPassword = proxyPassword;
+  }
+
+  /**
+   * Gets socksProxyHost
+   *
+   * @return value of socksProxyHost
+   */
+  public String getSocksProxyHost() {
+    return socksProxyHost;
+  }
+
+  /**
+   * @param socksProxyHost The socksProxyHost to set
+   */
+  public void setSocksProxyHost( String socksProxyHost ) {
+    this.socksProxyHost = socksProxyHost;
+  }
+
+  /**
+   * Gets socksProxyPort
+   *
+   * @return value of socksProxyPort
+   */
+  public String getSocksProxyPort() {
+    return socksProxyPort;
+  }
+
+  /**
+   * @param socksProxyPort The socksProxyPort to set
+   */
+  public void setSocksProxyPort( String socksProxyPort ) {
+    this.socksProxyPort = socksProxyPort;
+  }
+
+  /**
+   * Gets socksProxyUsername
+   *
+   * @return value of socksProxyUsername
+   */
+  public String getSocksProxyUsername() {
+    return socksProxyUsername;
+  }
+
+  /**
+   * @param socksProxyUsername The socksProxyUsername to set
+   */
+  public void setSocksProxyUsername( String socksProxyUsername ) {
+    this.socksProxyUsername = socksProxyUsername;
+  }
+
+  /**
+   * Gets socksProxyPassword
+   *
+   * @return value of socksProxyPassword
+   */
+  public String getSocksProxyPassword() {
+    return socksProxyPassword;
+  }
+
+  /**
+   * @param socksProxyPassword The socksProxyPassword to set
+   */
+  public void setSocksProxyPassword( String socksProxyPassword ) {
+    this.socksProxyPassword = socksProxyPassword;
+  }
+
+  /**
+   * Gets ifFileExistsSkip
+   *
+   * @return value of ifFileExistsSkip
+   */
+  public int getIfFileExistsSkip() {
+    return ifFileExistsSkip;
+  }
+
+  /**
+   * @param ifFileExistsSkip The ifFileExistsSkip to set
+   */
+  public void setIfFileExistsSkip( int ifFileExistsSkip ) {
+    this.ifFileExistsSkip = ifFileExistsSkip;
+  }
+
+  /**
+   * Gets ifFileExistsCreateUniq
+   *
+   * @return value of ifFileExistsCreateUniq
+   */
+  public int getIfFileExistsCreateUniq() {
+    return ifFileExistsCreateUniq;
+  }
+
+  /**
+   * @param ifFileExistsCreateUniq The ifFileExistsCreateUniq to set
+   */
+  public void setIfFileExistsCreateUniq( int ifFileExistsCreateUniq ) {
+    this.ifFileExistsCreateUniq = ifFileExistsCreateUniq;
+  }
+
+  /**
+   * Gets ifFileExistsFail
+   *
+   * @return value of ifFileExistsFail
+   */
+  public int getIfFileExistsFail() {
+    return ifFileExistsFail;
+  }
+
+  /**
+   * @param ifFileExistsFail The ifFileExistsFail to set
+   */
+  public void setIfFileExistsFail( int ifFileExistsFail ) {
+    this.ifFileExistsFail = ifFileExistsFail;
+  }
+
+  /**
+   * Gets ifFileExists
+   *
+   * @return value of ifFileExists
+   */
+  public int getIfFileExists() {
+    return ifFileExists;
+  }
+
+  /**
+   * @param ifFileExists The ifFileExists to set
+   */
+  public void setIfFileExists( int ifFileExists ) {
+    this.ifFileExists = ifFileExists;
+  }
+
+  /**
+   * Gets SifFileExists
+   *
+   * @return value of SifFileExists
+   */
+  public String getStringIfFileExists() {
+    return stringIfFileExists;
+  }
+
+  /**
+   * @param stringIfFileExists The stringIfFileExists to set
+   */
+  public void setStringIfFileExists( String stringIfFileExists ) {
+    this.stringIfFileExists = stringIfFileExists;
+  }
+
+  /**
+   * Gets nrLimit
+   *
+   * @return value of nrLimit
+   */
+  public String getNrLimit() {
+    return nrLimit;
+  }
+
+  /**
+   * @param nrLimit The nrLimit to set
+   */
+  public void setNrLimit( String nrLimit ) {
+    this.nrLimit = nrLimit;
+  }
+
+  /**
+   * Gets successCondition
+   *
+   * @return value of successCondition
+   */
+  public String getSuccessCondition() {
+    return successCondition;
+  }
+
+  /**
+   * @param successCondition The successCondition to set
+   */
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
+  }
+
+  /**
+   * Gets nrErrors
+   *
+   * @return value of nrErrors
+   */
+  public long getNrErrors() {
+    return nrErrors;
+  }
+
+  /**
+   * @param nrErrors The nrErrors to set
+   */
+  public void setNrErrors( long nrErrors ) {
+    this.nrErrors = nrErrors;
+  }
+
+  /**
+   * Gets nrFilesRetrieved
+   *
+   * @return value of nrFilesRetrieved
+   */
+  public long getNrFilesRetrieved() {
+    return nrFilesRetrieved;
+  }
+
+  /**
+   * @param nrFilesRetrieved The nrFilesRetrieved to set
+   */
+  public void setNrFilesRetrieved( long nrFilesRetrieved ) {
+    this.nrFilesRetrieved = nrFilesRetrieved;
+  }
+
+  /**
+   * Gets successConditionBroken
+   *
+   * @return value of successConditionBroken
+   */
+  public boolean isSuccessConditionBroken() {
+    return successConditionBroken;
+  }
+
+  /**
+   * @param successConditionBroken The successConditionBroken to set
+   */
+  public void setSuccessConditionBroken( boolean successConditionBroken ) {
+    this.successConditionBroken = successConditionBroken;
+  }
+
+  /**
+   * Gets limitFiles
+   *
+   * @return value of limitFiles
+   */
+  public int getLimitFiles() {
+    return limitFiles;
+  }
+
+  /**
+   * @param limitFiles The limitFiles to set
+   */
+  public void setLimitFiles( int limitFiles ) {
+    this.limitFiles = limitFiles;
+  }
+
+  /**
+   * Gets targetFilename
+   *
+   * @return value of targetFilename
+   */
+  public String getTargetFilename() {
+    return targetFilename;
+  }
+
+  /**
+   * @param targetFilename The targetFilename to set
+   */
+  public void setTargetFilename( String targetFilename ) {
+    this.targetFilename = targetFilename;
   }
 }

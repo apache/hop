@@ -960,7 +960,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

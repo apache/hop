@@ -548,12 +548,4 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     action.setEngineID( wEngineID.getText() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

@@ -1352,7 +1352,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     }
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

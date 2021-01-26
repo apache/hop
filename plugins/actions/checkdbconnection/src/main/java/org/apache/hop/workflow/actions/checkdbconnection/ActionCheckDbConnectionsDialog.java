@@ -334,13 +334,4 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
 }

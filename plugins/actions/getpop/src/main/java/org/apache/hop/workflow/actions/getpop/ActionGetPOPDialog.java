@@ -1950,12 +1950,4 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     action.setProxyUsername( wProxyUsername.getText() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

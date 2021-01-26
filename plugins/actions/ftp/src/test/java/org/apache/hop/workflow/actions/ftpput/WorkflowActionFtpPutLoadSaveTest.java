@@ -17,15 +17,16 @@
 
 package org.apache.hop.workflow.actions.ftpput;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionFtpPutLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFtpPut> {
+public class WorkflowActionFtpPutLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFtpPut> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -35,62 +36,79 @@ public class WorkflowActionFtpPutLoadSaveTest extends WorkflowActionLoadSaveTest
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( "servername", "serverport", "username", "password", "remoteDirectory", "localDirectory",
-      "wildcard", "binary", "timeout", "remove", "only_new", "active", "control_encoding", "proxy_host", "proxy_port",
-      "proxy_username", "proxy_password", "socksproxy_host", "socksproxy_port", "socksproxy_username",
-      "socksproxy_password" );
+    return Arrays.asList(
+        "servername",
+        "serverPort",
+        "username",
+        "password",
+        "remoteDirectory",
+        "localDirectory",
+        "wildcard",
+        "binary",
+        "timeout",
+        "remove",
+        "only_new",
+        "active",
+        "control_encoding",
+        "proxy_host",
+        "proxy_port",
+        "proxy_username",
+        "proxy_password",
+        "socksproxy_host",
+        "socksproxy_port",
+        "socksproxy_username",
+        "socksproxy_password");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "servername", "getServerName",
-      "serverport", "getServerPort",
-      "username", "getUserName",
-      "password", "getPassword",
-      "remoteDirectory", "getRemoteDirectory",
-      "localDirectory", "getLocalDirectory",
-      "wildcard", "getWildcard",
-      "binary", "isBinaryMode",
-      "timeout", "getTimeout",
-      "remove", "getRemove",
-      "only_new", "isOnlyPuttingNewFiles",
-      "active", "isActiveConnection",
-      "control_encoding", "getControlEncoding",
-      "proxy_host", "getProxyHost",
-      "proxy_port", "getProxyPort",
-      "proxy_username", "getProxyUsername",
-      "proxy_password", "getProxyPassword",
-      "socksproxy_host", "getSocksProxyHost",
-      "socksproxy_port", "getSocksProxyPort",
-      "socksproxy_username", "getSocksProxyUsername",
-      "socksproxy_password", "getSocksProxyPassword"
-    );
+        "servername", "getServerName",
+        "serverport", "getServerPort",
+        "username", "getUserName",
+        "password", "getPassword",
+        "remoteDirectory", "getRemoteDirectory",
+        "localDirectory", "getLocalDirectory",
+        "wildcard", "getWildcard",
+        "binary", "isBinaryMode",
+        "timeout", "getTimeout",
+        "remove", "getRemove",
+        "only_new", "isOnlyPuttingNewFiles",
+        "active", "isActiveConnection",
+        "control_encoding", "getControlEncoding",
+        "proxy_host", "getProxyHost",
+        "proxy_port", "getProxyPort",
+        "proxy_username", "getProxyUsername",
+        "proxy_password", "getProxyPassword",
+        "socksproxy_host", "getSocksProxyHost",
+        "socksproxy_port", "getSocksProxyPort",
+        "socksproxy_username", "getSocksProxyUsername",
+        "socksproxy_password", "getSocksProxyPassword");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "servername", "setServerName",
-      "serverport", "setServerPort",
-      "username", "setUserName",
-      "password", "setPassword",
-      "remoteDirectory", "setRemoteDirectory",
-      "localDirectory", "setLocalDirectory",
-      "wildcard", "setWildcard",
-      "binary", "setBinaryMode",
-      "timeout", "setTimeout",
-      "remove", "setRemove",
-      "only_new", "setOnlyPuttingNewFiles",
-      "active", "setActiveConnection",
-      "control_encoding", "setControlEncoding",
-      "proxy_host", "setProxyHost",
-      "proxy_port", "setProxyPort",
-      "proxy_username", "setProxyUsername",
-      "proxy_password", "setProxyPassword",
-      "socksproxy_host", "setSocksProxyHost",
-      "socksproxy_port", "setSocksProxyPort",
-      "socksproxy_username", "setSocksProxyUsername",
-      "socksproxy_password", "setSocksProxyPassword" );
+        "servername", "setServerName",
+        "serverport", "setServerPort",
+        "username", "setUserName",
+        "password", "setPassword",
+        "remoteDirectory", "setRemoteDirectory",
+        "localDirectory", "setLocalDirectory",
+        "wildcard", "setWildcard",
+        "binary", "setBinaryMode",
+        "timeout", "setTimeout",
+        "remove", "setRemove",
+        "only_new", "setOnlyPuttingNewFiles",
+        "active", "setActiveConnection",
+        "control_encoding", "setControlEncoding",
+        "proxy_host", "setProxyHost",
+        "proxy_port", "setProxyPort",
+        "proxy_username", "setProxyUsername",
+        "proxy_password", "setProxyPassword",
+        "socksproxy_host", "setSocksProxyHost",
+        "socksproxy_port", "setSocksProxyPort",
+        "socksproxy_username", "setSocksProxyUsername",
+        "socksproxy_password", "setSocksProxyPassword");
   }
 }

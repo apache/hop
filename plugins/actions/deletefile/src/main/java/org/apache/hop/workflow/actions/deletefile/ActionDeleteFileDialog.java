@@ -247,12 +247,4 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     action.setFailIfFileNotExists( wAbortExists.getSelection() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

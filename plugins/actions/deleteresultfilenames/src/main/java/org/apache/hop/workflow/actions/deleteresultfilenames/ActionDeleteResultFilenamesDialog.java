@@ -275,12 +275,4 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

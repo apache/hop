@@ -234,13 +234,4 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     action.setFilename( wFilename.getText() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
 }

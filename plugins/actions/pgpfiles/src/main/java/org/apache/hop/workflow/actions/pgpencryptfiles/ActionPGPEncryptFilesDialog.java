@@ -1683,11 +1683,4 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     return this.getClass().getName();
   }
 
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

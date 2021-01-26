@@ -822,14 +822,6 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     dispose();
   }
 
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
   private void enableAction() {
     boolean copyOrMove = wAction.getSelectionIndex() != 2;
 

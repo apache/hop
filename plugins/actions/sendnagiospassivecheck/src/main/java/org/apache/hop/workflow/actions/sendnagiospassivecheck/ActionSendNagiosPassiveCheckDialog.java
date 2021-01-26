@@ -525,12 +525,4 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

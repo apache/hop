@@ -156,7 +156,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private TextVar wImageFilename, wContentID;
   private TableView wFields;
 
-  private boolean getpreviousFields = false;
+  private boolean getPreviousFields = false;
 
   private final MailMeta input;
 
@@ -1931,8 +1931,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private void getPreviousFields() {
     try {
-      if ( !getpreviousFields ) {
-        getpreviousFields = true;
+      if ( !getPreviousFields ) {
+        getPreviousFields = true;
         String destination = null;
         if ( wDestination != null ) {
           destination = wDestination.getText();

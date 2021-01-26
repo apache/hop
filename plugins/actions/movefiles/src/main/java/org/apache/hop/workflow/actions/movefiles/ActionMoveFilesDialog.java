@@ -1621,12 +1621,4 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     }
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

@@ -229,7 +229,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return connection;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 
