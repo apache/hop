@@ -38,11 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -349,8 +345,14 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Whenever something changes, set the tooltip to the expanded version of the filename:
     wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
+            new String[] { "*.js", "*.json", "*" },
+            new String[] { BaseMessages.getString( PKG, "System.FileType.JsonFiles" ),
+                    BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+            true )
+    );
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener(
+    /* wbbFilename.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
             if (!Utils.isEmpty(wFilemask.getText())
@@ -390,7 +392,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
             }
           }
         });
-
+*/
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {
