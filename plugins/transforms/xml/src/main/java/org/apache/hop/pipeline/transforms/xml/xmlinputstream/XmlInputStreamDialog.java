@@ -30,10 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -968,26 +965,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     } else {
       wFilename.addSelectionListener( lsDef );
       // Listen to the browse button next to the file name
-      wbbFilename.addSelectionListener( new SelectionAdapter() {
-        @Override
-        public void widgetSelected( SelectionEvent e ) {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
-          if ( wFilename.getText() != null ) {
-            String fname = variables.resolve( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
 
-          dialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "System.FileType.XMLFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
-        }
-      } );
+      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
+              new String[] { "*.xml; *.XML", "*" },
+              new String[] { BaseMessages.getString( PKG, "System.FileType.XMLFiles" ),
+                      BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+              true )
+      );
     }
 
     // Detect X or ALT-F4 or something that kills this window...

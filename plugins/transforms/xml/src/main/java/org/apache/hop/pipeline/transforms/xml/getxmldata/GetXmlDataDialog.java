@@ -35,12 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -1105,42 +1100,13 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // Whenever something changes, set the tooltip to the expanded version of the filename:
     wFilename.addModifyListener( e -> wFilename.setToolTipText( wFilename.getText() ) );
 
-    //    wbbFilename.addSelectionListener( new SelectionAdapterFileDialogTextVar( log, wFilename, pipelineMeta,
-    //      new SelectionAdapterOptions( SelectionOperation.FILE_OR_FOLDER,
-    //        new FilterType[] { FilterType.ALL, FilterType.XML }, FilterType.XML ) ) );
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a
-          // directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = variables.resolve( wFilename.getText() );
-            dialog.setFilterPath( fpath );
-          }
 
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
-        } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
-          if ( wFilename.getText() != null ) {
-            String fname = variables.resolve( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
-
-          dialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "System.FileType.JsonFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
-        }
-      }
-    } );
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
+            new String[] { "*.xml", "*.XML", "*" },
+            new String[] { BaseMessages.getString( PKG, "System.FileType.XMLFiles" ),
+                    BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+            true )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
