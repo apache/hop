@@ -711,11 +711,12 @@ public class WorkflowDialog extends Dialog {
     try {
       final IPlugin plugin = getPlugin( action );
 
-      if ( plugin.getCategory().equals( BaseMessages.getString( PKGBASE, "ActionCategory.Category.Deprecated" ) ) ) {
-
+      // Check if action is deprecated by annotation
+      Deprecated deprecated = action.getClass().getDeclaredAnnotation(Deprecated.class);
+      if ( deprecated!=null ) {
         addDeprecation( shell );
       }
-
+      
       helpButton = HelpUtils.createHelpButton( shell, HelpUtils.getHelpDialogTitle( plugin ), plugin );
 
       shell.setImage( getImage( shell, plugin ) );
@@ -741,7 +742,7 @@ public class WorkflowDialog extends Dialog {
         if ( deprecation ) {
           return;
         }
-        String deprecated = BaseMessages.getString( PKGBASE, "ActionCategory.Category.Deprecated" ).toLowerCase();
+        String deprecated = BaseMessages.getString( PKGBASE, "System.Deprecated" ).toLowerCase();
         shell.setText( shell.getText() + " (" + deprecated + ")" );
         deprecation = true;
       }

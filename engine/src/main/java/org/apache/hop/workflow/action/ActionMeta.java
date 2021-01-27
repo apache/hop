@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.action;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
@@ -32,14 +31,12 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -101,22 +98,22 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     return retval.toString();
   }
 
-
   public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
-      String stype = XmlHandler.getTagValue( actionNode, "type" );
+      String pluginId = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
-      IPlugin actionPlugin = registry.findPluginWithId( ActionPluginType.class, stype, true );
+      IPlugin actionPlugin = registry.findPluginWithId( ActionPluginType.class, pluginId, true );
       if ( actionPlugin == null ) {
         String name = XmlHandler.getTagValue( actionNode, "name" );
-        action = new MissingAction( name, stype );
+        setAction( new MissingAction( name, pluginId ) );
       } else {
-        action = registry.loadClass( actionPlugin, IAction.class );
+        setAction( registry.loadClass( actionPlugin, IAction.class ) );
       }
       // Get an empty Action of the appropriate class...
       if ( action != null ) {
         if ( actionPlugin != null ) {
           action.setPluginId( actionPlugin.getIds()[ 0 ] );
+          suggestion = Const.NVL(actionPlugin.getSuggestion(),"");
         }
         action.setMetadataProvider( metadataProvider ); // inject metadata
         action.loadXml( actionNode, metadataProvider, variables);
@@ -138,8 +135,6 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
           attributesMap =
             AttributesUtil.loadAttributes( XmlHandler.getLastSubNode( actionNode, AttributesUtil.XML_TAG ) );
         }
-
-        setDeprecationAndSuggestedActions();
       }
     } catch ( Throwable e ) {
       String message = "Unable to read Workflow action copy info from XML node : " + e.toString();
@@ -177,7 +172,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
   public Object cloneDeep() {
-    ActionMeta ge = (ActionMeta) clone();
+    ActionMeta ge = clone();
 
     // Copy underlying object as well...
     ge.action = (IAction) action.clone();
@@ -198,13 +193,18 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
     return action.getName().hashCode();
   }
 
-  public void setAction( IAction je ) {
-    action = je;
+  public void setAction( IAction action ) {
+    this.action = action;
     if ( action != null ) {
       if ( action.getPluginId() == null ) {
         action.setPluginId( PluginRegistry.getInstance().getPluginId( ActionPluginType.class, action ) );
       }
-      setDeprecationAndSuggestedActions();
+      
+      // Check if action is deprecated by annotation
+      Deprecated deprecated = action.getClass().getDeclaredAnnotation(Deprecated.class);
+      if ( deprecated!=null ) {
+        this.isDeprecated = true;
+      }
     }
   }
 
@@ -395,20 +395,5 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
 
   public String getSuggestion() {
     return suggestion;
-  }
-
-  private void setDeprecationAndSuggestedActions() {
-    PluginRegistry registry = PluginRegistry.getInstance();
-    final List<IPlugin> deprecatedActions = registry.getPluginsByCategory( ActionPluginType.class,
-      BaseMessages.getString( WorkflowMeta.class, "ActionCategory.Category.Deprecated" ) );
-    for ( IPlugin p : deprecatedActions ) {
-      String[] ids = p.getIds();
-      if ( !ArrayUtils.isEmpty( ids ) && ids[ 0 ].equals( this.action != null ? this.action.getPluginId() : "" ) ) {
-        this.isDeprecated = true;
-        this.suggestion = registry.findPluginWithId( ActionPluginType.class, this.action.getPluginId() ) != null
-          ? registry.findPluginWithId( ActionPluginType.class, this.action.getPluginId() ).getSuggestion() : "";
-        break;
-      }
-    }
   }
 }

@@ -655,8 +655,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     String classLoaderGroup = extractClassLoaderGroup( annotation );
     String[] keywords = getTranslations(extractKeywords( annotation ), packageName, altPackageName, clazz);
 
-    pluginName += addDeprecation( category );
-
     Map<Class<?>, String> classMap = new HashMap<>();
 
     PluginMainClassType mainType = getClass().getAnnotation( PluginMainClassType.class );
@@ -669,6 +667,15 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     classMap.put( mainClass, clazz.getName() );
     addExtraClasses( classMap, clazz, annotation );
 
+    
+    // Check if plugin main class is deprecated by annotation
+    //
+    Deprecated deprecated = clazz.getDeclaredAnnotation(Deprecated.class);
+    if ( deprecated!=null ) {
+      String str = BaseMessages.getString( classFromResourcesPackage, "System.Deprecated" ).toLowerCase();
+      pluginName += " (" + str + ")";
+    }
+        
     // Add all the jar files in the extra library folders
     //
     List<String> extraJarFiles = addExtraJarFiles();
@@ -691,14 +698,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       LogChannel.GENERAL.logDetailed( "Plugin with id ["
         + ids[ 0 ] + "] has " + libraries.size() + " libaries in its private class path" );
     }
-  }
-
-  private String addDeprecation( String category ) {
-    String deprecated = BaseMessages.getString( classFromResourcesPackage, "PluginRegistry.Category.Deprecated" );
-    if ( deprecated.equals( category ) ) {
-      return " (" + deprecated.toLowerCase() + ")";
-    }
-    return "";
   }
 
   /**

@@ -232,7 +232,6 @@ public class BaseTransformDialog extends Dialog {
     setShellImage(shell);
 
     if (transformMeta.isDeprecated()) {
-
       addDeprecation();
     }
   }
@@ -255,7 +254,7 @@ public class BaseTransformDialog extends Dialog {
               return;
             }
             String deprecated =
-                BaseMessages.getString(PKG, "BaseTransform.Category.Deprecated").toLowerCase();
+                BaseMessages.getString(PKG, "System.Deprecated").toLowerCase();
             shell.setText(shell.getText() + " (" + deprecated + ")");
             deprecation = true;
           }
