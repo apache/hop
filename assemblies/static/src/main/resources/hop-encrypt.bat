@@ -54,9 +54,16 @@ if not "%HOP_SHARED_JDBC_FOLDER%"=="" (
 if not "%HOP_PLUGIN_BASE_FOLDERS%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLUGIN_BASE_FOLDERS=%HOP_PLUGIN_BASE_FOLDERS%
 )
+if not "%HOP_PASSWORD_ENCODER_PLUGIN%"=="" (
+  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PASSWORD_ENCODER_PLUGIN=%HOP_PASSWORD_ENCODER_PLUGIN%
+)
+if not "%HOP_AES_ENCODER_KEY%"=="" (
+  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AES_ENCODER_KEY=%HOP_AES_ENCODER_KEY%
+)
 
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_OS=Windows
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=GUI
+
 echo ===[Environment Settings - hop-encrypt.bat]====================================
 echo.
 echo Java identified as %_HOP_JAVA%
@@ -78,6 +85,6 @@ echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPAT
 echo.
 echo ===[Starting HopEncrypt]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.core.encryption.Encr %_cmdline%
+%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.encryption.HopEncrypt %_cmdline%
 @echo off
 :End

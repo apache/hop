@@ -113,8 +113,8 @@ public class HopClientEnvironment {
     pluginsToLoad.forEach( PluginRegistry::addPluginType );
     PluginRegistry.init();
 
-    List<IPlugin> logginPlugins = PluginRegistry.getInstance().getPlugins( LoggingPluginType.class );
-    initLogginPlugins( logginPlugins );
+    List<IPlugin> loggingPlugins = PluginRegistry.getInstance().getPlugins( LoggingPluginType.class );
+    initLogginPlugins( loggingPlugins );
 
     String passwordEncoderPluginID = Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
 

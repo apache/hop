@@ -167,11 +167,14 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       buildVariableSpace();
 
+      // Initialize the Hop environment: load plugins and more
+      //
+      HopEnvironment.init();
+
       // Set up the metadata to use
       //
       metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
 
-      HopEnvironment.init();
     } catch (Exception e) {
       throw new ExecutionException(
           cmd, "There was a problem during the initialization of the Hop environment", e);

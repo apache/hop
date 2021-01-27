@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.serializer.memory;
 
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -39,7 +40,10 @@ public class MemoryMetadataProvider extends BaseMetadataProvider implements IHop
   public MemoryMetadataProvider() {
     super( Variables.getADefaultVariableSpace() );
     this.serializerMap = new HashMap<>();
-    this.twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    twoWayPasswordEncoder = Encr.getEncoder();
+    if (twoWayPasswordEncoder==null) {
+      twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    }
   }
 
   public MemoryMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, IVariables variables ) {

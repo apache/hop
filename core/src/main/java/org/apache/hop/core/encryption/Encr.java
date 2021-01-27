@@ -136,6 +136,15 @@ public class Encr {
   }
 
   /**
+   * Gets encoder
+   *
+   * @return value of encoder
+   */
+  public static ITwoWayPasswordEncoder getEncoder() {
+    return encoder;
+  }
+
+  /**
    * Create an encrypted password
    *
    * @param args the password to encrypt

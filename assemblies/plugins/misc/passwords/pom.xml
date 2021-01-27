@@ -23,24 +23,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>hop-assemblies-plugins</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-misc</artifactId>
         <version>0.70-SNAPSHOT</version>
     </parent>
+
+    <artifactId>hop-assemblies-plugins-misc-passwords</artifactId>
+    <version>0.70-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <artifactId>hop-assemblies-plugins-misc</artifactId>
-
-    <name>Hop Assemblies Plugins Miscellaneous</name>
+    <name>Hop Assemblies Plugins Miscellaneous Passwords</name>
     <description></description>
 
-    <modules>
-        <module>debug</module>
-        <module>git</module>
-        <module>import</module>
-        <module>passwords</module>
-        <module>projects</module>
-        <module>testing</module>
-    </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-misc-passwords</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

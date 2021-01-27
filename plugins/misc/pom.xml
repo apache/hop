@@ -46,6 +46,7 @@
       <module>debug</module>
       <module>git</module>
       <module>import</module>
+      <module>passwords</module>
       <module>projects</module>
       <module>testing</module>
     </modules>
