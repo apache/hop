@@ -180,8 +180,6 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
-    WorkflowMeta workflowMeta = getWorkflowMeta();
-
     ModifyListener lsMod =
         e -> {
           pwdFolder = null;
@@ -213,6 +211,19 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
+    // The buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+      shell, new Button[] {wOk, wCancel}, margin, null);
+
+    // The tab folder between the name and the buttons
+    //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -234,21 +245,21 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
     // START OF SERVER SETTINGS GROUP///
     // /
-    Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wServerSettings);
-    wServerSettings.setText(BaseMessages.getString(PKG, "ActionFtp.ServerSettings.Group.Label"));
+    Group wgServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wgServerSettings);
+    wgServerSettings.setText(BaseMessages.getString(PKG, "ActionFtp.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
+    FormLayout serverSettingsGroupLayout = new FormLayout();
+    serverSettingsGroupLayout.marginWidth = 10;
+    serverSettingsGroupLayout.marginHeight = 10;
 
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    wgServerSettings.setLayout(serverSettingsGroupLayout);
 
     // ServerName line
     wServerName =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.Server.Label"),
             BaseMessages.getString(PKG, "ActionFtp.Server.Tooltip"),
@@ -266,7 +277,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wPort =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.Port.Label"),
             BaseMessages.getString(PKG, "ActionFtp.Port.Tooltip"),
@@ -284,7 +295,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wUserName =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.User.Label"),
             BaseMessages.getString(PKG, "ActionFtp.User.Tooltip"),
@@ -302,7 +313,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wPassword =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.Password.Label"),
             BaseMessages.getString(PKG, "ActionFtp.Password.Tooltip"),
@@ -320,7 +331,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wProxyHost =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.ProxyHost.Label"),
             BaseMessages.getString(PKG, "ActionFtp.ProxyHost.Tooltip"),
@@ -338,7 +349,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wProxyPort =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.ProxyPort.Label"),
             BaseMessages.getString(PKG, "ActionFtp.ProxyPort.Tooltip"),
@@ -356,7 +367,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wProxyUsername =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.ProxyUsername.Label"),
             BaseMessages.getString(PKG, "ActionFtp.ProxyUsername.Tooltip"),
@@ -374,7 +385,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wProxyPassword =
         new LabelTextVar(
             variables,
-            wServerSettings,
+            wgServerSettings,
             SWT.NONE,
             BaseMessages.getString(PKG, "ActionFtp.ProxyPassword.Label"),
             BaseMessages.getString(PKG, "ActionFtp.ProxyPassword.Tooltip"),
@@ -389,7 +400,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wProxyPassword.setLayoutData(fdProxyPasswd);
 
     // Test connection button
-    Button wTest = new Button(wServerSettings, SWT.PUSH);
+    Button wTest = new Button(wgServerSettings, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "ActionFtp.TestConnection.Label"));
     props.setLook(wTest);
     FormData fdTest = new FormData();
@@ -403,7 +414,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     fdServerSettings.left = new FormAttachment(0, margin);
     fdServerSettings.top = new FormAttachment(wName, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
-    wServerSettings.setLayoutData(fdServerSettings);
+    wgServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF SERVER SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -426,7 +437,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlBinaryMode);
     FormData fdlBinaryMode = new FormData();
     fdlBinaryMode.left = new FormAttachment(0, 0);
-    fdlBinaryMode.top = new FormAttachment(wServerSettings, margin);
+    fdlBinaryMode.top = new FormAttachment(wgServerSettings, margin);
     fdlBinaryMode.right = new FormAttachment(middle, 0);
     wlBinaryMode.setLayoutData(fdlBinaryMode);
     wBinaryMode = new Button(wAdvancedSettings, SWT.CHECK);
@@ -500,7 +511,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
     FormData fdAdvancedSettings = new FormData();
     fdAdvancedSettings.left = new FormAttachment(0, margin);
-    fdAdvancedSettings.top = new FormAttachment(wServerSettings, margin);
+    fdAdvancedSettings.top = new FormAttachment(wgServerSettings, margin);
     fdAdvancedSettings.right = new FormAttachment(100, -margin);
     wAdvancedSettings.setLayoutData(fdAdvancedSettings);
     // ///////////////////////////////////////////////////////////
@@ -1217,26 +1228,15 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
     Listener lsTest = e -> test();
     Listener lsCheckFolder = e -> checkRemoteFolder(false, true, wMoveToDirectory.getText());
     Listener lsCheckChangeFolder = e -> checkRemoteFolder(true, false, wFtpDirectory.getText());
 
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
     wTest.addListener(SWT.Selection, lsTest);
     wbTestFolderExists.addListener(SWT.Selection, lsCheckFolder);
     wbTestChangeFolderExists.addListener(SWT.Selection, lsCheckChangeFolder);

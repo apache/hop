@@ -195,6 +195,19 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
+    // The buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+      shell, new Button[] {wOk, wCancel}, margin, null);
+
+    // The tab folder between the name and the buttons
+    //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -895,25 +908,14 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
     Listener lsTest = e -> test();
     Listener lsCheckChangeFolder = e -> checkRemoteFolder();
 
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
     wTest.addListener(SWT.Selection, lsTest);
     wbTestChangeFolderExists.addListener(SWT.Selection, lsCheckChangeFolder);
 
