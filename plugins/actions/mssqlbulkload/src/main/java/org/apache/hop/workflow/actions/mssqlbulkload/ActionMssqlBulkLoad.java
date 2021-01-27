@@ -267,7 +267,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return connection;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

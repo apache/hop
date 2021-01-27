@@ -1632,12 +1632,4 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
   public String toString() {
     return this.getClass().getName();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

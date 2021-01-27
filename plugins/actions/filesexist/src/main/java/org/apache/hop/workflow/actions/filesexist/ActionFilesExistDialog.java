@@ -386,13 +386,4 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
-
 }

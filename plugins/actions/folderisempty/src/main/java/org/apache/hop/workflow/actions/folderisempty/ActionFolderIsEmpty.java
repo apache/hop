@@ -319,7 +319,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     return getIt;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

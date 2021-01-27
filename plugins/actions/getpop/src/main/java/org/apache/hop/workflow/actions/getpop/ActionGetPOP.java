@@ -1090,7 +1090,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

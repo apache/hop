@@ -537,7 +537,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     return getIt;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

@@ -70,7 +70,7 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
     return (EndRepeat) super.clone();
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

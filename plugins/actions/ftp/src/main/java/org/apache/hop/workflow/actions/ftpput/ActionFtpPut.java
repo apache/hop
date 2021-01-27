@@ -19,6 +19,8 @@ package org.apache.hop.workflow.actions.ftpput;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.ArrayList;
@@ -27,14 +29,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -46,15 +51,10 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.actions.ftp.MVSFileParser;
+import org.apache.hop.workflow.actions.util.FtpClientUtil;
+import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.w3c.dom.Node;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FTPException;
-import com.enterprisedt.net.ftp.FTPFileFactory;
-import com.enterprisedt.net.ftp.FTPFileParser;
-import com.enterprisedt.net.ftp.FTPTransferType;
 
 /**
  * This defines an FTP put action.
@@ -69,7 +69,7 @@ import com.enterprisedt.net.ftp.FTPTransferType;
     image = "FTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpput.html")
-public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
+public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 
   public static final int FTP_DEFAULT_PORT = 21;
@@ -126,53 +126,52 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(450); // 365 characters in spaces and tag names alone
+    StringBuilder xml = new StringBuilder(450); // 365 characters in spaces and tag names alone
 
-    retval.append(super.getXml());
+    xml.append(super.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
-    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("servername", serverName));
+    xml.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
+    xml.append("      ").append(XmlHandler.addTagValue("username", userName));
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue(
                 "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
-    retval.append("      ").append(XmlHandler.addTagValue("remoteDirectory", remoteDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("localDirectory", localDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-    retval.append("      ").append(XmlHandler.addTagValue("remove", remove));
-    retval.append("      ").append(XmlHandler.addTagValue("only_new", onlyPuttingNewFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
-    retval.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
+    xml.append("      ").append(XmlHandler.addTagValue("remoteDirectory", remoteDirectory));
+    xml.append("      ").append(XmlHandler.addTagValue("localDirectory", localDirectory));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
+    xml.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
+    xml.append("      ").append(XmlHandler.addTagValue("remove", remove));
+    xml.append("      ").append(XmlHandler.addTagValue("only_new", onlyPuttingNewFiles));
+    xml.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
+    xml.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
 
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    xml.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue(
                 "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
-    retval
+    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    xml
         .append("      ")
         .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
-    retval
+    xml
         .append("      ")
         .append(
             XmlHandler.addTagValue(
                 "socksproxy_password",
                 Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword)));
 
-    return retval.toString();
+    return xml.toString();
   }
 
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
+  @Override public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml(entrynode);
       serverName = XmlHandler.getTagValue(entrynode, "servername");
@@ -210,7 +209,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
       }
     } catch (HopXmlException xe) {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "JobFTPPUT.Log.UnableToLoadFromXml"), xe);
+          BaseMessages.getString(PKG, "ActionFtpPut.Log.UnableToLoadFromXml"), xe);
     }
   }
 
@@ -437,7 +436,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
     long filesput = 0;
 
     if (log.isDetailed()) {
-      logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.Starting"));
+      logDetailed(BaseMessages.getString(PKG, "ActionFtpPut.Log.Starting"));
     }
 
     FTPClient ftpclient = null;
@@ -445,42 +444,19 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
       // Create ftp client to host:port ...
       ftpclient = createAndSetUpFtpClient();
 
-      // login to ftp host ...
-      String realUsername = environmentSubstitute(userName);
-      String realPassword =
-          Encr.decryptPasswordOptionallyEncrypted(environmentSubstitute(password));
-      ftpclient.connect();
-      ftpclient.login(realUsername, realPassword);
-
-      // set BINARY
-      if (binaryMode) {
-        ftpclient.setType(FTPTransferType.BINARY);
-        if (log.isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.BinaryMode"));
-        }
-      }
-
-      // Remove password from logging, you don't know where it ends up.
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.Logged", realUsername));
-      }
-
-      // Fix for PDI-2534 - add auxilliary FTP File List parsers to the ftpclient object.
-      this.hookInOtherParsers(ftpclient);
-
       // move to spool dir ...
-      String realRemoteDirectory = environmentSubstitute(remoteDirectory);
+      String realRemoteDirectory = resolve(remoteDirectory);
       if (!Utils.isEmpty(realRemoteDirectory)) {
-        ftpclient.chdir(realRemoteDirectory);
+        ftpclient.changeWorkingDirectory(realRemoteDirectory);
         if (log.isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "JobFTPPUT.Log.ChangedDirectory", realRemoteDirectory));
+              BaseMessages.getString(PKG, "ActionFtpPut.Log.ChangedDirectory", realRemoteDirectory));
         }
       }
 
-      String realLocalDirectory = environmentSubstitute(localDirectory);
+      String realLocalDirectory = resolve(localDirectory);
       if (realLocalDirectory == null) {
-        throw new FTPException(BaseMessages.getString(PKG, "JobFTPPUT.LocalDir.NotSpecified"));
+        throw new HopException(BaseMessages.getString(PKG, "ActionFtpPut.LocalDir.NotSpecified"));
       } else {
         // handle file:/// prefix
         if (realLocalDirectory.startsWith("file:")) {
@@ -506,12 +482,12 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
         logDetailed(
             BaseMessages.getString(
                 PKG,
-                "JobFTPPUT.Log.FoundFileLocalDirectory",
+                "ActionFtpPut.Log.FoundFileLocalDirectory",
                 "" + files.size(),
                 realLocalDirectory));
       }
 
-      String realWildcard = environmentSubstitute(wildcard);
+      String realWildcard = resolve(wildcard);
       Pattern pattern;
       if (!Utils.isEmpty(realWildcard)) {
         pattern = Pattern.compile(realWildcard);
@@ -536,16 +512,16 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
           // File exists?
           boolean fileExist = false;
           try {
-            fileExist = ftpclient.exists(file);
+            fileExist = FtpClientUtil.fileExists(ftpclient, file);
           } catch (Exception e) {
             // Assume file does not exist !!
           }
 
           if (log.isDebug()) {
             if (fileExist) {
-              logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.FileExists", file));
+              logDebug(BaseMessages.getString(PKG, "ActionFtpPut.Log.FileExists", file));
             } else {
-              logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.FileDoesNotExists", file));
+              logDebug(BaseMessages.getString(PKG, "ActionFtpPut.Log.FileDoesNotExists", file));
             }
           }
 
@@ -554,13 +530,15 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
               logDebug(
                   BaseMessages.getString(
                       PKG,
-                      "JobFTPPUT.Log.PuttingFileToRemoteDirectory",
+                      "ActionFtpPut.Log.PuttingFileToRemoteDirectory",
                       file,
                       realRemoteDirectory));
             }
 
             String localFilename = realLocalDirectory + Const.FILE_SEPARATOR + file;
-            ftpclient.put(localFilename, file);
+            try( InputStream inputStream = HopVfs.getInputStream( localFilename ) ) {
+              ftpclient.storeFile( file, inputStream );
+            }
 
             filesput++;
 
@@ -569,7 +547,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
               new File(localFilename).delete();
               if (log.isDetailed()) {
                 logDetailed(
-                    BaseMessages.getString(PKG, "JobFTPPUT.Log.DeletedFile", localFilename));
+                    BaseMessages.getString(PKG, "ActionFtpPut.Log.DeletedFile", localFilename));
               }
             }
           }
@@ -578,125 +556,43 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
 
       result.setResult(true);
       if (log.isDetailed()) {
-        logDebug(BaseMessages.getString(PKG, "JobFTPPUT.Log.WeHavePut", "" + filesput));
+        logDebug(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesput));
       }
     } catch (Exception e) {
       result.setNrErrors(1);
-      logError(BaseMessages.getString(PKG, "JobFTPPUT.Log.ErrorPuttingFiles", e.getMessage()));
+      logError(BaseMessages.getString(PKG, "ActionFtpPut.Log.ErrorPuttingFiles", e.getMessage()));
       logError(Const.getStackTracker(e));
     } finally {
-      if (ftpclient != null && ftpclient.connected()) {
+      if (ftpclient != null && ftpclient.isConnected()) {
         try {
           ftpclient.quit();
         } catch (Exception e) {
-          logError(BaseMessages.getString(PKG, "JobFTPPUT.Log.ErrorQuitingFTP", e.getMessage()));
+          logError(BaseMessages.getString(PKG, "ActionFtpPut.Log.ErrorQuitingFTP", e.getMessage()));
         }
       }
-
-      FTPClient.clearSOCKS();
+      FtpClientUtil.clearSocksJvmSettings();
     }
 
     return result;
   }
 
   // package-local visibility for testing purposes
-  FTPClient createAndSetUpFtpClient() throws IOException, FTPException {
-    String realServerName = environmentSubstitute(serverName);
-    String realServerPort = environmentSubstitute(serverPort);
+  FTPClient createAndSetUpFtpClient() throws IOException, HopException {
 
-    FTPClient ftpClient = createFtpClient();
-    ftpClient.setRemoteAddr(InetAddress.getByName(realServerName));
-    if (!Utils.isEmpty(realServerPort)) {
-      ftpClient.setRemotePort(Const.toInt(realServerPort, FTP_DEFAULT_PORT));
-    }
-
-    if (!Utils.isEmpty(proxyHost)) {
-      String realProxyHost = environmentSubstitute(proxyHost);
-      ftpClient.setRemoteAddr(InetAddress.getByName(realProxyHost));
-      if (log.isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(PKG, "ActionFTPPUT.OpenedProxyConnectionOn", realProxyHost));
-      }
-
-      // FIXME: Proper default port for proxy
-      int port = Const.toInt(environmentSubstitute(proxyPort), FTP_DEFAULT_PORT);
-      if (port != 0) {
-        ftpClient.setRemotePort(port);
-      }
-    } else {
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionFTPPUT.OpenConnection", realServerName));
-      }
-    }
-
-    // set activeConnection connectmode ...
-    if (activeConnection) {
-      ftpClient.setConnectMode(FTPConnectMode.ACTIVE);
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetActiveConnection"));
-      }
-    } else {
-      ftpClient.setConnectMode(FTPConnectMode.PASV);
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetPassiveConnection"));
-      }
-    }
-
-    // Set the timeout
-    if (timeout > 0) {
-      ftpClient.setTimeout(timeout);
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetTimeout", "" + timeout));
-      }
-    }
-
-    ftpClient.setControlEncoding(controlEncoding);
-    if (log.isDetailed()) {
-      logDetailed(BaseMessages.getString(PKG, "JobFTPPUT.Log.SetEncoding", controlEncoding));
-    }
-
-    // If socks proxy server was provided
-    if (!Utils.isEmpty(socksProxyHost)) {
-      // if a port was provided
-      if (!Utils.isEmpty(socksProxyPort)) {
-        FTPClient.initSOCKS(
-            environmentSubstitute(socksProxyPort), environmentSubstitute(socksProxyHost));
-      } else { // looks like we have a host and no port
-        throw new FTPException(
-            BaseMessages.getString(
-                PKG,
-                "JobFTPPUT.SocksProxy.PortMissingException",
-                environmentSubstitute(socksProxyHost)));
-      }
-      // now if we have authentication information
-      if (!Utils.isEmpty(socksProxyUsername) && Utils.isEmpty(socksProxyPassword)
-          || Utils.isEmpty(socksProxyUsername) && !Utils.isEmpty(socksProxyPassword)) {
-        // we have a username without a password or vica versa
-        throw new FTPException(
-            BaseMessages.getString(
-                PKG,
-                "JobFTPPUT.SocksProxy.IncompleteCredentials",
-                environmentSubstitute(socksProxyHost),
-                getName()));
-      }
-    }
+    FTPClient ftpClient = FtpClientUtil.connectAndLogin( log, this, this, getName() );
 
     return ftpClient;
   }
 
-  // package-local visibility for testing purposes
-  FTPClient createFtpClient() {
-    return new FtpClient(log);
-  }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies(WorkflowMeta workflowMeta) {
-    List<ResourceReference> references = super.getResourceDependencies(workflowMeta);
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies(this, workflowMeta);
     if (!Utils.isEmpty(serverName)) {
-      String realServerName = environmentSubstitute(serverName);
+      String realServerName = resolve(serverName);
       ResourceReference reference = new ResourceReference(this);
       reference.getEntries().add(new ResourceEntry(realServerName, ResourceType.SERVER));
       references.add(reference);
@@ -744,68 +640,4 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
             AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
   }
 
-  /**
-   * Hook in known parsers, and then those that have been specified in the variable
-   * ftp.file.parser.class.names
-   *
-   * @param ftpClient
-   * @throws FTPException
-   * @throws IOException
-   */
-  protected void hookInOtherParsers(FTPClient ftpClient) throws FTPException, IOException {
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Hooking.Parsers"));
-    }
-    String system = ftpClient.system();
-    MVSFileParser parser = new MVSFileParser(log);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.MVS.Parser"));
-    }
-    FTPFileFactory factory = new FTPFileFactory(system);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Factory"));
-    }
-    factory.addParser(parser);
-    ftpClient.setFTPFileFactory(factory);
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Get.Variable.Space"));
-    }
-    IVariables vs = this.getVariables();
-    if (vs != null) {
-      if (log.isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Getting.Other.Parsers"));
-      }
-      String otherParserNames = vs.getVariable("ftp.file.parser.class.names");
-      if (otherParserNames != null) {
-        if (log.isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "ActionFTP.DEBUG.Creating.Parsers"));
-        }
-        String[] parserClasses = otherParserNames.split("|");
-        String cName = null;
-        Class<?> clazz = null;
-        Object parserInstance = null;
-        for (int i = 0; i < parserClasses.length; i++) {
-          cName = parserClasses[i].trim();
-          if (cName.length() > 0) {
-            try {
-              clazz = Class.forName(cName);
-              parserInstance = clazz.newInstance();
-              if (parserInstance instanceof FTPFileParser) {
-                if (log.isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(PKG, "ActionFTP.DEBUG.Created.Other.Parser", cName));
-                }
-                factory.addParser((FTPFileParser) parserInstance);
-              }
-            } catch (Exception ignored) {
-              if (log.isDebug()) {
-                ignored.printStackTrace();
-                logError(BaseMessages.getString(PKG, "ActionFTP.ERROR.Creating.Parser", cName));
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }

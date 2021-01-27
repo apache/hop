@@ -495,12 +495,4 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     action.setFilename2( wFilename2.getText() );
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

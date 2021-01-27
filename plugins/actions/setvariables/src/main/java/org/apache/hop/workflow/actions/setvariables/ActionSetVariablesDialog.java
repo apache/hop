@@ -372,12 +372,4 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }

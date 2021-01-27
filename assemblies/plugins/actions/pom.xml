@@ -58,7 +58,7 @@
         <module>filesexist</module>
         <module>folderisempty</module>        
         <module>folderscompare</module>
-<!--        <module>ftp</module>-->
+        <module>ftp</module>
         <module>getpop</module>
         <module>http</module>
         <module>mail</module>

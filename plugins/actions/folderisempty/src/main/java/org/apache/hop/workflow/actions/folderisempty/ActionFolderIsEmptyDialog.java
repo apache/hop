@@ -306,12 +306,4 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
 
     dispose();
   }
-
-  public boolean evaluates() {
-    return true;
-  }
-
-  public boolean isUnconditional() {
-    return false;
-  }
 }
