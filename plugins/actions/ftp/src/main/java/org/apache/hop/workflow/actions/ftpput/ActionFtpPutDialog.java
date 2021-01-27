@@ -467,7 +467,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wControlEncoding);
     FormData fdControlEncoding = new FormData();
     fdControlEncoding.left = new FormAttachment(middle, 0);
-    fdControlEncoding.top = new FormAttachment(wActive, margin);
+    fdControlEncoding.top = new FormAttachment(wlControlEncoding, 0, SWT.CENTER);
     fdControlEncoding.right = new FormAttachment(100, 0);
     wControlEncoding.setLayoutData(fdControlEncoding);
 

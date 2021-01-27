@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -605,30 +606,15 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         fdbFilename.right = new FormAttachment(100, 0);
         fdbFilename.top = new FormAttachment(wSettings, 0);
         wbFilename.setLayoutData(fdbFilename);
-        wbFilename.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-                dialog.setFilterExtensions(new String[]{"*.js", "*.JS", "*"});
-                if (wFilename.getText() != null) {
-                    dialog.setFileName(variables.resolve(wFilename.getText()));
-                }
-                dialog.setFilterNames(new String[]{BaseMessages.getString(PKG, "System.FileType.TextFiles"),
-                        BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
-                        BaseMessages.getString(PKG, "System.FileType.AllFiles")});
-                if (dialog.open() != null) {
-                    String extension = wExtension.getText();
-                    if (extension != null && dialog.getFileName() != null && dialog.getFileName().endsWith("." + extension)) {
-                        // The extension is filled in and matches the end
-                        // of the selected file => Strip off the extension.
-                        String fileName = dialog.getFileName();
-                        wFilename.setText(dialog.getFilterPath() + System.getProperty("file.separator")
-                                + fileName.substring(0, fileName.length() - (extension.length() + 1)));
-                    } else {
-                        wFilename.setText(dialog.getFilterPath() + System.getProperty("file.separator") + dialog.getFileName());
-                    }
-                }
-            }
-        });
+
+        wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( true, shell, wFilename, variables,
+                new String[] {"*.js", "*.json", "*"},
+                new String[] {
+                        BaseMessages.getString( PKG, "System.FileType.JsonFiles" ),
+                        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+                true )
+        );
+
         wFilename = new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
         props.setLook(wFilename);
         wFilename.addModifyListener(lsMod);
