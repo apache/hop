@@ -825,15 +825,6 @@
                     <consoleOutput>true</consoleOutput>
                     <excludes>
 
-                        <!-- License Exclusions -->
-                        <exclude>**/UserDefinedJavaClassHighlight.java</exclude>
-                        <exclude>**/ScriptValuesHighlight.java</exclude>
-                        <exclude>**/SOQLValuesHighlight.java</exclude>
-                        <exclude>**/Sleak.java</exclude>
-                        <exclude>**/SqlValuesHighlight.java</exclude>
-                        <exclude>**/ImageUtil.java</exclude>
-                        <exclude>**/FtpClient.java</exclude>
-
                         <!-- General Exclusions -->
                         <exclude>DISCLAIMER-WIP</exclude>
                         <exclude>LICENSE</exclude>
@@ -859,7 +850,6 @@
                         <exclude>**/test/**/*.xls</exclude>
                         <exclude>**/test/**/*.xlsx</exclude>
                         <exclude>**/test/**/*.edi</exclude>
-
 
                         <!-- Integration Test Exclusion -->
                         <exclude>**/datasets/*.csv</exclude>
