@@ -508,6 +508,13 @@ public class PluginRegistry {
   }
 
   public void registerType( IPluginType pluginType ) throws HopPluginException {
+
+    // Don't register the same type twice...
+    //
+    if (pluginMap.get( pluginType.getClass() )!=null) {
+      return;
+    }
+
     registerPluginType( pluginType.getClass() );
 
     // Search plugins for this type...
