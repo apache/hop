@@ -492,13 +492,9 @@ public class PluginRegistry {
   public static synchronized void init( boolean keepCache ) throws HopPluginException {
     final PluginRegistry registry = getInstance();
 
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START );
     for ( final IPluginType pluginType : pluginTypes ) {
-      log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START, pluginType.getName() );
       registry.registerType( pluginType );
-      log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_STOP, pluginType.getName() );
     }
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP );
 
     // Clear the jar file cache so that we don't waste memory...
     //
