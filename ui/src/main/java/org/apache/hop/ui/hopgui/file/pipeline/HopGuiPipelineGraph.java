@@ -596,7 +596,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           "Error calling PipelineGraphMouseDoubleClick extension point", ex);
     }
 
-    TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize );
+    TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize);
     if (transformMeta != null) {
       if (e.button == 1) {
         editTransform(transformMeta);
@@ -862,8 +862,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
           break;
         case TRANSFORM_NAME:
-          if (startHopTransform == null && selectionRegion == null &&
-              selectedTransforms==null && selectedNotes==null) {
+          if (startHopTransform == null
+              && selectionRegion == null
+              && selectedTransforms == null
+              && selectedNotes == null) {
             // This is available only in single click mode...
             //
             startHopTransform = null;
@@ -900,7 +902,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if (selectedTransform != null && startHopTransform == null) {
         if (e.button == 1) {
           Point realClick = screen2real(e.x, e.y);
-          if ( lastClick.x == realClick.x && lastClick.y == realClick.y) {
+          if (lastClick.x == realClick.x && lastClick.y == realClick.y) {
             // Flip selection when control is pressed!
             if (control) {
               selectedTransform.flipSelected();
@@ -927,7 +929,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   pipelineMeta,
                   selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                   indexes,
-                previousNoteLocations,
+                  previousNoteLocations,
                   pipelineMeta.getSelectedNoteLocations(),
                   also);
             }
@@ -937,7 +939,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   pipelineMeta,
                   selectedTransforms.toArray(new TransformMeta[selectedTransforms.size()]),
                   indexes,
-                previousTransformLocations,
+                  previousTransformLocations,
                   pipelineMeta.getSelectedTransformLocations(),
                   also);
             }
@@ -969,7 +971,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         if (selectedNote != null) {
           if (e.button == 1) {
-            if ( lastClick.x == real.x && lastClick.y == real.y) {
+            if (lastClick.x == real.x && lastClick.y == real.y) {
               // Flip selection when control is pressed!
               if (control) {
                 selectedNote.flipSelected();
@@ -996,7 +998,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     pipelineMeta,
                     selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                     indexes,
-                  previousNoteLocations,
+                    previousNoteLocations,
                     pipelineMeta.getSelectedNoteLocations(),
                     also);
                 also = selectedTransforms != null && selectedTransforms.size() > 0;
@@ -1009,7 +1011,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     pipelineMeta,
                     selectedTransforms.toArray(new TransformMeta[selectedTransforms.size()]),
                     indexes,
-                  previousTransformLocations,
+                    previousTransformLocations,
                     pipelineMeta.getSelectedTransformLocations(),
                     also);
               }
@@ -1028,7 +1030,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (avoidContextDialog) {
       avoidContextDialog = false;
-      selectionRegion=null;
+      selectionRegion = null;
       return;
     }
 
@@ -1213,8 +1215,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Show the context dialog
           //
           avoidContextDialog =
-              GuiContextUtil.getInstance().handleActionSelection(
-                  parent, message, new Point(p.x, p.y), contextHandler);
+              GuiContextUtil.getInstance()
+                  .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
         }
       }
     }
@@ -1357,7 +1359,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
-    
+
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
@@ -1421,7 +1423,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           hi.split = true;
         }
       } else {
-        if ( lastHopSplit != null) {
+        if (lastHopSplit != null) {
           lastHopSplit.split = false;
           lastHopSplit = null;
           splitHop = false;
@@ -1455,7 +1457,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Are we creating a new hop with the middle button or pressing SHIFT?
       //
 
-      TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize );
+      TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize);
       endHopLocation = new Point(real.x, real.y);
       if (transformMeta != null
           && ((startHopTransform != null && !startHopTransform.equals(transformMeta))
@@ -1744,7 +1746,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     candidate.getFromTransform().setTransformErrorMeta(errorMeta);
   }
 
-
   @Override
   public void mouseEnter(MouseEvent arg0) {}
 
@@ -1764,8 +1765,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_LEVEL,
-      label = "  Zoom: ",
+      label = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Zoom",
       toolTip = "Zoom in our out",
+      // TODO: i18n does not work on dropdown
+      // toolTip = "i18n::HopGui.Toolbar.Zoom.ToolTip",
       type = GuiToolbarElementType.COMBO,
       alignRight = true,
       comboValuesMethod = "getZoomLevels")
@@ -1932,7 +1935,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       hideToolTips();
 
       // Set the pop-up menu
-      TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize );
+      TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize);
       if (transformMeta != null) {
         // OK, we found a transform, show the output fields...
         inputOutputFields(transformMeta, false);
@@ -2801,14 +2804,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case TRANSFORM_TARGET_HOP_ICON:
           IStream stream = (IStream) areaOwner.getOwner();
           tip.append(stream.getDescription());
-          
-          if ( stream.getStreamIcon()==StreamIcon.TRUE ) {
+
+          if (stream.getStreamIcon() == StreamIcon.TRUE) {
             tipImage = GuiResource.getInstance().getImageTrue();
-          } 
-          else if ( stream.getStreamIcon()==StreamIcon.FALSE ) {
+          } else if (stream.getStreamIcon() == StreamIcon.FALSE) {
             tipImage = GuiResource.getInstance().getImageFalse();
-          }             
-          else {
+          } else {
             tipImage = GuiResource.getInstance().getImageTarget();
           }
           break;
@@ -3045,29 +3046,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Run something in the background to cancel active database queries, forecably if needed!
       // TODO: make this runnable a Lambda expression in a way that does not
       // raise java.lang.SecurityException even on RAP/RWT.
-      Runnable run = new Runnable() {
-        @Override
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while (pmd.getShell() == null
-              || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-            try {
-              Thread.sleep(250);
-            } catch (InterruptedException e) {
-              // Ignore
-            }
-          }
+      Runnable run =
+          new Runnable() {
+            @Override
+            public void run() {
+              IProgressMonitor monitor = pmd.getProgressMonitor();
+              while (pmd.getShell() == null
+                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+                try {
+                  Thread.sleep(250);
+                } catch (InterruptedException e) {
+                  // Ignore
+                }
+              }
 
-          if (monitor.isCanceled()) { // Disconnect and see what happens!
+              if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-            try {
-              pipelineMeta.cancelQueries();
-            } catch (Exception e) {
-              // Ignore
+                try {
+                  pipelineMeta.cancelQueries();
+                } catch (Exception e) {
+                  // Ignore
+                }
+              }
             }
-          }
-        }
-      };
+          };
       // Dump the cancel looker in the background!
       new Thread(run).start();
 
@@ -3143,7 +3145,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void drawPipelineImage(GC swtGc, int width, int height, float magnificationFactor) {
 
-    IGc gc = new SwtGc(swtGc, width, height, iconSize );
+    IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
 
@@ -3336,7 +3338,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SNAP_TO_GRID,
       // label = "Snap to grid",
-      toolTip = "Align the selected transforms to the specified grid size",
+      toolTip = "i18n::PipelineGraph.Toolbar.SnapToGrid.Tooltip",
       image = "ui/images/snap-to-grid.svg",
       disabledImage = "ui/images/snap-to-grid-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.HOME)
@@ -3352,7 +3354,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_LEFT,
-      toolTip = "Align the transforms with the left-most transform in your selection",
+      toolTip = "i18n::PipelineGraph.Toolbar.AlignLeft.Tooltip",
       image = "ui/images/align-left.svg",
       disabledImage = "ui/images/align-left-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
@@ -3364,7 +3366,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
-      toolTip = "Align the transforms with the right-most transform in your selection",
+      toolTip = "i18n::PipelineGraph.Toolbar.AlignRight.Tooltip",
       image = "ui/images/align-right.svg",
       disabledImage = "ui/images/align-right-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
@@ -3376,7 +3378,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_TOP,
-      toolTip = "Align the transforms with the top-most transform in your selection",
+      toolTip = "i18n::PipelineGraph.Toolbar.AlignTop.Tooltip",
       image = "ui/images/align-top.svg",
       disabledImage = "ui/images/align-top-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
@@ -3389,7 +3391,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_BOTTOM,
       // label = "Bottom-align selected transforms",
-      toolTip = "Align the transforms with the bottom-most transform in your selection",
+      toolTip = "i18n::PipelineGraph.Toolbar.AlignBottom.Tooltip",
       image = "ui/images/align-bottom.svg",
       disabledImage = "ui/images/align-bottom-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
@@ -3402,8 +3404,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
       // label = "Horizontally distribute selected transforms",
-      toolTip =
-          "Distribute the selected transforms evenly between the left-most and right-most transform in your selection",
+      toolTip ="i18n::PipelineGraph.Toolbar.DistributeHorizontal.Tooltip",
       image = "ui/images/distribute-horizontally.svg",
       disabledImage = "ui/images/distribute-horizontally-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
@@ -3416,8 +3417,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
       // label = "Vertically distribute selected transforms",
-      toolTip =
-          "Distribute the selected transforms evenly between the top-most and bottom-most transform in your selection",
+      toolTip = "i18n::PipelineGraph.Toolbar.DistributeVertical.Tooltip",
       image = "ui/images/distribute-vertically.svg",
       disabledImage = "ui/images/distribute-vertically-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
@@ -3430,7 +3430,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_PREVIEW,
       // label = "Preview",
-      toolTip = "Preview the pipeline",
+      toolTip = "i18n::PipelineGraph.Toolbar.Preview.Tooltip",
       image = "ui/images/preview.svg")
   @Override
   public void preview() {
@@ -3475,7 +3475,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DEBUG,
       // label = "Debug",
-      toolTip = "Debug the pipeline",
+      toolTip = "i18n::PipelineGraph.Toolbar.Debug.Tooltip",
       image = "ui/images/debug.svg")
   @Override
   public void debug() {
@@ -3742,7 +3742,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_START,
-      toolTip = "Start the execution of the pipeline",
+      toolTip = "i18n::PipelineGraph.Toolbar.Start.Tooltip",
       image = "ui/images/run.svg")
   @Override
   public void start() {
@@ -3780,7 +3780,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_PAUSE,
       // label = "Pause",
-      toolTip = "Pause the execution of the pipeline",
+      toolTip = "i18n::PipelineGraph.Toolbar.Pause.Tooltip",
       image = "ui/images/pause.svg")
   public void pause() {
     pauseResume();
@@ -3814,8 +3814,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
       // label = "HopGui.Menu.ShowExecutionResults",
-      toolTip = "HopGui.Tooltip.ShowExecutionResults",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults",
       image = "ui/images/show-results.svg",
       separator = true)
   public void showExecutionResults() {
@@ -4015,7 +4014,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
           Set<String> variableKeys = variablesMap.keySet();
           for (String key : variableKeys) {
-            pipeline.setVariable( key, Const.NVL(variablesMap.get(key), "") );
+            pipeline.setVariable(key, Const.NVL(variablesMap.get(key), ""));
           }
 
           // Set the named parameters
@@ -4355,7 +4354,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_STOP,
       // label = "Stop",
-      toolTip = "Stop the execution of the pipeline",
+      toolTip = "i18n::PipelineGraph.Toolbar.Stop.Tooltip",
       image = "ui/images/stop.svg")
   @Override
   public void stop() {
@@ -4902,7 +4901,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_UNDO_ID,
       // label = "Undo",
-      toolTip = "Undo an operation",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Undo.Tooltip",
       image = "ui/images/undo.svg",
       disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
@@ -4917,7 +4916,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
-      toolTip = "Redo an operation",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Redo.Tooltip",
       image = "ui/images/redo.svg",
       disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
@@ -5066,40 +5065,45 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "pipeline-graph-transform-10300-copy-pipeline-action",
-    parentId = HopGuiPipelineContext.CONTEXT_ID,
-    type = GuiActionType.Modify,
-    name = "Copy as pipeline action",
-    tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
-    image = "ui/images/copy.svg",
-    category = "Basic",
-    categoryOrder = "1")
+      id = "pipeline-graph-transform-10300-copy-pipeline-action",
+      parentId = HopGuiPipelineContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "Copy as pipeline action",
+      tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
+      image = "ui/images/copy.svg",
+      category = "Basic",
+      categoryOrder = "1")
   public void copyAsActionToClipboard(HopGuiPipelineContext context) {
 
     ActionPipeline actionPipeline = new ActionPipeline(pipelineMeta.getName());
 
-    HopGuiFileOpenedExtension ext = new HopGuiFileOpenedExtension(null, variables, pipelineMeta.getFilename());
+    HopGuiFileOpenedExtension ext =
+        new HopGuiFileOpenedExtension(null, variables, pipelineMeta.getFilename());
 
     // See if there are any plugins interested in manipulating the filename...
     //
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables,
-        HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext );
-    } catch ( Exception xe ) {
-      LogChannel.UI.logError( "Error handling extension point 'HopGuiFileOpenDialog'", xe );
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+    } catch (Exception xe) {
+      LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
     }
 
-    actionPipeline.setFileName( ext.filename );
+    actionPipeline.setFileName(ext.filename);
     ActionMeta actionMeta = new ActionMeta(actionPipeline);
 
-    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXmlHeader() );
-    xml.append( XmlHandler.openTag( HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS ) ).append( Const.CR );
-    xml.append( XmlHandler.openTag( HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS ) ).append( Const.CR );
-    xml.append( actionMeta.getXml() );
-    xml.append( XmlHandler.closeTag( HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS ) ).append( Const.CR );
-    xml.append( XmlHandler.closeTag( HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS ) ).append( Const.CR );
+    StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
+    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
+        .append(Const.CR);
+    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+        .append(Const.CR);
+    xml.append(actionMeta.getXml());
+    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+        .append(Const.CR);
+    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
+        .append(Const.CR);
 
-    pipelineClipboardDelegate.toClipboard( xml.toString() );
+    pipelineClipboardDelegate.toClipboard(xml.toString());
   }
 
   @Override

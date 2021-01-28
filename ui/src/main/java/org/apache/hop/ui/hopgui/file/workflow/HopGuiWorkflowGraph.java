@@ -1323,10 +1323,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_LEVEL,
-      label = "i18n::WorkflowGraph.Toolbar.Zoom",
+      label = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Zoom",
       toolTip = "Zoom in our out",
-      //TODO: i18n does not work on dropdown
-      //toolTip = "i18n::WorkflowGraph.Toolbar.Zoom.ToolTip",
+      // TODO: i18n does not work on dropdown
+      // toolTip = "i18n::HopGui.Toolbar.Zoom.ToolTip",
       type = GuiToolbarElementType.COMBO,
       alignRight = true,
       comboValuesMethod = "getZoomLevels")
@@ -2947,7 +2947,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_UNDO_ID,
       // label = "Undo",
-      toolTip = "i18n::WorkflowGraph.Toolbar.Undo.Tooltip",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Undo.Tooltip",
       image = "ui/images/undo.svg",
       disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
@@ -2962,7 +2962,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
-      toolTip = "i18n::WorkflowGraph.Toolbar.Redo.Tooltip",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Redo.Tooltip",
       image = "ui/images/redo.svg",
       disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
@@ -3282,8 +3282,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
       // label = "HopGui.Menu.ShowExecutionResults",
-      toolTip = "HopGui.Tooltip.ShowExecutionResults",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults",
       image = "ui/images/show-results.svg",
       separator = true)
   public void showExecutionResults() {
