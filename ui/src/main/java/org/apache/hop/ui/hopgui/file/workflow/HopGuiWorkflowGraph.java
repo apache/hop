@@ -1323,8 +1323,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_LEVEL,
-      label = "  Zoom: ",
+      label = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Zoom",
       toolTip = "Zoom in our out",
+      // TODO: i18n does not work on dropdown
+      // toolTip = "i18n::HopGui.Toolbar.Zoom.ToolTip",
       type = GuiToolbarElementType.COMBO,
       alignRight = true,
       comboValuesMethod = "getZoomLevels")
@@ -1383,7 +1385,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_START,
       // label = "Start",
-      toolTip = "Start the execution of the pipeline",
+      toolTip = "i18n::WorkflowGraph.Toolbar.Start.Tooltip",
       image = "ui/images/run.svg")
   @Override
   public void start() {
@@ -1415,7 +1417,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_STOP,
       // label = "Stop",
-      toolTip = "Stop the execution of the workflow",
+      toolTip = "i18n::WorkflowGraph.Toolbar.Stop.Tooltip",
       image = "ui/images/stop.svg")
   @Override
   public void stop() {
@@ -2784,7 +2786,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SNAP_TO_GRID,
       // label = "Snap to grid",
-      toolTip = "Align the selected actions to the specified grid size",
+      toolTip = "i18n::WorkflowGraph.Toolbar.SnapToGrid.Tooltip",
       image = "ui/images/snap-to-grid.svg",
       disabledImage = "ui/images/snap-to-grid-disabled.svg")
   public void snapToGrid() {
@@ -2798,7 +2800,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_LEFT,
-      toolTip = "Align the actions with the left-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.AlignLeft.Tooltip",
       image = "ui/images/align-left.svg",
       disabledImage = "ui/images/align-left-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
@@ -2810,7 +2812,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
-      toolTip = "Align the actions with the right-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.AlignRight.Tooltip",
       image = "ui/images/align-right.svg",
       disabledImage = "ui/images/align-right-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
@@ -2822,7 +2824,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_TOP,
-      toolTip = "Align the actions with the top-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.AlignTop.Tooltip",
       image = "ui/images/align-top.svg",
       disabledImage = "ui/images/align-top-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
@@ -2834,7 +2836,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-      toolTip = "Align the actions with the bottom-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.AlignBottom.Tooltip",
       image = "ui/images/align-bottom.svg",
       disabledImage = "ui/images/align-bottom-disabled.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
@@ -2846,8 +2848,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-      toolTip =
-          "Distribute the selected actions evenly between the left-most and right-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeHorizontal.Tooltip",
       image = "ui/images/distribute-horizontally.svg",
       disabledImage = "ui/images/distribute-horizontally-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
@@ -2859,8 +2860,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-      toolTip =
-          "Distribute the selected actions evenly between the top-most and bottom-most action in your selection",
+      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeVertical.Tooltip",
       image = "ui/images/distribute-vertically.svg",
       disabledImage = "ui/images/distribute-vertically-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
@@ -2947,7 +2947,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_UNDO_ID,
       // label = "Undo",
-      toolTip = "Undo an operation",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Undo.Tooltip",
       image = "ui/images/undo.svg",
       disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
@@ -2962,7 +2962,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
-      toolTip = "Redo an operation",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Redo.Tooltip",
       image = "ui/images/redo.svg",
       disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
@@ -3282,8 +3282,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
       // label = "HopGui.Menu.ShowExecutionResults",
-      toolTip = "HopGui.Tooltip.ShowExecutionResults",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults",
       image = "ui/images/show-results.svg",
       separator = true)
   public void showExecutionResults() {
