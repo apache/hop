@@ -116,11 +116,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   /**
    * this is a utility method for subclasses so they can easily register which folders contain plugins
-   *
-   * @param xmlSubfolder the sub-folder where xml plugin definitions can be found
    */
-  protected void populateFolders( String xmlSubfolder ) {
-    pluginFolders.addAll( PluginFolder.populateFolders( xmlSubfolder ) );
+  protected void populateFolders() {
+    pluginFolders.addAll( PluginFolder.populateFolders() );
   }
 
   public Map<Class<?>, String> getAdditionalRuntimeObjectTypes() {

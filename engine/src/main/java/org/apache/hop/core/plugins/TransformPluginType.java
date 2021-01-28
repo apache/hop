@@ -36,7 +36,7 @@ public class TransformPluginType extends BasePluginType<Transform> implements IP
 
   protected TransformPluginType() {
     super( Transform.class, "TRANSFORM", "Transform" );
-    populateFolders( "transforms" );
+    populateFolders();
   }
 
   public static TransformPluginType getInstance() {

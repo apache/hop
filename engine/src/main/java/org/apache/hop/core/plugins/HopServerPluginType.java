@@ -35,7 +35,7 @@ public class HopServerPluginType extends BasePluginType<HopServerServlet> implem
 
   private HopServerPluginType() {
     super( HopServerServlet.class, "HOP_SERVER_SERVLET", "HopServer Servlet" );
-    populateFolders( "servlets" );
+    populateFolders();
   }
 
   public static HopServerPluginType getInstance() {

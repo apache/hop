@@ -36,7 +36,7 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IP
 
   private ConfigPluginType() {
     super( ConfigPlugin.class, "CONFIG", "Configuration" );
-    populateFolders( "configs" );
+    populateFolders();
   }
 
   public static ConfigPluginType getInstance() {

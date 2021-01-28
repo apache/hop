@@ -18,6 +18,7 @@
 package org.apache.hop.metadata.serializer.json;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -38,7 +39,10 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
 
   public JsonMetadataProvider() {
     super( Variables.getADefaultVariableSpace() );
-    twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    twoWayPasswordEncoder = Encr.getEncoder();
+    if (twoWayPasswordEncoder==null) {
+      twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    }
     baseFolder="metadata";
   }
 

@@ -36,7 +36,7 @@ public class VfsPluginType extends BasePluginType<VfsPlugin> implements IPluginT
 
   private VfsPluginType() {
     super( VfsPlugin.class, "VFS", "VFS" );
-    populateFolders( "vfs" );
+    populateFolders();
   }
 
   public static VfsPluginType getInstance() {

@@ -28,7 +28,7 @@ public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnaly
 
   private SearchableAnalyserPluginType() {
     super( SearchableAnalyserPlugin.class, "SEARCH_ANALYSER", "SearchAnalyser" );
-    populateFolders( "search-analysers" );
+    populateFolders();
   }
 
   public static SearchableAnalyserPluginType getInstance() {

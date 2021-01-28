@@ -38,7 +38,7 @@ public class LoggingPluginType extends BasePluginType<LoggingPlugin> implements 
 
   private LoggingPluginType() {
     super( LoggingPlugin.class, "LOGGING", "Logging Plugin" );
-    populateFolders( "logging" );
+    populateFolders();
   }
 
   public static LoggingPluginType getInstance() {

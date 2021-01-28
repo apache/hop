@@ -34,7 +34,7 @@ public class AuthenticationProviderPluginType extends BasePluginType<Authenticat
 
   private AuthenticationProviderPluginType() {
     super( AuthenticationProviderPlugin.class, "AUTHENTICATION_PROVIDER", "Authentication Provider" );
-    populateFolders( "authentication" );
+    populateFolders();
   }
 
   public static AuthenticationProviderPluginType getInstance() {

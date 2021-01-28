@@ -26,7 +26,7 @@ public abstract class BaseFragmentType<T extends Annotation> extends BasePluginT
 
   BaseFragmentType( Class<T> pluginType, String id, String name, Class<? extends IPluginType> typeToTrack ) {
     super( pluginType, id, name );
-    populateFolders( null );
+    populateFolders();
     initListeners( this.getClass(), typeToTrack );
   }
 

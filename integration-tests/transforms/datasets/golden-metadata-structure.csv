@@ -1,0 +1,6 @@
+Position,Fieldname,Comments,Type,Length,Precision,Origin,count
+1,id,,Integer,-1,0,id,10
+2,str,,String,13,-1,"str,num,int",10
+3,num,,Number,10,5,"str,num,int",10
+4,int,,Integer,10,0,"str,num,int",10
+5,sysdate,,Date,-1,-1,sysdate,10

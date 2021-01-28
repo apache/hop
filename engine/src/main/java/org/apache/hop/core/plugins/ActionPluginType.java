@@ -42,7 +42,7 @@ public class ActionPluginType extends BasePluginType<Action> implements IPluginT
 
   private ActionPluginType() {
     super( Action.class, ID, "Action" );
-    populateFolders( "actions" );
+    populateFolders();
   }
 
   protected ActionPluginType( Class<Action> pluginType, String id, String name ) {

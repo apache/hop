@@ -89,19 +89,6 @@ public class Metrics implements IMetrics {
   public static Metrics METRIC_DATABASE_GET_ROW_MAX_TIME = new Metrics(
     MetricsSnapshotType.MAX, "METRIC_DATABASE_GET_ROW_MAX_TIME", "Get row from DB (max time)" );
 
-  // Plugin registry...
-  //
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION", "Register plugins" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION", "Register plugins" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION",
-    "Register plugins of a certain type" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION",
-    "Register plugins of a certain type" );
-
   // Pipeline
   //
   public static Metrics METRIC_PIPELINE_EXECUTION_START = new Metrics(

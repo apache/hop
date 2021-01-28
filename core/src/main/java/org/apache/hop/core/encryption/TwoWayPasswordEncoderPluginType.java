@@ -38,7 +38,7 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswo
 
   private TwoWayPasswordEncoderPluginType() {
     super( TwoWayPasswordEncoderPlugin.class, "TWOWAYPASSWORDENCODERPLUGIN", "TwoWayPasswordEncoder" );
-    populateFolders( "passwordencoder" );
+    populateFolders();
   }
 
   public static TwoWayPasswordEncoderPluginType getInstance() {

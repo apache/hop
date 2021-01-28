@@ -22,7 +22,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -86,7 +88,11 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
     if ( StringUtils.isEmpty(folder)) {
       metadataProvider = new JsonMetadataProvider();
     } else {
-      metadataProvider = new JsonMetadataProvider( new HopTwoWayPasswordEncoder(), folder, variables );
+      ITwoWayPasswordEncoder passwordEncoder = Encr.getEncoder();
+      if (passwordEncoder==null) {
+        passwordEncoder = new HopTwoWayPasswordEncoder();
+      }
+      metadataProvider = new JsonMetadataProvider( passwordEncoder, folder, variables );
     }
   }
 

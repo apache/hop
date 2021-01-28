@@ -42,6 +42,12 @@ fi
 if [ -n "${HOP_PLUGIN_BASE_FOLDERS}" ]; then
     HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLUGIN_BASE_FOLDERS=${HOP_PLUGIN_BASE_FOLDERS}"
 fi
+if [ -n "${HOP_PASSWORD_ENCODER_PLUGIN}" ]; then
+    HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PASSWORD_ENCODER_PLUGIN=${HOP_PASSWORD_ENCODER_PLUGIN}"
+fi
+if [ -n "${HOP_AES_ENCODER_KEY}" ]; then
+    HOP_OPTIONS="${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY=${HOP_AES_ENCODER_KEY}"
+fi
 
 HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Encrypt -DHOP_PLATFORM_OS="$(uname -s)
 
@@ -51,11 +57,11 @@ case $( uname -s ) in
 		;;
 	Darwin) 
 		CLASSPATH="lib/*"
-		OPTIONS="${OPTIONS} -XstartOnFirstThread"
+		HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
 		;;
 esac
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.core.encryption.Encr $@
+java ${HOP_OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.encryption.HopEncrypt $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}
