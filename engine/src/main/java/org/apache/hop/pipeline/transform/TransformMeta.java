@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.ICheckResult;
@@ -72,7 +71,7 @@ public class TransformMeta implements
 
   public static final String STRING_ID_ETL_META_INJECT = "MetaInject";
 
-  public static final String STRING_ID_JOB_EXECUTOR = "WorkflowExecutor";
+  public static final String STRING_ID_WORKFLOW_EXECUTOR = "WorkflowExecutor";
 
   public static final String STRING_ID_MAPPING_INPUT = "MappingInput";
 
@@ -137,7 +136,6 @@ public class TransformMeta implements
       if (this.transformPluginId==null) {
         System.err.println("WARNING: transform plugin class '"+transform.getClass().getName()+"' couldn't be found in the plugin registry. Check the classpath.");
       }
-      setDeprecationAndSuggestedTransform();
     }
     this.name = transformName;
     setTransform( transform );
@@ -208,19 +206,19 @@ public class TransformMeta implements
     try {
       name = XmlHandler.getTagValue( transformNode, "name" );
       transformPluginId = XmlHandler.getTagValue( transformNode, "type" );
-      setDeprecationAndSuggestedTransform();
 
       // Create a new ITransformMeta object...
-      IPlugin sp = registry.findPluginWithId( TransformPluginType.class, transformPluginId, true );
+      IPlugin transformPlugin = registry.findPluginWithId( TransformPluginType.class, transformPluginId, true );
 
-      if ( sp == null ) {
+      if ( transformPlugin == null ) {
         setTransform( new Missing( name, transformPluginId ) );
       } else {
-        setTransform( (ITransformMeta) registry.loadClass( sp ) );
+        setTransform( (ITransformMeta) registry.loadClass( transformPlugin ) );
       }
       if ( this.transform != null ) {
-        if ( sp != null ) {
-          transformPluginId = sp.getIds()[ 0 ]; // revert to the default in case we loaded an alternate version
+        if ( transformPlugin != null ) {
+          transformPluginId = transformPlugin.getIds()[ 0 ]; // revert to the default in case we loaded an alternate version
+          suggestion = Const.NVL(transformPlugin.getSuggestion(),"");
         }
 
         // Load the specifics from XML...
@@ -250,15 +248,16 @@ public class TransformMeta implements
 
         // Handle GUI information: location x and y coordinates
         //
-        String xloc, yloc;
-        int x, y;
-        xloc = XmlHandler.getTagValue( transformNode, "GUI", "xloc" );
-        yloc = XmlHandler.getTagValue( transformNode, "GUI", "yloc" );
+        
+        String xloc = XmlHandler.getTagValue( transformNode, "GUI", "xloc" );
+        String yloc = XmlHandler.getTagValue( transformNode, "GUI", "yloc" );
+        int x;
         try {
           x = Integer.parseInt( xloc );
         } catch ( Exception e ) {
           x = 0;
         }
+        int y;
         try {
           y = Integer.parseInt( yloc );
         } catch ( Exception e ) {
@@ -459,6 +458,12 @@ public class TransformMeta implements
     this.transform = transform;
     if ( transform != null ) {
       this.transform.setParentTransformMeta( this );
+
+      // Check if transform is deprecated by annotation
+      Deprecated deprecated = transform.getClass().getDeclaredAnnotation(Deprecated.class);
+      if ( deprecated!=null ) {
+        this.isDeprecated = true;
+      }
     }
   }
 
@@ -670,8 +675,8 @@ public class TransformMeta implements
     return STRING_ID_ETL_META_INJECT.equals( transformPluginId );
   }
 
-  public boolean isJobExecutor() {
-    return STRING_ID_JOB_EXECUTOR.equals( transformPluginId );
+  public boolean isWorkflowExecutor() {
+    return STRING_ID_WORKFLOW_EXECUTOR.equals( transformPluginId );
   }
 
   public boolean isMappingInput() {
@@ -816,21 +821,6 @@ public class TransformMeta implements
       return null;
     }
     return attributes.get( key );
-  }
-
-  private void setDeprecationAndSuggestedTransform() {
-    PluginRegistry registry = PluginRegistry.getInstance();
-    final List<IPlugin> deprecatedTransforms = registry.getPluginsByCategory( TransformPluginType.class,
-      BaseMessages.getString( PKG, "BaseTransform.Category.Deprecated" ) );
-    for ( IPlugin p : deprecatedTransforms ) {
-      String[] ids = p.getIds();
-      if ( !ArrayUtils.isEmpty( ids ) && ids[ 0 ].equals( this.transformPluginId ) ) {
-        this.isDeprecated = true;
-        this.suggestion = registry.findPluginWithId( TransformPluginType.class, this.transformPluginId ) != null
-          ? registry.findPluginWithId( TransformPluginType.class, this.transformPluginId ).getSuggestion() : "";
-        break;
-      }
-    }
   }
 
   public boolean isMissing() {
