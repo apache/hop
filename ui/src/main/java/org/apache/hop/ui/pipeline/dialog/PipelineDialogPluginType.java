@@ -38,7 +38,7 @@ public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugi
 
   private PipelineDialogPluginType() {
     super( PipelineDialogPlugin.class, "PIPELINE_DIALOG", "Pipeline dialog" );
-    populateFolders( "pipelinedialog" );
+    populateFolders();
   }
 
   public static PipelineDialogPluginType getInstance() {

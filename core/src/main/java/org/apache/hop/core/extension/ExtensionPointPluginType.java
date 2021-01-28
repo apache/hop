@@ -36,7 +36,7 @@ public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> imp
 
   private ExtensionPointPluginType() {
     super( ExtensionPoint.class, "EXTENSION_POINT", "Extension point" );
-    populateFolders( "extension_points" );
+    populateFolders();
   }
 
   public static ExtensionPointPluginType getInstance() {

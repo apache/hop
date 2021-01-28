@@ -36,7 +36,7 @@ public class RowDistributionPluginType extends BasePluginType<RowDistributionPlu
 
   private RowDistributionPluginType() {
     super( RowDistributionPlugin.class, "ROW_DISTRIBUTION", "Row Distribution" );
-    populateFolders( "rowdistribution" );
+    populateFolders();
   }
 
   public static RowDistributionPluginType getInstance() {

@@ -34,7 +34,7 @@ public class AuthenticationConsumerPluginType extends BasePluginType<Authenticat
 
   private AuthenticationConsumerPluginType() {
     super( AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "Authentication Consumer" );
-    populateFolders( "authentication" );
+    populateFolders();
   }
 
   public static AuthenticationConsumerPluginType getInstance() {

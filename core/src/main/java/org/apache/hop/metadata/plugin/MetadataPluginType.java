@@ -37,7 +37,7 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> implements I
 
   private MetadataPluginType() {
     super( HopMetadata.class, "METADATA", "Metadata" );
-    populateFolders( "metadata" );
+    populateFolders();
   }
 
   public static MetadataPluginType getInstance() {

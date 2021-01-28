@@ -38,7 +38,7 @@ public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugi
 
   private WorkflowDialogPluginType() {
     super( WorkflowDialogPlugin.class, "WORKFLOW_DIALOG", "Workflow dialog" );
-    populateFolders( "workflow_dialog" );
+    populateFolders();
   }
 
   public static WorkflowDialogPluginType getInstance() {

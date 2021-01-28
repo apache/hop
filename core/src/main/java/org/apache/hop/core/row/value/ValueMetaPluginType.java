@@ -39,7 +39,7 @@ public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> impleme
 
   private ValueMetaPluginType() {
     super( ValueMetaPlugin.class, "VALUEMETA", "ValueMeta" );
-    populateFolders( "valuemeta" );
+    populateFolders();
   }
 
   public static ValueMetaPluginType getInstance() {

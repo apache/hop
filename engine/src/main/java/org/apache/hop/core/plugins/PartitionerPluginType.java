@@ -36,7 +36,7 @@ public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> imp
 
   private PartitionerPluginType() {
     super( PartitionerPlugin.class, "PARTITIONER", "Partitioner" );
-    populateFolders( "transforms" );
+    populateFolders();
   }
 
   public static PartitionerPluginType getInstance() {

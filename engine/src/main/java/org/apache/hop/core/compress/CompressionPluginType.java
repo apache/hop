@@ -34,7 +34,7 @@ public class CompressionPluginType extends BasePluginType<CompressionPlugin> imp
 
   private CompressionPluginType() {
     super( CompressionPlugin.class, "COMPRESSION", "Compression" );
-    populateFolders( "compress" );
+    populateFolders();
   }
 
   public static CompressionPluginType getInstance() {

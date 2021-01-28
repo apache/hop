@@ -68,12 +68,11 @@ public class PluginFolder implements IPluginFolder {
   }
 
   /**
-   * Create a list of plugin folders based on the specified xml sub folder
+   * Create a list of plugin folders based on the default or variable HOP_PLUGIN_BASE_FOLDERS
    *
-   * @param xmlSubfolder the sub-folder to consider for XML plugin files or null if it's not applicable.
    * @return The list of plugin folders found
    */
-  public static List<IPluginFolder> populateFolders( String xmlSubfolder ) {
+  public static List<IPluginFolder> populateFolders() {
     List<IPluginFolder> pluginFolders = new ArrayList<>();
 
     String folderPaths = Const.NVL( Variables.getADefaultVariableSpace().getVariable( VAR_HOP_PLUGIN_BASE_FOLDERS ), EnvUtil.getSystemProperty( VAR_HOP_PLUGIN_BASE_FOLDERS ) );
@@ -87,9 +86,6 @@ public class PluginFolder implements IPluginFolder {
     for ( String folder : folders ) {
       folder = folder.trim();
       pluginFolders.add( new PluginFolder( folder, false, true ) );
-      if ( !Utils.isEmpty( xmlSubfolder ) ) {
-        pluginFolders.add( new PluginFolder( folder + File.separator + xmlSubfolder, true, false ) );
-      }
     }
     return pluginFolders;
   }
