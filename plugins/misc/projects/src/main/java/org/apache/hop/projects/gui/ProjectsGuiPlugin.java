@@ -124,10 +124,10 @@ public class ProjectsGuiPlugin {
         refreshProjectsList();
         selectProjectInList(projectName);
 
-        if (projectDialog.isVariablesChanged()) {
+        if (projectDialog.isNeedingProjectRefresh()) {
           MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
           box.setText("Reload project?");
-          box.setMessage("Do you want to reload this project to apply changed variables?");
+          box.setMessage("To apply all changes you made a reload of this project is required. Do you want to do this now?");
           int answer = box.open();
           if ((answer & SWT.YES) != 0) {
             // Try to stick to the same environment if we have one selected...
