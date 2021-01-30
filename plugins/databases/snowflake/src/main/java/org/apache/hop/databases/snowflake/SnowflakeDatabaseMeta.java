@@ -42,10 +42,16 @@ import java.util.Map;
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-	// TODO: Manage all attributes in plugin when HOP-67 is fixed
-	@HopMetadataProperty
-	@GuiWidgetElement(id =  "warehouse", order = "02B", i18nPackage = "org.apache.hop.ui.core.database", label = "DatabaseDialog.label.Warehouse", type = GuiElementType.TEXT, variables = true, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
-	private String warehouse;
+  // TODO: Manage all attributes in plugin when HOP-67 is fixed
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = "warehouse",
+      order = "02B",
+      label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.Warehouse",
+      type = GuiElementType.TEXT,
+      variables = true,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  private String warehouse;
 
 	public String getWarehouse() {
 		return warehouse;

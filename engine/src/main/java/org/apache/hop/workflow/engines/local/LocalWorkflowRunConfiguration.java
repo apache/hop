@@ -32,8 +32,7 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
     order = "20",
     parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SafeModeEnabled.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.SafeModeEnabled.Label"
   )
   @HopMetadataProperty(key="safe_mode")
   protected boolean safeModeEnabled;

@@ -53,8 +53,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @GuiWidgetElement(
     id = "driverClass",
     order = "10",
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.DriverClass",
+    label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.DriverClass",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )

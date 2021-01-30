@@ -42,8 +42,6 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private String toolTip;
 
-  private String i18nPackage;
-
   private GuiElementType type;
 
   private String image;
@@ -86,7 +84,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
     String fieldName = field.getName();
     Class<?> fieldClass = field.getType();
-
+    String fieldPackageName = field.getDeclaringClass().getPackage().getName();
+    
     if (StringUtil.isEmpty( guiElement.id() )) {
       this.id = field.getName();
     } else {
@@ -104,11 +103,10 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), field.getDeclaringClass().getName() );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
-    this.label = calculateI18n( i18nPackage, guiElement.label(), field.getDeclaringClass() );
-    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip(), field.getDeclaringClass() );
+    this.label = getTranslation( guiElement.label(), fieldPackageName, field.getDeclaringClass() );
+    this.toolTip = getTranslation( guiElement.toolTip(), fieldPackageName, field.getDeclaringClass() );
   }
 
 
@@ -230,22 +228,6 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
    */
   public void setToolTip( String toolTip ) {
     this.toolTip = toolTip;
-  }
-
-  /**
-   * Gets i18nPackage
-   *
-   * @return value of i18nPackage
-   */
-  public String getI18nPackage() {
-    return i18nPackage;
-  }
-
-  /**
-   * @param i18nPackage The i18nPackage to set
-   */
-  public void setI18nPackage( String i18nPackage ) {
-    this.i18nPackage = i18nPackage;
   }
 
   /**

@@ -300,8 +300,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
-      toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowOnlyActiveTransforms",
       image = "ui/images/show.svg")
   public void showHideInactive() {
     hideInactiveTransforms = !hideInactiveTransforms;
@@ -320,8 +319,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
-      toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowOnlySelectedTransforms",
       image = "ui/images/show-all.svg")
   public void showHideSelected() {
     showSelectedTransforms = !showSelectedTransforms;

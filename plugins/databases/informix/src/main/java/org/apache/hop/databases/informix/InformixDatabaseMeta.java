@@ -45,9 +45,8 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    variables = true,
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.InformixServername"
+    variables = true,    
+    label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.InformixServername"
   )
   protected boolean servername;
 
