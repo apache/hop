@@ -55,8 +55,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.plugins.JarFileCache;
-import org.apache.hop.core.plugins.PluginFolder;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -74,12 +73,12 @@ import org.jboss.jandex.IndexView;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngineRunConfiguration> {
 
@@ -127,6 +126,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     //
     if ( StringUtils.isNotEmpty( pluginsToStage ) ) {
       String[] pluginFolders = pluginsToStage.split( "," );
+      // Scan only jar files with @Transform and @ExtensionPointPlugin annotations
       for ( String pluginFolder : pluginFolders ) {
         List<String> transformClasses = findAnnotatedClasses( pluginFolder, Transform.class.getName() );
         transformPluginClasses.addAll( transformClasses );
@@ -156,24 +156,23 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   }
 
   public static List<String> findAnnotatedClasses( String folder, String annotationClassName ) throws HopException {
-    JarFileCache jarFileCache = JarFileCache.getInstance();
+    JarCache jarCache = JarCache.getInstance();
     List<String> classNames = new ArrayList<>();
 
     // Scan only jar files with @Transform and @ExtensionPointPlugin annotations
-    // No plugin.xml format supported for the moment
     //
-    PluginFolder pluginFolder = new PluginFolder( "plugins/" + folder, false, true, false );
+    File pluginFolder = new File( "plugins/" + folder );
 
     try {
       // Get all the jar files in the plugin folder...
       //
-      List<File> files = jarFileCache.getJars(pluginFolder);
+      Set<File> files = jarCache.findJarFiles(pluginFolder);
       if ( !files.isEmpty() )
         for ( File file : files ) {
 
           // These are the jar files : find annotations in it...
           //
-          IndexView index = jarFileCache.getIndex(file);
+          IndexView index = jarCache.getIndex(file);
 
           // find annotations annotated with this meta-annotation
           for (AnnotationInstance instance : index.getAnnotations(DotName.createSimple(annotationClassName))) {
@@ -183,7 +182,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
             }
         }
       } else {
-        System.out.println( "No jar files found in plugin folder " + pluginFolder.getFolder() );
+        System.out.println( "No jar files found in plugin folder " + pluginFolder );
       }
     } catch ( Exception e ) {
       throw new HopException( "Unable to find annotated classes of class " + annotationClassName, e );

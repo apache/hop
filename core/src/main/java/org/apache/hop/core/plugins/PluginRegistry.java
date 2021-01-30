@@ -24,7 +24,6 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
@@ -499,7 +498,7 @@ public class PluginRegistry {
     // Clear the jar file cache so that we don't waste memory...
     //
     if ( !keepCache ) {
-      JarFileCache.getInstance().clear();
+      JarCache.getInstance().clear();
     }
   }
 
@@ -981,7 +980,7 @@ public class PluginRegistry {
       inverseClassLoaderLookup.clear();
       parentClassloaderPatternMap.clear();
       listeners.clear();
-      JarFileCache.getInstance().clear();
+      JarCache.getInstance().clear();
     } finally {
       lock.writeLock().unlock();
     }

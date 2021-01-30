@@ -19,18 +19,14 @@ package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.IPluginType;
 
 @PluginMainClassType( IHopPerspective.class )
 @PluginAnnotationType( HopPerspectivePlugin.class )
-public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugin> implements IPluginType<HopPerspectivePlugin> {
+public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugin> {
 
   private HopPerspectivePluginType() {
     super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective" );
-
-    pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
 
   private static HopPerspectivePluginType pluginType;

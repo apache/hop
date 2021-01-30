@@ -512,6 +512,8 @@ public class Const {
    */
   public static final String HOP_PLUGIN_PACKAGES = "HOP_PLUGIN_PACKAGES";
 
+  public static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
+  
   /**
    * Name of the environment variable that contains the size of the pipeline rowset size. This
    * overwrites values that you set pipeline settings.

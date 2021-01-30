@@ -18,7 +18,6 @@
 package org.apache.hop.core.extension;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -31,12 +30,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IExtensionPoint.class )
 @PluginAnnotationType( ExtensionPoint.class )
-public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> implements IPluginType<ExtensionPoint> {
+public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> {
   private static ExtensionPointPluginType pluginType;
 
   private ExtensionPointPluginType() {
     super( ExtensionPoint.class, "EXTENSION_POINT", "Extension point" );
-    populateFolders();
   }
 
   public static ExtensionPointPluginType getInstance() {

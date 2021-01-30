@@ -17,37 +17,42 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.exception.HopFileException;
+import java.net.URL;
 
-import java.io.File;
-
-/**
- * Describes a possible location for a plugin
- *
- * @author matt
- */
-public interface IPluginFolder {
+public class PluginClassFile {
+  private URL jarFile;
+  private URL pluginFolder;
+  private String className;
 
   /**
-   * @return The folder location
+   * @param className
+   * @param jarFile
+   * @param folder
    */
-  String getFolder();
+  public PluginClassFile( String className, URL jarFile, URL folder ) {
+    this.className = className;
+    this.jarFile = jarFile;
+    this.pluginFolder = folder;
+  }
+
+  @Override
+  public String toString() {
+    return jarFile.toString();
+  }
 
   /**
-   * @return true if the folder needs to be searched for plugin.xml appearances
+   * @return the jarFile
    */
-  boolean isPluginXmlFolder();
+  public URL getJarFile() {
+    return jarFile;
+  }
 
-  /**
-   * @return true if the folder needs to be searched for jar files with plugin annotations
-   */
-  boolean isPluginAnnotationsFolder();
+  public URL getFolder() {
+    return pluginFolder;
+  }
 
-  /**
-   * Find all the jar files in this plugin folder
-   *
-   * @return The jar files
-   * @throws HopFileException In case there is a problem reading
-   */
-  File[] findJarFiles() throws HopFileException;
+  public String getClassName() {
+    return className;
+  }
+
 }

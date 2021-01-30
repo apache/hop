@@ -30,13 +30,12 @@ import java.util.Map;
  */
 @PluginMainClassType( ITransformMeta.class )
 @PluginAnnotationType( Transform.class )
-public class TransformPluginType extends BasePluginType<Transform> implements IPluginType<Transform> {
+public class TransformPluginType extends BasePluginType<Transform> {
 
   private static TransformPluginType transformPluginType;
 
   protected TransformPluginType() {
     super( Transform.class, "TRANSFORM", "Transform" );
-    populateFolders();
   }
 
   public static TransformPluginType getInstance() {

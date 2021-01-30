@@ -52,11 +52,6 @@ public interface IPluginType<T extends Annotation> {
   String getName();
 
   /**
-   * @return The places where we should look for plugins, both as plugin.xml and as
-   */
-  List<IPluginFolder> getPluginFolders();
-
-  /**
    * @throws HopPluginException
    */
   void searchPlugins() throws HopPluginException;

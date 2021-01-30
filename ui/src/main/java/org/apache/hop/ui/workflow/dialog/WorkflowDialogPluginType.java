@@ -18,7 +18,6 @@
 package org.apache.hop.ui.workflow.dialog;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -31,14 +30,13 @@ import java.util.Map;
  */
 @PluginMainClassType( IWorkflowDialogPlugin.class )
 @PluginAnnotationType( WorkflowDialogPlugin.class )
-public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> implements IPluginType<WorkflowDialogPlugin> {
+public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> {
   private static final Class<?> PKG = WorkflowDialogPluginType.class; // For Translator
 
   private static WorkflowDialogPluginType pluginType;
 
   private WorkflowDialogPluginType() {
     super( WorkflowDialogPlugin.class, "WORKFLOW_DIALOG", "Workflow dialog" );
-    populateFolders();
   }
 
   public static WorkflowDialogPluginType getInstance() {

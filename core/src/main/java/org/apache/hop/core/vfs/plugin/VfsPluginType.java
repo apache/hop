@@ -18,7 +18,6 @@
 package org.apache.hop.core.vfs.plugin;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -31,12 +30,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IVfs.class )
 @PluginAnnotationType( VfsPlugin.class )
-public class VfsPluginType extends BasePluginType<VfsPlugin> implements IPluginType<VfsPlugin> {
+public class VfsPluginType extends BasePluginType<VfsPlugin> {
   private static VfsPluginType pluginType;
 
   private VfsPluginType() {
     super( VfsPlugin.class, "VFS", "VFS" );
-    populateFolders();
   }
 
   public static VfsPluginType getInstance() {

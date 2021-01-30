@@ -18,7 +18,6 @@
 package org.apache.hop.core.compress;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -29,12 +28,11 @@ import java.util.Map;
  */
 @PluginMainClassType( ICompressionProvider.class )
 @PluginAnnotationType( CompressionPlugin.class )
-public class CompressionPluginType extends BasePluginType<CompressionPlugin> implements IPluginType<CompressionPlugin> {
+public class CompressionPluginType extends BasePluginType<CompressionPlugin> {
   protected static CompressionPluginType pluginType;
 
   private CompressionPluginType() {
     super( CompressionPlugin.class, "COMPRESSION", "Compression" );
-    populateFolders();
   }
 
   public static CompressionPluginType getInstance() {
