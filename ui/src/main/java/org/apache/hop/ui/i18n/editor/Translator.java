@@ -47,8 +47,6 @@ import org.apache.hop.ui.i18n.TranslationsStore;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -308,7 +306,7 @@ public class Translator {
 
         Node filesToAvoidNode = XmlHandler.getSubNode( configNode, "files-to-avoid" );
         java.util.List<Node> filesNodes = XmlHandler.getNodes( filesToAvoidNode, "filename" );
-        filesToAvoid = new ArrayList();
+        filesToAvoid = new ArrayList<>();
         for ( Node fileNode : filesNodes ) {
           filesToAvoid.add( XmlHandler.getNodeValue( fileNode ) );
         }
@@ -1157,11 +1155,11 @@ public class Translator {
 
     // Sort the source folders...
     //
-    java.util.List<String> sourceFolders = new ArrayList(sourceMessagesPackages.keySet());
+    java.util.List<String> sourceFolders = new ArrayList<>(sourceMessagesPackages.keySet());
     Collections.sort( sourceFolders);
     for ( String sourceFolder : sourceFolders ) {
       Map<String, java.util.List<KeyOccurrence>> messagesPackages = sourceMessagesPackages.get( sourceFolder );
-      java.util.List<String> packageNames = new ArrayList( messagesPackages.keySet() );
+      java.util.List<String> packageNames = new ArrayList<>( messagesPackages.keySet() );
       Collections.sort( packageNames );
 
       for ( String packageName : packageNames ) {
