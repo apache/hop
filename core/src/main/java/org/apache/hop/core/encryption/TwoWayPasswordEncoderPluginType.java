@@ -32,13 +32,12 @@ import java.util.Map;
 
 @PluginMainClassType( ITwoWayPasswordEncoder.class )
 @PluginAnnotationType( TwoWayPasswordEncoderPlugin.class )
-public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswordEncoderPlugin> implements IPluginType<TwoWayPasswordEncoderPlugin> {
+public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswordEncoderPlugin> {
 
   private static TwoWayPasswordEncoderPluginType twoWayPasswordEncoderPluginType;
 
   private TwoWayPasswordEncoderPluginType() {
     super( TwoWayPasswordEncoderPlugin.class, "TWOWAYPASSWORDENCODERPLUGIN", "TwoWayPasswordEncoder" );
-    populateFolders();
   }
 
   public static TwoWayPasswordEncoderPluginType getInstance() {
@@ -46,11 +45,6 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswo
       twoWayPasswordEncoderPluginType = new TwoWayPasswordEncoderPluginType();
     }
     return twoWayPasswordEncoderPluginType;
-  }
-
-  @Override
-  protected boolean isReturn() {
-    return true;
   }
 
   @Override

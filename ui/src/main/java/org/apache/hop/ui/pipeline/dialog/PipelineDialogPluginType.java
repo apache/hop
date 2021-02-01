@@ -17,9 +17,7 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -32,13 +30,12 @@ import java.util.Map;
  */
 @PluginMainClassType( IPipelineDialogPlugin.class )
 @PluginAnnotationType( PipelineDialogPlugin.class )
-public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugin> implements IPluginType<PipelineDialogPlugin> {
+public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugin> {
 
   private static PipelineDialogPluginType pluginType;
 
   private PipelineDialogPluginType() {
     super( PipelineDialogPlugin.class, "PIPELINE_DIALOG", "Pipeline dialog" );
-    populateFolders();
   }
 
   public static PipelineDialogPluginType getInstance() {

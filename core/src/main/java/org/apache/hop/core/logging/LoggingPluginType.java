@@ -18,7 +18,6 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.util.Utils;
@@ -32,13 +31,12 @@ import java.util.Map;
  */
 @PluginMainClassType( ILoggingPlugin.class )
 @PluginAnnotationType( LoggingPlugin.class )
-public class LoggingPluginType extends BasePluginType<LoggingPlugin> implements IPluginType<LoggingPlugin> {
+public class LoggingPluginType extends BasePluginType<LoggingPlugin> {
 
   private static LoggingPluginType loggingPluginType;
 
   private LoggingPluginType() {
     super( LoggingPlugin.class, "LOGGING", "Logging Plugin" );
-    populateFolders();
   }
 
   public static LoggingPluginType getInstance() {

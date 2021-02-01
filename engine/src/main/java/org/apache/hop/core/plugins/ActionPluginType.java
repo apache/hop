@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IAction.class )
 @PluginAnnotationType( Action.class )
-public class ActionPluginType extends BasePluginType<Action> implements IPluginType<Action> {
+public class ActionPluginType extends BasePluginType<Action> {
   private static final Class<?> PKG = WorkflowMeta.class; // For Translator
 
   public static final String ID = "ACTION";
@@ -42,7 +42,6 @@ public class ActionPluginType extends BasePluginType<Action> implements IPluginT
 
   private ActionPluginType() {
     super( Action.class, ID, "Action" );
-    populateFolders();
   }
 
   protected ActionPluginType( Class<Action> pluginType, String id, String name ) {

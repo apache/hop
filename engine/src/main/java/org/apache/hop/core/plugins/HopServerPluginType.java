@@ -29,13 +29,12 @@ import java.util.Map;
  */
 @PluginMainClassType( IHopServerPlugin.class )
 @PluginAnnotationType( HopServerServlet.class )
-public class HopServerPluginType extends BasePluginType<HopServerServlet> implements IPluginType<HopServerServlet> {
+public class HopServerPluginType extends BasePluginType<HopServerServlet> {
 
   private static HopServerPluginType hopServerPluginType;
 
   private HopServerPluginType() {
     super( HopServerServlet.class, "HOP_SERVER_SERVLET", "HopServer Servlet" );
-    populateFolders();
   }
 
   public static HopServerPluginType getInstance() {

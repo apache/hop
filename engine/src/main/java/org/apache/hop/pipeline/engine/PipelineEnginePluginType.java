@@ -18,21 +18,17 @@
 package org.apache.hop.pipeline.engine;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
 @PluginMainClassType( IPipelineEngine.class )
 @PluginAnnotationType( PipelineEnginePlugin.class )
-public class PipelineEnginePluginType extends BasePluginType<PipelineEnginePlugin> implements IPluginType<PipelineEnginePlugin> {
+public class PipelineEnginePluginType extends BasePluginType<PipelineEnginePlugin> {
 
   private PipelineEnginePluginType() {
     super( PipelineEnginePlugin.class, "HOP_PIPELINE_ENGINES", "Hop Pipeline Engines" );
-
-    pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
 
   private static PipelineEnginePluginType pluginType;

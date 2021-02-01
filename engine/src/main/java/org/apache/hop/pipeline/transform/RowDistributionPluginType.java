@@ -31,12 +31,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IRowDistribution.class )
 @PluginAnnotationType( RowDistributionPlugin.class )
-public class RowDistributionPluginType extends BasePluginType<RowDistributionPlugin> implements IPluginType<RowDistributionPlugin> {
+public class RowDistributionPluginType extends BasePluginType<RowDistributionPlugin> {
   private static RowDistributionPluginType instance;
 
   private RowDistributionPluginType() {
     super( RowDistributionPlugin.class, "ROW_DISTRIBUTION", "Row Distribution" );
-    populateFolders();
   }
 
   public static RowDistributionPluginType getInstance() {
