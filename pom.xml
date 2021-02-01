@@ -860,8 +860,8 @@
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->
-                        <exclude>**/src/main/resources/demo/**/*.txt</exclude>
-                        <exclude>**/src/main/resources/demo/**/*.csv</exclude>
+                        <exclude>**/src/main/samples/**/*.txt</exclude>
+                        <exclude>**/src/main/samples/**/*.csv</exclude>
 
                         <!-- Assemblies -->
                         <exclude>**/beam-demo/data-orch.list</exclude>

@@ -18,16 +18,28 @@
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>demo</id>
+  <id>samples</id>
   <formats>
     <format>zip</format>
   </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>config/projects/demo</baseDirectory>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <!--
+     I thought I could simplify this with some plugins/**/**/src/main/samples/ wildcard but after half a day of trying I gave up.
+     Tried all sorts of options and possibilities but I simply couldn't get it done.
+
+     So for now it's just faster to specify all the samples explicitly until we find a better option.
+  -->
   <fileSets>
     <fileSet>
-      <directory>${project.basedir}/../../plugins/engines/beam/src/main/resources/demo/</directory>
-      <outputDirectory>config/projects/beam</outputDirectory>
+      <directory>${project.basedir}/../../plugins/transforms/addsequence/src/main/samples/</directory>
+      <outputDirectory>config/projects/samples/</outputDirectory>
+    </fileSet>
+
+    <fileSet>
+      <directory>${project.basedir}/../../plugins/engines/beam/src/main/samples/</directory>
+      <outputDirectory>config/projects/samples/</outputDirectory>
     </fileSet>
   </fileSets>
+
 </assembly>

@@ -21,31 +21,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-assemblies</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <artifactId>hop-assemblies-samples</artifactId>
   <packaging>pom</packaging>
 
-  <name>Hop Assemblies</name>
+  <name>Hop Assemblies Samples</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop</artifactId>
+    <artifactId>hop-assemblies</artifactId>
     <version>0.70-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <assembly.dir>${project.build.directory}/assembly</assembly.dir>
-  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-transform-addsequence</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
-  <modules>
-    <module>plugins</module>
-    <module>static</module>
-    <module>demo</module>
-    <module>lib</module>
-    <module>client</module>
-    <module>core</module>
-    <module>debug</module>
-    <module>samples</module>
-  </modules>
 </project>

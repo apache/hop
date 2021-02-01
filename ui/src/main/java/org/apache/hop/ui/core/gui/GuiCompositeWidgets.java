@@ -164,7 +164,7 @@ public class GuiCompositeWidgets {
               textVar.setEchoChar('*');
             }
             widgetsMap.put(guiElements.getId(), textVar);
-            addModifyListener(textVar.getTextWidget());
+            addModifyListener(textVar.getTextWidget(), guiElements.getId());
             control = textVar;
           } else {
             Text text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
@@ -173,7 +173,7 @@ public class GuiCompositeWidgets {
               text.setEchoChar('*');
             }
             widgetsMap.put(guiElements.getId(), text);
-            addModifyListener(text);
+            addModifyListener(text, guiElements.getId() );
             control = text;
           }
           break;
@@ -181,7 +181,7 @@ public class GuiCompositeWidgets {
           Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
           props.setLook(button);
           widgetsMap.put(guiElements.getId(), button);
-          addModifyListener(button);
+          addModifyListener(button, guiElements.getId() );
           control = button;
           break;
         case COMBO:
@@ -264,15 +264,16 @@ public class GuiCompositeWidgets {
    * If a widget changes
    *
    * @param control
+   * @param widgetId
    */
-  private void addModifyListener(final Control control) {
+  private void addModifyListener( final Control control, String widgetId ) {
     if (compositeWidgetsListener != null) {
       if (control instanceof Button) {
         control.addListener(
-            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control));
+            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control, widgetId));
       } else {
         control.addListener(
-            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control));
+            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control, widgetId ));
       }
     }
   }
@@ -562,12 +563,12 @@ public class GuiCompositeWidgets {
    *
    * @return value of variables
    */
-  public IVariables getSpace() {
+  public IVariables getVariables() {
     return variables;
   }
 
   /** @param variables The variables to set */
-  public void setSpace(IVariables variables) {
+  public void setVariables( IVariables variables) {
     this.variables = variables;
   }
 
@@ -598,4 +599,5 @@ public class GuiCompositeWidgets {
   public void setWidgetsMap(Map<String, Control> widgetsMap) {
     this.widgetsMap = widgetsMap;
   }
+
 }

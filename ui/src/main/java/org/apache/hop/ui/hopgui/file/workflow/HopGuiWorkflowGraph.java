@@ -3473,7 +3473,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           //
           for (String varName : executionConfiguration.getVariablesMap().keySet()) {
             String varValue = executionConfiguration.getVariablesMap().get(varName);
-            workflow.setVariable(varName, varValue);
+            if (StringUtils.isNotEmpty(varValue)) {
+              workflow.setVariable(varName, varValue);
+            }
           }
 
           // Set and activate the parameters...

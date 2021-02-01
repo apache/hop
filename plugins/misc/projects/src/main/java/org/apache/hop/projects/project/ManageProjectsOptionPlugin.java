@@ -50,7 +50,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   @CommandLine.Option( names = { "-ph", "--project-home" }, description = "The home directory of the project" )
   private String projectHome;
 
-  @CommandLine.Option( names = { "-pp", "--project-parent" }, description = "The name of the parent project to inherit metadata and variables from" )
+  @CommandLine.Option( names = { "-pr", "--project-parent" }, description = "The name of the parent project to inherit metadata and variables from" )
   private String projectParent;
 
   @CommandLine.Option( names = { "-pf", "--project-config-file" }, description = "The configuration file relative to the home folder. The default value is project-config.json" )
@@ -127,6 +127,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private void logProjectDetails( ILogChannel log, ProjectConfig projectConfig, Project project ) throws HopException {
     String projectHome = projectConfig.getProjectHome();
     log.logBasic( "  " + projectConfig.getProjectName() + " : " + projectHome );
+    if (StringUtils.isNotEmpty(project.getParentProjectName())) {
+      log.logBasic("    Parent project: " + project.getParentProjectName());
+    }
     log.logBasic( "    Configuration file: " + projectConfig.getActualProjectConfigFilename( Variables.getADefaultVariableSpace() ) );
     if (!project.getDescribedVariables().isEmpty()) {
       log.logBasic( "    Described variables: " );
@@ -254,6 +257,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic( "Project '" + projectName + "' was created for home folder : " + projectHome );
 
     Project project = projectConfig.loadProject( variables );
+    project.setParentProjectName( config.getStandardParentProject() );
     modifyProjectSettings( project );
 
     // Check to see if there's not a loop in the project parent hierarchy
@@ -517,6 +521,22 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
    */
   public void setListProjects( boolean listProjects ) {
     this.listProjects = listProjects;
+  }
+
+  /**
+   * Gets projectParent
+   *
+   * @return value of projectParent
+   */
+  public String getProjectParent() {
+    return projectParent;
+  }
+
+  /**
+   * @param projectParent The projectParent to set
+   */
+  public void setProjectParent( String projectParent ) {
+    this.projectParent = projectParent;
   }
 }
 

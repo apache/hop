@@ -225,20 +225,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     wSqlStatements.addListener(SWT.Modify, modifyListener);
     wOptions.addListener(SWT.Modify, modifyListener);
     
-    IGuiPluginCompositeWidgetsListener l = new IGuiPluginCompositeWidgetsListener () {
-
-		@Override
-		public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
-		}
-
-		@Override
-		public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-		}
-
-		@Override
-		public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget) {
-			setChanged();			
-		}};
   }
 
   private void addGeneralTab() {

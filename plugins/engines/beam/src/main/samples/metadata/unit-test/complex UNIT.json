@@ -143,6 +143,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./pipelines/complex.hpl",
+  "pipeline_filename": "./beam/pipelines/complex.hpl",
   "test_type": "UNIT_TEST"
 }

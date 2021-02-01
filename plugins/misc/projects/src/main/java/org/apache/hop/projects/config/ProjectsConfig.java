@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.lifecycle.ProjectLifecycle;
@@ -26,13 +27,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@JsonIgnoreProperties(value={"openingLastProjectAtStartup"})
 public class ProjectsConfig {
 
   public static final String HOP_CONFIG_PROJECTS_CONFIG_KEY = "projectsConfig";
 
   private boolean enabled;
 
-  private boolean openingLastProjectAtStartup;
+  private boolean projectMandatory;
+  private boolean environmentMandatory;
+  private String defaultProject;
+  private String defaultEnvironment;
+  private String standardParentProject;
+  private String standardProjectsFolder;
 
   private List<ProjectConfig> projectConfigurations;
   private List<LifecycleEnvironment> lifecycleEnvironments;
@@ -40,7 +47,6 @@ public class ProjectsConfig {
 
   public ProjectsConfig() {
     enabled = true;
-    openingLastProjectAtStartup = true;
     projectConfigurations = new ArrayList<>();
     lifecycleEnvironments = new ArrayList<>();
     projectLifecycles = new ArrayList<>();
@@ -49,10 +55,15 @@ public class ProjectsConfig {
   public ProjectsConfig(ProjectsConfig config) {
     this();
     enabled = config.enabled;
-    openingLastProjectAtStartup = config.openingLastProjectAtStartup;
     projectConfigurations = new ArrayList<>(config.projectConfigurations);
     lifecycleEnvironments = new ArrayList<>(config.lifecycleEnvironments);
     projectLifecycles = new ArrayList<>(config.projectLifecycles);
+    projectMandatory = config.projectMandatory;
+    environmentMandatory = config.environmentMandatory;
+    defaultProject = config.defaultProject;
+    defaultEnvironment = config.defaultEnvironment;
+    standardParentProject = config.standardParentProject;
+    standardProjectsFolder = config.standardProjectsFolder;
   }
 
   public ProjectConfig findProjectConfig(String projectName) {
@@ -218,20 +229,6 @@ public class ProjectsConfig {
   }
 
   /**
-   * Gets openingLastProjectAtStartup
-   *
-   * @return value of openingLastProjectAtStartup
-   */
-  public boolean isOpeningLastProjectAtStartup() {
-    return openingLastProjectAtStartup;
-  }
-
-  /** @param openingLastProjectAtStartup The openingLastProjectAtStartup to set */
-  public void setOpeningLastProjectAtStartup(boolean openingLastProjectAtStartup) {
-    this.openingLastProjectAtStartup = openingLastProjectAtStartup;
-  }
-
-  /**
    * Gets projectConfigurations
    *
    * @return value of projectConfigurations
@@ -257,5 +254,117 @@ public class ProjectsConfig {
   /** @param lifecycleEnvironments The lifecycleEnvironments to set */
   public void setLifecycleEnvironments(List<LifecycleEnvironment> lifecycleEnvironments) {
     this.lifecycleEnvironments = lifecycleEnvironments;
+  }
+
+  /**
+   * Gets defaultProject
+   *
+   * @return value of defaultProject
+   */
+  public String getDefaultProject() {
+    return defaultProject;
+  }
+
+  /**
+   * @param defaultProject The defaultProject to set
+   */
+  public void setDefaultProject( String defaultProject ) {
+    this.defaultProject = defaultProject;
+  }
+
+  /**
+   * Gets projectMandatory
+   *
+   * @return value of projectMandatory
+   */
+  public boolean isProjectMandatory() {
+    return projectMandatory;
+  }
+
+  /**
+   * @param projectMandatory The projectMandatory to set
+   */
+  public void setProjectMandatory( boolean projectMandatory ) {
+    this.projectMandatory = projectMandatory;
+  }
+
+  /**
+   * Gets environmentMandatory
+   *
+   * @return value of environmentMandatory
+   */
+  public boolean isEnvironmentMandatory() {
+    return environmentMandatory;
+  }
+
+  /**
+   * @param environmentMandatory The environmentMandatory to set
+   */
+  public void setEnvironmentMandatory( boolean environmentMandatory ) {
+    this.environmentMandatory = environmentMandatory;
+  }
+
+  /**
+   * Gets defaultEnvironment
+   *
+   * @return value of defaultEnvironment
+   */
+  public String getDefaultEnvironment() {
+    return defaultEnvironment;
+  }
+
+  /**
+   * @param defaultEnvironment The defaultEnvironment to set
+   */
+  public void setDefaultEnvironment( String defaultEnvironment ) {
+    this.defaultEnvironment = defaultEnvironment;
+  }
+
+  /**
+   * Gets standardParentProject
+   *
+   * @return value of standardParentProject
+   */
+  public String getStandardParentProject() {
+    return standardParentProject;
+  }
+
+  /**
+   * @param standardParentProject The standardParentProject to set
+   */
+  public void setStandardParentProject( String standardParentProject ) {
+    this.standardParentProject = standardParentProject;
+  }
+
+  /**
+   * Gets projectLifecycles
+   *
+   * @return value of projectLifecycles
+   */
+  public List<ProjectLifecycle> getProjectLifecycles() {
+    return projectLifecycles;
+  }
+
+  /**
+   * @param projectLifecycles The projectLifecycles to set
+   */
+  public void setProjectLifecycles( List<ProjectLifecycle> projectLifecycles ) {
+    this.projectLifecycles = projectLifecycles;
+  }
+
+  /**
+   * Gets standardProjectsFolder
+   *
+   * @return value of standardProjectsFolder
+   */
+  public String getStandardProjectsFolder() {
+    return standardProjectsFolder;
+  }
+
+  /**
+   * @param standardProjectsFolder The standardProjectsFolder to set
+   */
+  public void setStandardProjectsFolder( String standardProjectsFolder ) {
+    this.standardProjectsFolder = standardProjectsFolder;
   }
 }

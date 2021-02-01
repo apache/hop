@@ -16,17 +16,17 @@
     {
       "name": "DATA_INPUT",
       "description": "",
-      "value": "${PROJECT_HOME}/input/customers-noheader-1k.txt"
+      "value": "${PROJECT_HOME}/beam/input/customers-noheader-1k.txt"
     },
     {
       "name": "STATE_INPUT",
       "description": "",
-      "value": "${PROJECT_HOME}/input/state-data.txt"
+      "value": "${PROJECT_HOME}/beam/input/state-data.txt"
     },
     {
       "name": "DATA_OUTPUT",
       "description": "",
-      "value": "${PROJECT_HOME}/output/"
+      "value": "${PROJECT_HOME}/beam/output/"
     }
   ],
   "name": "Direct",

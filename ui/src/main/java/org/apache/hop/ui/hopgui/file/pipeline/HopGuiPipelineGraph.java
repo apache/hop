@@ -4009,12 +4009,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
 
-          // Set the variables from the execution configuration...
+          // Set the variables from the execution configuration
+          // These are values set by the user in the execution dialog
           //
           Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
           Set<String> variableKeys = variablesMap.keySet();
           for (String key : variableKeys) {
-            pipeline.setVariable(key, Const.NVL(variablesMap.get(key), ""));
+            String value = variablesMap.get(key);
+            if (StringUtils.isNotEmpty(value)) {
+              pipeline.setVariable(key, value);
+            }
           }
 
           // Set the named parameters

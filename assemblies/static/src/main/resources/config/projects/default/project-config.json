@@ -3,10 +3,8 @@
   "unitTestsBasePath" : "${PROJECT_HOME}",
   "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
+  "parentProjectName" : "",
   "config" : {
-    "variables" : [ {
-      "name" : "DATA_OUTPUT",
-      "value" : "/tmp/"
-    } ]
+    "variables" : [ ]
   }
 }

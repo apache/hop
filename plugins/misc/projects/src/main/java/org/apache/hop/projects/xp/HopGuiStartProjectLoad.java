@@ -17,7 +17,6 @@
 
 package org.apache.hop.projects.xp;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -39,16 +38,15 @@ import org.apache.hop.ui.hopgui.HopGui;
 import java.util.List;
 
 @ExtensionPoint(
-  id = "HopGuiStartProjectLoad",
-  description = "Load the previously used project",
-  extensionPointId = "HopGuiStart"
-)
-/**
- * set the debug level right before the transform starts to run
- */
+    id = "HopGuiStartProjectLoad",
+    description = "Load the previously used project",
+    extensionPointId = "HopGuiStart")
+/** set the debug level right before the transform starts to run */
 public class HopGuiStartProjectLoad implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel logChannelInterface, IVariables variables, Object o ) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel logChannelInterface, IVariables variables, Object o)
+      throws HopException {
 
     HopGui hopGui = HopGui.getInstance();
 
@@ -57,66 +55,68 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
       // Only move forward if the projects system is enabled...
       //
-      if ( ProjectsConfigSingleton.getConfig().isEnabled() ) {
+      if (ProjectsConfigSingleton.getConfig().isEnabled()) {
+        logChannelInterface.logBasic("Projects enabled");
 
-        logChannelInterface.logBasic( "Projects enabled" );
+        // What is the last used project?
+        //
+        String lastProjectName = null;
 
-        if ( config.isOpeningLastProjectAtStartup() ) {
+        // Let's see in the audit logs
+        //
+        List<AuditEvent> auditEvents =
+            AuditManager.getActive()
+                .findEvents(
+                    ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                    ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+                    true);
+        if (auditEvents.isEmpty()) {
+          lastProjectName = config.getDefaultProject();
+        } else {
+          logChannelInterface.logDetailed(
+              "Audit events found for hop-gui/project : " + auditEvents.size());
 
-          logChannelInterface.logBasic( "Opening last project at startup" );
-
-          // What is the last used project?
-          //
-          List<AuditEvent> auditEvents = AuditManager.getActive().findEvents(
-            ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-            ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
-            true
-          );
-          if ( !auditEvents.isEmpty() ) {
-
-            logChannelInterface.logDetailed( "Audit events found for hop-gui/project : " + auditEvents.size() );
-
-            for ( AuditEvent auditEvent : auditEvents ) {
-              String lastProjectName = auditEvent.getName();
-
-              if ( StringUtils.isNotEmpty( lastProjectName ) ) {
-
-                ProjectConfig projectConfig = config.findProjectConfig( lastProjectName );
-
-                if ( projectConfig != null ) {
-                  Project project = projectConfig.loadProject( variables );
-
-                  logChannelInterface.logBasic( "Enabling project : '" + lastProjectName + "'" );
-
-                  LifecycleEnvironment environment = null;
-                  List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject( lastProjectName );
-                  if ( !environments.isEmpty() ) {
-                    environment = environments.get( 0 );
-                  }
-
-                  // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
-                  // Sets the namespace in HopGui to the name of the project
-                  //
-                  ProjectsGuiPlugin.enableHopGuiProject( lastProjectName, project, environment );
-
-                  // Don't open the files twice
-                  //
-                  HopGui.getInstance().setOpeningLastFiles( false );
-                  break;// we have an project
-                } else {
-                  // Silently ignore, not that important
-                  // logChannelInterface.logError( "The last used project '" + lastProjectName + "' no longer exists" );
-                }
+          for (AuditEvent auditEvent : auditEvents) {
+            lastProjectName = auditEvent.getName();
+            if (StringUtils.isNotEmpty(lastProjectName)) {
+              if (config.findProjectConfig(lastProjectName) != null) {
+                // The last existing project to open was found.
+                //
+                break;
               }
             }
-          } else {
-            logChannelInterface.logBasic( "No last projects history found" );
           }
         }
+
+        if (StringUtils.isNotEmpty(lastProjectName)) {
+          ProjectConfig projectConfig = config.findProjectConfig(lastProjectName);
+          if (projectConfig != null) {
+            Project project = projectConfig.loadProject(variables);
+
+            logChannelInterface.logBasic("Enabling project : '" + lastProjectName + "'");
+
+            LifecycleEnvironment environment = null;
+            List<LifecycleEnvironment> environments =
+                config.findEnvironmentsOfProject(lastProjectName);
+            if (!environments.isEmpty()) {
+              environment = environments.get(0);
+            }
+
+            // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
+            // Sets the namespace in HopGui to the name of the project
+            //
+            ProjectsGuiPlugin.enableHopGuiProject(lastProjectName, project, environment);
+
+            // Don't open the files twice
+            //
+            HopGui.getInstance().setOpeningLastFiles(false);
+          }
+        }
+      } else {
+        logChannelInterface.logBasic("No last projects history found");
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error initializing the Projects system", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error initializing the Projects system", e);
     }
   }
-
 }
