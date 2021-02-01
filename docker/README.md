@@ -60,6 +60,7 @@ The most common use case will be that you run a **short-lived container** to jus
 Example for running a **workflow**:
 
 ```bash
+docker pull docker.io/apache/incubator-hop:<tag>
 docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_FILE_PATH='${PROJECT_HOME}/pipelines-and-workflows/main.hwf' \
@@ -71,12 +72,13 @@ docker run -it --rm \
   --env HOP_RUN_PARAMETERS=PARAM_LOG_MESSAGE=Hello,PARAM_WAIT_FOR_X_MINUTES=1 \
   -v /path/to/local/dir:/files \
   --name my-simple-hop-container \
-  docker pull docker.io/apache/incubator-hop:<tag>
+  apache/incubator-hop:<tag>
 ```
 
 If you need a **long-lived container**, this option is also available. Run this command e.g.:
 
 ```bash
+docker pull docker.io/apache/incubator-hop:<tag>
 docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_PROJECT_DIRECTORY=/files/project \
@@ -88,7 +90,7 @@ docker run -it --rm \
   -p 8080:8080
   -v /path/to/local/dir:/files \
   --name my-simple-hop-container \
-  docker pull docker.io/apache/incubator-hop:<tag>
+ apache/incubator-hop:<tag>
 ```
 
 You can then access the hop-server UI from your dockerhost at `http://localhost:8080`
