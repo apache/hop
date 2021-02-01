@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.janino;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -26,14 +27,25 @@ import java.util.Objects;
 public class JaninoMetaFunction implements Cloneable {
   public static final String XML_TAG = "formula";
 
+  @Injection(name = "FIELD_NAME", group = "FORMULA")
   private String fieldName;
+
+  @Injection(name = "FIELD_FORMULA", group = "FORMULA")
   private String formula;
 
   private int valueType;
+
+  @Injection(name = "VALUE_LENGTH", group = "FORMULA")
   private int valueLength;
+
+  @Injection(name = "VALUE_PRECISION", group = "FORMULA")
   private int valuePrecision;
 
+  @Injection(name = "REPLACE_FIELD", group = "FORMULA")
   private String replaceField;
+
+  public JaninoMetaFunction() {
+  }
 
   /**
    * @param fieldName
@@ -157,6 +169,11 @@ public class JaninoMetaFunction implements Cloneable {
     this.valueType = valueType;
   }
 
+  @Injection( name = "VALUE_TYPE", group = "FORMULA" )
+  public void setValueType( String typeDesc ) {
+    this.valueType = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  }
+
   /**
    * @return the formula
    */
@@ -184,4 +201,5 @@ public class JaninoMetaFunction implements Cloneable {
   public void setReplaceField( String replaceField ) {
     this.replaceField = replaceField;
   }
+
 }
