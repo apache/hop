@@ -18,7 +18,7 @@
 package org.apache.hop.ui.i18n;
 
 import org.apache.hop.core.exception.HopException;
-
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,7 +67,7 @@ public class BundlesStore {
         .forEach( path -> bundleRootFolders.add( path.toAbsolutePath().toFile().getPath() ) );
     } catch ( IOException e ) {
       throw new HopException( "Error reading root folder: " + rootFolder, e );
-    }
+    }    
   }
 
   public void findAllMessagesBundles() throws HopException {
@@ -104,6 +104,7 @@ public class BundlesStore {
       //
       String packageName = messagesFileFolder
         .substring( bundleRootFolder.length() )
+        .replace(File.separator,"/")
         .replaceAll( "\\/messages$", "" )
         .replaceAll( "^\\/", "" )
         .replaceAll( "\\/", "." );

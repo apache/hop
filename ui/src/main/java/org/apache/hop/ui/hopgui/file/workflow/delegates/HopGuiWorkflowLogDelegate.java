@@ -178,8 +178,7 @@ public class HopGuiWorkflowLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_SETTINGS,
     // label = "WorkflowLog.Button.LogSettings",
-    toolTip = "WorkflowLog.Button.LogSettings",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.LogSettings",
     image = "ui/images/settings.svg"
   )
   public void showLogSettings() {
@@ -190,8 +189,7 @@ public class HopGuiWorkflowLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_ERROR_LINES,
     // label = "WorkflowLog.Button.ShowErrorLines",
-    toolTip = "WorkflowLog.Button.ShowErrorLines",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.ShowErrorLines",
     image = "ui/images/filter.svg"
   )
   public void showErrors() {
@@ -258,8 +256,7 @@ public class HopGuiWorkflowLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
     // label = "WorkflowLog.Button.Pause",
-    toolTip = "WorkflowLog.Button.Pause",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.Pause",
     image = "ui/images/pause.svg",
     separator = true
   )

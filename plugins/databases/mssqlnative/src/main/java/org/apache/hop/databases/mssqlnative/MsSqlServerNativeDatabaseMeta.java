@@ -49,8 +49,7 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta imple
             order = "21",
             parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
             type = GuiElementType.CHECKBOX,
-            i18nPackage = "org.apache.hop.ui.core.database",
-            label = "DatabaseDialog.label.UseIntegratedSecurity"
+            label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.UseIntegratedSecurity"
     )
     @HopMetadataProperty
     private boolean usingIntegratedSecurity;

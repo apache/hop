@@ -137,8 +137,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @GuiWidgetElement(
     id = "hostname",
     order = "01",
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.ServerHostname",
+    label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.ServerHostname",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
@@ -148,8 +147,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @GuiWidgetElement(
     id = "port",
     order = "02",
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.PortNumber",
+    label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.PortNumber",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
@@ -159,8 +157,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @GuiWidgetElement(
     id = "databaseName",
     order = "03",
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.DatabaseName",
+    label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.DatabaseName",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )

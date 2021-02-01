@@ -243,16 +243,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     }
 
     if ( string.startsWith( Const.I18N_PREFIX ) ) {
-
-      if (string.startsWith("i18n::BaseTransform.Category")) {
-        System.out.println("Debug");
-        try {
-          Thread.sleep( 10000 );
-        } catch ( InterruptedException e ) {
-          //
-        }
-        System.out.println("Debug");
-      }
       String[] parts = string.split( ":" );
       if ( parts.length != 3 ) {
         return string;

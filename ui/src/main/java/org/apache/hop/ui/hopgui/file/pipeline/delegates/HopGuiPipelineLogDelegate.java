@@ -180,8 +180,7 @@ public class HopGuiPipelineLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
     // label = "PipelineLog.Button.ClearLog",
-    toolTip = "PipelineLog.Button.ClearLog",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ClearLog",
     image = "ui/images/delete.svg"
   )
   public void clearLog() {
@@ -199,8 +198,7 @@ public class HopGuiPipelineLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_SETTINGS,
     // label = "PipelineLog.Button.LogSettings",
-    toolTip = "PipelineLog.Button.LogSettings",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.LogSettings",
     image = "ui/images/settings.svg"
   )
   public void showLogSettings() {
@@ -211,8 +209,7 @@ public class HopGuiPipelineLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_ERROR_LINES,
     // label = "PipelineLog.Button.ShowErrorLines",
-    toolTip = "PipelineLog.Button.ShowErrorLines",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowErrorLines",    
     image = "ui/images/filter.svg"
   )
   public void showErrors() {
@@ -292,8 +289,7 @@ public class HopGuiPipelineLogDelegate {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
     // label = "WorkflowLog.Button.Pause",
-    toolTip = "WorkflowLog.Button.Pause",
-    i18nPackageClass = HopGui.class,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.Pause",    
     image = "ui/images/pause.svg",
     separator = true
   )

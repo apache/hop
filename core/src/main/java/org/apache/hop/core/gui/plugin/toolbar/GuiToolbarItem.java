@@ -35,8 +35,6 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
 
   private String toolTip;
 
-  private String i18nPackage;
-
   private GuiToolbarElementType type;
 
   private String image;
@@ -74,20 +72,18 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.getComboValuesMethod = toolbarElement.comboValuesMethod();
     this.image = toolbarElement.image();
     this.disabledImage = toolbarElement.disabledImage();
-    this.password = toolbarElement.password();
-    this.i18nPackage = calculateI18nPackage( toolbarElement.i18nPackageClass(), toolbarElement.i18nPackage(), listenerClass );
+    this.password = toolbarElement.password();    
     this.ignored = toolbarElement.ignored();
     this.addingSeparator = toolbarElement.separator();
     this.singleTon = true;
     this.listenerClass = listenerClass;
     this.listenerMethod = method.getName();
-    this.label = calculateI18n( i18nPackage, toolbarElement.label(), method.getDeclaringClass() );
-    this.toolTip = calculateI18n( i18nPackage, toolbarElement.toolTip(), method.getDeclaringClass() );
+    this.label = getTranslation( toolbarElement.label(), method.getDeclaringClass().getPackage().getName(), method.getDeclaringClass() );
+    this.toolTip = getTranslation( toolbarElement.toolTip(), method.getDeclaringClass().getPackage().getName(), method.getDeclaringClass() );
     this.classLoader = classLoader;
     this.extraWidth = toolbarElement.extraWidth();
     this.alignRight = toolbarElement.alignRight();
   }
-
 
   @Override public boolean equals( Object o ) {
     if ( this == o ) {
@@ -176,22 +172,6 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
    */
   public void setToolTip( String toolTip ) {
     this.toolTip = toolTip;
-  }
-
-  /**
-   * Gets i18nPackage
-   *
-   * @return value of i18nPackage
-   */
-  public String getI18nPackage() {
-    return i18nPackage;
-  }
-
-  /**
-   * @param i18nPackage The i18nPackage to set
-   */
-  public void setI18nPackage( String i18nPackage ) {
-    this.i18nPackage = i18nPackage;
   }
 
   /**

@@ -41,8 +41,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
     comboValuesMethod = "getHopServerNames",
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.HopServer.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.HopServer.Label"
   )
   @HopMetadataProperty( key = "hop_server" )
   protected String hopServerName;
@@ -51,9 +50,8 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     order = "20",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
-    comboValuesMethod = "getRunConfigurationNames",
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.RunConfiguration.Label"
+    comboValuesMethod = "getRunConfigurationNames",   
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label"
   )
   @HopMetadataProperty( key = "safe_mode" )
   protected String runConfigurationName;
@@ -62,8 +60,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     order = "30",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.ServerPollDelay.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.ServerPollDelay.Label"
   )
   @HopMetadataProperty( key = "server_poll_delay" )
   protected String serverPollDelay;
@@ -72,8 +69,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     order = "40",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.ServerPollInterval.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.ServerPollInterval.Label"
   )
   @HopMetadataProperty( key = "server_poll_interval" )
   protected String serverPollInterval;
