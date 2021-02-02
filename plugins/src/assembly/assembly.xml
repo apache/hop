@@ -20,16 +20,24 @@
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
   <id>samples</id>
   <formats>
-    <format>zip</format>
+    <format>dir</format>
   </formats>
 
   <includeBaseDirectory>false</includeBaseDirectory>
-
-  <fileSets>
-    <fileSet>
-      <directory>${project.basedir}/../../plugins/target/hop-plugins-${project.version}/src/main/samples/</directory>
-      <outputDirectory>config/projects/samples/</outputDirectory>
-    </fileSet>
-  </fileSets>
+  <moduleSets>
+    <moduleSet>
+      <sources>
+        <includeModuleDirectory>false</includeModuleDirectory>
+        <fileSets>
+          <fileSet>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+              <include>src/main/samples/**</include>
+            </includes>
+          </fileSet>
+        </fileSets>
+      </sources>
+    </moduleSet>
+  </moduleSets>
 
 </assembly>
