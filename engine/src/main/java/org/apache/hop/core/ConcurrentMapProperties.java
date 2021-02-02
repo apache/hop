@@ -16,7 +16,7 @@
  */
 package org.apache.hop.core;
 
-import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections4.IteratorUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

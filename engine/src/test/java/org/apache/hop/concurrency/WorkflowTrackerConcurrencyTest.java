@@ -17,7 +17,7 @@
 
 package org.apache.hop.concurrency;
 
-import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;

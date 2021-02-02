@@ -16,7 +16,7 @@
  */
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections4.BidiMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
