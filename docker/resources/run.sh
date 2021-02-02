@@ -44,4 +44,4 @@ trapper() {
     done
 }
 
-trapper /opt/project-hop/load-and-execute.sh $@
+trapper /opt/hop/load-and-execute.sh $@
