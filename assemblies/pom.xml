@@ -41,7 +41,6 @@
   <modules>
     <module>plugins</module>
     <module>static</module>
-    <module>demo</module>
     <module>lib</module>
     <module>client</module>
     <module>core</module>
