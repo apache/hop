@@ -863,9 +863,6 @@
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>
 
-                        <!-- Assemblies -->
-                        <exclude>**/beam-demo/data-orch.list</exclude>
-
                     </excludes>
                 </configuration>
             </plugin>
