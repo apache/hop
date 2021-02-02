@@ -100,6 +100,7 @@
         <module>sqlite</module>
         <module>googlebigquery</module>
 		<module>snowflake</module>        
+		<module>clickhouse</module>
       </modules>
     </profile>
 
