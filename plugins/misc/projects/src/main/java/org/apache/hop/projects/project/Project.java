@@ -111,7 +111,8 @@ public class Project extends ConfigFile implements IConfigFile {
       IVariables variables,
       ProjectConfig projectConfig,
       List<String> configurationFiles,
-      String environmentName) throws HopException {
+      String environmentName)
+      throws HopException {
 
     if (variables == null) {
       variables = Variables.getADefaultVariableSpace();
@@ -119,7 +120,7 @@ public class Project extends ConfigFile implements IConfigFile {
 
     // See if we don't have an infinite loop in the project-parent-parent-... hierarchy...
     //
-    verifyProjectsChain( projectConfig.getProjectName(), variables);
+    verifyProjectsChain(projectConfig.getProjectName(), variables);
 
     // If there is a parent project we want to pick up the variables defined in the project
     // definition as well
@@ -226,7 +227,7 @@ public class Project extends ConfigFile implements IConfigFile {
    *
    * @throws HopException
    */
-  public void verifyProjectsChain( String projectName, IVariables variables ) throws HopException {
+  public void verifyProjectsChain(String projectName, IVariables variables) throws HopException {
 
     // No parent project: no danger
     //
@@ -234,8 +235,9 @@ public class Project extends ConfigFile implements IConfigFile {
       return;
     }
 
-    if (parentProjectName.equals( projectName )) {
-      throw new HopException("Parent project '"+parentProjectName+"' can not be the same as the project itself");
+    if (parentProjectName.equals(projectName)) {
+      throw new HopException(
+          "Parent project '" + parentProjectName + "' can not be the same as the project itself");
     }
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
@@ -245,29 +247,34 @@ public class Project extends ConfigFile implements IConfigFile {
     while (StringUtils.isNotEmpty(realParentProjectName)) {
       projectsList.add(realParentProjectName);
       ProjectConfig projectConfig = config.findProjectConfig(realParentProjectName);
-      Project parentProject = projectConfig.loadProject(variables);
-      if (parentProject == null) {
-        // Can't be loaded, break out of the loop
-        realParentProjectName = null;
-      } else {
-        // See if this project has a parent...
-        //
-        if (StringUtils.isEmpty(parentProject.parentProjectName)) {
-          // We're done
+      if (projectConfig != null) {
+        Project parentProject = projectConfig.loadProject(variables);
+        if (parentProject == null) {
+          // Can't be loaded, break out of the loop
           realParentProjectName = null;
         } else {
-          realParentProjectName = variables.resolve(parentProject.parentProjectName);
-          if (StringUtils.isNotEmpty(realParentProjectName)) {
-            // See if we've had this one before...
-            //
-            if (projectsList.contains(realParentProjectName)) {
-              throw new HopException(
-                  "There is a loop in the parent projects hierarchy: project "
-                      + realParentProjectName
-                      + " references itself");
+          // See if this project has a parent...
+          //
+          if (StringUtils.isEmpty(parentProject.parentProjectName)) {
+            // We're done
+            realParentProjectName = null;
+          } else {
+            realParentProjectName = variables.resolve(parentProject.parentProjectName);
+            if (StringUtils.isNotEmpty(realParentProjectName)) {
+              // See if we've had this one before...
+              //
+              if (projectsList.contains(realParentProjectName)) {
+                throw new HopException(
+                    "There is a loop in the parent projects hierarchy: project "
+                        + realParentProjectName
+                        + " references itself");
+              }
             }
           }
         }
+      } else {
+        // Project not found: config error, stop looking
+        realParentProjectName = null;
       }
     }
   }
