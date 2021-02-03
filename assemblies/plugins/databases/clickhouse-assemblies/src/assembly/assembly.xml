@@ -52,6 +52,8 @@
       <scope>runtime</scope>
       <includes>
         <include>cc.blynk.clickhouse:clickhouse4j</include>
+        <include>org.slf4j:slf4j-api</include>
+        <include>org.slf4j:slf4j-log4j12</include>
       </includes>
     </dependencySet>
   </dependencySets>

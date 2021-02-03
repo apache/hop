@@ -51,7 +51,7 @@ public class ClickhouseDatabaseMetaTest {
 		assertEquals("cc.blynk.clickhouse.ClickHouseDriver", nativeMeta.getDriverClass());
 
 		assertEquals("jdbc:clickhouse://localhost:8123/sampledb",
-				nativeMeta.getURL("localhost.com", "8123", "sampledb"));
+				nativeMeta.getURL("localhost", "8123", "sampledb"));
 		try {
 			assertEquals("jdbc:clickhouse://localhost:8123/sampledb",
 					nativeMeta.getURL("", "8123", "sampledb"));
@@ -63,13 +63,14 @@ public class ClickhouseDatabaseMetaTest {
 	
 	@Test
 	public void testSupport() throws Exception {
-		assertTrue(nativeMeta.supportsSchemas());
+		assertFalse(nativeMeta.supportsSchemas());
 		assertTrue(nativeMeta.supportsViews());
-		assertTrue(nativeMeta.supportsSequences());
+		assertFalse(nativeMeta.supportsSequences());
 		assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-		assertTrue(nativeMeta.supportsBooleanDataType());
-		assertFalse(nativeMeta.supportsBitmapIndex());
+		assertFalse(nativeMeta.supportsBooleanDataType());
+		assertTrue(nativeMeta.supportsBitmapIndex());
 		assertFalse(nativeMeta.supportsTransactions());
-		assertFalse(nativeMeta.supportsSynonyms());
+		assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+		assertTrue(nativeMeta.supportsSynonyms());
 	}
 }

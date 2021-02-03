@@ -34,18 +34,31 @@
 	<name>Hop Assemblies Plugins Databases ClickHouse</name>
 	<description></description>
 
+	<properties>
+		<slf4j-api.version>1.7.30</slf4j-api.version>
+		<clickhouse.jdbc.version>1.4.4</clickhouse.jdbc.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.hop</groupId>
 			<artifactId>hop-databases-clickhouse</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>cc.blynk.clickhouse</groupId>
 			<artifactId>clickhouse4j</artifactId>
-			<version>1.4.4</version>
+			<version>${clickhouse.jdbc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j-api.version}</version>
 		</dependency>
 	</dependencies>
-
 </project>

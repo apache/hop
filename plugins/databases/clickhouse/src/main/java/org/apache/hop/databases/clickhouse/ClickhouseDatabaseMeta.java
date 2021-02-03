@@ -75,9 +75,9 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 		boolean isFirstQueryParam = true;
 		if (!Utils.isEmpty(databaseName)) {
 			if (isFirstQueryParam)
-				url = url + "/?db=" + databaseName;
+				url = url + "/" + databaseName;
 			else
-				url = url + "&db=" + databaseName;
+				url = url + databaseName;
 		}
 
 		return url;
@@ -225,11 +225,26 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 	}
 
 	/**
+	 * @return true if all fields should always be quoted in db
+	 */
+	public boolean isQuoteAllFields() {
+		return false;
+	}
+
+	/**
 	 * @return This indicator separates the normal URL from the options
 	 */
 	@Override
 	public String getExtraOptionIndicator() {
 		return "&";
+	}
+
+
+	/**
+	 * @return true if the database supports schemas
+	 */
+	public boolean supportsSchemas() {
+		return false;
 	}
 
 	/**
@@ -308,4 +323,18 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 		return false;
 	}
 
+
+	/**
+	 * @return true if we need to supply the schema-name to getTables in order to get a correct list of items.
+	 */
+	public boolean useSchemaNameForTableList() {
+		return false;
+	}
+
+	/**
+	 * @return true if the database resultsets support getTimeStamp() to retrieve date-time. (Date)
+	 */
+	public boolean supportsTimeStampToDateConversion() {
+		return false;
+	}
 }
