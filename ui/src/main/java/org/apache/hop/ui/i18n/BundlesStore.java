@@ -90,13 +90,16 @@ public class BundlesStore {
   }
 
   /**
+   * 
    * @param bundleRootFolder
    * @param messagesFilePath
    */
   private void addMessagesFile( String bundleRootFolder, Path messagesFilePath ) throws RuntimeException {
     // Root folder :    /home/matt/git/project-hop/hop/ui/src/main/resources
-    // Messages folder: /home/matt/git/project-hop/hop/ui/src/main/resources/org/apache/hop/ui/hopgui/messages/
+    //                  C:\\Users\\matt\\git\\project-hop\\hop\\ui\\src\\main\\resources
     //
+    // Messages folder: /home/matt/git/project-hop/hop/ui/src/main/resources/org/apache/hop/ui/hopgui/messages/
+    //                  C:\\Users\\matt\\git\\project-hop\\hop\\ui\\src\\main\\resources\\org\\apache\\hop\\ui\\hopgui\\messages\\
 
     String messagesFileFolder = messagesFilePath.toFile().getParent();
     if ( messagesFileFolder.startsWith( bundleRootFolder ) ) {
@@ -189,7 +192,7 @@ public class BundlesStore {
     }
   }
 
-  public void addPipelinelation( String sourceFolder, String packageName, String locale, String key, String value ) {
+  public void addTranslation( String sourceFolder, String packageName, String locale, String key, String value ) {
     Map<String, BundleFile> languageBundleFileMap = packageLanguageBundleMap.get( packageName );
     if ( languageBundleFileMap == null ) {
       languageBundleFileMap = new HashMap<>();
@@ -203,12 +206,20 @@ public class BundlesStore {
       // Calculate the resources folder based off the Java folder
       // sourceFolder would be /path/plugins/databases/firebird/src/main/java
       // We need to come up with /path/plugins/databases/firebird/src/main/resources
-      // So : replace "java" with "resources"
-      //
-      String bundleFileName = sourceFolder.replaceAll( "\\/java", "/resources/" );
-      bundleFileName += packageName.replaceAll( "\\.", "/" );
-      bundleFileName += "/messages/messages_" + locale + ".properties";
+      // So :  normalize file separator for windows
+      //       replace "java" with "resources"
+      //       append package folders
+      //       append messages folder and localized file
+      //       restore os file separator
 
+      String bundleFileName = sourceFolder
+          .replace(File.separator,"/")
+          .replace("/java/", "/resources/" )
+          .replace("/", File.separator)
+          .concat(packageName.replace( ".", "/" ))
+          .concat("/messages/messages_" + locale + ".properties")
+          .replace("/", File.separator );
+      
       // TODO finish/test calculating filename
       bundleFile = new BundleFile( bundleFileName, packageName, locale, new HashMap<>() );
       languageBundleFileMap.put( locale, bundleFile );
