@@ -327,7 +327,6 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
           // No fuss with info fields sneaking in, all previous transforms need to emit the same layout anyway
           //
           rowMeta = pipelineMeta.getTransformFields( variables, firstPreviousTransform );
-          // System.out.println("STEP FIELDS for '"+firstPreviousTransform.getName()+"' : "+rowMeta);
 
           // Check in the map to see if previousTransform isn't targeting this one
           //

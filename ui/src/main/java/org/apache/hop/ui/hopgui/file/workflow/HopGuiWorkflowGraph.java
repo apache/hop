@@ -3641,11 +3641,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 hopGui.getProps().getAutoSave());
         int answer = md.open();
 
-        if ((answer & 0xFF) == 0) {
-          if (StringUtils.isEmpty(workflowMeta.getFilename())) {
+        if (answer == 0) { // Yes button
+          String filename = workflowMeta.getFilename();
+          if (StringUtils.isEmpty(filename)) {
             // Ask for the filename: saveAs
             //
-            String filename =
+            filename =
                 BaseDialog.presentFileDialog(
                     true,
                     hopGui.getShell(),
@@ -3656,6 +3657,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               filename = hopGui.getVariables().resolve(filename);
               saveAs(filename);
             }
+          } else {
+            save();
           }
         }
         hopGui.getProps().setAutoSave(md.getToggleState());

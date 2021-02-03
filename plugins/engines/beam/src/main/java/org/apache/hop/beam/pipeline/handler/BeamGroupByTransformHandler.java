@@ -72,6 +72,6 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implem
     // Save this in the map
     //
     transformCollectionMap.put( transformMeta.getName(), transformPCollection );
-    log.logBasic( "Handled Group By (STEP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
+    log.logBasic( "Handled Group By (TRANSFORM) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
   }
 }

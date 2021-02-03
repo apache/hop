@@ -201,7 +201,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
       transformCollectionMap.put( tupleId, targetPCollection );
     }
 
-    log.logBasic( "Handled transform (STEP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s), targets=" + targetTransforms.size() + ", infos=" + infoTransforms.size() );
+    log.logBasic( "Handled generic transform (TRANSFORM) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s), targets=" + targetTransforms.size() + ", infos=" + infoTransforms.size() );
   }
 
   public static boolean needsBatching( TransformMeta transformMeta ) {
