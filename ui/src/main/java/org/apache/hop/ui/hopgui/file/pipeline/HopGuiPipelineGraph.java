@@ -34,8 +34,6 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.IGc.EColor;
-import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
@@ -3404,7 +3402,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
       // label = "Horizontally distribute selected transforms",
-      toolTip ="i18n::PipelineGraph.Toolbar.DistributeHorizontal.Tooltip",
+      toolTip = "i18n::PipelineGraph.Toolbar.DistributeHorizontal.Tooltip",
       image = "ui/images/distribute-horizontally.svg",
       disabledImage = "ui/images/distribute-horizontally-disabled.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
@@ -4743,11 +4741,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 BaseMessages.getString(PKG, "PipelineLog.Dialog.Option.AutoSavePipeline"),
                 hopGui.getProps().getAutoSave());
         int answer = md.open();
-        if ((answer & 0xFF) == 0) {
-          if (StringUtils.isEmpty(pipelineMeta.getFilename())) {
+        if (answer == 0) { // Yes, save
+          String filename = pipelineMeta.getFilename();
+          if (StringUtils.isEmpty(filename)) {
             // Ask for the filename: saveAs
             //
-            String filename =
+            filename =
                 BaseDialog.presentFileDialog(
                     true,
                     hopGui.getShell(),
@@ -4758,6 +4757,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               filename = hopGui.getVariables().resolve(filename);
               saveAs(filename);
             }
+          } else {
+            save();
           }
         }
         hopGui.getProps().setAutoSave(md.getToggleState());
