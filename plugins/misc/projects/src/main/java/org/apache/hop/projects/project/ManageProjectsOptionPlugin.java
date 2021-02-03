@@ -50,6 +50,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   @CommandLine.Option( names = { "-ph", "--project-home" }, description = "The home directory of the project" )
   private String projectHome;
 
+  @CommandLine.Option( names = { "-pr", "--project-parent" }, description = "The name of the parent project to inherit metadata and variables from" )
+  private String projectParent;
+
   @CommandLine.Option( names = { "-pf", "--project-config-file" }, description = "The configuration file relative to the home folder. The default value is project-config.json" )
   private String projectConfigFile;
 
@@ -124,6 +127,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private void logProjectDetails( ILogChannel log, ProjectConfig projectConfig, Project project ) throws HopException {
     String projectHome = projectConfig.getProjectHome();
     log.logBasic( "  " + projectConfig.getProjectName() + " : " + projectHome );
+    if (StringUtils.isNotEmpty(project.getParentProjectName())) {
+      log.logBasic("    Parent project: " + project.getParentProjectName());
+    }
     log.logBasic( "    Configuration file: " + projectConfig.getActualProjectConfigFilename( Variables.getADefaultVariableSpace() ) );
     if (!project.getDescribedVariables().isEmpty()) {
       log.logBasic( "    Described variables: " );
@@ -170,6 +176,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic( "Project configuration for '" + projectName + "' was modified in "+ HopConfig.getInstance().getConfigFilename() );
 
     if (modifyProjectSettings(project)) {
+
+      // Check to see if there's not a loop in the project parent hierarchy
+      //
+      project.verifyProjectsChain( projectName, variables );
+
       project.saveToFile();
       log.logBasic( "Project settings for '" + projectName + "' were modified in file " + projectConfigFilename );
     }
@@ -177,6 +188,10 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
   private boolean modifyProjectSettings( Project project ) {
     boolean changed = false;
+    if (StringUtils.isNotEmpty(projectParent)) {
+      project.setParentProjectName( projectParent );
+      changed=true;
+    }
     if (StringUtils.isNotEmpty(projectDescription)) {
       project.setDescription( projectDescription );
       changed=true;
@@ -242,7 +257,12 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic( "Project '" + projectName + "' was created for home folder : " + projectHome );
 
     Project project = projectConfig.loadProject( variables );
+    project.setParentProjectName( config.getStandardParentProject() );
     modifyProjectSettings( project );
+
+    // Check to see if there's not a loop in the project parent hierarchy
+    //
+    project.verifyProjectsChain( projectName, variables );
 
     // Always save, even if it's an empty file
     //
@@ -501,6 +521,22 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
    */
   public void setListProjects( boolean listProjects ) {
     this.listProjects = listProjects;
+  }
+
+  /**
+   * Gets projectParent
+   *
+   * @return value of projectParent
+   */
+  public String getProjectParent() {
+    return projectParent;
+  }
+
+  /**
+   * @param projectParent The projectParent to set
+   */
+  public void setProjectParent( String projectParent ) {
+    this.projectParent = projectParent;
   }
 }
 

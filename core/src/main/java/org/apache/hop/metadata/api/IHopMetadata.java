@@ -43,13 +43,13 @@ public interface IHopMetadata {
    *
    * @return The source of metadata or null if it's not specified.
    */
-  String getMetadataSource();
+  String getMetadataProviderName();
 
   /**
    * Set the source of the metadata. Plugins can use this to mix metadata from various sources.
    * It helps to figure out where this object originated.
    *
-   * @param metadataSource The source of metadata or null if it's not specified
+   * @param metadataProviderName The source of metadata or null if it's not specified
    */
-  void setMetadataSource(String metadataSource);
+  void setMetadataProviderName( String metadataProviderName );
 }

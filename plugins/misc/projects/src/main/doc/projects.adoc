@@ -1,0 +1,326 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /plugins/projects/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/projects/src/main/doc/projects.adoc
+= Projects & Environments
+
+This document explains the basic structure and working of the 'projects' plugin
+
+== Architecture
+
+We want to make it easy for a developer to use one or more projects alongside each other.
+A project is the collection of all the files you need in your data orchestration solution. This typically includes metadata, pipelines, workflows, reference files, documentation and so on.  To match standard development best practices you would check all these files into a version control system like git.
+
+What are typically not included in this set of files are the variable values that you want to make the project run correctly in a certain environment.  For example on a development laptop you might want to set a variable DB_HOSTNAME to localhost and on a production server this value might point to the production database server.
+Because of this you can define (Project Lifecycle) Environments in Hop which wrap around a project by name and include one or more configuration files.  You want these configuration files to be stored outside of the project folder and perhaps into a separate version control repository.
+
+== Projects
+
+The 2 main things that define a project are its name and its home folder.
+Projects and environments as such are defined in the central Hop configuration file hop-config.json.
+By default this file lives in the config/ folder of your Hop client distribution.  You can change that folder by setting the HOP_CONFIG_FOLDER environment variable on your system.
+
+In ```hop-config.json``` you'll find a ```"projectsConfig"``` section. By default it contains the following:
+
+[source,json]
+----
+{
+  "projectsConfig" : {
+    "enabled" : true,
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : null,
+    "projectConfigurations" : [ {
+      "projectName" : "default",
+      "projectHome" : "config/projects/default",
+      "configFilename" : "project-config.json"
+    }, {
+      "projectName" : "samples",
+      "projectHome" : "config/projects/samples",
+      "configFilename" : "project-config.json"
+    } ],
+    "lifecycleEnvironments" : [ ],
+    "projectLifecycles" : [ ]
+  }
+}
+----
+
+As you can see the standard Hop client distribution defines 2 projects: default and samples.
+
+Every project has extra metadata and settings stored in a project configuration file called ```project-config.json```.  For the samples project this would be ```config/projects/samples/project-config.json```.
+Let's take a look at it:
+
+[source,json]
+----
+{
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "parentProjectName" : "default",
+  "config" : {
+    "variables" : [ ]
+  }
+}
+----
+
+=== Variables
+
+You can define variables on a project level as well.  This makes it handy to reference things like input and output folders which are not sensitive to being checked into version control.
+
+=== Parent projects
+
+As you can see from the project configuration file, a project can have a parent from which it will inherit all the metadata objects as well as all the variables that are defined in it.
+
+=== Configuration using Hop GUI
+
+The main toolbar in the Hop GUI offers buttons to add, edit and delete a project.
+
+=== Configuration on the command line
+
+The ```hop-conf``` script offers many options to edit everything projects related.
+Please note that these commands never change the content of a project itself.  They only change the way it is configured on your system.
+
+==== Creating a project
+
+[source,bash]
+----
+$ sh hop-conf.sh --project-create --project hop2 --project-home /home/user/projects/hop2 --project-parent default
+Creating project 'hop2'
+Project 'hop2' was created for home folder : /home/user/projects/hop2
+Configuration file for project 'hop2' was saved to : /home/user/projects/hop2/project-config.json
+----
+
+==== Modifying a project
+
+This command adds a variable to the project configuration:
+
+[source,bash]
+----
+$ sh hop-conf.sh --project-modify --project hop2 --project-variables INPUT_FOLDER=input/
+Project configuration for 'hop2' was modified in <path-to-hop>/config/hop-config.json
+Project settings for 'hop2' were modified in file /home/user/projects/hop2/project-config.json
+----
+
+If we look at the project-config.json file we'll see that the variable/value pair was added:
+[source,json]
+----
+{
+  "config" : {
+    "variables" : [ {
+      "name" : "INPUT_FOLDER",
+      "value" : "input/"
+    } ]
+  }
+}
+----
+
+===== Deleting a project
+
+The following deletes a project from the Hop configuration file:
+
+[source,bash]
+----
+$ sh hop-conf.sh -pd -p hop2
+Project 'hop2 was removed from the configuration
+----
+
+== Environments
+
+Environment is short for Project Lifecycle Environment.  It describes the phase of a project in its lifecycle moving from Development to Test to Acceptance to Production.  It can also describe a project in a continuous integration environment and so on.  As such the following attributes define an environment:
+
+* Its name
+* The name of the project
+* The phase
+* The configuration files you want to use to define the environment specific variables
+
+=== Configuration using Hop GUI
+
+The main toolbar in the Hop GUI offers buttons to add, edit and delete an environment.
+Please note that you can add non-existing configuration files in the environment dialog.  When editing the Hop GUI will ask you if you want to create the file.
+
+=== Configuration on the command line
+
+The ```hop-conf``` script offers many options to edit environment definitions.
+
+
+==== Creating an environment
+
+[source,bash]
+----
+$ sh hop-conf.sh \
+     --environment-create \
+     --environment hop2 \
+     --environment-project hop2 \
+     --environment-purpose=Development \
+     --environment-config-files=/home/user/projects/hop2-conf.json
+Creating environment 'hop2'
+Environment 'hop2' was created in Hop configuration file <path-to-hop>/config/hop-config.json
+2021/02/01 16:37:02 - General - ERROR: Configuration file '/home/user/projects/hop2-conf.json' does not exist to read variables from.
+Created empty environment configuration file : /home/user/projects/hop2-conf.json
+  hop2
+    Purpose: Development
+    Configuration files:
+    Project name: hop2
+      Config file: /home/user/projects/hop2-conf.json
+
+----
+
+As you can see from the log, an empty file was created to set variables in:
+
+[source,json]
+----
+{ }
+----
+
+==== Setting variables in an environment
+
+This command adds a variable to the environment configuration file:
+
+[source,bash]
+----
+$ h hop-conf.sh --config-file /home/user/projects/hop2-conf.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+Configuration file '/home/user/projects/hop2-conf.json' was modified.
+----
+
+If we look at the file ```hop2-conf.json``` we'll see that the variables were added:
+[source,json]
+----
+{
+  "variables" : [ {
+    "name" : "DB_HOSTNAME",
+    "value" : "localhost",
+    "description" : ""
+  }, {
+    "name" : "DB_PASSWORD",
+    "value" : "abcd",
+    "description" : ""
+  } ]
+}
+----
+
+Please note that you can add descriptions for the variables as well with the ```--describe-variable``` option.  Please run hop-conf without options to see all the possibilities.
+
+===== Deleting an environment
+
+The following deletes an environment from the Hop configuration file:
+
+[source,bash]
+----
+$ $ sh hop-conf.sh --environment-delete --environment hop2
+Lifecycle environment 'hop2' was deleted from Hop configuration file <path-to-hop>/config/hop-config.json
+----
+
+== Running pipelines and workflows
+
+You can specify an environment or a project when executing a pipeline or a workflow.
+By doing so you are automatically configuring metadata, variables without too much fuss.
+
+The easiest example is shown by executing the "complex" pipeline from the Apache Beam examples:
+
+[source,bash]
+----
+$ sh hop-run.sh --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
+2021/02/01 16:52:15 - HopRun - Enabling project 'samples'
+2021/02/01 16:52:25 - HopRun - Relative path filename specified: config/projects/samples/beam/pipelines/complex.hpl
+2021/02/01 16:52:26 - General - Created Apache Beam pipeline with name 'complex'
+2021/02/01 16:52:27 - General - Handled transform (INPUT) : Customer data
+2021/02/01 16:52:27 - General - Handled transform (INPUT) : State data
+2021/02/01 16:52:27 - General - Handled Group By (STEP) : countPerState, gets data from 1 previous transform(s)
+2021/02/01 16:52:27 - General - Handled transform (STEP) : uppercase state, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled Merge Join (STEP) : Merge join
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Lookup count per state, gets data from 1 previous transform(s), targets=0, infos=1
+2021/02/01 16:52:27 - General - Handled transform (STEP) : name<n, gets data from 1 previous transform(s), targets=2, infos=0
+2021/02/01 16:52:27 - General - Transform Label: N-Z reading from previous transform targeting this one using : name<n - TARGET - Label: N-Z
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Label: N-Z, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform Label: A-M reading from previous transform targeting this one using : name<n - TARGET - Label: A-M
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Label: A-M, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Switch / case, gets data from 2 previous transform(s), targets=4, infos=0
+2021/02/01 16:52:27 - General - Transform CA reading from previous transform targeting this one using : Switch / case - TARGET - CA
+2021/02/01 16:52:27 - General - Handled transform (STEP) : CA, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform NY reading from previous transform targeting this one using : Switch / case - TARGET - NY
+2021/02/01 16:52:27 - General - Handled transform (STEP) : NY, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform FL reading from previous transform targeting this one using : Switch / case - TARGET - FL
+2021/02/01 16:52:27 - General - Handled transform (STEP) : FL, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform Default reading from previous transform targeting this one using : Switch / case - TARGET - Default
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Default, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Collect, gets data from 4 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (OUTPUT) : complex, gets data from Collect
+2021/02/01 16:52:27 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Direct'
+2021/02/01 16:52:34 - General - Beam pipeline execution has finished.
+----
+
+To execute an Apache Beam pipeline a lot of information and metadata is needed.  Let's dive into a few fun information tidbits:
+
+* By referencing the ```samples``` project Hop knows where the project is located (```config/projects/samples```)
+* Since we know the location of the project, we can specify pipelines and workflows with a relative path
+* The project knows where its metadata is stored (```config/projects/samples/metadata```) so it knows where to find the ```Direct``` pipeline run configuration (```config/projects/samples/metadata/pipeline-run-configuration/Direct.json```)
+* This run configuration defines its own pipeline engine specific variables, in this case the output folder : ```DATA_OUTPUT=${PROJECT_HOME}/beam/output/```
+* The output of the samples is as such written to ```config/projects/samples/beam/output```
+
+To reference an environment you can execute using ```-e``` or ```--environment```.  The only difference is that you'll have a number of extra environment variables set while executing.
+
+== Plugin configuration
+
+There are various options to configure the behavior of the ```Projects``` plugin itself. In Hop configuration file ```hop-config.json``` we can find the following options:
+
+[source,json]
+----
+{
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : "/home/matt/test-stuff/"
+}
+----
+
+
+|===
+|Option |Description |hop-conf option
+
+|projectMandatory
+|This will prevent anyone from using hop-run without specifying a project
+|```--project-mandatory```
+
+|environmentMandatory
+|This will prevent anyone from using hop-run without specifying an environment
+|```--environment-mandatory```
+
+|defaultProject
+|The default project to use when none is specified
+|```--default-project```
+
+|defaultEnvironment
+|The default environment to use when none is specified
+|```--default-environment```
+
+|standardParentProject
+|The standard parent project to propose when creating new project
+|```--standard-parent-project```
+
+|standardProjectsFolder
+|The folder to which you'll browse by default in the GUI when creating new projects
+|```--standard-projects-folder```
+
+|===
+

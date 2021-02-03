@@ -36,9 +36,16 @@ public interface IGuiPluginCompositeWidgetsListener {
 
   /**
    * This method is called when a widget was modified
-   *
-   * @param compositeWidgets
-   * @param changedWidget
+   *  @param compositeWidgets All the widgets to reference
+   * @param changedWidget The widget that got changed
+   * @param widgetId The ID of the widget changed.
    */
-  void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget);
+  void widgetModified( GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId );
+
+  /**
+   * Will be called when the changed data needs to be persisted
+   *
+   * @param compositeWidgets The widgets
+   */
+  void persistContents(GuiCompositeWidgets compositeWidgets);
 }

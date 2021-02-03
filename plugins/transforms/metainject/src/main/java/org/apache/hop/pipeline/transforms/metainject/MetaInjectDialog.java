@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -683,7 +684,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     for (ColumnInfo columnInfo : colinf) {
       TreeColumn treeColumn = new TreeColumn(wTree, columnInfo.getAlignment());
       treeColumn.setText(columnInfo.getName());
-      treeColumn.setWidth(200);
+      treeColumn.setWidth((int)(200*props.getZoomFactor()));
     }
 
     wTree.addListener(

@@ -22,7 +22,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,12 +66,20 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
       ( (IVariables) t ).initializeFrom( variables );
     }
 
+    // Remember where this came from
+    //
+    t.setMetadataProviderName( metadataProvider.getDescription() );
+
     return t;
   }
 
   @Override public void save( T object ) throws HopException {
-    String name = ReflectionUtil.getObjectName( object );
+    String name = object.getName();
     objectMap.put( name, object );
+
+    // Remember in which provider this object is saved
+    //
+    object.setMetadataProviderName( getMetadataProvider().getDescription() );
   }
 
   @Override public T delete( String name ) throws HopException {

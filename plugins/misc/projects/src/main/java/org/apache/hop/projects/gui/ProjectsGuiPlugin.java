@@ -124,10 +124,10 @@ public class ProjectsGuiPlugin {
         refreshProjectsList();
         selectProjectInList(projectName);
 
-        if (projectDialog.isVariablesChanged()) {
+        if (projectDialog.isNeedingProjectRefresh()) {
           MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
           box.setText("Reload project?");
-          box.setMessage("Do you want to reload this project to apply changed variables?");
+          box.setMessage("To apply all changes you made a reload of this project is required. Do you want to do this now?");
           int answer = box.open();
           if ((answer & SWT.YES) != 0) {
             // Try to stick to the same environment if we have one selected...
@@ -203,10 +203,12 @@ public class ProjectsGuiPlugin {
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
+      String standardProjectsFolder = hopGui.getVariables().resolve( config.getStandardProjectsFolder() );
       ProjectConfig projectConfig =
-          new ProjectConfig("", "", ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+          new ProjectConfig("", standardProjectsFolder, ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
 
       Project project = new Project();
+      project.setParentProjectName(config.getStandardParentProject());
       ProjectDialog projectDialog =
           new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables());
       String projectName = projectDialog.open();
@@ -341,7 +343,11 @@ public class ProjectsGuiPlugin {
         ProjectsConfigSingleton.saveConfig();
 
         refreshProjectsList();
-        selectProjectInList(null);
+        if (StringUtils.isEmpty(config.getDefaultProject())) {
+          selectProjectInList(null);
+        } else {
+          selectProjectInList(config.getDefaultProject());
+        }
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
@@ -590,7 +596,7 @@ public class ProjectsGuiPlugin {
         for (VariableValueDescription variableValueDescription :
             runConfig.getConfigurationVariables()) {
           variables.setVariable(
-              variableValueDescription.getName(), "<see your pipeline run configurations>");
+              variableValueDescription.getName(), "");
         }
       }
 
