@@ -50,8 +50,6 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
   @HopMetadataProperty
   private String numberOfPartitions;
 
-  private volatile String metadataSource;
-
   public PartitionSchema() {
     this.dynamicallyDefined = true;
     this.numberOfPartitions = "4";
@@ -152,19 +150,4 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     this.numberOfPartitions = numberOfPartitions;
   }
 
-  /**
-   * Gets metadataSource
-   *
-   * @return value of metadataSource
-   */
-  @Override public String getMetadataSource() {
-    return metadataSource;
-  }
-
-  /**
-   * @param metadataSource The metadataSource to set
-   */
-  @Override public void setMetadataSource( String metadataSource ) {
-    this.metadataSource = metadataSource;
-  }
 }

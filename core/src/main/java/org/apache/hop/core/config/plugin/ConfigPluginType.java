@@ -51,7 +51,7 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
 
   @Override
   protected String extractCategory( ConfigPlugin annotation ) {
-    return "";
+    return annotation.category();
   }
 
   @Override
@@ -66,7 +66,7 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
 
   @Override
   protected String extractName( ConfigPlugin annotation ) {
-    return annotation.guiPluginId();
+    return null;
   }
 
   @Override

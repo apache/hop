@@ -23,13 +23,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.util.ReflectionUtil;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -98,6 +98,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
         T t = parser.loadJsonObject( managedClass, jsonParser );
         inheritVariables(t);
+        t.setMetadataProviderName( metadataProvider.getDescription() );
         return t;
       } finally {
         fileInputStream.close();
@@ -119,16 +120,15 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
 
-  @Override public void save( T object ) throws HopException {
-    String name = ReflectionUtil.getObjectName( object );
-    if ( name == null ) {
-      throw new HopException( "Error: To save an object it needs to have a name" );
+  @Override public void save( T t ) throws HopException {
+    if ( StringUtils.isEmpty(t.getName())) {
+      throw new HopException( "Error: To save a metadata object it needs to have a name" );
     }
 
-    String filename = calculateFilename( name );
+    String filename = calculateFilename( t.getName() );
     try {
 
-      JSONObject jObject = parser.getJsonObject( object );
+      JSONObject jObject = parser.getJsonObject( t );
 
       try ( FileWriter file = new FileWriter( filename ) ) {
         String jsonString = jObject.toJSONString();
@@ -138,11 +138,15 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
         file.write( gson.toJson( je ) );
         file.flush();
+
+        // Remember where we saved this...
+        //
+        t.setMetadataProviderName( getMetadataProvider().getDescription() );
       } catch ( IOException e ) {
         throw new HopException( "Error serializing JSON to file '" + filename + "'", e );
       }
     } catch ( Exception e ) {
-      throw new HopException( "Unable to save object '" + name + "' to JSON file '" + filename + "'", e );
+      throw new HopException( "Unable to save object '" + t.getName() + "' to JSON file '" + filename + "'", e );
     }
   }
 

@@ -36,7 +36,7 @@
     <dependencySet>
       <includes>
         <include>org.apache.hop:hop-assemblies-static:zip</include>
-        <include>org.apache.hop:hop-assemblies-demo:zip</include>
+        <include>org.apache.hop:hop-assemblies-samples:zip</include>
         <include>org.apache.hop:hop-assemblies-libs:zip</include>
         <include>org.apache.hop:hop-assemblies-plugins-dist:zip</include>
       </includes>
