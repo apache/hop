@@ -109,11 +109,11 @@ public class KettleConst {
 
   public static final HashMap<String, String> replacements = new HashMap<String, String>();
 
-  public static final List<String> repositoryTypes = Arrays.asList(new String[] {"JOB", "TRANS"});
+  public static final List<String> repositoryTypes = Arrays.asList("JOB", "TRANS");
 
-  public static final List<String> jobTypes = Arrays.asList(new String[] {"JOB"});
+  public static final List<String> jobTypes = Arrays.asList("JOB");
 
-  public static final List<String> transTypes = Arrays.asList(new String[] {"TRANS"});
+  public static final List<String> transTypes = Arrays.asList("TRANS");
 
   public KettleConst() {}
 }
