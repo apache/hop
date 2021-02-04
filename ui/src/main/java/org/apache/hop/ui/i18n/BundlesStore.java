@@ -67,7 +67,7 @@ public class BundlesStore {
         .forEach( path -> bundleRootFolders.add( path.toAbsolutePath().toFile().getPath() ) );
     } catch ( IOException e ) {
       throw new HopException( "Error reading root folder: " + rootFolder, e );
-    }    
+    }
   }
 
   public void findAllMessagesBundles() throws HopException {
@@ -206,18 +206,17 @@ public class BundlesStore {
       // Calculate the resources folder based off the Java folder
       // sourceFolder would be /path/plugins/databases/firebird/src/main/java
       // We need to come up with /path/plugins/databases/firebird/src/main/resources
-      // So :  normalize file separator for windows
-      //       replace "java" with "resources"
-      //       append package folders
-      //       append messages folder and localized file
-      //       restore os file separator
 
       String bundleFileName = sourceFolder
+          // normalize file separator for windows
           .replace(File.separator,"/")
-          .replace("/java/", "/resources/" )
-          .replace("/", File.separator)
+          // replace "java" with "resources" and append /
+          .replace("/java", "/resources/" )
+          // append package folders
           .concat(packageName.replace( ".", "/" ))
+          // append messages folder and localized file
           .concat("/messages/messages_" + locale + ".properties")
+          // restore os file separator
           .replace("/", File.separator );
       
       // TODO finish/test calculating filename
