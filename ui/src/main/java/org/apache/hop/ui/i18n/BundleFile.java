@@ -96,7 +96,9 @@ public class BundleFile extends ChangedFlag {
           parent.mkdirs(); 
         }
       }
-      Properties properties = new Properties();
+      
+      // Use SortedProperties to automatically sort on key
+      Properties properties = new SortedProperties();         
       for ( String key : contents.keySet() ) {
         properties.put( key, contents.get( key ) );
       }
