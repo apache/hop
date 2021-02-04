@@ -66,7 +66,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
       SVGSVGElement root = clonedDocument.getRootElement();
 
       Map<String, String> colorsMap = PropsUi.getInstance().getContrastingColorStrings();
-      List<String> tags = Arrays.asList("path", "fill", "bordercolor", "fillcolor", "style");
+      List<String> tags = Arrays.asList("path", "fill", "bordercolor", "fillcolor", "style", "text");
 
       contrastColors(root, tags, colorsMap);
 
