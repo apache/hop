@@ -827,7 +827,6 @@ public class EnterOptionsDialog extends Dialog {
     wDarkMode = new Button(wLookComp, SWT.CHECK);
     wDarkMode.setSelection( props.isDarkMode() );
     props.setLook(wDarkMode);
-    wDarkMode.setSelection(props.isOSLookShown());
     FormData fdDarkMode = new FormData();
     fdDarkMode.left = new FormAttachment(middle, 0);
     fdDarkMode.top = new FormAttachment(wlDarkMode, 0, SWT.CENTER);
