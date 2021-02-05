@@ -246,6 +246,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
 
+  public static final String TOOLBAR_ITEM_EDIT_PIPELINE = "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
+
+
   private ILogChannel log;
 
   private static final int HOP_SEL_MARGIN = 9;
@@ -2634,6 +2637,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       category = "Basic",
       categoryOrder = "1")
   public void editPipelineProperties(HopGuiPipelineContext context) {
+    editProperties(pipelineMeta, hopGui, true);
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_EDIT_PIPELINE,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.EditProperties.Tooltip",
+    image = "ui/images/pipeline.svg",
+    separator = true)
+  @GuiKeyboardShortcut(control=true, key='t')
+  @GuiOsxKeyboardShortcut(command = true, key='t')
+  public void editPipelineProperties() {
     editProperties(pipelineMeta, hopGui, true);
   }
 
