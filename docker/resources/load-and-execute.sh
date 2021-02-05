@@ -53,6 +53,13 @@ write_server_config() {
 # retrieve files from volume
 # ... done via Dockerfile via specifying a volume ... 
 
+# allow customisation
+# e.g. to fetch hop project files from S3 or github
+if test -f "${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"; then
+  echo "Sourcing custom entry point extension: ${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"
+  source ${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}
+fi
+
 
 log "Registering project config with Hop"
 log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_DIRECTORY}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
