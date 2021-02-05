@@ -193,6 +193,6 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     //
     transformCollectionMap.put( transformMeta.getName(), transformPCollection );
 
-    log.logBasic( "Handled Merge Join (STEP) : " + transformMeta.getName() );
+    log.logBasic( "Handled Merge Join (TRANSFORM) : " + transformMeta.getName() );
   }
 }

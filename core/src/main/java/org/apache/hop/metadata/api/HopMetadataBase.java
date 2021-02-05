@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class HopMetadataBase implements IHopMetadata {
@@ -25,10 +27,19 @@ public class HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty protected String name;
 
   /**
-   * The metadata source is optionally used at runtime to figure out where the metadata came from.
+   * The metadata provider name is optionally used at runtime to figure out where the metadata came from.
    * Optionally used by plugins. It's volatile because it's never persisted.
    */
-  protected volatile String metadataSource;
+  @JsonIgnore
+  protected volatile String metadataProviderName;
+
+  public HopMetadataBase() {
+  }
+
+  public HopMetadataBase( String name ) {
+    this();
+    this.name = name;
+  }
 
   @Override public boolean equals( Object o ) {
     if ( this == o ) {
@@ -70,17 +81,17 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @return The source of metadata or null if it's not specified.
    */
-  public String getMetadataSource() {
-    return metadataSource;
+  public String getMetadataProviderName() {
+    return metadataProviderName;
   }
 
   /**
    * Set the source of the metadata. Plugins can use this to mix metadata from various sources.
    * helps to figure out where this object originated.
    *
-   * @param metadataSource The source of metadata or null if it's not specified
+   * @param metadataProviderName The source of metadata or null if it's not specified
    */
-  public void setMetadataSource(String metadataSource) {
-    this.metadataSource = metadataSource;
+  public void setMetadataProviderName( String metadataProviderName ) {
+    this.metadataProviderName = metadataProviderName;
   }
 }

@@ -34,11 +34,12 @@ import java.io.File;
 
 public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMetadataProvider {
 
+  public static final String DEFAULT_DESCRIPTION = "JSON metadata";
   private ITwoWayPasswordEncoder twoWayPasswordEncoder;
   private String baseFolder;
 
   public JsonMetadataProvider() {
-    super( Variables.getADefaultVariableSpace() );
+    super( Variables.getADefaultVariableSpace(), DEFAULT_DESCRIPTION );
     twoWayPasswordEncoder = Encr.getEncoder();
     if (twoWayPasswordEncoder==null) {
       twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
@@ -47,12 +48,16 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
   }
 
   public JsonMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, String baseFolder, IVariables variables ) {
-    super(variables);
+    super(variables, DEFAULT_DESCRIPTION+" in folder "+baseFolder);
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
     this.baseFolder = baseFolder;
   }
 
   @Override public String getDescription() {
+    return calculateDescription();
+  }
+
+  private String calculateDescription() {
     return "JSON metadata in folder "+baseFolder;
   }
 
@@ -112,5 +117,6 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
    */
   public void setBaseFolder( String baseFolder ) {
     this.baseFolder = baseFolder;
+    setDescription( calculateDescription() );
   }
 }

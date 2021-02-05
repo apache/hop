@@ -20,6 +20,7 @@ package org.apache.hop.config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
@@ -45,7 +46,10 @@ import java.util.Map;
 
 public class HopConfig implements Runnable, IHasHopMetadataProvider {
 
-  @Option( names = { "-h", "--help" }, usageHelp = true, description = "Displays this help message and quits." )
+  @Option(
+      names = {"-h", "--help"},
+      usageHelp = true,
+      description = "Displays this help message and quits.")
   private boolean helpRequested;
 
   private CommandLine cmd;
@@ -56,8 +60,8 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
   public void run() {
 
     try {
-      LogChannel logChannel = new LogChannel( "hop-config" );
-      logChannel.setSimplified( true );
+      LogChannel logChannel = new LogChannel("hop-config");
+      logChannel.setSimplified(true);
       log = logChannel;
       variables = Variables.getADefaultVariableSpace();
       buildMetadataProvider();
@@ -66,33 +70,33 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
 
       Map<String, Object> mixins = cmd.getMixins();
       for (String key : mixins.keySet()) {
-        Object mixin = mixins.get( key );
+        Object mixin = mixins.get(key);
         if (mixin instanceof IConfigOptions) {
           IConfigOptions configOptions = (IConfigOptions) mixin;
 
-          actionTaken = configOptions.handleOption( log, this, variables ) || actionTaken;
+          actionTaken = configOptions.handleOption(log, this, variables) || actionTaken;
         }
       }
 
       if (!actionTaken) {
-        cmd.usage( System.out );
+        cmd.usage(System.out);
       }
 
-    } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "There was an error handling options", e );
+    } catch (Exception e) {
+      throw new ExecutionException(cmd, "There was an error handling options", e);
     }
   }
 
   private void buildMetadataProvider() throws HopException {
-    String folder = variables.getVariable( Const.HOP_METADATA_FOLDER );
-    if ( StringUtils.isEmpty(folder)) {
+    String folder = variables.getVariable(Const.HOP_METADATA_FOLDER);
+    if (StringUtils.isEmpty(folder)) {
       metadataProvider = new JsonMetadataProvider();
     } else {
       ITwoWayPasswordEncoder passwordEncoder = Encr.getEncoder();
-      if (passwordEncoder==null) {
+      if (passwordEncoder == null) {
         passwordEncoder = new HopTwoWayPasswordEncoder();
       }
-      metadataProvider = new JsonMetadataProvider( passwordEncoder, folder, variables );
+      metadataProvider = new JsonMetadataProvider(passwordEncoder, folder, variables);
     }
   }
 
@@ -105,10 +109,8 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
     return cmd;
   }
 
-  /**
-   * @param cmd The cmd to set
-   */
-  public void setCmd( CommandLine cmd ) {
+  /** @param cmd The cmd to set */
+  public void setCmd(CommandLine cmd) {
     this.cmd = cmd;
   }
 
@@ -117,54 +119,58 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
    *
    * @return value of metadataProvider
    */
-  @Override public IHopMetadataProvider getMetadataProvider() {
+  @Override
+  public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+  /** @param metadataProvider The metadataProvider to set */
+  @Override
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 
-  public static void main( String[] args ) {
+  public static void main(String[] args) {
+
+    HopConfig hopConfig = new HopConfig();
 
     try {
       HopEnvironment.init();
 
-      HopConfig hopConfig = new HopConfig();
-
-      CommandLine cmd = new CommandLine( hopConfig );
-      List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins( ConfigPluginType.class );
-      for ( IPlugin configPlugin : configPlugins ) {
-        IConfigOptions configOptions = PluginRegistry.getInstance().loadClass( configPlugin, IConfigOptions.class );
-        cmd.addMixin( configPlugin.getIds()[0], configOptions );
+      CommandLine cmd = new CommandLine(hopConfig);
+      List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
+      for (IPlugin configPlugin : configPlugins) {
+        // Load only the plugins of the "config" category
+        if (ConfigPlugin.CATEGORY_CONFIG.equals(configPlugin.getCategory())) {
+          IConfigOptions configOptions =
+              PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
+          cmd.addMixin(configPlugin.getIds()[0], configOptions);
+        }
       }
 
-      hopConfig.setCmd( cmd );
-      CommandLine.ParseResult parseResult = cmd.parseArgs( args );
-      if ( CommandLine.printHelpIfRequested( parseResult ) ) {
-        System.exit( 1 );
+      hopConfig.setCmd(cmd);
+      CommandLine.ParseResult parseResult = cmd.parseArgs(args);
+      if (CommandLine.printHelpIfRequested(parseResult)) {
+        System.exit(1);
       } else {
         hopConfig.run();
-        System.exit( 0 );
+        System.exit(0);
       }
-    } catch ( ParameterException e ) {
-      System.err.println( e.getMessage() );
-      e.getCommandLine().usage( System.err );
-      System.exit( 9 );
-    } catch ( ExecutionException e ) {
-      System.err.println( "Error found during execution!" );
-      System.err.println( Const.getStackTracker( e ) );
+    } catch (ParameterException e) {
+      System.err.println(e.getMessage());
+      hopConfig.cmd.usage(System.err);
+      e.getCommandLine().usage(System.err);
+      System.exit(9);
+    } catch (ExecutionException e) {
+      System.err.println("Error found during execution!");
+      System.err.println(Const.getStackTracker(e));
 
-      System.exit( 1 );
-    } catch ( Exception e ) {
-      System.err.println( "General error found, something went horribly wrong!" );
-      System.err.println( Const.getStackTracker( e ) );
+      System.exit(1);
+    } catch (Exception e) {
+      System.err.println("General error found, something went horribly wrong!");
+      System.err.println(Const.getStackTracker(e));
 
-      System.exit( 2 );
+      System.exit(2);
     }
-
   }
 }

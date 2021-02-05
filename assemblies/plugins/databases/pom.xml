@@ -70,6 +70,7 @@
         <module>sqlite-assemblies</module>
         <module>googlebigquery-assemblies</module>
         <module>snowflake-assemblies</module>
+        <module>clickhouse-assemblies</module>
     </modules>
 
 

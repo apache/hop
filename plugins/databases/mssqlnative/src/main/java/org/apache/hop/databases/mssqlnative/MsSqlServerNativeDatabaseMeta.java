@@ -64,11 +64,15 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta imple
     }
 
     @Override
-    public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget) {
+    public void widgetModified( GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId ) {
         enableField(compositeWidgets);
     }
 
-    private void enableField(GuiCompositeWidgets compositeWidgets) {
+    @Override public void persistContents( GuiCompositeWidgets compositeWidgets ) {
+
+    }
+
+    private void enableField( GuiCompositeWidgets compositeWidgets) {
         List<Control> controls = new ArrayList<>();
         String[] ids = new String[]{
                 BaseDatabaseMeta.ID_USERNAME_LABEL,

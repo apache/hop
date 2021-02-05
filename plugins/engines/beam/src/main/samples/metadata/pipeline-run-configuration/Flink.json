@@ -1,0 +1,52 @@
+{
+  "engineRunConfiguration": {
+    "BeamFlinkPipelineEngine": {
+      "streamingHopTransformsBufferSize": "",
+      "flinkObjectReuse": "",
+      "flinkMaxBundleSize": "",
+      "flinkCheckpointingMode": "",
+      "flinkExternalizedCheckpointsEnabled": "",
+      "flinkCheckpointingInterval": "",
+      "flinkShutdownSourcesAfterIdleMs": "",
+      "flinkCheckpointTimeoutMillis": "",
+      "flinkFailingOnCheckpointingErrors": "",
+      "flinkAutoWatermarkInterval": "",
+      "fatJar": "/home/matt/parking/hop-0.40-fat.jar",
+      "flinkMaxBundleTimeMills": "",
+      "transformPluginClasses": "",
+      "xpPluginClasses": "",
+      "flinkNumberOfExecutionRetries": "",
+      "flinkParallelism": "8",
+      "flinkDisableMetrics": "",
+      "userAgent": "Hop",
+      "pluginsToStage": "",
+      "flinkRetainExternalizedCheckpointsOnCancellation": "",
+      "flinkExecutionModeForBatch": "",
+      "tempLocation": "file:///tmp",
+      "flinkMinPauseBetweenCheckpoints": "",
+      "flinkMaster": "[local]",
+      "flinkExecutionRetryDelay": "",
+      "streamingHopTransformsFlushInterval": "",
+      "flinkLatencyTrackingInterval": ""
+    }
+  },
+  "name": "Flink",
+  "configurationVariables": [
+    {
+      "name": "DATA_INPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/input/customers-noheader-1k.txt"
+    },
+    {
+      "name": "STATE_INPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/input/state-data.txt"
+    },
+    {
+      "name": "DATA_OUTPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/output"
+    }
+  ],
+  "description": ""
+}

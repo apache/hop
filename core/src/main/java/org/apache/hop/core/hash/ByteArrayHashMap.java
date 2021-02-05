@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.hash;
 
-import org.apache.commons.collections.map.AbstractHashedMap;
+import org.apache.commons.collections4.map.AbstractHashedMap;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;

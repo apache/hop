@@ -21,6 +21,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -72,7 +73,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     // Initialize editor
     this.setTitle(metadata.getName());
-    this.setTitleToolTip(annotation.name());
+
+    String titleToolTip = annotation.name();
+    if (StringUtils.isNotEmpty(metadata.getMetadataProviderName())) {
+      titleToolTip+= Const.CR+"Source: "+metadata.getMetadataProviderName();
+    }
+    this.setTitleToolTip(titleToolTip);
+
     this.setTitleImage(
         GuiResource.getInstance()
             .getImage(

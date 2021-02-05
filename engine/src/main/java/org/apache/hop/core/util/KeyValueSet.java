@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.functors.TruePredicate;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.functors.TruePredicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
