@@ -4272,9 +4272,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Create a new pipeline to execution
         //
-        pipeline = new LocalPipelineEngine(pipelineMeta);
+        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject() );
         pipeline.setPreview(true);
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
+
+        // Set the variables from the execution configuration
+        // These are values set by the user in the execution dialog
+        //
+        Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
+        Set<String> variableKeys = variablesMap.keySet();
+        for (String key : variableKeys) {
+          String value = variablesMap.get(key);
+          if (StringUtils.isNotEmpty(value)) {
+            pipeline.setVariable(key, value);
+          }
+        }
+
+        // Set the named parameters
+        //
+        Map<String, String> parametersMap = executionConfiguration.getParametersMap();
+        Set<String> parametersKeys = parametersMap.keySet();
+        for (String key : parametersKeys) {
+          pipeline.setParameterValue(key, Const.NVL(parametersMap.get(key), ""));
+        }
 
         try {
           ExtensionPointHandler.callExtensionPoint(
