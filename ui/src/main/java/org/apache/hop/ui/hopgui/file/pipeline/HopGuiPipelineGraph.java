@@ -30,6 +30,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -4140,6 +4141,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       rowBuffer.setBuffer(Collections.synchronizedList(new LinkedList<>()));
                     } else {
                       rowBuffer.setBuffer(Collections.synchronizedList(new ArrayList<>()));
+                    }
+                  }
+
+                  // Clone the row to make sure we capture the correct values
+                  //
+                  if (sampleType != SampleType.None) {
+                    try {
+                      row = rowMeta.cloneRow(row);
+                    } catch (HopValueException e) {
+                      throw new HopTransformException("Error copying row for preview purposes", e);
                     }
                   }
 
