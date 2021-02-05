@@ -52,6 +52,9 @@ ENV HOP_RUN_PARAMETERS=
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
 # this removed the need to calculate the necessary heap Xmx
 ENV HOP_OPTIONS=-XX:+AggressiveHeap
+# Path to custom entrypoint extension script file - optional
+# e.g. to fetch Hop project files from S3 or gitlab
+ENV HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH=
 
 # Define en_US.
 # ENV LANGUAGE en_US.UTF-8
