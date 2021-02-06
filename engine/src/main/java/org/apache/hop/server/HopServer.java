@@ -1004,7 +1004,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
       }
     }
 
-    log.logMinimal( pipelineName, "The remote pipeline has finished." );
+    log.logBasic( pipelineName, "The remote pipeline has finished." );
   }
 
 
@@ -1073,7 +1073,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
       }
     }
 
-    log.logMinimal( workflowName, "The remote workflow has finished." );
+    log.logBasic( workflowName, "The remote workflow has finished." );
   }
 
 

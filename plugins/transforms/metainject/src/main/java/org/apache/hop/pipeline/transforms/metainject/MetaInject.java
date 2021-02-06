@@ -147,6 +147,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
 
       getPipeline().addExecutionStoppedListener(e -> injectPipeline.stopAll());
 
+      injectPipeline.setLogLevel( getLogLevel() );
+
       // Parameters get activated below so we need to make sure they have values
       //
       injectPipeline.prepareExecution( );

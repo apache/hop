@@ -126,7 +126,6 @@ class BeanLevelInfo<Meta extends ITransformMeta> {
             genericsInfo.put( tps[ i ].getName(), args[ i ] );
           }
         }
-        System.out.println();
       }
 
       introspect( info, clazz.getDeclaredFields(), clazz.getDeclaredMethods(), genericsInfo );

@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.groupby.Aggregation;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 
@@ -121,38 +122,30 @@ public class PipelineProfileFactory {
         nrBooleans++;
       }
     }
-    int nrCalculations =
-      nrNumeric
-        * numericCalculations.length + nrDates * dateCalculations.length + nrStrings
-        * stringCalculations.length + nrBooleans * booleanCalculations.length;
 
-    statsMeta.allocate( 0, nrCalculations );
+    statsMeta.allocate( 0 );
     int calcIndex = 0;
     for ( int i = 0; i < tableLayout.size(); i++ ) {
       IValueMeta valueMeta = tableLayout.getValueMeta( i );
       // Numeric data...
       //
       if ( valueMeta.isNumeric() ) {
-        //CHECKSTYLE:Indentation:OFF
-        //CHECKSTYLE:LineLength:OFF
         for ( int c = 0; c < numericCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[ calcIndex ] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( numericCalculations[ c ] ) + ")";
-          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
-          statsMeta.getAggregateType()[ calcIndex ] = numericCalculations[ c ];
-          calcIndex++;
+          String aggField =  valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( numericCalculations[ c ] ) + ")";
+          String aggSubject = valueMeta.getName();
+          int aggType = numericCalculations[ c ];
+          statsMeta.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, null) );
         }
       }
 
       // String data
       //
       if ( valueMeta.isString() ) {
-        //CHECKSTYLE:Indentation:OFF
-        //CHECKSTYLE:LineLength:OFF
         for ( int c = 0; c < stringCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[ calcIndex ] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( stringCalculations[ c ] ) + ")";
-          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
-          statsMeta.getAggregateType()[ calcIndex ] = stringCalculations[ c ];
-          calcIndex++;
+          String aggField = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( stringCalculations[ c ] ) + ")";
+          String aggSubject = valueMeta.getName();
+          int aggType = stringCalculations[ c ];
+          statsMeta.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, null) );
         }
       }
 
@@ -160,11 +153,10 @@ public class PipelineProfileFactory {
       //
       if ( valueMeta.isDate() ) {
         for ( int c = 0; c < dateCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[ calcIndex ] =
-            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( dateCalculations[ c ] ) + ")";
-          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
-          statsMeta.getAggregateType()[ calcIndex ] = dateCalculations[ c ];
-          calcIndex++;
+          String aggField = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( dateCalculations[ c ] ) + ")";
+          String aggSubject = valueMeta.getName();
+          int aggType = dateCalculations[ c ];
+          statsMeta.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, null) );
         }
       }
 
@@ -172,11 +164,10 @@ public class PipelineProfileFactory {
       //
       if ( valueMeta.isBoolean() ) {
         for ( int c = 0; c < booleanCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[ calcIndex ] =
-            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( booleanCalculations[ c ] ) + ")";
-          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
-          statsMeta.getAggregateType()[ calcIndex ] = booleanCalculations[ c ];
-          calcIndex++;
+          String aggField = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( booleanCalculations[ c ] ) + ")";
+          String aggSubject = valueMeta.getName();
+          int aggType = booleanCalculations[ c ];
+          statsMeta.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, null) );
         }
       }
     }

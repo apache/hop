@@ -23,6 +23,9 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -42,6 +45,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Created on 02-jun-2003 */
@@ -53,6 +57,8 @@ import java.util.List;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "")
+@InjectionSupported( localizationPrefix = "GroupByMeta.Injection.",
+groups = {"GROUPS", "AGGREGATIONS"})
 public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
@@ -149,12 +155,15 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   };
 
   /** All rows need to pass, adding an extra row at the end of each group/block. */
+  @Injection( name = "PASS_ALL_ROWS" )
   private boolean passAllRows;
 
   /** Directory to store the temp files */
+  @Injection( name = "TEMP_DIRECTORY" )
   private String directory;
 
   /** Temp files prefix... */
+  @Injection( name = "TEMP_FILE_PREFIX" )
   private String prefix;
 
   /** Indicate that some rows don't need to be considered : TODO: make work in GUI & worker */
@@ -167,42 +176,28 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   private String aggregateIgnoredField;
 
   /** Fields to group over */
+  @Injection( name = "GROUP_FIELD", group = "GROUPS" )
   private String[] groupField;
 
-  /** Name of aggregate field */
-  private String[] aggregateField;
-
-  /** Field name to group over */
-  private String[] subjectField;
-
-  /** Type of aggregate */
-  private int[] aggregateType;
-
-  /** Value to use as separator for ex */
-  private String[] valueField;
+  @InjectionDeep private List<Aggregation> aggregations;
 
   /** Add a linenr in the group, resetting to 0 in a new group. */
+  @Injection( name = "ADD_GROUP_LINENR" )
   private boolean addingLineNrInGroup;
 
   /** The fieldname that will contain the added integer field */
+  @Injection( name = "ADD_GROUP_LINENR_FIELD" )
   private String lineNrInGroupField;
 
   /** Flag to indicate that we always give back one row. Defaults to true for existing pipelines. */
+  @Injection( name = "ALWAYS_GIVE_ROW" )
   private boolean alwaysGivingBackOneRow;
 
   public GroupByMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the aggregateField. */
-  public String[] getAggregateField() {
-    return aggregateField;
-  }
 
-  /** @param aggregateField The aggregateField to set. */
-  public void setAggregateField(String[] aggregateField) {
-    this.aggregateField = aggregateField;
-  }
 
   /** @return Returns the aggregateIgnored. */
   public boolean isAggregateIgnored() {
@@ -222,16 +217,6 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   /** @param aggregateIgnoredField The aggregateIgnoredField to set. */
   public void setAggregateIgnoredField(String aggregateIgnoredField) {
     this.aggregateIgnoredField = aggregateIgnoredField;
-  }
-
-  /** @return Returns the aggregateType. */
-  public int[] getAggregateType() {
-    return aggregateType;
-  }
-
-  /** @param aggregateType The aggregateType to set. */
-  public void setAggregateType(int[] aggregateType) {
-    this.aggregateType = aggregateType;
   }
 
   /** @return Returns the groupField. */
@@ -254,60 +239,35 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     this.passAllRows = passAllRows;
   }
 
-  /** @return Returns the subjectField. */
-  public String[] getSubjectField() {
-    return subjectField;
-  }
-
-  /** @param subjectField The subjectField to set. */
-  public void setSubjectField(String[] subjectField) {
-    this.subjectField = subjectField;
-  }
-
-  /** @return Returns the valueField. */
-  public String[] getValueField() {
-    return valueField;
-  }
-
-  /** @param valueField The valueField to set. */
-  public void setValueField(String[] valueField) {
-    this.valueField = valueField;
-  }
-
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
-  public void allocate(int sizegroup, int nrFields) {
-    groupField = new String[sizegroup];
-    aggregateField = new String[nrFields];
-    subjectField = new String[nrFields];
-    aggregateType = new int[nrFields];
-    valueField = new String[nrFields];
+  public void allocate(int groupSize) {
+    groupField = new String[groupSize];
+    aggregations = new ArrayList<>();
   }
 
   @Override
   public Object clone() {
-    GroupByMeta retval = (GroupByMeta) super.clone();
+    GroupByMeta groupByMeta = (GroupByMeta) super.clone();
 
-    int szGroup = 0, szFields = 0;
+    int szGroup = 0;
     if (groupField != null) {
       szGroup = groupField.length;
     }
-    if (valueField != null) {
-      szFields = valueField.length;
+    groupByMeta.allocate(szGroup);
+    System.arraycopy(groupField, 0, groupByMeta.groupField, 0, szGroup);
+
+    List<Aggregation> aggsCopy = new ArrayList<>();
+    for (Aggregation aggregation : aggregations) {
+      aggsCopy.add(aggregation.clone());
     }
-    retval.allocate(szGroup, szFields);
+    groupByMeta.setAggregations( aggsCopy );
 
-    System.arraycopy(groupField, 0, retval.groupField, 0, szGroup);
-    System.arraycopy(aggregateField, 0, retval.aggregateField, 0, szFields);
-    System.arraycopy(subjectField, 0, retval.subjectField, 0, szFields);
-    System.arraycopy(aggregateType, 0, retval.aggregateType, 0, szFields);
-    System.arraycopy(valueField, 0, retval.valueField, 0, szFields);
-
-    return retval;
+    return groupByMeta;
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -324,33 +284,34 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "add_linenr"));
       lineNrInGroupField = XmlHandler.getTagValue(transformNode, "linenr_fieldname");
 
-      Node groupn = XmlHandler.getSubNode(transformNode, "group");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      Node groupNode = XmlHandler.getSubNode(transformNode, "group");
+      Node fieldsNode = XmlHandler.getSubNode(transformNode, "fields");
 
-      int sizegroup = XmlHandler.countNodes(groupn, "field");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrGroups = XmlHandler.countNodes(groupNode, "field");
+      int nrFields = XmlHandler.countNodes(fieldsNode, "field");
 
-      allocate(sizegroup, nrFields);
+      allocate(nrGroups);
 
-      for (int i = 0; i < sizegroup; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(groupn, "field", i);
+      for (int i = 0; i < nrGroups; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(groupNode, "field", i);
         groupField[i] = XmlHandler.getTagValue(fnode, "name");
       }
 
+      aggregations = new ArrayList<>();
       boolean hasNumberOfValues = false;
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        aggregateField[i] = XmlHandler.getTagValue(fnode, "aggregate");
-        subjectField[i] = XmlHandler.getTagValue(fnode, "subject");
-        aggregateType[i] = getType(XmlHandler.getTagValue(fnode, "type"));
+        Node fnode = XmlHandler.getSubNodeByNr(fieldsNode, "field", i);
+        String aggField = XmlHandler.getTagValue(fnode, "aggregate");
+        String aggSubject = XmlHandler.getTagValue(fnode, "subject");
+        int aggType = getType(XmlHandler.getTagValue(fnode, "type"));
 
-        if (aggregateType[i] == TYPE_GROUP_COUNT_ALL
-            || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT
-            || aggregateType[i] == TYPE_GROUP_COUNT_ANY) {
+        if (aggType == TYPE_GROUP_COUNT_ALL
+            || aggType == TYPE_GROUP_COUNT_DISTINCT
+            || aggType == TYPE_GROUP_COUNT_ANY) {
           hasNumberOfValues = true;
         }
-
-        valueField[i] = XmlHandler.getTagValue(fnode, "valuefield");
+        String aggValue = XmlHandler.getTagValue(fnode, "valuefield");
+        aggregations.add(new Aggregation(aggField, aggSubject, aggType, aggValue));
       }
 
       String giveBackRow = XmlHandler.getTagValue(transformNode, "give_back_row");
@@ -403,9 +364,8 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     aggregateIgnoredField = null;
 
     int sizeGroup = 0;
-    int numberOfFields = 0;
 
-    allocate(sizeGroup, numberOfFields);
+    allocate(sizeGroup);
   }
 
   @Override
@@ -437,15 +397,16 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
 
     // Re-add aggregates
     //
-    for (int i = 0; i < subjectField.length; i++) {
-      IValueMeta subj = rowMeta.searchValueMeta(subjectField[i]);
-      if (subj != null || aggregateType[i] == TYPE_GROUP_COUNT_ANY) {
-        String valueName = aggregateField[i];
+    for (Aggregation aggregation : aggregations) {
+      int aggregationType = aggregation.getType();
+      IValueMeta subj = rowMeta.searchValueMeta(aggregation.getSubject());
+      if (subj != null || aggregationType == TYPE_GROUP_COUNT_ANY) {
+        String valueName = aggregation.getField();
         int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
-        switch (aggregateType[i]) {
+        switch ( aggregationType ) {
           case TYPE_GROUP_SUM:
           case TYPE_GROUP_AVERAGE:
           case TYPE_GROUP_CUMULATIVE_SUM:
@@ -482,17 +443,17 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
 
         // Change type from integer to number in case off averages for cumulative average
         //
-        if (aggregateType[i] == TYPE_GROUP_CUMULATIVE_AVERAGE
+        if ( aggregationType == TYPE_GROUP_CUMULATIVE_AVERAGE
             && valueType == IValueMeta.TYPE_INTEGER) {
           valueType = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
-        } else if (aggregateType[i] == TYPE_GROUP_COUNT_ALL
-            || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT
-            || aggregateType[i] == TYPE_GROUP_COUNT_ANY) {
+        } else if ( aggregationType == TYPE_GROUP_COUNT_ALL
+            || aggregationType == TYPE_GROUP_COUNT_DISTINCT
+            || aggregationType == TYPE_GROUP_COUNT_ANY) {
           length = IValueMeta.DEFAULT_INTEGER_LENGTH;
           precision = 0;
-        } else if (aggregateType[i] == TYPE_GROUP_SUM
+        } else if ( aggregationType == TYPE_GROUP_SUM
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER
             && valueType != IValueMeta.TYPE_BIGNUMBER) {
@@ -561,14 +522,14 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     retval.append("      </group>").append(Const.CR);
 
     retval.append("      <fields>").append(Const.CR);
-    for (int i = 0; i < subjectField.length; i++) {
+    for (Aggregation aggregation : aggregations) {
       retval.append("        <field>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("aggregate", aggregateField[i]));
-      retval.append("          ").append(XmlHandler.addTagValue("subject", subjectField[i]));
+      retval.append("          ").append(XmlHandler.addTagValue("aggregate", aggregation.getField()));
+      retval.append("          ").append(XmlHandler.addTagValue("subject", aggregation.getSubject()));
       retval
           .append("          ")
-          .append(XmlHandler.addTagValue("type", getTypeDesc(aggregateType[i])));
-      retval.append("          ").append(XmlHandler.addTagValue("valuefield", valueField[i]));
+          .append(XmlHandler.addTagValue("type", getTypeDesc(aggregation.getType())));
+      retval.append("          ").append(XmlHandler.addTagValue("valuefield", aggregation.getValue()));
       retval.append("        </field>").append(Const.CR);
     }
     retval.append("      </fields>").append(Const.CR);
@@ -674,5 +635,21 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   @Override
   public PipelineMeta.PipelineType[] getSupportedPipelineTypes() {
     return new PipelineMeta.PipelineType[] {PipelineMeta.PipelineType.Normal};
+  }
+
+  /**
+   * Gets aggregations
+   *
+   * @return value of aggregations
+   */
+  public List<Aggregation> getAggregations() {
+    return aggregations;
+  }
+
+  /**
+   * @param aggregations The aggregations to set
+   */
+  public void setAggregations( List<Aggregation> aggregations ) {
+    this.aggregations = aggregations;
   }
 }

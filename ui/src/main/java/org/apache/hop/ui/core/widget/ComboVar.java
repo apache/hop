@@ -208,7 +208,11 @@ public class ComboVar extends Composite {
   }
 
   public boolean setFocus() {
-    return wCombo.setFocus();
+    if (wCombo != null && !wCombo.isDisposed()) {
+      return wCombo.setFocus();
+    } else {
+      return false;
+    }
   }
 
   public void addTraverseListener(TraverseListener tl) {
