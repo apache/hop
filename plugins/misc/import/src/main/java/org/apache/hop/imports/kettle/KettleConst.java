@@ -41,6 +41,7 @@ public class KettleConst {
                   "step_performance_capturing_size_limit",
                   "transform_performance_capturing_size_limit"
                 },
+                { "target_step_name", "target_transform_name"},
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
                 // jobs
                 {"job", "workflow"},

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -128,11 +129,26 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
       if ( getPipeline().getParentWorkflow() != null ) {
         injectPipeline.setParentWorkflow( getPipeline().getParentWorkflow() ); // See PDI-13224
       }
-      injectPipeline.copyParametersFromDefinitions( data.pipelineMeta );
+
+      // Copy all variables over...
+      //
       injectPipeline.copyFrom( this );
+
+      // Copy parameter definitions with empty values.
+      // Then set those parameters to the values if have any.
+
+      injectPipeline.copyParametersFromDefinitions( data.pipelineMeta );
+      for (String variableName : injectPipeline.getVariableNames()) {
+        String variableValue = getVariable( variableName );
+        if ( StringUtils.isNotEmpty(variableValue)) {
+          injectPipeline.setParameterValue( variableName, variableValue );
+        }
+      }
 
       getPipeline().addExecutionStoppedListener(e -> injectPipeline.stopAll());
 
+      // Parameters get activated below so we need to make sure they have values
+      //
       injectPipeline.prepareExecution( );
 
       // See if we need to stream some data over...

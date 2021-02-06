@@ -194,6 +194,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiWorkflowGraph-ToolBar-10500-Zoom-Level";
 
+  public static final String TOOLBAR_ITEM_EDIT_WORKFLOW = "HopGuiWorkflowGrpah-ToolBar-10450-EditWorkflow";
+
   private static final String STRING_PARALLEL_WARNING_PARAMETER = "ParallelActionsWarning";
 
   private static final int HOP_SEL_MARGIN = 9;
@@ -1852,6 +1854,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     editProperties(workflowMeta, hopGui, true);
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_EDIT_WORKFLOW,
+    toolTip = "i18n::WorkflowGraph.Toolbar.EditWorkflow.Tooltip",
+    image = "ui/images/workflow.svg"
+    )
+  @GuiKeyboardShortcut(control=true, key='l')
+  @GuiOsxKeyboardShortcut(command = true, key='l')
   public void editWorkflowProperties() {
     editProperties(workflowMeta, hopGui, true);
   }

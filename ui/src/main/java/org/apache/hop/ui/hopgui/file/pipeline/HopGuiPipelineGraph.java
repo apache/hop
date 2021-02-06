@@ -30,6 +30,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -244,6 +245,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
+
+  public static final String TOOLBAR_ITEM_EDIT_PIPELINE = "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
+
 
   private ILogChannel log;
 
@@ -2636,6 +2640,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     editProperties(pipelineMeta, hopGui, true);
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_EDIT_PIPELINE,
+    toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.EditProperties.Tooltip",
+    image = "ui/images/pipeline.svg",
+    separator = true)
+  @GuiKeyboardShortcut(control=true, key='t')
+  @GuiOsxKeyboardShortcut(command = true, key='t')
+  public void editPipelineProperties() {
+    editProperties(pipelineMeta, hopGui, true);
+  }
+
   public void newTransform(String description) {
     TransformMeta transformMeta =
         pipelineTransformDelegate.newTransform(
@@ -4143,6 +4159,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     }
                   }
 
+                  // Clone the row to make sure we capture the correct values
+                  //
+                  if (sampleType != SampleType.None) {
+                    try {
+                      row = rowMeta.cloneRow(row);
+                    } catch (HopValueException e) {
+                      throw new HopTransformException("Error copying row for preview purposes", e);
+                    }
+                  }
+
                   switch (sampleType) {
                     case First:
                       {
@@ -4246,9 +4272,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Create a new pipeline to execution
         //
-        pipeline = new LocalPipelineEngine(pipelineMeta);
+        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject() );
         pipeline.setPreview(true);
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
+
+        // Set the variables from the execution configuration
+        // These are values set by the user in the execution dialog
+        //
+        Map<String, String> variablesMap = executionConfiguration.getVariablesMap();
+        Set<String> variableKeys = variablesMap.keySet();
+        for (String key : variableKeys) {
+          String value = variablesMap.get(key);
+          if (StringUtils.isNotEmpty(value)) {
+            pipeline.setVariable(key, value);
+          }
+        }
+
+        // Set the named parameters
+        //
+        Map<String, String> parametersMap = executionConfiguration.getParametersMap();
+        Set<String> parametersKeys = parametersMap.keySet();
+        for (String key : parametersKeys) {
+          pipeline.setParameterValue(key, Const.NVL(parametersMap.get(key), ""));
+        }
 
         try {
           ExtensionPointHandler.callExtensionPoint(
