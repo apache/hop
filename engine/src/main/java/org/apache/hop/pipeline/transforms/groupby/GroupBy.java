@@ -105,8 +105,8 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
       // Do all the work we can beforehand
       // Calculate indexes, loop up fields, etc.
       //
-      data.counts = new long[ meta.getSubjectField().length ];
-      data.subjectnrs = new int[ meta.getSubjectField().length ];
+      data.counts = new long[ meta.getAggregations().size() ];
+      data.subjectnrs = new int[ meta.getAggregations().size() ];
 
       data.cumulativeSumSourceIndexes = new ArrayList<>();
       data.cumulativeSumTargetIndexes = new ArrayList<>();
@@ -114,28 +114,29 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
       data.cumulativeAvgSourceIndexes = new ArrayList<>();
       data.cumulativeAvgTargetIndexes = new ArrayList<>();
 
-      for ( int i = 0; i < meta.getSubjectField().length; i++ ) {
-        if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_COUNT_ANY ) {
+      for ( int i = 0; i < meta.getAggregations().size(); i++ ) {
+        Aggregation aggregation = meta.getAggregations().get( i );
+        if ( aggregation.getType() == GroupByMeta.TYPE_GROUP_COUNT_ANY ) {
           data.subjectnrs[ i ] = 0;
         } else {
-          data.subjectnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getSubjectField()[ i ] );
+          data.subjectnrs[ i ] = data.inputRowMeta.indexOfValue( aggregation.getSubject() );
         }
         if ( ( r != null ) && ( data.subjectnrs[ i ] < 0 ) ) {
           logError( BaseMessages.getString( PKG, "GroupBy.Log.AggregateSubjectFieldCouldNotFound",
-            meta.getSubjectField()[ i ] ) );
+            aggregation.getSubject() ) );
           setErrors( 1 );
           stopAll();
           return false;
         }
 
-        if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_CUMULATIVE_SUM ) {
+        if ( aggregation.getType() == GroupByMeta.TYPE_GROUP_CUMULATIVE_SUM ) {
           data.cumulativeSumSourceIndexes.add( data.subjectnrs[ i ] );
 
           // The position of the target in the output row is the input row size + i
           //
           data.cumulativeSumTargetIndexes.add( data.inputRowMeta.size() + i );
         }
-        if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE ) {
+        if ( aggregation.getType() == GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE ) {
           data.cumulativeAvgSourceIndexes.add( data.subjectnrs[ i ] );
 
           // The position of the target in the output row is the input row size + i
@@ -405,12 +406,14 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
    */
   @SuppressWarnings( "unchecked" ) void calcAggregate( Object[] row ) throws HopValueException {
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
+      Aggregation aggregation = meta.getAggregations().get( i );
+
       Object subj = row[ data.subjectnrs[ i ] ];
       IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object value = data.agg[ i ];
       IValueMeta valueMeta = data.aggMeta.getValueMeta( i );
 
-      switch ( meta.getAggregateType()[ i ] ) {
+      switch ( aggregation.getType() ) {
         case GroupByMeta.TYPE_GROUP_SUM:
           data.agg[ i ] = ValueDataUtil.sum( valueMeta, value, subjMeta, subj );
           break;
@@ -448,7 +451,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         case GroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
           if ( !subjMeta.isNull( subj ) ) {
             if ( data.distinctObjs == null ) {
-              data.distinctObjs = new Set[ meta.getSubjectField().length ];
+              data.distinctObjs = new Set[ meta.getAggregations().size() ];
             }
             if ( data.distinctObjs[ i ] == null ) {
               data.distinctObjs[ i ] = new TreeSet<>();
@@ -536,8 +539,8 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         case GroupByMeta.TYPE_GROUP_CONCAT_STRING:
           if ( !( subj == null ) ) {
             String separator = "";
-            if ( !Utils.isEmpty( meta.getValueField()[ i ] ) ) {
-              separator = resolve( meta.getValueField()[ i ] );
+            if ( !Utils.isEmpty( aggregation.getValue() ) ) {
+              separator = resolve( aggregation.getValue() );
             }
 
             StringBuilder sb = (StringBuilder) value;
@@ -559,7 +562,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
    *
    * @param r
    */
-  void newAggregate( Object[] r ) {
+  void newAggregate( Object[] r ) throws HopException {
     // Put all the counters at 0
     for ( int i = 0; i < data.counts.length; i++ ) {
       data.counts[ i ] = 0;
@@ -570,10 +573,13 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
     data.aggMeta = new RowMeta();
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
+      Aggregation aggregation = meta.getAggregations().get( i );
       IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object v = null;
       IValueMeta vMeta = null;
-      int aggType = meta.getAggregateType()[ i ];
+      int aggType = aggregation.getType();
+      String fieldName = aggregation.getField();
+
       switch ( aggType ) {
         case GroupByMeta.TYPE_GROUP_SUM:
         case GroupByMeta.TYPE_GROUP_AVERAGE:
@@ -581,28 +587,28 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         case GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE:
           if ( subjMeta.isNumeric() ) {
             try {
-              vMeta = ValueMetaFactory.createValueMeta( meta.getAggregateField()[ i ], subjMeta.getType() );
+              vMeta = ValueMetaFactory.createValueMeta( fieldName, subjMeta.getType() );
             } catch ( HopPluginException e ) {
-              vMeta = new ValueMetaNone( meta.getAggregateField()[ i ] );
+              vMeta = new ValueMetaNone( fieldName );
             }
           } else {
-            vMeta = new ValueMetaNumber( meta.getAggregateField()[ i ] );
+            vMeta = new ValueMetaNumber( fieldName );
           }
           break;
         case GroupByMeta.TYPE_GROUP_MEDIAN:
         case GroupByMeta.TYPE_GROUP_PERCENTILE:
         case GroupByMeta.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
-          vMeta = new ValueMetaNumber( meta.getAggregateField()[ i ] );
+          vMeta = new ValueMetaNumber( fieldName );
           v = new ArrayList<Double>();
           break;
         case GroupByMeta.TYPE_GROUP_STANDARD_DEVIATION:
         case GroupByMeta.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
-          vMeta = new ValueMetaNumber( meta.getAggregateField()[ i ] );
+          vMeta = new ValueMetaNumber( fieldName );
           break;
         case GroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
         case GroupByMeta.TYPE_GROUP_COUNT_ANY:
         case GroupByMeta.TYPE_GROUP_COUNT_ALL:
-          vMeta = new ValueMetaInteger( meta.getAggregateField()[ i ] );
+          vMeta = new ValueMetaInteger( fieldName );
           break;
         case GroupByMeta.TYPE_GROUP_FIRST:
         case GroupByMeta.TYPE_GROUP_LAST:
@@ -611,20 +617,20 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         case GroupByMeta.TYPE_GROUP_MIN:
         case GroupByMeta.TYPE_GROUP_MAX:
           vMeta = subjMeta.clone();
-          vMeta.setName( meta.getAggregateField()[ i ] );
+          vMeta.setName( fieldName );
           v = r == null ? null : r[ data.subjectnrs[ i ] ];
           break;
         case GroupByMeta.TYPE_GROUP_CONCAT_COMMA:
-          vMeta = new ValueMetaString( meta.getAggregateField()[ i ] );
+          vMeta = new ValueMetaString( fieldName );
           v = new StringBuilder();
           break;
         case GroupByMeta.TYPE_GROUP_CONCAT_STRING:
-          vMeta = new ValueMetaString( meta.getAggregateField()[ i ] );
+          vMeta = new ValueMetaString( fieldName );
           v = new StringBuilder();
           break;
         default:
           // TODO raise an error here because we cannot continue successfully maybe the UI should validate this
-          break;
+          throw new HopException("Please specify an aggregation type for field '"+fieldName+"'");
       }
 
       if ( ( subjMeta != null )
@@ -686,8 +692,11 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
     Object[] result = new Object[ data.subjectnrs.length ];
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
+      Aggregation aggregation = meta.getAggregations().get(i);
       Object ag = data.agg[ i ];
-      switch ( meta.getAggregateType()[ i ] ) {
+      int aggType = aggregation.getType();
+      String fieldName = aggregation.getField();
+      switch ( aggType ) {
         case GroupByMeta.TYPE_GROUP_SUM:
           break;
         case GroupByMeta.TYPE_GROUP_AVERAGE:
@@ -698,8 +707,8 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         case GroupByMeta.TYPE_GROUP_MEDIAN:
         case GroupByMeta.TYPE_GROUP_PERCENTILE:
           double percentile = 50.0;
-          if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_PERCENTILE ) {
-            percentile = Double.parseDouble( meta.getValueField()[ i ] );
+          if ( aggType == GroupByMeta.TYPE_GROUP_PERCENTILE ) {
+            percentile = Double.parseDouble( aggregation.getValue() );
           }
           @SuppressWarnings( "unchecked" )
           List<Double> valuesList = (List<Double>) data.agg[ i ];
@@ -711,8 +720,8 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           break;
         case GroupByMeta.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
           double percentileValue = 50.0;
-          if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_PERCENTILE_NEAREST_RANK ) {
-            percentileValue = Double.parseDouble( meta.getValueField()[ i ] );
+          if ( aggType == GroupByMeta.TYPE_GROUP_PERCENTILE_NEAREST_RANK ) {
+            percentileValue = Double.parseDouble( aggregation.getValue() );
           }
           @SuppressWarnings( "unchecked" )
           List<Double> latenciesList = (List<Double>) data.agg[ i ];

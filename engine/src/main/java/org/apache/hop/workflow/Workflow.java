@@ -363,7 +363,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       setStopped( false );
       HopEnvironment.setExecutionInformation( this );
 
-      log.logMinimal( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ) );
+      log.logBasic( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ) );
 
       ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowStart.id, this );
 
@@ -424,7 +424,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       }
       // Save this result...
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerEnd ) );
-      log.logMinimal( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowFinished" ) );
+      log.logBasic( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowFinished" ) );
 
       setActive( false );
       if ( !isStopped() ) {
@@ -562,7 +562,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       Thread.currentThread().setContextClassLoader( action.getClass().getClassLoader() );
       // Execute this entry...
       IAction cloneJei = (IAction) action.clone();
-      ( (IVariables) cloneJei ).copyFrom( this );
+      cloneJei.copyFrom( this );
+      cloneJei.getLogChannel().setLogLevel( getLogLevel() );
       cloneJei.setMetadataProvider( metadataProvider );
       cloneJei.setParentWorkflow( this );
       cloneJei.setParentWorkflowMeta( this.getWorkflowMeta() );
@@ -594,12 +595,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         }
       }
 
-      if ( cloneJei instanceof ActionPipeline ) {
-        String throughput = newResult.getReadWriteThroughput( (int) ( ( end - start ) / 1000 ) );
-        if ( throughput != null ) {
-          log.logMinimal( throughput );
-        }
-      }
       for ( IActionListener actionListener : actionListeners ) {
         actionListener.afterExecution( this, actionMeta, cloneJei, newResult );
       }
@@ -1201,6 +1196,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
+    log.setLogLevel( logLevel );
   }
 
   /**

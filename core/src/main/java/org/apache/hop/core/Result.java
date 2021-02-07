@@ -266,37 +266,6 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Creates a string containing the read/write throughput. Throughput in this case is defined as two measures, number
-   * of lines read or written and number of lines read/written per second.
-   *
-   * @param seconds the number of seconds with which to determine the read/write throughput
-   * @return a string containing the read write throughput measures with labelling text
-   */
-  public String getReadWriteThroughput( int seconds ) {
-    String throughput = null;
-    if ( seconds != 0 ) {
-      String readClause = null, writtenClause = null;
-      if ( getNrLinesRead() > 0 ) {
-        readClause =
-          String.format( "lines read: %d ( %d lines/s)", getNrLinesRead(), ( getNrLinesRead() / seconds ) );
-      }
-      if ( getNrLinesWritten() > 0 ) {
-        writtenClause =
-          String.format(
-            "%slines written: %d ( %d lines/s)", ( getNrLinesRead() > 0 ? "; " : "" ), getNrLinesWritten(),
-            ( getNrLinesWritten() / seconds ) );
-      }
-      if ( readClause != null || writtenClause != null ) {
-        throughput =
-          String.format(
-            "Pipeline %s%s", ( getNrLinesRead() > 0 ? readClause : "" ), ( getNrLinesWritten() > 0
-              ? writtenClause : "" ) );
-      }
-    }
-    return throughput;
-  }
-
-  /**
    * Returns a string representation of the Result object
    *
    * @see Object#toString()

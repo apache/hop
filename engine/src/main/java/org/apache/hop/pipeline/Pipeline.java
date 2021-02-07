@@ -2836,6 +2836,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
+    log.setLogLevel( logLevel );
   }
 
   /**

@@ -1427,7 +1427,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if ((isRunning() && !halting)) {
       halting = true;
       workflow.stopExecution();
-      log.logMinimal(BaseMessages.getString(PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped"));
+      log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped"));
 
       halting = false;
 
@@ -3528,7 +3528,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             return;
           }
 
-          log.logMinimal(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
+          log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
           workflowThread = new Thread(() -> workflow.startExecution());
           workflowThread.start();
           workflowGridDelegate.previousNrItems = -1;
@@ -3594,7 +3594,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Do a final check to see if it all ended...
     //
     if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
-      log.logMinimal(BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded"));
+      log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded"));
     }
     updateGui();
   }

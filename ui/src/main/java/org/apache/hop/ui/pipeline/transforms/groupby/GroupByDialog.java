@@ -28,10 +28,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.groupby.Aggregation;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -378,10 +378,10 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdlAgg.top = new FormAttachment(wGroup, margin);
     wlAgg.setLayoutData(fdlAgg);
 
-    int UpInsCols = 4;
-    int UpInsRows = (input.getAggregateField() != null ? input.getAggregateField().length : 1);
+    int nrCols = 4;
+    int nrRows = input.getAggregations().size();
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[nrCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.Name"),
@@ -412,7 +412,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            nrRows,
             lsMod,
             props);
 
@@ -568,20 +568,13 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       }
     }
 
-    if (input.getAggregateField() != null) {
-      for (int i = 0; i < input.getAggregateField().length; i++) {
-        TableItem item = wAgg.table.getItem(i);
-        if (input.getAggregateField()[i] != null) {
-          item.setText(1, input.getAggregateField()[i]);
-        }
-        if (input.getSubjectField()[i] != null) {
-          item.setText(2, input.getSubjectField()[i]);
-        }
-        item.setText(3, GroupByMeta.getTypeDescLong(input.getAggregateType()[i]));
-        if (input.getValueField()[i] != null) {
-          item.setText(4, input.getValueField()[i]);
-        }
-      }
+    int i = 0;
+    for (Aggregation aggregation : input.getAggregations()) {
+      TableItem item = wAgg.table.getItem(i++);
+      item.setText(1, Const.NVL(aggregation.getField(), ""));
+      item.setText(2, Const.NVL(aggregation.getSubject(), ""));
+      item.setText(3, GroupByMeta.getTypeDescLong(aggregation.getType()));
+      item.setText(3, Const.NVL(aggregation.getValue(), ""));
     }
 
     wGroup.setRowNums();
@@ -617,7 +610,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     input.setAlwaysGivingBackOneRow(wAlwaysAddResult.getSelection());
     input.setPassAllRows(wAllRows.getSelection());
 
-    input.allocate(sizegroup, nrFields);
+    input.allocate(sizegroup);
 
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < sizegroup; i++) {
@@ -628,10 +621,11 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wAgg.getNonEmpty(i);
-      input.getAggregateField()[i] = item.getText(1);
-      input.getSubjectField()[i] = item.getText(2);
-      input.getAggregateType()[i] = GroupByMeta.getType(item.getText(3));
-      input.getValueField()[i] = item.getText(4);
+      String aggField = item.getText(1);
+      String aggSubject = item.getText(2);
+      int aggType = GroupByMeta.getType(item.getText(3));
+      String aggValue = item.getText(4);
+      input.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, aggValue));
     }
 
     transformName = wTransformName.getText();

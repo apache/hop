@@ -236,6 +236,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
       pipeline.activateParameters(pipeline);
 
+      log.logMinimal( "Starting pipeline: "+pipelineMeta.getFilename() );
+
       // Run it!
       //
       pipeline.prepareExecution();
@@ -315,6 +317,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Also copy the parameter values over to the variables...
       //
       workflow.activateParameters(workflow);
+
+      log.logMinimal( "Starting workflow: "+workflowMeta.getFilename() );
 
       workflow.startExecution();
       setFinishedWithoutError(workflow.getResult().getResult());

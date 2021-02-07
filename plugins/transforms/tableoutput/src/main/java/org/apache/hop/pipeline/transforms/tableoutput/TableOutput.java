@@ -492,7 +492,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         // incorrectly processed rows.
         //
         if ( getTransformMeta().isDoingErrorHandling() && !dbInterface.supportsErrorHandlingOnBatchUpdates() ) {
-          log.logMinimal( BaseMessages.getString(
+          log.logBasic( BaseMessages.getString(
             PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing" ) );
         }
 
