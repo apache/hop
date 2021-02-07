@@ -244,8 +244,9 @@ public class GuiResource {
   private Image imageAddSingle;
   private Image imageRemoveAll;
   private Image imageRemoveSingle;
-  private Image imageBack;
-  private Image imageForward;
+  private Image imageNavigateBack;
+  private Image imageNavigateForward;
+  private Image imageNavigateUp;
   private Image imageRefresh;
   private Image imageHome;
   private Image imagePrint;
@@ -257,6 +258,8 @@ public class GuiResource {
   private Image imageRun;
   private Image imageStop;
   private Image imageNew;
+  private Image imageDown;
+  private Image imageUp;
  
 
   private Map<String, Image> imageMap;
@@ -494,8 +497,9 @@ public class GuiResource {
       imageAddSingle.dispose();
       imageRemoveAll.dispose();
       imageRemoveSingle.dispose();
-      imageBack.dispose();
-      imageForward.dispose();
+      imageNavigateBack.dispose();
+      imageNavigateForward.dispose();
+      imageNavigateUp.dispose();
       imageRefresh.dispose();
       imageHome.dispose();
       imagePrint.dispose();
@@ -506,6 +510,8 @@ public class GuiResource {
       imageRun.dispose();
       imageStop.dispose();
       imageSearch.dispose();    
+      imageDown.dispose();
+      imageUp.dispose();    
       
       imageArrowDefault.dispose();
       imageArrowTrue.dispose();
@@ -680,7 +686,9 @@ public class GuiResource {
     imageExpandAll = loadAsResource(display, "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageLabel = loadAsResource(display, "ui/images/label.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
-    imageForward = loadAsResource(display, "ui/images/forward.svg", ConstUi.SMALL_ICON_SIZE);
+    imageNavigateBack = loadAsResource(display, "ui/images/navigate-back.svg", ConstUi.SMALL_ICON_SIZE);    
+    imageNavigateForward = loadAsResource(display, "ui/images/navigate-forward.svg", ConstUi.SMALL_ICON_SIZE);
+    imageNavigateUp = loadAsResource(display, "ui/images/navigate-up.svg", ConstUi.SMALL_ICON_SIZE);    
     imageHelp = loadAsResource(display, "ui/images/help.svg", ConstUi.SMALL_ICON_SIZE);
     imageHide = loadAsResource(display, "ui/images/hide.svg", ConstUi.SMALL_ICON_SIZE);
     imageHideResults = loadAsResource(display, "ui/images/hide-results.svg", ConstUi.SMALL_ICON_SIZE);
@@ -709,7 +717,6 @@ public class GuiResource {
     imageSynonym = loadAsResource(display, "ui/images/view.svg", ConstUi.SMALL_ICON_SIZE);
     imageTable = loadAsResource(display, "ui/images/table.svg", ConstUi.SMALL_ICON_SIZE);
     imageUser = loadAsResource(display, "ui/images/user.svg", ConstUi.SMALL_ICON_SIZE);
-    imageBack = loadAsResource(display, "ui/images/back.svg", ConstUi.SMALL_ICON_SIZE);
     imageCleanup = loadAsResource(display, "ui/images/cleanup.svg", ConstUi.SMALL_ICON_SIZE);
     imageClose = loadAsResource(display, "ui/images/close.svg", ConstUi.SMALL_ICON_SIZE);
     imageDelete = loadAsResource(display, "ui/images/delete.svg", ConstUi.SMALL_ICON_SIZE);
@@ -717,6 +724,8 @@ public class GuiResource {
     imageRun = loadAsResource(display, "ui/images/run.svg", ConstUi.SMALL_ICON_SIZE);
     imageStop = loadAsResource(display, "ui/images/stop.svg", ConstUi.SMALL_ICON_SIZE);
     imageView = loadAsResource(display, "ui/images/view.svg", ConstUi.SMALL_ICON_SIZE);
+    imageDown = loadAsResource(display, "ui/images/down.svg", ConstUi.SMALL_ICON_SIZE);
+    imageUp = loadAsResource(display, "ui/images/up.svg", ConstUi.SMALL_ICON_SIZE);
 
     // Svg image
     //
@@ -1778,6 +1787,14 @@ public class GuiResource {
     return imageHelp;
   }
 
+  public Image getImageDown() {
+    return imageDown;
+  }
+  
+  public Image getImageUp() {
+    return imageUp;
+  }
+  
   public Image getImageAddAll() {
     return imageAddAll;
   }
@@ -1794,14 +1811,18 @@ public class GuiResource {
     return imageRemoveSingle;
   }
 
-  public Image getImageBack() {
-    return imageBack;
+  public Image getImageNavigateBack() {
+    return imageNavigateBack;
   }
 
-  public Image getImageForward() {
-    return imageForward;
+  public Image getImageNavigateForward() {
+    return imageNavigateForward;
   }
 
+  public Image getImageNavigateUp() {
+    return imageNavigateUp;
+  }
+  
   public Image getImageRefresh() {
     return imageRefresh;
   }

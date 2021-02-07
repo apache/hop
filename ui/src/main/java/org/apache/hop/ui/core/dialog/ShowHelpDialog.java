@@ -243,9 +243,9 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void setImages() {
-    imageBackEnabled = GuiResource.getInstance().getImageBack();
+    imageBackEnabled = GuiResource.getInstance().getImageNavigateBack();
     // imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
-    imageForwardEnabled = GuiResource.getInstance().getImageForward();
+    imageForwardEnabled = GuiResource.getInstance().getImageNavigateForward();
     // imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
     imageRefreshEnabled = GuiResource.getInstance().getImageRefresh();
     // imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
