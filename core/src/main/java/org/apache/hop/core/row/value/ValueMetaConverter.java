@@ -16,9 +16,8 @@
  */
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.plugins.IValueMetaConverter;
 import org.apache.hop.core.row.IValueMeta;
-
+import org.apache.hop.core.row.IValueMetaConverter;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
