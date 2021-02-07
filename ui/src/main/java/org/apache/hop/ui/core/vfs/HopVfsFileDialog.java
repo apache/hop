@@ -1130,7 +1130,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_UP,
       toolTip = "Navigate to the parent folder",
-      image = "ui/images/up.svg")
+      image = "ui/images/navigate-up.svg")
   public void navigateUp() {
     try {
       FileObject fileObject = HopVfs.getFileObject(wFilename.getText());
@@ -1180,7 +1180,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS,
       toolTip = "Navigate to previous path from your history",
-      image = "ui/images/back.svg",
+      image = "ui/images/navigate-back.svg",
       separator = true)
   public void navigateHistoryPrevious() {
     if (navigationIndex - 1 >= 0) {
@@ -1193,7 +1193,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_NEXT,
       toolTip = "Navigate to next path from your history",
-      image = "ui/images/forward.svg")
+      image = "ui/images/navigate-forward.svg")
   public void navigateHistoryNext() {
     if (navigationIndex + 1 < navigationHistory.size() - 1) {
       navigationIndex++;
