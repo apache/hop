@@ -87,7 +87,7 @@ Note: Only integer values for B are supported. If you need non-integer calculati
 |Remove LF from a string A|Removes linefeeds from a string.
 |Remove CRLF from a string A|Removes carriage returns/linefeeds from a string.
 |Remove TAB from a string A|Removes tab characters from a string.
-|Return only digits from string A|Outputs only Outputs only digits (0-9) from a string from a string.
+|Return only digits from string A|Outputs only digits (0-9) from a string.
 |Remove digits from string A|Removes all digits (0-9) from a string.
 |Return the length of a string A|Returns the length of the string.
 |Load file content in binary|Loads the content of the given file (in field A) to a binary data type (e.g. pictures).
