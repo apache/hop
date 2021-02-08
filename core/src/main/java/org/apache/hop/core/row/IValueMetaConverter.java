@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.core.plugins;
+package org.apache.hop.core.row;
 
 import org.apache.hop.core.row.value.ValueMetaConversionException;
 
