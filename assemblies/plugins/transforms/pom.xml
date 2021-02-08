@@ -45,6 +45,7 @@
         <module>checksum</module>
         <module>clonerow</module>
         <module>closure</module>
+        <module>coalesce</module>
         <module>columnexists</module>
         <module>combinationlookup</module>
         <module>concatfields</module>
