@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.coalesce;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -83,8 +84,19 @@ public class CoalesceMeta extends BaseTransformMeta
 
   public CoalesceMeta() {
     super();
+    
   }
 
+  public CoalesceMeta(CoalesceMeta cloned) {
+    super();
+    this.emptyStringsAsNulls = cloned.emptyStringsAsNulls;    
+    Iterator<Coalesce> iterator = cloned.coalesces.iterator();   
+    while(iterator.hasNext())
+    {
+      coalesces.add(new Coalesce(iterator.next()));  
+    }
+  }
+  
   @Override
   public CoalesceTransform createTransform(
       TransformMeta transformMeta,
@@ -116,11 +128,7 @@ public class CoalesceMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    CoalesceMeta clone = (CoalesceMeta) super.clone();
-
-    clone.coalesces = new ArrayList<>(coalesces);
-
-    return clone;
+    return new CoalesceMeta(this);
   }
 
   @Override
@@ -291,9 +299,9 @@ public class CoalesceMeta extends BaseTransformMeta
     boolean missing = false;
     for (Coalesce coalesce : this.getCoalesces()) {
 
-      Set<String> fields = new HashSet<String>();
-      List<String> missingFields = new ArrayList<String>();
-      List<String> duplicateFields = new ArrayList<String>();
+      Set<String> fields = new HashSet<>();
+      List<String> missingFields = new ArrayList<>();
+      List<String> duplicateFields = new ArrayList<>();
 
       for (String fieldName : coalesce.getInputFields()) {
 
@@ -324,7 +332,7 @@ public class CoalesceMeta extends BaseTransformMeta
                 StringUtils.join(duplicateFields, ','));
         remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
         missing = true;
-      } else if (fields.size() == 0) {
+      } else if (fields.isEmpty()) {
         String message =
             BaseMessages.getString(
                 PKG, "CoalesceMeta.CheckResult.EmptyInputFields", coalesce.getName());
@@ -358,8 +366,7 @@ public class CoalesceMeta extends BaseTransformMeta
    * If all fields are of the same data type then the output field should mirror this otherwise
    * return a more generic String type
    */
-  private int findDefaultValueType(final IRowMeta inputRowMeta, final Coalesce coalesce)
-      throws Exception {
+  private int findDefaultValueType(final IRowMeta inputRowMeta, final Coalesce coalesce) {
 
     int type = IValueMeta.TYPE_NONE;
     boolean first = true;
