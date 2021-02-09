@@ -76,6 +76,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
   private String originalName;
 
+  private boolean needingEnvironmentRefresh;
+
   public LifecycleEnvironmentDialog( Shell parent, LifecycleEnvironment environment, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
@@ -85,6 +87,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     this.originalName = environment.getName();
 
     props = PropsUi.getInstance();
+
+    needingEnvironmentRefresh = false;
   }
 
   public String open() {
@@ -148,6 +152,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdPurpose.right = new FormAttachment( 100, 0 );
     fdPurpose.top = new FormAttachment( wlPurpose, 0, SWT.CENTER );
     wPurpose.setLayoutData( fdPurpose );
+    wPurpose.addListener( SWT.Modify, e->needingEnvironmentRefresh=true );
     lastControl = wPurpose;
 
     Label wlProject = new Label( shell, SWT.RIGHT );
@@ -165,6 +170,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdProject.right = new FormAttachment( 100, 0 );
     fdProject.top = new FormAttachment( wlProject, 0, SWT.CENTER );
     wProject.setLayoutData( fdProject );
+    wProject.addListener( SWT.Modify, e->needingEnvironmentRefresh=true );
     lastControl = wProject;
 
     Label wlConfigFiles = new Label( shell, SWT.LEFT );
@@ -259,7 +265,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
         variablesConfigFile.readFromFile();
       }
 
-      HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
+      boolean changed = HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
+      if (changed) {
+        needingEnvironmentRefresh=true;
+      }
 
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error editing configuration file", e );
@@ -278,6 +287,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
       wConfigFiles.setRowNums();
       wConfigFiles.optWidth( true );
       wConfigFiles.table.setSelection( item );
+      needingEnvironmentRefresh=true;
+
     }
   }
 
@@ -365,5 +376,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {
       env.getConfigurationFiles().add(item.getText(1));
     }
+  }
+
+  /**
+   * Gets needingEnvironmentRefresh
+   *
+   * @return value of needingEnvironmentRefresh
+   */
+  public boolean isNeedingEnvironmentRefresh() {
+    return needingEnvironmentRefresh;
   }
 }
