@@ -50,7 +50,7 @@ import java.util.List;
         name = "EnhancedJsonOutput.name",
         i18nPackageName = "org.apache.hop.pipeline.transforms.jsonoutput.enhanced",
         description = "EnhancedJsonOutput.description",
-        categoryDescription = "EnhancedJsonOutput.category",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
         keywords = { "json", "javascript", "object", "notation" },
         documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/enhancedjsonoutput.html")
 @InjectionSupported(localizationPrefix = "JsonOutput.Injection.", groups = {"GENERAL", "FIELDS"})

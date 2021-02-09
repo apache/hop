@@ -57,7 +57,7 @@ import java.util.List;
     name = "MongoDB input",
     description = "Reads from a Mongo DB collection",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mongodbinput.html",
-    categoryDescription = "Input")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>
     implements ITransformMeta<MongoDbInput, MongoDbInputData> {
