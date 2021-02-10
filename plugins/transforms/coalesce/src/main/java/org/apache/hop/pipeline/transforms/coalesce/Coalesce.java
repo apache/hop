@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.coalesce;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -66,15 +67,22 @@ public class Coalesce implements Cloneable {
 		super();
 	}
 
+    public Coalesce(Coalesce cloned) {
+      super();
+      this.name = cloned.name;
+      this.type = cloned.type;
+      this.removeFields = cloned.removeFields;
+      
+      Iterator<String> iterator = cloned.fields.iterator();   
+      while(iterator.hasNext())
+      {
+        fields.add(iterator.next());  
+      }
+    }
+		
 	@Override
 	public Object clone() {
-		Coalesce clone;
-		try {
-			clone = (Coalesce) super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-		return clone;
+		return new Coalesce(this);
 	}
 
 	public String getName() {

@@ -156,7 +156,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     IRowMeta prev = getInputRowMeta();
 
     for (Coalesce coalesce : meta.getCoalesces()) {
-      List<String> missingFields = new ArrayList<String>();
+      List<String> missingFields = new ArrayList<>();
 
       for (String field : coalesce.getInputFields()) {
 
@@ -190,9 +190,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
           return index;
         } else if (meta.isTreatEmptyStringsAsNulls()
             && row[index] != null
-            && !Utils.isEmpty(row[index].toString())) {
-          return index;
-        }
+            && !Utils.isEmpty(row[index].toString())) return index;
       }
     }
 

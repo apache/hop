@@ -53,7 +53,7 @@ import java.util.List;
     name = "MongoDB output",
     description = "Writes to a Mongo DB collection",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mongodboutput.html",
-    categoryDescription = "Output")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",
     groups = {"FIELDS", "INDEXES"})
