@@ -49,7 +49,9 @@ public class KettleConst {
                 {"entries", "actions"},
                 {"entry", "action"},
                 {"source_step", "source_transform"},
-                {"target_step", "target_transform"}
+                {"target_step", "target_transform"},
+                {"step1", "transform1"},
+                {"step2", "transform2"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -89,6 +91,7 @@ public class KettleConst {
               new Object[][] {
                 {"JOB", "WORKFLOW"},
                 {"TRANS", "PIPELINE"},
+                {"BlockingStep","BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
                 {"StepMetastructure", "TransformMetaStructure"}
