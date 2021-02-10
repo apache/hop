@@ -34,7 +34,7 @@ This transform creates/maintains a technical key out of data with business keys.
 
 This transform will maintain the key information only. You must update the non-key information in the dimension table, e.g. by putting an update transform (based on technical key) after the combination update/lookup transform.
 
-Project Hop will store the information in a table where the primary key is the combination of the business key fields in the table. Because this process can be slow if you have a large number of fields, a "hash code" field is supported that is representing all fields in the dimension. This can speed up lookup performance dramatically while limiting the fields to index to one field only.
+Apache Hop (Incubating) will store the information in a table where the primary key is the combination of the business key fields in the table. Because this process can be slow if you have a large number of fields, a "hash code" field is supported that is representing all fields in the dimension. This can speed up lookup performance dramatically while limiting the fields to index to one field only.
 
 == Options
 
