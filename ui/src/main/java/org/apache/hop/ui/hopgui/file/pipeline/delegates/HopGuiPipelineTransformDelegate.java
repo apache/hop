@@ -317,6 +317,7 @@ public class HopGuiPipelineTransformDelegate {
           } else {
             return null; // Cancel pressed in dialog.
           }
+          pipelineGraph.adjustScrolling();
           pipelineGraph.updateGui();
         }
       } catch (HopException e) {

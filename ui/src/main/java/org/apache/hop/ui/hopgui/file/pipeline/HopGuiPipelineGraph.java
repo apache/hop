@@ -107,6 +107,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -148,6 +149,8 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -173,6 +176,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -248,8 +252,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
 
-  public static final String TOOLBAR_ITEM_EDIT_PIPELINE = "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
-
+  public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
+      "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
 
   private ILogChannel log;
 
@@ -294,8 +298,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private NotePadMeta selectedNote;
 
   private PipelineHopMeta candidate;
-
-  private Point drop_candidate;
 
   private boolean splitHop;
 
@@ -480,15 +482,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space initially
     //
-    wsCanvas = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND );
-    wsCanvas.setAlwaysShowScrollBars( true );
-    wsCanvas.setLayout( new FormLayout() );
+    wsCanvas = new ScrolledComposite(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND);
+    wsCanvas.setAlwaysShowScrollBars(true);
+    wsCanvas.setExpandHorizontal(true);
+    wsCanvas.setExpandVertical(true);
+    wsCanvas.setLayout(new FormLayout());
     FormData fdsCanvas = new FormData();
     fdsCanvas.left = new FormAttachment(0, 0);
     fdsCanvas.top = new FormAttachment(0, 0);
     fdsCanvas.right = new FormAttachment(100, 0);
     fdsCanvas.bottom = new FormAttachment(100, 0);
-    wsCanvas.setLayoutData( fdsCanvas );
+    wsCanvas.setLayoutData(fdsCanvas);
 
     canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND | SWT.BORDER);
     FormData fdCanvas = new FormData();
@@ -523,28 +527,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     impact = new ArrayList<>();
     impactFinished = false;
 
-    horizontalScrollBar = wsCanvas.getHorizontalBar();
-    verticalScrollBar = wsCanvas.getVerticalBar();
+    ScrollBar horizontalBar = wsCanvas.getHorizontalBar();
+    ScrollBar verticalBar = wsCanvas.getVerticalBar();
 
-    horizontalScrollBar.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            redraw();
-          }
-        });
-    verticalScrollBar.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            redraw();
-          }
-        });
-    horizontalScrollBar.setThumb(100);
-    verticalScrollBar.setThumb(100);
+    horizontalBar.setMinimum(1);
+    horizontalBar.setMaximum(100);
+    horizontalBar.setIncrement(5);
+    horizontalBar.setVisible(true);
+    verticalBar.setMinimum(1);
+    verticalBar.setMaximum(100);
+    verticalBar.setIncrement(5);
+    verticalBar.setVisible(true);
 
-    horizontalScrollBar.setVisible(true);
-    verticalScrollBar.setVisible(true);
+    if (OsHelper.isWindows()) {
+      horizontalBar.addListener(SWT.Selection, e -> canvas.redraw());
+      verticalBar.addListener(SWT.Selection, e -> canvas.redraw());
+    }
 
     setVisible(true);
     newProps();
@@ -578,10 +576,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Rectangle bounds = canvas.getBounds();
 
     wsCanvas.setContent(canvas);
-    wsCanvas.setExpandHorizontal( true );
-    wsCanvas.setExpandVertical( true );
-    wsCanvas.setMinWidth( bounds.width );
-    wsCanvas.setMinHeight( bounds.height );
+    wsCanvas.setExpandHorizontal(true);
+    wsCanvas.setExpandVertical(true);
+    wsCanvas.setMinWidth(bounds.width);
+    wsCanvas.setMinHeight(bounds.height);
+
+    wsCanvas.addControlListener( new ControlAdapter() {
+      @Override public void controlResized( ControlEvent e ) {
+        new Thread( () -> {
+          try {
+            Thread.sleep(250);
+          } catch ( Exception e1 ) {
+            // ignore
+          }
+          getDisplay().asyncExec( () ->
+            adjustScrolling()
+          );
+        } ).start();
+      }
+    } );
 
     // Update menu, toolbar, force redraw canvas
     //
@@ -688,141 +701,139 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // A single left or middle click on one of the area owners...
     //
-    if (e.button == 1 || e.button == 2) {
-      if (areaOwner != null && areaOwner.getAreaType() != null) {
-        switch (areaOwner.getAreaType()) {
-          case TRANSFORM_OUTPUT_HOP_ICON:
-            // Click on the output icon means: start of drag
-            // Action: We show the input icons on the other transforms...
-            //
-            selectedTransform = null;
-            startHopTransform = (TransformMeta) areaOwner.getParent();
-            candidateHopType = null;
-            startErrorHopTransform = false;
-            break;
+    if (areaOwner != null && areaOwner.getAreaType() != null) {
+      switch (areaOwner.getAreaType()) {
+        case TRANSFORM_OUTPUT_HOP_ICON:
+          // Click on the output icon means: start of drag
+          // Action: We show the input icons on the other transforms...
+          //
+          selectedTransform = null;
+          startHopTransform = (TransformMeta) areaOwner.getParent();
+          candidateHopType = null;
+          startErrorHopTransform = false;
+          break;
 
-          case TRANSFORM_INPUT_HOP_ICON:
-            // Click on the input icon means: start to a new hop
-            // In this case, we set the end hop transform...
-            //
-            selectedTransform = null;
-            startHopTransform = null;
-            endHopTransform = (TransformMeta) areaOwner.getParent();
-            candidateHopType = null;
-            startErrorHopTransform = false;
-            break;
+        case TRANSFORM_INPUT_HOP_ICON:
+          // Click on the input icon means: start to a new hop
+          // In this case, we set the end hop transform...
+          //
+          selectedTransform = null;
+          startHopTransform = null;
+          endHopTransform = (TransformMeta) areaOwner.getParent();
+          candidateHopType = null;
+          startErrorHopTransform = false;
+          break;
 
-          case HOP_ERROR_ICON:
-            // Click on the error icon means: Edit error handling
-            //
-            TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
+        case HOP_ERROR_ICON:
+          // Click on the error icon means: Edit error handling
+          //
+          TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
+          pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
+          break;
+
+        case TRANSFORM_TARGET_HOP_ICON_OPTION:
+          // Below, see showTransformTargetOptions()
+          break;
+
+        case TRANSFORM_EDIT_ICON:
+          clearSettings();
+          currentTransform = (TransformMeta) areaOwner.getParent();
+          editTransform();
+          break;
+
+        case TRANSFORM_INJECT_ICON:
+          modalMessageDialog(
+              BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Title"),
+              BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Tooltip"),
+              SWT.OK | SWT.ICON_INFORMATION);
+          break;
+
+        case TRANSFORM_ICON:
+          transformMeta = (TransformMeta) areaOwner.getOwner();
+          currentTransform = transformMeta;
+
+          for (ITransformSelectionListener listener : currentTransformListeners) {
+            listener.onUpdateSelection(currentTransform);
+          }
+
+          if (candidate != null) {
+            addCandidateAsHop(e.x, e.y);
+            avoidContextDialog = true;
+          }
+          // ALT-Click: edit error handling
+          //
+          if (e.button == 1 && alt && transformMeta.supportsErrorHandling()) {
             pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
-            break;
-
-          case TRANSFORM_TARGET_HOP_ICON_OPTION:
-            // Below, see showTransformTargetOptions()
-            break;
-
-          case TRANSFORM_EDIT_ICON:
-            clearSettings();
-            currentTransform = (TransformMeta) areaOwner.getParent();
-            editTransform();
-            break;
-
-          case TRANSFORM_INJECT_ICON:
-            modalMessageDialog(
-                BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Title"),
-                BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Tooltip"),
-                SWT.OK | SWT.ICON_INFORMATION);
-            break;
-
-          case TRANSFORM_ICON:
-            transformMeta = (TransformMeta) areaOwner.getOwner();
-            currentTransform = transformMeta;
-
-            for (ITransformSelectionListener listener : currentTransformListeners) {
-              listener.onUpdateSelection(currentTransform);
-            }
-
-            if (candidate != null) {
-              addCandidateAsHop(e.x, e.y);
-              avoidContextDialog = true;
-            }
-            // ALT-Click: edit error handling
+            return;
+          } else if (e.button == 1 && startHopTransform != null && endHopTransform == null) {
+            candidate = new PipelineHopMeta(startHopTransform, currentTransform);
+            addCandidateAsHop(e.x, e.y);
+          } else if (e.button == 2 || (e.button == 1 && shift)) {
+            // SHIFT CLICK is start of drag to create a new hop
             //
-            if (e.button == 1 && alt && transformMeta.supportsErrorHandling()) {
-              pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
-              return;
-            } else if (e.button == 1 && startHopTransform != null && endHopTransform == null) {
-              candidate = new PipelineHopMeta(startHopTransform, currentTransform);
-              addCandidateAsHop(e.x, e.y);
-            } else if (e.button == 2 || (e.button == 1 && shift)) {
-              // SHIFT CLICK is start of drag to create a new hop
-              //
-              startHopTransform = transformMeta;
-            } else {
-              selectedTransforms = pipelineMeta.getSelectedTransforms();
-              selectedTransform = transformMeta;
-              //
-              // When an icon is moved that is not selected, it gets
-              // selected too late.
-              // It is not captured here, but in the mouseMoveListener...
-              //
-              previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
+            startHopTransform = transformMeta;
+          } else {
+            selectedTransforms = pipelineMeta.getSelectedTransforms();
+            selectedTransform = transformMeta;
+            //
+            // When an icon is moved that is not selected, it gets
+            // selected too late.
+            // It is not captured here, but in the mouseMoveListener...
+            //
+            previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
 
-              Point p = transformMeta.getLocation();
-              iconOffset = new Point(real.x - p.x, real.y - p.y);
-            }
-            redraw();
-            break;
+            Point p = transformMeta.getLocation();
+            iconOffset = new Point(real.x - p.x, real.y - p.y);
+          }
+          redraw();
+          break;
 
-          case NOTE:
-            ni = (NotePadMeta) areaOwner.getOwner();
-            selectedNotes = pipelineMeta.getSelectedNotes();
-            selectedNote = ni;
-            Point loc = ni.getLocation();
+        case NOTE:
+          ni = (NotePadMeta) areaOwner.getOwner();
+          selectedNotes = pipelineMeta.getSelectedNotes();
+          selectedNote = ni;
+          Point loc = ni.getLocation();
 
-            previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
+          previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
 
-            noteOffset = new Point(real.x - loc.x, real.y - loc.y);
+          noteOffset = new Point(real.x - loc.x, real.y - loc.y);
 
-            redraw();
-            break;
+          redraw();
+          break;
 
-          case TRANSFORM_COPIES_TEXT:
-            copies((TransformMeta) areaOwner.getOwner());
-            break;
+        case TRANSFORM_COPIES_TEXT:
+          copies((TransformMeta) areaOwner.getOwner());
+          break;
 
-          case TRANSFORM_DATA_SERVICE:
-            editProperties(pipelineMeta, hopGui, PipelineDialog.Tabs.EXTRA_TAB);
-            break;
-          default:
-            break;
+        case TRANSFORM_DATA_SERVICE:
+          editProperties(pipelineMeta, hopGui, PipelineDialog.Tabs.EXTRA_TAB);
+          break;
+        default:
+          break;
+      }
+    } else {
+      // hop links between steps are found searching by (x,y) coordinates.
+      PipelineHopMeta hop = findPipelineHop(real.x, real.y);
+      if (hop != null) {
+        // User held control and clicked a hop between steps - We want to flip the active state of
+        // the hop.
+        //
+        if (e.button == 2 || (e.button == 1 && control)) {
+          hop.setEnabled(!hop.isEnabled());
+          updateGui();
+        } else {
+          // A hop: show context dialog in mouseUp()
+          //
+          clickedPipelineHop = hop;
         }
       } else {
-        // hop links between steps are found searching by (x,y) coordinates.
-        PipelineHopMeta hop = findPipelineHop(real.x, real.y);
-        if (hop != null) {
-          // User held control and clicked a hop between steps - We want to flip the active state of
-          // the hop.
-          //
-          if (e.button == 2 || (e.button == 1 && control)) {
-            hop.setEnabled(!hop.isEnabled());
-            updateGui();
-          } else {
-            // A hop: show context dialog in mouseUp()
-            //
-            clickedPipelineHop = hop;
-          }
-        } else {
-          // No area-owner & no hop means : background click:
-          //
-          startHopTransform = null;
-          if (!control) {
-            selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
-          }
-          updateGui();
+        // No area-owner & no hop means : background click:
+        //
+        startHopTransform = null;
+        if (!control && e.button == 1) {
+          selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
         }
+        updateGui();
       }
     }
   }
@@ -1467,6 +1478,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               transformMeta.getLocation().x + dx,
               transformMeta.getLocation().y + dy);
         }
+        adjustScrolling();
       }
       // Adjust location of selected hops...
       if (selectedNotes != null) {
@@ -1474,6 +1486,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           NotePadMeta ni = selectedNotes.get(i);
           PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
         }
+        adjustScrolling();
       }
 
       redraw();
@@ -1548,6 +1561,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 transformMeta.getLocation().x + dx,
                 transformMeta.getLocation().y + dy);
           }
+          adjustScrolling();
         }
         // Adjust location of selected hops...
         if (selectedNotes != null) {
@@ -1555,6 +1569,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             NotePadMeta ni = selectedNotes.get(i);
             PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
           }
+          adjustScrolling();
         }
 
         redraw();
@@ -1850,7 +1865,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /** Allows for magnifying to any percentage entered by the user... */
   private void readMagnification() {
-    float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
     if (zoomLabel == null) {
       return;
@@ -1872,18 +1886,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           SWT.YES | SWT.ICON_ERROR);
     }
 
-    // When zooming out we want to correct the scroll bars.
-    //
-    float factor = magnification / oldMagnification;
-    int newHThumb = Math.min((int) (horizontalScrollBar.getThumb() / factor), 100);
-    horizontalScrollBar.setThumb(newHThumb);
-    horizontalScrollBar.setSelection((int) (horizontalScrollBar.getSelection() * factor));
-    int newVThumb = Math.min((int) (verticalScrollBar.getThumb() / factor), 100);
-    verticalScrollBar.setThumb(newVThumb);
-    verticalScrollBar.setSelection((int) (verticalScrollBar.getSelection() * factor));
+    adjustScrolling();
 
     canvas.setFocus();
     redraw();
+  }
+
+  public void adjustScrolling() {
+    // What's the new canvas size?
+    //
+    adjustScrolling(pipelineMeta.getMaximum());
   }
 
   protected void hideToolTips() {
@@ -2646,6 +2658,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelineMeta.addNote(npi);
       hopGui.undoDelegate.addUndoNew(
           pipelineMeta, new NotePadMeta[] {npi}, new int[] {pipelineMeta.indexOfNote(npi)});
+      adjustScrolling();
       updateGui();
     }
   }
@@ -2664,13 +2677,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ITEM_EDIT_PIPELINE,
-    toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.EditProperties.Tooltip",
-    image = "ui/images/pipeline.svg",
-    separator = true)
-  @GuiKeyboardShortcut(control=true, key='t')
-  @GuiOsxKeyboardShortcut(command = true, key='t')
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT_PIPELINE,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.EditProperties.Tooltip",
+      image = "ui/images/pipeline.svg",
+      separator = true)
+  @GuiKeyboardShortcut(control = true, key = 't')
+  @GuiOsxKeyboardShortcut(command = true, key = 't')
   public void editPipelineProperties() {
     editProperties(pipelineMeta, hopGui, true);
   }
@@ -2686,6 +2699,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             true,
             new Point(currentMouseX, currentMouseY));
     PropsUi.setLocation(transformMeta, currentMouseX, currentMouseY);
+    adjustScrolling();
     updateGui();
   }
 
@@ -3188,16 +3202,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
 
+      ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
+      ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
+
       PipelinePainter pipelinePainter =
           new PipelinePainter(
               gc,
               variables,
               pipelineMeta,
               new Point(width, height),
-              new SwtScrollBar(horizontalScrollBar),
-              new SwtScrollBar(verticalScrollBar),
+              horizontalScrollBar == null ? null : new SwtScrollBar(horizontalScrollBar),
+              verticalScrollBar == null ? null : new SwtScrollBar(verticalScrollBar),
               candidate,
-              drop_candidate,
               selectionRegion,
               areaOwners,
               propsUi.getIconSize(),
@@ -4295,7 +4311,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Create a new pipeline to execution
         //
-        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject() );
+        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
         pipeline.setPreview(true);
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
 
@@ -4887,6 +4903,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     lastChained = newTransform;
+    adjustScrolling();
 
     if (shift) {
       editTransform(newTransform);

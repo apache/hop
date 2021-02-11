@@ -378,6 +378,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new pipeline tab", e );
     }
 
+    pipelineGraph.adjustScrolling();
+
     pipelineGraph.setFocus();
 
     return pipelineGraph;

@@ -188,4 +188,5 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    * @return The variables associated with the loaded file
    */
   IVariables getVariables();
+
 }

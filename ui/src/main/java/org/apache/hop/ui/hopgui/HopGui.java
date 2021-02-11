@@ -94,7 +94,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -164,7 +163,8 @@ public class HopGui
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
   public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
   public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
-  public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE = "40030-menu-tools-database-clearcache";
+  public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE =
+      "40030-menu-tools-database-clearcache";
 
   public static final String ID_MAIN_MENU_HELP_PARENT_ID = "90000-menu-help";
   public static final String ID_MAIN_MENU_HELP_ABOUT = "90009-menu-help-about";
@@ -279,6 +279,12 @@ public class HopGui
 
   public static void main(String[] arguments) {
     try {
+
+      /*
+            System.out.println("Sleeping for 10s for debugging");
+            Thread.sleep(10000);
+      */
+
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();
@@ -348,31 +354,38 @@ public class HopGui
 
     BaseTransformDialog.setSize(shell);
 
-    // Open the Hop GUI shell and wait until it's closed
+    // Open the Hop GUI shell
     //
-    // shell.pack();
     shell.open();
     if (EnvironmentUtils.getInstance().isWeb()) {
       shell.setMaximized(true);
     }
 
-    openingLastFiles = true; // TODO: make this configurable.
+    display.asyncExec(
+        () -> {
+          openingLastFiles = true;
 
-    try {
-      ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.HopGuiStart.id, this);
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          "Error",
-          "Error calling extension point '" + HopExtensionPoint.HopGuiStart.id + "'",
-          e);
-    }
-    // Open the previously used files. Extension points can disable this
-    //
-    if (openingLastFiles) {
-      auditDelegate.openLastFiles();
-    }
+          // Here the projects plugin opens up the last project/environment.
+          // It sets openingLastFiles to false so the block below is not executed.
+          //
+          try {
+            ExtensionPointHandler.callExtensionPoint(
+                log, variables, HopExtensionPoint.HopGuiStart.id, this);
+          } catch (Exception e) {
+            new ErrorDialog(
+                shell,
+                "Error",
+                "Error calling extension point '" + HopExtensionPoint.HopGuiStart.id + "'",
+                e);
+          }
+
+          // Open the previously used files. Extension points can disable this
+          //
+          if (openingLastFiles) {
+            auditDelegate.openLastFiles();
+          }
+        });
+
     // On RAP, return here otherwise UIThread doesn't get terminated properly.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;
@@ -380,6 +393,8 @@ public class HopGui
     boolean retry = true;
     while (retry) {
       try {
+        // Wait until the Hop GUI is closed/disposed/killed
+        //
         while (!shell.isDisposed()) {
           if (!display.readAndDispatch()) {
             display.sleep();
@@ -611,8 +626,8 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_CLOSE_ALL,
       label = "i18n::HopGui.Menu.File.Close.All",
       parentId = ID_MAIN_MENU_FILE)
-  @GuiKeyboardShortcut(control = true, shift=true, key = 'w')
-  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 'w')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'w')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'w')
   public void menuFileCloseAll() {
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
@@ -906,16 +921,16 @@ public class HopGui
       }
     }
   }
-  
+
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE,
       label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID, 
+      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
       separator = true)
   public void menuToolsDatabaseClearCache() {
-    DbCache.getInstance().clear(null);    
-  } 
+    DbCache.getInstance().clear(null);
+  }
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
