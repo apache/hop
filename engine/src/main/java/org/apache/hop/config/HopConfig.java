@@ -54,7 +54,6 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
 
   private CommandLine cmd;
   private IVariables variables;
-  private ILogChannel log;
   private IHopMetadataProvider metadataProvider;
 
   public void run() {
@@ -62,7 +61,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
     try {
       LogChannel logChannel = new LogChannel("hop-config");
       logChannel.setSimplified(true);
-      log = logChannel;
+      ILogChannel log = logChannel;
       variables = Variables.getADefaultVariableSpace();
       buildMetadataProvider();
 
