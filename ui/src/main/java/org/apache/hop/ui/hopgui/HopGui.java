@@ -579,6 +579,8 @@ public class HopGui
       id = ID_MAIN_TOOLBAR_SAVE_AS,
       image = "ui/images/save-as.svg",
       toolTip = "i18n::HopGui.Menu.File.SaveAs")
+  @GuiKeyboardShortcut(control = true, shift=true, key = 's')
+  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 's')  
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
