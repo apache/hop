@@ -25,6 +25,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -64,6 +65,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   protected ScrollBar verticalScrollBar;
   protected ScrollBar horizontalScrollBar;
 
+  protected ScrolledComposite wsCanvas;
   protected Canvas canvas;
 
   protected float magnification = 1.0f;

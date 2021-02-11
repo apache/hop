@@ -111,6 +111,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -123,6 +124,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -362,9 +364,25 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     sashForm = new SashForm(mainComposite, SWT.VERTICAL);
 
-    // Add a canvas below it, use up all variables initially
+    // Add a canvas below it, use up all space
     //
-    canvas = new Canvas(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
+    wsCanvas = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND );
+    wsCanvas.setAlwaysShowScrollBars( true );
+    wsCanvas.setLayout( new FormLayout() );
+    FormData fdsCanvas = new FormData();
+    fdsCanvas.left = new FormAttachment(0, 0);
+    fdsCanvas.top = new FormAttachment(0, 0);
+    fdsCanvas.right = new FormAttachment(100, 0);
+    fdsCanvas.bottom = new FormAttachment(100, 0);
+    wsCanvas.setLayoutData( fdsCanvas );
+
+    canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND | SWT.BORDER);
+    FormData fdCanvas = new FormData();
+    fdCanvas.left = new FormAttachment(0, 0);
+    fdCanvas.top = new FormAttachment(0, 0);
+    fdCanvas.right = new FormAttachment(100, 0);
+    fdCanvas.bottom = new FormAttachment(100, 0);
+    canvas.setLayoutData(fdCanvas);
 
     sashForm.setWeights(
         new int[] {
@@ -391,8 +409,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectedActions = null;
     selectedNote = null;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    horizontalScrollBar = wsCanvas.getHorizontalBar();
+    verticalScrollBar = wsCanvas.getVerticalBar();
 
     horizontalScrollBar.addSelectionListener(
         new SelectionAdapter() {
@@ -425,6 +443,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     canvas.addMouseWheelListener(this);
 
     hopGui.replaceKeyboardShortcutListeners(this);
+
+    // Scrolled composite ...
+    //
+    canvas.pack();
+    Rectangle bounds = canvas.getBounds();
+
+    wsCanvas.setContent(canvas);
+    wsCanvas.setExpandHorizontal( true );
+    wsCanvas.setExpandVertical( true );
+    wsCanvas.setMinWidth( bounds.width );
+    wsCanvas.setMinHeight( bounds.height );
 
     setBackground(GuiResource.getInstance().getColorBackground());
 
