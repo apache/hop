@@ -61,6 +61,7 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public DataSet() {
     fields = new ArrayList<>();
+    baseFilename = "data-set-filename.csv";
   }
 
   public DataSet( String name, String description, String folderName, String baseFilename, List<DataSetField> fields ) {
