@@ -32,7 +32,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.workflow.actions.start.ActionStart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -114,6 +113,7 @@ public class HopGuiWorkflowActionDelegate {
 
             hopGui.undoDelegate.addUndoNew(
                 workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
+            workflowGraph.adjustScrolling();
             workflowGraph.updateGui();
             return actionMeta;
           } else {
@@ -130,6 +130,7 @@ public class HopGuiWorkflowActionDelegate {
           workflowMeta.addAction(actionMeta);
           hopGui.undoDelegate.addUndoNew(
               workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
+          workflowGraph.adjustScrolling();
           workflowGraph.updateGui();
           return actionMeta;
         }

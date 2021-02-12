@@ -18,13 +18,16 @@
 package org.apache.hop.projects.environment;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -71,10 +74,13 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private int middle;
 
   private IVariables variables;
-  private Button wbAdd;
+  private Button wbSelect;
+  private Button wbNew;
   private Button wbEdit;
 
   private String originalName;
+
+  private boolean needingEnvironmentRefresh;
 
   public LifecycleEnvironmentDialog( Shell parent, LifecycleEnvironment environment, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
@@ -85,6 +91,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     this.originalName = environment.getName();
 
     props = PropsUi.getInstance();
+
+    needingEnvironmentRefresh = false;
   }
 
   public String open() {
@@ -148,6 +156,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdPurpose.right = new FormAttachment( 100, 0 );
     fdPurpose.top = new FormAttachment( wlPurpose, 0, SWT.CENTER );
     wPurpose.setLayoutData( fdPurpose );
+    wPurpose.addListener( SWT.Modify, e->needingEnvironmentRefresh=true );
     lastControl = wPurpose;
 
     Label wlProject = new Label( shell, SWT.RIGHT );
@@ -165,6 +174,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdProject.right = new FormAttachment( 100, 0 );
     fdProject.top = new FormAttachment( wlProject, 0, SWT.CENTER );
     wProject.setLayoutData( fdProject );
+    wProject.addListener( SWT.Modify, e->needingEnvironmentRefresh=true );
     lastControl = wProject;
 
     Label wlConfigFiles = new Label( shell, SWT.LEFT );
@@ -176,23 +186,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlConfigFiles.top = new FormAttachment( lastControl, margin );
     wlConfigFiles.setLayoutData( fdlConfigFiles );
 
-    wbAdd = new Button(shell, SWT.PUSH);
-    props.setLook( wbAdd );
-    wbAdd.setText( "Add..." );
+    wbSelect = new Button(shell, SWT.PUSH);
+    props.setLook( wbSelect );
+    wbSelect.setText( "Select..." );
     FormData fdAdd = new FormData();
     fdAdd.right = new FormAttachment(100, 0);
     fdAdd.top = new FormAttachment(wlConfigFiles, margin);
-    wbAdd.setLayoutData( fdAdd );
-    wbAdd.addListener( SWT.Selection, this::addConfigFile );
-
-    wbEdit = new Button(shell, SWT.PUSH);
-    props.setLook( wbEdit );
-    wbEdit.setText( "Edit..." );
-    FormData fdEdit = new FormData();
-    fdEdit.right = new FormAttachment(100, 0);
-    fdEdit.top = new FormAttachment( wbAdd, margin);
-    wbEdit.setLayoutData( fdEdit );
-    wbEdit.addListener( SWT.Selection, this::editConfigFile );
+    wbSelect.setLayoutData( fdAdd );
+    wbSelect.addListener( SWT.Selection, this::addConfigFile );
 
     ColumnInfo[] columnInfo = new ColumnInfo[] {
       new ColumnInfo( "Filename", ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
@@ -203,11 +204,31 @@ public class LifecycleEnvironmentDialog extends Dialog {
     props.setLook( wConfigFiles );
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment( 0, 0 );
-    fdConfigFiles.right = new FormAttachment( wbEdit, -2*margin );
+    fdConfigFiles.right = new FormAttachment( wbSelect, -2*margin );
     fdConfigFiles.top = new FormAttachment( wlConfigFiles, margin );
     fdConfigFiles.bottom = new FormAttachment( wOK, -margin * 2 );
     wConfigFiles.setLayoutData( fdConfigFiles );
     wConfigFiles.table.addListener( SWT.Selection, this::setButtonStates );
+
+    wbNew = new Button(shell, SWT.PUSH);
+    props.setLook( wbNew );
+    wbNew.setText( "New..." );
+    FormData fdNew = new FormData();
+    fdNew.left = new FormAttachment(wConfigFiles, 2*margin);
+    fdNew.right = new FormAttachment(100, 0);
+    fdNew.top = new FormAttachment(wbSelect, margin);
+    wbNew.setLayoutData( fdNew );
+    wbNew.addListener( SWT.Selection, this::newConfigFile );
+
+    wbEdit = new Button(shell, SWT.PUSH);
+    props.setLook( wbEdit );
+    wbEdit.setText( "Edit..." );
+    FormData fdEdit = new FormData();
+    fdEdit.left = new FormAttachment(wConfigFiles, 2*margin);
+    fdEdit.right = new FormAttachment(100, 0);
+    fdEdit.top = new FormAttachment( wbNew, margin);
+    wbEdit.setLayoutData( fdEdit );
+    wbEdit.addListener( SWT.Selection, this::editConfigFile );
 
     // When enter is hit, close the dialog
     //
@@ -259,7 +280,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
         variablesConfigFile.readFromFile();
       }
 
-      HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
+      boolean changed = HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
+      if (changed) {
+        needingEnvironmentRefresh=true;
+      }
 
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error editing configuration file", e );
@@ -278,6 +302,42 @@ public class LifecycleEnvironmentDialog extends Dialog {
       wConfigFiles.setRowNums();
       wConfigFiles.optWidth( true );
       wConfigFiles.table.setSelection( item );
+      needingEnvironmentRefresh=true;
+
+    }
+  }
+
+  private void newConfigFile( Event event ) {
+    try {
+      // What's the project folder?
+      //
+      String filename = "environment-conf.json";
+
+      String projectName = wProject.getText();
+      if (StringUtils.isNotEmpty( projectName )) {
+        ProjectConfig projectConfig = ProjectsConfigSingleton.getConfig().findProjectConfig( projectName );
+        if (projectConfig!=null) {
+          String environmentName = Const.NVL(wName.getText(), projectName);
+          filename = projectConfig.getProjectHome()+File.separator+".."+File.separator+environmentName+"-config.json";
+        }
+      }
+      FileObject fileObject = HopVfs.getFileObject( filename );
+
+      String configFile = BaseDialog.presentFileDialog( shell, null, variables, fileObject,
+        new String[] { "*.json", "*"},
+        new String[] { "Config JSON files", "All files" },
+        true);
+      if (configFile!=null) {
+        TableItem item = new TableItem( wConfigFiles.table, SWT.NONE );
+        item.setText( 1, configFile );
+        wConfigFiles.removeEmptyRows();
+        wConfigFiles.setRowNums();
+        wConfigFiles.optWidth( true );
+        wConfigFiles.table.setSelection( item );
+        needingEnvironmentRefresh=true;
+      }
+    } catch(Exception e) {
+      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error creating new environment configuration file", e);
     }
   }
 
@@ -365,5 +425,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {
       env.getConfigurationFiles().add(item.getText(1));
     }
+  }
+
+  /**
+   * Gets needingEnvironmentRefresh
+   *
+   * @return value of needingEnvironmentRefresh
+   */
+  public boolean isNeedingEnvironmentRefresh() {
+    return needingEnvironmentRefresh;
   }
 }

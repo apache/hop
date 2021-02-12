@@ -70,6 +70,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -111,6 +112,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -118,11 +122,10 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -134,6 +137,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -230,8 +234,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   protected Point lastMove;
 
   protected WorkflowHopMeta hopCandidate;
-
-  protected Point dropCandidate;
 
   protected HopGui hopGui;
 
@@ -362,9 +364,25 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     sashForm = new SashForm(mainComposite, SWT.VERTICAL);
 
-    // Add a canvas below it, use up all variables initially
+    // Add a canvas below it, use up all space
     //
-    canvas = new Canvas(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
+    wsCanvas = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND );
+    wsCanvas.setAlwaysShowScrollBars( true );
+    wsCanvas.setLayout( new FormLayout() );
+    FormData fdsCanvas = new FormData();
+    fdsCanvas.left = new FormAttachment(0, 0);
+    fdsCanvas.top = new FormAttachment(0, 0);
+    fdsCanvas.right = new FormAttachment(100, 0);
+    fdsCanvas.bottom = new FormAttachment(100, 0);
+    wsCanvas.setLayoutData( fdsCanvas );
+
+    canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND | SWT.BORDER);
+    FormData fdCanvas = new FormData();
+    fdCanvas.left = new FormAttachment(0, 0);
+    fdCanvas.top = new FormAttachment(0, 0);
+    fdCanvas.right = new FormAttachment(100, 0);
+    fdCanvas.bottom = new FormAttachment(100, 0);
+    canvas.setLayoutData(fdCanvas);
 
     sashForm.setWeights(
         new int[] {
@@ -391,26 +409,26 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectedActions = null;
     selectedNote = null;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    ScrollBar horizontalBar = wsCanvas.getHorizontalBar();
+    ScrollBar verticalBar = wsCanvas.getVerticalBar();
 
-    horizontalScrollBar.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            redraw();
-          }
-        });
-    verticalScrollBar.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            redraw();
-          }
-        });
-    horizontalScrollBar.setThumb(100);
-    verticalScrollBar.setThumb(100);
+    horizontalBar.setMinimum(1);
+    horizontalBar.setMaximum(100);
+    horizontalBar.setIncrement(5);
+    horizontalBar.setVisible(true);
+    verticalBar.setMinimum(1);
+    verticalBar.setMaximum(100);
+    verticalBar.setIncrement(5);
+    verticalBar.setVisible(true);
 
-    horizontalScrollBar.setVisible(true);
-    verticalScrollBar.setVisible(true);
+    if (OsHelper.isWindows()) {
+      horizontalBar.addListener(
+        SWT.Selection,
+        e -> canvas.redraw() );
+      verticalBar.addListener(
+        SWT.Selection,
+        e -> canvas.redraw() );
+    }
 
     setVisible(true);
 
@@ -426,7 +444,33 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     hopGui.replaceKeyboardShortcutListeners(this);
 
+    // Scrolled composite ...
+    //
+    canvas.pack();
+    Rectangle bounds = canvas.getBounds();
+
+    wsCanvas.setContent(canvas);
+    wsCanvas.setExpandHorizontal( true );
+    wsCanvas.setExpandVertical( true );
+    wsCanvas.setMinWidth( bounds.width );
+    wsCanvas.setMinHeight( bounds.height );
+
     setBackground(GuiResource.getInstance().getColorBackground());
+
+    wsCanvas.addControlListener( new ControlAdapter() {
+      @Override public void controlResized( ControlEvent e ) {
+        new Thread( () -> {
+          try {
+            Thread.sleep(250);
+          } catch ( Exception e1 ) {
+            // ignore
+          }
+          getDisplay().asyncExec( () ->
+            adjustScrolling()
+          );
+        } ).start();
+      }
+    } );
 
     updateGui();
   }
@@ -1120,6 +1164,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           PropsUi.setLocation(
               actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
         }
+        adjustScrolling();
       }
       // Adjust location of selected hops...
       if (selectedNotes != null) {
@@ -1127,6 +1172,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           NotePadMeta ni = selectedNotes.get(i);
           PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
         }
+        adjustScrolling();
       }
 
       redraw();
@@ -1229,6 +1275,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // scroll down
       zoomOut();
     }
+  }
+
+  public void adjustScrolling() {
+    // What's the new canvas size?
+    //
+    adjustScrolling(workflowMeta.getMaximum());
   }
 
   private void addCandidateAsHop() {
@@ -1457,7 +1509,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** Allows for magnifying to any percentage entered by the user... */
   private void readMagnification() {
-    float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
     if (zoomLabel == null || zoomLabel.isDisposed()) {
       return;
@@ -1481,7 +1532,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       mb.open();
     }
 
-    // When zooming out we want to correct the scroll bars.
+    adjustScrolling();
+
+    /*// When zooming out we want to correct the scroll bars.
     //
     float factor = magnification / oldMagnification;
     int newHThumb = Math.min((int) (horizontalScrollBar.getThumb() / factor), 100);
@@ -1489,7 +1542,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     horizontalScrollBar.setSelection((int) (horizontalScrollBar.getSelection() * factor));
     int newVThumb = Math.min((int) (verticalScrollBar.getThumb() / factor), 100);
     verticalScrollBar.setThumb(newVThumb);
-    verticalScrollBar.setSelection((int) (verticalScrollBar.getSelection() * factor));
+    verticalScrollBar.setSelection((int) (verticalScrollBar.getSelection() * factor));*/
 
     redraw();
   }
@@ -1767,6 +1820,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       categoryOrder = "1")
   public void deleteAction(HopGuiWorkflowActionContext context) {
     deleteSelected(context.getActionMeta());
+    adjustScrolling();
     redraw();
   }
 
@@ -1839,6 +1893,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void pasteFromClipboard(HopGuiWorkflowContext context) {
     workflowClipboardDelegate.pasteXml(
         workflowMeta, workflowClipboardDelegate.fromClipboard(), context.getClick());
+    adjustScrolling();
   }
 
   @GuiContextAction(
@@ -1903,6 +1958,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       workflowMeta.addNote(npi);
       hopGui.undoDelegate.addUndoNew(
           workflowMeta, new NotePadMeta[] {npi}, new int[] {workflowMeta.indexOfNote(npi)});
+      adjustScrolling();
       redraw();
     }
   }
@@ -1946,6 +2002,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       workflowMeta.removeNote(idx);
       hopGui.undoDelegate.addUndoDelete(workflowMeta, new NotePadMeta[] {note}, new int[] {idx});
     }
+    adjustScrolling();
     redraw();
   }
 
@@ -2546,6 +2603,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       PropsUi propsUi = PropsUi.getInstance();
 
       int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
+      ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
+      ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
 
       WorkflowPainter workflowPainter =
           new WorkflowPainter(
@@ -2553,11 +2612,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               variables,
               workflowMeta,
               new Point(width, height),
-              new SwtScrollBar(horizontalScrollBar),
-              new SwtScrollBar(verticalScrollBar),
+              horizontalScrollBar==null ? null : new SwtScrollBar(horizontalScrollBar),
+              verticalScrollBar==null ? null : new SwtScrollBar(verticalScrollBar),
               hopCandidate,
-              dropCandidate,
-              selectionRegion,
+            selectionRegion,
               areaOwners,
               propsUi.getIconSize(),
               propsUi.getLineWidth(),
@@ -3721,6 +3779,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     lastChained = newEntry;
+    adjustScrolling();
     updateGui();
 
     if (shift) {

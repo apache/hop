@@ -57,7 +57,7 @@ public class HopGuiAuditDelegate {
       IHopFileTypeHandler activeFileTypeHandler = null;
       if ( tabItems != null ) {
         // This perspective has the ability to handle multiple files.
-        // Lets's load the files in the previously saved order...
+        // Let's load the files in the previously saved order...
         //
         AuditList auditList;
         try {
@@ -79,6 +79,11 @@ public class HopGuiAuditDelegate {
           try {
             if (StringUtils.isNotEmpty( filename )) {
               IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen( filename );
+
+              // Test-sleep to see what's going on...
+              //
+              // System.out.println("Loaded file: "+filename);
+              // Thread.sleep(5000);
 
               // Restore zoom, scroll and so on
               AuditState auditState = auditStateMap.get( filename );

@@ -125,11 +125,7 @@ public class ProjectsGuiPlugin {
         selectProjectInList(projectName);
 
         if (projectDialog.isNeedingProjectRefresh()) {
-          MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-          box.setText("Reload project?");
-          box.setMessage("To apply all changes you made a reload of this project is required. Do you want to do this now?");
-          int answer = box.open();
-          if ((answer & SWT.YES) != 0) {
+          if (askAboutProjectRefresh(hopGui)){
             // Try to stick to the same environment if we have one selected...
             //
             LifecycleEnvironment environment = null;
@@ -144,6 +140,14 @@ public class ProjectsGuiPlugin {
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error editing project '" + projectName, e);
     }
+  }
+
+  private boolean askAboutProjectRefresh(HopGui hopGui) {
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    box.setText("Reload project?");
+    box.setMessage("To apply all changes you made a reload of this project is required. Do you want to do this now?");
+    int answer = box.open();
+    return (answer & SWT.YES) != 0;
   }
 
   @GuiToolbarElement(
@@ -397,6 +401,17 @@ public class ProjectsGuiPlugin {
         refreshEnvironmentsList();
 
         selectEnvironmentInList(environmentName);
+      }
+
+      // A refresh of the project and environment is likely needed
+      // Ask the user if this is needed now...
+      //
+      if (dialog.isNeedingEnvironmentRefresh()) {
+        if (askAboutProjectRefresh(hopGui)) {
+          // Refresh the loaded environment
+          //
+          selectEnvironment();
+        }
       }
     } catch (Exception e) {
       new ErrorDialog(

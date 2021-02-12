@@ -82,26 +82,25 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       new String[] {"1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%"};
 
   public PipelinePainter(
-      IGc gc,
-      IVariables variables,
-      PipelineMeta pipelineMeta,
-      Point area,
-      IScrollBar hori,
-      IScrollBar vert,
-      PipelineHopMeta candidate,
-      Point drop_candidate,
-      Rectangle selectRectangle,
-      List<AreaOwner> areaOwners,
-      int iconSize,
-      int lineWidth,
-      int gridSize,
-      String noteFontName,
-      int noteFontHeight,
-      IPipelineEngine<PipelineMeta> pipeline,
-      boolean slowTransformIndicatorEnabled,
-      double zoomFactor,
-      Map<String, RowBuffer> outputRowsMap,
-      boolean drawingEditIcons) {
+    IGc gc,
+    IVariables variables,
+    PipelineMeta pipelineMeta,
+    Point area,
+    IScrollBar hori,
+    IScrollBar vert,
+    PipelineHopMeta candidate,
+    Rectangle selectRectangle,
+    List<AreaOwner> areaOwners,
+    int iconSize,
+    int lineWidth,
+    int gridSize,
+    String noteFontName,
+    int noteFontHeight,
+    IPipelineEngine<PipelineMeta> pipeline,
+    boolean slowTransformIndicatorEnabled,
+    double zoomFactor,
+    Map<String, RowBuffer> outputRowsMap,
+    boolean drawingEditIcons ) {
     super(
         gc,
         variables,
@@ -109,8 +108,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         area,
         hori,
         vert,
-        drop_candidate,
-        selectRectangle,
+      selectRectangle,
         areaOwners,
         iconSize,
         lineWidth,
@@ -158,8 +156,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         hori,
         vert,
         candidate,
-        dropCandidate,
-        selectionRectangle,
+      selectionRectangle,
         areaOwners,
         iconSize,
         lineWidth,
@@ -209,19 +206,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     //
     gc.setTransform(translationX, translationY, magnification);
     gc.setAlpha(255);
-    drawPipeline(thumb);
+    drawPipeline();
 
     gc.dispose();
   }
 
-  private void drawPipeline(Point thumb) throws HopException {
+  private void drawPipeline() throws HopException {
     if (gridSize > 1) {
       drawGrid();
-    }
-
-    if (hori != null && vert != null) {
-      hori.setThumb(thumb.x);
-      vert.setThumb(thumb.y);
     }
 
     try {
@@ -346,13 +338,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Point n = noInputTransform.getLocation();
       gc.drawLine(n.x - 5, n.y - 5, n.x + iconSize + 10, n.y + iconSize + 10);
       gc.drawLine(n.x - 5, n.y + iconSize + 5, n.x + iconSize + 5, n.y - 5);
-    }
-
-    if (dropCandidate != null) {
-      gc.setLineStyle(ELineStyle.SOLID);
-      gc.setForeground(EColor.BLACK);
-      Point screen = real2screen(dropCandidate.x, dropCandidate.y);
-      gc.drawRectangle(screen.x, screen.y, iconSize, iconSize);
     }
 
     try {
