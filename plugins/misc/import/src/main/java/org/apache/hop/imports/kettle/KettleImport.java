@@ -244,7 +244,6 @@ public class KettleImport extends HopImport implements IHopImport {
                     log.logError("Exception processing connection: " + e.getMessage());
                     e.printStackTrace();
                 }
-
             }
         }
     }
@@ -285,8 +284,19 @@ public class KettleImport extends HopImport implements IHopImport {
                 // remove superfluous elements
                 if(KettleConst.kettleElementsToRemove.containsKey(currentNode.getNodeName())){
                     if(!StringUtils.isEmpty(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))){
-                        if(currentNode.getParentNode().getNodeName().equals(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))){
-                            currentNode.getParentNode().removeChild(currentNode);
+                        // see if we have multiple parent nodes to check for:
+                        if(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).contains(",")){
+                            Node parentNode = currentNode.getParentNode();
+                            String[] parentNodenames = KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).split(",");
+                            for(String parentNodename : parentNodenames){
+                                if(parentNode.getNodeName().equals(parentNodename)){
+                                    parentNode.removeChild(currentNode);
+                                }
+                            }
+                        }else {
+                            if(currentNode.getParentNode().getNodeName().equals(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))){
+                                currentNode.getParentNode().removeChild(currentNode);
+                            }
                         }
                     }else{
                         currentNode.getParentNode().removeChild(currentNode);
