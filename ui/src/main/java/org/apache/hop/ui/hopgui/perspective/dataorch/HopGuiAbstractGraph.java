@@ -24,6 +24,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
@@ -346,13 +347,17 @@ public abstract class HopGuiAbstractGraph extends Composite {
       h.setMinimum( 1 );
       h.setMaximum( 100 );
       h.setThumb(hThumb);
-      h.setPageIncrement(10);
+      if ( !EnvironmentUtils.getInstance().isWeb() ){
+        h.setPageIncrement( 10 );
+      }
     }
     if (v != null) {
       v.setMinimum( 1 );
       v.setMaximum( 100 );
       v.setThumb(vThumb);
-      v.setPageIncrement(10);
+      if ( !EnvironmentUtils.getInstance().isWeb() ) {
+        v.setPageIncrement( 10 );
+      }
     }
     canvas.setFocus();
   }
