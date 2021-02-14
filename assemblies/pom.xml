@@ -43,6 +43,7 @@
     <module>static</module>
     <module>lib</module>
     <module>client</module>
+    <module>web</module>
     <module>core</module>
     <module>debug</module>
     <module>samples</module>
