@@ -32,6 +32,7 @@
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
     <version>0.70-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <properties>
