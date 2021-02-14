@@ -73,7 +73,7 @@ public class KettleConst {
                 {"clusterschemas", ""},
                 {"maxdate", ""},
                 {"log", ""},
-                {"connection", "pipeline"},
+                {"connection", "workflow,pipeline"},
                 {"slave-step-copy-partition-distribution", ""},
                 {"slave_transformation", ""},
                 {"trans_object_id", ""},
