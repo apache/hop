@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+
+  <context-param>
+    <param-name>org.eclipse.rap.applicationConfiguration</param-name>
+    <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>HopGui</servlet-name>
+    <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>HopGui</servlet-name>
+    <url-pattern>/ui</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>welcome</servlet-name>
+    <jsp-file>/docs/English/welcome/index.html</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>welcome</servlet-name>
+    <url-pattern>/docs/English/welcome/index.html</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>Server</servlet-name>
+    <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Server</servlet-name>
+    <url-pattern>/hop/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>
