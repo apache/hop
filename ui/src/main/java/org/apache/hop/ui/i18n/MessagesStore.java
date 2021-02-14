@@ -171,7 +171,6 @@ public class MessagesStore extends ChangedFlag {
    * directories in the order that they are specified.
    *
    * @param alternativeSourceFolders
-   * @param directories              the source directories to try and map the messages files against.
    * @return the filename that was found.
    */
   public String getLoadFilename( List<String> alternativeSourceFolders ) throws FileNotFoundException {

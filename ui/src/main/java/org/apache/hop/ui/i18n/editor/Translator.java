@@ -110,6 +110,7 @@ public class Translator {
 
   private String selectedLocale;
   private String selectedMessagesPackage;
+  private String selectedSourceFile;
 
   private Text wReferenceLocale;
   private Text wSelectedSourceFolder;
@@ -1082,7 +1083,15 @@ public class Translator {
 
       String javaFilename = stripRootFolder(HopVfs.getFilename(keyOccurrence.getFileObject()));
       wSourceFile.setText(Const.NVL(javaFilename, ""));
-
+      if (Const.NVL(javaFilename, "") != null) {
+        selectedSourceFile = Const.NVL(javaFilename, "");
+        selectedSourceFile =
+            rootFolder
+                + selectedSourceFile.substring(
+                    0, selectedSourceFile.indexOf("/src/main/java") + "/src/main/java".length());
+      } else {
+        selectedSourceFile = "";
+      }
       String bundleFilename = "";
       BundleFile file =
           store.getBundleStore().findBundleFile(selectedMessagesPackage, selectedLocale);
@@ -1179,12 +1188,12 @@ public class Translator {
         && selectedLocale != null
         && selectedMessagesPackage != null
         && lastValueChanged
-        && selectedSourceFolder != null) {
+        && selectedSourceFile != null) {
       // Store the last modified value
       //
       if (!Utils.isEmpty(lastValue)) {
         store.storeValue(
-            selectedLocale, selectedSourceFolder, selectedMessagesPackage, selectedKey, lastValue);
+            selectedLocale, selectedSourceFile, selectedMessagesPackage, selectedKey, lastValue);
         lastValueChanged = false;
 
         if (!wAll.getSelection()) {
