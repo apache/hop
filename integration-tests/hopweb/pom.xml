@@ -17,35 +17,39 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.hop</groupId>
-  <artifactId>hop-assemblies</artifactId>
+  <artifactId>hop-web-integration-tests</artifactId>
   <version>0.70-SNAPSHOT</version>
-  <packaging>pom</packaging>
 
-  <name>Hop Assemblies</name>
+  <name>Hop Web Integration Tests</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
     <version>0.70-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <properties>
-    <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+    <selenium.version>3.141.59</selenium.version>
   </properties>
 
-  <modules>
-    <module>plugins</module>
-    <module>static</module>
-    <module>lib</module>
-    <module>client</module>
-    <module>web</module>
-    <module>core</module>
-    <module>debug</module>
-    <module>samples</module>
-  </modules>
+  <dependencies>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>${selenium.version}</version>
+    </dependency>
+	<dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <version>4.13.1</version>
+	</dependency>
+  </dependencies>
+
 </project>

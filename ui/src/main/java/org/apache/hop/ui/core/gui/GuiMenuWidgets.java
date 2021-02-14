@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -103,7 +104,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       }
 
       setMenuItemKeyboardShortcut(menuItem, guiMenuItem);
-      if (StringUtils.isNotEmpty(guiMenuItem.getToolTip())) {
+      if (StringUtils.isNotEmpty(guiMenuItem.getToolTip()) && !EnvironmentUtils.getInstance().isWeb()) {
         menuItem.setToolTipText(guiMenuItem.getToolTip());
       }
 
@@ -149,7 +150,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         menuItem = new MenuItem(parentMenu, SWT.CASCADE);
         menuItem.setText(Const.NVL(guiMenuItem.getLabel(), ""));
         setMenuItemKeyboardShortcut(menuItem, guiMenuItem);
-        if (StringUtils.isNotEmpty(guiMenuItem.getToolTip())) {
+        if (StringUtils.isNotEmpty(guiMenuItem.getToolTip()) && !EnvironmentUtils.getInstance().isWeb()) {
           menuItem.setToolTipText(guiMenuItem.getToolTip());
         }
         menu = new Menu(shell, SWT.DROP_DOWN);

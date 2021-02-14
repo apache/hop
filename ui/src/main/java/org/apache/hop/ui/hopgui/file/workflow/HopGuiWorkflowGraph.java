@@ -95,6 +95,7 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.IActionListener;
@@ -414,12 +415,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     horizontalBar.setMinimum(1);
     horizontalBar.setMaximum(100);
-    horizontalBar.setIncrement(5);
     horizontalBar.setVisible(true);
     verticalBar.setMinimum(1);
     verticalBar.setMaximum(100);
-    verticalBar.setIncrement(5);
     verticalBar.setVisible(true);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      horizontalBar.setIncrement(5);
+      verticalBar.setIncrement(5);
+    }
 
     if (OsHelper.isWindows()) {
       horizontalBar.addListener(
