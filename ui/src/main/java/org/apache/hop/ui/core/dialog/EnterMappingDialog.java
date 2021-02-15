@@ -17,8 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -42,6 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
@@ -84,10 +87,6 @@ public class EnterMappingDialog extends Dialog {
     }
   }
 
-  public static final String STRING_ORIGIN_SEPARATOR = "            (";
-
-  public static final String STRING_SFORCE_EXTERNALID_SEPARATOR = "/";
-
   private List wSource;
 
   private List wTarget;
@@ -106,6 +105,9 @@ public class EnterMappingDialog extends Dialog {
   private String[] targetList;
 
   private PropsUi props;
+
+  private String sourceSeparator;
+  private String targetSeparator;
 
   private java.util.List<SourceToTargetMapping> mappings;
 
@@ -385,13 +387,12 @@ public class EnterMappingDialog extends Dialog {
     refreshMappings();
   }
 
-  private boolean findTarget() {
+  private void findTarget() {
     int sourceIndex = wSource.getSelectionIndex();
     GuessPair p = findTargetPair(sourceIndex);
     if (p.getFound()) {
       wTarget.setSelection(p.getTargetIndex());
     }
-    return p.getFound();
   }
 
   private GuessPair findTargetPair(int sourceIndex) {
@@ -404,38 +405,53 @@ public class EnterMappingDialog extends Dialog {
     }
 
     // Skip everything after the bracket...
-    String sourceStr = wSource.getItem(sourceIndex).toUpperCase();
-
-    int indexOfBracket = sourceStr.indexOf(EnterMappingDialog.STRING_ORIGIN_SEPARATOR);
-    String sourceString = sourceStr;
-    if (indexOfBracket >= 0) {
-      sourceString = sourceStr.substring(0, indexOfBracket);
+    String sourceString = wSource.getItem(sourceIndex).toUpperCase();
+    String sourceValue = sourceString.toLowerCase();
+    if (StringUtils.isNotEmpty(sourceSeparator)) {
+      int index = sourceValue.indexOf(sourceSeparator);
+      if (index >= 0) {
+        sourceValue = sourceValue.substring(index + sourceSeparator.length());
+      }
     }
-    int length = sourceString.length();
-    boolean first = true;
 
-    boolean found = false;
-    while (!found && (length >= ((int) (sourceString.length() * 0.85)) || first)) {
-      first = false;
+    int minDistance = Integer.MAX_VALUE;
+    int minTarget = -1;
 
-      for (int i = 0; i < wTarget.getItemCount() && !found; i++) {
-        String test = wTarget.getItem(i).toUpperCase();
-        // Clean up field names in the form of OBJECT:LOOKUPFIELD/OBJECTNAME
-        if (test.contains(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR)) {
-          String[] tmp = test.split(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR);
-          test = tmp[tmp.length - 1];
-          if (test.endsWith("__R")) {
-            test = test.substring(0, test.length() - 3) + "__C";
-          }
-        }
-        if (test.indexOf(sourceString.substring(0, length)) >= 0) {
-          result.setSrcIndex(sourceIndex);
-          result.setTargetIndex(i);
-          found = true;
+    for (int i = 0; i < wTarget.getItemCount(); i++) {
+      String targetString = wTarget.getItem(i);
+      String targetValue = targetString.toLowerCase();
+      // Only consider the part after the first target separator...
+      //
+      if (StringUtils.isNotEmpty(targetSeparator)) {
+        int index = targetValue.indexOf(targetSeparator);
+        if (index >= 0) {
+          targetValue = targetValue.substring(index + targetSeparator.length());
         }
       }
-      length--;
+
+      // Compare source and target values...
+      //
+      if (sourceValue.equals( targetValue )) {
+        minDistance=0;
+        minTarget=i;
+        break; // we found an exact match
+      }
+
+      // Compare sourceValue and targetValue using a distance
+      //
+      int distance =
+          Utils.getDamerauLevenshteinDistance(sourceValue.toLowerCase(), targetValue.toLowerCase());
+      if (distance < minDistance) {
+        minDistance = distance;
+        minTarget = i;
+      }
     }
+
+    if (minTarget >= 0) {
+      result.setTargetIndex( minTarget );
+      result._found = true; // always make a guess
+    }
+
     return result;
   }
 
@@ -486,12 +502,14 @@ public class EnterMappingDialog extends Dialog {
   private void refreshMappings() {
     // Refresh the results...
     wResult.removeAll();
+
+    // Sort the mappings by result string
+    //
+    Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+
     for (int i = 0; i < mappings.size(); i++) {
       SourceToTargetMapping mapping = mappings.get(i);
-      String mappingString =
-          sourceList[mapping.getSourcePosition()]
-              + " --> "
-              + targetList[mapping.getTargetPosition()];
+      String mappingString = getMappingResultString(mapping);
       wResult.add(mappingString);
     }
 
@@ -532,6 +550,12 @@ public class EnterMappingDialog extends Dialog {
     }
   }
 
+  private String getMappingResultString(SourceToTargetMapping mapping) {
+    return sourceList[mapping.getSourcePosition()]
+        + " --> "
+        + targetList[mapping.getTargetPosition()];
+  }
+
   private void delete() {
     String[] result = wResult.getSelection();
     for (int i = result.length - 1; i >= 0; i--) {
@@ -559,5 +583,33 @@ public class EnterMappingDialog extends Dialog {
 
   private void ok() {
     dispose();
+  }
+
+  /**
+   * Gets sourceSeparator
+   *
+   * @return value of sourceSeparator
+   */
+  public String getSourceSeparator() {
+    return sourceSeparator;
+  }
+
+  /** @param sourceSeparator The sourceSeparator to set */
+  public void setSourceSeparator(String sourceSeparator) {
+    this.sourceSeparator = sourceSeparator;
+  }
+
+  /**
+   * Gets targetSeparator
+   *
+   * @return value of targetSeparator
+   */
+  public String getTargetSeparator() {
+    return targetSeparator;
+  }
+
+  /** @param targetSeparator The targetSeparator to set */
+  public void setTargetSeparator(String targetSeparator) {
+    this.targetSeparator = targetSeparator;
   }
 }

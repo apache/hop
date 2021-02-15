@@ -565,7 +565,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
       IValueMeta value = sourceFields.getValueMeta( i );
-      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName();
     }
 
     // Create the existing mapping list...

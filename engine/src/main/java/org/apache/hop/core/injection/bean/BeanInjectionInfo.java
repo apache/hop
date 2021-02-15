@@ -206,6 +206,19 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
     public Class<?> getPropertyClass() {
       return path.get( path.size() - 1 ).leafClass;
     }
+
+    public boolean hasMatch( String filterString ) {
+      if (StringUtils.isEmpty(filterString)) {
+        return true;
+      }
+      if (getName().toUpperCase().contains( filterString.toUpperCase() )) {
+        return true;
+      }
+      if (getDescription().toUpperCase().contains( filterString.toUpperCase() )) {
+        return true;
+      }
+      return false;
+    }
   }
 
   public class Group {
@@ -226,6 +239,24 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
 
     public String getDescription() {
       return BeanInjectionInfo.this.getDescription( name );
+    }
+
+    public boolean hasMatchingProperty(String filterString) {
+      // Empty string always matches
+      if (StringUtils.isEmpty( filterString )) {
+        return true;
+      }
+      // The group name also matches
+      //
+      if (name.toUpperCase().contains( filterString.toUpperCase() )) {
+        return true;
+      }
+      for (Property property : groupProperties) {
+        if (property.hasMatch(filterString)) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 }
