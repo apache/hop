@@ -152,8 +152,9 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
-  public LdapOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
+  public LdapOutputDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (LdapOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -437,7 +438,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
-        new PasswordTextVar( variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassword.setToolTipText(BaseMessages.getString(PKG, "LdapOutputDialog.Password.Tooltip"));
     props.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
@@ -519,11 +520,9 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     // Listen to the Browse... button
 
     wbbFilename.addListener(
-        SWT.Selection,
-        e -> BaseDialog.presentDirectoryDialog(shell, wTrustStorePath, variables));
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wTrustStorePath, variables));
 
-    wTrustStorePath =
-        new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTrustStorePath = new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePath);
     wTrustStorePath.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.TrustStorePath.Tooltip"));
@@ -545,7 +544,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
     wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
-        new PasswordTextVar( variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePassword);
     wTrustStorePassword.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.TrustStorePassword.Tooltip"));
@@ -678,8 +677,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlMultiValuedSeparator.top = new FormAttachment(wOperation, margin);
     fdlMultiValuedSeparator.right = new FormAttachment(middle, -margin);
     wlMultiValuedSeparator.setLayoutData(fdlMultiValuedSeparator);
-    wMultiValuedSeparator =
-        new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMultiValuedSeparator = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMultiValuedSeparator);
     wMultiValuedSeparator.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.MultiValuedSeparator.Tooltip"));
@@ -1098,8 +1096,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       if (wUsingAuthentication.getSelection()) {
         connection.connect(
             variables.resolve(meta.getUserName()),
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(meta.getPassword())));
+            Encr.decryptPasswordOptionallyEncrypted(variables.resolve(meta.getPassword())));
       } else {
         connection.connect();
       }
@@ -1406,8 +1403,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       if (wUsingAuthentication.getSelection()) {
         String username = variables.resolve(wUserName.getText());
         String password =
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(wPassword.getText()));
+            Encr.decryptPasswordOptionallyEncrypted(variables.resolve(wPassword.getText()));
         connection.connect(username, password);
       } else {
         connection.connect();
@@ -1474,8 +1470,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     String[] inputNames = new String[sourceFields.size()];
     for (int i = 0; i < sourceFields.size(); i++) {
       IValueMeta value = sourceFields.getValueMeta(i);
-      inputNames[i] =
-          value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[i] = value.getName();
     }
 
     // Create the existing mapping list...

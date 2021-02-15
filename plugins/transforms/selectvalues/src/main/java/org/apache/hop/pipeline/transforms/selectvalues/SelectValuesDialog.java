@@ -799,7 +799,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     String[] inputNames = new String[ prevFields.size() ];
     for ( int i = 0; i < prevFields.size(); i++ ) {
       IValueMeta value = prevFields.getValueMeta( i );
-      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName();
     }
 
     String[] outputNames = new String[ nextTransformRequiredFields.size() ];

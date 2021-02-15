@@ -1024,38 +1024,6 @@ public class BaseTransformDialog extends Dialog {
   }
 
   /**
-   * Create a new field mapping between source and target transforms.
-   *
-   * @param shell the shell of the parent window
-   * @param sourceFields the source fields
-   * @param targetFields the target fields
-   * @param fieldMapping the list of source to target mappings to default to (can be empty but not
-   *     null)
-   * @throws HopException in case something goes wrong during the field mapping
-   */
-  public static final void generateFieldMapping(
-      Shell shell,
-      IRowMeta sourceFields,
-      IRowMeta targetFields,
-      List<SourceToTargetMapping> fieldMapping)
-      throws HopException {
-    // Build the mapping: let the user decide!!
-    String[] source = sourceFields.getFieldNames();
-    for (int i = 0; i < source.length; i++) {
-      IValueMeta v = sourceFields.getValueMeta(i);
-      source[i] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
-    }
-    String[] target = targetFields.getFieldNames();
-
-    EnterMappingDialog dialog = new EnterMappingDialog(shell, source, target, fieldMapping);
-    List<SourceToTargetMapping> newMapping = dialog.open();
-    if (newMapping != null) {
-      fieldMapping.clear();
-      fieldMapping.addAll(newMapping);
-    }
-  }
-
-  /**
    * Checks if the log level is basic.
    *
    * @return true, if the log level is basic, false otherwise
