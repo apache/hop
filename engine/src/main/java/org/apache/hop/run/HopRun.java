@@ -307,12 +307,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Copy the parameter definitions from the metadata, with empty values
       //
       workflow.copyParametersFromDefinitions(workflowMeta);
-
-      // Explicitly set parameters
-      for (String parameterName : configuration.getParametersMap().keySet()) {
-        workflow.setParameterValue(
-            parameterName, configuration.getParametersMap().get(parameterName));
-      }
+      configureParametersAndVariables(cmd, configuration, workflow, workflow);
 
       // Also copy the parameter values over to the variables...
       //
@@ -436,7 +431,20 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     //
     variables.setVariables(configuration.getVariablesMap());
 
-    // Set the parameter values
+    // By default we use the value from the current variables map:
+    //
+    for (String key : namedParams.listParameters()) {
+      String value = variables.getVariable( key );
+      if (StringUtils.isNotEmpty( value )) {
+        try {
+          namedParams.setParameterValue(key, value);
+        } catch (UnknownParamException e) {
+          throw new ParameterException(cmd, "Unable to set parameter '" + key + "'", e);
+        }
+      }
+    }
+
+    // Possibly override with the parameter values set by the user (-p option)
     //
     for (String key : configuration.getParametersMap().keySet()) {
       String value = configuration.getParametersMap().get(key);
