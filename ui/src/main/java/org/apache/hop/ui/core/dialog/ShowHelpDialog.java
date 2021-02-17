@@ -160,7 +160,7 @@ public class ShowHelpDialog extends Dialog {
     fdtext.right = new FormAttachment(printToolBar, -MARGIN);
     fdtext.left = new FormAttachment(navigateToolBar, MARGIN);
     textURL.setLayoutData(fdtext);
-    textURL.setForeground(new Color(display, 101, 101, 101));
+    textURL.setForeground(new Color(display, props.contrastColor( 101, 101, 101)));
 
     // Browser
     wBrowser = new Browser(shell, SWT.NONE);

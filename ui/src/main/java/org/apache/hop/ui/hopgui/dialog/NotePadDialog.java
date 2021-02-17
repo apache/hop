@@ -538,13 +538,13 @@ public class NotePadDialog extends Dialog {
       wFontBold.setSelection( notePadMeta.isFontBold() );
       wFontItalic.setSelection( notePadMeta.isFontItalic() );
       fontColor =
-        new Color( shell.getDisplay(), new RGB(
+        new Color( shell.getDisplay(), props.contrastColor(
           notePadMeta.getFontColorRed(), notePadMeta.getFontColorGreen(), notePadMeta.getFontColorBlue() ) );
       bgColor =
-        new Color( shell.getDisplay(), new RGB( notePadMeta.getBackGroundColorRed(), notePadMeta
+        new Color( shell.getDisplay(), props.contrastColor( notePadMeta.getBackGroundColorRed(), notePadMeta
           .getBackGroundColorGreen(), notePadMeta.getBackGroundColorBlue() ) );
       borderColor =
-        new Color( shell.getDisplay(), new RGB( notePadMeta.getBorderColorRed(), notePadMeta
+        new Color( shell.getDisplay(), props.contrastColor( notePadMeta.getBorderColorRed(), notePadMeta
           .getBorderColorGreen(), notePadMeta.getBorderColorBlue() ) );
     } else {
       wFontName.setText( props.getNoteFont().getName() );
@@ -553,15 +553,15 @@ public class NotePadDialog extends Dialog {
       wFontItalic.setSelection( false );
       fontColor =
         new Color(
-          shell.getDisplay(), new RGB(
+          shell.getDisplay(), props.contrastColor(
           NotePadMeta.COLOR_RGB_BLACK_RED, NotePadMeta.COLOR_RGB_BLACK_GREEN,
           NotePadMeta.COLOR_RGB_BLACK_BLUE ) );
       bgColor =
-        new Color( shell.getDisplay(), new RGB(
+        new Color( shell.getDisplay(), props.contrastColor(
           NotePadMeta.COLOR_RGB_DEFAULT_BG_RED, NotePadMeta.COLOR_RGB_DEFAULT_BG_GREEN,
           NotePadMeta.COLOR_RGB_DEFAULT_BG_BLUE ) );
       borderColor =
-        new Color( shell.getDisplay(), new RGB(
+        new Color( shell.getDisplay(), props.contrastColor(
           NotePadMeta.COLOR_RGB_DEFAULT_BORDER_RED, NotePadMeta.COLOR_RGB_DEFAULT_BORDER_GREEN,
           NotePadMeta.COLOR_RGB_DEFAULT_BORDER_BLUE ) );
     }

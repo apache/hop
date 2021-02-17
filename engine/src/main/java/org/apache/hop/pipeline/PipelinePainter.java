@@ -814,7 +814,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       gc.drawImage( EImage.EDIT, namePosition.x - 6, namePosition.y-2, magnification );
 
-      gc.setBackground(240, 240, 240);
+      gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
         namePosition.x - 8,
         namePosition.y - 2,

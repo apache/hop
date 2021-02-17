@@ -298,7 +298,7 @@ public class ContextDialog extends Dialog {
     //
     iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
     margin = (int) (Const.MARGIN * props.getZoomFactor());
-    highlightColor = new Color(parent.getDisplay(), 201, 232, 251);
+    highlightColor = new Color(parent.getDisplay(), props.contrastColor(201, 232, 251));
   }
 
   public GuiAction open() {

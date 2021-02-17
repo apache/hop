@@ -122,6 +122,8 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button wOriginalLook;
 
+  private Button wDarkMode;
+
   private Button wShowCanvasGrid;
 
   private Button wUseCache;
@@ -813,6 +815,24 @@ public class EnterOptionsDialog extends Dialog {
     fdOriginalLook.right = new FormAttachment(100, 0);
     wOriginalLook.setLayoutData(fdOriginalLook);
 
+    // Show original look
+    Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
+    wlDarkMode.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.DarkMode.Label"));
+    props.setLook(wlDarkMode);
+    FormData fdlDarkMode = new FormData();
+    fdlDarkMode.left = new FormAttachment(0, 0);
+    fdlDarkMode.top = new FormAttachment(wlOriginalLook, 2*margin);
+    fdlDarkMode.right = new FormAttachment(middle, -margin);
+    wlDarkMode.setLayoutData(fdlDarkMode);
+    wDarkMode = new Button(wLookComp, SWT.CHECK);
+    wDarkMode.setSelection( props.isDarkMode() );
+    props.setLook(wDarkMode);
+    FormData fdDarkMode = new FormData();
+    fdDarkMode.left = new FormAttachment(middle, 0);
+    fdDarkMode.top = new FormAttachment(wlDarkMode, 0, SWT.CENTER);
+    fdDarkMode.right = new FormAttachment(100, 0);
+    wDarkMode.setLayoutData(fdDarkMode);
+
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
     wlDefaultLocale.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.DefaultLocale.Label"));
@@ -820,7 +840,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlDefaultLocale = new FormData();
     fdlDefaultLocale.left = new FormAttachment(0, 0);
     fdlDefaultLocale.right = new FormAttachment(middle, -margin);
-    fdlDefaultLocale.top = new FormAttachment(wOriginalLook, margin);
+    fdlDefaultLocale.top = new FormAttachment(wlDarkMode, 2*margin);
     wlDefaultLocale.setLayoutData(fdlDefaultLocale);
     wDefaultLocale = new Combo(wLookComp, SWT.SINGLE | SWT.READ_ONLY | SWT.LEFT | SWT.BORDER);
     wDefaultLocale.setItems(GlobalMessages.localeDescr);
@@ -1392,6 +1412,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
+    props.setDarkMode( wDarkMode.getSelection() );
     props.setShowToolTips(wToolTip.getSelection());
     props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
