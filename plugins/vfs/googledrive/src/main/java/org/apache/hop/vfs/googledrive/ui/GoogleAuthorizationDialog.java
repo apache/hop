@@ -109,7 +109,7 @@ public class GoogleAuthorizationDialog extends Dialog {
 
       props.setLook(helpLabel);
       helpLabel.setFont(new Font(display, "Open Sans Regular", 11, SWT.NORMAL));
-      helpLabel.setForeground(new Color(display, 0, 94, 170));
+      helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170)));
       FormData helpLabelFormData = new FormData();
       helpLabelFormData.left = new FormAttachment(0, 40);
       helpLabelFormData.bottom = new FormAttachment(100, -27);
@@ -120,14 +120,14 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.addListener(
           SWT.MouseEnter,
           event -> {
-            helpLabel.setForeground(new Color(display, 0, 0, 0));
+            helpLabel.setForeground(new Color(display, PropsUi.getInstance().contrastColor( 0, 0, 0)));
             helpLabel.setCursor(new Cursor(display, SWT.CURSOR_HAND));
           });
 
       helpLabel.addListener(
           SWT.MouseExit,
           event -> {
-            helpLabel.setForeground(new Color(display, 0, 94, 170));
+            helpLabel.setForeground(new Color(display, props.contrastColor( 0, 94, 170)));
           });
 
       Label cancelButton = new Label(dialog, SWT.NONE);

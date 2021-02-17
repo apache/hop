@@ -77,9 +77,9 @@ public class SwtSvgImageUtil {
     // RAP only allows painting on the Canvas widget
     if (!EnvironmentUtils.getInstance().isWeb()) {
       GC gc = new GC(img);
-      gc.setForeground(new Color(display, 0, 0, 0));
+      gc.setForeground(new Color(display, PropsUi.getInstance().contrastColor(0, 0, 0)));
       gc.drawRectangle(4, 4, ConstUi.ICON_SIZE - 8, ConstUi.ICON_SIZE - 8);
-      gc.setForeground(new Color(display, 255, 0, 0));
+      gc.setForeground(new Color(display, PropsUi.getInstance().contrastColor(255, 0, 0)));
       gc.drawLine(4, 4, ConstUi.ICON_SIZE - 4, ConstUi.ICON_SIZE - 4);
       gc.drawLine(ConstUi.ICON_SIZE - 4, 4, 4, ConstUi.ICON_SIZE - 4);
       gc.dispose();
@@ -92,9 +92,9 @@ public class SwtSvgImageUtil {
    */
   private static SwtUniversalImage getImageAsResourceInternal( Display display, String location ) {
     SwtUniversalImage result = null;
-    if ( result == null ) {
-      result = loadFromCurrentClasspath( display, location );
-    }
+
+    result = loadFromCurrentClasspath( display, location );
+
     if ( result == null ) {
       result = loadFromBasedVFS( display, location );
     }

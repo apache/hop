@@ -29,6 +29,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -122,6 +123,16 @@ public class PropsUi extends Props {
     Display display = Display.getCurrent();
 
     populateContrastingColors();
+
+    if (!OsHelper.isWindows()) {
+      if (Display.isSystemDarkTheme()) {
+        setDarkMode(true);
+        setOSLookShown(true);
+      } else {
+        setDarkMode(false);
+        setOSLookShown(false);
+      }
+    }
 
     if (display != null) {
       FontData fontData = getFixedFont();
@@ -792,8 +803,6 @@ public class PropsUi extends Props {
   }
 
   /**
-   * This tries to contrast or invert the color given. The main driver is the YIQ value. See:
-   * https://en.wikipedia.org/wiki/YIQ
    *
    * @param rgb the color to contrast if the system is in "Dark Mode"
    * @return The contrasted color
@@ -809,12 +818,20 @@ public class PropsUi extends Props {
     return rgb;
   }
 
+
+  public RGB contrastColor( int r, int g, int b ) {
+    return contrastColor( new RGB(r,g,b) );
+  }
+
   public Map<String, String> getContrastingColorStrings() {
     Map<String, String> map = new HashMap<>();
     for (RGB rgb : contrastingColors.keySet()) {
       RGB contrastingRGB = contrastingColors.get(rgb);
 
+      // Lowercase
       map.put(toColorString(rgb), toColorString(contrastingRGB));
+      // Uppercase
+      map.put(toColorString(rgb).toUpperCase(), toColorString(contrastingRGB));
     }
     return map;
   }
@@ -842,4 +859,5 @@ public class PropsUi extends Props {
   public void setContrastingColors(Map<RGB, RGB> contrastingColors) {
     this.contrastingColors = contrastingColors;
   }
+
 }

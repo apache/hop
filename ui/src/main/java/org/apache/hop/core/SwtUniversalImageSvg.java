@@ -31,6 +31,7 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -66,7 +67,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
       SVGSVGElement root = clonedDocument.getRootElement();
 
       Map<String, String> colorsMap = PropsUi.getInstance().getContrastingColorStrings();
-      List<String> tags = Arrays.asList("path", "fill", "bordercolor", "fillcolor", "style", "text");
+      List<String> tags = Arrays.asList("path", "fill", "bordercolor", "fillcolor", "style", "text", "polygon", "rect");
 
       contrastColors(root, tags, colorsMap);
 
