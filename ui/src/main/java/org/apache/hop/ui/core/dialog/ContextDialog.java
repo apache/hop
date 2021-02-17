@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.AreaOwner;
@@ -362,7 +363,8 @@ public class ContextDialog extends Dialog {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-
+    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    
     recallToolbarSettings();
 
     // Add a search bar at the top...

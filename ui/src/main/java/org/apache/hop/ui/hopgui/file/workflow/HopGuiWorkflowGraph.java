@@ -1411,6 +1411,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       layoutData.right = new FormAttachment(100, 0);
       toolBar.setLayoutData(layoutData);
       toolBar.pack();
+      PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
       // enable / disable the icons in the toolbar too.
       //
