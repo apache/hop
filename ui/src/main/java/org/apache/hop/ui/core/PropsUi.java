@@ -787,6 +787,11 @@ public class PropsUi extends Props {
 
     contrastingColors.put(toRGB("#ffd700"), toRGB("#0028ff"));
 
+    contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
+    contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
+    contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));
+    contrastingColors.put(new RGB(100, 100, 100), new RGB(155, 155, 155));
+
     // Add all the inverse color mappings as well
     //
     Map<RGB, RGB> inverse = new HashMap<>();
