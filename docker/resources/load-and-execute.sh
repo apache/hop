@@ -56,6 +56,7 @@ write_server_config() {
     echo "    <password>${HOP_SERVER_PASS}</password>" >> ${HOP_SERVER_XML}
     echo "  </hop-server>" >> ${HOP_SERVER_XML}
     echo "</hop-server-config>" >> ${HOP_SERVER_XML}
+
 }
 
 # retrieve files from volume
