@@ -790,6 +790,9 @@ public class PropsUi extends Props {
     // brighten workflow logo color by 50%
     contrastingColors.put(toRGB("#033d5d"), toRGB("#36b3f8"));
 
+    // Darken yellow in JS transform by 75%
+    contrastingColors.put(toRGB("#eeffaa"), toRGB("#556a00"));
+
     contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
     contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
     contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));
