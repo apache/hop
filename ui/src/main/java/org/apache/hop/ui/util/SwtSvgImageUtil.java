@@ -300,14 +300,6 @@ public class SwtSvgImageUtil {
     } else {
       // svg image - need to convert to bitmap
       try {
-
-/*
-        if (filename.endsWith( "/pipeline.svg" )) {
-          System.out.println("Filename: "+filename);
-          Thread.sleep( 10000 );
-        }
-*/
-
         return new SwtUniversalImageSvg( SvgSupport.loadSvgImage( in ) );
       } catch ( Exception ex ) {
         throw new RuntimeException( ex );
