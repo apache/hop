@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
    xmlns="http://www.w3.org/2000/svg"
    version="1.1"
@@ -10,15 +9,10 @@
    height="42px"
    viewBox="0 0 42 42"
    enable-background="new 0 0 42 42"
-
    >
-
-
-
      <path
      style="fill:#c9e8fb"
      d="m 12.151394,8.7320242 0,24.5025848 17.663853,0 -0.05849,-20.228308 -4.250242,0 0,-4.2742768 -13.355121,0 z"
-
       /><path
      fill="#0E3A5A"
      d="M29.778,11.352h-2.547V8.805L25.52,7.094H10.452v27.811h21.099l-0.063-21.842L29.778,11.352z M29.788,13.052  l0.058,20.152H12.152V8.794h13.379v4.258H29.788z"

@@ -2,12 +2,6 @@
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-
-
-
-
-
-
    enable-background="new 0 0 42 42"
    viewBox="0 0 42 42"
    height="42px"
@@ -16,7 +10,6 @@
    x="0px"
    version="1.1">
 <text
-
    y="-7.6742535"
    x="-109.95511"
    style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -24,11 +17,9 @@
      style="font-size:40px;line-height:1.25"
      y="-7.6742535"
      x="-109.95511"
-
      >#</tspan></text>
 <text
    transform="scale(1.120183,0.89271126)"
-
    y="40.908997"
    x="0.22867462"
    style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0e3a5a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
@@ -36,6 +27,5 @@
      style="font-size:47.3948px;line-height:1.25;fill:#0e3a5a;fill-opacity:1;"
      y="40.908997"
      x="0.22867462"
-
      >#</tspan></text>
 </svg>

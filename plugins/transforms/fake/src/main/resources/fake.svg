@@ -2,20 +2,16 @@
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-
    version="1.1"
    viewBox="0 0 16 16"
    height="16"
    width="16">
-
   <path
-
      d="M2 4a1 1 0 100-2 1 1 0 000 2zm3.75-1.5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM3 8a1 1 0 11-2 0 1 1 0 012 0zm-1 6a1 1 0 100-2 1 1 0 000 2z"
      fill-rule="evenodd" />
   <rect
      transform="rotate(-43.683559)"
      style="fill:#c9e8fb;fill-opacity:1;stroke:none;stroke-width:0.134717;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
-
      width="15.050698"
      height="5.6719985"
      x="-7.3211923"
@@ -23,11 +19,9 @@
   <text
      style="font-size:5.43593px;stroke-width:0.452994"
      transform="rotate(-43.683559)"
-
      x="-7.1459179"
      y="13.610421"
      ><tspan
-
        x="-7.1459179"
        y="13.610421"
        style="font-weight:bold;fill:#0e3a5a;fill-opacity:1;stroke:none;stroke-width:0.305129;stroke-opacity:1">Fake</tspan></text>

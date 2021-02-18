@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -11,11 +10,7 @@
    height="42px"
    viewBox="0 0 42 42"
    enable-background="new 0 0 42 42"
-
    >
-
-
-
      <path
      style="fill:#eff9fe"
      d="m 26.821,27.035 9.18,0 0,-21.149 -9.18,0 0,21.149 z m 7.739,-1.53 -1.703,0 0,-1 1.703,0 0,1 z m -6.297,-16.736 6.297,0 0,0.7 -6.297,0 0,-0.7 z m 0,3.261 6.297,0 0,0.7 -6.297,0 0,-0.7 z m 0,3.262 6.297,0 0,0.7 -6.297,0 0,-0.7 z" /><path
@@ -44,16 +39,11 @@
      transform="translate(4.4157712,-9.3817542)"
      style="fill:#3d6480"
      points="15.823,22.902 18.785,25.865 9.198,25.865 9.198,27.064 18.841,27.064 15.827,30.024 16.668,30.879 21.123,26.505 16.671,22.054 "
-
       /><text
-
      style="font-style:normal;font-weight:normal;font-size:8.90772343px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#3d6480;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      x="10.030137"
      y="42.958237"
-
-
      transform="scale(1.122718,0.89069561)"><tspan
-
          x="10.030137"
        y="42.958237">IBM</tspan></text>
 <path

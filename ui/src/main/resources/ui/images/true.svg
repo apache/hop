@@ -6,13 +6,9 @@
    width="24"
    height="24"
    viewBox="0 0 24 24"
-
-
    >
-
   <path
      d="M 12,2 C 6.5,2 2,6.5 2,12 2,17.5 6.5,22 12,22 17.5,22 22,17.5 22,12 22,6.5 17.5,2 12,2 M 10,17 5,12 6.41,10.59 10,14.17 17.59,6.58 19,8 Z"
-
      style="fill:#0cb20f;fill-opacity:1;stroke-width:1" />
   <path
      style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0146726;stroke-linecap:round;stroke-linejoin:round"

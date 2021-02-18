@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
     xmlns="http://www.w3.org/2000/svg"
-
-
     viewBox="0 0 24 24"
     height="24"
     width="24"
@@ -10,26 +8,22 @@
   <path
       transform="matrix(2.8201865,0.04332947,-0.04748149,2.8202399,22.354512,-16.587556)"
       d="M -2.1904765,13.214286 -4.7121833,13.254606 -6.5238097,11.5 l -0.04032,-2.5217066 1.7546056,-1.8116265 2.5217068,-0.04032 1.81162643,1.7546056 0.0403198,2.5217063 z"
-
       style="fill:#ffffff;fill-rule:evenodd;stroke:#f1c40f;stroke-width:0.35453727;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
   />
   <g
       style="fill:#f1c40f;fill-opacity:1"
-
       transform="matrix(0.89285713,0,0,0.89285713,1.2219383,1.4102894)">
     <rect
         y="4.976191"
         x="10.479167"
         height="8.6455154"
         width="3.1845231"
-
         style="fill:#f1c40f;fill-opacity:1;stroke:none;stroke-width:0.593223;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"/>
     <rect
         y="16.02804"
         x="10.404762"
         height="2.8767211"
         width="3.333333"
-
         style="fill:#f1c40f;fill-opacity:1;stroke:none;stroke-width:0.68788;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/>
   </g>
 </svg>

@@ -6,8 +6,6 @@
    viewBox="0 0 24 24"
    width="24"
    version="1.1"
-
-
    >
   <path
      d="M0 0h24v24H0z"
@@ -15,6 +13,5 @@
       />
   <path
      d="M 12,7 V 2 L 2,12 12,22 V 17 H 22 V 7 Z"
-
      style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.25" />
 </svg>

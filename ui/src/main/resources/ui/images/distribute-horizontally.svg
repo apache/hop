@@ -2,14 +2,10 @@
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-
-
-
    version="1.1"
    viewBox="0 0 8.4666659 8.4666659"
    height="32"
    width="32">
-
   <g transform="translate(0,-288.53334)"
      >
     <rect
@@ -17,21 +13,18 @@
        x="3.3213022"
        height="2.0744655"
        width="1.9361739"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359672;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
     <rect
        y="291.65063"
        x="0.65159398"
        height="2.0744655"
        width="1.936174"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359674;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
     <rect
        y="291.6412"
        x="5.9013805"
        height="2.0744655"
        width="1.936174"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359674;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
   </g>
 </svg>

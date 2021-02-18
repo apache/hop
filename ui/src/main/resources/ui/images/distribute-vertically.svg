@@ -2,9 +2,6 @@
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-
-
-
    version="1.1"
    viewBox="0 0 8.4666659 8.4666659"
    height="32"
@@ -17,7 +14,6 @@
        x="-293.60446"
        height="2.0744655"
        width="1.9361738"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359671;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
     <rect
        transform="rotate(-90)"
@@ -25,7 +21,6 @@
        x="-296.27417"
        height="2.0744655"
        width="1.9361739"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359672;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
     <rect
        transform="rotate(-90)"
@@ -33,7 +28,6 @@
        x="-291.02438"
        height="2.0744655"
        width="1.9361739"
-
        style="opacity:1;fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:0.19359672;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" />
   </g>
 </svg>
