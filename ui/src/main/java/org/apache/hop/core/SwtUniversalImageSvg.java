@@ -42,7 +42,9 @@ import org.w3c.dom.svg.SVGSVGElement;
 import java.awt.*;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,19 +100,22 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
           Node namedNode = namedNodeMap.item(x);
           String value = namedNode.getNodeValue();
 
-          boolean changed = false;
 
           if (StringUtils.isNotEmpty(value)) {
             String changedValue = value.toLowerCase();
 
+            Map<String, String> detectedColors = new HashMap<>();
             for (String oldColor : colorsMap.keySet()) {
               if (changedValue.contains(oldColor)) {
                 String newColor = colorsMap.get(oldColor);
-                changedValue = changedValue.replace(oldColor, newColor);
-                changed = true;
+                detectedColors.put(oldColor, newColor);
               }
             }
-            if (changed) {
+            if (!detectedColors.isEmpty()) {
+              for (String oldColor : detectedColors.keySet()) {
+                String newColor = detectedColors.get(oldColor);
+                changedValue = changedValue.replace( oldColor, newColor );
+              }
               namedNode.setNodeValue(changedValue);
             }
           }

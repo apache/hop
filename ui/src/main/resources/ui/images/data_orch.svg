@@ -5,7 +5,6 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    version="1.1"
-   id="Layer_1"
    x="0px"
    y="0px"
    viewBox="0 0 16 16"
@@ -14,7 +13,6 @@
    >
 <polygon
    points="4.4,8 1,8 1,8.4 4.3,8.4 3.1,11.7 12.4,8.4 15,8.4 15,8 12.6,8 3.1,4.6 "
-   id="polygon2"
    transform="matrix(0.83333086,-0.76443337,0.72622646,0.87717255,-4.1160486,6.084217)"
    style="fill:#0e3a5a" />
 </svg>
