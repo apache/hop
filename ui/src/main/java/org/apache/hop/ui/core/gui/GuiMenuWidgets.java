@@ -100,7 +100,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         menuItem.setImage(
             GuiResource.getInstance()
                 .getImage(
-                    guiMenuItem.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+                    guiMenuItem.getImage(), guiMenuItem.getClassLoader(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
       }
 
       setMenuItemKeyboardShortcut(menuItem, guiMenuItem);

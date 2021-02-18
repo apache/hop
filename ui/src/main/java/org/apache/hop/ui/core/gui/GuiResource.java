@@ -249,7 +249,6 @@ public class GuiResource {
   private Image imageHome;
   private Image imagePrint;
   private Image imageHelp;
-  private Image imageCleanup;
   private Image imageClose;
   private Image imageDelete;
   private Image imagePause;
@@ -509,7 +508,6 @@ public class GuiResource {
       imageRefresh.dispose();
       imageHome.dispose();
       imagePrint.dispose();
-      imageCleanup.dispose();
       imageClose.dispose();
       imageDelete.dispose();
       imagePause.dispose();
@@ -755,7 +753,6 @@ public class GuiResource {
     imageSynonym = loadAsResource(display, "ui/images/view.svg", ConstUi.SMALL_ICON_SIZE);
     imageTable = loadAsResource(display, "ui/images/table.svg", ConstUi.SMALL_ICON_SIZE);
     imageUser = loadAsResource(display, "ui/images/user.svg", ConstUi.SMALL_ICON_SIZE);
-    imageCleanup = loadAsResource(display, "ui/images/cleanup.svg", ConstUi.SMALL_ICON_SIZE);
     imageClose = loadAsResource(display, "ui/images/close.svg", ConstUi.SMALL_ICON_SIZE);
     imageDelete = loadAsResource(display, "ui/images/delete.svg", ConstUi.SMALL_ICON_SIZE);
     imagePause = loadAsResource(display, "ui/images/pause.svg", ConstUi.SMALL_ICON_SIZE);
@@ -1792,14 +1789,6 @@ public class GuiResource {
     return imageArrowCandidate;
   }
 
-  /**
-   * Gets imageToolbarCleanup
-   *
-   * @return value of imageToolbarCleanup
-   */
-  public Image getImageCleanup() {
-    return imageCleanup;
-  }
 
   /**
    * Gets imageToolbarClose

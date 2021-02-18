@@ -43,7 +43,7 @@ public class HopImportGuiPlugin {
             root = HopGui.ID_MAIN_MENU,
             id = ID_MAIN_MENU_FILE_IMPORT,
             label = "Import from Kettle/PDI",
-//            image = "kettle-logo.svg",
+            image = "kettle-logo.svg",
             parentId = HopGui.ID_MAIN_MENU_FILE,
             separator = true
     )

@@ -302,7 +302,7 @@ public class SwtSvgImageUtil {
       try {
         return new SwtUniversalImageSvg( SvgSupport.loadSvgImage( in ) );
       } catch ( Exception ex ) {
-        throw new RuntimeException( ex );
+        throw new RuntimeException( "Error loading file "+filename, ex );
       }
     }
   }

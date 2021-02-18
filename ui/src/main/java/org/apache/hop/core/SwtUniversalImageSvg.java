@@ -31,7 +31,6 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -42,7 +41,6 @@ import org.w3c.dom.svg.SVGSVGElement;
 import java.awt.*;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +67,22 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
       SVGSVGElement root = clonedDocument.getRootElement();
 
       Map<String, String> colorsMap = PropsUi.getInstance().getContrastingColorStrings();
-      List<String> tags = Arrays.asList("path", "fill", "bordercolor", "fillcolor", "style", "text", "polygon", "rect");
+      List<String> tags =
+          Arrays.asList(
+              "path",
+              "fill",
+              "bordercolor",
+              "fillcolor",
+              "style",
+              "text",
+              "polygon",
+              "rect",
+              "circle",
+              "ellipse",
+              "stop",
+              "tspan",
+              "polyline",
+              "mask");
 
       contrastColors(root, tags, colorsMap);
 
@@ -100,7 +113,6 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
           Node namedNode = namedNodeMap.item(x);
           String value = namedNode.getNodeValue();
 
-
           if (StringUtils.isNotEmpty(value)) {
             String changedValue = value.toLowerCase();
 
@@ -114,7 +126,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
             if (!detectedColors.isEmpty()) {
               for (String oldColor : detectedColors.keySet()) {
                 String newColor = detectedColors.get(oldColor);
-                changedValue = changedValue.replace( oldColor, newColor );
+                changedValue = changedValue.replace(oldColor, newColor);
               }
               namedNode.setNodeValue(changedValue);
             }

@@ -2,17 +2,14 @@
 <svg
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="up.svg"
-   id="svg4"
+
+
    viewBox="0 0 24 24"
    height="24"
    width="24"
    version="1.1">
   <path
      style="fill:#0e3a5a;fill-opacity:1"
-     id="path2"
+
      d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
 </svg>
