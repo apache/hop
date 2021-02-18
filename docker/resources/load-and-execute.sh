@@ -45,9 +45,17 @@ write_server_config() {
     HOP_SERVER_PASS=${HOP_SERVER_PASS:-cluster}
     HOP_SERVER_MASTER=${HOP_SERVER_MASTER:-Y}
 
-    log "Writing a hop-server config file to /tmp/hopserver.xml"
+    log "Writing a hop-server config file to "${HOP_SERVER_XML}
 
-    echo "<slave_config><slaveserver><name>master</name><hostname>0.0.0.0</hostname><port>8080</port><master>${HOP_SERVER_MASTER}</master><username>${HOP_SERVER_USER}</username><password>${HOP_SERVER_PASS}</password></slaveserver></slave_config>" > /tmp/hopserver.xml
+    echo "<hop-server-config>" > ${HOP_SERVER_XML}
+    echo "  <hop-server>" >> ${HOP_SERVER_XML}
+    echo "    <name>Hop Server</name>" >> ${HOP_SERVER_XML}
+    echo "    <hostname>0.0.0.0</hostname>" >> ${HOP_SERVER_XML}
+    echo "    <port>8080</port>" >> ${HOP_SERVER_XML}
+    echo "    <username>${HOP_SERVER_USER}</username>" >> ${HOP_SERVER_XML}
+    echo "    <password>${HOP_SERVER_PASS}</password>" >> ${HOP_SERVER_XML}
+    echo "  </hop-server>" >> ${HOP_SERVER_XML}
+    echo "</hop-server-config>" >> ${HOP_SERVER_XML}
 }
 
 # retrieve files from volume
