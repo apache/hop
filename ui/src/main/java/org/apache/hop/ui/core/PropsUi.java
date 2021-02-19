@@ -779,13 +779,29 @@ public class PropsUi extends Props {
   private void populateContrastingColors() {
     contrastingColors = new HashMap<>();
     contrastingColors.put(toRGB("#000000"), toRGB("#ffffff"));
-    contrastingColors.put(toRGB("#0e3a5a"), toRGB("#c9e8fb"));
+    contrastingColors.put(toRGB("#0e3a5a"), toRGB("#c8e7fa"));
 
     contrastingColors.put(toRGB("#f0f0f0"), toRGB("#0f0f0f"));
     contrastingColors.put(toRGB("#e1e1e1"), toRGB("#303030"));
     contrastingColors.put(toRGB("#646464"), toRGB("#707070"));
 
     contrastingColors.put(toRGB("#ffd700"), toRGB("#0028ff"));
+
+    // brighten workflow logo color by 50%
+    contrastingColors.put(toRGB("#033d5d"), toRGB("#36b3f8"));
+
+    // Darken yellow in JS transform by 75%
+    contrastingColors.put(toRGB("#eeffaa"), toRGB("#556a00"));
+
+    // Darken light blue by 50%
+    //
+    contrastingColors.put(toRGB("#c9e8fb"), toRGB("#0f88d2"));
+
+
+    contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
+    contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
+    contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));
+    contrastingColors.put(new RGB(100, 100, 100), new RGB(155, 155, 155));
 
     // Add all the inverse color mappings as well
     //

@@ -159,6 +159,7 @@
         <module>rowstoresult</module>
         <module>samplerows</module>
         <module>salesforce</module>
+        <module>sasinput</module>
         <module>selectvalues</module>
         <module>setvalueconstant</module>
         <module>setvaluefield</module>

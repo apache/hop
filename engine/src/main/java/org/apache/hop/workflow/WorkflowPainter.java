@@ -232,7 +232,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
       gc.drawImage( EImage.EDIT, xPos - 6, yPos-2, magnification );
 
-      gc.setBackground(240, 240, 240);
+      gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
         xPos - 8,
         yPos - 2,

@@ -125,6 +125,7 @@
         <module>rowsfromresult</module>
         <module>rowstoresult</module>
         <module>salesforce</module>
+        <module>sasinput</module>
         <module>samplerows</module>
         <module>selectvalues</module>
         <module>setvalueconstant</module>

@@ -3,7 +3,6 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg
     xmlns="http://www.w3.org/2000/svg"
-    xml:space="preserve"
     enable-background="new 0 0 16 16"
     viewBox="0 0 16 16"
     y="0px"
@@ -11,12 +10,12 @@
     height="16px"
     width="16px"
     version="1.1">
-<g id="Layer_2">
-	<g id="Layer_2_1_">
+<g >
+	<g >
 		<rect fill="none" width="16" height="16"/>
 	</g>
 </g>
-  <g id="art">
+  <g >
 	<g>
 		<g>
 			<polygon fill="#FFFFFF" points="3.1,12.3 2.8,2.6 4.8,0.4 14.6,0.8 15.6,2.1 14.6,4.1 12.6,4.1 12.5,14.1 9.7,15.2 2.1,15.7 

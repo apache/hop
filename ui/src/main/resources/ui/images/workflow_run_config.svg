@@ -1,66 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   sodipodi:docname="workflow_run_config.svg"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    version="1.1"
-   id="svg2"
    height="24"
    width="24">
-  <defs
-     id="defs4" />
-  <sodipodi:namedview
-     inkscape:pagecheckerboard="false"
-     inkscape:document-rotation="0"
-     inkscape:snap-global="false"
-     inkscape:snap-text-baseline="true"
-     inkscape:snap-center="true"
-     inkscape:snap-object-midpoints="true"
-     inkscape:snap-midpoints="true"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:object-nodes="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:object-paths="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:bbox-nodes="true"
-     inkscape:bbox-paths="true"
-     inkscape:snap-bbox="true"
-     inkscape:window-maximized="1"
-     inkscape:window-y="-8"
-     inkscape:window-x="-8"
-     inkscape:window-height="1387"
-     inkscape:window-width="3440"
-     fit-margin-bottom="0"
-     fit-margin-right="0"
-     fit-margin-left="0"
-     fit-margin-top="0"
-     showgrid="false"
-     inkscape:current-layer="layer1"
-     inkscape:document-units="px"
-     inkscape:cy="12.024696"
-     inkscape:cx="20.190105"
-     inkscape:zoom="47.181789"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     borderopacity="1.0"
-     bordercolor="#666666"
-     pagecolor="#ffffff"
-     id="base" />
   <g
      transform="translate(-379.90478,129.88361)"
-     id="layer1"
-     inkscape:groupmode="layer"
-     inkscape:label="Layer 1">
+     >
     <path
        style="fill:#0e3a5a;fill-opacity:1;stroke-width:2.35679"
-       id="path4-9"
        d="m 400.89385,-116.33557 -15.90672,8.2033 c -1.34993,0.69546 -3.08235,-0.14665 -3.08235,-1.54867 v -16.40659 c 0,-1.39981 1.72992,-2.24413 3.08235,-1.54645 l 15.90672,8.20329 a 2.0049015,1.7819724 0 0 1 0,3.09512 z" />
   </g>
 </svg>

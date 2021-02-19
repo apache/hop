@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>00300-udjc-render-all-transforms-in-svg</name>
+    <name>0004-udjc-render-all-transforms-in-svg</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
