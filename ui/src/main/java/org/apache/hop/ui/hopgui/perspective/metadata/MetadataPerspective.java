@@ -205,7 +205,8 @@ public class MetadataPerspective implements IHopPerspective {
   }
 
   protected void createTree(Composite parent) {
-
+    PropsUi props = PropsUi.getInstance();
+    
     // Create composite
     //
     Composite composite = new Composite(parent, SWT.BORDER);
@@ -226,7 +227,8 @@ public class MetadataPerspective implements IHopPerspective {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-
+    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> this.updateSelection());
