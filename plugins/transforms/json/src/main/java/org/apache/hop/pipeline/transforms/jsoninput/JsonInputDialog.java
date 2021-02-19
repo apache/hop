@@ -517,7 +517,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
             FieldsRows,
             lsMod,
             props);
-
+    props.setLook( wFields );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
