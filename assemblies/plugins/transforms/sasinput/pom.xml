@@ -20,37 +20,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>hop-plugins-transforms</artifactId>
-    <groupId>org.apache.hop</groupId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-transforms</artifactId>
+        <version>0.70-SNAPSHOT</version>
+    </parent>
+
+
+    <artifactId>hop-assemblies-plugins-transforms-sasinput</artifactId>
     <version>0.70-SNAPSHOT</version>
-  </parent>
-  <artifactId>hop-transform-sasinput</artifactId>
+    <packaging>pom</packaging>
 
-  <packaging>jar</packaging>
-  <name>Hop Plugins Transforms SAS Input</name>
+    <name>Hop Assemblies Plugins Transforms SAS Input</name>
+    <description>Can read SAS SAS7BDAT files </description>
 
-  <properties>
-    <epam-parso-version>2.0.13</epam-parso-version>
-  </properties>
+    <properties>
+        <epam-parso-version>2.0.13</epam-parso-version>
+    </properties>
 
-  <dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-sasinput</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.epam</groupId>
-      <artifactId>parso</artifactId>
-      <version>${epam-parso-version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.epam</groupId>
+            <artifactId>parso</artifactId>
+            <version>${epam-parso-version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-
-  </dependencies>
-
+    </dependencies>
 </project>

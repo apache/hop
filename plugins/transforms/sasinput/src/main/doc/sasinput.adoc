@@ -1,0 +1,43 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/sasinput/src/main/doc/sasinput.adoc
+
+= SAS Input
+
+== Description
+
+This transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
+The functionality is backed by the Parso java library which you can find https://github.com/epam/parso[over here].
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+
+|Transform name
+|Name of the transform this name has to be unique in a single pipeline.
+
+|Field in the input to use as filename
+|Select the input field that will contain the filename at runtime.  For example, you can use a "Get file names" transform to drive the content of this field.
+
+|The selected fields from the files
+|If you use the "Get Fields" button you can populate this data grid.  Please note that even though the sas7bdat file format only contains certain formats, that you can specify any desired data type and that PDI will convert for you.  Also note that not all fields need to be specified and that you can re-order fields and give them new names. The selection of the fields will be based on the name column.
+
+|===
