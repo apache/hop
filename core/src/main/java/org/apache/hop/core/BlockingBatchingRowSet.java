@@ -34,10 +34,14 @@ import java.util.concurrent.TimeUnit;
  * @since 04-05-2011
  */
 public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
-  private BlockingQueue<Object[][]> putArray, getArray;
+  private BlockingQueue<Object[][]> putArray;
+  private BlockingQueue<Object[][]> getArray;
 
-  private int putIndex, getIndex;
-  private Object[][] inputBuffer, outputBuffer;
+  private int putIndex;
+  private int getIndex;
+  
+  private Object[][] inputBuffer;
+  private Object[][] outputBuffer;
 
   private int size;
 
