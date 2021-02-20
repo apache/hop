@@ -533,7 +533,7 @@ public class TestingGuiPlugin {
       type = GuiActionType.Delete,
       name = "Create data set",
       tooltip = "Create an empty dataset with the output fields of this transform ",
-      image = "dataset.svg",
+      image = "create-dataset.svg",
       category = "Unit testing",
       categoryOrder = "8")
   public void createDataSetFromTransform(HopGuiPipelineTransformContext context) {
@@ -618,7 +618,7 @@ public class TestingGuiPlugin {
       type = GuiActionType.Create,
       name = "Write rows to data set",
       tooltip = "Run the current pipeline and write the data to a data set",
-      image = "dataset.svg",
+      image = "write-to-dataset.svg",
       category = "Unit testing",
       categoryOrder = "8")
   public void writeTransformDataToDataSet(HopGuiPipelineTransformContext context) {

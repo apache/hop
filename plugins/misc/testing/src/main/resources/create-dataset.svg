@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="24px" height="24px" viewBox="-1 -1 24 24" enable-background="new -1 -1 24 24" xml:space="preserve">
+<rect id="rect1408_56_" x="2" y="12" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_55_" x="7" y="12" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_54_" x="12" y="12" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_53_" x="17" y="12" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_52_" x="2" y="17" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_51_" x="7" y="17" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_50_" x="12" y="17" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_49_" x="17" y="17" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_48_" x="2" y="2" transform="matrix(-0.7072 0.707 -0.707 -0.7072 8.4493 3.5007)" display="none" fill="none" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_47_" x="12" y="2" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_46_" x="17" y="2" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_45_" x="7" y="7" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_44_" x="12" y="7" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_43_" x="17" y="7" display="none" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_42_" x="2" y="12" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_41_" x="7" y="12" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_40_" x="12" y="12" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_39_" x="17" y="12" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_38_" x="2" y="17" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_37_" x="7" y="17" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_36_" x="12" y="17" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_35_" x="17" y="17" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_34_" x="2" y="2" transform="matrix(0.7072 -0.707 0.707 0.7072 -1.4497 3.4994)" fill="none" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="2.999" height="3"/>
+<rect id="rect1408_33_" x="12" y="2" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_32_" x="17" y="2" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_31_" x="7" y="7" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_30_" x="12" y="7" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<rect id="rect1408_29_" x="17" y="7" fill="#5DC2C6" stroke="#5DC2C6" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+<polygon id="remove_1_" display="none" fill="#0e3a5a" points="14.5,21.182 15.818,22.5 18.547,19.772 21.275,22.5 22.5,21.182 
+	19.771,18.453 22.5,15.725 21.275,14.5 18.547,17.229 15.818,14.5 14.5,15.725 17.229,18.453 "/>
+<polygon id="polygon6_3_" fill="#0e3a5a" points="22.5,19.052 22.5,17.951 19.049,17.951 19.049,14.5 17.951,14.5 17.951,17.951 
+	14.5,17.951 14.5,19.052 17.951,19.052 17.951,22.5 19.049,22.5 19.049,19.052 "/>
+<polygon id="polygon6_2_" fill="#0e3a5a" points="22.5,19.052 22.5,17.951 19.049,17.951 19.049,14.5 17.951,14.5 17.951,17.951 
+	14.5,17.951 14.5,19.052 17.951,19.052 17.951,22.5 19.049,22.5 19.049,19.052 "/>
+<polygon id="input_1_" display="none" fill="#0e3a5a" points="1.719,5.43 1.719,7 7,6.997 7,1.771 5.429,1.771 5.429,4.318 1.11,0 
+	0,1.111 4.319,5.43 "/>
+</svg>

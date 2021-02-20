@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px"
+	 height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+<g id="Layer_1">
+	
+		<rect id="rect1408_7_" x="3" y="13" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_6_" x="8" y="13" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_5_" x="13" y="13" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_4_" x="18" y="13" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_11_" x="3" y="18" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_10_" x="8" y="18" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_9_" x="13" y="18" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_8_" x="18" y="18" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_19_" x="3" y="3" transform="matrix(-0.7072 0.707 -0.707 -0.7072 10.8635 4.5009)" fill="none" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_17_" x="13" y="3" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_16_" x="18" y="3" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_14_" x="8" y="8" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_13_" x="13" y="8" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+	
+		<rect id="rect1408_12_" x="18" y="8" fill="#5CC1C5" stroke="#5CC1C5" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+</g>
+<g id="Layer_2">
+	<polygon id="polygon18" display="none" fill="#E91D2D" points="17,22.012 17.988,23 20.035,20.954 22.082,23 23,22.012 
+		20.953,19.965 23,17.918 22.082,17 20.035,19.047 17.988,17 17,17.918 19.047,19.965 	"/>
+	<g id="art" transform="matrix(0.21875,0,0,0.21875,16,16)">
+		<polygon id="polygon6" fill="#0F3B5A" points="32,20.174 32,16.402 20.17,16.402 20.17,4.571 16.402,4.571 16.402,16.402 
+			4.571,16.402 4.571,20.174 16.402,20.174 16.402,32 20.17,32 20.17,20.174 		"/>
+	</g>
+</g>
+</svg>
