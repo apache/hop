@@ -124,7 +124,7 @@ public class PropsUi extends Props {
 
     populateContrastingColors();
 
-    if (!OsHelper.isWindows()) {
+    if (!OsHelper.isWindows() & !EnvironmentUtils.getInstance().isWeb()) {
       if (Display.isSystemDarkTheme()) {
         setDarkMode(true);
         setOSLookShown(true);
