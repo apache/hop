@@ -20,11 +20,9 @@ package org.apache.hop.core;
 
 public class ProgressNullMonitorListener implements IProgressMonitor {
 
-  @Override
   public void beginTask( String message, int nrWorks ) {
   }
 
-  @Override
   public void subTask( String message ) {
   }
 
@@ -33,15 +31,12 @@ public class ProgressNullMonitorListener implements IProgressMonitor {
     return false;
   }
 
-  @Override
   public void worked( int nrWorks ) {
   }
 
-  @Override
   public void done() {
   }
 
-  @Override
   public void setTaskName( String taskName ) {
   }
 }
