@@ -28,6 +28,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUi;
@@ -86,8 +87,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.All")
       };
 
-  public ActionWorkflowDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, action, workflowMeta);
+  public ActionWorkflowDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, action, workflowMeta, variables);
     this.action = (ActionWorkflow) action;
   }
 

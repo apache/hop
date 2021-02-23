@@ -21,6 +21,7 @@ package org.apache.hop.workflow.actions.sftpput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -142,8 +143,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   private SftpClient sftpclient = null;
 
-  public ActionSftpPutDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionSftpPutDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super( parent, workflowMeta, variables );
     this.action = (ActionSftpPut) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionSftpPut.Title"));

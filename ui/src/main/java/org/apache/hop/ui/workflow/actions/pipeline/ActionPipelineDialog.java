@@ -27,6 +27,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -78,8 +79,8 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionPipeline.Fileformat.All")
       };
 
-  public ActionPipelineDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, action, workflowMeta);
+  public ActionPipelineDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, action, workflowMeta, variables);
     this.action = (ActionPipeline) action;
   }
 

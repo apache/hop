@@ -82,10 +82,10 @@ public class ActionDialog extends Dialog {
    * @param parent   the parent shell
    * @param workflowMeta  the workflow metadata object
    */
-  public ActionDialog( Shell parent, WorkflowMeta workflowMeta ) {
+  public ActionDialog( Shell parent, WorkflowMeta workflowMeta, IVariables variables ) {
     super( parent, SWT.NONE );
     this.props = PropsUi.getInstance();
-    this.variables = HopGui.getInstance().getVariables();
+    this.variables = variables;
 
     this.workflowMeta = workflowMeta;
   }

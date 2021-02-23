@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.zipfile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -125,8 +126,8 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionZipFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionZipFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     this.action = (ActionZipFile) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobZipFiles.Name.Default" ) );

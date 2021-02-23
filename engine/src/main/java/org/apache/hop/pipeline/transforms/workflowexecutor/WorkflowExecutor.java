@@ -127,6 +127,15 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           }
           data.groupFieldMeta = getInputRowMeta().getValueMeta( data.groupFieldIndex );
         }
+
+        // Edge case: no grouping information given at all...
+        //
+        if (data.groupSize<0 && data.groupFieldIndex<0 && data.groupTime<=0) {
+          // We assume that we want to execute once per input row, not once for all the input rows...
+          // This is the default but the case might come about anyway
+          //
+          data.groupSize = 1;
+        }
       }
 
       // Grouping by field and execution time works ONLY if grouping by size is disabled.

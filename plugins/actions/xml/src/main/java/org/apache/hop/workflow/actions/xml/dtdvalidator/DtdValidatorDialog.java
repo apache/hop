@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.xml.dtdvalidator;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -70,8 +71,8 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public DtdValidatorDialog(Shell parent, IAction action, WorkflowMeta jobMeta ) {
-    super( parent, jobMeta );
+  public DtdValidatorDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     action = (DtdValidator) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobEntryDTDValidator.Name.Default" ) );

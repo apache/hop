@@ -20,9 +20,11 @@ package org.apache.hop.ui.workflow.actions.missing;
 import java.util.List;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -57,14 +59,14 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
   public static final int MISSING_ACTION_ID = 2;
 
   public MissingActionDialog( Shell parent, List<MissingAction> missingActions ) {
-    super( parent, null );
-   
+    super(parent, null, HopGui.getInstance().getVariables());
+
     this.missingActions = missingActions;
     this.mode = MISSING_ACTIONS;
   }
 
-  public MissingActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public MissingActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     this.action = action;
     this.mode = MISSING_ACTION_ID;
   }

@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.xml.xslt;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.xslt.XsltMeta;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -93,8 +94,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
   private TableView wOutputProperties;
 
-  public XsltDialog(Shell parent, IAction action, WorkflowMeta jobMeta ) {
-    super( parent, jobMeta );
+  public XsltDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     action = (Xslt) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobEntryXSLT.Name.Default" ) );

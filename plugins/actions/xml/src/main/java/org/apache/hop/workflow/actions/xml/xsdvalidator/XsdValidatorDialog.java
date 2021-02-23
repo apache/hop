@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.xml.xsdvalidator;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -66,8 +67,8 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public XsdValidatorDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public XsdValidatorDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     action = (XsdValidator) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobEntryXSDValidator.Name.Default" ) );

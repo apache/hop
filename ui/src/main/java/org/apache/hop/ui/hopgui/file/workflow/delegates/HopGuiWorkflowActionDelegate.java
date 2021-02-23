@@ -21,6 +21,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -150,11 +151,12 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   public IActionDialog getActionDialog(IAction action, WorkflowMeta workflowMeta) {
-    Class<?>[] paramClasses = new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class};
-    Object[] paramArgs = new Object[] {hopGui.getShell(), action, workflowMeta};
+    Class<?>[] paramClasses = new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class };
+    Object[] paramArgs = new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
 
     if ( MissingAction.ID.equals(action.getPluginId())) {
-	return new MissingActionDialog(hopGui.getShell(), action, workflowMeta);
+      return new MissingActionDialog(
+          hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables() );
     }
   
     PluginRegistry registry = PluginRegistry.getInstance();

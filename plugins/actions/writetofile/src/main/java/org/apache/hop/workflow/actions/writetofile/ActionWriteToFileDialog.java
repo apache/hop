@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.writetofile;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -72,8 +73,8 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
   private boolean gotEncodings = false;
 
-  public ActionWriteToFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionWriteToFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     this.action = (ActionWriteToFile) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobWriteToFile.Name.Default" ) );

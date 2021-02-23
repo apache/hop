@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.addresultfilenames;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -59,8 +60,8 @@ import org.eclipse.swt.widgets.Text;
 public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // For Translator
 
-  private static final String[] FILETYPES = new String[] { BaseMessages.getString(
-    PKG, "ActionAddResultFilenames.Filetype.All" ) };
+  private static final String[] FILETYPES =
+      new String[] {BaseMessages.getString(PKG, "ActionAddResultFilenames.Filetype.All")};
 
   private Text wName;
 
@@ -89,12 +90,13 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   private Button wbeFilename; // Edit
   private Button wbaFilename; // Add or change
 
-  public ActionAddResultFilenamesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionAddResultFilenamesDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionAddResultFilenames) action;
 
-    if ( this.action.getName() == null ) {
-      this.action.setName( BaseMessages.getString( PKG, "ActionAddResultFilenames.Name.Default" ) );
+    if (this.action.getName() == null) {
+      this.action.setName(BaseMessages.getString(PKG, "ActionAddResultFilenames.Name.Default"));
     }
   }
 
@@ -102,9 +104,9 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
-    props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, action );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    props.setLook(shell);
+    WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -113,28 +115,28 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Title" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Name.Label" ) );
+    wlName.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment( 0, 0 );
-    fdlName.right = new FormAttachment( middle, -margin );
-    fdlName.top = new FormAttachment( 0, margin );
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
+    fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wName );
-    wName.addModifyListener( lsMod );
+    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wName);
+    wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment( middle, 0 );
-    fdName.top = new FormAttachment( 0, margin );
-    fdName.right = new FormAttachment( 100, 0 );
+    fdName.left = new FormAttachment(middle, 0);
+    fdName.top = new FormAttachment(0, margin);
+    fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
     // SETTINGS grouping?
@@ -144,89 +146,94 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Settings.Label" ) );
+    wSettings.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
     groupLayout.marginHeight = 10;
-    wSettings.setLayout( groupLayout );
+    wSettings.setLayout(groupLayout);
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
-    wlIncludeSubfolders.setText( BaseMessages
-      .getString( PKG, "ActionAddResultFilenames.IncludeSubfolders.Label" ) );
+    wlIncludeSubfolders.setText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
-    fdlIncludeSubfolders.left = new FormAttachment( 0, 0 );
-    fdlIncludeSubfolders.top = new FormAttachment( wName, margin );
-    fdlIncludeSubfolders.right = new FormAttachment( middle, -margin );
+    fdlIncludeSubfolders.left = new FormAttachment(0, 0);
+    fdlIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
-    wIncludeSubfolders = new Button(wSettings, SWT.CHECK );
-    props.setLook( wIncludeSubfolders );
-    wIncludeSubfolders.setToolTipText( BaseMessages.getString(
-      PKG, "ActionAddResultFilenames.IncludeSubfolders.Tooltip" ) );
+    wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
+    props.setLook(wIncludeSubfolders);
+    wIncludeSubfolders.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
-    fdIncludeSubfolders.left = new FormAttachment( middle, 0 );
-    fdIncludeSubfolders.top = new FormAttachment( wName, margin );
-    fdIncludeSubfolders.right = new FormAttachment( 100, 0 );
+    fdIncludeSubfolders.left = new FormAttachment(middle, 0);
+    fdIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdIncludeSubfolders.right = new FormAttachment(100, 0);
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
-    wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        action.setChanged();
-      }
-    } );
+    wIncludeSubfolders.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        });
 
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Previous.Label" ) );
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
-    fdlPrevious.left = new FormAttachment( 0, 0 );
-    fdlPrevious.top = new FormAttachment( wIncludeSubfolders, margin );
-    fdlPrevious.right = new FormAttachment( middle, -margin );
+    fdlPrevious.left = new FormAttachment(0, 0);
+    fdlPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
-    wPrevious = new Button(wSettings, SWT.CHECK );
-    props.setLook( wPrevious );
-    wPrevious.setSelection( action.argFromPrevious );
-    wPrevious.setToolTipText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Previous.Tooltip" ) );
+    wPrevious = new Button(wSettings, SWT.CHECK);
+    props.setLook(wPrevious);
+    wPrevious.setSelection(action.argFromPrevious);
+    wPrevious.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
-    fdPrevious.left = new FormAttachment( middle, 0 );
-    fdPrevious.top = new FormAttachment( wIncludeSubfolders, margin );
-    fdPrevious.right = new FormAttachment( 100, 0 );
+    fdPrevious.left = new FormAttachment(middle, 0);
+    fdPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
-    wPrevious.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
+    wPrevious.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
 
-        setPrevious();
-        action.setChanged();
-      }
-    } );
+            setPrevious();
+            action.setChanged();
+          }
+        });
 
     Label wlDeleteAllBefore = new Label(wSettings, SWT.RIGHT);
-    wlDeleteAllBefore.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.DeleteAllBefore.Label" ) );
+    wlDeleteAllBefore.setText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.DeleteAllBefore.Label"));
     props.setLook(wlDeleteAllBefore);
     FormData fdlDeleteAllBefore = new FormData();
-    fdlDeleteAllBefore.left = new FormAttachment( 0, 0 );
-    fdlDeleteAllBefore.top = new FormAttachment( wPrevious, margin );
-    fdlDeleteAllBefore.right = new FormAttachment( middle, -margin );
+    fdlDeleteAllBefore.left = new FormAttachment(0, 0);
+    fdlDeleteAllBefore.top = new FormAttachment(wPrevious, margin);
+    fdlDeleteAllBefore.right = new FormAttachment(middle, -margin);
     wlDeleteAllBefore.setLayoutData(fdlDeleteAllBefore);
-    wDeleteAllBefore = new Button(wSettings, SWT.CHECK );
-    props.setLook( wDeleteAllBefore );
-    wDeleteAllBefore.setToolTipText( BaseMessages.getString(
-      PKG, "ActionAddResultFilenames.DeleteAllBefore.Tooltip" ) );
+    wDeleteAllBefore = new Button(wSettings, SWT.CHECK);
+    props.setLook(wDeleteAllBefore);
+    wDeleteAllBefore.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.DeleteAllBefore.Tooltip"));
     FormData fdDeleteAllBefore = new FormData();
-    fdDeleteAllBefore.left = new FormAttachment( middle, 0 );
-    fdDeleteAllBefore.top = new FormAttachment( wPrevious, margin );
-    fdDeleteAllBefore.right = new FormAttachment( 100, 0 );
+    fdDeleteAllBefore.left = new FormAttachment(middle, 0);
+    fdDeleteAllBefore.top = new FormAttachment(wPrevious, margin);
+    fdDeleteAllBefore.right = new FormAttachment(100, 0);
     wDeleteAllBefore.setLayoutData(fdDeleteAllBefore);
-    wDeleteAllBefore.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        action.setChanged();
-      }
-    } );
+    wDeleteAllBefore.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        });
 
     FormData fdSettings = new FormData();
-    fdSettings.left = new FormAttachment( 0, margin );
-    fdSettings.top = new FormAttachment( wName, margin );
-    fdSettings.right = new FormAttachment( 100, -margin );
+    fdSettings.left = new FormAttachment(0, margin);
+    fdSettings.top = new FormAttachment(wName, margin);
+    fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
@@ -234,213 +241,239 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // ///////////////////////////////////////////////////////////
 
     // Filename line
-    wlFilename = new Label( shell, SWT.RIGHT );
-    wlFilename.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Filename.Label" ) );
-    props.setLook( wlFilename );
+    wlFilename = new Label(shell, SWT.RIGHT);
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Filename.Label"));
+    props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment(wSettings, 2 * margin );
-    fdlFilename.right = new FormAttachment( middle, -margin );
+    fdlFilename.left = new FormAttachment(0, 0);
+    fdlFilename.top = new FormAttachment(wSettings, 2 * margin);
+    fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
     // Browse Source folders button ...
-    wbDirectory = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbDirectory );
-    wbDirectory.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.BrowseFolders.Label" ) );
+    wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbDirectory);
+    wbDirectory.setText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
-    fdbDirectory.right = new FormAttachment( 100, -margin );
-    fdbDirectory.top = new FormAttachment(wSettings, margin );
+    fdbDirectory.right = new FormAttachment(100, -margin);
+    fdbDirectory.top = new FormAttachment(wSettings, margin);
     wbDirectory.setLayoutData(fdbDirectory);
 
-    wbDirectory.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFilename, variables ) );
+    wbDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename, variables));
 
-    wbFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFilename );
-    wbFilename.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.BrowseFiles.Label" ) );
+    wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename);
+    wbFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
-    fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment(wSettings, margin );
-    fdbFilename.right = new FormAttachment( wbDirectory, -margin );
+    fdbFilename.right = new FormAttachment(100, 0);
+    fdbFilename.top = new FormAttachment(wSettings, margin);
+    fdbFilename.right = new FormAttachment(wbDirectory, -margin);
     wbFilename.setLayoutData(fdbFilename);
 
-    wbaFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbaFilename );
-    wbaFilename.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.FilenameAdd.Button" ) );
+    wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbaFilename);
+    wbaFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
-    fdbaFilename.right = new FormAttachment( wbFilename, -margin );
-    fdbaFilename.top = new FormAttachment(wSettings, margin );
+    fdbaFilename.right = new FormAttachment(wbFilename, -margin);
+    fdbaFilename.top = new FormAttachment(wSettings, margin);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFilename );
-    wFilename.addModifyListener( lsMod );
+    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wFilename);
+    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment( middle, 0 );
-    fdFilename.top = new FormAttachment(wSettings, 2 * margin );
-    fdFilename.right = new FormAttachment( wbFilename, -55 );
+    fdFilename.left = new FormAttachment(middle, 0);
+    fdFilename.top = new FormAttachment(wSettings, 2 * margin);
+    fdFilename.right = new FormAttachment(wbFilename, -55);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
+    wFilename.addModifyListener(
+        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
 
-    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, variables,
-      new String[] { "*" }, FILETYPES, true ) );
+    wbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
 
     // Filemask
-    wlFilemask = new Label( shell, SWT.RIGHT );
-    wlFilemask.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Wildcard.Label" ) );
-    props.setLook( wlFilemask );
+    wlFilemask = new Label(shell, SWT.RIGHT);
+    wlFilemask.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Wildcard.Label"));
+    props.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
-    fdlFilemask.left = new FormAttachment( 0, 0 );
-    fdlFilemask.top = new FormAttachment( wFilename, margin );
-    fdlFilemask.right = new FormAttachment( middle, -margin );
+    fdlFilemask.left = new FormAttachment(0, 0);
+    fdlFilemask.top = new FormAttachment(wFilename, margin);
+    fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask =
-      new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
-        PKG, "ActionAddResultFilenames.Wildcard.Tooltip" ) );
-    props.setLook( wFilemask );
-    wFilemask.addModifyListener( lsMod );
+        new TextVar(
+            variables,
+            shell,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionAddResultFilenames.Wildcard.Tooltip"));
+    props.setLook(wFilemask);
+    wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
-    fdFilemask.left = new FormAttachment( middle, 0 );
-    fdFilemask.top = new FormAttachment( wFilename, margin );
-    fdFilemask.right = new FormAttachment( wbFilename, -55 );
+    fdFilemask.left = new FormAttachment(middle, 0);
+    fdFilemask.top = new FormAttachment(wFilename, margin);
+    fdFilemask.right = new FormAttachment(wbFilename, -55);
     wFilemask.setLayoutData(fdFilemask);
 
     // Buttons to the right of the screen...
-    wbdFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbdFilename );
-    wbdFilename.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.FilenameDelete.Button" ) );
-    wbdFilename
-      .setToolTipText( BaseMessages.getString( PKG, "ActionAddResultFilenames.FilenameDelete.Tooltip" ) );
+    wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbdFilename);
+    wbdFilename.setText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameDelete.Button"));
+    wbdFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment( 100, 0 );
-    fdbdFilename.top = new FormAttachment( wFilemask, 40 );
+    fdbdFilename.right = new FormAttachment(100, 0);
+    fdbdFilename.top = new FormAttachment(wFilemask, 40);
     wbdFilename.setLayoutData(fdbdFilename);
 
-    wbeFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbeFilename );
-    wbeFilename.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.FilenameEdit.Button" ) );
-    wbeFilename.setToolTipText( BaseMessages.getString( PKG, "ActionAddResultFilenames.FilenameEdit.Tooltip" ) );
+    wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbeFilename);
+    wbeFilename.setText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameEdit.Button"));
+    wbeFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameEdit.Tooltip"));
     FormData fdbeFilename = new FormData();
-    fdbeFilename.right = new FormAttachment( 100, 0 );
-    fdbeFilename.left = new FormAttachment( wbdFilename, 0, SWT.LEFT );
-    fdbeFilename.top = new FormAttachment( wbdFilename, margin );
+    fdbeFilename.right = new FormAttachment(100, 0);
+    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
+    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    wlFields = new Label( shell, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "ActionAddResultFilenames.Fields.Label" ) );
-    props.setLook( wlFields );
+    wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Label"));
+    props.setLook(wlFields);
     FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.right = new FormAttachment( middle, -margin );
-    fdlFields.top = new FormAttachment( wFilemask, margin );
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wFilemask, margin);
     wlFields.setLayoutData(fdlFields);
 
     ColumnInfo[] colinf =
-      new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "ActionAddResultFilenames.Fields.Argument.Label" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "ActionAddResultFilenames.Fields.Wildcard.Label" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ), };
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Argument.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Wildcard.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+        };
 
-    colinf[ 0 ].setUsingVariables( true );
-    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "ActionAddResultFilenames.Fields.Column" ) );
-    colinf[ 1 ].setUsingVariables( true );
-    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "ActionAddResultFilenames.Wildcard.Column" ) );
+    colinf[0].setUsingVariables(true);
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Column"));
+    colinf[1].setUsingVariables(true);
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionAddResultFilenames.Wildcard.Column"));
 
     wFields =
-      new TableView(
-    		  variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, action.arguments == null ? 1 : (action.arguments.length), lsMod, props );
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            action.arguments == null ? 1 : (action.arguments.length),
+            lsMod,
+            props);
 
     FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
-    fdFields.right = new FormAttachment( 100, -75 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wlFields, margin);
+    fdFields.right = new FormAttachment(100, -75);
+    fdFields.bottom = new FormAttachment(100, -50);
     wFields.setLayoutData(fdFields);
 
-    wlFields.setEnabled( !action.argFromPrevious );
-    wFields.setEnabled( !action.argFromPrevious );
+    wlFields.setEnabled(!action.argFromPrevious);
+    wFields.setEnabled(!action.argFromPrevious);
 
     // Add the file to the list of files...
-    SelectionAdapter selA = new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        wFields.add(wFilename.getText(), wFilemask.getText());
-        wFilename.setText( "" );
-        wFilemask.setText( "" );
-        wFields.removeEmptyRows();
-        wFields.setRowNums();
-        wFields.optWidth( true );
-      }
-    };
-    wbaFilename.addSelectionListener( selA );
-    wFilename.addSelectionListener( selA );
+    SelectionAdapter selA =
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent arg0) {
+            wFields.add(wFilename.getText(), wFilemask.getText());
+            wFilename.setText("");
+            wFilemask.setText("");
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+            wFields.optWidth(true);
+          }
+        };
+    wbaFilename.addSelectionListener(selA);
+    wFilename.addSelectionListener(selA);
 
     // Delete files from the list of files...
-    wbdFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        int[] idx = wFields.getSelectionIndices();
-        wFields.remove( idx );
-        wFields.removeEmptyRows();
-        wFields.setRowNums();
-      }
-    } );
+    wbdFilename.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent arg0) {
+            int[] idx = wFields.getSelectionIndices();
+            wFields.remove(idx);
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+          }
+        });
 
     // Edit the selected file & remove from the list...
-    wbeFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          String[] string = wFields.getItem( idx );
-          wFilename.setText( string[ 0 ] );
-          wFilemask.setText( string[ 1 ] );
-          wFields.remove( idx );
-        }
-        wFields.removeEmptyRows();
-        wFields.setRowNums();
-      }
-    } );
+    wbeFilename.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent arg0) {
+            int idx = wFields.getSelectionIndex();
+            if (idx >= 0) {
+              String[] string = wFields.getItem(idx);
+              wFilename.setText(string[0]);
+              wFilemask.setText(string[1]);
+              wFields.remove(idx);
+            }
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+          }
+        });
 
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wFields );
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
 
     // Add listeners
     Listener lsCancel = e -> cancel();
     Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel);
-    wOk.addListener( SWT.Selection, lsOk);
+    wCancel.addListener(SWT.Selection, lsCancel);
+    wOk.addListener(SWT.Selection, lsOk);
 
-    SelectionAdapter lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected(SelectionEvent e) {
-        ok();
-      }
-    };
+    SelectionAdapter lsDef =
+        new SelectionAdapter() {
+          public void widgetDefaultSelected(SelectionEvent e) {
+            ok();
+          }
+        };
 
     wName.addSelectionListener(lsDef);
     wFilename.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
+    shell.addShellListener(
+        new ShellAdapter() {
+          public void shellClosed(ShellEvent e) {
+            cancel();
+          }
+        });
 
     getData();
     setPrevious();
 
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
@@ -448,93 +481,91 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   }
 
   private void setPrevious() {
-    wlFields.setEnabled( !wPrevious.getSelection() );
-    wFields.setEnabled( !wPrevious.getSelection() );
+    wlFields.setEnabled(!wPrevious.getSelection());
+    wFields.setEnabled(!wPrevious.getSelection());
 
-    wFilename.setEnabled( !wPrevious.getSelection() );
-    wlFilename.setEnabled( !wPrevious.getSelection() );
-    wbFilename.setEnabled( !wPrevious.getSelection() );
+    wFilename.setEnabled(!wPrevious.getSelection());
+    wlFilename.setEnabled(!wPrevious.getSelection());
+    wbFilename.setEnabled(!wPrevious.getSelection());
 
-    wlFilemask.setEnabled( !wPrevious.getSelection() );
-    wFilemask.setEnabled( !wPrevious.getSelection() );
+    wlFilemask.setEnabled(!wPrevious.getSelection());
+    wFilemask.setEnabled(!wPrevious.getSelection());
 
-    wbdFilename.setEnabled( !wPrevious.getSelection() );
-    wbeFilename.setEnabled( !wPrevious.getSelection() );
-    wbaFilename.setEnabled( !wPrevious.getSelection() );
+    wbdFilename.setEnabled(!wPrevious.getSelection());
+    wbeFilename.setEnabled(!wPrevious.getSelection());
+    wbaFilename.setEnabled(!wPrevious.getSelection());
 
-    wbDirectory.setEnabled( !wPrevious.getSelection() );
+    wbDirectory.setEnabled(!wPrevious.getSelection());
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
+    WindowProperty winprop = new WindowProperty(shell);
+    props.setScreen(winprop);
     shell.dispose();
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if ( action.getName() != null ) {
-      wName.setText( action.getName() );
+    if (action.getName() != null) {
+      wName.setText(action.getName());
     }
-    if ( action.arguments != null ) {
-      for ( int i = 0; i < action.arguments.length; i++ ) {
-        TableItem ti = wFields.table.getItem( i );
-        if ( action.arguments[ i ] != null ) {
-          ti.setText( 1, action.arguments[ i ] );
+    if (action.arguments != null) {
+      for (int i = 0; i < action.arguments.length; i++) {
+        TableItem ti = wFields.table.getItem(i);
+        if (action.arguments[i] != null) {
+          ti.setText(1, action.arguments[i]);
         }
-        if ( action.filemasks[ i ] != null ) {
-          ti.setText( 2, action.filemasks[ i ] );
+        if (action.filemasks[i] != null) {
+          ti.setText(2, action.filemasks[i]);
         }
       }
       wFields.setRowNums();
-      wFields.optWidth( true );
+      wFields.optWidth(true);
     }
-    wPrevious.setSelection( action.argFromPrevious );
-    wIncludeSubfolders.setSelection( action.includeSubfolders );
-    wDeleteAllBefore.setSelection( action.deleteallbefore );
+    wPrevious.setSelection(action.argFromPrevious);
+    wIncludeSubfolders.setSelection(action.includeSubfolders);
+    wDeleteAllBefore.setSelection(action.deleteallbefore);
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    action.setChanged( changed );
+    action.setChanged(changed);
     action = null;
     dispose();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( wName.getText() ) ) {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ) );
+    if (Utils.isEmpty(wName.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "System.TransformActionNameMissing.Title"));
+      mb.setMessage(BaseMessages.getString(PKG, "System.ActionNameMissing.Msg"));
       mb.open();
       return;
     }
-    action.setName( wName.getText() );
-    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    action.setArgumentsPrevious( wPrevious.getSelection() );
-    action.setDeleteAllBefore( wDeleteAllBefore.getSelection() );
+    action.setName(wName.getText());
+    action.setIncludeSubfolders(wIncludeSubfolders.getSelection());
+    action.setArgumentsPrevious(wPrevious.getSelection());
+    action.setDeleteAllBefore(wDeleteAllBefore.getSelection());
 
     int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
-      String arg = wFields.getNonEmpty( i ).getText( 1 );
-      if ( arg != null && arg.length() != 0 ) {
+    for (int i = 0; i < nrItems; i++) {
+      String arg = wFields.getNonEmpty(i).getText(1);
+      if (arg != null && arg.length() != 0) {
         nr++;
       }
     }
-    action.arguments = new String[ nr ];
-    action.filemasks = new String[ nr ];
+    action.arguments = new String[nr];
+    action.filemasks = new String[nr];
     nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
-      String arg = wFields.getNonEmpty( i ).getText( 1 );
-      String wild = wFields.getNonEmpty( i ).getText( 2 );
-      if ( arg != null && arg.length() != 0 ) {
-        action.arguments[ nr ] = arg;
-        action.filemasks[ nr ] = wild;
+    for (int i = 0; i < nrItems; i++) {
+      String arg = wFields.getNonEmpty(i).getText(1);
+      String wild = wFields.getNonEmpty(i).getText(2);
+      if (arg != null && arg.length() != 0) {
+        action.arguments[nr] = arg;
+        action.filemasks[nr] = wild;
         nr++;
       }
     }

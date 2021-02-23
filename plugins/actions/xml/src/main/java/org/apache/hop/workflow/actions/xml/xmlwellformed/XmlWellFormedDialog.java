@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.xml.xmlwellformed;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -88,8 +89,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private Label wlNrErrorsLessThan;
   private TextVar wNrErrorsLessThan;
 
-  public XmlWellFormedDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public XmlWellFormedDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     action = (XmlWellFormed) action;
 
     if ( this.action.getName() == null ) {

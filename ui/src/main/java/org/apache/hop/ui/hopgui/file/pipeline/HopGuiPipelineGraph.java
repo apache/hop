@@ -426,6 +426,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     this.log = hopGui.getLog();
 
+    // Adjust the internal variables
+    //
+    pipelineMeta.setInternalHopVariables( variables );
+
     pipelineLogDelegate = new HopGuiPipelineLogDelegate(hopGui, this);
     pipelineGridDelegate = new HopGuiPipelineGridDelegate(hopGui, this);
     pipelineClipboardDelegate = new HopGuiPipelineClipboardDelegate(hopGui, this);
@@ -3612,6 +3616,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
+    if (pipelineMeta!=null) {
+      pipelineMeta.setInternalHopVariables( variables );
+    }
   }
 
   @Override

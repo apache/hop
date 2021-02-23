@@ -789,7 +789,7 @@ public class TestingGuiPlugin {
     MetadataManager<PipelineUnitTest> manager =
         new MetadataManager<>(
             hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
-    PipelineUnitTest test = manager.newMetadataWithEditor();
+    PipelineUnitTest test = manager.newMetadata();
     if (test != null) {
       // Activate the test
       refreshUnitTestsList();
