@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -137,8 +138,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected LogChannel log;
 
-  public ActionBaseDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionBaseDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super(parent, workflowMeta, variables);
     log = new LogChannel(workflowMeta);
   }
 

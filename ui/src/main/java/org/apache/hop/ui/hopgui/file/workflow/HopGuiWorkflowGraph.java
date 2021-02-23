@@ -322,6 +322,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     this.props = PropsUi.getInstance();
     this.areaOwners = new ArrayList<>();
 
+    // Adjust the internal variables
+    //
+    workflowMeta.setInternalHopVariables( variables );
+
     workflowLogDelegate = new HopGuiWorkflowLogDelegate(hopGui, this);
     workflowGridDelegate = new HopGuiWorkflowGridDelegate(hopGui, this);
     workflowClipboardDelegate = new HopGuiWorkflowClipboardDelegate(hopGui, this);
@@ -330,8 +334,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowActionDelegate = new HopGuiWorkflowActionDelegate(hopGui, this);
     workflowHopDelegate = new HopGuiWorkflowHopDelegate(hopGui, this);
     notePadDelegate = new HopGuiNotePadDelegate(hopGui, this);
-
-    // TODO: ADD TOOLBAR
 
     setLayout(new FormLayout());
     setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -3013,6 +3015,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
+    if (workflowMeta!=null) {
+      workflowMeta.setInternalHopVariables( variables );
+    }
   }
 
   @GuiToolbarElement(

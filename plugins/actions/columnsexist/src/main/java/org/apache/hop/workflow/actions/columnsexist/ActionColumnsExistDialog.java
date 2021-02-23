@@ -23,6 +23,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -83,8 +84,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
   private TextVar wSchemaname;
 
-  public ActionColumnsExistDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionColumnsExistDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionColumnsExist) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionColumnsExist.Name.Default"));
@@ -449,7 +451,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (!Utils.isEmpty(wTablename.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, variables, databaseMeta );
+        Database database = new Database(loggingObject, variables, databaseMeta);
         try {
           database.connect();
           IRowMeta row =
@@ -492,7 +494,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     }
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta );
+      Database database = new Database(loggingObject, variables, databaseMeta);
       try {
         database.connect();
         String[] schemas = database.getSchemas();

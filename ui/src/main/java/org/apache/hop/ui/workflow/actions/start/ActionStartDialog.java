@@ -18,6 +18,7 @@
 package org.apache.hop.ui.workflow.actions.start;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -92,8 +93,8 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdlName, fdName;
 
-  public ActionStartDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionStartDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );;
     this.action = (ActionStart) action;
   }
 

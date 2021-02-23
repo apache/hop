@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -119,8 +120,9 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private FTPClient ftpclient = null;
   private String pwdFolder = null;
 
-  public ActionFtpPutDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionFtpPutDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionFtpPut) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFtpPut.Name.Default"));
@@ -181,8 +183,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-      shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // The tab folder between the name and the buttons
     //
@@ -313,9 +314,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.ProxyPort.Label"),
-            BaseMessages.getString(PKG, "ActionFtpPut.ProxyPort.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.ProxyPort.Label"),
+            BaseMessages.getString(PKG, "ActionFtpPut.ProxyPort.Tooltip"),
+            false,
+            false);
     props.setLook(wProxyPort);
     wProxyPort.addModifyListener(lsMod);
     FormData fdProxyPort = new FormData();
@@ -329,9 +332,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.ProxyUsername.Label"),
-            BaseMessages.getString(PKG, "ActionFtpPut.ProxyUsername.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.ProxyUsername.Label"),
+            BaseMessages.getString(PKG, "ActionFtpPut.ProxyUsername.Tooltip"),
+            false,
+            false);
     props.setLook(wProxyUsername);
     wProxyUsername.addModifyListener(lsMod);
     FormData fdProxyUsername = new FormData();
@@ -345,10 +350,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.ProxyPassword.Label"),
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.ProxyPassword.Label"),
             BaseMessages.getString(PKG, "ActionFtpPut.ProxyPassword.Tooltip"),
-            true, false);
+            true,
+            false);
     props.setLook(wProxyPassword);
     wProxyPassword.addModifyListener(lsMod);
     FormData fdProxyPasswd = new FormData();
@@ -721,9 +727,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyHost.Label"),
-            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyHost.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyHost.Label"),
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyHost.Tooltip"),
+            false,
+            false);
     props.setLook(wSocksProxyHost);
     wSocksProxyHost.addModifyListener(lsMod);
     FormData fdSocksProxyHost = new FormData();
@@ -737,9 +745,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPort.Label"),
-            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPort.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPort.Label"),
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPort.Tooltip"),
+            false,
+            false);
     props.setLook(wSocksProxyPort);
     wSocksProxyPort.addModifyListener(lsMod);
     FormData fdSocksProxyPort = new FormData();
@@ -753,9 +763,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyUsername.Label"),
-            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyUsername.Label"),
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Tooltip"),
+            false,
+            false);
     props.setLook(wSocksProxyUsername);
     wSocksProxyUsername.addModifyListener(lsMod);
     FormData fdSocksProxyUsername = new FormData();
@@ -769,10 +781,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Label"),
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Label"),
             BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Tooltip"),
-            true, false);
+            true,
+            false);
     props.setLook(wSocksProxyPort);
     wSocksProxyPassword.addModifyListener(lsMod);
     FormData fdSocksProxyPassword = new FormData();
@@ -802,9 +815,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
 
     // Add listeners
     Listener lsTest = e -> test();

@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -140,8 +141,9 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString(PKG, "ActionFtpDelete.Filetype.All")
       };
 
-  public ActionFtpDeleteDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionFtpDeleteDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionFtpDelete) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFtpDelete.Name.Default"));
@@ -198,8 +200,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-      shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // The tab folder between the name and the buttons
     //
@@ -864,9 +865,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPort.Label"),
-            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPort.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPort.Label"),
+            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPort.Tooltip"),
+            false,
+            false);
     props.setLook(wSocksProxyPort);
     wSocksProxyPort.addModifyListener(lsMod);
     FormData fdSocksProxyPort = new FormData();
@@ -880,9 +883,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyUsername.Label"),
-            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPassword.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyUsername.Label"),
+            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPassword.Tooltip"),
+            false,
+            false);
     props.setLook(wSocksProxyUsername);
     wSocksProxyUsername.addModifyListener(lsMod);
     FormData fdSocksProxyUsername = new FormData();
@@ -896,10 +901,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         new LabelTextVar(
             variables,
             wSocksProxy,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPassword.Label"),
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPassword.Label"),
             BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxyPassword.Tooltip"),
-            true, false);
+            true,
+            false);
     props.setLook(wSocksProxyPort);
     wSocksProxyPassword.addModifyListener(lsMod);
     FormData fdSocksProxyPassword = new FormData();
@@ -930,7 +936,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners

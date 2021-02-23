@@ -18,6 +18,7 @@
 package org.apache.hop.ui.workflow.actions.dummy;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -50,8 +51,8 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
 
   private Text wName;
 
-  public ActionDummyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionDummyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );;
     this.action = (ActionDummy) action;
   }
 

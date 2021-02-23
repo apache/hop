@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.repeat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -95,8 +96,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
   private Button wOK, wCancel;
 
-  public RepeatDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public RepeatDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super( parent, workflowMeta, variables );
     this.action = (Repeat) action;
 
     if (this.action.getName() == null) {

@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -120,8 +121,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private Label wlClearResultList;
   private Button wClearResultList;
 
-  public ActionWaitForSqlDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionWaitForSqlDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionWaitForSql) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionWaitForSQL.Name.Default"));
@@ -523,10 +525,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
 
     wSql =
         new StyledTextComp(
-            action,
-            wCustomGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
-        );
+            action, wCustomGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     props.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
@@ -651,7 +650,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
             wSql.setText(sql);
             break;
           case SWT.YES:
-            Database db = new Database(loggingObject, variables, inf );
+            Database db = new Database(loggingObject, variables, inf);
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);
@@ -708,7 +707,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   public void setPosition() {
     int lineNumber = wSql.getLineNumber();
     int columnNumber = wSql.getColumnNumber();
-    wlPosition.setText( BaseMessages.getString( PKG, "ActionWaitForSQL.Position.Label", "" + lineNumber, "" + columnNumber ) );
+    wlPosition.setText(
+        BaseMessages.getString(
+            PKG, "ActionWaitForSQL.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
   private void setCustomerSql() {

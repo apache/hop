@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.filecompare;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -60,8 +61,8 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
   private boolean changed;
 
-  public ActionFileCompareDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionFileCompareDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
+    super( parent, workflowMeta, variables );
     this.action = (ActionFileCompare) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFileCompare.Name.Default" ) );
