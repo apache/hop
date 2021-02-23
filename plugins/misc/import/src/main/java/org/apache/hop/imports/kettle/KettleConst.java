@@ -94,7 +94,10 @@ public class KettleConst {
                 {"BlockingStep","BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
-                {"StepMetastructure", "TransformMetaStructure"}
+                {"StepMetastructure", "TransformMetaStructure"},
+                {"Pentaho local", "local"},
+                {"JobExecutor", "WorkflowExecutor"},
+                {"TransExecutor", "PipelineExecutor"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
