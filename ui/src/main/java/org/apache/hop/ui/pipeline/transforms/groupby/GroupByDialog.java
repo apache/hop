@@ -574,7 +574,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       item.setText(1, Const.NVL(aggregation.getField(), ""));
       item.setText(2, Const.NVL(aggregation.getSubject(), ""));
       item.setText(3, GroupByMeta.getTypeDescLong(aggregation.getType()));
-      item.setText(3, Const.NVL(aggregation.getValue(), ""));
+      item.setText(4, Const.NVL(aggregation.getValue(), ""));
     }
 
     wGroup.setRowNums();
