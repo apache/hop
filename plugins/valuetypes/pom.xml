@@ -18,15 +18,17 @@
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-misc</artifactId>
+  <artifactId>hop-plugins-valuetypes</artifactId>
   <version>0.70-SNAPSHOT</version>
+  <modules>
+  </modules>
   <packaging>pom</packaging>
 
-  <name>Hop Plugins Miscellaneous</name>
+  <name>Hop Plugins Value Types</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
@@ -35,23 +37,17 @@
   </parent>
 
   <profiles>
-  <profile>
-    <id>lowdeps</id>
-    <activation>
-      <property>
-        <name>!skipDefault</name>
-      </property>
-    </activation>
-    <modules>
-      <module>debug</module>
-      <module>git</module>
-      <module>import</module>
-      <module>passwords</module>
-      <module>projects</module>
-      <module>testing</module>
-      <module>reflection</module>
-    </modules>
-  </profile>
+    <profile>
+      <id>lowdeps</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
+      <modules>
+        <module>json</module>
+      </modules>
+    </profile>
   </profiles>
 
   <build>

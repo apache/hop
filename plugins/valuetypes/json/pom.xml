@@ -17,30 +17,29 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>hop-assemblies-plugins</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>hop-plugins-valuetypes-json</artifactId>
+  <version>0.70-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-  <name>Hop Assemblies Plugins</name>
+  <name>Hop Plugins Value Types JSON </name>
 
   <parent>
-    <artifactId>hop-assemblies</artifactId>
     <groupId>org.apache.hop</groupId>
+    <artifactId>hop-plugins-valuetypes</artifactId>
     <version>0.70-SNAPSHOT</version>
   </parent>
 
-  <modules>
-    <module>databases</module>
-    <module>transforms</module>
-    <module>actions</module>
-    <module>vfs</module>
-    <module>misc</module>
-    <module>engines</module>
-    <module>valuetypes</module>
-    <module>dist</module>
-  </modules>
-
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>0.70-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
 </project>
