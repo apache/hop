@@ -63,8 +63,27 @@ ENV HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH=
 # ENV LC_CTYPE en_US.UTF-8
 # ENV LC_MESSAGES en_US.UTF-8
 
+# Install some fonts
+RUN apk --no-cache add msttcorefonts-installer \
+        fontconfig \
+        font-noto \
+        font-noto-adlam \
+        font-noto-adlamunjoined \
+        font-noto-arabic \
+        font-noto-armenian \
+        font-noto-avestan \
+        font-noto-bamum \
+        font-noto-bengali \
+        font-noto-buhid \
+        font-noto-carian \
+        font-noto-chakma \
+        font-noto-cherokee && \
+    update-ms-fonts && \
+    fc-cache -f
+
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+
 
 RUN apk update \
   && apk add --no-cache bash curl procps \ 
