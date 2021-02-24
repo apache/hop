@@ -51,7 +51,8 @@ public class KettleConst {
                 {"source_step", "source_transform"},
                 {"target_step", "target_transform"},
                 {"step1", "transform1"},
-                {"step2", "transform2"}
+                {"step2", "transform2"},
+                {"accept_stepname","accept_transform_name"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
