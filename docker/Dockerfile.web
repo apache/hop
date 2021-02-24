@@ -18,14 +18,14 @@
 
 FROM tomcat:jdk8
 LABEL maintainer="Apache Hop Team"
-ENV JAVA_OPTS="-Xms1024m -Xmx2048m -DHOP_CONFIG_FOLDER=webapps/ROOT/config"
+ENV JAVA_OPTS="-Xms1024m -Xmx2048m -DHOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config"
 
+# Cleanup and create folder
 RUN rm -rf webapps/* \
- && wget -q https://github.com/HiromuHota/incubator-hop/releases/download/hopweb%2Fnightly/hop.war \
- && mkdir ${CATALINA_HOME}/webapps/ROOT \
- && unzip -q hop.war -d ${CATALINA_HOME}/webapps/ROOT \
- && rm hop.war \
- && wget -q https://github.com/HiromuHota/incubator-hop/releases/download/hopweb%2Fnightly/hop-assemblies-plugins-dist-0.70-SNAPSHOT.zip -O hop-assemblies-plugins-dist.zip \
- && unzip -q hop-assemblies-plugins-dist.zip \
- && rm hop-assemblies-plugins-dist.zip \
- && sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/ROOT/config/hop-config.json
+    && mkdir ${CATALINA_HOME}/webapps/ROOT
+
+# Copy resources
+
+COPY ./assemblies/web/target/webapp/ ${CATALINA_HOME}/webapps/ROOT/
+COPY ./assemblies/plugins/dist/target/plugins ${CATALINA_HOME}/plugins
+
