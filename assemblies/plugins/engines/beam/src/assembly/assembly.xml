@@ -148,6 +148,7 @@
         <include>commons-httpclient:commons-httpclient</include>
         <include>commons-logging:commons-logging</include>
         <include>commons-net:commons-net</include>
+        <include>commons-collections:commons-collections</include>
         <include>com.ning:compress-lzf</include>
         <include>com.squareup.okhttp:okhttp</include>
         <include>com.squareup.okio:okio</include>
