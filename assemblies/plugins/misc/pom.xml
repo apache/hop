@@ -41,6 +41,7 @@
         <module>passwords</module>
         <module>projects</module>
         <module>testing</module>
+        <module>reflection</module>
     </modules>
 
 </project>

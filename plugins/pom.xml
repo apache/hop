@@ -49,6 +49,7 @@
         <module>misc</module>
         <module>engines</module>
         <module>vfs</module>
+        <module>valuetypes</module>
       </modules>
     </profile>
 

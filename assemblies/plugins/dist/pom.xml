@@ -3006,6 +3006,19 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-misc-reflection</artifactId>
+      <version>${hop-plugins-misc.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
       <version>0.70-SNAPSHOT</version>
       <type>zip</type>
@@ -3046,6 +3059,19 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-s3</artifactId>
+      <version>0.70-SNAPSHOT</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-valuetypes-json</artifactId>
       <version>0.70-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>

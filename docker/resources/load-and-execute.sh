@@ -17,15 +17,6 @@
 #
 #
 
-
-####################################################################### 
-# "PROJECT_STARTUP_JOB"
-# path to Kettle job from within volume
-#
-# "KETTLE_LOG_LEVEL"
-# values are [Basic / Debug] 
-#######################################################################
-
 set -Eeuo pipefail
 
 BASENAME="${0##*/}"
@@ -44,6 +35,8 @@ write_server_config() {
     HOP_SERVER_USER=${HOP_SERVER_USER:-cluster}
     HOP_SERVER_PASS=${HOP_SERVER_PASS:-cluster}
     HOP_SERVER_MASTER=${HOP_SERVER_MASTER:-Y}
+
+    HOP_SERVER_XML=/tmp/hop-server.xml
 
     log "Writing a hop-server config file to "${HOP_SERVER_XML}
 
@@ -69,34 +62,35 @@ if test -f "${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"; then
   source ${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}
 fi
 
-
-log "Registering project config with Hop"
-log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_DIRECTORY}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
-
-${DEPLOYMENT_PATH}/hop/hop-conf.sh \
---project=${HOP_PROJECT_NAME} \
---project-create \
---project-home="${HOP_PROJECT_DIRECTORY}" \
---project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
-
-log "Registering environment config with Hop"
-log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
-
-${DEPLOYMENT_PATH}/hop/hop-conf.sh \
---environment=${HOP_ENVIRONMENT_NAME} \
---environment-create \
---environment-project=${HOP_PROJECT_NAME} \
---environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
-
 if [ -z "${HOP_FILE_PATH}" ]
 then
+
     write_server_config
     log "Starting a hop-server on port 8080"
-    ${DEPLOYMENT_PATH}/hop/hop-server.sh /tmp/hopserver.xml
+    ${DEPLOYMENT_PATH}/hop/hop-server.sh /tmp/hop-server.xml
+
 else
-    
-    log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
-    ${DEPLOYMENT_PATH}/hop/hop-run.sh \
+
+  log "Registering project config with Hop"
+  log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_DIRECTORY}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
+
+  ${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+  --project=${HOP_PROJECT_NAME} \
+  --project-create \
+  --project-home="${HOP_PROJECT_DIRECTORY}" \
+  --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+
+  log "Registering environment config with Hop"
+  log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
+
+  ${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+  --environment=${HOP_ENVIRONMENT_NAME} \
+  --environment-create \
+  --environment-project=${HOP_PROJECT_NAME} \
+  --environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+
+  log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
+  ${DEPLOYMENT_PATH}/hop/hop-run.sh \
     --file=${HOP_FILE_PATH} \
     --project=${HOP_PROJECT_NAME} \
     --environment=${HOP_ENVIRONMENT_NAME} \
