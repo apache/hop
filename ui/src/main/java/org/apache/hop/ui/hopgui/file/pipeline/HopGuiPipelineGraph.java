@@ -21,25 +21,15 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IEngineMeta;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IRedrawable;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -47,16 +37,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.IHasLogChannel;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILogParentProvided;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
@@ -69,11 +50,7 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
-import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineHopMeta;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
@@ -83,26 +60,14 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
-import org.apache.hop.pipeline.transform.IRowDistribution;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.RowDistributionPluginType;
-import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -123,13 +88,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineHopDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.*;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
@@ -150,55 +109,19 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackListener;
-import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.*;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -213,7 +136,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MouseListener,
         MouseMoveListener,
         MouseTrackListener,
-        MouseWheelListener,
         KeyListener,
         IHasLogChannel,
         ILogParentProvided, // TODO: Aren't these the same?
@@ -428,7 +350,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Adjust the internal variables
     //
-    pipelineMeta.setInternalHopVariables( variables );
+    pipelineMeta.setInternalHopVariables(variables);
 
     pipelineLogDelegate = new HopGuiPipelineLogDelegate(hopGui, this);
     pipelineGridDelegate = new HopGuiPipelineGridDelegate(hopGui, this);
@@ -487,7 +409,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space initially
     //
-    wsCanvas = new ScrolledComposite(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
+    wsCanvas =
+        new ScrolledComposite(
+            sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
     wsCanvas.setAlwaysShowScrollBars(true);
     wsCanvas.setExpandHorizontal(true);
     wsCanvas.setExpandVertical(true);
@@ -499,7 +423,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     fdsCanvas.bottom = new FormAttachment(100, 0);
     wsCanvas.setLayoutData(fdsCanvas);
 
-    canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND );
+    canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -541,7 +465,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     verticalBar.setMinimum(1);
     verticalBar.setMaximum(100);
     verticalBar.setVisible(true);
-    if ( !EnvironmentUtils.getInstance().isWeb() ) {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
       horizontalBar.setIncrement(5);
       verticalBar.setIncrement(5);
     }
@@ -565,9 +489,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
      */
 
     canvas.addMouseListener(this);
-    canvas.addMouseMoveListener(this);
-    canvas.addMouseTrackListener(this);
-    canvas.addMouseWheelListener(this);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.addMouseMoveListener(this);
+      canvas.addMouseTrackListener(this);
+    }
     // canvas.addKeyListener( this );
 
     setBackground(GuiResource.getInstance().getColorBackground());
@@ -588,20 +513,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     wsCanvas.setMinWidth(bounds.width);
     wsCanvas.setMinHeight(bounds.height);
 
-    wsCanvas.addControlListener( new ControlAdapter() {
-      @Override public void controlResized( ControlEvent e ) {
-        new Thread( () -> {
-          try {
-            Thread.sleep(250);
-          } catch ( Exception e1 ) {
-            // ignore
+    wsCanvas.addControlListener(
+        new ControlAdapter() {
+          @Override
+          public void controlResized(ControlEvent e) {
+            new Thread(
+                    () -> {
+                      try {
+                        Thread.sleep(250);
+                      } catch (Exception e1) {
+                        // ignore
+                      }
+                      getDisplay().asyncExec(() -> adjustScrolling());
+                    })
+                .start();
           }
-          getDisplay().asyncExec( () ->
-            adjustScrolling()
-          );
-        } ).start();
-      }
-    } );
+        });
 
     // Update menu, toolbar, force redraw canvas
     //
@@ -1121,20 +1048,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "pipeline-graph-transform-1000-view-output",
-    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
-    type = GuiActionType.Info,
-    name = "View output",
-    tooltip = "Views output of a transform in a running or finished local pipeline",
-    image = "ui/images/database.svg",
-    category = "Preview",
-    categoryOrder = "3")
+      id = "pipeline-graph-transform-1000-view-output",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "View output",
+      tooltip = "Views output of a transform in a running or finished local pipeline",
+      image = "ui/images/database.svg",
+      category = "Preview",
+      categoryOrder = "3")
   public void showTransformOutputData(HopGuiPipelineTransformContext context) {
     TransformMeta dataTransformMeta = context.getTransformMeta();
-    if (outputRowsMap!=null) {
-      RowBuffer rowBuffer = outputRowsMap.get( dataTransformMeta.getName() );
-      if (rowBuffer!=null) {
-        showTransformOutputData( dataTransformMeta, rowBuffer );
+    if (outputRowsMap != null) {
+      RowBuffer rowBuffer = outputRowsMap.get(dataTransformMeta.getName());
+      if (rowBuffer != null) {
+        showTransformOutputData(dataTransformMeta, rowBuffer);
       }
     }
   }
@@ -1142,10 +1069,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public boolean showTransformOutputData(AreaOwner areaOwner) {
     TransformMeta dataTransform = (TransformMeta) areaOwner.getParent();
     RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
-    return showTransformOutputData( dataTransform, rowBuffer );
+    return showTransformOutputData(dataTransform, rowBuffer);
   }
 
-  private boolean showTransformOutputData( TransformMeta dataTransformMeta, RowBuffer rowBuffer ) {
+  private boolean showTransformOutputData(TransformMeta dataTransformMeta, RowBuffer rowBuffer) {
     if (rowBuffer != null) {
       synchronized (rowBuffer.getBuffer()) {
         if (!rowBuffer.isEmpty()) {
@@ -1619,17 +1546,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Show a tool tip upon mouse-over of an object on the canvas
     if (tip && !helpTip.isVisible()) {
       setToolTip(real.x, real.y, e.x, e.y);
-    }
-  }
-
-  @Override
-  public void mouseScrolled(MouseEvent event) {
-    if (event.count > 0) {
-      // scroll up
-      zoomIn();
-    } else if (event.count < 0) {
-      // scroll down
-      zoomOut();
     }
   }
 
@@ -3616,8 +3532,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
-    if (pipelineMeta!=null) {
-      pipelineMeta.setInternalHopVariables( variables );
+    if (pipelineMeta != null) {
+      pipelineMeta.setInternalHopVariables(variables);
     }
   }
 
