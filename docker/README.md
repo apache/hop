@@ -76,25 +76,20 @@ docker run -it --rm \
   apache/incubator-hop:<tag>
 ```
 
-If you need a **long-lived container**, this option is also available. Run this command e.g.:
+If you need a **long-lived container**, this option is also available. Run this command to start a Hop Server in a docker container:
 
 ```bash
 docker pull docker.io/apache/incubator-hop:<tag>
 docker run -it --rm \
-  --env HOP_LOG_LEVEL=Basic \
-  --env HOP_PROJECT_DIRECTORY=/files/project \
-  --env HOP_PROJECT_NAME=project-a \
-  --env HOP_ENVIRONMENT_NAME=project-a-test \
-  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/files/config/project-a-test.json \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
-  -p 8080:8080
-  -v /path/to/local/dir:/files \
-  --name my-simple-hop-container \
+  -p 8080:8080 \
+  --name my-hop-server-container \
  apache/incubator-hop:<tag>
 ```
+Hop Server is designed to receive all variables and metadata from executing clients. This means it needs little to no configuration to run.
 
-You can then access the hop-server UI from your dockerhost at `http://localhost:8080`
+You can then access the hop-server UI from your host at `http://localhost:8080`
 
 ## Custom Entrypoint Extension Shell Script
 
