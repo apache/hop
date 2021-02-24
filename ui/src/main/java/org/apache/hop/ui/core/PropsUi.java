@@ -130,8 +130,11 @@ public class PropsUi extends Props {
         setOSLookShown(true);
       } else {
         setDarkMode(false);
-        setOSLookShown(false);
+        setOSLookShown(true);
       }
+    } else {
+      //TODO: temp fix for grids clean this up!
+      setOSLookShown(true);
     }
 
     if (display != null) {
