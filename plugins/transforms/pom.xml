@@ -140,6 +140,7 @@
         <module>metainject</module>
         <module>metastructure</module>
         <module>mongodb</module>
+        <module>mqtt</module>
         <module>multimerge</module>
         <module>normaliser</module>
         <module>nullif</module>
