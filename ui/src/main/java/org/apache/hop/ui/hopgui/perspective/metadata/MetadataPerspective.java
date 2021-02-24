@@ -17,11 +17,6 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -80,13 +75,17 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
     name = "Metadata",
     description = "The Hop Metatada Perspective",
-    image = "ui/images/metadata.svg"
-)
-@GuiPlugin(description="This perspective allows you to see and edit all available metadata")
+    image = "ui/images/metadata.svg")
+@GuiPlugin(description = "This perspective allows you to see and edit all available metadata")
 public class MetadataPerspective implements IHopPerspective {
 
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
@@ -190,23 +189,22 @@ public class MetadataPerspective implements IHopPerspective {
 
     // refresh the metadata when it changes.
     //
-    hopGui.getEventsHandler().addEventListener(
-      getClass().getName(),
-      e->refresh(),
-      HopGuiEvents.MetadataChanged.name()
-    );
-
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
-    return new MetadataManager<>(HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+    return new MetadataManager<>(
+        HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
   }
 
   protected void createTree(Composite parent) {
     PropsUi props = PropsUi.getInstance();
-    
+
     // Create composite
     //
     Composite composite = new Composite(parent, SWT.BORDER);
@@ -228,7 +226,7 @@ public class MetadataPerspective implements IHopPerspective {
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
     props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
-    
+
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> this.updateSelection());
@@ -245,9 +243,9 @@ public class MetadataPerspective implements IHopPerspective {
           TreeItem treeItem = tree.getSelection()[0];
           if (treeItem != null) {
             if (treeItem.getParentItem() == null) {
-        	onNewMetadata();
+              onNewMetadata();
             } else {
-        	onEditMetadata();
+              onEditMetadata();
             }
           }
         });
@@ -461,12 +459,12 @@ public class MetadataPerspective implements IHopPerspective {
 
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-      MetadataEditor<?> editor = getActiveEditor();
-      if ( editor!=null ) {
-	  return editor;
-      }
-      
-      return new EmptyHopFileTypeHandler();
+    MetadataEditor<?> editor = getActiveEditor();
+    if (editor != null) {
+      return editor;
+    }
+
+    return new EmptyHopFileTypeHandler();
   }
 
   @Override
@@ -507,13 +505,11 @@ public class MetadataPerspective implements IHopPerspective {
     TreeItem treeItem = tree.getSelection()[0];
     if (treeItem != null) {
       String objectKey;
-      if ( treeItem.getParentItem()==null ) {
-	  objectKey = (String) treeItem.getData();
+      if (treeItem.getParentItem() == null) {
+        objectKey = (String) treeItem.getData();
+      } else {
+        objectKey = (String) treeItem.getParentItem().getData();
       }
-      else {
-	  objectKey = (String) treeItem.getParentItem().getData(); 
-      }
-	  
 
       try {
         IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
@@ -551,19 +547,19 @@ public class MetadataPerspective implements IHopPerspective {
           new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
         }
       }
-      
+
       this.updateSelection();
     }
   }
 
   @GuiToolbarElement(
-	      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-	      id = TOOLBAR_ITEM_EDIT,
-	      toolTip = "Edit",
-	      image = "ui/images/edit.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT,
+      toolTip = "Edit",
+      image = "ui/images/edit.svg")
   public void onRenameMetadata() {
 
-    if ( tree.getSelectionCount() < 1) {
+    if (tree.getSelectionCount() < 1) {
       return;
     }
 
@@ -708,6 +704,15 @@ public class MetadataPerspective implements IHopPerspective {
       //
       IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
       List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+      // Sort by name
+      Collections.sort(
+          metadataClasses,
+          (cl1, cl2) -> {
+            HopMetadata a1 = HopMetadataUtil.getHopMetadataAnnotation(cl1);
+            HopMetadata a2 = HopMetadataUtil.getHopMetadataAnnotation(cl2);
+            return a1.name().compareTo(a2.name());
+          });
+
       for (Class<IHopMetadata> metadataClass : metadataClasses) {
         HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
         Image image =
