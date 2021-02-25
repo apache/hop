@@ -134,7 +134,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
               + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
               + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToPipelineStatusPage" ) + "</a><p>" );
           }
-        } catch ( Exception e ) {
+        } catch ( Throwable e ) {
           String logText = HopLogStore.getAppender().getBuffer( pipeline.getLogChannel().getLogChannelId(), true ).toString();
           if ( useXML ) {
             out.println( new WebResult( WebResult.STRING_ERROR,

@@ -63,6 +63,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.joda.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -490,9 +491,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       statusDescription = "";
       return;
     }
-    beamPipelineResults.getState().name();
+
+    // This seems to be the most reliable way of checking the state...
+    //
+    PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish( Duration.millis( 1 ) );
+
     boolean cancelPipeline = false;
-    switch ( beamPipelineResults.getState() ) {
+    switch ( pipelineState ) {
       case DONE:
         if ( isRunning() ) {
           // First time we've hit this:

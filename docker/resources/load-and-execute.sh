@@ -44,7 +44,7 @@ write_server_config() {
     echo "  <hop-server>" >> ${HOP_SERVER_XML}
     echo "    <name>Hop Server</name>" >> ${HOP_SERVER_XML}
     echo "    <hostname>0.0.0.0</hostname>" >> ${HOP_SERVER_XML}
-    echo "    <port>8080</port>" >> ${HOP_SERVER_XML}
+    echo "    <port>${HOP_SERVER_PORT}</port>" >> ${HOP_SERVER_XML}
     echo "    <username>${HOP_SERVER_USER}</username>" >> ${HOP_SERVER_XML}
     echo "    <password>${HOP_SERVER_PASS}</password>" >> ${HOP_SERVER_XML}
     echo "  </hop-server>" >> ${HOP_SERVER_XML}
@@ -66,7 +66,7 @@ if [ -z "${HOP_FILE_PATH}" ]
 then
 
     write_server_config
-    log "Starting a hop-server on port 8080"
+    log "Starting a hop-server on port "${HOP_SERVER_PORT}
     ${DEPLOYMENT_PATH}/hop/hop-server.sh /tmp/hop-server.xml
 
 else

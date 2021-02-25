@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM openjdk:8-alpine
+FROM adoptopenjdk/openjdk8:alpine-slim
 LABEL maintainer="Apache Hop Team"
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/opt/hop
@@ -63,11 +63,34 @@ ENV HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH=
 # ENV LC_CTYPE en_US.UTF-8
 # ENV LC_MESSAGES en_US.UTF-8
 
+# Give the /tmp folder some breathing room
+#
+RUN chmod 777 -R /tmp && chmod o+t -R /tmp
+
+# Install some fonts
+RUN apk --no-cache add msttcorefonts-installer \
+        fontconfig \
+        font-noto \
+        font-noto-adlam \
+        font-noto-adlamunjoined \
+        font-noto-arabic \
+        font-noto-armenian \
+        font-noto-avestan \
+        font-noto-bamum \
+        font-noto-bengali \
+        font-noto-buhid \
+        font-noto-carian \
+        font-noto-chakma \
+        font-noto-cherokee && \
+    update-ms-fonts && \
+    fc-cache -f
+
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
 
+
 RUN apk update \
-  && apk add --no-cache bash curl procps \ 
+  && apk add --no-cache bash curl procps \
   && rm -rf /var/cache/apk/* \
   && mkdir ${DEPLOYMENT_PATH} \
   && mkdir ${VOLUME_MOUNT_POINT} \
