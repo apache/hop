@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM openjdk:8-alpine
+FROM adoptopenjdk/openjdk8:alpine-slim
 LABEL maintainer="Apache Hop Team"
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/opt/hop
@@ -63,6 +63,10 @@ ENV HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH=
 # ENV LC_CTYPE en_US.UTF-8
 # ENV LC_MESSAGES en_US.UTF-8
 
+# Give the /tmp folder some breathing room
+#
+RUN chmod 777 -R /tmp && chmod o+t -R /tmp
+
 # Install some fonts
 RUN apk --no-cache add msttcorefonts-installer \
         fontconfig \
@@ -86,7 +90,7 @@ RUN apk --no-cache add msttcorefonts-installer \
 
 
 RUN apk update \
-  && apk add --no-cache bash curl procps \ 
+  && apk add --no-cache bash curl procps \
   && rm -rf /var/cache/apk/* \
   && mkdir ${DEPLOYMENT_PATH} \
   && mkdir ${VOLUME_MOUNT_POINT} \
