@@ -324,10 +324,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                 topLevelResource.getBaseResourceName());
         WebResult webResult = WebResult.fromXmlString(result);
         if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
+          String message = cleanupMessage(webResult.getMessage());
           throw new HopException(
               "There was an error passing the exported pipeline to the remote server: "
                   + Const.CR
-                  + webResult.getMessage());
+                  + message);
         }
         containerId = webResult.getId();
       } else {
@@ -345,10 +346,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
             hopServer.sendXml(this, xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y");
         WebResult webResult = WebResult.fromXmlString(reply);
         if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
+          String message = cleanupMessage(webResult.getMessage());
           throw new HopException(
               "There was an error posting the pipeline on the remote server: "
                   + Const.CR
-                  + webResult.getMessage());
+                  + message);
         }
         containerId = webResult.getId();
       }
@@ -365,7 +367,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   + containerId);
       WebResult webResult = WebResult.fromXmlString(reply);
       if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
-        String message = webResult.getMessage().replace("\t", Const.CR);
+        String message = cleanupMessage(webResult.getMessage());
         throw new HopException(
             "There was an error preparing the pipeline for execution on the remote server: "
                 + Const.CR
@@ -379,6 +381,10 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  private String cleanupMessage( String message ) {
+    return message.replace("\t", Const.CR);
   }
 
   @Override
@@ -418,13 +424,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         readyToStart = false;
         running = true;
       } else {
+        String message = cleanupMessage(webResult.getMessage());
         throw new HopException(
             "Error starting pipeline on hop server '"
                 + hopServer.getName()
                 + "' with object ID '"
                 + containerId
                 + "' : "
-                + webResult.getMessage());
+                + message);
       }
     } catch (Exception e) {
       throw new HopException("Unable to start pipeline on server '" + hopServer.getName() + "'", e);
