@@ -492,7 +492,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       return;
     }
 
-    // Wait one ms for the pipeline to finish...
+    // This seems to be the most reliable way of checking the state...
     //
     PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish( Duration.millis( 1 ) );
 
