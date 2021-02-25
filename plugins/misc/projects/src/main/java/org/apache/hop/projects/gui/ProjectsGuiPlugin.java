@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
@@ -46,7 +47,9 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
@@ -54,11 +57,19 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -68,6 +79,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
@@ -83,6 +96,8 @@ public class ProjectsGuiPlugin {
   public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-50020-environment-edit";
   public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-50030-environment-add";
   public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-50040-environment-delete";
+
+  public static final String ID_MAIN_MENU_PROJECT_EXPORT = "10055-menu-file-export-to-svg";
 
   public static final String NAVIGATE_TOOLBAR_PARENT_ID = "HopVfsFileDialog-NavigateToolbar";
   private static final String NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME =
@@ -851,5 +866,96 @@ public class ProjectsGuiPlugin {
         instance.navigateTo(homeFolder, true);
       }
     }
+  }
+
+  @GuiMenuElement(
+          root = HopGui.ID_MAIN_MENU,
+          id = ID_MAIN_MENU_PROJECT_EXPORT,
+          label = "i18n::HopGui.FileMenu.Project.Export.Label",
+          image = "export.svg",
+          parentId = HopGui.ID_MAIN_MENU_FILE,
+          separator = false
+  )
+  public void menuProjectExport() {
+    HopGui hopGui = HopGui.getInstance();
+    Shell shell = hopGui.getShell();
+
+    String zipFilename = BaseDialog.presentFileDialog(true, shell, new String[]{"*.zip", "*.*"}, new String[]{"Zip files (*.zip)", "All Files (*.*)"}, true);
+    if (zipFilename == null) {
+      return;
+    }
+
+    Combo combo = getProjectsCombo();
+    if (combo == null) {
+      return;
+    }
+    String projectName = combo.getText();
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    String projectHome = projectConfig.getProjectHome();
+
+    try {
+      IRunnableWithProgress op =
+              monitor -> {
+                try {
+                  monitor.setTaskName("Zipping project directory... ");
+                  FileOutputStream fos = new FileOutputStream(zipFilename);
+                  ZipOutputStream zos = new ZipOutputStream(fos);
+                  File projectDirectory = new File(projectHome);
+                  zipFile(projectDirectory, projectDirectory.getName(), zos);
+                  zos.close();
+                  fos.close();
+                } catch (Exception e) {
+                  throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
+                }
+              };
+
+      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+      pmd.run(true, false, op);
+
+      GuiResource.getInstance().toClipboard(zipFilename);
+
+      MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
+      box.setText("Project zip file created");
+      box.setMessage("A zip file was successfully created: " +
+              zipFilename +
+              Const.CR +
+              "The filename was copied to the clipboard.");
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error zipping project", e);
+    }
+  }
+
+  public void zipFile(File fileToZip, String filename, ZipOutputStream zipOutputStream) throws IOException {
+    if (fileToZip.isHidden()) {
+      return;
+    }
+    if (fileToZip.isDirectory()) {
+      if (filename.endsWith("/")) {
+        zipOutputStream.putNextEntry(new ZipEntry(filename));
+        zipOutputStream.closeEntry();
+      } else {
+        zipOutputStream.putNextEntry(new ZipEntry(filename + "/"));
+        zipOutputStream.closeEntry();
+      }
+      File[] children = fileToZip.listFiles();
+      for (File childFile : children) {
+        zipFile(childFile, filename + "/" + childFile.getName(), zipOutputStream);
+      }
+      return;
+    }
+    FileInputStream fis = new FileInputStream(fileToZip);
+    ZipEntry zipEntry = new ZipEntry(filename);
+    zipOutputStream.putNextEntry(zipEntry);
+    byte[] bytes = new byte[1024];
+    int length;
+    while ((length = fis.read(bytes)) >= 0) {
+      zipOutputStream.write(bytes, 0, length);
+    }
+    fis.close();
   }
 }
