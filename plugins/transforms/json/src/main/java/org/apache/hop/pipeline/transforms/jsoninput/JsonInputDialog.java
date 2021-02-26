@@ -346,7 +346,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
     wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
-            new String[] { "*.js", "*.json", "*" },
+            new String[] { "*.js;*.json", "*.*" },
             new String[] { BaseMessages.getString( PKG, "System.FileType.JsonFiles" ),
                     BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
             true )
