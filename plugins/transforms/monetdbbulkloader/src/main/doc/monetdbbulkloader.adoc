@@ -1,0 +1,84 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/monetdbbulkloader/src/main/doc/monetdbbulkloader.adoc
+
+= MonetDB Bulk Loader
+
+== Description
+
+The MonetDB Bulk loader can be used to Bulk load data to MonetDB, this transform greatly improves the spead to load data to MonetDB.
+
+== Options
+
+=== General
+
+Transform name : Specify the unique name of the MongoDB Output transform in the pipeline.
+Connection : Select your MonetDB database connection
+
+=== General Settings tab
+
+This tab contains the destination settings, buffer size and location for the logfile.
+
+|===
+|Field|Description
+
+|Target Schema
+|Specify the database schema that has to be used.
+
+|Target Table
+|Specify the database table, use the Browse button next to this field to use a menu to select the table and schema
+
+|Buffer size (rows)
+|Specify how many rows will be kept in memory before transferring to MonetDB
+
+|Log file
+|Specify the location for the Bulk command logs returned from MonetDB
+
+|Truncate table
+|Remove all data from the destination table before loading the data.
+
+|Fully quote all SQL statements
+|Forces quotes around all objects when executing
+
+|===
+
+=== MonetDB Settings tab
+
+This tab contains information about the temporary files that are generated to load the data.
+
+|===
+|Field|Description
+
+|Field separator
+|This is the separator that will be used in the Bulk copy command, it is not allowed to have this field in the input data.
+
+|Field enclosure
+|The enclosure character used around values.
+
+|Null values represented
+|Null values will be converted to this string, this allows to differentiate empty strings and null values.
+
+|Encoding
+|File encoding used when generating the files for the copy statement.
+
+
+|===
+
+=== Output Fields tab
+This tab contains the source to target mapping.
