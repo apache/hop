@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 /**
  * Editor that allows you to change Pipeline Log metadata
  *
- * @see HopServer
+ * @see PipelineLog
  */
 public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   private static final Class<?> PKG = PipelineLogEditor.class; // For Translator

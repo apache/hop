@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.reflection.workflow.meta;
+package org.apache.hop.reflection.probe.meta;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -25,13 +25,14 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.apache.hop.reflection.workflow.transform.WorkflowLoggingMeta;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.reflection.probe.transform.PipelineDataProbeMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -43,33 +44,28 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Editor that allows you to change Workflow Log metadata
+ * Editor that allows you to change Pipeline Probe metadata
  *
- * @see WorkflowLog
+ * @see PipelineProbe
  */
-public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
-  private static final Class<?> PKG = WorkflowLogEditor.class; // For Translator
+public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
+  private static final Class<?> PKG = PipelineProbeEditor.class; // For Translator
 
   private Text wName;
   private Button wEnabled;
-  private Button wLoggingParentsOnly;
   private TextVar wFilename;
-  private Button wAtStart;
-  private Button wAtEnd;
-  private Button wPeriodic;
-  private Label wlInterval;
-  private TextVar wInterval;
+  private TableView wSources;
 
-  private int middle;
-  private int margin;
-
-  public WorkflowLogEditor(
-    HopGui hopGui, MetadataManager<WorkflowLog> manager, WorkflowLog metadata) {
+  public PipelineProbeEditor(
+      HopGui hopGui, MetadataManager<PipelineProbe> manager, PipelineProbe metadata) {
     super(hopGui, manager, metadata);
   }
 
@@ -78,8 +74,11 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
 
     PropsUi props = PropsUi.getInstance();
 
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
+
+    // Add listener to detect change after loading data
+    ModifyListener lsMod = e -> setChanged();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -92,7 +91,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
     props.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
     fdlName.left = new FormAttachment(0, 0);
@@ -118,7 +117,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
     props.setLook(wlEnabled);
-    wlEnabled.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Enabled.Label"));
+    wlEnabled.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Enabled.Label"));
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
     fdlEnabled.right = new FormAttachment(middle, 0);
@@ -133,34 +132,13 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wEnabled.setLayoutData(fdEnabled);
     lastControl = wlEnabled;
 
-    // LoggingParentsOnly?
-    //
-    Label wlLoggingParentsOnly = new Label(parent, SWT.RIGHT);
-    props.setLook(wlLoggingParentsOnly);
-    wlLoggingParentsOnly.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.LoggingParentsOnly.Label"));
-    FormData fdlLoggingParentsOnly = new FormData();
-    fdlLoggingParentsOnly.left = new FormAttachment(0, 0);
-    fdlLoggingParentsOnly.right = new FormAttachment(middle, 0);
-    fdlLoggingParentsOnly.top = new FormAttachment(lastControl, 2*margin);
-    wlLoggingParentsOnly.setLayoutData(fdlLoggingParentsOnly);
-    wLoggingParentsOnly = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingParentsOnly);
-    FormData fdLoggingParentsOnly = new FormData();
-    fdLoggingParentsOnly.left = new FormAttachment(middle, margin);
-    fdLoggingParentsOnly.right = new FormAttachment(100, 0);
-    fdLoggingParentsOnly.top = new FormAttachment(wlLoggingParentsOnly, 0, SWT.CENTER);
-    wLoggingParentsOnly.setLayoutData(fdLoggingParentsOnly);
-    lastControl = wlLoggingParentsOnly;
-
-    // The filename and some buttons to the right
-    //
     Label wlFilename = new Label(parent, SWT.RIGHT);
     props.setLook(wlFilename);
-    wlFilename.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Filename.Label"));
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, 0);
-    fdlFilename.top = new FormAttachment(lastControl, 2*margin);
+    fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
@@ -180,7 +158,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     props.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
-    fdbnFilename.right = new FormAttachment(wbbFilename,-margin);
+    fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbnFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbnFilename.setLayoutData(fdbnFilename);
     wbnFilename.addListener(
@@ -197,10 +175,10 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     fdboFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wboFilename.setLayoutData(fdboFilename);
     wboFilename.addListener(
-      SWT.Selection,
-      e -> {
-        openPipelineFile(parent);
-      });
+        SWT.Selection,
+        e -> {
+          openPipelineFile(parent);
+        });
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wFilename);
@@ -211,95 +189,52 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wFilename.setLayoutData(fdFilename);
     lastControl = wlFilename;
 
-    // Execute at start
+    // The locations in a table view:
     //
-    Label wlAtStart = new Label(parent, SWT.RIGHT);
-    props.setLook(wlAtStart);
-    wlAtStart.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.AtStart.Label"));
-    FormData fdlAtStart = new FormData();
-    fdlAtStart.left = new FormAttachment(0, 0);
-    fdlAtStart.right = new FormAttachment(middle, 0);
-    fdlAtStart.top = new FormAttachment(lastControl, margin);
-    wlAtStart.setLayoutData(fdlAtStart);
-    wAtStart = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wAtStart);
-    FormData fdAtStart = new FormData();
-    fdAtStart.left = new FormAttachment(middle, margin);
-    fdAtStart.right = new FormAttachment(100, 0);
-    fdAtStart.top = new FormAttachment(wlAtStart, 0, SWT.CENTER);
-    wAtStart.setLayoutData(fdAtStart);
-    lastControl = wlAtStart;
-
-    // Execute at end
-    //
-    Label wlAtEnd = new Label(parent, SWT.RIGHT);
-    props.setLook(wlAtEnd);
-    wlAtEnd.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.AtEnd.Label"));
-    FormData fdlAtEnd = new FormData();
-    fdlAtEnd.left = new FormAttachment(0, 0);
-    fdlAtEnd.right = new FormAttachment(middle, 0);
-    fdlAtEnd.top = new FormAttachment(lastControl, 2 * margin);
-    wlAtEnd.setLayoutData(fdlAtEnd);
-    wAtEnd = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wAtEnd);
-    FormData fdAtEnd = new FormData();
-    fdAtEnd.left = new FormAttachment(middle, margin);
-    fdAtEnd.right = new FormAttachment(100, 0);
-    fdAtEnd.top = new FormAttachment(wlAtEnd, 0, SWT.CENTER);
-    wAtEnd.setLayoutData(fdAtEnd);
-    lastControl = wlAtEnd;
-
-    // Execute periodically
-    //
-    Label wlPeriodic = new Label(parent, SWT.RIGHT);
-    props.setLook(wlPeriodic);
-    wlPeriodic.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Periodic.Label"));
-    FormData fdlPeriodic = new FormData();
-    fdlPeriodic.left = new FormAttachment(0, 0);
-    fdlPeriodic.right = new FormAttachment(middle, 0);
-    fdlPeriodic.top = new FormAttachment(lastControl, 2 * margin);
-    wlPeriodic.setLayoutData(fdlPeriodic);
-    wPeriodic = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wPeriodic);
-    FormData fdPeriodic = new FormData();
-    fdPeriodic.left = new FormAttachment(middle, margin);
-    fdPeriodic.right = new FormAttachment(100, 0);
-    fdPeriodic.top = new FormAttachment(wlPeriodic, 0, SWT.CENTER);
-    wPeriodic.setLayoutData(fdPeriodic);
-    lastControl = wlPeriodic;
-
-    // Execute periodically
-    //
-    wlInterval = new Label(parent, SWT.RIGHT);
-    props.setLook(wlInterval);
-    wlInterval.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Interval.Label"));
-    FormData fdlInterval = new FormData();
-    fdlInterval.left = new FormAttachment(0, 0);
-    fdlInterval.right = new FormAttachment(middle, 0);
-    fdlInterval.top = new FormAttachment(lastControl, 2 * margin);
-    wlInterval.setLayoutData(fdlInterval);
-    wInterval = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wInterval);
-    FormData fdInterval = new FormData();
-    fdInterval.left = new FormAttachment(middle, margin);
-    fdInterval.right = new FormAttachment(100, 0);
-    fdInterval.top = new FormAttachment(wlInterval, 0, SWT.CENTER);
-    wInterval.setLayoutData(fdInterval);
-    wInterval.addListener(SWT.Selection, this::enableFields);
-    lastControl = wlInterval;
-
-    // Add listener to detect change after loading data
-    ModifyListener lsMod = e -> setChanged();
-    wName.addModifyListener(lsMod);
-    wEnabled.addListener(SWT.Selection, e -> setChanged());
-    wLoggingParentsOnly.addListener(SWT.Selection, e -> setChanged());
-    wFilename.addModifyListener(lsMod);
-    wAtStart.addListener(SWT.Selection, e -> setChanged());
-    wAtEnd.addListener(SWT.Selection, e -> setChanged());
-    wPeriodic.addListener(SWT.Selection, e -> setChanged());
-    wInterval.addModifyListener(lsMod);
+    Label wlSources = new Label(parent, SWT.RIGHT);
+    props.setLook(wlSources);
+    wlSources.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Sources.Label"));
+    FormData fdlSources = new FormData();
+    fdlSources.left = new FormAttachment(0, 0);
+    fdlSources.right = new FormAttachment(middle, 0);
+    fdlSources.top = new FormAttachment(lastControl, 2 * margin);
+    wlSources.setLayoutData(fdlSources);
+    lastControl = wlSources;
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineProbeEditor.SourcesTable.Column.Pipeline"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineProbeEditor.SourcesTable.Column.Transform"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
+    wSources =
+        new TableView(
+            manager.getVariables(),
+            parent,
+            SWT.NONE,
+            columns,
+            metadata.getDataProbeLocations().size(),
+            lsMod,
+            props);
+    FormData fdSources = new FormData();
+    fdSources.left = new FormAttachment(0, 0);
+    fdSources.top = new FormAttachment(lastControl, margin);
+    fdSources.right = new FormAttachment(100, 0);
+    fdSources.bottom = new FormAttachment(100, 0);
+    wSources.setLayoutData(fdSources);
 
     setWidgetsContent();
+
+    wName.addModifyListener(lsMod);
+    wEnabled.addListener(SWT.Selection, e -> setChanged());
+    wFilename.addModifyListener(lsMod);
+
+    resetChanged();
   }
 
   /**
@@ -312,24 +247,25 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     try {
       PipelineMeta pipelineMeta = new PipelineMeta();
 
-      // Add a Pipeline Logging transform...
+      // Add a Pipeline Data Probe transform...
       //
-      WorkflowLoggingMeta workflowLoggingMeta = new WorkflowLoggingMeta();
-      workflowLoggingMeta.setLoggingActionResults( true );
-      TransformMeta workflowLogging = new TransformMeta("Workflow Logging", workflowLoggingMeta);
-      workflowLogging.setLocation( 200, 150 );
-      pipelineMeta.addTransform( workflowLogging );
+      PipelineDataProbeMeta pipelineDataProbeMeta = new PipelineDataProbeMeta();
+      pipelineDataProbeMeta.setLoggingTransforms(true);
+      TransformMeta pipelineLogging =
+          new TransformMeta("Pipeline Data Probe", pipelineDataProbeMeta);
+      pipelineLogging.setLocation(200, 150);
+      pipelineMeta.addTransform(pipelineLogging);
 
       // Add a dummy
       //
       DummyMeta dummyMeta = new DummyMeta();
-      TransformMeta dummy = new TransformMeta("Save logging here", dummyMeta);
-      dummy.setLocation( 500, 150 );
-      pipelineMeta.addTransform( dummy );
+      TransformMeta dummy = new TransformMeta("Process values here", dummyMeta);
+      dummy.setLocation(500, 150);
+      pipelineMeta.addTransform(dummy);
 
       // Add a hop between both transforms...
       //
-      pipelineMeta.addPipelineHop( new PipelineHopMeta(workflowLogging, dummy) );
+      pipelineMeta.addPipelineHop(new PipelineHopMeta(pipelineLogging, dummy));
 
       // Save it...
       //
@@ -339,14 +275,14 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
               true, // save
               parent.getShell(),
               wFilename,
-            manager.getVariables(),
+              manager.getVariables(),
               type.getFilterExtensions(),
               type.getFilterNames(),
               true);
       if (filename != null) {
         // User specified a pipeline filename
         //
-        String realFilename = manager.getVariables().resolve( filename );
+        String realFilename = manager.getVariables().resolve(filename);
         pipelineMeta.setFilename(realFilename);
         pipelineMeta.clearChanged();
 
@@ -375,8 +311,8 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
    */
   private void openPipelineFile(Composite parent) {
     try {
-      String filename = manager.getVariables().resolve( wFilename.getText() );
-      if ( StringUtils.isNotEmpty( filename ) ) {
+      String filename = manager.getVariables().resolve(wFilename.getText());
+      if (StringUtils.isNotEmpty(filename)) {
         hopGui.fileDelegate.fileOpen(filename);
       }
     } catch (Exception e) {
@@ -389,42 +325,44 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     BaseDialog.presentFileDialog(
         parent.getShell(),
         wFilename,
-      manager.getVariables(),
+        manager.getVariables(),
         type.getFilterExtensions(),
         type.getFilterNames(),
         true);
   }
 
-  private void enableFields(Event event) {
-    boolean intervalEnabled = wPeriodic.getSelection();
-    wlInterval.setEnabled(intervalEnabled);
-    wInterval.setEnabled(intervalEnabled);
-  }
-
   @Override
   public void setWidgetsContent() {
-    WorkflowLog pl = getMetadata();
+    PipelineProbe pl = getMetadata();
 
     wName.setText(Const.NVL(pl.getName(), ""));
-    wEnabled.setSelection( pl.isEnabled() );
-    wLoggingParentsOnly.setSelection( pl.isLoggingParentsOnly() );
+    wEnabled.setSelection(pl.isEnabled());
     wFilename.setText(Const.NVL(pl.getPipelineFilename(), ""));
-    wAtStart.setSelection(pl.isExecutingAtStart());
-    wAtEnd.setSelection(pl.isExecutingAtEnd());
-    wPeriodic.setSelection(pl.isExecutingPeriodically());
-    wInterval.setText(Const.NVL(pl.getIntervalInSeconds(), ""));
+
+    wSources.removeAll();
+    List<DataProbeLocation> locations = pl.getDataProbeLocations();
+    for (DataProbeLocation location : locations) {
+      TableItem item = new TableItem(wSources.table, SWT.NONE);
+      item.setText(1, Const.NVL(location.getSourcePipelineFilename(), ""));
+      item.setText(2, Const.NVL(location.getSourceTransformName(), ""));
+    }
+    wSources.setRowNums();
+    wSources.optimizeTableView();
   }
 
   @Override
-  public void getWidgetsContent( WorkflowLog pl) {
+  public void getWidgetsContent(PipelineProbe pl) {
     pl.setName(wName.getText());
-    pl.setEnabled( wEnabled.getSelection() );
-    pl.setLoggingParentsOnly( wLoggingParentsOnly.getSelection() );
+    pl.setEnabled(wEnabled.getSelection());
     pl.setPipelineFilename(wFilename.getText());
-    pl.setExecutingAtStart(wAtStart.getSelection());
-    pl.setExecutingAtEnd(wAtEnd.getSelection());
-    pl.setExecutingPeriodically(wPeriodic.getSelection());
-    pl.setIntervalInSeconds(wInterval.getText());
+    List<DataProbeLocation> locations = new ArrayList<>();
+    List<TableItem> items = wSources.getNonEmptyItems();
+    for (TableItem item : items) {
+      String filename = item.getText(1);
+      String transformName = item.getText(2);
+      locations.add(new DataProbeLocation(filename, transformName));
+    }
+    pl.setDataProbeLocations(locations);
   }
 
   @Override

@@ -1670,29 +1670,30 @@ public class TableView extends Composite {
       return;
     }
 
-    TableItem row = activeTableItem;
-    if (row == null) {
+    TableItem tableItem = activeTableItem;
+    if (tableItem == null) {
       return;
     }
-    int rowNr = table.indexOf(row);
+    int rowNr = table.indexOf(tableItem);
 
     insertRow(rowNr + 1);
   }
 
-  private void insertRow(int ronr) {
-    TableItem item = new TableItem(table, SWT.NONE, ronr);
-    item.setText(1, "");
+  private void insertRow(int rowNr) {
+    TableItem tableItem = new TableItem(table, SWT.NONE, rowNr);
+    tableItem.setText(1, "");
 
     // Add undo information
     ChangeAction ta = new ChangeAction();
-    String[] str = getItemText(item);
-    ta.setNew(new String[][] {str}, new int[] {ronr});
+    String[] str = getItemText(tableItem);
+    ta.setNew(new String[][] {str}, new int[] {rowNr});
     addUndo(ta);
 
     setRowNums();
 
-    edit(ronr, 1);
-    tableViewModifyListener.insertRow(ronr);
+    edit(rowNr, 1);
+    tableViewModifyListener.insertRow(rowNr);
+    setModified();
   }
 
   public void clearAll() {
@@ -1749,6 +1750,7 @@ public class TableView extends Composite {
     table.setSelection(activeTableRow);
     table.setSelection(selectionIndicies);
     activeTableItem = table.getItem(activeTableRow);
+    setModified();
   }
 
   private int[] moveRowsDown(int[] selectionIndicies) {
@@ -1832,6 +1834,8 @@ public class TableView extends Composite {
     ChangeAction ta = new ChangeAction();
     ta.setChanged(before, after, index);
     addUndo(ta);
+
+    setModified();
   }
 
   private void selectAll() {

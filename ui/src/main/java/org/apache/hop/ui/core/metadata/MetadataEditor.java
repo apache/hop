@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
-    implements IMetadataEditor {
+    implements IMetadataEditor<T> {
 
   private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator
 
@@ -110,8 +110,14 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return manager;
   }
 
+  @Override
   public T getMetadata() {
     return metadata;
+  }
+
+  @Override
+  public void setMetadata(T metadata) {
+    this.metadata = metadata;
   }
 
   public Shell getShell() {
@@ -158,11 +164,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return isChanged;
   }
 
-  protected void resetChanged() {
+  @Override
+  public void resetChanged() {
     this.isChanged = false;
   }
 
-  protected void setChanged() {
+  @Override
+  public void setChanged() {
     if (this.isChanged == false) {
       this.isChanged = true;
       MetadataPerspective.getInstance().updateEditor(this);
