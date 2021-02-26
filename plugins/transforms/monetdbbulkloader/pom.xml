@@ -23,33 +23,49 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
         <version>0.70-SNAPSHOT</version>
     </parent>
 
-
-    <artifactId>hop-assemblies-plugins-databases-monetdb</artifactId>
-    <version>0.70-SNAPSHOT</version>
-    <packaging>pom</packaging>
-
-    <name>Hop Assemblies Plugins Databases MonetDB</name>
-    <description></description>
+    <artifactId>hop-transforms-monetdbbulkloader</artifactId>
+    <name>Hop Plugins Transforms MonetDB Bulk Loader</name>
+    <packaging>jar</packaging>
 
     <properties>
-        <monetdb.version>11.19.15</monetdb.version>
+        <monetdb-jdbc.version>11.19.15</monetdb-jdbc.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-monetdb</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>monetdb</groupId>
             <artifactId>monetdb-jdbc</artifactId>
-            <version>${monetdb.version}</version>
+            <version>${monetdb-jdbc.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

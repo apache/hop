@@ -18,14 +18,19 @@
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-    <id>hop-assemblies-plugins-databases-monetdb</id>
+    <id>hop-transforms-monetdbbulkloader</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/monetdb</baseDirectory>
+    <baseDirectory>transforms/monetdbbulkloader</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
@@ -42,7 +47,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.apache.hop:hop-databases-monetdb:jar</include>
+                <include>org.apache.hop:hop-transforms-monetdbbulkloader:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

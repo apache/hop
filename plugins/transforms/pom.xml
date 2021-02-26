@@ -139,6 +139,7 @@
         <module>mergerows</module>
         <module>metainject</module>
         <module>metastructure</module>
+        <module>monetdbbulkloader</module>
         <module>mongodb</module>
         <module>mqtt</module>
         <module>multimerge</module>
