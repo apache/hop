@@ -158,11 +158,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return isChanged;
   }
 
-  protected void resetChanged() {
+  @Override
+  public void resetChanged() {
     this.isChanged = false;
   }
 
-  protected void setChanged() {
+  @Override
+  public void setChanged() {
     if (this.isChanged == false) {
       this.isChanged = true;
       MetadataPerspective.getInstance().updateEditor(this);
