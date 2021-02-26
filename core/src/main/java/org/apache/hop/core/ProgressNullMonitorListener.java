@@ -20,28 +20,27 @@ package org.apache.hop.core;
 
 public class ProgressNullMonitorListener implements IProgressMonitor {
 
-  @Override
   public void beginTask( String message, int nrWorks ) {
+      this.beginTask(message, nrWorks);
   }
 
-  @Override
   public void subTask( String message ) {
+      this.subTask(message);
   }
 
-  @Override
   public boolean isCanceled() {
     return false;
   }
 
-  @Override
   public void worked( int nrWorks ) {
+      this.worked(nrWorks);
   }
 
-  @Override
   public void done() {
+      this.done();
   }
 
-  @Override
   public void setTaskName( String taskName ) {
+      this.setTaskName(taskName);
   }
 }
