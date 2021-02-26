@@ -21,9 +21,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.widgets.Control;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -71,6 +74,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   private boolean handleKey( Object parentObject, KeyEvent event, KeyboardShortcut shortcut ) {
+
+    // If this is a control, only handle the shortcut if the control is visible
+    // This prevents keyboard shortcuts being applied to a workflow or pipeline which
+    // isn't visible (in another tab for example).
+    //
+    if (parentObject instanceof Control ) {
+      Control control = (Control) parentObject;
+      if (!control.isVisible()) {
+        return false;
+      }
+    }
+
+    if (parentObject instanceof HopGuiPipelineGraph ) {
+      HopGuiPipelineGraph graph = (HopGuiPipelineGraph) parentObject;
+      if (!graph.isVisible()) {
+        return false;
+      }
+    }
+
     int keyCode = ( event.keyCode & SWT.KEY_MASK );
 
     boolean alt = ( event.stateMask & SWT.ALT ) != 0;
