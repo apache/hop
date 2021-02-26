@@ -18,10 +18,15 @@
 package org.apache.hop.ui.core.metadata;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 
-public interface IMetadataEditor {
+public interface IMetadataEditor<T extends IHopMetadata> {
+
+  T getMetadata();
+
+  void setMetadata(T metadata);
 
   /** 
    * Return the title of the editor
