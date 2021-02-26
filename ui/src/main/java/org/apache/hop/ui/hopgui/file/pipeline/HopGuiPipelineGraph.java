@@ -493,7 +493,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
     }
-    // canvas.addKeyListener( this );
+    canvas.addKeyListener( this );
 
     setBackground(GuiResource.getInstance().getColorBackground());
 
