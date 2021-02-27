@@ -432,11 +432,6 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
   private int transformPerformanceSnapshotSizeLimit;
 
   /**
-   * The servlet print writer.
-   */
-  private PrintWriter servletPrintWriter;
-
-  /**
    * The wait until finished method need this blocking queue.
    */
   private ArrayBlockingQueue<Object> pipelineWaitUntilFinishedBlockingQueue;
@@ -689,21 +684,6 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
     // setInternalHopVariables(this); --> Let's not do this, when running
     // without file, for example remote, it spoils the fun
 
-    // extra check to see if the servlet print writer has some value in case
-    // folks want to test it locally...
-    //
-    if ( servletPrintWriter == null ) {
-      String encoding = System.getProperty( "HOP_DEFAULT_SERVLET_ENCODING", null );
-      if ( encoding == null ) {
-        servletPrintWriter = new PrintWriter( new OutputStreamWriter( System.out ) );
-      } else {
-        try {
-          servletPrintWriter = new PrintWriter( new OutputStreamWriter( System.out, encoding ) );
-        } catch ( UnsupportedEncodingException ex ) {
-          servletPrintWriter = new PrintWriter( new OutputStreamWriter( System.out ) );
-        }
-      }
-    }
 
     // Keep track of all the row sets and allocated transforms
     //
@@ -2910,24 +2890,6 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
   @Override
   public Date getRegistrationDate() {
     return null;
-  }
-
-  /**
-   * Sets the servlet print writer.
-   *
-   * @param servletPrintWriter the new servlet print writer
-   */
-  public void setServletPrintWriter( PrintWriter servletPrintWriter ) {
-    this.servletPrintWriter = servletPrintWriter;
-  }
-
-  /**
-   * Gets the servlet print writer.
-   *
-   * @return the servlet print writer
-   */
-  public PrintWriter getServletPrintWriter() {
-    return servletPrintWriter;
   }
 
   /**

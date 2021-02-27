@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
@@ -134,7 +133,6 @@ public class SubPipelineExecutor {
 
     subPipeline.setInternalHopVariables( this.parentPipeline );
     subPipeline.setPreview( this.parentPipeline.isPreview() );
-    PipelineTransformUtil.initServletConfig( this.parentPipeline, subPipeline );
     return subPipeline;
   }
 

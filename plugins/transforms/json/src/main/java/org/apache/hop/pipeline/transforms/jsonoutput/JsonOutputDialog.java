@@ -85,9 +85,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   private Label wlExtension;
   private TextVar wExtension;
 
-  private Label wlServletOutput;
-  private Button wServletOutput;
-
   private Label wlCreateParentFolder;
   private Button wCreateParentFolder;
 
@@ -479,38 +476,13 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    // Output to servlet (browser, ws)
-    //
-    wlServletOutput = new Label(wFileName, SWT.RIGHT );
-    wlServletOutput.setText( BaseMessages.getString( PKG, "JsonOutputDialog.ServletOutput.Label" ) );
-    props.setLook( wlServletOutput );
-    FormData fdlServletOutput = new FormData();
-    fdlServletOutput.left = new FormAttachment( 0, 0 );
-    fdlServletOutput.top = new FormAttachment( wEncoding, margin );
-    fdlServletOutput.right = new FormAttachment( middle, -margin );
-    wlServletOutput.setLayoutData(fdlServletOutput);
-    wServletOutput = new Button(wFileName, SWT.CHECK );
-    wServletOutput.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.ServletOutput.Tooltip" ) );
-    props.setLook( wServletOutput );
-    FormData fdServletOutput = new FormData();
-    fdServletOutput.left = new FormAttachment( middle, 0 );
-    fdServletOutput.top = new FormAttachment( wlServletOutput, 0, SWT.CENTER );
-    fdServletOutput.right = new FormAttachment( 100, 0 );
-    wServletOutput.setLayoutData(fdServletOutput);
-    wServletOutput.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-        setFlagsServletOption();
-      }
-    } );
-
     // Create multi-part file?
     wlAddDate = new Label(wFileName, SWT.RIGHT );
     wlAddDate.setText( BaseMessages.getString( PKG, "JsonOutputDialog.AddDate.Label" ) );
     props.setLook( wlAddDate );
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment( 0, 0 );
-    fdlAddDate.top = new FormAttachment( wServletOutput, margin );
+    fdlAddDate.top = new FormAttachment( wEncoding, margin );
     fdlAddDate.right = new FormAttachment( middle, -margin );
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wFileName, SWT.CHECK );
@@ -741,27 +713,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     return transformName;
   }
 
-  protected void setFlagsServletOption() {
-    boolean enableFilename = !wServletOutput.getSelection();
-    wlFilename.setEnabled( enableFilename );
-    wFilename.setEnabled( enableFilename );
-    wlDoNotOpenNewFileInit.setEnabled( enableFilename );
-    wDoNotOpenNewFileInit.setEnabled( enableFilename );
-    wlCreateParentFolder.setEnabled( enableFilename );
-    wCreateParentFolder.setEnabled( enableFilename );
-    wlExtension.setEnabled( enableFilename );
-    wExtension.setEnabled( enableFilename );
-    wlAddDate.setEnabled( enableFilename );
-    wAddDate.setEnabled( enableFilename );
-    wlAddTime.setEnabled( enableFilename );
-    wAddTime.setEnabled( enableFilename );
-    wlAppend.setEnabled( enableFilename );
-    wAppend.setEnabled( enableFilename );
-    wbShowFiles.setEnabled( enableFilename );
-    wlAddToResult.setEnabled( enableFilename );
-    wAddToResult.setEnabled( enableFilename );
-  }
-
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
@@ -814,7 +765,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wFilename.setText( Const.NVL( input.getFileName(), "" ) );
     wCreateParentFolder.setSelection( input.isCreateParentFolder() );
     wExtension.setText( Const.NVL( input.getExtension(), "js" ) );
-    setFlagsServletOption();
 
     wAddDate.setSelection( input.isDateInFilename() );
     wAddTime.setSelection( input.isTimeInFilename() );
@@ -961,17 +911,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult.setEnabled( activeFile );
     wbShowFiles.setEnabled( activeFile );
 
-    wlServletOutput.setEnabled( opType == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
-        || opType == JsonOutputMeta.OPERATION_TYPE_BOTH );
-    wServletOutput.setEnabled( opType == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
-        || opType == JsonOutputMeta.OPERATION_TYPE_BOTH );
-
     boolean activeOutputValue =
         JsonOutputMeta.getOperationTypeByDesc( wOperation.getText() ) != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE;
 
     wlOutputValue.setEnabled( activeOutputValue );
     wOutputValue.setEnabled( activeOutputValue );
-
-    setFlagsServletOption();
   }
 }

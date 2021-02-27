@@ -38,7 +38,6 @@ public class XmlOutputMetaInjectionTest extends BaseMetadataInjectionTest<XmlOut
   public void test() throws Exception {
     check( "FILENAME", () -> meta.getFileName() );
     check( "EXTENSION", () -> meta.getExtension() );
-    check( "PASS_TO_SERVLET", () -> meta.isServletOutput() );
     check( "SPLIT_EVERY", () -> meta.getSplitEvery() );
     check( "INC_TRANSFORMNR_IN_FILENAME", () -> meta.isTransformNrInFilename() );
     check( "INC_DATE_IN_FILENAME", () -> meta.isDateInFilename() );
