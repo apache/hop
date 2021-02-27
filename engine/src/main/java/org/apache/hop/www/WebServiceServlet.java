@@ -128,6 +128,12 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
                 + "'.  You can set the metadata_folder in the Hop server XML configuration");
       }
 
+      if (!webService.isEnabled()) {
+        throw new HopException(
+          "Web service '"
+            + webServiceName
+            + "' is disabled.");
+      }
 
       String filename = variables.resolve(webService.getFilename());
       String transformName = variables.resolve(webService.getTransformName());
