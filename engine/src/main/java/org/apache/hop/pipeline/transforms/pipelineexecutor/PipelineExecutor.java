@@ -38,7 +38,6 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutor;
 
 import java.util.ArrayList;
@@ -260,8 +259,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     executorPipeline.setLogLevel( getLogLevel() );
     executorPipeline.setInternalHopVariables( this );
     executorPipeline.setPreview( getPipeline().isPreview() );
-
-    PipelineTransformUtil.initServletConfig( getPipeline(), executorPipeline );
 
     return executorPipeline;
   }

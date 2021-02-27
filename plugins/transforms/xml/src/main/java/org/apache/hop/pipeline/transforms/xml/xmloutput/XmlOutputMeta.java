@@ -75,13 +75,6 @@ public class XmlOutputMeta extends BaseTransformMeta
   private String extension;
 
   /**
-   * Whether to push the output into the output of a servlet with the executeTrans Carte/DI-Server
-   * servlet
-   */
-  @Injection(name = "PASS_TO_SERVLET")
-  private boolean servletOutput;
-
-  /**
    * if this value is larger then 0, the text file is split up into parts of this number of lines
    */
   @Injection(name = "SPLIT_EVERY")
@@ -305,8 +298,6 @@ public class XmlOutputMeta extends BaseTransformMeta
 
       setFileName(XmlHandler.getTagValue(transformNode, "file", "name"));
       setExtension(XmlHandler.getTagValue(transformNode, "file", "extention"));
-      setServletOutput(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "servlet_output")));
 
       setDoNotOpenNewFileInit(
           "Y"
@@ -526,7 +517,6 @@ public class XmlOutputMeta extends BaseTransformMeta
     retval.append("    <file>").append(Const.CR);
     retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
     retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
-    retval.append("      ").append(XmlHandler.addTagValue("servlet_output", servletOutput));
 
     retval
         .append("      ")
@@ -697,14 +687,6 @@ public class XmlOutputMeta extends BaseTransformMeta
     return omitNullValues;
   }
 
-  public boolean isServletOutput() {
-    return servletOutput;
-  }
-
-  public void setServletOutput(boolean servletOutput) {
-    this.servletOutput = servletOutput;
-  }
-
   /**
    * Since the exported transformation that runs this will reside in a ZIP file, we can't reference
    * files relatively. So what this does is turn the name of the base path into an absolute path.
@@ -735,10 +717,5 @@ public class XmlOutputMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  /** {@inheritDoc} */
-  public boolean passDataToServletOutput() {
-    return servletOutput;
   }
 }

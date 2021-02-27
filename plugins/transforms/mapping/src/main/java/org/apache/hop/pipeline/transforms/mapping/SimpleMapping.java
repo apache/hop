@@ -29,7 +29,6 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
 
@@ -140,8 +139,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     //
     simpleMappingData.mappingPipeline.setGatheringMetrics( getPipeline().isGatheringMetrics() );
 
-    initServletConfig();
-
     // We launch the pipeline in the processRow when the first row is
     // received.
     // This will allow the correct variables to be passed.
@@ -212,10 +209,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     }
 
     return list;
-  }
-
-  void initServletConfig() {
-    PipelineTransformUtil.initServletConfig( getPipeline(), getData().getMappingPipeline() );
   }
 
   public boolean init() {

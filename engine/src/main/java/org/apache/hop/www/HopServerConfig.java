@@ -52,6 +52,7 @@ public class HopServerConfig {
   public static final String XML_TAG_ACCEPTORS = "acceptors";
   public static final String XML_TAG_ACCEPT_QUEUE_SIZE = "acceptQueueSize";
   public static final String XML_TAG_LOW_RES_MAX_IDLE_TIME = "lowResourcesMaxIdleTime";
+  public static final String XML_METADATA_FOLDER = "metadata_folder";
 
   private HopServer hopServer;
 
@@ -73,6 +74,8 @@ public class HopServerConfig {
   private boolean automaticCreationAllowed;
 
   private String passwordFile;
+
+  private String metadataFolder;
 
   private IVariables variables;
 
@@ -103,6 +106,7 @@ public class HopServerConfig {
     XmlHandler.addTagValue( "max_log_lines", maxLogLines );
     XmlHandler.addTagValue( "max_log_timeout_minutes", maxLogTimeoutMinutes );
     XmlHandler.addTagValue( "object_timeout_minutes", objectTimeoutMinutes );
+    XmlHandler.addTagValue( XML_METADATA_FOLDER, metadataFolder );
 
     xml.append( XmlHandler.openTag( XML_TAG_SEQUENCES ) );
     for ( HopServerSequence hopServerSequence : hopServerSequences ) {
@@ -136,6 +140,7 @@ public class HopServerConfig {
     maxLogLines = Const.toInt( XmlHandler.getTagValue( node, "max_log_lines" ), 0 );
     maxLogTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "max_log_timeout_minutes" ), 0 );
     objectTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "object_timeout_minutes" ), 0 );
+    metadataFolder = XmlHandler.getTagValue( node, XML_METADATA_FOLDER );
 
     // Read sequence information
     //
@@ -449,5 +454,21 @@ public class HopServerConfig {
    */
   public void setVariables( IVariables variables ) {
     this.variables = variables;
+  }
+
+  /**
+   * Gets metadataFolder
+   *
+   * @return value of metadataFolder
+   */
+  public String getMetadataFolder() {
+    return metadataFolder;
+  }
+
+  /**
+   * @param metadataFolder The metadataFolder to set
+   */
+  public void setMetadataFolder( String metadataFolder ) {
+    this.metadataFolder = metadataFolder;
   }
 }

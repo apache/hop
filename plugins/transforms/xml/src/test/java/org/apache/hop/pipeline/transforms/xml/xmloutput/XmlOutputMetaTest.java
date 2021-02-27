@@ -73,7 +73,6 @@ public class XmlOutputMetaTest {
   private void assertXmlOutputMeta( XmlOutputMeta xmlOutputMeta ) {
     assertEquals( "xmlOutputFile", xmlOutputMeta.getFileName() );
     assertFalse( xmlOutputMeta.isDoNotOpenNewFileInit() );
-    assertFalse( xmlOutputMeta.isServletOutput() );
     assertEquals( "hop.xml", xmlOutputMeta.getExtension() );
     assertTrue( xmlOutputMeta.isTransformNrInFilename() );
     assertTrue( xmlOutputMeta.isDateInFilename() );
@@ -103,7 +102,6 @@ public class XmlOutputMetaTest {
         + "    <file>" + Const.CR
         + "      <name>xmlOutputFile</name>" + Const.CR
         + "      <extention>hop.xml</extention>" + Const.CR
-        + "      <servlet_output>N</servlet_output>" + Const.CR
         + "      <do_not_open_newfile_init>N</do_not_open_newfile_init>" + Const.CR
         + "      <split>Y</split>" + Const.CR
         + "      <add_date>Y</add_date>" + Const.CR
@@ -164,7 +162,6 @@ public class XmlOutputMetaTest {
         + "<file>" + Const.CR
         + "  <name>xmlOutputFile</name>" + Const.CR
         + "  <extention>hop.xml</extention>" + Const.CR
-        + "  <servlet_output>N</servlet_output>" + Const.CR
         + "  <do_not_open_newfile_init>N</do_not_open_newfile_init>" + Const.CR
         + "  <split>Y</split>" + Const.CR
         + "  <add_date>Y</add_date>" + Const.CR
@@ -204,11 +201,9 @@ public class XmlOutputMetaTest {
         + "    <precision>-1</precision>" + Const.CR
         + "  </field>" + Const.CR
         + "</fields>" + Const.CR
-        + "<cluster_schema/>" + Const.CR
-        + "<remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>" + Const.CR
+        + "<GUI>" + Const.CR
         + "<xloc>256</xloc>" + Const.CR
         + "<yloc>64</yloc>" + Const.CR
-        + "<draw>Y</draw>" + Const.CR
         + "</GUI>" + Const.CR
         + "</transform>" + Const.CR;
     return XmlHandler.loadXmlString( xml, "transform" );
