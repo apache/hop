@@ -744,7 +744,7 @@ public class GuiResource {
     imageShowHistory =
         loadAsResource(display, "ui/images/show-history.svg", ConstUi.SMALL_ICON_SIZE);
     imageShow = loadAsResource(display, "ui/images/show.svg", ConstUi.SMALL_ICON_SIZE);
-    imageShowLog = loadAsResource(display, "ui/images/show-log.svg", ConstUi.SMALL_ICON_SIZE);
+    imageShowLog = loadAsResource(display, "ui/images/log.svg", ConstUi.SMALL_ICON_SIZE);
     imageShowPerf = loadAsResource(display, "ui/images/show-perf.svg", ConstUi.SMALL_ICON_SIZE);
     imageShowResults =
         loadAsResource(display, "ui/images/show-results.svg", ConstUi.SMALL_ICON_SIZE);
