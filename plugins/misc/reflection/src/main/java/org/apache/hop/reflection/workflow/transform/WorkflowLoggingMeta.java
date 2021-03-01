@@ -91,8 +91,8 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
     // Workflow log channel ID
     inputRowMeta.addValueMeta(new ValueMetaString("workflowLogChannelId", 32, -1));
 
-    // Pipeline log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("workflowLogChannelId", 32, -1));
+    // Parent log channel ID
+    inputRowMeta.addValueMeta(new ValueMetaString("workflowParentLogChannelId", 32, -1));
 
     // Logging text of the workflow
     inputRowMeta.addValueMeta(new ValueMetaString("workflowLogging", 1000000, -1));
