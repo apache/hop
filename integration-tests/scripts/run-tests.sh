@@ -79,7 +79,7 @@ for d in "${CURRENT_DIR}"/../*/ ; do
     #cleanup project testcases
     rm -f "${TMP_TESTCASES}"
 
-    if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] ; then
+    if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
 
         #set test variables
         start_time=$SECONDS
