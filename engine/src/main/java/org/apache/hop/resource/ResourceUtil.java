@@ -38,7 +38,7 @@ public class ResourceUtil {
   private static final Class<?> PKG = ResourceUtil.class; // For Translator
 
   /**
-   * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform, Workflow Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform, Action, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in
@@ -56,7 +56,7 @@ public class ResourceUtil {
   }
 
   /**
-   * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform, Workflow Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform, Action, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in

@@ -21,7 +21,7 @@ under the License.
 
 == Description
 
-Use this action to delete all the filenames that are in the result files list of the last workflow entry.
+Use this action to delete all the filenames that are in the result files list of the last workflow action.
 
 == Options
 
