@@ -22,10 +22,12 @@ public class ProgressNullMonitorListener implements IProgressMonitor {
 
   @Override
   public void beginTask( String message, int nrWorks ) {
+      // Do nothing because of beginTask( "", 0 ).
   }
 
   @Override
   public void subTask( String message ) {
+      // Do nothing because of subTask( "" ).
   }
 
   @Override
@@ -35,13 +37,16 @@ public class ProgressNullMonitorListener implements IProgressMonitor {
 
   @Override
   public void worked( int nrWorks ) {
+      // Do nothing because of worked( 0 ).
   }
 
   @Override
   public void done() {
+      // Do nothing because of done().
   }
 
   @Override
   public void setTaskName( String taskName ) {
+      // Do nothing because of setTaskName( "" ).
   }
 }
