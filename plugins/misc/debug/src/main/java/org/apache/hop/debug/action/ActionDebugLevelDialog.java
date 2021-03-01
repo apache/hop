@@ -87,7 +87,7 @@ public class ActionDebugLevelDialog extends Dialog {
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setText( "Workflow entry debug Level" );
+    shell.setText( "Workflow action debug Level" );
     shell.setLayout( formLayout );
 
     // The name

@@ -1646,7 +1646,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Check all actions within the workflow. Each Workflow Entry has the opportunity to check their own settings.
+   * Check all actions within the workflow. Each Workflow Action has the opportunity to check their own settings.
    *
    * @param remarks       List of CheckResult remarks inserted into by each Action
    * @param only_selected true if you only want to check the selected workflows
