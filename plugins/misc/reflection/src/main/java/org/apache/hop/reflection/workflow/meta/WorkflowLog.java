@@ -27,7 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "workflow-log",
     name = "Workflow Log",
     description = "This metadata object type allows you to log activity of a workflow with a pipeline",
-    image = "ui/images/show-log.svg")
+    image = "workflow-log.svg")
 public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
