@@ -38,6 +38,7 @@ pipeline {
         MAVEN_SKIP_RC = true
         BRANCH_NAME ='master'
         DOCKER_REPO='docker.io/apache/incubator-hop'
+        DOCKER_REPO_WEB='docker.io/apache/incubator-hop-web'
     }
 
     options {
@@ -116,21 +117,38 @@ pipeline {
                 branch 'master'
             }
             steps{
-                sh "cd assemblies/client/target/ && unzip hop-client-*.zip"
+                sh "unzip ./assemblies/client/target/hop-client-*.zip -d  && ./assemblies/client/target/"
+                sh "unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
+                sh "unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/"
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Hop Docker Image') {
             when {
                 branch 'master'
             }
             steps {
-                echo 'Building Docker Image'
+                echo 'Building Hop Docker Image'
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker build . -f docker/Dockerfile -t ${DOCKER_REPO}:${env.POM_VERSION}"
                     sh "docker push ${DOCKER_REPO}:${env.POM_VERSION}"
                     sh "docker rmi ${DOCKER_REPO}:${env.POM_VERSION}"
+                  }
+            }
+        }
+        stage('Build Hop Web Docker Image') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo 'Building Hop Web Docker Image'
+
+                withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
+                    //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
+                    sh "docker build . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}"
+                    sh "docker push ${DOCKER_REPO_WEB}:${env.POM_VERSION}"
+                    sh "docker rmi ${DOCKER_REPO_WEB}:${env.POM_VERSION}"
                   }
             }
         }

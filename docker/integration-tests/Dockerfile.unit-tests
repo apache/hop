@@ -41,6 +41,22 @@ ENV HOP_OPTIONS=-XX:+AggressiveHeap
 
 RUN apk update \
   && apk add --no-cache bash curl procps \ 
+  msttcorefonts-installer \
+  fontconfig \
+  font-noto \
+  font-noto-adlam \
+  font-noto-adlamunjoined \
+  font-noto-arabic \
+  font-noto-armenian \
+  font-noto-avestan \
+  font-noto-bamum \
+  font-noto-bengali \
+  font-noto-buhid \
+  font-noto-carian \
+  font-noto-chakma \
+  font-noto-cherokee \
+  &&  update-ms-fonts \
+  && fc-cache -f \
   && rm -rf /var/cache/apk/* \
   && mkdir ${VOLUME_MOUNT_POINT} \
   && addgroup -g ${JENKINS_GID} ${JENKINS_GROUP} \
