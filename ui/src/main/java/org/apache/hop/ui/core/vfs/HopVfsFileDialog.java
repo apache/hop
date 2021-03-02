@@ -1375,7 +1375,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   /** @param filterPath The filterPath to set */
   public void setFilterPath(String filterPath) {
-    this.filterPath = filterPath;
+    this.filterPath = variables.resolve(filterPath);
   }
 
   /**

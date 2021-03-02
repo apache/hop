@@ -29,3 +29,5 @@ RUN rm -rf webapps/* \
 COPY ./assemblies/web/target/webapp/ ${CATALINA_HOME}/webapps/ROOT/
 COPY ./assemblies/plugins/dist/target/plugins ${CATALINA_HOME}/plugins
 
+# Fix hop-config.json
+RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/ROOT/config/hop-config.json
