@@ -21,6 +21,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public enum HopGuiExtensionPoint {
 
@@ -31,6 +32,8 @@ public enum HopGuiExtensionPoint {
 
   HopGuiFileDirectoryDialog( "Called before a DirectoryDialog is presented", HopGuiFileDialogExtension.class ),
   HopGuiDirectorySelected( "Called after a folder is selected in the DirectoryDialog", HopGuiDirectorySelectedExtension.class ),
+
+  HopGuiDetermineExplorerRoot( "Determine the root folder of the explorer perspective", ExplorerPerspective.DetermineRootFolderExtension.class ),
   ;
 
   public String id;

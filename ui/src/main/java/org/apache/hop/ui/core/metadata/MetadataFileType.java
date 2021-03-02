@@ -98,4 +98,8 @@ public class MetadataFileType implements IHopFileType {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
+
+  @Override public String getFileTypeImage() {
+    return "ui/images/metadata.svg";
+  }
 }

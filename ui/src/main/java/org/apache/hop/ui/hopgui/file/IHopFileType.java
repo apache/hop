@@ -20,14 +20,14 @@ package org.apache.hop.ui.hopgui.file;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 
 import java.util.List;
 import java.util.Properties;
 
-public interface IHopFileType<T extends IXml> {
+public interface IHopFileType {
 
   String CAPABILITY_NEW = "New";
   String CAPABILITY_SAVE = "Save";
@@ -48,31 +48,23 @@ public interface IHopFileType<T extends IXml> {
 
   String CAPABILITY_FILE_HISTORY = "FileHistory";
 
-  /**
-   * @return The name of this file type
-   */
+  /** @return The name of this file type */
   String getName();
 
   /**
    * Returns the default file extension in lowercase prefixed with dot (.xxx) for this file type.
-   * 
+   *
    * @return The default file extension
    */
   String getDefaultFileExtension();
-  
-  /**
-   * @return The file type extensions.
-   */
+
+  /** @return The file type extensions. */
   String[] getFilterExtensions();
 
-  /**
-   * @return The file names (matching the extensions)
-   */
+  /** @return The file names (matching the extensions) */
   String[] getFilterNames();
 
-  /**
-   * @return The capabilities of this file handler
-   */
+  /** @return The capabilities of this file handler */
   Properties getCapabilities();
 
   /**
@@ -81,31 +73,32 @@ public interface IHopFileType<T extends IXml> {
    * @param capability The capability to check
    * @return True if the capability is set to any non-null value
    */
-  boolean hasCapability( String capability );
+  boolean hasCapability(String capability);
 
   /**
    * Load and display the file
    *
-   * @param hopGui              The hop GUI to reference
-   * @param filename            The filename to load
+   * @param hopGui The hop GUI to reference
+   * @param filename The filename to load
    * @param parentVariableSpace The parent variablespace to inherit from
    * @return The hop file handler
    */
-  IHopFileTypeHandler openFile( HopGui hopGui, String filename, IVariables parentVariableSpace ) throws HopException;
+  IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables parentVariableSpace)
+      throws HopException;
 
-  IHopFileTypeHandler newFile( HopGui hopGui, IVariables parentVariableSpace ) throws HopException;
+  IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace) throws HopException;
 
   /**
-   * Look at the given file and see if it's handled by this type.
-   * Usually this is done by simply looking at the file extension.
-   * In rare cases we look at the content.
+   * Look at the given file and see if it's handled by this type. Usually this is done by simply
+   * looking at the file extension. In rare cases we look at the content.
    *
-   * @param filename     The filename
+   * @param filename The filename
    * @param checkContent True if we want to look inside the file content
    * @return true if this HopFile is handling the file
-   * @throws HopException In case something goes wrong like: file doesn't exist, a permission problem, ...
+   * @throws HopException In case something goes wrong like: file doesn't exist, a permission
+   *     problem, ...
    */
-  boolean isHandledBy( String filename, boolean checkContent ) throws HopException;
+  boolean isHandledBy(String filename, boolean checkContent) throws HopException;
 
   /**
    * Checks whether or not this file type supports the given metadata class
@@ -113,10 +106,18 @@ public interface IHopFileType<T extends IXml> {
    * @param metaObject The object to verify support for
    * @return
    */
-  boolean supportsFile( IHasFilename metaObject );
+  boolean supportsFile(IHasFilename metaObject);
 
   /**
-   * @return A list of context handlers allowing you to see all the actions that can be taken with the current file type. (CRUD, ...)
+   * @return A list of context handlers allowing you to see all the actions that can be taken with
+   *     the current file type. (CRUD, ...)
    */
   List<IGuiContextHandler> getContextHandlers();
+
+  /**
+   * The icon image for this file type
+   *
+   * @return The path to the SVG file, a logo for this file type
+   */
+  String getFileTypeImage();
 }

@@ -15,24 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.hopgui.file.empty;
+package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class EmptyFileType implements IHopFileType {
+public class ExplorerFileType implements IHopFileType {
   @Override public String getName() {
-    return "-";
+    return "explorer";
+  }
+ 
+  @Override
+  public boolean equals( Object obj ) {
+    if ( obj == this ) {
+      return true;
+    }
+    if ( obj.getClass().equals( this.getClass() ) ) {
+      return true; // same class is enough
+    }
+    return false;
   }
   
   @Override public String getDefaultFileExtension() {
@@ -46,21 +56,33 @@ public class EmptyFileType implements IHopFileType {
   @Override public String[] getFilterNames() {
     return new String[ 0 ];
   }
-
+  
   @Override public Properties getCapabilities() {
-    return new Properties();
+	    Properties capabilities = new Properties();
+	    capabilities.setProperty( IHopFileType.CAPABILITY_NEW, "true" );
+	    capabilities.setProperty( IHopFileType.CAPABILITY_CLOSE, "true" );
+	    capabilities.setProperty( IHopFileType.CAPABILITY_SAVE, "true" );
+
+	    return capabilities;
   }
 
   @Override public boolean hasCapability( String capability ) {
-    return false;
+	    if ( getCapabilities() == null ) {
+	      return false;
+	    }
+	    Object available = getCapabilities().get( capability );
+	    if (available==null) {
+	      return false;
+	    }
+	    return "true".equalsIgnoreCase( available.toString() );
   }
 
   @Override public IHopFileTypeHandler openFile( HopGui hopGui, String filename, IVariables parentVariableSpace ) throws HopException {
-    return new EmptyHopFileTypeHandler();
+    return new ExplorerFileTypeHandler();
   }
 
   @Override public IHopFileTypeHandler newFile( HopGui hopGui, IVariables parentVariableSpace ) throws HopException {
-    return new EmptyHopFileTypeHandler();
+    return new ExplorerFileTypeHandler();
   }
 
   @Override public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
@@ -77,6 +99,6 @@ public class EmptyFileType implements IHopFileType {
   }
 
   @Override public String getFileTypeImage() {
-    return "ui/images/file.svg";
+    return "ui/images/exploreRepo.svg";
   }
 }

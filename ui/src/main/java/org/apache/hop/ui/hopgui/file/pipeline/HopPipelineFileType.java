@@ -52,7 +52,7 @@ import java.util.Properties;
   description = "The pipeline file information for the Hop GUI",
   image="ui/images/pipeline.svg"
 )
-public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
+public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase implements IHopFileType {
 
   public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
 
@@ -207,5 +207,9 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
     handlers.add( new GuiContextHandler( ACTION_ID_NEW_PIPELINE, Arrays.asList(newAction) ) );
     return handlers;
+  }
+
+  @Override public String getFileTypeImage() {
+    return "ui/images/pipeline.svg";
   }
 }

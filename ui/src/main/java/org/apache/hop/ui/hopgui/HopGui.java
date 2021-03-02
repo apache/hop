@@ -1054,7 +1054,7 @@ public class HopGui
    * @param running set this to true if the current file is running
    * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities(IHopFileType<?> fileType, boolean running, boolean paused) {
+  public void handleFileCapabilities(IHopFileType fileType, boolean running, boolean paused) {
 
     mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE);
     mainMenuWidgets.enableMenuItem(
