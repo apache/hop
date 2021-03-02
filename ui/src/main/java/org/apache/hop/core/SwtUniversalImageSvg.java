@@ -57,10 +57,14 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
   }
 
   public SwtUniversalImageSvg(SvgImage svg) {
+    this(svg, false);
+  }
+
+  public SwtUniversalImageSvg(SvgImage svg, boolean keepOriginal) {
     UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
     GVTBuilder builder = new GVTBuilder();
 
-    if (PropsUi.getInstance().isDarkMode()) {
+    if (!keepOriginal && PropsUi.getInstance().isDarkMode()) {
       DOMImplementation domImplementation = SVGDOMImplementation.getDOMImplementation();
       SVGDocument clonedDocument =
           (SVGDocument) DOMUtilities.deepCloneDocument(svg.getDocument(), domImplementation);

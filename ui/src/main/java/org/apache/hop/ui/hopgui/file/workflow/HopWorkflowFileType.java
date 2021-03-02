@@ -53,7 +53,7 @@ import java.util.Properties;
   description = "The workflow file information for the Hop GUI",
   image="ui/images/workflow.svg"
 )
-public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
+public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase implements IHopFileType {
 
   public static final String WORKFLOW_FILE_TYPE_DESCRIPTION = "Workflow";
 
@@ -215,5 +215,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     handlers.add( new GuiContextHandler( ACTION_ID_NEW_WORKFLOW, Arrays.asList( newAction ) ) );
 
     return handlers;
+  }
+
+  @Override public String getFileTypeImage() {
+    return "ui/images/workflow.svg";
   }
 }

@@ -917,7 +917,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private Image getFileImage(FileObject file) {
     try {
-      IHopFileType<?> fileType =
+      IHopFileType fileType =
           HopFileTypeRegistry.getInstance().findHopFileType(file.getName().getBaseName());
       if (fileType != null) {
         IPlugin plugin =

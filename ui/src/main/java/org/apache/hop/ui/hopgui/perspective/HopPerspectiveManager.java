@@ -79,9 +79,9 @@ public class HopPerspectiveManager {
    * @param fileMetadata
    * @return
    */
-  public IHopFileType<?> findFileTypeHandler( IHasFilename fileMetadata ) {
+  public IHopFileType findFileTypeHandler( IHasFilename fileMetadata ) {
     for ( IHopPerspective perspective : getPerspectives() ) {
-      for ( IHopFileType<?> fileType : perspective.getSupportedHopFileTypes() ) {
+      for ( IHopFileType fileType : perspective.getSupportedHopFileTypes() ) {
         if ( fileType.supportsFile( fileMetadata ) ) {
           return fileType;
         }
