@@ -857,6 +857,8 @@
 
                         <!-- External Integration Test Exclusion -->
                         <exclude>**/integration-tests/**/*.txt</exclude>
+                        <exclude>**/integration-tests/**/*.json</exclude>
+                        <exclude>**/integration-tests/**/*.json.old</exclude>
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->
