@@ -28,3 +28,4 @@ Hop Server/
 Relational Database Connection/
 \.temp-beam-*/
 integration-tests/surefire-reports
+integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
