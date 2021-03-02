@@ -63,16 +63,16 @@ rm -f "${TMP_TESTCASES}"
 rm -rf "${CURRENT_DIR}"/../surefire-reports
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 
-# Set up auditing and conf folders
+# Set up auditing
 # Start with a new blank slate every time
 # This means it's not needed to delete a project
 #
-export HOP_CONFIG_FOLDER="${TMP_FOLDER}"/config
-rm -rf "${HOP_CONFIG_FOLDER}"
-mkdir -p "${HOP_CONFIG_FOLDER}"
 export HOP_AUDIT_FOLDER="${TMP_FOLDER}"/audit
 rm -rf "${HOP_AUDIT_FOLDER}"
 mkdir -p "${HOP_AUDIT_FOLDER}"
+
+# Store current HOP_CONFIG_FOLDER
+TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
 
 #Loop over project folders
 for d in "${CURRENT_DIR}"/../*/ ; do
@@ -98,7 +98,7 @@ for d in "${CURRENT_DIR}"/../*/ ; do
         test_counter=$((test_counter+1))
 
         # Create New Project
-        $HOP_LOCATION/hop-conf.sh -pc -p ${PROJECT_NAME} -ph "$(readlink -f $d)"
+        export HOP_CONFIG_FOLDER="$d"
 
         # Find main hwf files 
         # TODO: add hpl support when result is returned correctly
@@ -109,7 +109,7 @@ for d in "${CURRENT_DIR}"/../*/ ; do
             rm -f /tmp/test_output_err
 
             #set file and test name
-            hop_file="$(readlink -f $f)"
+            hop_file="$(realpath $f)"
             test_name=$(basename $f)
             test_name=${test_name//'main_'/}
             test_name=${test_name//'main-'/}
@@ -125,8 +125,8 @@ for d in "${CURRENT_DIR}"/../*/ ; do
 
             #Run Test
             $HOP_LOCATION/hop-run.sh \
-                -j ${PROJECT_NAME} \
                 -r "local" \
+                -e "dev" \
                 -p POSTGRES_HOST=${POSTGRES_HOST} \
                 -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
                 -p POSTGRES_PORT=${POSTGRES_PORT} \
@@ -205,6 +205,8 @@ done
 
 # Cleanup config and audit folders
 #
-rm -rf "${HOP_CONFIG_FOLDER}"
 rm -rf "${HOP_AUDIT_FOLDER}"
 rm -rf "${TMP_FOLDER}"
+
+# Set back to old config folder
+export HOP_CONFIG_FOLDER="${TMP_CONFIG_FOLDER}"
