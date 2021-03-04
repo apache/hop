@@ -29,6 +29,11 @@
       <directory>${assembly.dir}</directory>
       <outputDirectory>.</outputDirectory>
     </fileSet>
+    <!-- filtered resources -->
+    <fileSet>
+      <directory>${project.basedir}/src/main/resources</directory>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
   </fileSets>
   <dependencySets>
     <!-- hop components -->
