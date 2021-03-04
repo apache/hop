@@ -27,7 +27,6 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -37,21 +36,27 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.List;
 
-public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData> implements ITransform<WorkflowLoggingMeta, WorkflowLoggingData> {
+public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData>
+    implements ITransform<WorkflowLoggingMeta, WorkflowLoggingData> {
 
   private IWorkflowEngine<WorkflowMeta> loggingWorkflow;
   private String loggingPhase;
 
-  public WorkflowLogging( TransformMeta transformMeta, WorkflowLoggingMeta meta, WorkflowLoggingData data, int copyNr,
-                          PipelineMeta pipelineMeta,
-                          Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public WorkflowLogging(
+      TransformMeta transformMeta,
+      WorkflowLoggingMeta meta,
+      WorkflowLoggingData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  @Override public boolean processRow() throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
 
-    if ( loggingWorkflow ==null) {
-      logBasic( "This transform will produce output when called by the Pipeline Log configuration" );
+    if (loggingWorkflow == null) {
+      logBasic("This transform will produce output when called by the Pipeline Log configuration");
       setOutputDone();
       return false;
     }
@@ -59,14 +64,14 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     // Calculate the output fields of this transform
     //
     IRowMeta outputRowMeta = new RowMeta();
-    meta.getFields( outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+    meta.getFields(outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
     WorkflowMeta workflowMeta = loggingWorkflow.getWorkflowMeta();
 
     // Generate the pipeline row...
     //
-    Object[] pipelineRow = RowDataUtil.allocateRowData( outputRowMeta.size() );
-    int index=0;
+    Object[] pipelineRow = RowDataUtil.allocateRowData(outputRowMeta.size());
+    int index = 0;
 
     // Logging date: start date of the logging pipeline
     pipelineRow[index++] = getPipeline().getExecutionStartDate();
@@ -94,7 +99,8 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     pipelineRow[index++] = parent == null ? null : parent.getLogChannelId();
 
     // Logging text of the workflow
-    pipelineRow[index++] = HopLogStore.getAppender().getBuffer( loggingWorkflow.getLogChannelId(), false ).toString();
+    pipelineRow[index++] =
+        HopLogStore.getAppender().getBuffer(loggingWorkflow.getLogChannelId(), false).toString();
 
     // Result object *after* execution:
     Result result = loggingWorkflow.getResult();
@@ -105,13 +111,14 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     // Workflow status description
     pipelineRow[index++] = loggingWorkflow.getStatusDescription();
 
-    int startIndex=index;
+    int startIndex = index;
 
     List<ActionResult> actionResults = loggingWorkflow.getActionResults();
 
     // If we have an empty list of actionResults, make sure to emit a single row
     // This is the case in the "start" phase when didn't run any actions yet.
-    // We still want to have a trigger in the logging pipeline but with only the workflow information...
+    // We still want to have a trigger in the logging pipeline but with only the workflow
+    // information...
     //
     if (meta.isLoggingActionResults() && !actionResults.isEmpty()) {
 
@@ -120,13 +127,13 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
       for (ActionResult actionResult : actionResults) {
         index = startIndex;
         result = actionResult.getResult();
-        Object[] transformRow = RowDataUtil.createResizedCopy( pipelineRow, outputRowMeta.size() );
+        Object[] transformRow = RowDataUtil.createResizedCopy(pipelineRow, outputRowMeta.size());
 
         // Name of the action
         transformRow[index++] = actionResult.getActionName();
 
         // Copy number...
-        transformRow[index++] = (long) result.getEntryNr();
+        transformRow[index++] = result.getEntryNr();
 
         // Result (true/false)
         transformRow[index++] = result.getResult();
@@ -144,22 +151,22 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
         transformRow[index++] = actionResult.getLogDate();
 
         // Execution duration
-        transformRow[index] = result.getElapsedTimeMillis();
+        transformRow[index++] = result.getElapsedTimeMillis();
 
         // Exit status
-        transformRow[index] = (long)result.getExitStatus();
+        transformRow[index++] = (long) result.getExitStatus();
 
         // Exit status
-        transformRow[index] = result.getNrFilesRetrieved();
+        transformRow[index++] = result.getNrFilesRetrieved();
 
         // Action filename
-        transformRow[index] = actionResult.getActionFilename();
+        transformRow[index++] = actionResult.getActionFilename();
 
         // Action comment
-        transformRow[index] = actionResult.getComment();
+        transformRow[index++] = actionResult.getComment();
 
         // Action reason
-        transformRow[index] = actionResult.getReason();
+        transformRow[index++] = actionResult.getReason();
 
         // Send it on its way...
         //
@@ -176,7 +183,6 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     return false;
   }
 
-
   /**
    * Gets loggingWorkflow
    *
@@ -186,10 +192,8 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     return loggingWorkflow;
   }
 
-  /**
-   * @param loggingWorkflow The loggingWorkflow to set
-   */
-  public void setLoggingWorkflow( IWorkflowEngine<WorkflowMeta> loggingWorkflow ) {
+  /** @param loggingWorkflow The loggingWorkflow to set */
+  public void setLoggingWorkflow(IWorkflowEngine<WorkflowMeta> loggingWorkflow) {
     this.loggingWorkflow = loggingWorkflow;
   }
 
@@ -202,10 +206,8 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     return loggingPhase;
   }
 
-  /**
-   * @param loggingPhase The loggingPhase to set
-   */
-  public void setLoggingPhase( String loggingPhase ) {
+  /** @param loggingPhase The loggingPhase to set */
+  public void setLoggingPhase(String loggingPhase) {
     this.loggingPhase = loggingPhase;
   }
 }
