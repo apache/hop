@@ -1,0 +1,108 @@
+EXAClient License Terms
+
+
+EXASOL is willing to license the software contained in this package
+("Software") to you as Licensee only upon the condition that you accept
+all of the terms contained in these terms and conditions, including third-party
+terms and conditions as are set forth in the Annex.
+
+
+1. Definitions
+
+The following definitions shall apply: "Software" means all software which
+may be part of the package related to this document and made available to
+Licensee for free download; in any case, Software does not mean EXASolution
+and any other software of EXASOL which is not made available to the public
+for free download; "License" means the authorized use of the Software in
+accordance with the terms and conditions stipulated herein; "Licensee" means
+the person or company that has accepted the terms and conditions set forth
+herein; "EXASOL" means EXASOL AG or one of its subsidiaries.
+
+
+2. License Terms
+
+2.1 Subject to Licensee's compliance with the terms and conditions set
+forth herein, EXASOL grants to Licensee a royalty-free, non-exclusive,
+non-transferable, not sub licensable license to use the Software.
+
+2.2 The Software shall not be sold, rented, subleased or otherwise distributed
+in tangible or intangible form without EXASOL's consent. The use by and for
+third parties (e.g., by outsourcing, application service providing) is not
+permitted without EXASOL's consent.
+
+2.3 Without EXASOL's consent, Licensee is not permitted to change, edit
+or copy the provided Software to an extent that is not in accordance with
+its designated use, Sec. 69d German Copyright Act. A decompilation is
+only permitted in accordance with the provisions of Sec. 69e of the German
+Copyright Act.
+
+2.4 Title to the Software, and copyrights and all other property rights
+applicable thereto, shall at all times remain solely and exclusively with
+EXASOL and, in the case of third party software, with its respective owners,
+and Licensee shall not take any action inconsistent with such title. The
+Software and Documentation are protected by copyright laws and international
+treaties.
+
+
+3. Restriction of Liability / No Warranty
+
+3.1 EXASOL shall not be liable irrespective of the legal grounds except as
+expressly set forth as follows: EXASOL shall be liable without limitations
+(i) in case of intent and gross negligence, (ii) in case of injuries to life,
+body and health, (iii) pursuant to the terms of German Product Liability Act
+(ProdHaftG), or (iv) under a guarantee granted by EXASOL.
+
+3.2 Notwithstanding the above EXASOL disclaims all warranties express,
+statutory or implied, including without limitation the implied warranties
+or conditions of merchantability and fitness for a particular purpose or
+the statutory warranties in case of defects as to quality (Sachmangel) or of
+defects of title (Rechtsmangel). EXASOL further disclaims any warranty that
+(a) the Software will meet Licensee's requirements or will be constantly
+available, uninterrupted, timely, secure, or error-free; (b) the results that
+may be obtained from the use of the Software will be effective, accurate, or
+reliable; (c) the quality of the Software will meet Licensee's expectations;
+or that (d) any errors or defects in the Software will be corrected.
+
+
+4. Export Regulations; U.S. Government Restrictions
+
+Licensee acknowledges that the Software may be subject to United States export
+laws, statutes and regulations and to export laws, statutes and regulations of
+other countries, and that Licensee will at all times comply with the provisions
+of such laws, statutes and regulations including any necessary or required
+licenses. Licensee shall not export or re-export or otherwise transmit,
+directly or indirectly, the Software or any direct products thereof into,
+or use the Software or any products thereof in, any country prohibited or
+restricted under United States export laws, statutes or regulations or any
+other applicable laws.
+
+
+5. Miscellaneous 
+
+5.1 Licensee shall not assign, sub-license or transfer any rights granted
+hereunder to any third party without EXASOL's prior written consent.
+
+5.2 This agreement shall be governed by the laws of Germany without regard
+to the UN Convention on the International Sale of Goods (CISG). The court
+of Nuremberg, Germany, shall have exclusive jurisdiction over any dispute
+arising out or in connection with this agreement. International Private Law
+shall not apply to matters of jurisdiction.
+
+5.3 Should individual terms of this agreement be or become invalid or
+unenforceable or in case this agreement contains omissions, this shall
+not affect the validity of the remaining terms. Instead of the invalid,
+unenforceable or missing terms, such valid and enforceable term shall be
+deemed to have been agreed upon between the parties which the parties would
+reasonably have agreed upon by taking into account the economic purpose of
+this agreement had they been aware at the conclusion of this agreement that
+the relevant term was invalid, unenforceable or missing.
+
+
+March 2015
+
+
+
+
+Annex
+
+(The annex for this package is empty.)
