@@ -24,6 +24,20 @@
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
+    <!-- Project Root Files/Folders -->
+    <fileSet>
+      <directory>${project.basedir}/../../</directory>
+      <includes>
+        <include>LICENSE</include>
+        <include>NOTICE</include>
+        <include>DISCLAIMER-WIP</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../../licenses</directory>
+      <outputDirectory>./licenses</outputDirectory>
+    </fileSet>
     <!-- filtered resources -->
     <fileSet>
       <directory>${project.basedir}/src/main/resources-filtered</directory>

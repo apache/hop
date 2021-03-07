@@ -37,7 +37,6 @@
     <description></description>
 
     <properties>
-        <vectorwise.version>10.0-4.0.5</vectorwise.version>
     </properties>
 
 
@@ -46,11 +45,6 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-vectorwise</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ingres.jdbc</groupId>
-            <artifactId>iijdbc</artifactId>
-            <version>${vectorwise.version}</version>
         </dependency>
     </dependencies>
 

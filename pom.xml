@@ -829,7 +829,7 @@
                         <exclude>DISCLAIMER-WIP</exclude>
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>licenses/*</exclude>
+                        <exclude>**/licenses/*</exclude>
                         <exclude>**/target/**</exclude>
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.json</exclude>

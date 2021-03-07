@@ -30,6 +30,11 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
+            <outputDirectory>lib</outputDirectory>
+            <filtered>true</filtered>
+        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -45,14 +50,6 @@
             <includes>
                 <include>org.apache.hop:hop-databases-sybase:jar</include>
             </includes>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>net.sourceforge.jtds:jtds:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>
