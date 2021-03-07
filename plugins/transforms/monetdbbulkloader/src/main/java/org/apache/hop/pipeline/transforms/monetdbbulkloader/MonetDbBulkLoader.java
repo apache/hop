@@ -361,7 +361,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     String table = data.schemaTable;
     String truncateStatement =
         meta.getDatabaseMeta()
-            .getTruncateTableStatement(null, meta.getSchemaName(), meta.getTableName());
+            .getTruncateTableStatement(variables, meta.getSchemaName(), meta.getTableName());
     if (truncateStatement == null) {
       throw new HopException("Truncate table is not supported!");
     }
