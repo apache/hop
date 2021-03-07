@@ -23,6 +23,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -51,42 +53,52 @@ import java.util.List;
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/monetdbbulkloader.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
+@InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
 public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
   /** The database connection name * */
+  @Injection(name = "CONNECTIONNAME")
   private String dbConnectionName;
 
   /** what's the schema for the target? */
+  @Injection(name = "SCHEMANAME")
   private String schemaName;
 
   /** what's the table for the target? */
+  @Injection(name = "TABLENAME")
   private String tableName;
 
   /** Path to the log file */
+  @Injection(name = "LOGFILE")
   private String logFile;
 
   /** database connection */
   private DatabaseMeta databaseMeta;
 
   /** Field name of the target table */
+  @Injection(name = "TARGETFIELDS")
   private String[] fieldTable;
 
   /** Field name in the stream */
+  @Injection(name = "SOURCEFIELDS")
   private String[] fieldStream;
 
   /** flag to indicate that the format is OK for MonetDB */
+  @Injection(name = "FIELDFORMATOK")
   private boolean[] fieldFormatOk;
 
   /** Field separator character or string used to delimit fields */
+  @Injection(name = "SEPARATOR")
   private String fieldSeparator;
 
   /**
    * Specifies which character surrounds each field's data. i.e. double quotes, single quotes or
    * something else
    */
+  @Injection(name = "FIELDENCLOSURE")
   private String fieldEnclosure;
 
   /**
@@ -94,15 +106,19 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
    * something else the value is written out as text to the API and MonetDB is able to interpret it
    * to the correct representation of NULL in the database for the given column type.
    */
+  @Injection(name = "NULLVALUE")
   private String nullRepresentation;
 
   /** Encoding to use */
+  @Injection(name = "ENCODING")
   private String encoding;
 
   /** Truncate table? */
+  @Injection(name = "TRUNCATE")
   private boolean truncate = false;
 
   /** Fully Quote SQL used in the transform? */
+  @Injection(name = "QUOTEFIELDS")
   private boolean fullyQuoteSQL;
 
   /** Auto adjust the table structure? */
@@ -327,10 +343,14 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
 
     // Output Fields Tab
     for (int i = 0; i < fieldTable.length; i++) {
+      Boolean fieldFormat = false;
+      if (fieldFormatOk.length == fieldTable.length) {
+        fieldFormat = fieldFormatOk[i];
+      }
       retval.append("      <mapping>").append(Const.CR);
       retval.append("        ").append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
       retval.append("        ").append(XmlHandler.addTagValue("field_name", fieldStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field_format_ok", fieldFormatOk[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("field_format_ok", fieldFormat));
       retval.append("      </mapping>").append(Const.CR);
     }
 
