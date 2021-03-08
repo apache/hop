@@ -78,7 +78,6 @@
         <module>snmptrap</module>
         <module>sql</module>
         <module>success</module>
-        <module>syslog</module>
         <module>tableexists</module>
         <module>telnet</module>
         <module>truncatetables</module>

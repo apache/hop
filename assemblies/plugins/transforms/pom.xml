@@ -143,7 +143,6 @@
         <module>streamschemamerge</module>
         <module>stringcut</module>
         <module>stringoperations</module>
-        <module>syslog</module>
         <module>systemdata</module>
         <module>switchcase</module>
         <module>synchronizeaftermerge</module>
