@@ -128,7 +128,6 @@
         <module>json</module>
         <module>kafka</module>
         <module>ldap</module>
-        <module>ldifinput</module>
         <module>loadfileinput</module>
         <module>mail</module>
         <module>mailinput</module>
