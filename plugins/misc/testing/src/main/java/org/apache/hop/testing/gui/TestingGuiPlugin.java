@@ -44,6 +44,7 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
@@ -936,26 +937,29 @@ public class TestingGuiPlugin {
    *
    * @param log
    * @param metadataProvider
+   * @param instanceId instance ID of the GuiToolbarWidgets instance
    * @return
    * @throws Exception
    */
-  public List<String> getUnitTestsList(ILogChannel log, IHopMetadataProvider metadataProvider)
+  public List<String> getUnitTestsList(ILogChannel log, IHopMetadataProvider metadataProvider, String instanceId)
       throws Exception {
 
     // Grab the relevant variables
     //
-    IVariables variables;
-    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
-    if (pipelineGraph != null) {
-      variables = pipelineGraph.getVariables();
-    } else {
-      variables = HopGui.getInstance().getVariables(); // Fallback, throw error?
+    Object guiPluginObject = GuiRegistry.getInstance().findGuiPluginObject( HopGui.getInstance().getId(), HopGuiPipelineGraph.class.getName(), instanceId );
+    if (guiPluginObject==null) {
+      return Collections.emptyList();
+    } if (!(guiPluginObject instanceof HopGuiPipelineGraph)) {
+      return Collections.emptyList();
     }
+
+    HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) guiPluginObject;
+    IVariables variables = pipelineGraph.getVariables();
 
     // Get the active pipeline, match it...
     //
     List<String> names;
-    PipelineMeta pipelineMeta = getActivePipelineMeta();
+    PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
         metadataProvider.getSerializer(PipelineUnitTest.class);
     if (pipelineMeta == null) {

@@ -119,7 +119,7 @@ public class BaseGuiWidgets {
       // You can find them in any order that the developer chose and just pass them that way.
       //
       Method method;
-      boolean withArguments = true;
+      Object[] arguments;
       try {
         method =
             singleton
@@ -128,30 +128,37 @@ public class BaseGuiWidgets {
                     toolbarItem.getGetComboValuesMethod(),
                     ILogChannel.class,
                     IHopMetadataProvider.class);
+        arguments = new Object[] {LogChannel.UI, HopGui.getInstance().getMetadataProvider()};
       } catch (NoSuchMethodException nsme) {
-        // Try to find the method without arguments...
-        //
         try {
-          method = singleton.getClass().getMethod(toolbarItem.getGetComboValuesMethod());
-          withArguments = false;
+          method =
+              singleton
+                  .getClass()
+                  .getMethod(
+                      toolbarItem.getGetComboValuesMethod(),
+                      ILogChannel.class,
+                      IHopMetadataProvider.class,
+                      String.class); // Instance ID
+          arguments =
+              new Object[] {LogChannel.UI, HopGui.getInstance().getMetadataProvider(), instanceId};
         } catch (NoSuchMethodException nsme2) {
-          throw new HopException(
-              "Unable to find method '"
-                  + toolbarItem.getGetComboValuesMethod()
-                  + "' without parameters or with parameters ILogChannel and IHopMetadataProvider in class '"
-                  + toolbarItem.getListenerClass()
-                  + "'",
-              nsme2);
+          // Try to find the method without arguments...
+          //
+          try {
+            method = singleton.getClass().getMethod(toolbarItem.getGetComboValuesMethod());
+            arguments = new Object[] {};
+          } catch (NoSuchMethodException nsme3) {
+            throw new HopException(
+                "Unable to find method '"
+                    + toolbarItem.getGetComboValuesMethod()
+                    + "' without parameters or with parameters ILogChannel and IHopMetadataProvider in class '"
+                    + toolbarItem.getListenerClass()
+                    + "'",
+                nsme2);
+          }
         }
       }
-      List<String> values;
-      if (withArguments) {
-        values =
-            (List<String>)
-                method.invoke(singleton, LogChannel.UI, HopGui.getInstance().getMetadataProvider());
-      } else {
-        values = (List<String>) method.invoke(singleton);
-      }
+      List<String> values = (List<String>) method.invoke(singleton, arguments);
       return values.toArray(new String[0]);
     } catch (Exception e) {
       LogChannel.UI.logError(
