@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
@@ -26,7 +25,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -35,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@HopServerServlet(id="removeWorkflow", name = "Remove a workflow from the server")
+@HopServerServlet(id = "removeWorkflow", name = "Remove a workflow from the server")
 public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = RemoveWorkflowServlet.class; // For Translator
@@ -43,37 +41,33 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
 
   public static final String CONTEXT_PATH = "/hop/removeWorkflow";
 
-  @VisibleForTesting
-  private HopServerStatusCache cache = HopServerStatusCache.getInstance();
+  public RemoveWorkflowServlet() {}
 
-  public RemoveWorkflowServlet() {
+  public RemoveWorkflowServlet(WorkflowMap workflowMap) {
+    super(workflowMap);
   }
 
-  public RemoveWorkflowServlet( WorkflowMap workflowMap ) {
-    super( workflowMap );
-  }
-
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "RemoveWorkflowServlet.Log.RemoveWorkflowRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "RemoveWorkflowServlet.Log.RemoveWorkflowRequested"));
     }
 
-    String workflowName = request.getParameter( "name" );
-    String id = request.getParameter( "id" );
-    boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
+    String workflowName = request.getParameter("name");
+    String id = request.getParameter("id");
+    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
-    response.setStatus( HttpServletResponse.SC_OK );
+    response.setStatus(HttpServletResponse.SC_OK);
 
-    if ( useXML ) {
-      response.setContentType( "text/xml" );
-      response.setCharacterEncoding( Const.XML_ENCODING );
+    if (useXML) {
+      response.setContentType("text/xml");
+      response.setCharacterEncoding(Const.XML_ENCODING);
     } else {
-      response.setContentType( "text/html;charset=UTF-8" );
+      response.setContentType("text/html;charset=UTF-8");
     }
 
     PrintWriter out = response.getWriter();
@@ -82,65 +76,84 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
     //
     IWorkflowEngine<WorkflowMeta> workflow;
     HopServerObjectEntry entry;
-    if ( Utils.isEmpty( id ) ) {
+    if (Utils.isEmpty(id)) {
       // get the first pipeline that matches...
       //
-      entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
-      if ( entry == null ) {
+      entry = getWorkflowMap().getFirstHopServerObjectEntry(workflowName);
+      if (entry == null) {
         workflow = null;
       } else {
         id = entry.getId();
-        workflow = getWorkflowMap().getWorkflow( entry );
+        workflow = getWorkflowMap().getWorkflow(entry);
       }
     } else {
       // Take the ID into account!
       //
-      entry = new HopServerObjectEntry( workflowName, id );
-      workflow = getWorkflowMap().getWorkflow( entry );
+      entry = new HopServerObjectEntry(workflowName, id);
+      workflow = getWorkflowMap().getWorkflow(entry);
     }
 
-    if ( workflow != null ) {
+    if (workflow != null) {
+      HopLogStore.discardLines(workflow.getLogChannelId(), true);
+      getWorkflowMap().removeWorkflow(entry);
 
-      cache.remove( workflow.getLogChannelId() );
-      HopLogStore.discardLines( workflow.getLogChannelId(), true );
-      getWorkflowMap().removeWorkflow( entry );
-
-      if ( useXML ) {
-        response.setContentType( "text/xml" );
-        response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
-        out.print( WebResult.OK.getXml() );
+      if (useXML) {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+        out.print(WebResult.OK.getXml());
       } else {
-        response.setContentType( "text/html;charset=UTF-8" );
+        response.setContentType("text/html;charset=UTF-8");
 
-        out.println( "<HTML>" );
-        out.println( "<HEAD>" );
-        out.println( "<TITLE>" + BaseMessages.getString( PKG, "RemoveWorkflowServlet.WorkflowRemoved" ) + "</TITLE>" );
-        out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-        out.println( "</HEAD>" );
-        out.println( "<BODY>" );
-        out.println( "<H3>"
-          + Encode.forHtml( BaseMessages
-          .getString( PKG, "RemoveWorkflowServlet.TheWorkflowWasRemoved", workflowName, id ) ) + "</H3>" );
-        out.print( "<a href=\""
-          + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><br>" );
-        out.println( "<p>" );
-        out.println( "</BODY>" );
-        out.println( "</HTML>" );
+        out.println("<HTML>");
+        out.println("<HEAD>");
+        out.println(
+            "<TITLE>"
+                + BaseMessages.getString(PKG, "RemoveWorkflowServlet.WorkflowRemoved")
+                + "</TITLE>");
+        out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        out.println("</HEAD>");
+        out.println("<BODY>");
+        out.println(
+            "<H3>"
+                + Encode.forHtml(
+                    BaseMessages.getString(
+                        PKG, "RemoveWorkflowServlet.TheWorkflowWasRemoved", workflowName, id))
+                + "</H3>");
+        out.print(
+            "<a href=\""
+                + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+                + "\">"
+                + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
+                + "</a><br>");
+        out.println("<p>");
+        out.println("</BODY>");
+        out.println("</HTML>");
       }
     } else {
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, BaseMessages.getString(
-          PKG, "RemoveWorkflowServlet.Log.CoundNotFindSpecWorkflow", workflowName ) ) );
+      if (useXML) {
+        out.println(
+            new WebResult(
+                WebResult.STRING_ERROR,
+                BaseMessages.getString(
+                    PKG, "RemoveWorkflowServlet.Log.CoundNotFindSpecWorkflow", workflowName)));
       } else {
-        out.println( "<H1>"
-          + Encode.forHtml( BaseMessages.getString(
-          PKG, "RemoveWorkflowServlet.WorkflowRemoved.Log.CoundNotFindWorkflow", workflowName, id ) ) + "</H1>" );
-        out.println( "<a href=\""
-          + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
-        response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+        out.println(
+            "<H1>"
+                + Encode.forHtml(
+                    BaseMessages.getString(
+                        PKG,
+                        "RemoveWorkflowServlet.WorkflowRemoved.Log.CoundNotFindWorkflow",
+                        workflowName,
+                        id))
+                + "</H1>");
+        out.println(
+            "<a href=\""
+                + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+                + "\">"
+                + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
+                + "</a><p>");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
   }
@@ -156,5 +169,4 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
   public String getContextPath() {
     return CONTEXT_PATH;
   }
-
 }
