@@ -23,7 +23,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.cache.HopServerStatusCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,14 +43,12 @@ import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
-@RunWith( PowerMockRunner.class )
+@RunWith(PowerMockRunner.class)
 public class GetWorkflowStatusServletTest {
   private WorkflowMap mockWorkflowMap;
 
@@ -59,99 +56,98 @@ public class GetWorkflowStatusServletTest {
 
   @Before
   public void setup() {
-    mockWorkflowMap = mock( WorkflowMap.class );
-    getWorkflowStatusServlet = new GetWorkflowStatusServlet( mockWorkflowMap );
+    mockWorkflowMap = mock(WorkflowMap.class);
+    getWorkflowStatusServlet = new GetWorkflowStatusServlet(mockWorkflowMap);
   }
 
   @Test
-  @PrepareForTest( { Encode.class } )
-  public void testGetJobStatusServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
+  @PrepareForTest({Encode.class})
+  public void testGetJobStatusServletEscapesHtmlWhenPipelineNotFound()
+      throws ServletException, IOException {
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetWorkflowStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(GetWorkflowStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
 
-    getWorkflowStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
+    getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
 
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
-
+    assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest( { Encode.class, Workflow.class } )
-  public void testGetJobStatusServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
+  @PrepareForTest({Encode.class, Workflow.class})
+  public void testGetJobStatusServletEscapesHtmlWhenPipelineFound()
+      throws ServletException, IOException {
     HopLogStore.init();
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = PowerMockito.mock( Workflow.class );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = PowerMockito.mock(Workflow.class);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetWorkflowStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockWorkflowMap.getWorkflow( any( HopServerObjectEntry.class ) ) ).thenReturn( mockWorkflow );
-    PowerMockito.when( mockWorkflow.getWorkflowName() ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    PowerMockito.when( mockWorkflow.getLogChannel() ).thenReturn( mockLogChannelInterface );
-    PowerMockito.when( mockWorkflow.getWorkflowMeta() ).thenReturn( mockWorkflowMeta );
-    PowerMockito.when( mockWorkflowMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(GetWorkflowStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
+    when(mockWorkflowMap.getWorkflow(any(HopServerObjectEntry.class))).thenReturn(mockWorkflow);
+    PowerMockito.when(mockWorkflow.getWorkflowName())
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    PowerMockito.when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    PowerMockito.when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    PowerMockito.when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
 
-    getWorkflowStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( out.toString().contains( ServletTestUtils.BAD_STRING_TO_TEST ) );
+    getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(out.toString().contains(ServletTestUtils.BAD_STRING_TO_TEST));
 
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest( { Workflow.class } )
+  @PrepareForTest({Workflow.class})
   public void testGetJobStatus() throws ServletException, IOException {
     HopLogStore.init();
-    HopServerStatusCache cacheMock = mock( HopServerStatusCache.class );
-    getWorkflowStatusServlet.cache = cacheMock;
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = PowerMockito.mock( Workflow.class );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
-    ServletOutputStream outMock = mock( ServletOutputStream.class );
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = PowerMockito.mock(Workflow.class);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
+    ServletOutputStream outMock = mock(ServletOutputStream.class);
 
     String id = "123";
     String logId = "logId";
     String useXml = "Y";
 
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetWorkflowStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( "id" ) ).thenReturn( id );
-    when( mockHttpServletRequest.getParameter( "xml" ) ).thenReturn( useXml );
-    when( mockHttpServletResponse.getOutputStream() ).thenReturn( outMock );
-    when( mockWorkflowMap.findWorkflow( id ) ).thenReturn( mockWorkflow );
-    PowerMockito.when( mockWorkflow.getWorkflowName() ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    PowerMockito.when( mockWorkflow.getLogChannel() ).thenReturn( mockLogChannelInterface );
-    PowerMockito.when( mockWorkflow.getWorkflowMeta() ).thenReturn( mockWorkflowMeta );
-    PowerMockito.when( mockWorkflow.isFinished() ).thenReturn( true );
-    PowerMockito.when( mockWorkflow.getLogChannelId() ).thenReturn( logId );
-    PowerMockito.when( mockWorkflowMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
-    when( mockWorkflow.getStatusDescription() ).thenReturn( "Finished" );
+    when(mockHttpServletRequest.getContextPath()).thenReturn(GetWorkflowStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter("id")).thenReturn(id);
+    when(mockHttpServletRequest.getParameter("xml")).thenReturn(useXml);
+    when(mockHttpServletResponse.getOutputStream()).thenReturn(outMock);
+    when(mockWorkflowMap.findWorkflow(id)).thenReturn(mockWorkflow);
+    PowerMockito.when(mockWorkflow.getWorkflowName())
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    PowerMockito.when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    PowerMockito.when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    PowerMockito.when(mockWorkflow.isFinished()).thenReturn(true);
+    PowerMockito.when(mockWorkflow.getLogChannelId()).thenReturn(logId);
+    PowerMockito.when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
+    when(mockWorkflow.getStatusDescription()).thenReturn("Finished");
 
-    getWorkflowStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
+    getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
 
-    when( cacheMock.get( logId, 0 ) ).thenReturn( new byte[] { 0, 1, 2 } );
-    getWorkflowStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
+    getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
 
-    verify( cacheMock, times( 2 ) ).get( logId, 0 );
-    verify( cacheMock, times( 1 ) ).put( eq( logId ), anyString(), eq( 0 ) );
-    verify( mockWorkflow, times( 1 ) ).getLogChannel();
-
+    verify(mockWorkflow, times(2)).getLogChannel();
   }
 }

@@ -97,7 +97,6 @@
         <module>dynamicsqlrow</module>
         <module>edi2xml</module>
         <module>excelinput</module>
-        <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
@@ -128,7 +127,6 @@
         <module>json</module>
         <module>kafka</module>
         <module>ldap</module>
-        <module>ldifinput</module>
         <module>loadfileinput</module>
         <module>mail</module>
         <module>mailinput</module>
@@ -178,7 +176,6 @@
         <module>stringoperations</module>
         <module>switchcase</module>
         <module>synchronizeaftermerge</module>
-        <module>syslog</module>
         <module>systemdata</module>
         <module>tablecompare</module>
         <module>tableexists</module>

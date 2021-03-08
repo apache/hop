@@ -47,7 +47,6 @@
     <jersey-bundle.version>1.19.1</jersey-bundle.version>
     <olap4j.version>1.2.0</olap4j.version>
     <olap4j-xmla.version>1.2.0</olap4j-xmla.version>
-    <hibernate-core.version>3.6.9.Final</hibernate-core.version>
     <snappy-java.version>1.1.0</snappy-java.version>
     <commons-cli.version>1.2</commons-cli.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
@@ -91,10 +90,10 @@
       <version>${commons-vfs2.version}</version>
     </dependency>
     <dependency>
-    	<groupId>org.apache.commons</groupId>
-    	<artifactId>commons-collections4</artifactId>
-    	<version>${commons-collections4.version}</version>
-		</dependency> 
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>${commons-collections4.version}</version>
+    </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -121,7 +120,7 @@
     </dependency>
     <dependency>
       <groupId>org.mozilla</groupId>
-      <artifactId>rhino</artifactId>      
+      <artifactId>rhino</artifactId>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
@@ -161,17 +160,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>${hibernate-core.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.xerial.snappy</groupId>
@@ -561,12 +549,12 @@
       <artifactId>picocli</artifactId>
       <version>${picocli-version}</version>
     </dependency>
-      <dependency>
-          <groupId>org.glassfish.metro</groupId>
-          <artifactId>webservices-api</artifactId>
-          <version>2.3.1</version>
-          <scope>compile</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.glassfish.metro</groupId>
+      <artifactId>webservices-api</artifactId>
+      <version>2.3.1</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
