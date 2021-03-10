@@ -29,11 +29,11 @@ import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 
-import static org.apache.hop.git.PdiDiff.ADDED;
-import static org.apache.hop.git.PdiDiff.ATTR_GIT;
-import static org.apache.hop.git.PdiDiff.ATTR_STATUS;
-import static org.apache.hop.git.PdiDiff.CHANGED;
-import static org.apache.hop.git.PdiDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnTransExtensionPoint",

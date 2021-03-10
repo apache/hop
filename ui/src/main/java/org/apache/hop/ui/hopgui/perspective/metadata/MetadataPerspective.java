@@ -143,9 +143,11 @@ public class MetadataPerspective implements IHopPerspective {
     // If all editor are closed
     //
     if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false);
+      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
     } else {
-      HopGui.getInstance().handleFileCapabilities(metadataFileType, false, false);
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      boolean changed = handler!=null ? handler.hasChanged() : false;
+      HopGui.getInstance().handleFileCapabilities(metadataFileType, changed, false, false);
     }
   }
 
@@ -444,7 +446,7 @@ public class MetadataPerspective implements IHopPerspective {
 
         editor.setFocus();
 
-        HopGui.getInstance().handleFileCapabilities(metadataFileType, false, false);
+        HopGui.getInstance().handleFileCapabilities(metadataFileType, editor.hasChanged(), false, false);
       }
     }
   }
@@ -489,7 +491,7 @@ public class MetadataPerspective implements IHopPerspective {
       // If all editor are closed
       //
       if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false);
+        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
     } else {
       // Ignore event if canceled
@@ -801,7 +803,7 @@ public class MetadataPerspective implements IHopPerspective {
         // If all editor are closed
         //
         if (tabFolder.getItemCount() == 0) {
-          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false);
+          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
         }
       }
     }

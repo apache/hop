@@ -25,7 +25,7 @@ import org.apache.hop.workflow.action.ActionMeta;
 import java.util.Map;
 import java.util.Optional;
 
-public class PdiDiff {
+public class HopDiff {
   public static String ATTR_GIT = "Git";
   public static String ATTR_STATUS = "Status";
 
@@ -35,18 +35,19 @@ public class PdiDiff {
   public static String ADDED = "ADDED";
 
   public static PipelineMeta compareTransforms(
-      PipelineMeta transMeta1, PipelineMeta transMeta2, boolean isForward) {
-    transMeta1
+      PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
+    pipelineMeta1
         .getTransforms()
         .forEach(
             transform -> {
               Optional<TransformMeta> transform2 =
-                  transMeta2.getTransforms().stream()
+                  pipelineMeta2.getTransforms().stream()
                       .filter(obj -> transform.getName().equals(obj.getName()))
                       .findFirst();
               String status = null;
               if (transform2.isPresent()) {
-                Map<String, String> tmp = null, tmp2 = null;
+                Map<String, String> tmp = null;
+                Map<String, String> tmp2 = null;
                 try {
                   // AttributeMap("Git") cannot affect the XML comparison
                   tmp = transform.getAttributesMap().remove(ATTR_GIT);
@@ -69,24 +70,25 @@ public class PdiDiff {
                   status = ADDED;
                 }
               }
-              transform.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
+              transform.setAttribute(ATTR_GIT, ATTR_STATUS, status );
             });
-    return transMeta1;
+    return pipelineMeta1;
   }
 
-  public static WorkflowMeta compareJobEntries(
-      WorkflowMeta jobMeta1, WorkflowMeta jobMeta2, boolean isForward) {
-    jobMeta1
+  public static WorkflowMeta compareActions(
+      WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
+    workflowMeta1
         .getActions()
         .forEach(
             je -> {
               Optional<ActionMeta> je2 =
-                  jobMeta2.getActions().stream()
+                  workflowMeta2.getActions().stream()
                       .filter(obj -> je.getName().equals(obj.getName()))
                       .findFirst();
               String status = null;
               if (je2.isPresent()) {
-                Map<String, String> tmp = null, tmp2 = null;
+                Map<String, String> tmp = null;
+                Map<String, String> tmp2 = null;
                 // AttributeMap("Git") cannot affect the XML comparison
                 tmp = je.getAttributesMap().remove(ATTR_GIT);
                 tmp2 = je2.get().getAttributesMap().remove(ATTR_GIT);
@@ -104,8 +106,8 @@ public class PdiDiff {
                   status = ADDED;
                 }
               }
-              je.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
+              je.setAttribute(ATTR_GIT, ATTR_STATUS, status );
             });
-    return jobMeta1;
+    return workflowMeta1;
   }
 }

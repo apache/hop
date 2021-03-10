@@ -113,7 +113,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override
   public void perspectiveActivated() {
-      HopGui.getInstance().handleFileCapabilities(getActiveFileTypeHandler().getFileType(), false, false);
+    IHopFileTypeHandler handler = getActiveFileTypeHandler();
+    HopGui.getInstance().handleFileCapabilities( handler.getFileType(), handler.hasChanged(), false, false);
   }
 	
   @Override public boolean isActive() {
@@ -311,7 +312,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       // If all tab are closed
       //
       if ( tabFolder.getItemCount()==0 ) {    	  
-    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false );
+    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false, false );
       }
     }
   }

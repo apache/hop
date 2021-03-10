@@ -86,7 +86,10 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
 
     // If the widget changes after this it's been changed by the user
     //
-    wText.addModifyListener( e->explorerFile.setChanged() );
+    wText.addModifyListener( e-> {
+      explorerFile.setChanged();
+      perspective.updateGui();
+    } );
   }
 
 
@@ -106,7 +109,8 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
       }
 
       explorerFile.clearChanged();
-
+      perspective.refresh(); // refresh the explorer perspective tree
+      perspective.updateGui(); // Update menu options
     } catch(Exception e) {
       throw new HopException("Unable to save JSON file '"+explorerFile.getFilename()+"'", e);
     }

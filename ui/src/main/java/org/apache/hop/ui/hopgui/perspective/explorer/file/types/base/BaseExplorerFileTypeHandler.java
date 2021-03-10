@@ -175,7 +175,7 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
 
   @Override
   public boolean hasChanged() {
-    return false;
+    return explorerFile.isChanged();
   }
 
   @Override

@@ -15,23 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.hop.git.xp;
+package org.apache.hop.core.gui.plugin.callback;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.extension.IExtensionPoint;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.variables.IVariables;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@ExtensionPoint(
-    id = "HopGuiGitRepositoryCreated",
-    extensionPointId = "HopGuiMetadataObjectCreated",
-    description = "When HopGui create a new metadata object somewhere")
-public class HopGuiGitRepositoryCreated extends HopGuiGitRepositoryChanged
-    implements IExtensionPoint {
+/**
+ * When a @GuiPlugin has a method painted with this annotation it is possible for other code to call
+ * it. The way it happens is that you have for example a toolbar that is being created and you need
+ * to alert plugins that this happened. You can then do a call in the GuiRegistry with a particular
+ * ID.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface GuiCallback {
 
-  @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, Object o ) throws HopException {
-    super.callExtensionPoint(log, variables, o);
-  }
+  /** @return The callback ID. This is defined by the calling entity */
+  String callbackId();
 }
