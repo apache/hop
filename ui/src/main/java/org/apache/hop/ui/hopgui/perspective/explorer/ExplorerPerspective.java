@@ -26,6 +26,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.plugins.IPlugin;
@@ -46,6 +48,7 @@ import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeToolTipSupport;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -88,7 +91,7 @@ import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "300-HopExplorerPerspective",
-    name = "File Explorer",
+    name = "File Explorer (CTRL+SHIFT+E)",
     description = "The Hop Explorer Perspective",
     image = "ui/images/folder.svg")
 @GuiPlugin(description = "A file explorer for your current project")
@@ -177,6 +180,8 @@ public class ExplorerPerspective implements IHopPerspective {
     return "explorer-perspective";
   }
 
+  @GuiKeyboardShortcut( control = true, shift = true, key = 'e')
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'e')
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -231,9 +236,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
     sash.setWeights(new int[] {20, 80});
 
-    // TODO: Refresh the root folder when it comes back into focus and when it's needed
-    //
-
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle( this );
   }
 
   private void loadFileTypes() {

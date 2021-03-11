@@ -350,28 +350,19 @@ public class GuiRegistry {
 
   public void addKeyboardShortcut(
       String guiPluginClassName, Method method, GuiKeyboardShortcut shortcut) {
-    List<KeyboardShortcut> shortcuts = shortCutsMap.get(guiPluginClassName);
-    if (shortcuts == null) {
-      shortcuts = new ArrayList<>();
-      shortCutsMap.put(guiPluginClassName, shortcuts);
-    }
+    List<KeyboardShortcut> shortcuts = shortCutsMap.computeIfAbsent( guiPluginClassName, k -> new ArrayList<>() );
     KeyboardShortcut keyboardShortCut = new KeyboardShortcut(shortcut, method);
     shortcuts.add(keyboardShortCut);
   }
 
   public void addKeyboardShortcut(
       String parentClassName, Method parentMethod, GuiOsxKeyboardShortcut shortcut) {
-    List<KeyboardShortcut> shortcuts = shortCutsMap.get(parentClassName);
-    if (shortcuts == null) {
-      shortcuts = new ArrayList<>();
-      shortCutsMap.put(parentClassName, shortcuts);
-    }
+    List<KeyboardShortcut> shortcuts = shortCutsMap.computeIfAbsent( parentClassName, k -> new ArrayList<>() );
     shortcuts.add(new KeyboardShortcut(shortcut, parentMethod));
   }
 
   public List<KeyboardShortcut> getKeyboardShortcuts(String parentClassName) {
-    List<KeyboardShortcut> shortcuts = shortCutsMap.get(parentClassName);
-    return shortcuts;
+    return shortCutsMap.get(parentClassName);
   }
 
   // Shortcuts are pretty much global so we'll look everywhere...

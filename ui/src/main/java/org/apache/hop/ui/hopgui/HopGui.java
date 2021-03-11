@@ -1471,6 +1471,20 @@ public class HopGui
     return false;
   }
 
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_UP)
+  public void previousPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showPreviousPerspective( perspective );
+  }
+
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_DOWN)
+  public void nextPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showNextPerspective( perspective );
+  }
+
   /**
    * Gets databaseMetaManager
    *
