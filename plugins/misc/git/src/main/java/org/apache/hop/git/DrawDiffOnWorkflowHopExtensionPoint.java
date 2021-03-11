@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static org.apache.hop.git.HopDiff.ADDED;
 import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
+import static org.apache.hop.git.HopDiff.CHANGED;
 import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
@@ -55,7 +56,10 @@ public class DrawDiffOnWorkflowHopExtensionPoint
       }
 
       for (String hopName : gitHops.keySet()) {
-        if (ext.workflowHop != null && ext.workflowHop.toString().equals(hopName)) {
+
+        String workflowHopName = HopDiff.getWorkflowHopName( ext.workflowHop );
+
+        if (ext.workflowHop != null && workflowHopName.equals(hopName)) {
           // Draw this status...
           //
           SvgFile svgFile = null;
@@ -67,6 +71,9 @@ public class DrawDiffOnWorkflowHopExtensionPoint
                 break;
               case REMOVED:
                 svgFile = new SvgFile("removed.svg", classLoader);
+                break;
+              case CHANGED:
+                svgFile = new SvgFile("CHANGED.svg", classLoader);
                 break;
             }
             if (svgFile != null) {

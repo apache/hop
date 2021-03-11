@@ -73,23 +73,29 @@ public class HopDiff {
                   status = ADDED;
                 }
               }
-              transform.setAttribute(ATTR_GIT, ATTR_STATUS, status );
+              transform.setAttribute(ATTR_GIT, ATTR_STATUS, status);
             });
     return pipelineMeta1;
   }
 
   public static PipelineMeta comparePipelineHops(
-    PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
+      PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
     pipelineMeta1
         .getPipelineHops()
         .forEach(
             hop -> {
+              String hopName = getPipelineHopName(hop);
               Optional<PipelineHopMeta> hop2 =
                   pipelineMeta2.getPipelineHops().stream()
-                      .filter(otherHop -> hop.toString().equals(otherHop.toString()))
+                      .filter(
+                          otherHop -> hopName.equals(getPipelineHopName(otherHop)))
                       .findFirst();
               String status = null;
-              if (!hop2.isPresent()) {
+              if (hop2.isPresent()) {
+                if (hop.isEnabled() != hop2.get().isEnabled()) {
+                  status = CHANGED;
+                }
+              } else {
                 if (isForward) {
                   status = REMOVED;
                 } else {
@@ -97,10 +103,25 @@ public class HopDiff {
                 }
               }
               if (status != null) {
-                pipelineMeta1.setAttribute(ATTR_GIT_HOPS, hop.toString(), status);
+                pipelineMeta1.setAttribute(ATTR_GIT_HOPS, hopName, status);
               }
             });
     return pipelineMeta1;
+  }
+
+  public static final String getPipelineHopName(PipelineHopMeta hopMeta) {
+
+    String name = "";
+    TransformMeta from = hopMeta.getFromTransform();
+    if (from != null) {
+      name += from.getName();
+    }
+    name += " - ";
+    TransformMeta to = hopMeta.getFromTransform();
+    if (to != null) {
+      name += to.getName();
+    }
+    return name;
   }
 
   public static WorkflowMeta compareActions(
@@ -134,23 +155,29 @@ public class HopDiff {
                   status = ADDED;
                 }
               }
-              je.setAttribute(ATTR_GIT, ATTR_STATUS, status );
+              je.setAttribute(ATTR_GIT, ATTR_STATUS, status);
             });
     return workflowMeta1;
   }
 
   public static WorkflowMeta compareWorkflowHops(
-    WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
+      WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
     workflowMeta1
         .getWorkflowHops()
         .forEach(
             hop -> {
+              String hopName = getWorkflowHopName(hop);
               Optional<WorkflowHopMeta> hop2 =
                   workflowMeta2.getWorkflowHops().stream()
-                      .filter(otherHop -> hop.toString().equals(otherHop.toString()))
+                      .filter(
+                          otherHop -> hopName.equals(getWorkflowHopName(otherHop)))
                       .findFirst();
               String status = null;
-              if (!hop2.isPresent()) {
+              if (hop2.isPresent()) {
+                if (hop.isEnabled() != hop2.get().isEnabled()) {
+                  status = CHANGED;
+                }
+              } else {
                 if (isForward) {
                   status = REMOVED;
                 } else {
@@ -158,9 +185,24 @@ public class HopDiff {
                 }
               }
               if (status != null) {
-                workflowMeta1.setAttribute(ATTR_GIT_HOPS, hop.toString(), status);
+                workflowMeta1.setAttribute(ATTR_GIT_HOPS, hopName, status);
               }
             });
     return workflowMeta1;
+  }
+
+  public static final String getWorkflowHopName(WorkflowHopMeta hopMeta) {
+
+    String name = "";
+    ActionMeta from = hopMeta.getFromAction();
+    if (from != null) {
+      name += from.getName();
+    }
+    name += " - ";
+    ActionMeta to = hopMeta.getToAction();
+    if (to != null) {
+      name += to.getName();
+    }
+    return name;
   }
 }

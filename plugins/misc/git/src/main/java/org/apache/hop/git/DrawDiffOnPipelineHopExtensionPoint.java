@@ -24,7 +24,6 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -33,7 +32,9 @@ import java.util.Map;
 
 import static org.apache.hop.git.HopDiff.ADDED;
 import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
+import static org.apache.hop.git.HopDiff.CHANGED;
 import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.getPipelineHopName;
 
 @ExtensionPoint(
     id = "DrawDiffOnPipelineHopExtensionPoint",
@@ -51,12 +52,13 @@ public class DrawDiffOnPipelineHopExtensionPoint
 
     try {
       Map<String, String> gitHops = ext.pipelineMeta.getAttributes(ATTR_GIT_HOPS);
-      if (gitHops==null) {
+      if (gitHops == null) {
         return;
       }
 
       for (String hopName : gitHops.keySet()) {
-        if (ext.pipelineHop != null && ext.pipelineHop.toString().equals(hopName)) {
+        String pipelineHopName = getPipelineHopName(ext.pipelineHop);
+        if (ext.pipelineHop != null && pipelineHopName.equals(hopName)) {
           // Draw this status...
           //
           SvgFile svgFile = null;
@@ -68,6 +70,9 @@ public class DrawDiffOnPipelineHopExtensionPoint
                 break;
               case REMOVED:
                 svgFile = new SvgFile("removed.svg", classLoader);
+                break;
+              case CHANGED:
+                svgFile = new SvgFile("changed.svg", classLoader);
                 break;
             }
             if (svgFile != null) {
@@ -85,7 +90,13 @@ public class DrawDiffOnPipelineHopExtensionPoint
               }
 
               gc.drawImage(
-                  svgFile, middle.x, middle.y, iconSize/2, iconSize/2, gc.getMagnification(), 0);
+                  svgFile,
+                  middle.x,
+                  middle.y,
+                  iconSize / 2,
+                  iconSize / 2,
+                  gc.getMagnification(),
+                  0);
             }
           }
         }
