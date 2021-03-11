@@ -993,4 +993,13 @@ public class ExplorerPerspective implements IHopPerspective {
   public List<IExplorerSelectionListener> getSelectionListeners() {
     return selectionListeners;
   }
+
+  /**
+   * Gets tree
+   *
+   * @return value of tree
+   */
+  public Tree getTree() {
+    return tree;
+  }
 }

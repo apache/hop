@@ -475,7 +475,7 @@ public class GitGuiPlugin
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_GIT_INFO,
       toolTip = "Git Info",
-      image = "git_icon.svg",
+      image = "git-info.svg",
       separator = true)
   public void showGitInfo() {
 

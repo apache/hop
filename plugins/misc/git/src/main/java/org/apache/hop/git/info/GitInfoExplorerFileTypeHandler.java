@@ -44,11 +44,17 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -57,30 +63,56 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /** Show git information about a file or folder : revisions */
 public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
-    implements IExplorerFileTypeHandler {
+    implements IExplorerFileTypeHandler, Listener {
+
+  private String id;
+
+  private Composite parentComposite;
 
   private Text wFile;
+  private Text wStatus;
+  private Text wBranch;
   private TableView wFiles;
   private TableView wRevisions;
+  private Composite wDiffComposite;
   private Text wDiff;
 
   public GitInfoExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
+    id = UUID.randomUUID().toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GitInfoExplorerFileTypeHandler that = (GitInfoExplorerFileTypeHandler) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 
   // Render the SVG file...
   //
   @Override
   public void renderFile(Composite composite) {
+    this.parentComposite = composite;
+
     PropsUi props = PropsUi.getInstance();
     int margin = props.getMargin();
-
-    GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
-    UIGit git = guiPlugin.getGit();
 
     // A label showing the file/folder
     //
@@ -94,7 +126,6 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wFile = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
     wFile.setEditable(false);
     props.setLook(wFile);
-    wFile.setText(Const.NVL(explorerFile.getFilename(), ""));
     FormData fdFile = new FormData();
     fdFile.left = new FormAttachment(wlFile, 2 * margin);
     fdFile.top = new FormAttachment(wlFile, 0, SWT.CENTER);
@@ -111,10 +142,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdlStatus.left = new FormAttachment(0, 0);
     fdlStatus.top = new FormAttachment(lastControl, margin);
     wlStatus.setLayoutData(fdlStatus);
-    Text wStatus = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
+    wStatus = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
     props.setLook(wStatus);
     wStatus.setEditable(false);
-    wStatus.setText(getStatusDescription(guiPlugin));
     FormData fdStatus = new FormData();
     fdStatus.left = new FormAttachment(wlFile, 2 * margin);
     fdStatus.top = new FormAttachment(wlStatus, 0, SWT.CENTER);
@@ -131,28 +161,15 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdlBranch.left = new FormAttachment(0, 0);
     fdlBranch.top = new FormAttachment(lastControl, margin);
     wlBranch.setLayoutData(fdlBranch);
-    Text wBranch = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
+    wBranch = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
     props.setLook(wBranch);
     wBranch.setEditable(false);
-    wBranch.setText(Const.NVL(git.getBranch(), ""));
     FormData fdBranch = new FormData();
     fdBranch.left = new FormAttachment(wlFile, 2 * margin);
     fdBranch.top = new FormAttachment(wlBranch, 0, SWT.CENTER);
     fdBranch.right = new FormAttachment(100, 0);
     wBranch.setLayoutData(fdBranch);
     lastControl = wBranch;
-
-    // Relative path of the file...
-    //
-    List<ObjectRevision> revisions = new ArrayList<>();
-    try {
-      String relativePath =
-          calculateRelativePath(perspective.getRootFolder(), explorerFile.getFilename());
-      revisions = git.getRevisions(relativePath);
-    } catch (Exception e) {
-      LogChannel.UI.logError(
-          "Error getting git object revisions for path: " + explorerFile.getFilename(), e);
-    }
 
     // The revisions
     //
@@ -173,14 +190,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       new ColumnInfo("Comment", ColumnInfo.COLUMN_TYPE_TEXT),
     };
     wRevisions =
-        new TableView(
-            hopGui.getVariables(),
-            composite,
-            SWT.NONE,
-            revisionColumns,
-            revisions.size(),
-            null,
-            props);
+        new TableView(hopGui.getVariables(), composite, SWT.NONE, revisionColumns, 1, null, props);
     wRevisions.setReadonly(true);
     props.setLook(wRevisions);
     FormData fdRevisions = new FormData();
@@ -189,16 +199,6 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdRevisions.right = new FormAttachment(100, 0);
     fdRevisions.bottom = new FormAttachment(40, 0);
     wRevisions.setLayoutData(fdRevisions);
-
-    for (int i = 0; i < revisions.size(); i++) {
-      ObjectRevision revision = revisions.get(i);
-      TableItem item = wRevisions.table.getItem(i);
-      item.setText(1, Const.NVL(revision.getRevisionId(), ""));
-      item.setText(2, getDateString(revision.getCreationDate()));
-      item.setText(3, Const.NVL(revision.getLogin(), ""));
-      item.setText(4, Const.NVL(revision.getComment(), ""));
-    }
-    wRevisions.optimizeTableView();
     wRevisions.table.addListener(SWT.Selection, e -> refreshChangedFiles());
     lastControl = wRevisions;
 
@@ -234,10 +234,111 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     wFiles.table.addListener(SWT.Selection, e -> showFileDiff());
 
-    wDiff = new Text(sashForm, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wDiff);
+    wDiffComposite = new Composite(sashForm, SWT.NONE);
+    wDiffComposite.setLayout( new FormLayout() );
 
-    sashForm.setWeights(new int[] {50, 50});
+    Label wlDiff = new Label(wDiffComposite, SWT.LEFT | SWT.SINGLE);
+    props.setLook(wlDiff);
+    wlDiff.setText("Select a file to see the text diff below:");
+    FormData fdlDiff = new FormData();
+    fdlDiff.left = new FormAttachment(0, 0);
+    fdlDiff.right = new FormAttachment(100, 0);
+    fdlDiff.top = new FormAttachment(0, 0);
+    wlDiff.setLayoutData(fdlDiff);
+    
+    wDiff = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    props.setLook(wDiff);
+    FormData fdDiff = new FormData();
+    fdDiff.left = new FormAttachment(0, 0);
+    fdDiff.right = new FormAttachment(100, 0);
+    fdDiff.top = new FormAttachment(wlDiff, margin);
+    fdDiff.bottom = new FormAttachment(100, 0);
+    wDiff.setLayoutData(fdDiff);
+
+    sashForm.setWeights(new int[] {40, 60});
+
+    refresh();
+
+    perspective.getTree().addListener(SWT.Selection, this);
+  }
+
+  @Override public void close() {
+    perspective
+      .getTree()
+      .removeListener(SWT.Selection, GitInfoExplorerFileTypeHandler.this);
+  }
+
+  /**
+   * Handle the Selection event on the parent Explorer perspective Tree. If this info tab is in
+   * perspective we can ask if we want to change to the selected folder...
+   *
+   * @param event
+   */
+  @Override
+  public void handleEvent(Event event) {
+    if (parentComposite == null || parentComposite.isDisposed() || !parentComposite.isVisible()) {
+      return;
+    }
+
+    ExplorerFile file = perspective.getSelectedFile();
+    if (file == null) {
+      return;
+    }
+
+    try {
+      String relativePath = calculateRelativePath(perspective.getRootFolder(), file.getFilename());
+      if (".".equals( relativePath )) {
+        relativePath = "Git project root";
+      }
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      box.setText("Change location?");
+      box.setMessage(
+          "Do you want to change the location of the current git info view?"
+              + Const.CR
+              + Const.CR
+              + relativePath);
+      int answer = box.open();
+      if ((answer & SWT.YES) != 0) {
+        this.explorerFile = file;
+        refresh();
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error calculating relative path to change git info view", e);
+    }
+  }
+
+  public void refresh() {
+    // Relative path of the file...
+    //
+    GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
+    UIGit git = guiPlugin.getGit();
+    List<ObjectRevision> revisions = new ArrayList<>();
+    try {
+      String relativePath =
+          calculateRelativePath(perspective.getRootFolder(), explorerFile.getFilename());
+      revisions = git.getRevisions(relativePath);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Error getting git object revisions for path: " + explorerFile.getFilename(), e);
+    }
+
+    wFile.setText(Const.NVL(explorerFile.getFilename(), ""));
+    wStatus.setText(getStatusDescription(guiPlugin));
+    wBranch.setText(Const.NVL(git.getBranch(), ""));
+
+    wRevisions.removeAll();
+    for (ObjectRevision revision : revisions) {
+      TableItem item = new TableItem(wRevisions.table, SWT.NONE);
+      item.setText(1, Const.NVL(revision.getRevisionId(), ""));
+      item.setText(2, getDateString(revision.getCreationDate()));
+      item.setText(3, Const.NVL(revision.getLogin(), ""));
+      item.setText(4, Const.NVL(revision.getComment(), ""));
+    }
+    wRevisions.optimizeTableView();
+    if (!revisions.isEmpty()) {
+      // Select the first line
+      wRevisions.setSelection( new int[] {0} );
+    }
 
     refreshChangedFiles();
   }
@@ -307,7 +408,13 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       String revisionId = wRevisions.table.getSelection()[0].getText(1);
 
       if (UIGit.WORKINGTREE.equals(revisionId)) {
-        changedFiles = new ArrayList<>(guiPlugin.getChangedFiles().values());
+        changedFiles = new ArrayList<>();
+        for (UIFile changedFile : guiPlugin.getChangedFiles().values()) {
+          if (isFilteredPath(rootFolder, changedFile.getName(), selectedFile)) {
+            changedFiles.add(changedFile);
+          }
+        }
+
       } else {
         showStaged = false;
         changedFiles = new ArrayList<>();
@@ -331,8 +438,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     }
 
     wFiles.removeAll();
-    for (int i = 0; i < changedFiles.size(); i++) {
-      UIFile file = changedFiles.get(i);
+    for (UIFile file : changedFiles) {
       TableItem item = new TableItem(wFiles.table, SWT.NONE);
       item.setText(1, Const.NVL(file.getName(), ""));
       if (showStaged) {
@@ -344,19 +450,20 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   }
 
   /**
-   * See if the given path is the same or
+   * See if the given path is the same or in a sub-folder
    *
-   * @param path
-   * @param selectedFile
-   * @return
+   * @param root The reference folder for the relative path calculation
+   * @param path The short relative path to compare with the selected file
+   * @param selectedFile The selected file with a full path
+   * @return True if the path is the same or in a sub-folder of the selected file
    */
   private boolean isFilteredPath(String root, String path, String selectedFile) {
     try {
       String relativeSelected = calculateRelativePath(root, selectedFile);
-      if (".".equals( relativeSelected )) {
+      if (".".equals(relativeSelected)) {
         return true; // path is whole project
       }
-      return path.startsWith( relativeSelected );
+      return path.startsWith(relativeSelected);
     } catch (Exception e) {
       return false;
     }
