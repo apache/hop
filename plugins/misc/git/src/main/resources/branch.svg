@@ -6,19 +6,9 @@
     y="0px"
     viewBox="0 0 16 16"
     enable-background="new 0 0 16 16"
-    >
-    rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-      />
-  <g
-      style="fill:none;stroke:none;stroke-opacity:1"
-      ><g
-       style="fill:none;stroke:none;stroke-opacity:1"
-       ><rect
-         style="fill:none;stroke:none;stroke-opacity:1"
-         fill="none"
-         width="16"
-         height="16"
-          /></g></g>
+    width="16px"
+    height="16px">
+
   <circle
       r="2.5"
       cy="3.5"
@@ -48,4 +38,5 @@
       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/>
   <path
       d="M 11.98445,9.9026308 C 10.74926,9.4074902 10.701086,7.731986 11.905801,7.167237 c 0.197172,-0.09243 0.280858,-0.1070958 0.610916,-0.107058 0.342678,3.92e-5 0.406584,0.012263 0.614559,0.1175494 0.27655,0.1400021 0.603903,0.4727024 0.725993,0.7378512 0.07188,0.1560997 0.08811,0.2652528 0.08833,0.593831 2.34e-4,0.3524866 -0.01311,0.4311102 -0.107231,0.6319041 -0.13726,0.2928279 -0.417609,0.5730006 -0.709876,0.7094308 C 12.822191,9.993727 12.27375,10.0186 11.98445,9.9026308 Z"
-      style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/></svg>
+      style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/>
+</svg>

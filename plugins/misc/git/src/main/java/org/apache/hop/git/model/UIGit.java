@@ -20,7 +20,9 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.dialog.MergeBranchDialog;
 import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
@@ -102,6 +104,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -669,16 +672,15 @@ public class UIGit extends VCS {
     }
   }
 
-  public InputStream open(String file, String commitId) {
+  public InputStream open(String file, String commitId) throws HopException {
     if (commitId.equals(WORKINGTREE)) {
       String baseDirectory = getDirectory();
       String filePath = baseDirectory + Const.FILE_SEPARATOR + file;
       try {
-        return new FileInputStream(new File(filePath));
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        return HopVfs.getInputStream( filePath );
+      } catch ( HopFileException e) {
+        throw new HopException("Unable to find working tree file '"+filePath+"'", e);
       }
-      return null;
     }
     RevCommit commit = resolve(commitId);
     RevTree tree = commit.getTree();
@@ -690,15 +692,14 @@ public class UIGit extends VCS {
       ObjectLoader loader = git.getRepository().open(tw.getObjectId(0));
       return loader.openStream();
     } catch (MissingObjectException e) {
-      e.printStackTrace();
+      throw new HopException("Unable to find file '"+file+"' for commit ID '"+commitId+"", e);
     } catch (IncorrectObjectTypeException e) {
-      e.printStackTrace();
+      throw new HopException("Incorrect object type error for file '"+file+"' for commit ID '"+commitId+"", e);
     } catch (CorruptObjectException e) {
-      e.printStackTrace();
+      throw new HopException("Corrupt object error for file '"+file+"' for commit ID '"+commitId+"", e);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new HopException("Error reading git file '"+file+"' for commit ID '"+commitId+"", e);
     }
-    return null;
   }
 
   public boolean cloneRepo(String directory, String uri) {
@@ -818,38 +819,33 @@ public class UIGit extends VCS {
     }
   }
 
-  private boolean mergeBranch(String value, String mergeStrategy) {
+  private boolean mergeBranch(String value, String mergeStrategy) throws HopException {
     try {
       ObjectId obj = git.getRepository().resolve(value);
       MergeResult result =
           git.merge().include(obj).setStrategy(MergeStrategy.get(mergeStrategy)).call();
       if (result.getMergeStatus().isSuccessful()) {
-        showMessageBox(
-            BaseMessages.getString(PKG, "Dialog.Success"),
-            BaseMessages.getString(PKG, "Dialog.Success"));
         return true;
       } else {
-        showMessageBox(
-            BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
+        // TODO: get rid of message box
+        //
+        showMessageBox( BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
         if (result.getMergeStatus() == MergeStatus.CONFLICTING) {
-          result
-              .getConflicts()
-              .keySet()
-              .forEach(
-                  path -> {
-                    checkout(path, Constants.HEAD, ".ours");
-                    checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), ".theirs");
-                  });
+          Map<String, int[][]> conflicts = result.getConflicts();
+          for (String path : conflicts.keySet()) {
+            checkout(path, Constants.HEAD, ".ours");
+            checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), ".theirs");
+          }
           return true;
         }
       }
+      return false;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      throw new HopException("Error merging branch '"+value+"' with strategy '"+mergeStrategy+"'", e);
     }
-    return false;
   }
 
-  public boolean merge() {
+  public boolean merge() throws HopException {
     if (hasUncommittedChanges()) {
       showMessageBox(
           BaseMessages.getString(PKG, "Dialog.Error"),
@@ -877,14 +873,14 @@ public class UIGit extends VCS {
     }
   }
 
-  private void checkout(String path, String commitId, String postfix) {
+  private void checkout(String path, String commitId, String postfix) throws HopException {
     InputStream stream = open(path, commitId);
     File file = new File(directory + Const.FILE_SEPARATOR + path + postfix);
     try {
       org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, file);
       stream.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new HopException("Error checking out file '"+path+"' for commit ID '"+commitId+"' and postfix "+postfix, e);
     }
   }
 

@@ -60,13 +60,13 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                     : pipelineMeta.getPipelineVersion().startsWith("git")) {
                   String status = transform.getAttribute(ATTR_GIT, ATTR_STATUS);
                   Point n = transform.getLocation();
-                  String location = "images/git/";
+                  String location;
                   if (status.equals(REMOVED)) {
-                    location += "removed.svg";
+                    location = "removed.svg";
                   } else if (status.equals(CHANGED)) {
-                    location += "changed.svg";
+                    location = "changed.svg";
                   } else if (status.equals(ADDED)) {
-                    location += "added.svg";
+                    location = "added.svg";
                   } else { // Unchanged
                     return;
                   }

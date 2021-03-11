@@ -52,22 +52,6 @@ public class UIFile {
     this.changeType = changeType;
   }
 
-  public String getImage() {
-    final String location = "images/git/";
-    switch (changeType) {
-      case ADD:
-      case COPY:
-        return location + "added.svg";
-      case MODIFY:
-      case RENAME:
-        return location + "changed.svg";
-      case DELETE:
-        return location + "removed.svg";
-      default:
-        return "";
-    }
-  }
-
   public Boolean getIsStaged() {
     return isStaged;
   }
