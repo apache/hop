@@ -357,7 +357,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), true, hopGui.getVariables());
 
       pipelineMetaOld = HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true);
+      pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);
       pipelineMetaNew = HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false);
+      pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
 
       pipelineMetaOld.setPipelineVersion("git: " + commitIdOld);
       pipelineMetaNew.setPipelineVersion("git: " + commitIdNew);
@@ -418,7 +420,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       workflowMetaOld = HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true);
+      workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
       workflowMetaNew = HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false);
+      workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
 
       workflowMetaOld.setWorkflowVersion("git: " + commitIdOld);
       workflowMetaNew.setWorkflowVersion("git: " + commitIdNew);

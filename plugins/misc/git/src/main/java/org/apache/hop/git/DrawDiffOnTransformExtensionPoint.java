@@ -42,7 +42,8 @@ import static org.apache.hop.git.HopDiff.REMOVED;
 public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
     if (!(object instanceof PipelinePainter)) {
       return;
     }
@@ -55,9 +56,8 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
           .filter(transform -> transform.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
           .forEach(
               transform -> {
-                if (pipelineMeta.getPipelineVersion() == null
-                    ? false
-                    : pipelineMeta.getPipelineVersion().startsWith("git")) {
+                if (pipelineMeta.getPipelineVersion() != null
+                    && pipelineMeta.getPipelineVersion().startsWith("git")) {
                   String status = transform.getAttribute(ATTR_GIT, ATTR_STATUS);
                   Point n = transform.getLocation();
                   String location;

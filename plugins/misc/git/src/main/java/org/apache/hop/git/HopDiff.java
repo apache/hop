@@ -17,8 +17,10 @@
 package org.apache.hop.git;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
@@ -28,11 +30,12 @@ import java.util.Optional;
 public class HopDiff {
   public static String ATTR_GIT = "Git";
   public static String ATTR_STATUS = "Status";
+  public static String ATTR_GIT_HOPS = "GitHops";
 
-  public static String UNCHANGED = "UNCHANGED";
-  public static String CHANGED = "CHANGED";
-  public static String REMOVED = "REMOVED";
-  public static String ADDED = "ADDED";
+  public static final String UNCHANGED = "UNCHANGED";
+  public static final String CHANGED = "CHANGED";
+  public static final String REMOVED = "REMOVED";
+  public static final String ADDED = "ADDED";
 
   public static PipelineMeta compareTransforms(
       PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
@@ -75,6 +78,31 @@ public class HopDiff {
     return pipelineMeta1;
   }
 
+  public static PipelineMeta comparePipelineHops(
+    PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
+    pipelineMeta1
+        .getPipelineHops()
+        .forEach(
+            hop -> {
+              Optional<PipelineHopMeta> hop2 =
+                  pipelineMeta2.getPipelineHops().stream()
+                      .filter(otherHop -> hop.toString().equals(otherHop.toString()))
+                      .findFirst();
+              String status = null;
+              if (!hop2.isPresent()) {
+                if (isForward) {
+                  status = REMOVED;
+                } else {
+                  status = ADDED;
+                }
+              }
+              if (status != null) {
+                pipelineMeta1.setAttribute(ATTR_GIT_HOPS, hop.toString(), status);
+              }
+            });
+    return pipelineMeta1;
+  }
+
   public static WorkflowMeta compareActions(
       WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
     workflowMeta1
@@ -107,6 +135,31 @@ public class HopDiff {
                 }
               }
               je.setAttribute(ATTR_GIT, ATTR_STATUS, status );
+            });
+    return workflowMeta1;
+  }
+
+  public static WorkflowMeta compareWorkflowHops(
+    WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
+    workflowMeta1
+        .getWorkflowHops()
+        .forEach(
+            hop -> {
+              Optional<WorkflowHopMeta> hop2 =
+                  workflowMeta2.getWorkflowHops().stream()
+                      .filter(otherHop -> hop.toString().equals(otherHop.toString()))
+                      .findFirst();
+              String status = null;
+              if (!hop2.isPresent()) {
+                if (isForward) {
+                  status = REMOVED;
+                } else {
+                  status = ADDED;
+                }
+              }
+              if (status != null) {
+                workflowMeta1.setAttribute(ATTR_GIT_HOPS, hop.toString(), status);
+              }
             });
     return workflowMeta1;
   }
