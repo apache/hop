@@ -422,7 +422,7 @@ public class GitGuiPlugin
     boolean isGit = git != null;
     boolean isSelected = isGit && getSelectedFile() != null;
 
-    widgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isSelected);
+    widgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isGit);
     widgets.enableToolbarItem(TOOLBAR_ITEM_ADD, isSelected);
     widgets.enableToolbarItem(TOOLBAR_ITEM_REVERT, isSelected);
     widgets.enableToolbarItem(TOOLBAR_ITEM_COMMIT, isSelected);
@@ -491,7 +491,9 @@ public class GitGuiPlugin
     }
     ExplorerFile activeFile = explorerPerspective.getSelectedFile();
     if (activeFile == null) {
-      return;
+      activeFile = new ExplorerFile();
+      activeFile.setName( "Git project" );
+      activeFile.setFilename( git.getDirectory() );
     }
     activeFile.setName("Git info: " + activeFile.getName());
     GitInfoExplorerFileType fileType = new GitInfoExplorerFileType();

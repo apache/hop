@@ -315,6 +315,10 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       } else {
         commitIdNew = revisionId;
         commitIdOld = git.getParentCommitId(revisionId);
+
+        if (commitIdOld==null) {
+          return; // No parent to compare to
+        }
       }
 
       if (commitIdNew.equals(commitIdOld)) {
@@ -488,7 +492,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     }
     // If the file is already selected simply refresh the view.
     //
-    if (explorerFile.getFilename().equals( wFile.getText()) ) {
+    if (file.getFilename().equals( wFile.getText()) ) {
       refresh();
       return;
     }
@@ -567,6 +571,13 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // Enable visual diff button?
     //
     if (filename != null) {
+
+      // If it's the last revision then we can't compare it to the previous one...
+      //
+      if (wRevisions.getSelectionIndex()==wRevisions.table.getItemCount()-1) {
+        return; // Don't even try to compare with something that's not there.
+      }
+
       try {
         if (HopGui.getDataOrchestrationPerspective()
             .getPipelineFileType()
