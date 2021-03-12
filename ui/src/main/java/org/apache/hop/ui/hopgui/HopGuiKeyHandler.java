@@ -39,9 +39,14 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   public Set<Object> parentObjects;
 
+  private KeyboardShortcut lastShortcut;
+  private long lastShortcutTime;
+
+
   private HopGuiKeyHandler() {
     this.parentObjects = new HashSet<>();
   }
+
 
   public static HopGuiKeyHandler getInstance() {
     if ( singleton == null ) {
@@ -58,14 +63,15 @@ public class HopGuiKeyHandler extends KeyAdapter {
     parentObjects.remove( parentObject );
   }
 
-  @Override public void keyPressed( KeyEvent e ) {
+  @Override public void keyPressed( KeyEvent event ) {
     // TODO: allow for keyboard shortcut priorities for certain objects.
     //
     for ( Object parentObject : parentObjects ) {
       List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts( parentObject.getClass().getName() );
       if (shortcuts!=null) {
         for ( KeyboardShortcut shortcut : shortcuts ) {
-          if ( handleKey( parentObject, e, shortcut ) ) {
+          if ( handleKey( parentObject, event, shortcut ) ) {
+            event.doit = false;
             return; // This key is handled.
           }
         }

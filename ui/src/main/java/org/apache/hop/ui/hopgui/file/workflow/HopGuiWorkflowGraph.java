@@ -3046,7 +3046,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);
 
               hopGui.setUndoMenu(workflowMeta);
-              hopGui.handleFileCapabilities(fileType, running, false);
+              hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
               HopGuiWorkflowGraph.super.redraw();
             });
   }

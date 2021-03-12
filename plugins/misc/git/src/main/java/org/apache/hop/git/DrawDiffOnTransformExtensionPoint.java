@@ -29,11 +29,11 @@ import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 
-import static org.apache.hop.git.PdiDiff.ADDED;
-import static org.apache.hop.git.PdiDiff.ATTR_GIT;
-import static org.apache.hop.git.PdiDiff.ATTR_STATUS;
-import static org.apache.hop.git.PdiDiff.CHANGED;
-import static org.apache.hop.git.PdiDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnTransExtensionPoint",
@@ -42,7 +42,8 @@ import static org.apache.hop.git.PdiDiff.REMOVED;
 public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
     if (!(object instanceof PipelinePainter)) {
       return;
     }
@@ -55,18 +56,17 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
           .filter(transform -> transform.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
           .forEach(
               transform -> {
-                if (pipelineMeta.getPipelineVersion() == null
-                    ? false
-                    : pipelineMeta.getPipelineVersion().startsWith("git")) {
+                if (pipelineMeta.getPipelineVersion() != null
+                    && pipelineMeta.getPipelineVersion().startsWith("git")) {
                   String status = transform.getAttribute(ATTR_GIT, ATTR_STATUS);
                   Point n = transform.getLocation();
-                  String location = "images/git/";
+                  String location;
                   if (status.equals(REMOVED)) {
-                    location += "removed.svg";
+                    location = "removed.svg";
                   } else if (status.equals(CHANGED)) {
-                    location += "changed.svg";
+                    location = "changed.svg";
                   } else if (status.equals(ADDED)) {
-                    location += "added.svg";
+                    location = "added.svg";
                   } else { // Unchanged
                     return;
                   }

@@ -344,7 +344,7 @@ public class HopGui
     addPerspectivesToolbar();
     addMainPerspectivesComposite();
 
-    handleFileCapabilities(new EmptyFileType(), false, false);
+    handleFileCapabilities(new EmptyFileType(), false, false, false);
 
     loadPerspectives();
 
@@ -1051,12 +1051,13 @@ public class HopGui
    *
    * @param fileType The type of file to handle giving you its capabilities to take into account
    *     from {@link IHopFileType} or set by a plugin
+   * @param changed set this to true if the file content has changed
    * @param running set this to true if the current file is running
    * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities(IHopFileType fileType, boolean running, boolean paused) {
+  public void handleFileCapabilities(IHopFileType fileType, boolean changed, boolean running, boolean paused) {
 
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE);
+    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
     mainMenuWidgets.enableMenuItem(
@@ -1102,7 +1103,7 @@ public class HopGui
         getActivePerspective().hasNavigationNextFile());
 
     mainToolbarWidgets.enableToolbarItem(
-        fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE);
+        fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainToolbarWidgets.enableToolbarItem(
         fileType, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
   }
@@ -1468,6 +1469,20 @@ public class HopGui
       return true;
     }
     return false;
+  }
+
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_UP)
+  public void previousPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showPreviousPerspective( perspective );
+  }
+
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_DOWN)
+  public void nextPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showNextPerspective( perspective );
   }
 
   /**

@@ -88,6 +88,97 @@ public class KeyboardShortcut {
     else if ( keyCode >= 48 && keyCode <= 57 ) {
       str.append( ( (char) keyCode ) );
     }
+    if ((keyCode & (1 << 24)) != 0) {
+      switch (keyCode & (0xFFFF)) {
+        case 1:
+          str.append("UP");
+          break;
+        case 2:
+          str.append("DOWN");
+          break;
+        case 3:
+          str.append("LEFT");
+          break;
+        case 4:
+          str.append("RIGHT");
+          break;
+        case 5:
+          str.append("PAGE_UP");
+          break;
+        case 6:
+          str.append("PAGE_DOWN");
+          break;
+        case 7:
+          str.append("HOME");
+          break;
+        case 8:
+          str.append("END");
+          break;
+        case 9:
+          str.append("INSERT");
+          break;
+        case 10:
+          str.append("F1");
+          break;
+        case 11:
+          str.append("F2");
+          break;
+        case 12:
+          str.append("F3");
+          break;
+        case 13:
+          str.append("F3");
+          break;
+        case 14:
+          str.append("F5");
+          break;
+        case 15:
+          str.append("F6");
+          break;
+        case 16:
+          str.append("F7");
+          break;
+        case 17:
+          str.append("F8");
+          break;
+        case 18:
+          str.append("F9");
+          break;
+        case 19:
+          str.append("F10");
+          break;
+        case 20:
+          str.append("F11");
+          break;
+        case 21:
+          str.append("F12");
+          break;
+        case 22:
+          str.append("F13");
+          break;
+        case 23:
+          str.append("F14");
+          break;
+        case 24:
+          str.append("F15");
+          break;
+        case 25:
+          str.append("F16");
+          break;
+        case 26:
+          str.append("F17");
+          break;
+        case 27:
+          str.append("F18");
+          break;
+        case 28:
+          str.append("F19");
+          break;
+        case 29:
+          str.append("F20");
+          break;
+      }
+    }
     return str.toString();
   }
 

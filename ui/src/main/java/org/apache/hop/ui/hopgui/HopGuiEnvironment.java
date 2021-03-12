@@ -24,6 +24,8 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.callback.GuiCallback;
+import org.apache.hop.core.gui.plugin.callback.GuiCallbackMethod;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
@@ -128,6 +130,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
           if ( contextAction != null ) {
             guiRegistry.addGuiContextAction( guiPluginClassName, method, contextAction, classLoader );
+          }
+
+          GuiCallback guiCallback = method.getAnnotation( GuiCallback.class );
+          if ( guiCallback != null ) {
+            guiRegistry.registerGuiCallback( guiPluginClass, method, guiCallback );
           }
         }
       }

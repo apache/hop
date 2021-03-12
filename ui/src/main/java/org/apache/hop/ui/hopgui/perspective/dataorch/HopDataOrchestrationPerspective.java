@@ -29,6 +29,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -66,7 +68,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
   id = "100-HopDataOrchestrationPerspective",
-  name = "Data Orchestration",
+  name = "Data Orchestration (CTRL+SHIFT+D)",
   image = "ui/images/data_orch.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
@@ -107,13 +109,16 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return "data-orch";
   }
 
+  @GuiKeyboardShortcut( control = true, shift = true, key = 'd')
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'd')
   @Override public void activate() {
 	  hopGui.setActivePerspective(this);
   }
 
   @Override
   public void perspectiveActivated() {
-      HopGui.getInstance().handleFileCapabilities(getActiveFileTypeHandler().getFileType(), false, false);
+    IHopFileTypeHandler handler = getActiveFileTypeHandler();
+    HopGui.getInstance().handleFileCapabilities( handler.getFileType(), handler.hasChanged(), false, false);
   }
 	
   @Override public boolean isActive() {
@@ -201,6 +206,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     // Support reorder tab item
     new TabFolderReorder( tabFolder );
 
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle( this );
   }
 
   private void handleTabMenuDetectEvent( Event event ) {  
@@ -311,7 +317,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       // If all tab are closed
       //
       if ( tabFolder.getItemCount()==0 ) {    	  
-    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false );
+    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false, false );
       }
     }
   }

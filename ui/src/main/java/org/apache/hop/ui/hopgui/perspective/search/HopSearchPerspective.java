@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui.perspective.search;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
@@ -33,6 +35,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -61,7 +64,7 @@ import java.util.List;
 import java.util.Map;
 
 @HopPerspectivePlugin(
-  id = "300-HopSearchPerspective",
+  id = "400-HopSearchPerspective",
   name = "Search",
   description = "The Hop Search Perspective",
   image = "ui/images/search.svg"
@@ -100,7 +103,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     hopGui.setActivePerspective( this );
   }
-  
+
   @Override public void perspectiveActivated() {
 	    wSearchString.setFocus();
 

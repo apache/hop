@@ -29,11 +29,11 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 
-import static org.apache.hop.git.PdiDiff.ADDED;
-import static org.apache.hop.git.PdiDiff.ATTR_GIT;
-import static org.apache.hop.git.PdiDiff.ATTR_STATUS;
-import static org.apache.hop.git.PdiDiff.CHANGED;
-import static org.apache.hop.git.PdiDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnActionExtensionPoint",
@@ -74,7 +74,7 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
                   try {
                     iconSize = PropsUi.getInstance().getIconSize();
                   } catch (Exception e) {
-                    // Exception when accessed from Carte
+                    // Exception when accessed from Hop Server
                   }
                   int x = (n.x + iconSize + offset.x) - (iconSize / 4);
                   int y = n.y + offset.y - (iconSize / 4);

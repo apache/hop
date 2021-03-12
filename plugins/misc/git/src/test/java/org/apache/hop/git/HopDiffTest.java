@@ -31,14 +31,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import static org.apache.hop.git.PdiDiff.ADDED;
-import static org.apache.hop.git.PdiDiff.ATTR_GIT;
-import static org.apache.hop.git.PdiDiff.ATTR_STATUS;
-import static org.apache.hop.git.PdiDiff.CHANGED;
-import static org.apache.hop.git.PdiDiff.REMOVED;
-import static org.apache.hop.git.PdiDiff.UNCHANGED;
-import static org.apache.hop.git.PdiDiff.compareJobEntries;
-import static org.apache.hop.git.PdiDiff.compareTransforms;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.UNCHANGED;
+import static org.apache.hop.git.HopDiff.compareActions;
+import static org.apache.hop.git.HopDiff.compareTransforms;
 import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {
@@ -82,8 +82,8 @@ public class HopDiffTest {
     InputStream xmlStream2 = new FileInputStream( file2 );
     WorkflowMeta jobMeta2 = new WorkflowMeta( xmlStream2, metadataProvider, new Variables());
 
-    jobMeta = compareJobEntries( jobMeta, jobMeta2, true );
-    jobMeta2 = compareJobEntries( jobMeta2, jobMeta, false );
+    jobMeta = compareActions( jobMeta, jobMeta2, true );
+    jobMeta2 = compareActions( jobMeta2, jobMeta, false );
     assertEquals( CHANGED, jobMeta.getAction( 0 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( UNCHANGED, jobMeta.getAction( 1 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( REMOVED, jobMeta.getAction( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );

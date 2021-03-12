@@ -29,19 +29,19 @@ public class WorkflowPainterExtension {
   public IGc gc;
   public List<AreaOwner> areaOwners;
   public WorkflowMeta workflowMeta;
-  public WorkflowHopMeta jobHop;
+  public WorkflowHopMeta workflowHop;
   public final ActionMeta actionMeta;
   public int x1, y1, x2, y2, mx, my;
   public Point offset;
   public int iconSize;
 
   public WorkflowPainterExtension( IGc gc, List<AreaOwner> areaOwners, WorkflowMeta workflowMeta,
-                                   WorkflowHopMeta jobHop, ActionMeta actionMeta, int x1, int y1, int x2, int y2, int mx, int my, Point offset, int iconSize ) {
+                                   WorkflowHopMeta workflowHop, ActionMeta actionMeta, int x1, int y1, int x2, int y2, int mx, int my, Point offset, int iconSize ) {
     super();
     this.gc = gc;
     this.areaOwners = areaOwners;
     this.workflowMeta = workflowMeta;
-    this.jobHop = jobHop;
+    this.workflowHop = workflowHop;
     this.actionMeta = actionMeta;
     this.x1 = x1;
     this.y1 = y1;

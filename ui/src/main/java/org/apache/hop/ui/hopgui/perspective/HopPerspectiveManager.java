@@ -21,8 +21,11 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,4 +120,40 @@ public class HopPerspectiveManager {
 	  }
   }
 
+  private List<Class<? extends IHopPerspective>> getSortedClasses() {
+
+    List<Class<? extends IHopPerspective>> list = new ArrayList<>(perspectivesMap.keySet());
+    Collections.sort( list, Comparator.comparing( c -> c.getAnnotation( HopPerspectivePlugin.class ).id() ) );
+    return list;
+  }
+
+  public void showPreviousPerspective( IHopPerspective currentPerspective ) {
+    if (currentPerspective==null) {
+      return;
+    }
+    List<Class<? extends IHopPerspective>> list = getSortedClasses();
+    int index = list.indexOf( currentPerspective.getClass() );
+    if (index>0) {
+      Class<? extends IHopPerspective> previousClass = list.get(index-1);
+      IHopPerspective previousPerspective = perspectivesMap.get(previousClass);
+      if (previousPerspective != null) {
+        previousPerspective.activate();
+      }
+    }
+  }
+
+  public void showNextPerspective( IHopPerspective currentPerspective ) {
+    if (currentPerspective==null) {
+      return;
+    }
+    List<Class<? extends IHopPerspective>> list = getSortedClasses();
+    int index = list.indexOf( currentPerspective.getClass() );
+    if (index<list.size()-1) {
+      Class<? extends IHopPerspective> nextClass = list.get(index+1);
+      IHopPerspective nextPerspective = perspectivesMap.get(nextClass);
+      if (nextPerspective != null) {
+        nextPerspective.activate();
+      }
+    }
+  }
 }

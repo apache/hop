@@ -159,7 +159,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         }
       }
     } catch (Exception e) {
-      throw new HopPluginException("Error registring native plugins", e);
+      throw new HopPluginException("Error registering native plugins", e);
     }
   }
 
