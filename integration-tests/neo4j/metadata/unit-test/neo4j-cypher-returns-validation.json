@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "id",
+        "housenr"
+      ],
+      "transform_name": "HOUSENRS",
+      "data_set_name": "cypher-houesnr-returns"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-cypher-returns-validation",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-cypher-returns/neo4j-cypher-returns-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

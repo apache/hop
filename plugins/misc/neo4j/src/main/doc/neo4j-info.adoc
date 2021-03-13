@@ -1,0 +1,35 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/neo4j/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-info.adoc
+
+= Neo4j
+
+== Description
+
+Neo4j is an open source Graph database which you can download from **https://neo4j.com/download-center/[www.neo4j.com/download-center]**
+
+You can use it to represent information in way that allows for really fast graph queries to be executed.  For more information on these unique graph algorithms see: https://neo4j.com/docs/graph-data-science/current/algorithms/#algorithms[Neo4j Graph Algorithms]
+
+== Execution lineage
+
+You can use Neo4j to store logging and execution lineage of your workflows and pipelines.
+The way you do this is simply by setting the variable NEO_LOGGING_CONNECTION to the name of the Neo4j Connection where you want the logging and lineage to be written to.
+
+The Neo4j plugin offers a separate perspective to query this logging and lineage information.  For example, it allows you to quickly jump to the place where an error occurred.
+

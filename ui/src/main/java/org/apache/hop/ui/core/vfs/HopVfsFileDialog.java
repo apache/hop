@@ -923,8 +923,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         IPlugin plugin =
             PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
         if (plugin != null && plugin.getImageFile() != null) {
+          ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader( plugin );
           return GuiResource.getInstance()
-              .getImage(plugin.getImageFile(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+              .getImage(plugin.getImageFile(), classLoader, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
         }
       }
     } catch (HopException e) {

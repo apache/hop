@@ -1,0 +1,152 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/neo4j/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-connection.adoc
+= Neo4j Connection
+
+== Description
+
+Connections can be created and edited using the logo (click on it to edit), and the drop down menu (arrow down) which you can find on the right of every connection line on the various Neo4j dialogs.
+
+They can also be managed with the metadata perspective in the Hop GUI. Finally, please note that Neo4j Connections are serialized as JSON in the Hop metadata folder under
+
+`metadata/neo4j-connection/`
+
+== The dialog
+
+**DON'T PANIC**: most of the options in the interface you don't need (...and most likely will never will need).
+
+== The Options
+
+|===
+|Option |Description
+
+|Connection name
+|The name of a connection uniquely identifying it
+
+|Server or IP Address
+|The IP address or hostname used to reach the Neo4j server. If you have more than one server address to specify, use a comma separated list of hosts.
+
+|Database Name (4.0)
+|The database to use (defaults to neo4j). A feature available on plugins version 5.0 or higher against Neo4j server 4.0 or higher.
+
+|Version 4 database?
+|Enable this option to help us generate the most optimized Cypher for you.
+
+|Bolt port
+|the Neo4j Bolt protocol port, default is 7687
+
+|Browser port
+|information only. The port on which the Neo4j browser runs
+
+|Use routing
+|enable this option to use the bolt+routing protocol
+
+|Routing policy
+|The bolt+routing policy to use
+
+|Username
+|the Neo4j database user to log in with
+
+|Password
+|the password to use
+
+|Use encryption?
+|Unless you generated and configured the correct SSL keys, disable this. Make sure to check our v4 upgrade notes
+
+|===
+
+== Aura
+
+Aura
+To connect to an Aura version 4 database we would set the following options:
+
+
+|===
+|Option |Value
+
+|Server or IP address
+|the provided ....neo4j.io hostname
+
+|Database name
+|neo4j
+
+|Bolt port
+|7687
+
+|Use routing
+|Enabled
+
+|neo4j:// protocol
+|Enabled
+
+|Routing policy
+|neo4j+s
+
+|Username
+|neo4j
+
+|Password
+|the provided password
+|===
+
+
+== The advanced options
+
+=== Connection Liveliness Check Timeout (ms)
+
+Pooled connections that have been idle in the pool for longer than this timeout will be tested before they are used again, to ensure they are still live. If this option is set too low, an additional network call will be incurred when acquiring a connection, which causes a performance hit.
+
+If this is set high, you may receive sessions that are backed by no longer live connections, which will lead to exceptions in your application. Assuming the database is running, these exceptions will go away if you retry acquiring sessions.
+
+Hence, this parameter tunes a balance between the likelihood of your application seeing connection problems, and performance.
+
+You normally should not need to tune this parameter. No connection liveliness check is done by default. Value 0 means connections will always be tested for validity and negative values mean connections will never be tested.
+
+=== Maximum Connection Lifetime (ms)
+
+Pooled connections older than this threshold will be closed and removed from the pool. Such discarding happens during connection acquisition so that new session is never backed by an old connection. Setting this option to a low value will cause a high connection churn and might result in a performance hit.
+
+It is recommended to set maximum lifetime to a slightly smaller value than the one configured in network equipment (load balancer, proxy, firewall, etc. can also limit maximum connection lifetime).
+
+Setting can also be used in combination with the Connection Liveness Check Timeout (ms) value. In this case, it is recommended to set liveness check to a value smaller than network equipment has and maximum lifetime to a reasonably large value to "renew" connections once in a while.
+
+Default maximum connection lifetime is 1 hour. Zero and negative values result in lifetime not being checked.
+
+=== Maximum Pool Size
+
+Configure the maximum amount of connections in the connection pool towards a single database. This setting limits total amount of connections in the pool when used in direct driver, created for URI with 'bolt' scheme. It will limit amount of connections per cluster member when used with routing driver, created for URI with 'neo4j' scheme.
+
+Acquisition will be attempted for at most configured timeout Connection Acquisition Timeout(ms) when limit is reached.
+
+Default value is 100. Negative values are allowed and result in unlimited pool. Value of 0 is not allowed.
+
+=== Connection Acquisition Time (ms)
+
+Configure the maximum amount of time the connection acquisition will attempt to acquire a connection from the connection pool. This timeout only kicks in when all existing connections are being used and no new connections can be created because maximum connection pool size has been reached. An error is thrown when a connection can't be acquired within the configured time.
+
+The default value is 60 seconds. Negative values are allowed and result in unlimited acquisition timeout. Value of 0 is allowed and results in no timeout and immediate failure when connection is unavailable.
+
+=== Maximum Transaction Retry Time (ms)
+
+Specify the maximum time transactions are allowed to retry via session read and write transactions. These methods will retry the given unit of work on ServiceUnavailableException, SessionExpiredException and TransientException with an exponential backoff using initial delay of 1 second. Default value is 30 seconds.
+
+=== Manual URLs
+
+You can specify a list of manual connection URLs to allow you to work with any advanced, legacy, bleeding edge, ... feature you can possibly want. See here for more information on Bolt connection URIs: https://neo4j.com/docs/driver-manual/current/client-applications/
+

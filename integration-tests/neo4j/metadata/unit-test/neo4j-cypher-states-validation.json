@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        }
+      ],
+      "field_order": [
+        "stateCode",
+        "state"
+      ],
+      "transform_name": "STATES",
+      "data_set_name": "States"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-cypher-states-validation",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-cypher/neo4j-cypher-states-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

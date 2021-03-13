@@ -160,7 +160,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   }
 
   @Override
-  public boolean isChanged() {
+  public boolean hasChanged() {
     return isChanged;
   }
 
@@ -193,7 +193,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     // Check if the metadata is saved. If not, ask for it to be saved.
     //
-    if (isChanged()) {
+    if ( this.hasChanged()) {
 
       MessageBox messageDialog =
           new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);

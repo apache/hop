@@ -1,0 +1,54 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-cypher.adoc
+= Neo4j Cypher
+
+== Description
+
+This transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver. Both reading, writing or both are supported. You can also call procedures and get the output.
+
+== Notable options
+
+
+|===
+|Option |Description
+
+|Get Cypher from input field
+|instead of hard coding statements you can actually have them created in for example a bit of JavaScript. Then each row can contain a different statement to be executed by this transform.
+
+|Cypher
+|the cypher statement to execute. You can use variables substitution (for example `${MY_VARIABLE}`) or parameter substitution (for example `{MY_PARAMETER}`). Note the missing `$`. Parameters can be specified in the next section of the options.
+
+|Use UNWIND to collect parameter values?
+|This option collects all the parameters in a map, adds all the row maps together in a list and passes this to the UNWIND statement. Consider this example:
+
+`UNWIND $customers AS customer CREATE (c:Customer { id : customer.id, name : customer.name })`
+
+we pick up `customer.id` and `customer.name` as parameters. The `customers` parameter comes from the name of the unwind map.
+
+|Name of UNWIND values map
+|the name of the map containing all the rows and values for the UNWIND statement.
+
+|Parameters
+|You can pick any Neo4j approved parameter name (without spaces and so on), the field to use and the Neo4j data type to convert to.
+
+|Returns
+|this transform can return one or more rows of data. You can specify the return values here. For every input row you can then have 0, 1 or more output rows. If you do not specify any return values the output will simply be the same as the input.
+
+|===

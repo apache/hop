@@ -38,10 +38,11 @@
         <module>debug</module>
         <module>git</module>
         <module>import</module>
+        <module>neo4j</module>
         <module>passwords</module>
         <module>projects</module>
-        <module>testing</module>
         <module>reflection</module>
+        <module>testing</module>
     </modules>
 
 </project>

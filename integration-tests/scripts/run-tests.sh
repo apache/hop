@@ -100,9 +100,11 @@ for d in "${CURRENT_DIR}"/../*/ ; do
         # Create New Project
         export HOP_CONFIG_FOLDER="$d"
 
-        # Find main hwf files 
+        # Find main hwf files in the test sub-folder
+        #
         # TODO: add hpl support when result is returned correctly
-        for f in $d/main*.hwf ; do
+        #
+        find $d -name 'main*.hwf' | while read f ; do
 
             #cleanup temp files
             rm -f /tmp/test_output
