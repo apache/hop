@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::ActionCreateFolder.Description",
     image = "CreateFolder.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/createfolder.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/createfolder.html")
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
   private String folderName;
   private boolean failOfFolderExists;

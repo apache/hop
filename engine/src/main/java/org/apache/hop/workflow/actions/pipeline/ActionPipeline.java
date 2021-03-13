@@ -76,7 +76,7 @@ import java.util.Map;
   name = "i18n::ActionPipeline.Name",
   description = "i18n::ActionPipeline.Description",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator

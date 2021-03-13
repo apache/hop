@@ -55,7 +55,7 @@ import java.util.List;
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/append.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/append.html")
 @InjectionSupported(localizationPrefix = "AppendMeta.Injection.")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 

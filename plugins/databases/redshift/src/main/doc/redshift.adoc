@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-redshift]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/redshift/src/main/doc/redshift.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/redshift/src/main/doc/redshift.adoc
 = Redshift
 
 [width="90%", cols="2*", options="header"]

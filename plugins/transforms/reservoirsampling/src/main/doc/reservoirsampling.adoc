@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/reservoirsampling/src/main/doc/reservoirsampling.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/reservoirsampling/src/main/doc/reservoirsampling.adoc
 
 = Reservoir Sampling
 

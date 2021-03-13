@@ -70,7 +70,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionCopyFiles.Description",
     image = "CopyFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/copyfiles.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/copyfiles.html")
 public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
 

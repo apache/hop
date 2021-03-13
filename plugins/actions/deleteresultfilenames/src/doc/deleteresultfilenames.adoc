@@ -31,5 +31,5 @@ Use this action to delete all the filenames that are in the result files list of
 |Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |Limit action to| Enable this feature if you want to limit the deletion to certain filenames in the result file list.
 |Wildcard|The regular expression to limit the files to delete
-|Exclude wildcar|The regular expression to exclude certain files from being deleted.
+|Exclude wildcard|The regular expression to exclude certain files from being deleted.
 |===

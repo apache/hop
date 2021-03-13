@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-sybase]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/sybase/src/main/doc/sybase.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/sybase/src/main/doc/sybase.adoc
 = Sybase
 
 [width="90%", cols="2*", options="header"]

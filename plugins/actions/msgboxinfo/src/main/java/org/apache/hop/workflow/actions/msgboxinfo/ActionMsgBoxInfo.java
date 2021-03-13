@@ -47,7 +47,7 @@ import java.util.List;
     description = "i18n::ActionMsgBoxInfo.Description",
     image = "MsgBoxInfo.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/msgboxinfo.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/msgboxinfo.html")
 public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
   private String bodymessage;
   private String titremessage;

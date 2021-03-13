@@ -67,7 +67,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.ExcelInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExcelInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/excelinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/excelinput.html")
 @InjectionSupported(
     localizationPrefix = "ExcelInput.Injection.",
     groups = {"FIELDS", "SHEETS", "FILENAME_LINES"})

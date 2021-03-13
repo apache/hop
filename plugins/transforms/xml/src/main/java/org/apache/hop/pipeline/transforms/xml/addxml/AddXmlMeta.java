@@ -55,7 +55,7 @@ import java.util.List;
     name = "i18n::AddXML.name",
     description = "i18n::AddXML.description",
     categoryDescription = "i18n::AddXML.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/addxml.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addxml.html")
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",
     groups = {"OUTPUT_FIELDS"})

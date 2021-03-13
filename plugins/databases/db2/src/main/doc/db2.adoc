@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-db2]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/db2/src/main/doc/db2.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/db2/src/main/doc/db2.adoc
 = DB2
 
 [width="90%", cols="2*", options="header"]

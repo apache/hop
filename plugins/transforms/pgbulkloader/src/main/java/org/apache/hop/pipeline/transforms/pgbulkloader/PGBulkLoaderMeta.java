@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::PGBulkLoader.Description",
     name = "i18n::PGBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/pgbulkloader.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/pgbulkloader.html")
 public class PGBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
         IProvidesDatabaseConnectionInformation {

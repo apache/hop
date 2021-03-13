@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-informix]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/informix/src/main/doc/informix.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/informix/src/main/doc/informix.adoc
 = informix
 
 [width="90%", cols="2*", options="header"]

@@ -42,7 +42,7 @@ import java.util.List;
     name = "i18n::ActionStart.Name",
     description = "i18n::ActionStart.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/start.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/start.html")
 public class ActionStart extends ActionBase implements Cloneable, IAction {
 
   /** Action unique identifier" */

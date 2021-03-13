@@ -49,7 +49,7 @@ import java.util.List;
         name = "i18n::MQTTSubscriber.Step.Name",
         description = "i18n::MQTTSubscriber.Step.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mqttsubscriber.html")
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mqttsubscriber.html")
 public class MQTTSubscriberMeta
         extends BaseTransformMeta
         implements ITransformMeta<MQTTSubscriber, MQTTSubscriberData> {

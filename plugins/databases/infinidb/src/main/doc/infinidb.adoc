@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-infinidb]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/infinidb/src/main/doc/infinidb.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/infinidb/src/main/doc/infinidb.adoc
 = InfiniDB
 
 [width="90%", cols="2*", options="header"]

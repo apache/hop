@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionSimpleEval.Description",
     image = "SimpleEval.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/simpleeval.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
 

@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-teradata]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/teradata/src/main/doc/teradata.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/teradata/src/main/doc/teradata.adoc
 = Teradata
 
 [width="90%", cols="2*", options="header"]

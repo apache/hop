@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     description = "i18n::Coalesce.Description",
     image = "coalesce.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/coalesce.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/coalesce.html")
 @InjectionSupported(
     localizationPrefix = "CoalesceMeta.Injection.",
     groups = {"FIELDS"})

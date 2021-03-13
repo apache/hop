@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-sybaseiq]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/sybaseiq/src/main/doc/sybaseiq.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/sybaseiq/src/main/doc/sybaseiq.adoc
 = Sybase IQ
 
 [width="90%", cols="2*", options="header"]

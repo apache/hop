@@ -43,7 +43,7 @@ import java.util.List;
     description = "i18n::ActionSuccess.Description",
     image = "Success.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/success.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/success.html")
 public class ActionSuccess extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSuccess.class; // For Translator
 

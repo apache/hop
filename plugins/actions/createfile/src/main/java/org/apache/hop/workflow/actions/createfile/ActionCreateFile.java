@@ -55,7 +55,7 @@ import java.util.List;
     description = "i18n::ActionCreateFile.Description",
     image = "CreateFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/createfile.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/createfile.html")
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCreateFile.class; // For Translator
   private String filename;

@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionFTPDelete.Description",
     image = "FTPDelete.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpdelete.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ftpdelete.html")
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
 

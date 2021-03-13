@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-mariadb]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/mariadb/src/main/doc/mariadb.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/mariadb/src/main/doc/mariadb.adoc
 = Mariadb
 
 [width="90%", cols="2*", options="header"]

@@ -65,7 +65,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
     description = "i18n::XSD_VALIDATOR.Description",
     image = "org/apache/hop/workflow/actions/xml/XSD.svg",
     categoryDescription = "i18n::XSD_VALIDATOR.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/xsdvalidator.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/xsdvalidator.html")
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XsdValidator.class; // For Translator
 

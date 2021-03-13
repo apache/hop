@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-mssqlnqtive]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/mssqlnative/src/main/doc/mssqlnative.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/mssqlnative/src/main/doc/mssqlnative.adoc
 = MS SqlServer (Native)
 
 [width="90%", cols="2*", options="header"]

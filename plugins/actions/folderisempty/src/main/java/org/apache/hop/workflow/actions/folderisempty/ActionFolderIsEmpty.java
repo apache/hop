@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
   description = "i18n::ActionFolderIsEmpty.Description",
   image = "FolderIsEmpty.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/folderisempty.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/folderisempty.html"
 )
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator

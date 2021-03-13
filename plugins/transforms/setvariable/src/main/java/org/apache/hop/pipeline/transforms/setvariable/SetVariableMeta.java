@@ -47,7 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SetVariable",
     description = "i18n::BaseTransform.TypeTooltipDesc.SetVariable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/setvariable.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/setvariable.html")
 public class SetVariableMeta extends BaseTransformMeta
     implements ITransformMeta<SetVariable, SetVariableData> {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator

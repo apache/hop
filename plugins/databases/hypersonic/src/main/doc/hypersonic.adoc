@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-hypersonic]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/hypersonic/src/main/doc/hypersonic.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/hypersonic/src/main/doc/hypersonic.adoc
 = Hypersonic
 
 [width="90%", cols="2*", options="header"]
