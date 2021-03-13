@@ -1,0 +1,19 @@
+{
+  "variables" : [ {
+    "name" : "NEO_HOSTNAME",
+    "value" : "neo4j",
+    "description" : "The neo4j hostname"
+  }, {
+    "name" : "NEO_PORT",
+    "value" : "7687",
+    "description" : "The data port "
+  }, {
+    "name" : "NEO_USERNAME",
+    "value" : "neo4j",
+    "description" : "Username: see the docker compose yml file"
+  }, {
+    "name" : "NEO_PASSWORD",
+    "value" : "abcd",
+    "description" : "Password: see the docker compose yml file"
+  } ]
+}

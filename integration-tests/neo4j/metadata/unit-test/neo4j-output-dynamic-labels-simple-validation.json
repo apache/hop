@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "country",
+          "data_set_field": "COUNTRY"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "VALIDATE",
+      "data_set_name": "countries"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-output-dynamic-labels-simple-validation",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-output-dynamic-labels/neo4j-output-dynamic-labels-simple-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

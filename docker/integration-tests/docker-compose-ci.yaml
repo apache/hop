@@ -30,8 +30,10 @@ services:
         - ../../integration-tests/:/files
       depends_on:
         - postgres
+        - neo4j
       links:
         - postgres
+        - neo4j
       environment:
         - FLASK_ENV=docker
       command: ["bash", "-c", "/files/scripts/run-tests.sh"]
@@ -41,3 +43,10 @@ services:
             - database.env
         ports:
           - "5432"
+    neo4j:
+      image: neo4j:latest
+      ports:
+        - "7474"
+        - "7687"
+      environment:
+        - NEO4J_AUTH=neo4j/abcd
