@@ -94,6 +94,7 @@
         <module>detectemptystream</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
+        <module>dropbox</module>
         <module>dynamicsqlrow</module>
         <module>edi2xml</module>
         <module>excelinput</module>
@@ -117,6 +118,7 @@
         <module>getsubfolders</module>
         <module>gettablenames</module>
         <module>getvariable</module>
+        <module>googleanalytics</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
