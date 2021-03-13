@@ -55,7 +55,7 @@ public interface IMetadataEditor<T extends IHopMetadata> {
    *
    * @return
    */
-  boolean isChanged();
+  boolean hasChanged();
 
   /**
    * Flag the editor as changed

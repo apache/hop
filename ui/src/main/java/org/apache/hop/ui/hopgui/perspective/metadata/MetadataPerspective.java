@@ -688,7 +688,7 @@ public class MetadataPerspective implements IHopPerspective {
     for (CTabItem item : tabFolder.getItems()) {
       if (editor.equals(item.getData())) {
         item.setText(editor.getTitle());
-        if (editor.isChanged()) item.setFont(GuiResource.getInstance().getFontBold());
+        if (editor.hasChanged()) item.setFont(GuiResource.getInstance().getFontBold());
         else item.setFont(tabFolder.getFont());
         break;
       }
@@ -697,6 +697,20 @@ public class MetadataPerspective implements IHopPerspective {
     // Update TreeItem
     //
     this.refresh();
+
+    // Update HOP GUI menu and toolbar...
+    //
+    updateGui();
+  }
+
+  public void updateGui() {
+    if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
+      return;
+    }
+    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+    hopGui
+      .getDisplay()
+      .asyncExec(() -> hopGui.handleFileCapabilities(activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
   }
 
   @GuiToolbarElement(
@@ -751,7 +765,7 @@ public class MetadataPerspective implements IHopPerspective {
           item.setText(0, Const.NVL(name, ""));
           MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
           if (editor != null) {
-            if (editor.isChanged()) {
+            if (editor.hasChanged()) {
               item.setFont(GuiResource.getInstance().getFontBold());
             }
           }
