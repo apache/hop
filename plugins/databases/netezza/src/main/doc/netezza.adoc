@@ -15,9 +15,9 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[database-plugins-netezza]]
-:documentationPath: /plugins/databases/
+:documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/netezza/src/main/doc/netezza.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/netezza/src/main/doc/netezza.adoc
 = Netezza
 
 [width="90%", cols="2*", options="header"]
