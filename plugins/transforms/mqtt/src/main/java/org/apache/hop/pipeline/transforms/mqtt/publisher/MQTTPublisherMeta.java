@@ -47,7 +47,7 @@ import java.util.List;
           name = "i18n::MQTTPublisher.Step.Name",
           description = "i18n::MQTTPublisher.Step.Description",
           categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-          documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mqttpublisher.html")
+          documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mqttpublisher.html")
 public class MQTTPublisherMeta
         extends BaseTransformMeta
         implements ITransformMeta<MQTTPublisher, MQTTPublisherData> {

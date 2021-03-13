@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/fieldsplitter/src/main/doc/fieldsplitter.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/fieldsplitter/src/main/doc/fieldsplitter.adoc
 = Split Fields
 
 == Description

@@ -59,7 +59,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TableOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TableOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/tableoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/tableoutput.html")
 public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator

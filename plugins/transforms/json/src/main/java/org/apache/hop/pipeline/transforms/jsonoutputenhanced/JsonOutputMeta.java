@@ -52,7 +52,7 @@ import java.util.List;
         description = "EnhancedJsonOutput.description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
         keywords = { "json", "javascript", "object", "notation" },
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/enhancedjsonoutput.html")
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/enhancedjsonoutput.html")
 @InjectionSupported(localizationPrefix = "JsonOutput.Injection.", groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
     private static Class<?> PKG = JsonOutputMeta.class;

@@ -50,7 +50,7 @@ import java.util.List;
     description = "i18n::DTD_VALIDATOR.Description",
     image = "DTD.svg",
     categoryDescription = "i18n::DTD_VALIDATOR.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dtdvalidator.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dtdvalidator.html")
 public class DtdValidator extends ActionBase implements Cloneable, IAction {
   private String xmlfilename;
   private String dtdfilename;

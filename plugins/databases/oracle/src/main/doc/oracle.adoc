@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-oracle]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/oracle/src/main/doc/oracle.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/oracle/src/main/doc/oracle.adoc
 = Oracle
 
 [width="90%", cols="2*", options="header"]

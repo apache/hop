@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
   description = "i18n::ActionFoldersCompare.Description",
   image = "FoldersCompare.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/folderscompare.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/folderscompare.html"
 )
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator

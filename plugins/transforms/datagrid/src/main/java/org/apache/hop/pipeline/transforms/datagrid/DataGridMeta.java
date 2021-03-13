@@ -46,7 +46,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.DataGrid",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"data", "static", "grid", "entry"}, // TODO : i18n
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/datagrid.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/datagrid.html")
 public class DataGridMeta extends BaseTransformMeta
     implements ITransformMeta<DataGrid, DataGridData> {
 

@@ -49,7 +49,7 @@ import java.util.List;
   description = "i18n::ActionFilesExist.Description",
   image = "FilesExist.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/filesexist.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filesexist.html"
 )
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFilesExist.class; // For Translator

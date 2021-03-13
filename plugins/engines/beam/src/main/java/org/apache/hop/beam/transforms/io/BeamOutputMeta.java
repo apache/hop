@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
         name = "Beam Output",
         description = "Describes a Beam Output",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamoutput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamoutput.html"
 )
 public class BeamOutputMeta extends BaseTransformMeta implements ITransformMeta<BeamOutput, BeamOutputData> {
 

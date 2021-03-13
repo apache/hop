@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
     description = "i18n::ActionFTPPut.Description",
     image = "FTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 

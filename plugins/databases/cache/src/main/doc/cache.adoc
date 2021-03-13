@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-cache]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/cache/src/main/doc/cache.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/cache/src/main/doc/cache.adoc
 = Cache
 
 [width="90%", cols="2*", options="header"]

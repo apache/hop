@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-infobright]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/infobright/src/main/doc/infobright.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/infobright/src/main/doc/infobright.adoc
 = Infobright DB
 
 [width="90%", cols="2*", options="header"]

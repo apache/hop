@@ -56,7 +56,7 @@ import java.util.List;
         name = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeLongDesc.SelectValues",
         description = "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeTooltipDesc.SelectValues",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/selectvalues.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/selectvalues.html"
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {

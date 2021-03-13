@@ -69,7 +69,7 @@ import org.w3c.dom.Node;
   description = "i18n::ActionUnZip.Description",
   image = "UnZip.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/unzip.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/unzip.html"
 )
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class; // For Translator

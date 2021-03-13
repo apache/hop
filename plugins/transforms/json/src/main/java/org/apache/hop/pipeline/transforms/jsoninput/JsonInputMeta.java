@@ -59,7 +59,7 @@ import java.util.Map;
 @Transform(
     id = "JsonInput",
     image = "JSI.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsoninput.html",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/jsoninput.html",
     name = "i18n::JsonInput.name",
     description = "i18n::JsonInput.description",
     categoryDescription = "i18n::JsonInput.category")

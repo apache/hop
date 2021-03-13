@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/streamschemamerge/src/main/doc/streamschemamerge.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/streamschemamerge/src/main/doc/streamschemamerge.adoc
 = Stream Schema Merge
 
 == Description

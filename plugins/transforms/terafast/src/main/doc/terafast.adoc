@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/terafast/src/main/doc/terafast.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/terafast/src/main/doc/terafast.adoc
 
 = Teradata Bulk Loader
 

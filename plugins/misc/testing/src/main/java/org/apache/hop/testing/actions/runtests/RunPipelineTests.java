@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     description = "i18n::RunPipelineTests.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "Test_tube_icon.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/runpipelinetests.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/runpipelinetests.html")
 public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
   public static final String TEST_NAMES = "test_names";

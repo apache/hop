@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/textfile/src/main/doc/csvinput.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/textfile/src/main/doc/csvinput.adoc
 = CSV File Input
 
 == Description

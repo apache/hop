@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionDosToUnix.Description",
     image = "DosToUnix.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dostounix.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dostounix.html")
 public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;

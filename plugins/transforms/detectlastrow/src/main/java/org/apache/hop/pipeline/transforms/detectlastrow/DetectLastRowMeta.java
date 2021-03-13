@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.DetectLastRow",
     description = "i18n::BaseTransform.TypeTooltipDesc.DetectLastRow",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/detectlastrow.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/detectlastrow.html")
 public class DetectLastRowMeta extends BaseTransformMeta
     implements ITransformMeta<DetectLastRow, DetectLastRowData> {
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator

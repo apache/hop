@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-universe]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/universe/src/main/doc/universe.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/universe/src/main/doc/universe.adoc
 = IBM Universe
 
 [width="90%", cols="2*", options="header"]

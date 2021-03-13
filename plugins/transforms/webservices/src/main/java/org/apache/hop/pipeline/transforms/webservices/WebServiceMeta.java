@@ -47,7 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.WebServiceLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/webservices.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/webservices.html")
 public class WebServiceMeta extends BaseTransformMeta
     implements ITransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";

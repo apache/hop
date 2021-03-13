@@ -82,7 +82,7 @@ import java.util.zip.ZipOutputStream;
   description = "i18n::ActionZipFile.Description",
   image = "Zip.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/zipfile.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/zipfile.html"
 )
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionZipFile.class; // For Translator

@@ -58,7 +58,7 @@ import java.util.List;
 		  description = "i18n::ActionEvalTableContent.Description",
 		  image = "EvalTableContent.svg",
 		  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-		  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/evaluatetablecontent.html"
+		  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/evaluatetablecontent.html"
 )
 public class ActionEvalTableContent extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator

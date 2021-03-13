@@ -60,7 +60,7 @@ import java.util.Map;
     name = "i18n::XMLOutput.name",
     description = "i18n::XMLOutput.description",
     categoryDescription = "i18n::XMLOutput.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmloutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xmloutput.html")
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
 public class XmlOutputMeta extends BaseTransformMeta
     implements ITransformMeta<XmlOutput, XmlOutputData> {

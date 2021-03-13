@@ -42,7 +42,7 @@ import java.util.List;
         description = "i18n::ActionMailValidator.Description",
         image = "MailValidator.svg",
         categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/mailvalidator.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mailvalidator.html"
 )
 public class ActionMailValidator extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMailValidator.class; // For Translator

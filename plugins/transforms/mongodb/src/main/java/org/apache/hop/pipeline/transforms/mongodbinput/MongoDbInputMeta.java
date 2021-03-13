@@ -56,7 +56,7 @@ import java.util.List;
     image = "mongodb-input.svg",
     name = "MongoDB input",
     description = "Reads from a Mongo DB collection",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mongodbinput.html",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodbinput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>

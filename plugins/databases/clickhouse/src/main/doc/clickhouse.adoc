@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-clickhouse]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/clickhouse/src/main/doc/clickhouse.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/clickhouse/src/main/doc/clickhouse.adoc
 = ClickHouse
 
 [width="90%", cols="2*", options="header"]

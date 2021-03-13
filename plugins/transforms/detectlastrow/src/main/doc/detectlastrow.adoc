@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/pipeline/transforms/detectlastrow/src/main/doc/detectlastrow.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/detectlastrow/src/main/doc/detectlastrow.adoc
 = Identify last row in a stream
 
 == Description

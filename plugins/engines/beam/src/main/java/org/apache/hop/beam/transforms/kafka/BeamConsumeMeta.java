@@ -44,7 +44,7 @@ import java.util.List;
         description = "Get messages from Kafka topics (Kafka Consumer)",
         image = "beam-kafka-input.svg",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamconsume.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamconsume.html"
 )
 public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta<BeamConsume, DummyData> {
 

@@ -47,7 +47,7 @@ import java.util.List;
     name = "i18n::SasInput.Transform.Name",
     description = "i18n::Input.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/sasinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sasinput.html")
 public class SasInputMeta extends BaseTransformMeta
     implements ITransformMeta<SasInput, SasInputData> {
   private static Class<?> PKG = SasInputMeta.class; // for i18n purposes,
