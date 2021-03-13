@@ -230,6 +230,7 @@
    Microsoft Azure SDK for Key Vault - 0.8.0
    Microsoft Azure Storage Client SDK - 4.2.0
    MongoDB Java Driver - 3.12.7
+   Neo4j Java Driver - 4.2.3
    Netty - 3.9.9.Final
    Netty/All-in-One - 4.1.47.Final
    Netty/Buffer - 4.1.47.Final
@@ -400,6 +401,7 @@
    Creative Commons license (CC0) For details, see licenses/LICENSE-CC0
    =======================================================================================
    reactive-streams - 1.0.2
+   reactive-streams - 1.0.3
    XZ for Java - 1.8
 
    =======================================================================================
