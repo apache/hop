@@ -15,9 +15,9 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[database-plugins-googlebigquery]]
-:documentationPath: /plugins/databases/
+:documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/googlebigquery/src/main/doc/googlebigquery.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/database/databases/googlebigquery/src/main/doc/googlebigquery.adoc
 = Google BigQuery
 
 [width="90%", cols="2*", options="header"]
