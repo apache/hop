@@ -118,6 +118,7 @@
         <module>getsubfolders</module>
         <module>gettablenames</module>
         <module>getvariable</module>
+        <module>googleanalytics</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
