@@ -60,7 +60,7 @@
       </parameters>
       <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>672</xloc>
+      <xloc>400</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -89,7 +89,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>1088</xloc>
+      <xloc>816</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -118,7 +118,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>1296</xloc>
+      <xloc>1024</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -132,7 +132,7 @@
 ;</script>
       <replace_variables>N</replace_variables>
       <parallel>N</parallel>
-      <xloc>864</xloc>
+      <xloc>592</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -145,22 +145,7 @@
         <connection>Test</connection>
       </connections>
       <parallel>N</parallel>
-      <xloc>432</xloc>
-      <yloc>128</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Ping a host</name>
-      <description/>
-      <type>PING</type>
-      <attributes/>
-      <hostname>${NEO_HOSTNAME}</hostname>
-      <nbr_packets>2</nbr_packets>
-      <nbrpaquets>2</nbrpaquets>
-      <timeout>3000</timeout>
-      <pingtype>classicPing</pingtype>
-      <parallel>N</parallel>
-      <xloc>240</xloc>
+      <xloc>224</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -188,25 +173,18 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
+      <from>Start</from>
+      <to>Check Neo4j Connections</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
       <from>Check Neo4j Connections</from>
       <to>cleanup-database.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Start</from>
-      <to>Ping a host</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Ping a host</from>
-      <to>Check Neo4j Connections</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>
