@@ -100,7 +100,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // The name
     Label wlName = new Label(composite, SWT.RIGHT);
     props.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Name.Label" ));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -118,7 +118,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // The server
     wlServer = new Label(composite, SWT.RIGHT);
     props.setLook(wlServer);
-    wlServer.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Server.Label"));
+    wlServer.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Server.Label" ));
     FormData fdlServer = new FormData();
     fdlServer.top = new FormAttachment(lastControl, margin);
     fdlServer.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -136,7 +136,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // The DatabaseName
     wlDatabaseName = new Label(composite, SWT.RIGHT);
     props.setLook(wlDatabaseName);
-    wlDatabaseName.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.DatabaseName.Label"));
+    wlDatabaseName.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.DatabaseName.Label" ));
     FormData fdlDatabaseName = new FormData();
     fdlDatabaseName.top = new FormAttachment(lastControl, margin);
     fdlDatabaseName.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -153,7 +153,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Version4?
     Label wlVersion4 = new Label(composite, SWT.RIGHT);
-    wlVersion4.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Version4.Label"));
+    wlVersion4.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Version4.Label" ));
     props.setLook(wlVersion4);
     FormData fdlVersion4 = new FormData();
     fdlVersion4.top = new FormAttachment(lastControl, margin);
@@ -172,7 +172,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // Bolt port?
     wlBoltPort = new Label(composite, SWT.RIGHT);
     props.setLook(wlBoltPort);
-    wlBoltPort.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.BoltPort.Label"));
+    wlBoltPort.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.BoltPort.Label" ));
     FormData fdlBoltPort = new FormData();
     fdlBoltPort.top = new FormAttachment(lastControl, margin);
     fdlBoltPort.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -190,7 +190,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // Browser port?
     Label wlBrowserPort = new Label(composite, SWT.RIGHT);
     props.setLook(wlBrowserPort);
-    wlBrowserPort.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.BrowserPort.Label"));
+    wlBrowserPort.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.BrowserPort.Label" ));
     FormData fdlBrowserPort = new FormData();
     fdlBrowserPort.top = new FormAttachment(lastControl, margin);
     fdlBrowserPort.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -207,7 +207,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Https
     wlRouting = new Label(composite, SWT.RIGHT);
-    wlRouting.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Routing.Label"));
+    wlRouting.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Routing.Label" ));
     props.setLook(wlRouting);
     FormData fdlRouting = new FormData();
     fdlRouting.top = new FormAttachment(lastControl, margin);
@@ -225,7 +225,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Policy
     wlPolicy = new Label(composite, SWT.RIGHT);
-    wlPolicy.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Policy.Label"));
+    wlPolicy.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Policy.Label" ));
     props.setLook(wlPolicy);
     FormData fdlPolicy = new FormData();
     fdlPolicy.top = new FormAttachment(lastControl, margin);
@@ -251,7 +251,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Username
     Label wlUsername = new Label(composite, SWT.RIGHT);
-    wlUsername.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.UserName.Label"));
+    wlUsername.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.UserName.Label" ));
     props.setLook(wlUsername);
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(lastControl, margin);
@@ -269,7 +269,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Password
     Label wlPassword = new Label(composite, SWT.RIGHT);
-    wlPassword.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Password.Label"));
+    wlPassword.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Password.Label" ));
     props.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.top = new FormAttachment(wUsername, margin);
@@ -287,7 +287,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
     // Encryption?
     wlEncryption = new Label(composite, SWT.RIGHT);
-    wlEncryption.setText(BaseMessages.getString(PKG, "NeoConnectionDialog.Encryption.Label"));
+    wlEncryption.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Encryption.Label" ));
     props.setLook(wlEncryption);
     FormData fdlEncryption = new FormData();
     fdlEncryption.top = new FormAttachment(lastControl, margin);
@@ -313,7 +313,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // Trust Level?
     wlTrustAllCertificates = new Label(composite, SWT.RIGHT);
     wlTrustAllCertificates.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.TrustAllCertificates.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.TrustAllCertificates.Label" ));
     props.setLook(wlTrustAllCertificates);
     FormData fdlTrustAllCertificates = new FormData();
     fdlTrustAllCertificates.top = new FormAttachment(lastControl, margin);
@@ -340,7 +340,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // ConnectionLivenessCheckTimeout
     Label wlConnectionLivenessCheckTimeout = new Label(gAdvanced, SWT.RIGHT);
     wlConnectionLivenessCheckTimeout.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.ConnectionLivenessCheckTimeout.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.ConnectionLivenessCheckTimeout.Label" ));
     props.setLook(wlConnectionLivenessCheckTimeout);
     FormData fdlConnectionLivenessCheckTimeout = new FormData();
     fdlConnectionLivenessCheckTimeout.top = new FormAttachment(0, 0);
@@ -361,7 +361,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // MaxConnectionLifetime
     Label wlMaxConnectionLifetime = new Label(gAdvanced, SWT.RIGHT);
     wlMaxConnectionLifetime.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.MaxConnectionLifetime.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.MaxConnectionLifetime.Label" ));
     props.setLook(wlMaxConnectionLifetime);
     FormData fdlMaxConnectionLifetime = new FormData();
     fdlMaxConnectionLifetime.top = new FormAttachment(lastGroupControl, margin);
@@ -380,7 +380,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // MaxConnectionPoolSize
     Label wlMaxConnectionPoolSize = new Label(gAdvanced, SWT.RIGHT);
     wlMaxConnectionPoolSize.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.MaxConnectionPoolSize.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.MaxConnectionPoolSize.Label" ));
     props.setLook(wlMaxConnectionPoolSize);
     FormData fdlMaxConnectionPoolSize = new FormData();
     fdlMaxConnectionPoolSize.top = new FormAttachment(lastGroupControl, margin);
@@ -399,7 +399,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // ConnectionAcquisitionTimeout
     Label wlConnectionAcquisitionTimeout = new Label(gAdvanced, SWT.RIGHT);
     wlConnectionAcquisitionTimeout.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.ConnectionAcquisitionTimeout.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.ConnectionAcquisitionTimeout.Label" ));
     props.setLook(wlConnectionAcquisitionTimeout);
     FormData fdlConnectionAcquisitionTimeout = new FormData();
     fdlConnectionAcquisitionTimeout.top = new FormAttachment(lastGroupControl, margin);
@@ -420,7 +420,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // ConnectionTimeout
     Label wlConnectionTimeout = new Label(gAdvanced, SWT.RIGHT);
     wlConnectionTimeout.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.ConnectionTimeout.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.ConnectionTimeout.Label" ));
     props.setLook(wlConnectionTimeout);
     FormData fdlConnectionTimeout = new FormData();
     fdlConnectionTimeout.top = new FormAttachment(lastGroupControl, margin);
@@ -439,7 +439,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // MaxTransactionRetryTime
     Label wlMaxTransactionRetryTime = new Label(gAdvanced, SWT.RIGHT);
     wlMaxTransactionRetryTime.setText(
-        BaseMessages.getString(PKG, "NeoConnectionDialog.MaxTransactionRetryTime.Label"));
+        BaseMessages.getString(PKG, "NeoConnectionEditor.MaxTransactionRetryTime.Label" ));
     props.setLook(wlMaxTransactionRetryTime);
     FormData fdlMaxTransactionRetryTime = new FormData();
     fdlMaxTransactionRetryTime.top = new FormAttachment(lastGroupControl, margin);
@@ -473,7 +473,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     urlsLayout.marginTop = margin;
     urlsLayout.marginBottom = margin;
     gUrls.setLayout(urlsLayout);
-    gUrls.setText("Manual URLs");
+    gUrls.setText(BaseMessages.getString( PKG, "NeoConnectionEditor.URLs.Label"));
 
     // URLs
     wUrls =
@@ -483,11 +483,11 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
             SWT.NONE,
             new ColumnInfo[] {
               new ColumnInfo(
-                  BaseMessages.getString(PKG, "NeoConnectionDialog.URLColumn.Label"),
+                  BaseMessages.getString(PKG, "NeoConnectionEditor.URLColumn.Label" ),
                   ColumnInfo.COLUMN_TYPE_TEXT)
             },
             getMetadata().getManualUrls().size(),
-            null,
+            e->setChanged(),
             props);
     wUrls.table.addListener(
         SWT.Selection,
