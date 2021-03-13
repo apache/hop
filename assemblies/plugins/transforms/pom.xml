@@ -63,6 +63,7 @@
         <module>detectemptystream</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
+        <module>dropbox</module>
         <module>dynamicsqlrow</module>
         <module>edi2xml</module>
         <module>excelinput</module>
