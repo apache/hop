@@ -119,6 +119,7 @@
         <module>gettablenames</module>
         <module>getvariable</module>
         <module>googleanalytics</module>
+        <module>googlesheet</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
