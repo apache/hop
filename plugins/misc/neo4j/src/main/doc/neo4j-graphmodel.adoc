@@ -22,5 +22,5 @@ under the License.
 == Description
 
 A graph model describes (part of) a graph by allowing you to define nodes with their properties, and the relationships that connect these nodes.
-You can then use such a Graph Model to map input fields to properties in the link:neo4j-graphoutput.html[Neo4j Graph Output] transform.
+You can then use such a Graph Model to map input fields to properties in the link:../../pipelines/transforms/neo4j-graphoutput.html[Neo4j Graph Output] transform.
 
