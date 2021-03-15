@@ -71,7 +71,7 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta implements ITransform
     public static final String PROPERTY_DATA_SOURCE_PROFILE_ID = "ga:profileId";
     public static final String PROPERTY_DATA_SOURCE_WEBPROP_ID = "ga:webPropertyId";
     public static final String PROPERTY_DATA_SOURCE_ACCOUNT_NAME = "ga:accountName";
-    public static final String DEFAULT_GA_APPLICATION_NAME = "pdi-google-analytics-app";
+    public static final String DEFAULT_GA_APPLICATION_NAME = "hop-google-analytics-app";
 
     // The following is deprecated and removed by Google, and remains here only to allow old transformations to load
     // successfully in Spoon.
