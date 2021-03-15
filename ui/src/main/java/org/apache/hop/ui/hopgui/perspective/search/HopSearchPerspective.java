@@ -285,6 +285,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdbOpen.bottom = new FormAttachment( 100, -margin );
     wbOpen.setLayoutData( fdbOpen );
     wbOpen.addListener( SWT.Selection, this::open );
+    wbOpen.setEnabled( false );
 
 
     // A table with the search results...
@@ -298,7 +299,7 @@ public class HopSearchPerspective implements IHopPerspective {
       new ColumnInfo( "Description", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
     };
 
-    wResults = new TableView( hopGui.getVariables(), composite, SWT.V_SCROLL | SWT.V_SCROLL | SWT.SINGLE, resultsColumns, 0, null, props );
+    wResults = new TableView( hopGui.getVariables(), composite, SWT.V_SCROLL | SWT.V_SCROLL | SWT.MULTI, resultsColumns, 0, null, props );
     props.setLook( wResults );
     wResults.setReadonly( true );
     FormData fdResults = new FormData();
@@ -307,6 +308,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdResults.top = new FormAttachment( lastControl, margin );
     fdResults.bottom = new FormAttachment( wbOpen, -2*margin );
     wResults.setLayoutData( fdResults );
+    wResults.table.addListener( SWT.Selection, e-> wbOpen.setEnabled( wResults.getSelectionIndices().length==1 ) );
     wResults.table.addListener( SWT.DefaultSelection, this::open );
   }
 
