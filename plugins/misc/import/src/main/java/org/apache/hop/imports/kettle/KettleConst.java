@@ -92,6 +92,9 @@ public class KettleConst {
               new Object[][] {
                 {"JOB", "WORKFLOW"},
                 {"TRANS", "PIPELINE"},
+                {"PARENT_JOB","PARENT_WORKFLOW"},
+                {"GP_JOB","GP_WORKFLOW"},
+                {"ROOT_JOB","ROOT_WORKFLOW"},
                 {"BlockingStep","BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
