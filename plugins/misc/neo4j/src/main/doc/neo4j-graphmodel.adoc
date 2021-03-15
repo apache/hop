@@ -14,7 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:documentationPath: /metadata-types/
+:documentationPath: /metadata-types/neo4j/
 :language: en_US
 
 = Neo4j Graph Model

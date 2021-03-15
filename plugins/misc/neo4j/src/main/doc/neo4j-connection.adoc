@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/neo4j/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-connection.adoc
+
 = Neo4j Connection
 
 == Description
