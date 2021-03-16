@@ -18,6 +18,7 @@
 package org.apache.hop.ui.i18n.editor;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -350,7 +351,7 @@ public class Translator {
     addGrid();
     addListeners();
 
-    sashform.setWeights(new int[] {30, 70});
+    sashform.setWeights(new int[] {50, 50});
     sashform.setVisible(true);
 
     shell.pack();
@@ -358,7 +359,6 @@ public class Translator {
     refresh();
 
     wPackages.optWidth(true);
-    wPackages.getTable().getColumn(1).setWidth(1);
 
     BaseTransformDialog.setSize(shell);
 
@@ -543,8 +543,8 @@ public class Translator {
      * wNextG.setLayoutData(fdNextG);
      */
 
-    int left = 25;
-    int middle = 40;
+    int left = 30;
+    int middle = 45;
 
     wAll = new Button(composite, SWT.CHECK);
     wAll.setText(BaseMessages.getString(PKG, "i18nDialog.ShowAllkeys"));
@@ -1137,6 +1137,7 @@ public class Translator {
         wPackages.table.getSelectionCount() == 0
             ? null
             : wPackages.table.getSelection()[0].getText(1);
+    selectedSourceFolder = getLongSourceFolder( rootFolder, selectedSourceFolder );
     selectedMessagesPackage =
         wPackages.table.getSelectionCount() == 0
             ? null
@@ -1171,7 +1172,11 @@ public class Translator {
       if (showKey(keyOccurrence.getKey(), keyOccurrence.getMessagesPackage())) {
         String value = store.lookupKeyValue(locale, messagesPackage, keyOccurrence.getKey());
         if (Utils.isEmpty(value) || (wAll.getSelection() && !strict)) {
-          todo.add(keyOccurrence);
+          // Only find those keys that are part of the source folder.
+          //
+          if (keyOccurrence.getSourceFolder().equals(sourceFolder)) {
+            todo.add(keyOccurrence);
+          }
         }
       }
     }
@@ -1191,6 +1196,8 @@ public class Translator {
         && selectedSourceFile != null) {
       // Store the last modified value
       //
+      String sourceFolder = selectedSourceFolder+"/src/main/resources/";
+
       if (!Utils.isEmpty(lastValue)) {
         store.storeValue(
             selectedLocale, selectedSourceFile, selectedMessagesPackage, selectedKey, lastValue);
@@ -1253,8 +1260,14 @@ public class Translator {
 
       for (String packageName : packageNames) {
 
+        if ("/home/matt/git/mattcasters/incubator-hop/plugins/transforms/fake".equals(sourceFolder)) {
+          System.out.println("Check!");
+        }
+
+        String shortSourceFolder = getShortSourceFolder(rootFolder, sourceFolder);
+
         TableItem item = new TableItem(wPackages.table, SWT.NONE);
-        item.setText(1, sourceFolder);
+        item.setText(1, shortSourceFolder);
         item.setText(2, packageName);
 
         // count the number of keys for the package that are NOT yet translated...
@@ -1297,6 +1310,31 @@ public class Translator {
     if (index >= 0) {
       wPackages.table.setSelection(index);
       wPackages.table.showSelection();
+    }
+  }
+
+  private String getShortSourceFolder( String rootFolder, String sourceFolder ) {
+    if (sourceFolder==null) {
+      return null;
+    }
+    try {
+      FileObject root = HopVfs.getFileObject( rootFolder );
+      FileObject source = HopVfs.getFileObject( sourceFolder );
+      return root.getName().getRelativeName( source.getName() );
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Error calculating relative source path against '"+rootFolder+"' for source folder: "+sourceFolder, e );
+      return sourceFolder;
+    }
+  }
+
+  private String getLongSourceFolder(String rootFolder, String shortSourceFolder) {
+    if (shortSourceFolder==null) {
+      return null;
+    }
+    if (rootFolder.endsWith( File.separator )) {
+      return rootFolder+shortSourceFolder;
+    } else {
+      return rootFolder + File.separator + shortSourceFolder;
     }
   }
 

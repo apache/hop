@@ -1,0 +1,47 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/googleanalytics/src/main/doc/google-sheets-output.adoc
+
+= Google Sheets Output
+
+== Description
+
+Lets you write data into a sheet (existing or not) IMPORTANT NOTE : The API writes data in a "user entered mode" as if you were typing in the cells. That means the cells are interpreted by google after insert. Notice that it is better to transmit STRINGS to the transform to make it work reliably. Especially numbers can cause issues.  Use a `Select Values` transform to convert to String values.
+
+**IMPORTANT** Make sure to specify an option to give RW (read/write) rights or domain wise rights. See below for the options.  The easiest way is to specify an email address to share rights with.
+
+== Service Account Tab
+
+Lets you pick your Google service account client secret json file. Lets you test your access to the API. On success, you should see the following screen
+
+== Spreadsheet tab
+
+* Spreadsheet key : Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email. If you type in a sheet name (that does not exist in the drive) it will attempt to create a sheet it the `create` checkbox is ticked.
+
+* Worksheet Id : Should be browsed form the selected spreadsheet key. If you want to create a new file, type in any key that will become the name of the worksheet in the created spreadsheet
+
+* Append checkbox : Appends the lines without the header to an existing spreadsheet. This is incompatible with the create option below.
+
+* Create a sheet if it does not exist checkbox : If this checkbox is checked then if the Spreadsheet Key specified in the field Spreadsheet key does not exist it will create a new spreadsheet within the service account drive (note that this account has no UI)
+
+* Share with email : That is why the Share with user email field lets you specify the email of a user who will get full rights on the freshly created file.
+
+* Domain Wise Permission : Enables to share with your whole domain (if configured in Google Drive). For security concerns we share only with READ rights.
+
+**All the input fields of the transform are written to the output file.**
