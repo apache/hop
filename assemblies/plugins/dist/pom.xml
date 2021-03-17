@@ -1430,32 +1430,6 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-transforms-googleanalytics</artifactId>
-      <version>${hop-plugins-transforms.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-transforms-googlesheets</artifactId>
-      <version>0.70-SNAPSHOT</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-http</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
@@ -2954,7 +2928,20 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-misc-neo4j</artifactId>
+      <artifactId>hop-assemblies-plugins-tech-google</artifactId>
+      <version>0.70-SNAPSHOT</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-tech-neo4j</artifactId>
       <version>${hop-plugins-misc.version}</version>
       <type>zip</type>
       <exclusions>
@@ -3046,19 +3033,6 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
-      <version>0.70-SNAPSHOT</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-vfs-googledrive</artifactId>
       <version>0.70-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>

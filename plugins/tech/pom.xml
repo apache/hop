@@ -18,17 +18,17 @@
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-vfs</artifactId>
+  <artifactId>hop-plugins-tech</artifactId>
   <version>0.70-SNAPSHOT</version>
-  <modules>
-  </modules>
-  <packaging>pom</packaging>
+    <modules>
+    </modules>
+    <packaging>pom</packaging>
 
-  <name>Hop Plugins VFS</name>
+  <name>Hop Plugins Technology</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
@@ -46,19 +46,6 @@
 
   <profiles>
     <profile>
-      <id>lowdeps</id>
-      <activation>
-        <property>
-          <name>!skipDefault</name>
-        </property>
-      </activation>
-      <modules>
-        <module>hdfs</module>
-        <module>s3</module>
-      </modules>
-    </profile>
-
-    <profile>
       <id>highdeps</id>
       <activation>
         <property>
@@ -66,15 +53,19 @@
         </property>
       </activation>
       <modules>
-        <module>azure</module>
-        <module>hdfs</module>
-        <module>s3</module>
+        <module>google</module>
+        <module>neo4j</module>
       </modules>
     </profile>
 
   </profiles>
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
@@ -107,7 +98,12 @@
       <version>${javax.servlet-api.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.framework.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

@@ -17,31 +17,26 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>hop-assemblies-plugins</artifactId>
-  <packaging>pom</packaging>
+    <parent>
+        <artifactId>hop-assemblies-plugins</artifactId>
+        <groupId>org.apache.hop</groupId>
+        <version>0.70-SNAPSHOT</version>
+    </parent>
+    <packaging>pom</packaging>
 
-  <name>Hop Assemblies Plugins</name>
+    <artifactId>hop-assemblies-plugins-tech</artifactId>
 
-  <parent>
-    <artifactId>hop-assemblies</artifactId>
-    <groupId>org.apache.hop</groupId>
-    <version>0.70-SNAPSHOT</version>
-  </parent>
+    <name>Hop Assemblies Plugins Technology</name>
+    <description></description>
 
-  <modules>
-    <module>actions</module>
-    <module>databases</module>
-    <module>engines</module>
-    <module>misc</module>
-    <module>vfs</module>
-    <module>tech</module>
-    <module>transforms</module>
-    <module>valuetypes</module>
-    <module>dist</module>
-  </modules>
+    <modules>
+        <module>google</module>
+        <module>neo4j</module>
+    </modules>
 
 </project>
