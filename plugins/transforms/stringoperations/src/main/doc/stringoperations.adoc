@@ -53,3 +53,41 @@ With the String Operations transform, you can perform the following string opera
 == Metadata Injection Support
 
 All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+
+Values for Metadata Injection
+[width="90%", options="header"]
+|===
+|Field|Values
+|In stream fields|list of source fields
+|Out stream fields|list of target fields
+|Trim Type|0 = none +
+1 = left +
+2 = right +
+3 = both
+|Lower/Upper|0 = none +
+1 = lower +
+2 = upper
+|Padding|0 = none +
+1 = left +
+2= right
+|Pad Char| Character used for padding
+|Pad Length| Lenght to pad
+|InitCap|0 = no +
+1 = yes
+|Escape|0 = none +
+1 = escapexml +
+2 = cdata +
+3 = unescapexml +
+4 = escapesql +
+5 = escapehtml +
+6 = unescapehtml
+|Digits|0 = none +
+1 = digits_only +
+2 = remove_digits
+|Remove Special character|0 = none +
+1 = cr +
+2 = lf +
+3 = crlf +
+4 = tab +
+5 = espace
+|===
