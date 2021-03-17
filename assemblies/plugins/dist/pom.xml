@@ -2928,6 +2928,19 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
+      <version>0.70-SNAPSHOT</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-google</artifactId>
       <version>0.70-SNAPSHOT</version>
       <type>zip</type>
@@ -3020,19 +3033,6 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-      <version>0.70-SNAPSHOT</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
       <version>0.70-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>

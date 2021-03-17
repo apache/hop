@@ -191,9 +191,15 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 	@Override
 	protected long doGetLastModifiedTime() throws Exception {
 		if(hasObject()) {
+			if (blob==null) {
+				return 0;
+			}
 			return blob.getUpdateTime();
 		}
 		if(hasBucket()) {
+			if (bucket==null) {
+				return 0;
+			}
 			return bucket.getCreateTime();
 		} else {
 			return 0L;

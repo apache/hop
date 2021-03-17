@@ -19,11 +19,11 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
-  <id>hop-assemblies-plugins-vfs-s3</id>
+  <id>hop-assemblies-plugins-tech-azure</id>
   <formats>
     <format>zip</format>
   </formats>
-  <baseDirectory>vfs/azure</baseDirectory>
+  <baseDirectory>tech/azure</baseDirectory>
   <files>
     <file>
       <source>${project.basedir}/src/main/resources/version.xml</source>
@@ -44,7 +44,7 @@
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
-        <include>org.apache.hop:hop-plugins-vfs-azure:jar</include>
+        <include>org.apache.hop:hop-plugins-tech-azure:jar</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -52,7 +52,6 @@
       <useProjectArtifact>false</useProjectArtifact>
       <scope>runtime</scope>
       <includes>
-        <include>com.sshtools:vfs-azure</include>
         <include>com.microsoft.azure:azure-storage</include>
         <include>com.microsoft.azure:azure-keyvault-core</include>
         <include>org.apache.commons:commons-lang3</include>

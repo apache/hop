@@ -18,9 +18,13 @@
 
 package org.apache.hop.pipeline.transforms.types;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -36,7 +40,9 @@ import org.eclipse.swt.widgets.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
@@ -71,17 +77,19 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
     // TODO: find in file feature, hook it up to the project find function
     //
 
-    // Load the content of the JSON file...
-    //
-    File file = new File(explorerFile.getFilename());
-    if (file.exists()) {
-      try {
-        String contents = new String( Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-        wText.setText(contents);
-      } catch (Exception e) {
-        LogChannel.UI.logError(
-          "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+    try {
+      FileObject file = HopVfs.getFileObject(explorerFile.getFilename());
+      if (file.exists()) {
+        try ( InputStream inputStream = HopVfs.getInputStream(file)) {
+          StringWriter writer = new StringWriter();
+          IOUtils.copy(inputStream, writer, "UTF-8");
+          String contents = writer.toString();
+          wText.setText( Const.NVL(contents, ""));
+        }
       }
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+        "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
 
     // If the widget changes after this it's been changed by the user

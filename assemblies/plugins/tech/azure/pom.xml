@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -17,34 +17,34 @@
   ~
   -->
 
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-vfs</artifactId>
+    <artifactId>hop-assemblies-plugins-tech</artifactId>
     <version>0.70-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hop-plugins-vfs-azure</artifactId>
-  <packaging>jar</packaging>
-
-  <name>Hop Plugins VFS azure://</name>
+  <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
+  <version>0.70-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Hop Assemblies Plugins Technology Azure</name>
+  <description></description>
 
   <properties>
-    <azure-storage.version>4.2.0</azure-storage.version>
-    <vfs-azure.version>3.0.2</vfs-azure.version>
+    <azure-storage.version>8.6.6</azure-storage.version>
   </properties>
 
   <dependencies>
-
     <dependency>
-      <groupId>com.sshtools</groupId>
-      <artifactId>vfs-azure</artifactId>
-      <version>${vfs-azure.version}</version>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-plugins-tech-azure</artifactId>
+      <version>0.70-SNAPSHOT</version>
     </dependency>
+
     <dependency>
       <groupId>com.microsoft.azure</groupId>
       <artifactId>azure-storage</artifactId>

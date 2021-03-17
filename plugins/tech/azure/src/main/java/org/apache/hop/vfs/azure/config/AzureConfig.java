@@ -15,23 +15,52 @@
  * limitations under the License.
  */
 
-package org.apache.hop.vfs.azure;
+package org.apache.hop.vfs.azure.config;
 
-import com.sshtools.vfs.azure.AzureFileProvider;
-import org.apache.commons.vfs2.provider.FileProvider;
-import org.apache.hop.core.vfs.plugin.IVfs;
-import org.apache.hop.core.vfs.plugin.VfsPlugin;
+public class AzureConfig {
 
-@VfsPlugin(type = "azfs", typeDescription = "Azure VFS plugin")
-public class AzureVfsPlugin implements IVfs {
-  @Override
-  public String[] getUrlSchemes() {
-    return new String[] {"azfs"};
+  public static final String HOP_CONFIG_AZURE_CONFIG_KEY = "azure";
+
+  private String account;
+  private String key;
+
+  public AzureConfig() {}
+
+  public AzureConfig( AzureConfig config) {
+    this();
+    this.account = config.account;
+    this.key = config.key;
   }
 
-  @Override
-  public FileProvider getProvider() {
-    AzureFileProvider fileProvider = new AzureFileProvider();
-    return fileProvider;
+  /**
+   * Gets account
+   *
+   * @return value of account
+   */
+  public String getAccount() {
+    return account;
+  }
+
+  /**
+   * @param account The account to set
+   */
+  public void setAccount( String account ) {
+    this.account = account;
+  }
+
+  /**
+   * Gets key
+   *
+   * @return value of key
+   */
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * @param key The key to set
+   */
+  public void setKey( String key ) {
+    this.key = key;
   }
 }
