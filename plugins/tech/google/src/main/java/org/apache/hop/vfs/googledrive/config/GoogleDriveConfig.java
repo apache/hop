@@ -19,7 +19,6 @@ package org.apache.hop.vfs.googledrive.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(value = {"openingLastProjectAtStartup"})
 public class GoogleDriveConfig {
 
   public static final String HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY = "googleDrive";
