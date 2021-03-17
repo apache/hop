@@ -56,7 +56,7 @@ Once done you will see a `googleDrive` entry in the central `hop-config.json` fi
 }
 ----
 
-When you try to run the first time you'll see a message on the console where you executed Hop GUI or Hop Run saying somethine like:
+When you try to run the first time you'll see a message on the console where you executed Hop GUI or Hop Run saying something like:
 
 [source]
 ----
