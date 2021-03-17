@@ -66,3 +66,25 @@ Please open the following address in your browser:
 
 Open that URL in a browser and authenticate the given client ID. You'll then get a token in the configured `tokens folder` with which you can work.
 
+== Google Cloud Storage
+
+Hop has a Virtual File System (VFS) plugin for Google Cloud Storage.
+
+You need to generate a key file for a service account to make it work.  Go to the Google Cloud console to do this. Once you have a key file for your service account, with permissions to access your GCP storage, point to it with either a system environment variable called `GOOGLE_APPLICATION_CREDENTIALS` (standard Google way of doing this) or in the Options dialog in the 'Google Cloud' tab. You can also use `hop-conf`:
+
+[source,shell script]
+----
+      -gck, --google-cloud-service-account-key-file=<serviceAccountKeyFile>
+                            Configure the path to a Google Cloud service account JSON key file
+----
+
+Once done you will see a `googleCloud` entry in the central `hop-config.json` file:
+
+[source,json]
+----
+{
+  "googleCloud" : {
+    "serviceAccountKeyFile" : "/path/to/your/google-key.json"
+  }
+}
+----

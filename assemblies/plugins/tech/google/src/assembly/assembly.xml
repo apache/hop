@@ -51,28 +51,44 @@
       <useProjectArtifact>false</useProjectArtifact>
       <scope>runtime</scope>
       <includes>
-        <include>com.google.apis:google-api-services-analytics:jar</include>
-        <include>com.google.api-client:google-api-client:jar</include>
-        <include>com.google.guava:guava:jar</include>
-        <include>com.google.oauth-client:google-oauth-client:jar</include>
-        <include>com.google.code.findbugs:jsr305:jar</include>
-        <include>com.google.http-client:google-http-client-jackson2:jar</include>
         <include>com.fasterxml.jackson.core:jackson-core:jar</include>
+        <include>com.google.api:api-common:jar</include>
+        <include>com.google.api-client:google-api-client:jar</include>
+        <include>com.google.api:gax-httpjson:jar</include>
+        <include>com.google.api:gax:jar</include>
+        <include>com.google.api.grpc:proto-google-common-protos:jar</include>
+        <include>com.google.api.grpc:proto-google-iam-v1:jar</include>
+        <include>com.google.apis:google-api-services-analytics:jar</include>
+        <include>com.google.apis:google-api-services-drive:jar</include>
+        <include>com.google.apis:google-api-services-sheets:jar</include>
+        <include>com.google.apis:google-api-services-storage:jar</include>
+        <include>com.google.auth:google-auth-library-credentials:jar</include>
+        <include>com.google.auth:google-auth-library-oauth2-http:jar</include>
+        <include>com.google.cloud:google-cloud-core-http:jar</include>
+        <include>com.google.cloud:google-cloud-core:jar</include>
+        <include>com.google.cloud:google-cloud-storage:jar</include>
+        <include>com.google.code.findbugs:jsr305:jar</include>
+        <include>com.google.guava:guava:jar</include>
+        <include>com.google.http-client:google-http-client-appengine:jar</include>
+        <include>com.google.http-client:google-http-client-jackson2:jar</include>
         <include>com.google.http-client:google-http-client:jar</include>
         <include>com.google.j2objc:j2objc-annotations:jar</include>
-        <include>io.opencensus:opencensus-api:jar</include>
-        <include>io.grpc:grpc-context:jar</include>
-        <include>io.opencensus:opencensus-contrib-http-util:jar</include>
-        <include>com.google.oauth-client:google-oauth-client-jetty:jar</include>
-        <include>com.google.apis:google-api-services-sheets:jar</include>
-        <include>com.google.apis:google-api-services-drive:jar</include>
+        <include>com.google.oauth-client:google-oauth-client:jar</include>
         <include>com.google.oauth-client:google-oauth-client-java6:jar</include>
+        <include>com.google.oauth-client:google-oauth-client-jetty:jar</include>
+        <include>com.google.protobuf:protobuf-java:jar</include>
+        <include>com.google.protobuf:protobuf-java-util:jar</include>
+        <include>io.grpc:grpc-context:jar</include>
+        <include>io.opencensus:opencensus-api:jar</include>
+        <include>io.opencensus:opencensus-contrib-http-util:jar</include>
+        <include>joda-time:joda-time:jar</include>
         <include>org.mortbay.jetty:jetty-client:jar</include>
-        <include>org.mortbay.jetty:jetty-sslengine:jar</include>
         <include>org.mortbay.jetty:jetty:jar</include>
-        <include>org.mortbay.jetty:servlet-api:jar</include>
-        <include>org.mortbay.jetty:jetty-util:jar</include>
+        <include>org.mortbay.jetty:jetty-sslengine:jar</include>
         <include>org.mortbay.jetty:jetty-util5:jar</include>
+        <include>org.mortbay.jetty:jetty-util:jar</include>
+        <include>org.mortbay.jetty:servlet-api:jar</include>
+        <include>org.threeten:threetenbp:jar</include>
       </includes>
     </dependencySet>
   </dependencySets>

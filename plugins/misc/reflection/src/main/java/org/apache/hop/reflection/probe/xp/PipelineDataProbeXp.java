@@ -18,6 +18,7 @@
 
 package org.apache.hop.reflection.probe.xp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -129,6 +130,13 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
   }
 
   private boolean probeLocationExists( IVariables variables, DataProbeLocation dataProbeLocation, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+
+    // Not saved to a file, let's not probe.
+    //
+    if ( StringUtils.isEmpty(pipeline.getFilename())) {
+      return false;
+    }
+
     // Match filenames...
     //
     FileObject parentFileObject = HopVfs.getFileObject(pipeline.getFilename());
