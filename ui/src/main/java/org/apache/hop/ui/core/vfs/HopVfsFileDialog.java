@@ -774,7 +774,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       TreeItem parentFolderItem = new TreeItem(wBrowser, SWT.NONE);
       parentFolderItem.setImage(folderImage);
-      parentFolderItem.setText(activeFolder.getName().getBaseName());
+      String itemName = activeFolder.getName().getBaseName();
+      if (StringUtils.isEmpty(itemName)) {
+        itemName = activeFolder.getName().getURI();
+      }
+      parentFolderItem.setText(itemName);
       fileObjectsMap.put(getTreeItemPath(parentFolderItem), activeFolder);
 
       populateFolder(activeFolder, parentFolderItem);
