@@ -43,13 +43,14 @@
         </property>
       </activation>
       <modules>
-        <module>databases</module>
-        <module>transforms</module>
         <module>actions</module>
-        <module>misc</module>
+        <module>databases</module>
         <module>engines</module>
-        <module>vfs</module>
+        <module>misc</module>
+        <module>tech</module>
+        <module>transforms</module>
         <module>valuetypes</module>
+        <module>vfs</module>
       </modules>
     </profile>
 

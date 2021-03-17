@@ -36,7 +36,6 @@
 
   <modules>
     <module>azure</module>
-    <module>googledrive</module>
     <module>s3</module>
     <!--
       <module>hdfs</module>
