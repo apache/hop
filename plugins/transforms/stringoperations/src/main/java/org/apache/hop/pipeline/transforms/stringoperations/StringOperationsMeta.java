@@ -23,6 +23,8 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -48,38 +50,50 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/plugins/transforms/stringoperations.html")
+@InjectionSupported(localizationPrefix = "StringOperationsDialog.Injection.")
 public class StringOperationsMeta extends BaseTransformMeta
     implements ITransformMeta<StringOperations, StringOperationsData> {
 
   private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
 
   /** which field in input stream to compare with? */
+  @Injection(name = "SOURCEFIELDS")
   private String[] fieldInStream;
 
   /** output field */
+  @Injection(name = "TARGETFIELDS")
   private String[] fieldOutStream;
 
   /** Trim type */
+  @Injection(name = "TRIMTYPE")
   private int[] trimType;
 
   /** Lower/Upper type */
+  @Injection(name = "LOWERUPPER")
   private int[] lowerUpper;
 
   /** InitCap */
+  @Injection(name = "INITCAP")
   private int[] initCap;
 
+  @Injection(name = "MASKXML")
   private int[] maskXML;
 
+  @Injection(name = "DIGITS")
   private int[] digits;
 
+  @Injection(name = "SPECIALCHARS")
   private int[] remove_special_characters;
 
   /** padding type */
+  @Injection(name = "PADDING")
   private int[] paddingType;
 
   /** Pad length */
+  @Injection(name = "PADLEN")
   private String[] padLen;
 
+  @Injection(name = "PADCHAR")
   private String[] padChar;
 
   /** The trim type codes */
@@ -311,7 +325,7 @@ public class StringOperationsMeta extends BaseTransformMeta
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    readData(transformNode);
+    readData(transformNode, metadataProvider);
   }
 
   public void allocate(int nrkeys) {
@@ -349,13 +363,12 @@ public class StringOperationsMeta extends BaseTransformMeta
     return retval;
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
     try {
       int nrkeys;
 
       Node lookup = XmlHandler.getSubNode(transformNode, "fields");
       nrkeys = XmlHandler.countNodes(lookup, "field");
-
       allocate(nrkeys);
 
       for (int i = 0; i < nrkeys; i++) {
@@ -390,10 +403,7 @@ public class StringOperationsMeta extends BaseTransformMeta
   public void setDefault() {
     fieldInStream = null;
     fieldOutStream = null;
-
-    int nrkeys = 0;
-
-    allocate(nrkeys);
+    allocate(0);
   }
 
   @Override
@@ -403,6 +413,10 @@ public class StringOperationsMeta extends BaseTransformMeta
     retval.append("    <fields>").append(Const.CR);
 
     for (int i = 0; i < fieldInStream.length; i++) {
+      //defaults when not present
+      String lPadChar = ((padChar.length == 0 || padChar.length <= i)) ? "" : padChar[i];
+      String lPadLen = ((padLen.length == 0 || padLen.length <= i)) ? "" : padLen[i];
+
       retval.append("      <field>").append(Const.CR);
       retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
       retval
@@ -418,8 +432,8 @@ public class StringOperationsMeta extends BaseTransformMeta
       retval
           .append("        ")
           .append(XmlHandler.addTagValue("padding_type", getPaddingCode(paddingType[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_char", padChar[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_len", padLen[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("pad_char", lPadChar));
+      retval.append("        ").append(XmlHandler.addTagValue("pad_len", lPadLen));
       retval
           .append("        ")
           .append(XmlHandler.addTagValue("init_cap", getInitCapCode(initCap[i])));
