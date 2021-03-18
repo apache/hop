@@ -23,13 +23,17 @@ public class AzureConfig {
 
   private String account;
   private String key;
+  private String blockIncrement;
 
-  public AzureConfig() {}
+  public AzureConfig() {
+    blockIncrement = "4096";
+  }
 
   public AzureConfig( AzureConfig config) {
     this();
     this.account = config.account;
     this.key = config.key;
+    this.blockIncrement = blockIncrement;
   }
 
   /**
@@ -62,5 +66,21 @@ public class AzureConfig {
    */
   public void setKey( String key ) {
     this.key = key;
+  }
+
+  /**
+   * Gets blockIncrement
+   *
+   * @return value of blockIncrement
+   */
+  public String getBlockIncrement() {
+    return blockIncrement;
+  }
+
+  /**
+   * @param blockIncrement The blockIncrement to set
+   */
+  public void setBlockIncrement( String blockIncrement ) {
+    this.blockIncrement = blockIncrement;
   }
 }
