@@ -144,7 +144,7 @@ public class PipelineLoggingExtensionPoint
                       "SET pipeline.filename = $filename, pipeline.description = $description ");
                   transaction.run(transCypher.toString(), transPars);
 
-                  log.logDetailed("Trans cypher : " + transCypher);
+                  log.logDetailed("Pipeline cypher : " + transCypher);
 
                   for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
 

@@ -524,7 +524,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
                             throw new HopException(
                                 "Conversion from Neo4j daa type "
                                     + neoType.name()
-                                    + " to a Kettle Date isn't supported yet");
+                                    + " to a Hop Date isn't supported yet");
                         }
                       } else {
                         LocalDate localDate = recordValue.asLocalDate();
