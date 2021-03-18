@@ -548,8 +548,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
         }
       }
 
-      wFields.setRowNums();
-      wFields.optWidth(true);
+      wFields.optimizeTableView();
     }
     wPrevious.setSelection(action.argFromPrevious);
     wOverwriteFiles.setSelection(action.overwriteFiles);
