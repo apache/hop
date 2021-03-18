@@ -524,6 +524,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       shell.setSize(shellSize.x, shellSize.x / 2);
     }
 
+    // Set the focus on the filename
+    //
+    wFilename.setFocus();
+
     shell.open();
 
     while (!shell.isDisposed()) {
@@ -774,7 +778,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       TreeItem parentFolderItem = new TreeItem(wBrowser, SWT.NONE);
       parentFolderItem.setImage(folderImage);
-      parentFolderItem.setText(activeFolder.getName().getBaseName());
+      String itemName = activeFolder.getName().getBaseName();
+      if (StringUtils.isEmpty(itemName)) {
+        itemName = activeFolder.getName().getURI();
+      }
+      parentFolderItem.setText(itemName);
       fileObjectsMap.put(getTreeItemPath(parentFolderItem), activeFolder);
 
       populateFolder(activeFolder, parentFolderItem);

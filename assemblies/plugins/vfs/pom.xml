@@ -35,7 +35,6 @@
   <description></description>
 
   <modules>
-    <module>azure</module>
     <module>s3</module>
     <!--
       <module>hdfs</module>

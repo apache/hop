@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.copyfiles;
 
+import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -24,6 +25,7 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
+import org.apache.commons.vfs2.filter.NameFileFilter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -50,6 +52,7 @@ import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -222,7 +225,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     } catch (HopXmlException xe) {
 
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "JobCopyFiles.Error.Exception.UnableLoadXML"), xe);
+          BaseMessages.getString(PKG, "ActionCopyFiles.Error.Exception.UnableLoadXML"), xe);
     }
   }
 
@@ -281,7 +284,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     NbrFail = 0;
 
     if (isBasic()) {
-      logBasic(BaseMessages.getString(PKG, "JobCopyFiles.Log.Starting"));
+      logBasic(BaseMessages.getString(PKG, "ActionCopyFiles.Log.Starting"));
     }
 
     try {
@@ -298,7 +301,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           logDetailed(
               BaseMessages.getString(
                   PKG,
-                  "JobCopyFiles.Log.ArgFromPrevious.Found",
+                  "ActionCopyFiles.Log.ArgFromPrevious.Found",
                   (rows != null ? rows.size() : 0) + ""));
         }
       }
@@ -320,7 +323,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
-                      "JobCopyFiles.Log.ProcessingRow",
+                      "ActionCopyFiles.Log.ProcessingRow",
                       HopVfs.getFriendlyURI(resolve(vSourceFileFolderPrevious)),
                       HopVfs.getFriendlyURI(resolve(vDestinationFileFolderPrevious)),
                       resolve(vWildcardPrevious)));
@@ -340,7 +343,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
-                      "JobCopyFiles.Log.IgnoringRow",
+                      "ActionCopyFiles.Log.IgnoringRow",
                       HopVfs.getFriendlyURI(resolve(vSourceFileFolder[iteration])),
                       HopVfs.getFriendlyURI(resolve(vDestinationFileFolder[iteration])),
                       vwildcard[iteration]));
@@ -357,7 +360,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logBasic(
                   BaseMessages.getString(
                       PKG,
-                      "JobCopyFiles.Log.ProcessingRow",
+                      "ActionCopyFiles.Log.ProcessingRow",
                       HopVfs.getFriendlyURI(resolve(vSourceFileFolder[i])),
                       HopVfs.getFriendlyURI(resolve(vDestinationFileFolder[i])),
                       resolve(vwildcard[i])));
@@ -377,7 +380,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
-                      "JobCopyFiles.Log.IgnoringRow",
+                      "ActionCopyFiles.Log.IgnoringRow",
                       HopVfs.getFriendlyURI(resolve(vSourceFileFolder[i])),
                       HopVfs.getFriendlyURI(resolve(vDestinationFileFolder[i])),
                       vwildcard[i]));
@@ -402,14 +405,14 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   }
 
   boolean processFileFolder(
-      String sourcefilefoldername,
-      String destinationfilefoldername,
+      String sourceFileFolderName,
+      String destinationFileFolderName,
       String wildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result) {
     boolean entrystatus = false;
-    FileObject sourcefilefolder = null;
-    FileObject destinationfilefolder = null;
+    FileObject sourceFileFolder = null;
+    FileObject destinationFileFolder = null;
 
     // Clear list files to remove after copy process
     // This list is also added to result files name
@@ -417,62 +420,60 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     listAddResult.clear();
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = resolve(sourcefilefoldername);
-    String realDestinationFilefoldername = resolve(destinationfilefoldername);
+    String realSourceFileFolderName = resolve(sourceFileFolderName);
+    String realDestinationFileFolderName = resolve(destinationFileFolderName);
     String realWildcard = resolve(wildcard);
 
     try {
-      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
-      destinationfilefolder = HopVfs.getFileObject(realDestinationFilefoldername);
+      sourceFileFolder = HopVfs.getFileObject(realSourceFileFolderName);
+      destinationFileFolder = HopVfs.getFileObject(realDestinationFileFolderName);
 
-      if (sourcefilefolder.exists()) {
+      if (sourceFileFolder.exists()) {
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
         // PDI will create it
-        if (createDestinationFolder(destinationfilefolder)) {
+        if (createDestinationFolder(destinationFileFolder)) {
 
           // Basic Tests
-          if (sourcefilefolder.getType().equals(FileType.FOLDER) && destinationIsAFile) {
+          if (sourceFileFolder.getType().equals(FileType.FOLDER) && destinationIsAFile) {
             // Source is a folder, destination is a file
             // WARNING !!! CAN NOT COPY FOLDER TO FILE !!!
 
             logError(
                 BaseMessages.getString(
                     PKG,
-                    "JobCopyFiles.Log.CanNotCopyFolderToFile",
-                    HopVfs.getFriendlyURI(realSourceFilefoldername),
-                    HopVfs.getFriendlyURI(realDestinationFilefoldername)));
+                    "ActionCopyFiles.Log.CanNotCopyFolderToFile",
+                    HopVfs.getFriendlyURI(realSourceFileFolderName),
+                    HopVfs.getFriendlyURI(realDestinationFileFolderName)));
 
             nbrFail++;
 
           } else {
 
-            if (destinationfilefolder.getType().equals(FileType.FOLDER)
-                && sourcefilefolder.getType().equals(FileType.FILE)) {
+            if (destinationFileFolder.getType().equals(FileType.FOLDER)
+                && sourceFileFolder.getType().equals(FileType.FILE)) {
               // Source is a file, destination is a folder
               // Copy the file to the destination folder
+              //
+              NameFileFilter nameFileFilter = new NameFileFilter( Arrays.asList(sourceFileFolder.getName().getBaseName()));
+              FileSelector fileSelector = new FileFilterSelector(nameFileFilter);
+              destinationFileFolder.copyFrom( sourceFileFolder.getParent(), fileSelector );
 
-              destinationfilefolder.copyFrom(
-                  sourcefilefolder.getParent(),
-                  new TextOneFileSelector(
-                      sourcefilefolder.getParent().toString(),
-                      sourcefilefolder.getName().getBaseName(),
-                      destinationfilefolder.toString()));
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
-                        "JobCopyFiles.Log.FileCopied",
-                        HopVfs.getFriendlyURI(sourcefilefolder),
-                        HopVfs.getFriendlyURI(destinationfilefolder)));
+                        "ActionCopyFiles.Log.FileCopied",
+                        HopVfs.getFriendlyURI(sourceFileFolder),
+                        HopVfs.getFriendlyURI(destinationFileFolder)));
               }
 
-            } else if (sourcefilefolder.getType().equals(FileType.FILE) && destinationIsAFile) {
+            } else if (sourceFileFolder.getType().equals(FileType.FILE) && destinationIsAFile) {
               // Source is a file, destination is a file
 
-              destinationfilefolder.copyFrom(
-                  sourcefilefolder, new TextOneToOneFileSelector(destinationfilefolder));
+              destinationFileFolder.copyFrom(
+                  sourceFileFolder, new TextOneToOneFileSelector(destinationFileFolder));
             } else {
               // Both source and destination are folders
               if (isDetailed()) {
@@ -480,15 +481,15 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
-                        "JobCopyFiles.Log.FetchFolder",
-                        HopVfs.getFriendlyURI(sourcefilefolder)));
+                        "ActionCopyFiles.Log.FetchFolder",
+                        HopVfs.getFriendlyURI(sourceFileFolder)));
               }
 
               TextFileSelector textFileSelector =
                   new TextFileSelector(
-                      sourcefilefolder, destinationfilefolder, realWildcard, parentWorkflow);
+                      sourceFileFolder, destinationFileFolder, realWildcard, parentWorkflow);
               try {
-                destinationfilefolder.copyFrom(sourcefilefolder, textFileSelector);
+                destinationFileFolder.copyFrom(sourceFileFolder, textFileSelector);
               } finally {
                 textFileSelector.shutdown();
               }
@@ -496,7 +497,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
             // Remove Files if needed
             if (removeSourceFiles && !listFilesRemove.isEmpty()) {
-              String sourceFilefoldername = sourcefilefolder.toString();
+              String sourceFilefoldername = sourceFileFolder.toString();
               int trimPathLength = sourceFilefoldername.length() + 1;
               FileObject removeFile;
 
@@ -508,7 +509,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 if (fileremoventry.startsWith(sourceFilefoldername)) {
                   if (trimPathLength < fileremoventry.length()) {
                     removeFile =
-                        sourcefilefolder.getChild(fileremoventry.substring(trimPathLength));
+                        sourceFileFolder.getChild(fileremoventry.substring(trimPathLength));
                   }
                 }
 
@@ -527,7 +528,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Error.Exception.CanRemoveFileFolder",
+                                "ActionCopyFiles.Error.Exception.CanRemoveFileFolder",
                                 HopVfs.getFriendlyURI(fileremoventry)));
                   } else {
                     if (isDetailed()) {
@@ -535,7 +536,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FileFolderRemoved",
+                                  "ActionCopyFiles.Log.FileFolderRemoved",
                                   HopVfs.getFriendlyURI(fileremoventry)));
                     }
                   }
@@ -545,7 +546,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
             // Add files to result files name
             if (addResultFilenames && !listAddResult.isEmpty()) {
-              String destinationFilefoldername = destinationfilefolder.toString();
+              String destinationFilefoldername = destinationFileFolder.toString();
               int trimPathLength = destinationFilefoldername.length() + 1;
               FileObject addFile;
 
@@ -557,7 +558,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 if (fileaddentry.startsWith(destinationFilefoldername)) {
                   if (trimPathLength < fileaddentry.length()) {
                     addFile =
-                        destinationfilefolder.getChild(fileaddentry.substring(trimPathLength));
+                        destinationFileFolder.getChild(fileaddentry.substring(trimPathLength));
                   }
                 }
 
@@ -582,7 +583,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Log.FileAddedToResultFilesName",
+                                "ActionCopyFiles.Log.FileAddedToResultFilesName",
                                 HopVfs.getFriendlyURI(fileaddentry)));
                   }
                 }
@@ -595,49 +596,44 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           logError(
               BaseMessages.getString(
                   PKG,
-                  "JobCopyFiles.Error.DestinationFolderNotFound",
-                  HopVfs.getFriendlyURI(realDestinationFilefoldername)));
+                  "ActionCopyFiles.Error.DestinationFolderNotFound",
+                  HopVfs.getFriendlyURI(realDestinationFileFolderName)));
         }
       } else {
         logError(
             BaseMessages.getString(
                 PKG,
-                "JobCopyFiles.Error.SourceFileNotExists",
-                HopVfs.getFriendlyURI(realSourceFilefoldername)));
+                "ActionCopyFiles.Error.SourceFileNotExists",
+                HopVfs.getFriendlyURI(realSourceFileFolderName)));
       }
     } catch (FileSystemException fse) {
       logError(
           BaseMessages.getString(
               PKG,
-              "JobCopyFiles.Error.Exception.CopyProcessFileSystemException",
-              fse.getMessage()));
-      Throwable throwable = fse.getCause();
-      while (throwable != null) {
-        logError(BaseMessages.getString(PKG, "JobCopyFiles.Log.CausedBy", throwable.getMessage()));
-        throwable = throwable.getCause();
-      }
+              "ActionCopyFiles.Error.Exception.CopyProcessFileSystemException",
+              fse.getMessage()), fse);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
               PKG,
-              "JobCopyFiles.Error.Exception.CopyProcess",
-              HopVfs.getFriendlyURI(realSourceFilefoldername),
-              HopVfs.getFriendlyURI(realDestinationFilefoldername),
+              "ActionCopyFiles.Error.Exception.CopyProcess",
+              HopVfs.getFriendlyURI(realSourceFileFolderName),
+              HopVfs.getFriendlyURI(realDestinationFileFolderName),
               e.getMessage()),
           e);
     } finally {
-      if (sourcefilefolder != null) {
+      if (sourceFileFolder != null) {
         try {
-          sourcefilefolder.close();
-          sourcefilefolder = null;
+          sourceFileFolder.close();
+          sourceFileFolder = null;
         } catch (IOException ex) {
           /* Ignore */
         }
       }
-      if (destinationfilefolder != null) {
+      if (destinationFileFolder != null) {
         try {
-          destinationfilefolder.close();
-          destinationfilefolder = null;
+          destinationFileFolder.close();
+          destinationFileFolder = null;
         } catch (IOException ex) {
           /* Ignore */
         }
@@ -669,7 +665,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
             logDetailed(
                 "      "
                     + BaseMessages.getString(
-                        PKG, "JobCopyFiles.Log.FileExists", HopVfs.getFriendlyURI(destfile)));
+                        PKG, "ActionCopyFiles.Log.FileExists", HopVfs.getFriendlyURI(destfile)));
           }
 
           if (overwriteFiles) {
@@ -677,7 +673,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   "      "
                       + BaseMessages.getString(
-                          PKG, "JobCopyFiles.Log.FileOverwrite", HopVfs.getFriendlyURI(destfile)));
+                          PKG, "ActionCopyFiles.Log.FileOverwrite", HopVfs.getFriendlyURI(destfile)));
             }
 
             resultat = true;
@@ -688,7 +684,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 "      "
                     + BaseMessages.getString(
                         PKG,
-                        "JobCopyFiles.Log.FileCopied",
+                        "ActionCopyFiles.Log.FileCopied",
                         HopVfs.getFriendlyURI(info.getFile()),
                         HopVfs.getFriendlyURI(destfile)));
           }
@@ -713,7 +709,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         logError(
             BaseMessages.getString(
                 PKG,
-                "JobCopyFiles.Error.Exception.CopyProcess",
+                "ActionCopyFiles.Error.Exception.CopyProcess",
                 HopVfs.getFriendlyURI(info.getFile()),
                 filename,
                 e.getMessage()));
@@ -847,7 +843,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FolderCopied",
+                                  "ActionCopyFiles.Log.FolderCopied",
                                   HopVfs.getFriendlyURI(info.getFile()),
                                   filename != null ? HopVfs.getFriendlyURI(filename) : ""));
                     }
@@ -859,7 +855,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FolderExists",
+                                  "ActionCopyFiles.Log.FolderExists",
                                   HopVfs.getFriendlyURI(filename)));
                     }
                     if (overwriteFiles) {
@@ -868,7 +864,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                             "      "
                                 + BaseMessages.getString(
                                     PKG,
-                                    "JobCopyFiles.Log.FolderOverwrite",
+                                    "ActionCopyFiles.Log.FolderOverwrite",
                                     HopVfs.getFriendlyURI(info.getFile()),
                                     HopVfs.getFriendlyURI(filename)));
                       }
@@ -887,7 +883,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FileCopied",
+                                  "ActionCopyFiles.Log.FileCopied",
                                   HopVfs.getFriendlyURI(info.getFile()),
                                   filename != null ? HopVfs.getFriendlyURI(filename) : ""));
                     }
@@ -899,7 +895,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FileExists",
+                                  "ActionCopyFiles.Log.FileExists",
                                   HopVfs.getFriendlyURI(filename)));
                     }
                     if (overwriteFiles) {
@@ -908,7 +904,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                             "       "
                                 + BaseMessages.getString(
                                     PKG,
-                                    "JobCopyFiles.Log.FileExists",
+                                    "ActionCopyFiles.Log.FileExists",
                                     HopVfs.getFriendlyURI(info.getFile()),
                                     HopVfs.getFriendlyURI(filename)));
                       }
@@ -931,7 +927,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Log.FolderCopied",
+                                "ActionCopyFiles.Log.FolderCopied",
                                 HopVfs.getFriendlyURI(info.getFile()),
                                 filename != null ? HopVfs.getFriendlyURI(filename) : ""));
                   }
@@ -944,7 +940,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Log.FolderExists",
+                                "ActionCopyFiles.Log.FolderExists",
                                 HopVfs.getFriendlyURI(filename)));
                   }
                   if (overwriteFiles) {
@@ -953,7 +949,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           "      "
                               + BaseMessages.getString(
                                   PKG,
-                                  "JobCopyFiles.Log.FolderOverwrite",
+                                  "ActionCopyFiles.Log.FolderOverwrite",
                                   HopVfs.getFriendlyURI(info.getFile()),
                                   HopVfs.getFriendlyURI(filename)));
                     }
@@ -975,7 +971,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Log.FileCopied",
+                                "ActionCopyFiles.Log.FileCopied",
                                 HopVfs.getFriendlyURI(info.getFile()),
                                 filename != null ? HopVfs.getFriendlyURI(filename) : ""));
                   }
@@ -988,7 +984,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         "      "
                             + BaseMessages.getString(
                                 PKG,
-                                "JobCopyFiles.Log.FileExists",
+                                "ActionCopyFiles.Log.FileExists",
                                 HopVfs.getFriendlyURI(filename)));
                   }
 
@@ -996,10 +992,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     if (isDetailed()) {
                       logDetailed(
                           "      "
-                              + BaseMessages.getString(PKG, "JobCopyFiles.Log.FileExistsInfos"),
+                              + BaseMessages.getString(PKG, "ActionCopyFiles.Log.FileExistsInfos"),
                           BaseMessages.getString(
                               PKG,
-                              "JobCopyFiles.Log.FileExists",
+                              "ActionCopyFiles.Log.FileExists",
                               HopVfs.getFriendlyURI(info.getFile()),
                               HopVfs.getFriendlyURI(filename)));
                     }
@@ -1016,7 +1012,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         logError(
             BaseMessages.getString(
                 PKG,
-                "JobCopyFiles.Error.Exception.CopyProcess",
+                "ActionCopyFiles.Error.Exception.CopyProcess",
                 HopVfs.getFriendlyURI(info.getFile()),
                 filename != null ? HopVfs.getFriendlyURI(filename) : null,
                 e.getMessage()));
@@ -1103,7 +1099,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 logDetailed(
                     "      "
                         + BaseMessages.getString(
-                            PKG, "JobCopyFiles.Log.FileExists", HopVfs.getFriendlyURI(filename)));
+                            PKG, "ActionCopyFiles.Log.FileExists", HopVfs.getFriendlyURI(filename)));
               }
 
               if (overwriteFiles) {
@@ -1112,7 +1108,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                       "      "
                           + BaseMessages.getString(
                               PKG,
-                              "JobCopyFiles.Log.FileOverwrite",
+                              "ActionCopyFiles.Log.FileOverwrite",
                               HopVfs.getFriendlyURI(info.getFile()),
                               HopVfs.getFriendlyURI(filename)));
                 }
@@ -1125,7 +1121,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     "      "
                         + BaseMessages.getString(
                             PKG,
-                            "JobCopyFiles.Log.FileCopied",
+                            "ActionCopyFiles.Log.FileCopied",
                             HopVfs.getFriendlyURI(info.getFile()),
                             HopVfs.getFriendlyURI(filename)));
               }
@@ -1150,7 +1146,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         logError(
             BaseMessages.getString(
                 PKG,
-                "JobCopyFiles.Error.Exception.CopyProcess",
+                "ActionCopyFiles.Error.Exception.CopyProcess",
                 HopVfs.getFriendlyURI(info.getFile()),
                 HopVfs.getFriendlyURI(filename),
                 e.getMessage()));
