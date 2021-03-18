@@ -2613,6 +2613,7 @@ public class TableView extends Composite {
         final ColumnInfo column = columns[c - 1];
         if (column != null) {
           switch (column.getType()) {
+            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON:
             case ColumnInfo.COLUMN_TYPE_TEXT:
               haveToGetTexts = true;
               break;
