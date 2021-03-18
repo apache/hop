@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
 import org.apache.commons.lang.StringUtils;
@@ -414,11 +432,11 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
     fdbBatchPipeline.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
     wbBatchPipeline.setLayoutData(fdbBatchPipeline);
     wBatchPipeline = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook( wBatchPipeline );
+    props.setLook(wBatchPipeline);
     wBatchPipeline.addModifyListener(lsMod);
     FormData fdBatchPipeline = new FormData();
     fdBatchPipeline.left = new FormAttachment(middle, 0);
-    fdBatchPipeline.right = new FormAttachment(wbBatchPipeline, -margin );
+    fdBatchPipeline.right = new FormAttachment(wbBatchPipeline, -margin);
     fdBatchPipeline.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
     wBatchPipeline.setLayoutData(fdBatchPipeline);
     lastControl = wBatchPipeline;
@@ -570,13 +588,12 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void selectInputTransform() {
-    selectTransform( wBatchInput, "Select the transform to send the messages to:" );
+    selectTransform(wBatchInput, "Select the transform to send the messages to:");
   }
 
   private void selectOutputTransform() {
-    selectTransform( wBatchOutput, "Select a transform to read output from:" );
+    selectTransform(wBatchOutput, "Select a transform to read output from:");
   }
-
 
   private void selectTransform(TextVar textVar, String message) {
     try {
@@ -585,10 +602,11 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
       PipelineMeta pipelineMeta =
           AzureListenerMeta.loadBatchPipelineMeta(meta, metadataProvider, variables);
       String[] transformNames = pipelineMeta.getTransformNames();
-      EnterSelectionDialog dialog = new EnterSelectionDialog( shell, transformNames, "Select transform", message );
+      EnterSelectionDialog dialog =
+          new EnterSelectionDialog(shell, transformNames, "Select transform", message);
       String transformName = dialog.open();
-      if (transformName!=null) {
-        textVar.setText( transformName );
+      if (transformName != null) {
+        textVar.setText(transformName);
       }
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error selecting transform", e);
@@ -653,7 +671,7 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
     meta.setHostField(wHostField.getText());
     meta.setEnqueuedTimeField(wEnqueuedTimeField.getText());
 
-    meta.setBatchPipeline( wBatchPipeline.getText());
+    meta.setBatchPipeline(wBatchPipeline.getText());
     meta.setBatchInputTransform(wBatchInput.getText());
     meta.setBatchOutputTransform(wBatchOutput.getText());
     meta.setBatchMaxWaitTime(wMaxWaitTime.getText());

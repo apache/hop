@@ -29,36 +29,39 @@ public class PageBlobInputStream extends InputStream {
   private long fileSize;
   private long totalRead = 0;
 
-  public PageBlobInputStream( BlobInputStream inputStream, long fileSize ) {
+  public PageBlobInputStream(BlobInputStream inputStream, long fileSize) {
     this.inputStream = inputStream;
     this.fileSize = fileSize;
   }
 
-  @Override public int read() throws IOException {
+  @Override
+  public int read() throws IOException {
     int c = inputStream.read();
     totalRead++;
-    if (totalRead>fileSize) {
+    if (totalRead > fileSize) {
       return -1;
     }
     return c;
   }
 
-  @Override public int read( byte[] bytes ) throws IOException {
-    int readSize = inputStream.read( bytes );
-    if (readSize>0) {
-      totalRead+=readSize;
+  @Override
+  public int read(byte[] bytes) throws IOException {
+    int readSize = inputStream.read(bytes);
+    if (readSize > 0) {
+      totalRead += readSize;
     }
     return readSize;
   }
 
-  @Override public int read( byte[] bytes, int i, int i1 ) throws IOException {
-    int readSize = inputStream.read( bytes, i, i1 );
-    if (readSize>0) {
+  @Override
+  public int read(byte[] bytes, int i, int i1) throws IOException {
+    int readSize = inputStream.read(bytes, i, i1);
+    if (readSize > 0) {
       // This blob is padded to a page boundary
       // Just return the remainder.  The rest are 0 anyway
       //
-      if (totalRead+readSize>fileSize) {
-        int actuallyRead = (int) (fileSize-totalRead);
+      if (totalRead + readSize > fileSize) {
+        int actuallyRead = (int) (fileSize - totalRead);
         totalRead = fileSize;
         return actuallyRead;
       }
@@ -66,15 +69,16 @@ public class PageBlobInputStream extends InputStream {
     return readSize;
   }
 
-  @Override public long skip( long l ) throws IOException {
-    long skippedLength = inputStream.skip( l );
-    if (skippedLength>0) {
-      totalRead+=skippedLength;
+  @Override
+  public long skip(long l) throws IOException {
+    long skippedLength = inputStream.skip(l);
+    if (skippedLength > 0) {
+      totalRead += skippedLength;
       // This blob is padded to a page boundary
       // Just return the remainder.  The rest are 0 anyway
       //
-      if (totalRead+skippedLength>fileSize) {
-        int actuallyRead = (int) (fileSize-totalRead);
+      if (totalRead + skippedLength > fileSize) {
+        int actuallyRead = (int) (fileSize - totalRead);
         totalRead = fileSize;
         return actuallyRead;
       }
@@ -82,23 +86,28 @@ public class PageBlobInputStream extends InputStream {
     return skippedLength;
   }
 
-  @Override public int available() throws IOException {
-    return (int) (fileSize-totalRead);
+  @Override
+  public int available() throws IOException {
+    return (int) (fileSize - totalRead);
   }
 
-  @Override public void close() throws IOException {
+  @Override
+  public void close() throws IOException {
     inputStream.close();
   }
 
-  @Override public synchronized void mark( int i ) {
-    inputStream.mark( i );
+  @Override
+  public synchronized void mark(int i) {
+    inputStream.mark(i);
   }
 
-  @Override public synchronized void reset() throws IOException {
+  @Override
+  public synchronized void reset() throws IOException {
     inputStream.reset();
   }
 
-  @Override public boolean markSupported() {
+  @Override
+  public boolean markSupported() {
     return inputStream.markSupported();
   }
 }

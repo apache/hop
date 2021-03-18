@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
 import org.apache.commons.lang.StringUtils;
@@ -94,7 +112,13 @@ public class AzureListenerMeta extends BaseTransformMeta
     enqueuedTimeField = "enqueuedTime";
   }
 
-  @Override public ITransform createTransform( TransformMeta transformMeta, AzureListenerData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      AzureListenerData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     return new AzureListener(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
@@ -113,8 +137,7 @@ public class AzureListenerMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    if (StringUtils.isNotEmpty( batchPipeline )
-        && StringUtils.isNotEmpty(batchInputTransform)) {
+    if (StringUtils.isNotEmpty(batchPipeline) && StringUtils.isNotEmpty(batchInputTransform)) {
       // Load the transformation, get the Transform output fields...
       //
       try {
@@ -176,7 +199,7 @@ public class AzureListenerMeta extends BaseTransformMeta
 
     // The enqueued time field name
     //
-    String enqueuedTimeFieldName = variables.resolve( enqueuedTimeField );
+    String enqueuedTimeFieldName = variables.resolve(enqueuedTimeField);
     if (StringUtils.isNotEmpty(enqueuedTimeFieldName)) {
       IValueMeta outputValueMeta = new ValueMetaTimestamp(enqueuedTimeFieldName);
       rowMeta.addValueMeta(outputValueMeta);
@@ -197,11 +220,11 @@ public class AzureListenerMeta extends BaseTransformMeta
     xml.append(XmlHandler.addTagValue(OFFSET_FIELD, offsetField));
     xml.append(XmlHandler.addTagValue(SEQUENCE_NUMBER_FIELD, sequenceNumberField));
     xml.append(XmlHandler.addTagValue(HOST_FIELD, hostField));
-    xml.append(XmlHandler.addTagValue( ENQUEUED_TIME_FIELD, enqueuedTimeField ));
+    xml.append(XmlHandler.addTagValue(ENQUEUED_TIME_FIELD, enqueuedTimeField));
     xml.append(XmlHandler.addTagValue(CONSUMER_GROUP_NAME, consumerGroupName));
     xml.append(XmlHandler.addTagValue(STORAGE_CONNECTION_STRING, storageConnectionString));
     xml.append(XmlHandler.addTagValue(STORAGE_CONTAINER_NAME, storageContainerName));
-    xml.append(XmlHandler.addTagValue(BATCH_TRANSFORMATION, batchPipeline ));
+    xml.append(XmlHandler.addTagValue(BATCH_TRANSFORMATION, batchPipeline));
     xml.append(XmlHandler.addTagValue(BATCH_INPUT_Transform, batchInputTransform));
     xml.append(XmlHandler.addTagValue(BATCH_OUTPUT_Transform, batchOutputTransform));
     xml.append(XmlHandler.addTagValue(BATCH_MAX_WAIT_TIME, batchMaxWaitTime));
@@ -224,7 +247,7 @@ public class AzureListenerMeta extends BaseTransformMeta
     offsetField = XmlHandler.getTagValue(Transformnode, OFFSET_FIELD);
     sequenceNumberField = XmlHandler.getTagValue(Transformnode, SEQUENCE_NUMBER_FIELD);
     hostField = XmlHandler.getTagValue(Transformnode, HOST_FIELD);
-    enqueuedTimeField = XmlHandler.getTagValue(Transformnode, ENQUEUED_TIME_FIELD );
+    enqueuedTimeField = XmlHandler.getTagValue(Transformnode, ENQUEUED_TIME_FIELD);
     consumerGroupName = XmlHandler.getTagValue(Transformnode, CONSUMER_GROUP_NAME);
     storageConnectionString = XmlHandler.getTagValue(Transformnode, STORAGE_CONNECTION_STRING);
     storageContainerName = XmlHandler.getTagValue(Transformnode, STORAGE_CONTAINER_NAME);
@@ -269,7 +292,7 @@ public class AzureListenerMeta extends BaseTransformMeta
   }
 
   private boolean isPipelineDefined() {
-    return StringUtils.isNotEmpty( batchPipeline );
+    return StringUtils.isNotEmpty(batchPipeline);
   }
 
   public boolean[] isReferencedObjectEnabled() {
@@ -286,9 +309,9 @@ public class AzureListenerMeta extends BaseTransformMeta
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables )
-    throws HopException {
-    return loadBatchPipelineMeta( this, metadataProvider, variables );
+  public IHasFilename loadReferencedObject(
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return loadBatchPipelineMeta(this, metadataProvider, variables);
   }
 
   public String getNamespace() {
@@ -407,7 +430,7 @@ public class AzureListenerMeta extends BaseTransformMeta
     return enqueuedTimeField;
   }
 
-  public void setEnqueuedTimeField( String enqueuedTimeField ) {
+  public void setEnqueuedTimeField(String enqueuedTimeField) {
     this.enqueuedTimeField = enqueuedTimeField;
   }
 
@@ -415,7 +438,7 @@ public class AzureListenerMeta extends BaseTransformMeta
     return batchPipeline;
   }
 
-  public void setBatchPipeline( String batchPipeline ) {
+  public void setBatchPipeline(String batchPipeline) {
     this.batchPipeline = batchPipeline;
   }
 

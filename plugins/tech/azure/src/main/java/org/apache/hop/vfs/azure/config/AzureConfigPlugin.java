@@ -33,7 +33,6 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -62,25 +61,25 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
   private String account;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_AZURE_KEY,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.TEXT,
-    variables = true,
-    label = "Your Azure key")
+      id = WIDGET_ID_AZURE_KEY,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "Your Azure key")
   @CommandLine.Option(
-    names = {"-azk", "--azure-key"},
-    description = "The key to use for the Azure VFS")
+      names = {"-azk", "--azure-key"},
+      description = "The key to use for the Azure VFS")
   private String key;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_AZURE_BLOCK_INCREMENT,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.TEXT,
-    variables = true,
-    label = "File block increment size (multiples of 512 only)")
+      id = WIDGET_ID_AZURE_BLOCK_INCREMENT,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "File block increment size (multiples of 512 only)")
   @CommandLine.Option(
-    names = {"-azi", "--azure-block-increment"},
-    description = "The block increment size for new files on Azure, multiples of 512 only.")
+      names = {"-azi", "--azure-block-increment"},
+      description = "The block increment size for new files on Azure, multiples of 512 only.")
   private String blockIncrement;
   /**
    * Gets instance
@@ -106,30 +105,21 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     try {
       boolean changed = false;
 
-      if ( account != null) {
-        config.setAccount( account );
-        log.logBasic(
-            "The Azure account is set to '"
-                + account
-                + "'");
+      if (account != null) {
+        config.setAccount(account);
+        log.logBasic("The Azure account is set to '" + account + "'");
         changed = true;
       }
 
-      if ( key != null) {
-        config.setKey( key );
-        log.logBasic(
-          "The Azure key is set to '"
-            + key
-            + "'");
+      if (key != null) {
+        config.setKey(key);
+        log.logBasic("The Azure key is set to '" + key + "'");
         changed = true;
       }
 
-      if ( blockIncrement != null) {
-        config.setBlockIncrement( blockIncrement );
-        log.logBasic(
-          "The Azure file block increment is set to '"
-            + blockIncrement
-            + "'");
+      if (blockIncrement != null) {
+        config.setBlockIncrement(blockIncrement);
+        log.logBasic("The Azure file block increment is set to '" + blockIncrement + "'");
         changed = true;
       }
 
@@ -161,15 +151,15 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       switch (widgetId) {
         case WIDGET_ID_AZURE_ACCOUNT:
           account = ((TextVar) control).getText();
-          AzureConfigSingleton.getConfig().setAccount( account );
+          AzureConfigSingleton.getConfig().setAccount(account);
           break;
         case WIDGET_ID_AZURE_KEY:
           key = ((TextVar) control).getText();
-          AzureConfigSingleton.getConfig().setKey( key );
+          AzureConfigSingleton.getConfig().setKey(key);
           break;
         case WIDGET_ID_AZURE_BLOCK_INCREMENT:
           blockIncrement = ((TextVar) control).getText();
-          AzureConfigSingleton.getConfig().setKey( blockIncrement );
+          AzureConfigSingleton.getConfig().setKey(blockIncrement);
           break;
       }
     }
@@ -191,10 +181,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return account;
   }
 
-  /**
-   * @param account The account to set
-   */
-  public void setAccount( String account ) {
+  /** @param account The account to set */
+  public void setAccount(String account) {
     this.account = account;
   }
 
@@ -207,10 +195,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return key;
   }
 
-  /**
-   * @param key The key to set
-   */
-  public void setKey( String key ) {
+  /** @param key The key to set */
+  public void setKey(String key) {
     this.key = key;
   }
 
@@ -223,10 +209,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return blockIncrement;
   }
 
-  /**
-   * @param blockIncrement The blockIncrement to set
-   */
-  public void setBlockIncrement( String blockIncrement ) {
+  /** @param blockIncrement The blockIncrement to set */
+  public void setBlockIncrement(String blockIncrement) {
     this.blockIncrement = blockIncrement;
   }
 }
