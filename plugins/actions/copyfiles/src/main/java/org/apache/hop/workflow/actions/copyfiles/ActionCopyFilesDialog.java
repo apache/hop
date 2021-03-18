@@ -73,7 +73,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
 
   protected static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobCopyFiles.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionCopyFiles.Filetype.All")};
 
   public static final String LOCAL_ENVIRONMENT = "Local";
   public static final String STATIC_ENVIRONMENT = "<Static>";
@@ -106,7 +106,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     this.action = (ActionCopyFiles) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobCopyFiles.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Default"));
     }
   }
 
@@ -115,7 +115,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
-    Button helpButton = WorkflowDialog.setShellImage(shell, action);
+    WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -125,14 +125,25 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobCopyFiles.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, null);
+
+
     // Filename line
     Label wlName = new Label(shell, SWT.LEFT);
-    wlName.setText(BaseMessages.getString(PKG, "JobCopyFiles.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -147,29 +158,16 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     fdName.top = new FormAttachment(wlName, margin);
     fdName.right = new FormAttachment(40, 0);
     wName.setLayoutData(fdName);
-    Label wlIcon = new Label(shell, SWT.RIGHT);
-    wlIcon.setImage(getImage());
-    props.setLook(wlIcon);
-    FormData fdlIcon = new FormData();
-    fdlIcon.top = new FormAttachment(0, margin * 3);
-    fdlIcon.right = new FormAttachment(100, -margin);
-    wlIcon.setLayoutData(fdlIcon);
 
-    Label lTopSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdTopSeparator = new FormData();
-    fdTopSeparator.top = new FormAttachment(wlIcon, margin);
-    fdTopSeparator.left = new FormAttachment(0, 0);
-    fdTopSeparator.right = new FormAttachment(100, 0);
-    lTopSeparator.setLayoutData(fdTopSeparator);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(lTopSeparator, margin * 3);
+    fdTabFolder.top = new FormAttachment(wName, margin * 3);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -60);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // ///////////////////////////////////////////////////////////
@@ -177,7 +175,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     // ///////////////////////////////////////////////////////////
 
     CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
-    wFilesTab.setText(BaseMessages.getString(PKG, "JobCopyFiles.Tab.Files.Label"));
+    wFilesTab.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Tab.Files.Label"));
 
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
@@ -206,7 +204,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
 
     CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSettingsTab.setText(BaseMessages.getString(PKG, "JobCopyFiles.Settings.Label"));
+    wSettingsTab.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Settings.Label"));
 
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
@@ -226,64 +224,64 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.IncludeSubfolders.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.IncludeSubfolders.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.IncludeSubfolders.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.IncludeSubfolders.Tooltip"),
             null,
             listener);
 
     wDestinationIsAFile =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.DestinationIsAFile.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.DestinationIsAFile.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.DestinationIsAFile.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.DestinationIsAFile.Tooltip"),
             wIncludeSubfolders,
             listener);
 
     wCopyEmptyFolders =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.CopyEmptyFolders.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.CopyEmptyFolders.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.CopyEmptyFolders.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.CopyEmptyFolders.Tooltip"),
             wDestinationIsAFile,
             listener);
 
     wCreateDestinationFolder =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.CreateDestinationFolder.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.CreateDestinationFolder.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.CreateDestinationFolder.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.CreateDestinationFolder.Tooltip"),
             wCopyEmptyFolders,
             listener);
 
     wOverwriteFiles =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.OverwriteFiles.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.OverwriteFiles.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.OverwriteFiles.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.OverwriteFiles.Tooltip"),
             wCreateDestinationFolder,
             listener);
 
     wRemoveSourceFiles =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.RemoveSourceFiles.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.RemoveSourceFiles.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.RemoveSourceFiles.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.RemoveSourceFiles.Tooltip"),
             wOverwriteFiles,
             listener);
 
     wPrevious =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.Previous.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.Previous.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.Previous.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.Previous.Tooltip"),
             wRemoveSourceFiles,
             listener);
 
     wAddFileToResult =
         createSettingsButton(
             wSettingsComp,
-            BaseMessages.getString(PKG, "JobCopyFiles.AddFileToResult.Label"),
-            BaseMessages.getString(PKG, "JobCopyFiles.AddFileToResult.Tooltip"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.AddFileToResult.Label"),
+            BaseMessages.getString(PKG, "ActionCopyFiles.AddFileToResult.Tooltip"),
             wPrevious,
             listener);
 
@@ -312,7 +310,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     deleteToolItem = new ToolItem(tb, SWT.PUSH);
     deleteToolItem.setImage(GuiResource.getInstance().getImageDelete());
     deleteToolItem.setToolTipText(
-        BaseMessages.getString(PKG, "JobCopyFiles.FilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCopyFiles.FilenameDelete.Tooltip"));
     deleteToolItem.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent arg0) {
@@ -324,7 +322,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
         });
 
     wlFields = new Label(wFilesComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobCopyFiles.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, margin);
@@ -341,25 +339,25 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCopyFiles.Fields.SourceEnvironment.Label"),
+              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceEnvironment.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCopyFiles.Fields.SourceFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCopyFiles.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCopyFiles.Fields.DestinationEnvironment.Label"),
+              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationEnvironment.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCopyFiles.Fields.DestinationFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
               false)
         };
@@ -374,18 +372,18 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     colinf[1].setUsingVariables(true);
     colinf[1].setToolTip(
-        BaseMessages.getString(PKG, "JobCopyFiles.Fields.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceFileFolder.Tooltip"));
     colinf[1].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinf[1].setRenderTextVarButtonCallback(callback);
 
     colinf[2].setUsingVariables(true);
-    colinf[2].setToolTip(BaseMessages.getString(PKG, "JobCopyFiles.Fields.Wildcard.Tooltip"));
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Wildcard.Tooltip"));
 
     setComboValues(colinf[3]);
 
     colinf[4].setUsingVariables(true);
     colinf[4].setToolTip(
-        BaseMessages.getString(PKG, "JobCopyFiles.Fields.DestinationFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationFileFolder.Tooltip"));
     colinf[4].setTextVarButtonSelectionListener(getFileSelectionAdapter());
 
     wFields =
@@ -406,30 +404,6 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wFields.setLayoutData(fdFields);
 
     refreshArgFromPrevious();
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    Label lBottomSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdBottomSeparator = new FormData();
-    fdBottomSeparator.top = new FormAttachment(wTabFolder, margin * 3);
-    fdBottomSeparator.left = new FormAttachment(0, 0);
-    fdBottomSeparator.right = new FormAttachment(100, 0);
-    lBottomSeparator.setLayoutData(fdBottomSeparator);
-
-    BaseTransformDialog.positionBottomRightButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lBottomSeparator);
-    FormData fdOk = (FormData) wOk.getLayoutData();
-    FormData fdHelpButton = new FormData();
-    fdHelpButton.top = fdOk.top;
-    fdHelpButton.left = new FormAttachment(0, margin);
-    helpButton.setLayoutData(fdHelpButton);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
 
     SelectionAdapter lsDef =
         new SelectionAdapter() {
@@ -645,11 +619,6 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     action.setConfigurationMappings(sourceDestinationMappings);
 
     dispose();
-  }
-
-  protected Image getImage() {
-    return GuiResource.getInstance()
-        .getImage("ui/images/CPY.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE);
   }
 
   public boolean showFileButtons() {
