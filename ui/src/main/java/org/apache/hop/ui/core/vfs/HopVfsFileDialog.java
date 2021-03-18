@@ -524,6 +524,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       shell.setSize(shellSize.x, shellSize.x / 2);
     }
 
+    // Set the focus on the filename
+    //
+    wFilename.setFocus();
+
     shell.open();
 
     while (!shell.isDisposed()) {

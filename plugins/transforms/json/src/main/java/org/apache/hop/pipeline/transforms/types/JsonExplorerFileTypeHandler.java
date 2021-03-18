@@ -18,16 +18,12 @@
 
 package org.apache.hop.pipeline.transforms.types;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -38,16 +34,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 /** How do we handle a JSON file in file explorer perspective? */
-public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler implements IExplorerFileTypeHandler {
+public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
+    implements IExplorerFileTypeHandler {
 
   private Text wText;
 
@@ -55,7 +48,6 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
-
 
   @Override
   public void renderFile(Composite composite) {
@@ -78,28 +70,21 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
     //
 
     try {
-      FileObject file = HopVfs.getFileObject(explorerFile.getFilename());
-      if (file.exists()) {
-        try ( InputStream inputStream = HopVfs.getInputStream(file)) {
-          StringWriter writer = new StringWriter();
-          IOUtils.copy(inputStream, writer, "UTF-8");
-          String contents = writer.toString();
-          wText.setText( Const.NVL(contents, ""));
-        }
-      }
+      String contents = readTextFileContent("UTF-8");
+      wText.setText(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(
-        "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+          "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
 
     // If the widget changes after this it's been changed by the user
     //
-    wText.addModifyListener( e-> {
-      explorerFile.setChanged();
-      perspective.updateGui();
-    } );
+    wText.addModifyListener(
+        e -> {
+          explorerFile.setChanged();
+          perspective.updateGui();
+        });
   }
-
 
   @Override
   public void save() throws HopException {
@@ -111,16 +96,16 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
 
       // Save the file...
       //
-      try( OutputStream outputStream = new FileOutputStream( filename ) ) {
-        outputStream.write(wText.getText().getBytes( StandardCharsets.UTF_8 ));
+      try (OutputStream outputStream = new FileOutputStream(filename)) {
+        outputStream.write(wText.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
 
       explorerFile.clearChanged();
       perspective.refresh(); // refresh the explorer perspective tree
       perspective.updateGui(); // Update menu options
-    } catch(Exception e) {
-      throw new HopException("Unable to save JSON file '"+explorerFile.getFilename()+"'", e);
+    } catch (Exception e) {
+      throw new HopException("Unable to save JSON file '" + explorerFile.getFilename() + "'", e);
     }
   }
 }

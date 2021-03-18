@@ -18,15 +18,11 @@
 
 package org.apache.hop.pipeline.transforms.types;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -37,19 +33,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+/** How do we handle an SVG file in file explorer perspective? */
+public class TextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
+    implements IExplorerFileTypeHandler {
 
-/**
- * How do we handle an SVG file in file explorer perspective?
- */
-public class TextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler implements IExplorerFileTypeHandler {
-
-  public TextExplorerFileTypeHandler( HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile ) {
-    super( hopGui, perspective, explorerFile );
+  public TextExplorerFileTypeHandler(
+      HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
+    super(hopGui, perspective, explorerFile);
   }
 
   @Override
@@ -58,7 +48,7 @@ public class TextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
     //
     Text wText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.getInstance().setLook(wText, Props.WIDGET_STYLE_FIXED);
-    wText.setEditable( false );
+    wText.setEditable(false);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
@@ -72,19 +62,11 @@ public class TextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler imp
     // Load the content of the JSON file...
     //
     try {
-      FileObject file = HopVfs.getFileObject(explorerFile.getFilename());
-      if (file.exists()) {
-        try ( InputStream inputStream = HopVfs.getInputStream(file)) {
-          StringWriter writer = new StringWriter();
-          IOUtils.copy(inputStream, writer, "UTF-8");
-          String contents = writer.toString();
-          wText.setText( Const.NVL(contents, ""));
-        }
-      }
+      String contents = readTextFileContent("UTF-8");
+      wText.setText(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(
-        "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+          "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
   }
-
 }

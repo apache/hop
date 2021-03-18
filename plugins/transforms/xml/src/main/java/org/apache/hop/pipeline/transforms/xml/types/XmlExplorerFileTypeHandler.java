@@ -18,11 +18,11 @@
 
 package org.apache.hop.pipeline.transforms.xml.types;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -33,17 +33,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+/** How do we handle an SVG file in file explorer perspective? */
+public class XmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
+    implements IExplorerFileTypeHandler {
 
-/**
- * How do we handle an SVG file in file explorer perspective?
- */
-public class XmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler implements IExplorerFileTypeHandler {
-
-  public XmlExplorerFileTypeHandler( HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile ) {
-    super( hopGui, perspective, explorerFile );
+  public XmlExplorerFileTypeHandler(
+      HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
+    super(hopGui, perspective, explorerFile);
   }
 
   @Override
@@ -65,16 +61,12 @@ public class XmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler impl
 
     // Load the content of the XML file...
     //
-    File file = new File(explorerFile.getFilename());
-    if (file.exists()) {
-      try {
-        String contents = new String( Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-        wXml.setText(contents);
-      } catch (Exception e) {
-        LogChannel.UI.logError(
+    try {
+      String contents = readTextFileContent("UTF-8");
+      wXml.setText(Const.NVL(contents, ""));
+    } catch (Exception e) {
+      LogChannel.UI.logError(
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
-      }
     }
   }
-
 }

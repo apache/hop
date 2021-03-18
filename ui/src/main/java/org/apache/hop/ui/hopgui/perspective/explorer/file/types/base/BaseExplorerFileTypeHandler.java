@@ -18,8 +18,13 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -30,6 +35,9 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +54,24 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
     this.perspective = perspective;
     this.explorerFile = explorerFile;
   }
+
+  protected String readTextFileContent(String encoding) throws HopException {
+    try {
+      FileObject file = HopVfs.getFileObject(explorerFile.getFilename());
+      if (file.exists()) {
+        try ( InputStream inputStream = HopVfs.getInputStream(file)) {
+          StringWriter writer = new StringWriter();
+          IOUtils.copy(inputStream, writer, encoding);
+          return writer.toString();
+        }
+      } else {
+        throw new HopException("File '"+explorerFile.getFilename()+"' doesn't exist");
+      }
+    } catch ( IOException e) {
+      throw new HopException( "I/O exception while reading contents of file '" + explorerFile.getFilename() + "'", e);
+    }
+  }
+
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
