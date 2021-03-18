@@ -55,6 +55,32 @@
         <include>com.microsoft.azure:azure-storage</include>
         <include>com.microsoft.azure:azure-keyvault-core</include>
         <include>org.apache.commons:commons-lang3</include>
+        <include>com.microsoft.azure:azure-eventhubs:jar</include>
+        <include>org.apache.qpid:proton-j:jar</include>
+        <include>com.microsoft.azure:qpid-proton-j-extensions:jar</include>
+        <include>com.microsoft.azure:azure-client-authentication:jar</include>
+        <include>com.microsoft.azure:azure-client-runtime:jar</include>
+        <include>com.microsoft.rest:client-runtime:jar</include>
+        <include>com.squareup.retrofit2:retrofit:jar</include>
+        <include>com.squareup.okhttp3:okhttp:jar</include>
+        <include>com.squareup.okio:okio:jar</include>
+        <include>com.squareup.okhttp3:logging-interceptor:jar</include>
+        <include>com.squareup.okhttp3:okhttp-urlconnection:jar</include>
+        <include>com.squareup.retrofit2:converter-jackson:jar</include>
+        <include>com.fasterxml.jackson.datatype:jackson-datatype-joda:jar</include>
+        <include>joda-time:joda-time:jar</include>
+        <include>io.reactivex:rxjava:jar</include>
+        <include>com.squareup.retrofit2:adapter-rxjava:jar</include>
+        <include>com.microsoft.azure:adal4j:jar</include>
+        <include>com.nimbusds:oauth2-oidc-sdk:jar</include>
+        <include>com.nimbusds:lang-tag:jar</include>
+        <include>com.microsoft.azure:azure-annotations:jar</include>
+        <include>com.nimbusds:nimbus-jose-jwt:jar</include>
+        <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
+        <include>net.minidev:json-smart:jar</include>
+        <include>net.minidev:accessors-smart:jar</include>
+        <include>org.ow2.asm:asm:jar</include>
+        <include>com.microsoft.azure:azure-eventhubs-eph:jar</include>
       </includes>
     </dependencySet>
   </dependencySets>
