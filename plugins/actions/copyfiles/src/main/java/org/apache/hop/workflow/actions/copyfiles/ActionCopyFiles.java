@@ -611,12 +611,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           BaseMessages.getString(
               PKG,
               "ActionCopyFiles.Error.Exception.CopyProcessFileSystemException",
-              fse.getMessage()));
-      Throwable throwable = fse.getCause();
-      while (throwable != null) {
-        logError(BaseMessages.getString(PKG, "ActionCopyFiles.Log.CausedBy", throwable.getMessage()));
-        throwable = throwable.getCause();
-      }
+              fse.getMessage()), fse);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
