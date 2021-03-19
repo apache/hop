@@ -34,7 +34,7 @@
     <name>Hop Plugins Transforms MQTT</name>
 
     <properties>
-        <eclipse.paho.version>1.1.0</eclipse.paho.version>
+        <eclipse.paho.version>1.2.5</eclipse.paho.version>
     </properties>
 
     <repositories>

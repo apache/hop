@@ -75,7 +75,7 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
       }
 
       if ( m_reconnectFailed ) {
-        logError( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Error.ReconnectFailed" ) );
+        logError( BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Error.ReconnectFailed" ) );
         setStopped( true );
         return false;
       }
@@ -105,7 +105,7 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
         data.client.close();
         data.client = null;
       } catch ( MqttException e ) {
-        logError( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.ErrorClosingMQTTClient.Message" ), e );
+        logError( BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.ErrorClosingMQTTClient.Message" ), e );
       }
     }
   }
@@ -133,7 +133,7 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
                 ValueMetaFactory.getIdForValueMeta( meta.getMessageType() ) );
         if ( messageMeta.isSerializableType() && !meta.getAllowReadMessageOfTypeObject() ) {
           logError( BaseMessages
-              .getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Error.MessageTypeObjectButObjectNotAllowed" ) );
+              .getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Error.MessageTypeObjectButObjectNotAllowed" ) );
           return false;
         }
       } catch ( HopPluginException e ) {
@@ -164,11 +164,11 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
       String broker = resolve( meta.getBroker() );
       if ( Utils.isEmpty( broker ) ) {
         throw new HopException(
-            BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Error.NoBrokerURL" ) );
+            BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Error.NoBrokerURL" ) );
       }
       String clientId = resolve( meta.getClientId() );
       if ( Utils.isEmpty( clientId ) ) {
-        throw new HopException( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Error.NoClientID" ) );
+        throw new HopException( BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Error.NoClientID" ) );
       }
       List<String> topics = meta.getTopics();
       if ( topics == null || topics.size() == 0 ) {
@@ -213,27 +213,29 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
           connectOptions.setConnectionTimeout( Integer.parseInt( timeout ) );
         } catch ( NumberFormatException e ) {
           throw new HopException(
-              BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.WrongTimeoutValue.Message", timeout ), e );
+              BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.WrongTimeoutValue.Message", timeout ), e );
         }
 
         try {
           connectOptions.setKeepAliveInterval( Integer.parseInt( keepAlive ) );
         } catch ( NumberFormatException e ) {
           throw new HopException(
-              BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.WrongKeepAliveValue.Message", keepAlive ),
+              BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.WrongKeepAliveValue.Message", keepAlive ),
               e );
         }
 
         logBasic( BaseMessages
-            .getString( MQTTPublisherMeta.PKG, "MQTTClientStep.CreateMQTTClient.Message", broker, clientId ) );
+            .getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.CreateMQTTClient.Message", broker, clientId ) );
 
         data.client.setCallback( new SubscriberCallback( data, meta ) );
         data.client.connect( connectOptions );
 
         data.client.subscribe( resolvedTopics.toArray( new String[resolvedTopics.size()] ), qoss );
+        logBasic( BaseMessages
+                .getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.SubscribedMQTTClient.Message", clientId, String.join(", ", resolvedTopics) ) );
       } catch ( Exception e ) {
         throw new HopException(
-            BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.ErrorCreateMQTTClient.Message", broker ),
+            BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.ErrorCreateMQTTClient.Message", broker ),
             e );
       }
     }
@@ -258,8 +260,8 @@ public class MQTTSubscriber extends BaseTransform<MQTTSubscriberMeta, MQTTSubscr
       // connection retry logic here
       shutdown( );
       logBasic( BaseMessages
-          .getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.LostConnectionToBroker", throwable.getMessage() ) );
-      logBasic( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.AttemptingToReconnect" ) );
+          .getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Log.LostConnectionToBroker", throwable.getMessage() ) );
+      logBasic( BaseMessages.getString( MQTTSubscriberMeta.PKG, "MQTTClientStep.Log.AttemptingToReconnect" ) );
       try {
         configureConnection();
       } catch ( HopException e ) {

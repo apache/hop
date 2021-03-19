@@ -47,9 +47,8 @@ import java.util.List;
 
 @Transform(id = "EnhancedJsonOutput",
         image = "JSO.svg",
-        name = "EnhancedJsonOutput.name",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.jsonoutput.enhanced",
-        description = "EnhancedJsonOutput.description",
+        name = "i18n::EnhancedJsonOutput.name",
+        description = "i18n::EnhancedJsonOutput.description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
         keywords = { "json", "javascript", "object", "notation" },
         documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/enhancedjsonoutput.html")
