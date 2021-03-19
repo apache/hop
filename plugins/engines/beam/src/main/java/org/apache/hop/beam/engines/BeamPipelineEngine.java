@@ -495,57 +495,58 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     // This seems to be the most reliable way of checking the state...
     //
     PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish( Duration.millis( 1 ) );
-
-    boolean cancelPipeline = false;
-    switch ( pipelineState ) {
-      case DONE:
-        if ( isRunning() ) {
-          // First time we've hit this:
-          setRunning( false );
-          executionEndDate = new Date();
-          if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
-            firePipelineExecutionFinishedListeners();
+    if (pipelineState != null) {
+      boolean cancelPipeline = false;
+      switch (pipelineState) {
+        case DONE:
+          if (isRunning()) {
+            // First time we've hit this:
+            setRunning(false);
+            executionEndDate = new Date();
+            if (beamEngineRunConfiguration.isRunningAsynchronous()) {
+              firePipelineExecutionFinishedListeners();
+            }
+            logChannel.logBasic("Beam pipeline execution has finished.");
           }
-          logChannel.logBasic( "Beam pipeline execution has finished." );
-        }
-        setStatus( ComponentExecutionStatus.STATUS_FINISHED );
-        break;
-      case STOPPED:
-      case CANCELLED:
-        if ( !isStopped() ) {
-          firePipelineExecutionStoppedListeners();
-          if ( refreshTimer != null ) {
-            refreshTimer.cancel();
+          setStatus(ComponentExecutionStatus.STATUS_FINISHED);
+          break;
+        case STOPPED:
+        case CANCELLED:
+          if (!isStopped()) {
+            firePipelineExecutionStoppedListeners();
+            if (refreshTimer != null) {
+              refreshTimer.cancel();
+            }
           }
-        }
-        setStopped( true );
-        setRunning( false );
-        setStatus( ComponentExecutionStatus.STATUS_STOPPED );
-        cancelPipeline = true;
-        break;
-      case FAILED:
-        setStopped( true );
-        setFinished( true );
-        logChannel.logBasic( "Beam pipeline execution failed." );
-        cancelPipeline = true;
-        break;
-      case UNKNOWN:
-        break;
-      case UPDATED:
-      case RUNNING:
-        setRunning( true );
-        setStopped( false );
-        break;
-      default:
-        break;
-    }
+          setStopped(true);
+          setRunning(false);
+          setStatus(ComponentExecutionStatus.STATUS_STOPPED);
+          cancelPipeline = true;
+          break;
+        case FAILED:
+          setStopped(true);
+          setFinished(true);
+          logChannel.logBasic("Beam pipeline execution failed.");
+          cancelPipeline = true;
+          break;
+        case UNKNOWN:
+          break;
+        case UPDATED:
+        case RUNNING:
+          setRunning(true);
+          setStopped(false);
+          break;
+        default:
+          break;
+      }
 
-    if ( cancelPipeline ) {
-      try {
-        beamPipelineResults.cancel();
-        logChannel.logBasic( "Pipeline execution cancelled" );
-      } catch ( Exception e ) {
-        logChannel.logError( "Cancellation of pipeline failed", e );
+      if (cancelPipeline) {
+        try {
+          beamPipelineResults.cancel();
+          logChannel.logBasic("Pipeline execution cancelled");
+        } catch (Exception e) {
+          logChannel.logError("Cancellation of pipeline failed", e);
+        }
       }
     }
   }
