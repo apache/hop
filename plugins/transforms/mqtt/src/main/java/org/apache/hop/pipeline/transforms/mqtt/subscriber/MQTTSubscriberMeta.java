@@ -315,8 +315,9 @@ public class MQTTSubscriberMeta
   public MQTTSubscriberData getTransformData() {
     return new MQTTSubscriberData();
   }
-  
-  public void loadXML(Node transformNode, IHopMetadataProvider metadataProvider )
+
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider )
       throws HopXmlException {
     broker = XmlHandler.getTagValue( transformNode, "BROKER" );
     String topics = XmlHandler.getTagValue( transformNode, "TOPICS" );
@@ -359,7 +360,8 @@ public class MQTTSubscriberMeta
     }
   }
 
-  public String getXML() throws HopException {
+  @Override
+  public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder();
     if ( !Utils.isEmpty(broker) ) {
       retval.append( "    " ).append( XmlHandler.addTagValue( "BROKER", broker) );

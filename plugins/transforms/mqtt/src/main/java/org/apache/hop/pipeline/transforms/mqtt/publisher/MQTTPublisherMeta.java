@@ -316,7 +316,8 @@ public class MQTTPublisherMeta
     }
   }
 
-  public void loadXML(Node transformNode, IHopMetadataProvider metadataProvider )
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider )
       throws HopXmlException {
 
     try {
@@ -349,7 +350,8 @@ public class MQTTPublisherMeta
     }
   }
 
-  public String getXML() throws HopException {
+  @Override
+  public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder();
     if ( broker != null ) {
       retval.append( "    " ).append( XmlHandler.addTagValue( "BROKER", broker ) );
