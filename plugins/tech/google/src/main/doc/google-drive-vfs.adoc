@@ -1,0 +1,70 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+
+= Google Drive VFS
+
+== Scheme
+
+The scheme you can use to access your files in Google Drive is
+
+`**googlesheets://**`
+
+== Configuration
+
+You need to generate a credentials file to make it work.  Follow the Google documentation to see how that is done.  You also need to specify a folder in which security tokens are going to be saved.  You can specify both in the Hop system configuration options.  This can be done in the Hop GUI: go to the "Google Drive" tab in the Options dialog (from the Tools menu).  You can also use the `hop-conf` script with the following options:
+
+[source,shell script]
+----
+      -gdc, --google-drive-credentials-file=<credentialsFile>
+                            Configure the path to a Google Drive credentials JSON
+                              file
+      -gdt, --google-drive-tokens-folder=<tokensFolder>
+                            Configure the path to a Google Drive tokens folder
+----
+
+Once done you will see a `googleDrive` entry in the central `hop-config.json` file:
+
+[source,json]
+----
+{
+  "googleDrive" : {
+    "credentialsFile" : "/path/to/google-drive-credentials.json",
+    "tokensFolder" : "/path/to/tokens"
+  }
+}
+----
+
+When you try to run the first time you'll see a message on the console where you executed Hop GUI or Hop Run saying something like:
+
+[source]
+----
+Please open the following address in your browser:
+  https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=yourClientId&redirect_uri=http://localhost:8888/Callback&response_type=code&scope=https://www.googleapis.com/auth/drive
+----
+
+Open that URL in a browser and authenticate the given client ID. You'll then get a token in the configured `tokens folder` with which you can work.
+
+
+== Usage and testing
+
+To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.  Then you type in googledrive:// as a file location and hit enter (or click the refresh button).  Browse to the CSV file you uploaded and open it.  If all is configured correctly you should be able to see the content in the Hop GUI.
+
+
+
