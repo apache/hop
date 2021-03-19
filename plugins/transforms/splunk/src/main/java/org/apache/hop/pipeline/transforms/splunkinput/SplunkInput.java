@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.hop.pipeline.transforms.splunkinput;
 
 import com.splunk.JobResultsArgs;
@@ -12,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.splunk.SplunkConnection;
 
@@ -48,16 +64,20 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
       return false;
     }
 
-    String connectionName = resolve( meta.getConnectionName() );
+    String connectionName = resolve(meta.getConnectionName());
 
     try {
       // Load the metadata
       //
-      IHopMetadataSerializer<SplunkConnection> serializer = metadataProvider.getSerializer( SplunkConnection.class );
-      if (!serializer.exists( connectionName )) {
-        throw new HopException("The referenced Splunk connection with name '"+connectionName+"' does not exist in the metadata");
+      IHopMetadataSerializer<SplunkConnection> serializer =
+          metadataProvider.getSerializer(SplunkConnection.class);
+      if (!serializer.exists(connectionName)) {
+        throw new HopException(
+            "The referenced Splunk connection with name '"
+                + connectionName
+                + "' does not exist in the metadata");
       }
-      data.splunkConnection = serializer.load( connectionName );
+      data.splunkConnection = serializer.load(connectionName);
     } catch (HopException e) {
       log.logError(
           "Could not load Splunk connection '" + meta.getConnectionName() + "' from the metastore",
@@ -93,12 +113,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
       //
       data.outputRowMeta = new RowMeta();
       meta.getFields(
-          data.outputRowMeta,
-          getTransformName(),
-          null,
-          getTransformMeta(),
-          this,
-          metadataProvider);
+          data.outputRowMeta, getTransformName(), null, getTransformMeta(), this, metadataProvider);
 
       // Run a one shot search in blocking mode
       //
@@ -106,8 +121,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
       args.setCount(0);
       args.setOutputMode(JobResultsArgs.OutputMode.XML);
 
-      data.eventsStream =
-          data.service.oneshotSearch(resolve(meta.getQuery()), args);
+      data.eventsStream = data.service.oneshotSearch(resolve(meta.getQuery()), args);
     }
 
     try {
@@ -118,8 +132,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
         Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
         for (int i = 0; i < meta.getReturnValues().size(); i++) {
-          ReturnValue returnValue =
-              meta.getReturnValues().get(i);
+          ReturnValue returnValue = meta.getReturnValues().get(i);
           String value = event.get(returnValue.getSplunkName());
           outputRow[i] = value;
         }
