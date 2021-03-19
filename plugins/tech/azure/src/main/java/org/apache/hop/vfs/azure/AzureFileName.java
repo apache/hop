@@ -29,16 +29,16 @@ public class AzureFileName extends AbstractFileName {
     super(scheme, path, type);
   }
 
-	public String getContainer() {
-		StringBuilder bui = new StringBuilder(getPath());
-		return UriParser.extractFirstElement(bui);
-	}
+  public String getContainer() {
+    StringBuilder bui = new StringBuilder(getPath());
+    return UriParser.extractFirstElement(bui);
+  }
 
-	public String getPathAfterContainer() {
-		StringBuilder bui = new StringBuilder(getPath());
-		UriParser.extractFirstElement(bui);
-		return bui.toString();
-	}
+  public String getPathAfterContainer() {
+    StringBuilder bui = new StringBuilder(getPath());
+    UriParser.extractFirstElement(bui);
+    return bui.toString();
+  }
 
   @Override
   public FileName createName(String absPath, FileType type) {

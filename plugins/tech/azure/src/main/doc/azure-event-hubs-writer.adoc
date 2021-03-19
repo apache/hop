@@ -1,0 +1,37 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/tree/master/plugins/tech/azure/src/main/doc/azure-event-hubs-writer.adoc
+
+= Azure Event Hubs Writer
+
+== Description
+
+This transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
+
+== Options
+
+Here are the important options to fill in to get the transform to work:
+
+* Event Hubs namespace: the name of your Event Hubs namespace
+* Event Hubs instance name: the name of the Event Hub, the instance itself.
+* SAS Policy key name: the name of the policy in the "Shared Access Policies" section of the Event Hubs Namespace in the Azure dashboard. This needs to be a policy with the "Send" claim enabled.
+* SAS Key connection string: You can use the value in the policy labeled "Connection string–primary key"
+* Batch size: the number of messages (events) to send in one batch with each call to Azure.
+* Message field: the field containing the message to use as the events. Please note you can use a transform like JSON Output or "Java Script" to assemble the message.
+

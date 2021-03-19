@@ -90,7 +90,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString( PKG, "GoogleSheetsOutputDialog.Shell.Title" ));
+    shell.setText(BaseMessages.getString( PKG, "GoogleSheetsOutput.transform.Name" ));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -109,7 +109,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     // transformName - Label
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
-        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.TransformName.Label"));
+        BaseMessages.getString(PKG, "GoogleSheetsOutput.transform.Name"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.top = new FormAttachment(0, margin);

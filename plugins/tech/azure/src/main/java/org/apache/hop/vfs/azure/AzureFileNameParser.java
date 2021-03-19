@@ -27,53 +27,52 @@ import org.apache.commons.vfs2.provider.VfsComponentContext;
 
 public class AzureFileNameParser extends HostFileNameParser {
 
-	private static final AzureFileNameParser instance = new AzureFileNameParser();
+  private static final AzureFileNameParser instance = new AzureFileNameParser();
 
-	public static AzureFileNameParser getInstance() {
-		return instance;
-	}
+  public static AzureFileNameParser getInstance() {
+    return instance;
+  }
 
-	public AzureFileNameParser() {
-		super(443);
-	}
+  public AzureFileNameParser() {
+    super(443);
+  }
 
-	@Override
-	public FileName parseUri(final VfsComponentContext context, FileName base, String filename)
-		throws FileSystemException {
-		final StringBuilder name = new StringBuilder();
-		Authority auth = null;
-		String path = null;
-		FileType fileType;
+  @Override
+  public FileName parseUri(final VfsComponentContext context, FileName base, String filename)
+      throws FileSystemException {
+    final StringBuilder name = new StringBuilder();
+    Authority auth = null;
+    String path = null;
+    FileType fileType;
 
-		int eidx = filename.indexOf("@/");
-		if (eidx != -1)
-			filename = filename.substring(0,  eidx + 1) + "windowsazure.com" + filename.substring(eidx + 1);
+    int eidx = filename.indexOf("@/");
+    if (eidx != -1)
+      filename =
+          filename.substring(0, eidx + 1) + "windowsazure.com" + filename.substring(eidx + 1);
 
-		String scheme;
-		try {
-			auth = extractToPath(filename, name);
-			if (auth.getUserName() == null) {
-				scheme = UriParser.extractScheme(filename, name);
-				UriParser.canonicalizePath(name, 0, name.length(), this);
-				UriParser.fixSeparators(name);
-			} else {
-				scheme = auth.getScheme();
-			}
-			fileType = UriParser.normalisePath(name);
-			path = name.toString();
-			if (path.equals("")) {
-				path = "/";
-			}
-		} catch (FileSystemException fse) {
-			scheme = UriParser.extractScheme(filename, name);
-			UriParser.canonicalizePath(name, 0, name.length(), this);
-			UriParser.fixSeparators(name);
-			// final String rootFile = extractRootPrefix(filename, name);
-			fileType = UriParser.normalisePath(name);
-			path = name.toString();
-
-		}
-		return new AzureFileName(scheme, path, fileType);
-	}
-
+    String scheme;
+    try {
+      auth = extractToPath(filename, name);
+      if (auth.getUserName() == null) {
+        scheme = UriParser.extractScheme(filename, name);
+        UriParser.canonicalizePath(name, 0, name.length(), this);
+        UriParser.fixSeparators(name);
+      } else {
+        scheme = auth.getScheme();
+      }
+      fileType = UriParser.normalisePath(name);
+      path = name.toString();
+      if (path.equals("")) {
+        path = "/";
+      }
+    } catch (FileSystemException fse) {
+      scheme = UriParser.extractScheme(filename, name);
+      UriParser.canonicalizePath(name, 0, name.length(), this);
+      UriParser.fixSeparators(name);
+      // final String rootFile = extractRootPrefix(filename, name);
+      fileType = UriParser.normalisePath(name);
+      path = name.toString();
+    }
+    return new AzureFileName(scheme, path, fileType);
+  }
 }

@@ -36,6 +36,7 @@
 
   <properties>
     <azure-storage.version>8.6.6</azure-storage.version>
+    <azure-eventhubs.version>3.2.2</azure-eventhubs.version>
   </properties>
 
   <dependencies>
@@ -45,11 +46,27 @@
       <version>0.70-SNAPSHOT</version>
     </dependency>
 
+    <!-- Azure VFS -->
+
     <dependency>
       <groupId>com.microsoft.azure</groupId>
       <artifactId>azure-storage</artifactId>
       <version>${azure-storage.version}</version>
     </dependency>
+
+    <!-- Azure Event Hubs -->
+
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>azure-eventhubs</artifactId>
+      <version>${azure-eventhubs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>azure-eventhubs-eph</artifactId>
+      <version>${azure-eventhubs.version}</version>
+    </dependency>
+
   </dependencies>
 
 </project>

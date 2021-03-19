@@ -98,7 +98,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText( BaseMessages.getString( PKG, "GoogleSheetsInputDialog.Shell.Title"));
+    shell.setText( BaseMessages.getString( PKG, "GoogleSheetsInput.transform.Name"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -115,7 +115,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // transformName  - Label
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
-        BaseMessages.getString(PKG, "GoogleSheetsInputDialog.TransformName.Label"));
+        BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.top = new FormAttachment(0, margin);

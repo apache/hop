@@ -6,13 +6,14 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.vfs.azure.config;
@@ -29,7 +30,7 @@ public class AzureConfig {
     blockIncrement = "4096";
   }
 
-  public AzureConfig( AzureConfig config) {
+  public AzureConfig(AzureConfig config) {
     this();
     this.account = config.account;
     this.key = config.key;
@@ -45,10 +46,8 @@ public class AzureConfig {
     return account;
   }
 
-  /**
-   * @param account The account to set
-   */
-  public void setAccount( String account ) {
+  /** @param account The account to set */
+  public void setAccount(String account) {
     this.account = account;
   }
 
@@ -61,10 +60,8 @@ public class AzureConfig {
     return key;
   }
 
-  /**
-   * @param key The key to set
-   */
-  public void setKey( String key ) {
+  /** @param key The key to set */
+  public void setKey(String key) {
     this.key = key;
   }
 
@@ -77,10 +74,8 @@ public class AzureConfig {
     return blockIncrement;
   }
 
-  /**
-   * @param blockIncrement The blockIncrement to set
-   */
-  public void setBlockIncrement( String blockIncrement ) {
+  /** @param blockIncrement The blockIncrement to set */
+  public void setBlockIncrement(String blockIncrement) {
     this.blockIncrement = blockIncrement;
   }
 }
