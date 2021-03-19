@@ -24,7 +24,7 @@ under the License.
 
 The scheme you can use to access your files in Google Drive is
 
-`**googlesheets://**`
+`**googledrive://**`
 
 == Configuration
 
