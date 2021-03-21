@@ -168,6 +168,7 @@
         <module>sort</module>
         <module>sortedmerge</module>
         <module>splitfieldtorows</module>
+        <module>splunk</module>
         <module>sql</module>
         <module>sqlfileoutput</module>
         <module>ssh</module>

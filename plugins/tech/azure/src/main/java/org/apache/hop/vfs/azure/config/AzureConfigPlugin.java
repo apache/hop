@@ -65,6 +65,7 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
+      password = true,
       label = "Your Azure key")
   @CommandLine.Option(
       names = {"-azk", "--azure-key"},
