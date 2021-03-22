@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-cypherscript.adoc
+:openvar: ${
+:closevar: }
 = Neo4j Cypher Script
 
 == Description
@@ -41,7 +43,7 @@ The goal is not to retrieve data but to execute various statements like creating
 |The script with cypher commands seperated by a semi-colon (;) on a new line.  For examples see below.
 
 |Replace variables
-|Check this option if you want to replace variables in the format `${VARIABLE_NAME}` in the script prior to execution.
+|Check this option if you want to replace variables in the format `{openvar}VARIABLE_NAME{closevar}` in the script prior to execution.
 |===
 
 == Example

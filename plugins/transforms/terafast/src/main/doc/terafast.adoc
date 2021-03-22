@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/terafast/src/main/doc/terafast.adoc
+:openvar: ${
+:closevar: }
 
 = Teradata Bulk Loader
 
@@ -32,7 +34,7 @@ The Teradata Bulkloader transform supports fastloading data into a Teradata data
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |Use control file| Work in control file mode. 
 |Control file|The path to the control file to be used.
-|Variable Substitution in control file|Make use of POI Variables (eg: ${RUN_ID}) in the control file.
+|Variable Substitution in control file|Make use of POI Variables (eg: {openvar}RUN_ID{closevar}) in the control file.
 |Path to fastload|The path to the fastload command line utility.
 |Error log|An optional Error log to be created by Fastload.
 |Connection|A connection to the Teradata DB.

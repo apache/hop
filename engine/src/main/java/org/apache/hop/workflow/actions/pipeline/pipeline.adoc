@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/pipeline/src/main/doc/pipeline.adoc
+:openvar: ${
+:closevar: }
 = Pipeline
 
 == Description
@@ -35,7 +37,7 @@ An example of a common workflow includes getting FTP files, checking existence o
 |Action name|Name of the action.
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
 
-If you select a pipeline that has the same root path as the current pipeline, the variable ${Internal.Action.Current.Directory} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl than the path will automatically be converted to ${Internal.Action.Current.Directory}/path/sub.hpl.
+If you select a pipeline that has the same root path as the current pipeline, the variable {openvar}Internal.Action.Current.Directory{closevar} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl than the path will automatically be converted to {openvar}Internal.Action.Current.Directory{closevar}/path/sub.hpl.
 
 Pipelines previously specified by reference are automatically converted to be specified by name.
 |===
@@ -93,8 +95,8 @@ In most instances, it is acceptable for logging information to be available in t
 |Value|Specify pipeline parameter values through one of the following actions:
 
 - Manually entering a value (ETL workflow for example).
-- Using another parameter to set the value (${Internal.workflow.Name} for example).
-- Using a combination of manually specified values and parameter values (${FILE_PREFIX}_${FILE_DATE}.txt for example).
+- Using another parameter to set the value ({openvar}Internal.workflow.Name{closevar} for example).
+- Using a combination of manually specified values and parameter values ({openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt for example).
 
 |Get Parameters|Get the existing parameters already associated by the pipeline.
 |===

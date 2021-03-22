@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/workflow/src/main/doc/workflow.adoc
+:openvar: ${
+:closevar: }
 = Workflow
 
 == Description
@@ -91,7 +93,7 @@ Specify which parameters will be passed to the pipeline:
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
 |Value a| Allows you to specify the values for the pipeline's parameters. You can do this by:
 - Manually typing a value (Ex: ETL workflow)
-- Use a parameter to set the value (Ex: ${Internal.workflow.Name}
-- Using a combination of manually specified values and parameter values (Ex: ${FILE_PREFIX}_${FILE_DATE}.txt)
+- Use a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar}
+- Using a combination of manually specified values and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
 |===
 

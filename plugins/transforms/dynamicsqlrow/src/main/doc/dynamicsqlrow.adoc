@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/dynamicsqlrow/src/main/doc/dynamicsqlrow.adoc
+:openvar: ${
+:closevar: }
 = Dynamic SQL row
 
 == Description
@@ -33,7 +35,7 @@ The Dynamic SQL row transform allows you to execute a SQL statement that is defi
 |SQL field name|Specify the field that contains the SQL to execute
 |Number of rows to return|Specify the number of records to return. 0 means, return all rows
 |Outer Join|- false: don't return rows where nothing is found  - true: at least return one source row, the rest is NULL
-|Replace variables|In case you want to use variables in the SQL, e.g. ${table_name}, this option needs to be checked.
+|Replace variables|In case you want to use variables in the SQL, e.g. {openvart}able_name{closevar}, this option needs to be checked.
 |Query only on parameters change|If your SQL statements do not change a lot, check this option to reduce the number of physical database queries.
 |Template SQL|In Hop meta and data are separate so you have to specify the meta part in template SQL (field name and type).
 I mean any statement that returns the same row structure. 

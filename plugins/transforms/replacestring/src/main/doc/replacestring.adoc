@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/replacestring/src/main/doc/replacestring.adoc
+:openvar: {
+:closevar: }
 = Replace in String
 
 == Description
@@ -45,7 +47,7 @@ Replace in string is a simple search and replace. It also supports regular expre
 
 You could parse out sections of a string as follows
 
-* regex = ^([0-9]{4})([0-9]{7})$
+* regex = ^([0-9]{openvar}4{closevar})([0-9]{openvar}7{closevar})$
 * replace with = $2
 
 This will replace any 11 digit numbers with the last 7 digits.

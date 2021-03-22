@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/metainject/src/main/doc/metainject.adoc
+:openvar: ${
+:closevar: }
 = Metadata Injection
 
 == Description
@@ -46,7 +48,7 @@ The metadata is injected into the template pipeline through any transform that s
 |Transform name|Name of the transform.
 |Pipeline|Specify your template pipeline by entering in its path. Click Browse to display and enter the path details using the Virtual File System Browser.
 
-If you select a pipeline that has the same root path as the current pipeline, the variable ${Internal.Transform.Current.Directory} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl then the path will automatically be converted to ${Internal.Transform.Current.Directory}/path/sub.hpl.
+If you select a pipeline that has the same root path as the current pipeline, the variable {openvar}Internal.Transform.Current.Directory{closevar} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl then the path will automatically be converted to {openvar}Internal.Transform.Current.Directory{closevar}/path/sub.hpl.
 |===
 
 The ETL Metadata Injection transform features the two tabs with fields. Each tab is described below.
@@ -70,8 +72,8 @@ To specify the source field as metadata to be injected, perform the following tr
 
 3. Optionally, select Use constant value to specify a constant value for the injected metadata through one of the following actions:
   - Manually entering a value.
-  - Using an internal variable to set the value (${Internal.transform.Unique.Count} for example).
-  - Using a combination of manually specified values and parameter values (${FILE_PREFIX}_${FILE_DATE}.txt for example).
+  - Using an internal variable to set the value ({openvar}Internal.transform.Unique.Count{closevar} for example).
+  - Using a combination of manually specified values and parameter values ({openvarF}ILE_PREFIX{closevar}_{openvarF}ILE_DATE{closevar}.txt for example).
 
 ==== Injecting Metadata into the ETL Metadata Injection transform
 

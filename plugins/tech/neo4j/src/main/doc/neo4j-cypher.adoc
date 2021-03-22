@@ -17,6 +17,9 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-cypher.adoc
+:openvar: ${
+:openvar2: {
+:closevar: }
 = Neo4j Cypher
 
 == Description
@@ -33,7 +36,7 @@ This transform allows you to execute any Cypher through the Neo4j Bolt protocol 
 |instead of hard coding statements you can actually have them created in for example a bit of JavaScript. Then each row can contain a different statement to be executed by this transform.
 
 |Cypher
-|the cypher statement to execute. You can use variables substitution (for example `${MY_VARIABLE}`) or parameter substitution (for example `{MY_PARAMETER}`). Note the missing `$`. Parameters can be specified in the next section of the options.
+|the cypher statement to execute. You can use variables substitution (for example `{openvar}MY_VARIABLE{closevar}`) or parameter substitution (for example `{openvar2}MY_PARAMETER{closevar}`). Note the missing `$`. Parameters can be specified in the next section of the options.
 
 |Use UNWIND to collect parameter values?
 |This option collects all the parameters in a map, adds all the row maps together in a list and passes this to the UNWIND statement. Consider this example:
