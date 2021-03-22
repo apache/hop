@@ -328,7 +328,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              variables, metadataProvider, oneMeta, wTransformname.getText());
+            metadataProvider, oneMeta, wTransformname.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(

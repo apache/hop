@@ -46,7 +46,7 @@ public interface MongoCollectionWrapper {
   WriteResult update(DBObject updateQuery, DBObject insertUpdate, boolean upsert, boolean multi)
       throws MongoDbException;
 
-  WriteResult insert(List<DBObject> m_batch) throws MongoDbException;
+  WriteResult insert(List<DBObject> batch) throws MongoDbException;
 
   MongoCursorWrapper find(DBObject query) throws MongoDbException;
 

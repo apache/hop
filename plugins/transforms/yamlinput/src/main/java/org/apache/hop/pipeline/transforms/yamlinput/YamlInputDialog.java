@@ -1201,7 +1201,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       YamlInputMeta oneMeta = new YamlInputMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "YamlInputDialog.NumberRows.DialogTitle" ),

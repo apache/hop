@@ -51,65 +51,28 @@ public class MongoDbInputMetaTest {
   @Test
   public void testRoundTrips() throws HopException, SecurityException {
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("hostname", "getHostnames");
-    getterMap.put("auth_user", "getAuthenticationUser");
-    getterMap.put("auth_password", "getAuthenticationPassword");
-    getterMap.put("auth_kerberos", "getUseKerberosAuthentication");
-    getterMap.put("use_all_replica_members", "getUseAllReplicaSetMembers");
     getterMap.put("execute_for_each_row", "getExecuteForEachIncomingRow");
     getterMap.put("mongo_fields", "getMongoFields");
     getterMap.put("tag_sets", "getReadPrefTagSets");
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("hostname", "setHostnames");
-    setterMap.put("auth_user", "setAuthenticationUser");
-    setterMap.put("auth_password", "setAuthenticationPassword");
-    setterMap.put("auth_kerberos", "setUseKerberosAuthentication");
-    setterMap.put("use_all_replica_members", "setUseAllReplicaSetMembers");
     setterMap.put("execute_for_each_row", "setExecuteForEachIncomingRow");
     setterMap.put("mongo_fields", "setMongoFields");
-    setterMap.put("tag_sets", "setReadPrefTagSets");
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put(
-        "tag_sets",
-        new ListLoadSaveValidator<>(
-            new IFieldLoadSaveValidator<String>() {
-
-              @Override
-              public String getTestObject() {
-                return "{" + UUID.randomUUID().toString() + "}";
-              }
-
-              @Override
-              public boolean validateTestObject(String testObject, Object actual) {
-                return testObject.equals(actual);
-              }
-            }));
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
 
     LoadSaveTester tester =
         new LoadSaveTester(
             MongoDbInputMeta.class,
             Arrays.asList(
-                "hostname",
-                "port",
-                "db_name",
                 "fields_name",
                 "collection",
                 "json_field_name",
                 "json_query",
-                "auth_user",
-                "auth_password",
-                "auth_kerberos",
-                "connect_timeout",
-                "socket_timeout",
-                "read_preference",
                 "output_json",
-                "use_all_replica_members",
                 "query_is_pipeline",
                 "execute_for_each_row",
-                "mongo_fields",
-                "tag_sets"),
+                "mongo_fields"),
             getterMap,
             setterMap,
             fieldLoadSaveValidatorAttributeMap,

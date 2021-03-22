@@ -812,7 +812,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
       EnterNumberDialog numberDialog =
         new EnterNumberDialog(
           shell, 1, BaseMessages.getString( PKG, "SSHDialog.NumberRows.DialogTitle" ), BaseMessages.getString(

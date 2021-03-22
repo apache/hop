@@ -1892,7 +1892,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              variables, metadataProvider, oneMeta, wTransformName.getText());
+            metadataProvider, oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(

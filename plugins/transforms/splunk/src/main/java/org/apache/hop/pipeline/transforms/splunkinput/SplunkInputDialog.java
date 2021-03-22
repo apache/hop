@@ -376,7 +376,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     this.getInfo(oneMeta);
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-            variables, metadataProvider, oneMeta, this.wTransformName.getText());
+          metadataProvider, oneMeta, this.wTransformName.getText());
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             this.shell,

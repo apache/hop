@@ -34,6 +34,7 @@ import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.Util;
 import org.apache.hop.mongo.wrapper.collection.DefaultMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
+import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,8 +55,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   public static final String REPL_SET_LAST_ERROR_MODES = "getLastErrorModes";
   public static final String REPL_SET_MEMBERS = "members";
 
-  static MongoClientFactory clientFactory =
-      new DefaultMongoClientFactory();
+  static MongoClientFactory clientFactory = new DefaultMongoClientFactory();
 
   private final MongoClient mongo;
   private final MongoUtilLogger log;
@@ -83,6 +83,16 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
   MongoClient getMongo() {
     return mongo;
+  }
+
+  @Override
+  public void test() throws MongoDbException {
+    String databaseName = props.get(MongoProp.DBNAME);
+    try {
+      mongo.getDatabase(databaseName).runCommand(new Document("ping", 1));
+    } catch (Exception e) {
+      throw new MongoDbException("Error pinging database " + databaseName, e);
+    }
   }
 
   private List<ServerAddress> getServerAddressList() throws MongoDbException {
@@ -145,8 +155,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
       // this can only happen if it's been explicitly set to NULL.
       throw new MongoDbException(
           BaseMessages.getString(
-              MongoClientWrapper.class,
-              "MongoNoAuthWrapper.Message.Error.NoHostSet"));
+              MongoClientWrapper.class, "MongoNoAuthWrapper.Message.Error.NoHostSet"));
     }
     return getClientFactory(props)
         .getMongoClient(serverAddressList, credList, opts, props.useAllReplicaSetMembers());
@@ -376,7 +385,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
       }
     }
 
-    return new ArrayList<>( tempTags );
+    return new ArrayList<>(tempTags);
   }
 
   protected static String quote(String string) {
@@ -504,8 +513,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   }
 
   @Override
-  public <ReturnType> ReturnType perform(
-      String db, MongoDBAction<ReturnType> action)
+  public <ReturnType> ReturnType perform(String db, MongoDBAction<ReturnType> action)
       throws MongoDbException {
     return action.perform(getDb(db));
   }

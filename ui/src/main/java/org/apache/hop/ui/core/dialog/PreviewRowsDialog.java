@@ -45,6 +45,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -108,6 +109,8 @@ public class PreviewRowsDialog {
   private final Shell parentShell;
 
   private final List<IDialogClosedListener> dialogClosedListeners;
+
+  private Control bottomButton;
 
   public PreviewRowsDialog(
       Shell parent,
@@ -175,10 +178,6 @@ public class PreviewRowsDialog {
     shell.setLayout(formLayout);
     shell.setText(title);
 
-    if (addFields()) {
-      return;
-    }
-
     List<Button> buttons = new ArrayList<>();
 
     Button wClose = new Button(shell, SWT.PUSH);
@@ -231,8 +230,13 @@ public class PreviewRowsDialog {
 
     // Position the buttons...
     //
+    bottomButton = buttons.get(0);
     BaseTransformDialog.positionBottomButtons(
-        shell, buttons.toArray(new Button[buttons.size()]), props.getMargin(), null);
+      shell, buttons.toArray(new Button[buttons.size()]), props.getMargin(), null);
+
+    if (addFields()) {
+      return;
+    }
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -329,7 +333,7 @@ public class PreviewRowsDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(bottomButton, -2*margin);
     wFields.setLayoutData(fdFields);
 
     if (dynamic) {

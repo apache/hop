@@ -22,7 +22,7 @@ import java.util.List;
 
 /** Created by brendan on 12/30/14. */
 public interface DiscoverFieldsCallback {
-  public void notifyFields(List<MongoField> fields);
+  void notifyFields( List<MongoField> fields );
 
-  public void notifyException(Exception exception);
+  void notifyException( Exception exception );
 }

@@ -24,7 +24,6 @@ import com.mongodb.Tag;
 import com.mongodb.TagSet;
 import com.mongodb.TaggableReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.apache.hop.i18n.BaseMessages;
 import org.hamcrest.CoreMatchers;
@@ -60,76 +59,6 @@ public class MongoPropToOptionTest {
           + "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"d\" },"
           + "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"mem\": \"r\"}";
 
-  @Test
-  public void testConfigureReadPref() throws MongoDbException {
-    MongoProperties.Builder builder = new MongoProperties.Builder().set(MongoProp.tagSet, TAG_SET);
-    MongoUtilLogger logger = mock(MongoUtilLogger.class);
-    MongoPropToOption propToOption = new MongoPropToOption(logger);
-
-    // Verify PRIMARY with tag sets causes a warning
-    ReadPreference readPreference = propToOption.readPrefValue(builder.build());
-    // should warn.  tag sets with a PRIMARY read pref are invalid.
-    verify(logger)
-        .warn(
-            BaseMessages.getString(
-                this.getClass(), "MongoPropToOption.Message.Warning.PrimaryReadPrefWithTagSets"),
-            null);
-    // defaults to primary if unset
-    assertEquals(ReadPreference.primary(), readPreference);
-
-    String[] tagSetTests = new String[] {TAG_SET, TAG_SET_LIST, null};
-    for (String tagSet : tagSetTests) {
-      for (String readPreferenceType : NamedReadPreference.getPreferenceNames()) {
-        builder.set(MongoProp.readPreference, readPreferenceType);
-        builder.set(MongoProp.tagSet, tagSet);
-        testReadPrefScenario(builder.build(), propToOption);
-      }
-    }
-    // Test invalid READ_PREFERENCE
-    builder.set(MongoProp.readPreference, "Invalid");
-    try {
-      propToOption.readPrefValue(builder.build());
-      fail("Expected an exception due to invalid read preference.");
-    } catch (MongoDbException e) {
-      assertEquals(
-          "The specified READ_PREFERENCE is invalid:  {0}.  "
-              + "Should be one of:  [primary, primaryPreferred, secondary, secondaryPreferred, nearest].",
-          e.getMessage());
-    }
-  }
-
-  private void testReadPrefScenario(MongoProperties props, MongoPropToOption propToOption)
-      throws MongoDbException {
-    ReadPreference readPreference = propToOption.readPrefValue(props);
-
-    assertEquals(props.get(MongoProp.readPreference), readPreference.getName());
-
-    String tagSet = props.get(MongoProp.tagSet);
-    if (tagSet == null) {
-      tagSet = "";
-    }
-    if ("primary".equals(props.get(MongoProp.readPreference))) {
-      // no tag sets
-      assertFalse(readPreference instanceof TaggableReadPreference);
-    } else {
-      assertTrue(readPreference instanceof TaggableReadPreference);
-      assertEquals(
-          JSON.parse("[" + tagSet + "]"),
-          (getTagSets(((TaggableReadPreference) readPreference).getTagSetList())));
-    }
-  }
-
-  public List<DBObject> getTagSets(List<TagSet> tagSetList) {
-    List tags = new ArrayList();
-    for (TagSet curTags : tagSetList) {
-      BasicDBObject tagsDocument = new BasicDBObject();
-      for (Tag curTag : curTags) {
-        tagsDocument.put(curTag.getName(), curTag.getValue());
-      }
-      tags.add(tagsDocument);
-    }
-    return tags;
-  }
 
   @Test
   public void testGetTagSets() throws MongoDbException {
@@ -138,24 +67,24 @@ public class MongoPropToOptionTest {
     MongoUtilLogger logger = mock(MongoUtilLogger.class);
 
     MongoPropToOption wrapper = new MongoPropToOption(logger);
-    assertEquals(JSON.parse(TAG_SET), wrapper.getTagSets(builder.build())[0]);
+    assertEquals(BasicDBObject.parse(TAG_SET), wrapper.getTagSets(builder.build())[0]);
     assertEquals(1, wrapper.getTagSets(builder.build()).length);
 
     String tagSet2 = "{ \"disk\": \"ssd\", \"use\": \"reporting\" }";
     builder.set(MongoProp.tagSet, tagSet2);
-    assertEquals(JSON.parse(tagSet2), wrapper.getTagSets(builder.build())[0]);
+    assertEquals(BasicDBObject.parse(tagSet2), wrapper.getTagSets(builder.build())[0]);
     assertEquals(1, wrapper.getTagSets(builder.build()).length);
 
     builder.set(MongoProp.tagSet, TAG_SET_LIST);
     assertEquals(
-        JSON.parse("{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"a\" }"),
+        BasicDBObject.parse("{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"a\" }"),
         wrapper.getTagSets(builder.build())[0]);
     assertEquals(3, wrapper.getTagSets(builder.build()).length);
 
     String tagsAsArray = "[" + TAG_SET_LIST + "]";
     builder.set(MongoProp.tagSet, tagsAsArray);
     assertEquals(
-        JSON.parse("{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"a\" }"),
+        BasicDBObject.parse("{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"a\" }"),
         wrapper.getTagSets(builder.build())[0]);
     assertEquals(3, wrapper.getTagSets(builder.build()).length);
 

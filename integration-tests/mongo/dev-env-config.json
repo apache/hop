@@ -1,0 +1,19 @@
+{
+  "variables" : [ {
+    "name" : "MONGO_HOSTNAME",
+    "value" : "mongo",
+    "description" : "The MongoDB hostname"
+  }, {
+    "name" : "MONGO_PORT",
+    "value" : "27017",
+    "description" : "The data port "
+  }, {
+    "name" : "MONGO_USERNAME",
+    "value" : "",
+    "description" : "Username: none"
+  }, {
+    "name" : "MONGO_PASSWORD",
+    "value" : "",
+    "description" : "Password: none"
+  } ]
+}
