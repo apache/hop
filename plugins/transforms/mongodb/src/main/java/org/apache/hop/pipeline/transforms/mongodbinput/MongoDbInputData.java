@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
@@ -50,22 +51,13 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
 
   /** cursor for a standard query */
   public MongoCursorWrapper cursor;
+  public MongoDbConnection connection;
 
   /** results of an aggregation pipeline */
-  Iterator<DBObject> m_pipelineResult;
+  Iterator<DBObject> pipelineResult;
 
-  private List<MongoField> m_userFields;
-  private MongoArrayExpansion m_expansionHandler;
-  private static MongoDbInputDiscoverFieldsHolder mongoDbInputDiscoverFieldsHolder =
-      MongoDbInputDiscoverFieldsHolder.getInstance();
-
-  public static MongoDbInputDiscoverFieldsHolder getMongoDbInputDiscoverFieldsHolder() {
-    return mongoDbInputDiscoverFieldsHolder;
-  }
-
-  protected void setMongoDbInputDiscoverFieldsHolder(MongoDbInputDiscoverFieldsHolder holder) {
-    mongoDbInputDiscoverFieldsHolder = holder;
-  }
+  private List<MongoField> userFields;
+  private MongoArrayExpansion expansionHandler;
 
   protected static MongoArrayExpansion checkFieldPaths(
       List<MongoField> normalFields, IRowMeta outputRowMeta) throws HopException {
@@ -160,18 +152,18 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * @throws HopException
    */
   public void init() throws HopException {
-    if (m_userFields != null) {
+    if ( userFields != null) {
 
       // set up array expansion/unwinding (if necessary)
-      m_expansionHandler = checkFieldPaths(m_userFields, outputRowMeta);
+      expansionHandler = checkFieldPaths( userFields, outputRowMeta);
 
-      for (MongoField f : m_userFields) {
+      for (MongoField f : userFields ) {
         int outputIndex = outputRowMeta.indexOfValue(f.fieldName);
         f.init(outputIndex);
       }
 
-      if (m_expansionHandler != null) {
-        m_expansionHandler.init();
+      if ( expansionHandler != null) {
+        expansionHandler.init();
       }
     }
   }
@@ -189,13 +181,13 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
 
     Object[][] result = null;
 
-    if (m_expansionHandler != null) {
-      m_expansionHandler.reset(variables);
+    if ( expansionHandler != null) {
+      expansionHandler.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
-        result = m_expansionHandler.convertToHopValue((BasicDBObject) mongoObj, variables);
+        result = expansionHandler.convertToHopValue((BasicDBObject) mongoObj, variables);
       } else {
-        result = m_expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
+        result = expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
       }
     } else {
       result = new Object[1][];
@@ -204,7 +196,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     // get the normal (non expansion-related fields)
     Object[] normalData = RowDataUtil.allocateRowData(outputRowMeta.size());
     Object value;
-    for (MongoField f : m_userFields) {
+    for (MongoField f : userFields ) {
       value = null;
       f.reset(variables);
 
@@ -218,12 +210,12 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     }
 
     // copy normal fields over to each expansion row (if necessary)
-    if (m_expansionHandler == null) {
+    if ( expansionHandler == null) {
       result[0] = normalData;
     } else {
       for (int i = 0; i < result.length; i++) {
         Object[] row = result[i];
-        for (MongoField f : m_userFields) {
+        for (MongoField f : userFields ) {
           row[f.outputIndex] = normalData[f.outputIndex];
         }
       }
@@ -281,10 +273,10 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    */
   public void setMongoFields(List<MongoField> fields) {
     // copy this list
-    m_userFields = new ArrayList<>();
+    userFields = new ArrayList<>();
 
     for (MongoField f : fields) {
-      m_userFields.add(f.copy());
+      userFields.add(f.copy());
     }
   }
 

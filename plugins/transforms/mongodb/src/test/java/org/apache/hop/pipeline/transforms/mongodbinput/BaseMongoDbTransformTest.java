@@ -28,7 +28,6 @@ import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
-import org.apache.hop.mongo.wrapper.MongoWrapperUtil;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -51,7 +50,7 @@ public class BaseMongoDbTransformTest {
 
   @Mock protected TransformMeta transformMeta;
   @Mock protected PipelineMeta pipelineMeta;
-  protected Pipeline pipeline = spy(new LocalPipelineEngine() );
+  protected Pipeline pipeline = spy(new LocalPipelineEngine());
   @Mock protected ILogChannel mockLog;
   @Mock protected MongoWrapperClientFactory mongoClientWrapperFactory;
   @Mock protected MongoClientWrapper mongoClientWrapper;
@@ -66,9 +65,8 @@ public class BaseMongoDbTransformTest {
   protected Object[] rowData;
 
   @Before
-  public void before() throws MongoDbException {
+  public void before() throws Exception {
     MockitoAnnotations.initMocks(this);
-    MongoWrapperUtil.setMongoWrapperClientFactory(mongoClientWrapperFactory);
     when(mongoClientWrapperFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(mongoClientWrapper);

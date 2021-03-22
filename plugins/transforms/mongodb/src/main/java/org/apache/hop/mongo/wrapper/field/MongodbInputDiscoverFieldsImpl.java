@@ -21,21 +21,20 @@ import com.mongodb.AggregationOptions;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Cursor;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
-import org.apache.hop.mongo.MongoProperties;
+import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
-import org.apache.hop.mongo.wrapper.MongoDBAction;
-import org.apache.hop.mongo.wrapper.MongoWrapperUtil;
 import org.apache.hop.pipeline.transforms.mongodbinput.DiscoverFieldsCallback;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputDiscoverFields;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
@@ -60,8 +59,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
   private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator
 
   public List<MongoField> discoverFields(
-      final MongoProperties.Builder properties,
-      final String db,
+      final IVariables variables,
+      final MongoDbConnection connection,
       final String collection,
       final String query,
       final String fields,
@@ -69,76 +68,22 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       final int docsToSample,
       MongoDbInputMeta transform)
       throws HopException {
-    MongoClientWrapper clientWrapper = null;
+    MongoClientWrapper clientWrapper;
     try {
-      clientWrapper = MongoWrapperUtil.createMongoClientWrapper(properties, null);
+      clientWrapper = connection.createWrapper(variables, LogChannel.GENERAL);
     } catch (MongoDbException e) {
       throw new HopException(e);
     }
+    String databaseName = variables.resolve(connection.getDbName());
+
     try {
       return clientWrapper.perform(
-          db,
-          new MongoDBAction<List<MongoField>>() {
-            @Override
-            public List<MongoField> perform(DB db) throws MongoDbException {
-              DBCursor cursor = null;
-              int numDocsToSample = docsToSample;
-              if (numDocsToSample < 1) {
-                numDocsToSample = 100; // default
-              }
-
-              List<MongoField> discoveredFields = new ArrayList<>();
-              Map<String, MongoField> fieldLookup = new HashMap<>();
-              try {
-                if (StringUtils.isEmpty(collection)) {
-                  throw new HopException(
-                      BaseMessages.getString(
-                          PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
-                }
-                DBCollection dbcollection = db.getCollection(collection);
-
-                Iterator<DBObject> pipeSample = null;
-
-                if (isPipeline) {
-                  pipeSample = setUpPipelineSample(query, numDocsToSample, dbcollection);
-                } else {
-                  if (StringUtils.isEmpty(query) && StringUtils.isEmpty(fields)) {
-                    cursor = dbcollection.find().limit(numDocsToSample);
-                  } else {
-                    DBObject dbObject =
-                        (DBObject) JSON.parse(StringUtils.isEmpty(query) ? "{}" : query);
-                    DBObject dbObject2 = (DBObject) JSON.parse(fields);
-                    cursor = dbcollection.find(dbObject, dbObject2).limit(numDocsToSample);
-                  }
-                }
-
-                int actualCount = 0;
-                while (cursor != null ? cursor.hasNext() : pipeSample.hasNext()) {
-                  actualCount++;
-                  DBObject nextDoc = (cursor != null ? cursor.next() : pipeSample.next());
-                  docToFields(nextDoc, fieldLookup);
-                }
-
-                postProcessPaths(fieldLookup, discoveredFields, actualCount);
-
-                return discoveredFields;
-              } catch (Exception e) {
-                throw new MongoDbException(e);
-              } finally {
-                if (cursor != null) {
-                  cursor.close();
-                }
-              }
-            }
-          });
+          databaseName,
+          db -> getMongoFields( collection, query, fields, isPipeline, docsToSample, db ) );
     } catch (Exception ex) {
-      if (ex instanceof HopException) {
-        throw (HopException) ex;
-      } else {
-        throw new HopException(
-            BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToDiscoverFields"),
-            ex);
-      }
+      throw new HopException(
+          BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToDiscoverFields"),
+          ex);
     } finally {
       try {
         clientWrapper.dispose();
@@ -148,10 +93,61 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     }
   }
 
+  private List<MongoField> getMongoFields( String collection, String query, String fields, boolean isPipeline, int docsToSample, com.mongodb.DB db ) throws MongoDbException {
+    DBCursor cursor = null;
+    int numDocsToSample = docsToSample;
+    if (numDocsToSample < 1) {
+      numDocsToSample = 100; // default
+    }
+
+    List<MongoField> discoveredFields = new ArrayList<>();
+    Map<String, MongoField> fieldLookup = new HashMap<>();
+    try {
+      if (StringUtils.isEmpty( collection )) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
+      }
+      DBCollection dbcollection = db.getCollection( collection );
+
+      Iterator<DBObject> pipeSample = null;
+
+      if ( isPipeline ) {
+        pipeSample = setUpPipelineSample( query, numDocsToSample, dbcollection);
+      } else {
+        if (StringUtils.isEmpty( query ) && StringUtils.isEmpty( fields )) {
+          cursor = dbcollection.find().limit(numDocsToSample);
+        } else {
+          DBObject dbObject =
+              (DBObject) JSON.parse(StringUtils.isEmpty( query ) ? "{}" : query );
+          DBObject dbObject2 = (DBObject) JSON.parse( fields );
+          cursor = dbcollection.find(dbObject, dbObject2).limit(numDocsToSample);
+        }
+      }
+
+      int actualCount = 0;
+      while (cursor != null ? cursor.hasNext() : pipeSample.hasNext()) {
+        actualCount++;
+        DBObject nextDoc = (cursor != null ? cursor.next() : pipeSample.next());
+        docToFields(nextDoc, fieldLookup);
+      }
+
+      postProcessPaths(fieldLookup, discoveredFields, actualCount);
+
+      return discoveredFields;
+    } catch (Exception e) {
+      throw new MongoDbException(e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+  }
+
   @Override
   public void discoverFields(
-      final MongoProperties.Builder properties,
-      final String db,
+      final IVariables variables,
+      final MongoDbConnection connection,
       final String collection,
       final String query,
       final String fields,
@@ -161,33 +157,29 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       final DiscoverFieldsCallback discoverFieldsCallback)
       throws HopException {
     new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                try {
-                  discoverFieldsCallback.notifyFields(
-                      discoverFields(
-                          properties,
-                          db,
-                          collection,
-                          query,
-                          fields,
-                          isPipeline,
-                          docsToSample,
-                          transform));
-                } catch (HopException e) {
-                  discoverFieldsCallback.notifyException(e);
-                }
-              }
-            })
-        .run();
+      () -> {
+        try {
+          discoverFieldsCallback.notifyFields(
+            discoverFields(
+              variables,
+              connection,
+              collection,
+              query,
+              fields,
+              isPipeline,
+              docsToSample,
+              transform ) );
+        } catch ( HopException e ) {
+          discoverFieldsCallback.notifyException( e );
+        }
+      } ).start();
   }
 
   protected static void postProcessPaths(
       Map<String, MongoField> fieldLookup,
       List<MongoField> discoveredFields,
       int numDocsProcessed) {
-    List<String> fieldKeys = new ArrayList<>( fieldLookup.keySet() );
+    List<String> fieldKeys = new ArrayList<>(fieldLookup.keySet());
     Collections.sort(fieldKeys); // sorting so name clash number assignments will be deterministic
     for (String key : fieldKeys) {
       MongoField m = fieldLookup.get(key);
@@ -218,7 +210,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         Integer toUse = tempM.get(m.fieldName);
         String key = m.fieldName;
         m.fieldName = key + "_" + toUse;
-        toUse = new Integer(toUse.intValue() + 1);
+        toUse++;
         tempM.put(key, toUse);
       } else {
         tempM.put(m.fieldName, 1);
@@ -237,7 +229,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
 
     String temp = m.fieldPath;
     String tempComp = m.fieldName;
-    StringBuffer updated = new StringBuffer();
+    StringBuilder updated = new StringBuilder();
 
     while (temp.indexOf('[') >= 0) {
       String firstPart = temp.substring(0, temp.indexOf('['));

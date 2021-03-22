@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mongodbinput;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -29,7 +28,6 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -67,7 +65,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   private String jsonFieldName;
 
   @Injection(name = "JSON_FIELD")
-  private String fields;
+  private String jsonField;
 
   @Injection(name = "JSON_QUERY")
   private String jsonQuery;
@@ -78,17 +76,17 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   @Injection(name = "OUTPUT_JSON")
   private boolean outputJson = true;
 
-  @InjectionDeep private List<MongoField> m_fields;
+  @InjectionDeep private List<MongoField> fields;
 
   @Injection(name = "EXECUTE_FOR_EACH_ROW")
   private boolean executeForEachIncomingRow = false;
 
   public void setMongoFields(List<MongoField> fields) {
-    m_fields = fields;
+    this.fields = fields;
   }
 
   public List<MongoField> getMongoFields() {
-    return m_fields;
+    return fields;
   }
 
   public void setExecuteForEachIncomingRow(boolean e) {
@@ -100,73 +98,35 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   }
 
   @Override
-  public void loadXml(Node transformnode, IHopMetadataProvider metaStore) throws HopXmlException {
-    readData(transformnode);
-  }
-
-  @Override
-  public Object clone() {
-    MongoDbInputMeta retval = (MongoDbInputMeta) super.clone();
-    return retval;
-  }
-
-  private void readData(Node transformnode) throws HopXmlException {
+  public void loadXml(Node node, IHopMetadataProvider metaStore) throws HopXmlException {
     try {
-      setHostnames(XmlHandler.getTagValue(transformnode, "hostname"));
-      setPort(XmlHandler.getTagValue(transformnode, "port"));
-      setDbName(XmlHandler.getTagValue(transformnode, "db_name"));
-      fields = XmlHandler.getTagValue(transformnode, "fields_name");
-      setCollection(XmlHandler.getTagValue(transformnode, "collection"));
-      jsonFieldName = XmlHandler.getTagValue(transformnode, "json_field_name");
-      jsonQuery = XmlHandler.getTagValue(transformnode, "json_query");
-      setAuthenticationDatabaseName(XmlHandler.getTagValue(transformnode, "auth_database"));
-      setAuthenticationUser(XmlHandler.getTagValue(transformnode, "auth_user"));
-      setAuthenticationPassword(
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformnode, "auth_password")));
-
-      setAuthenticationMechanism(XmlHandler.getTagValue(transformnode, "auth_mech"));
-      boolean kerberos = false;
-      String useKerberos = XmlHandler.getTagValue(transformnode, "auth_kerberos");
-      if (!StringUtils.isEmpty(useKerberos)) {
-        kerberos = useKerberos.equalsIgnoreCase("Y");
-      }
-      setUseKerberosAuthentication(kerberos);
-
-      setConnectTimeout(XmlHandler.getTagValue(transformnode, "connect_timeout"));
-      setSocketTimeout(XmlHandler.getTagValue(transformnode, "socket_timeout"));
-
-      String useSSLSocketFactory = XmlHandler.getTagValue(transformnode, "use_ssl_socket_factory");
-      if (!Utils.isEmpty(useSSLSocketFactory)) {
-        setUseSSLSocketFactory(useSSLSocketFactory.equalsIgnoreCase("Y"));
-      }
-
-      setReadPreference(XmlHandler.getTagValue(transformnode, "read_preference"));
+      connectionName = XmlHandler.getTagValue(node, "connection");
+      jsonField = XmlHandler.getTagValue(node, "fields_name");
+      collection = XmlHandler.getTagValue(node, "collection");
+      jsonFieldName = XmlHandler.getTagValue(node, "json_field_name");
+      jsonQuery = XmlHandler.getTagValue(node, "json_query");
 
       outputJson = true; // default to true for backwards compatibility
-      String outputJson = XmlHandler.getTagValue(transformnode, "output_json");
+      String outputJson = XmlHandler.getTagValue(node, "output_json");
       if (!StringUtils.isEmpty(outputJson)) {
         this.outputJson = outputJson.equalsIgnoreCase("Y");
       }
 
-      setUseAllReplicaSetMembers(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "use_all_replica_members")));
-
-      String queryIsPipe = XmlHandler.getTagValue(transformnode, "query_is_pipeline");
+      String queryIsPipe = XmlHandler.getTagValue(node, "query_is_pipeline");
       if (!StringUtils.isEmpty(queryIsPipe)) {
         aggPipeline = queryIsPipe.equalsIgnoreCase("Y");
       }
 
-      String executeForEachR = XmlHandler.getTagValue(transformnode, "execute_for_each_row");
+      String executeForEachR = XmlHandler.getTagValue(node, "execute_for_each_row");
       if (!StringUtils.isEmpty(executeForEachR)) {
         executeForEachIncomingRow = executeForEachR.equalsIgnoreCase("Y");
       }
 
-      Node mongo_fields = XmlHandler.getSubNode(transformnode, "mongo_fields");
+      Node mongo_fields = XmlHandler.getSubNode(node, "mongo_fields");
       if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
         int nrFields = XmlHandler.countNodes(mongo_fields, "mongo_field");
 
-        m_fields = new ArrayList<>();
+        fields = new ArrayList<>();
         for (int i = 0; i < nrFields; i++) {
           Node fieldNode = XmlHandler.getSubNodeByNr(mongo_fields, "mongo_field", i);
 
@@ -178,18 +138,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
           if (indexedVals != null && indexedVals.length() > 0) {
             newField.indexedValues = MongoDbInputData.indexedValsList(indexedVals);
           }
-
-          m_fields.add(newField);
-        }
-      }
-
-      String tags = XmlHandler.getTagValue(transformnode, "tag_sets");
-      if (!StringUtils.isEmpty(tags)) {
-        setReadPrefTagSets( new ArrayList<>());
-
-        String[] parts = tags.split("#@#");
-        for (String p : parts) {
-          getReadPrefTagSets().add(p.trim());
+          fields.add(newField);
         }
       }
     } catch (Exception e) {
@@ -199,11 +148,13 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   }
 
   @Override
+  public Object clone() {
+    MongoDbInputMeta meta = (MongoDbInputMeta) super.clone();
+    return meta;
+  }
+
+  @Override
   public void setDefault() {
-    setHostnames("localhost");
-    setPort("27017");
-    setDbName("db");
-    setCollection("collection");
     jsonFieldName = "json";
   }
 
@@ -218,13 +169,13 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       throws HopTransformException {
 
     try {
-      if (outputJson || m_fields == null || m_fields.size() == 0) {
+      if (outputJson || fields == null || fields.size() == 0) {
         IValueMeta jsonValueMeta =
             ValueMetaFactory.createValueMeta(jsonFieldName, IValueMeta.TYPE_STRING);
         jsonValueMeta.setOrigin(origin);
         rowMeta.addValueMeta(jsonValueMeta);
       } else {
-        for (MongoField f : m_fields) {
+        for (MongoField f : fields ) {
           int type = ValueMetaFactory.getIdForValueMeta(f.hopType);
           IValueMeta vm = ValueMetaFactory.createValueMeta(f.fieldName, type);
           vm.setOrigin(origin);
@@ -239,67 +190,24 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
     }
   }
 
-  protected String tagSetsToString() {
-    if (getReadPrefTagSets() != null && getReadPrefTagSets().size() > 0) {
-      StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < getReadPrefTagSets().size(); i++) {
-        String s = getReadPrefTagSets().get(i);
-        s = s.trim();
-        if (!s.startsWith("{")) {
-          s = "{" + s;
-        }
-        if (!s.endsWith("}")) {
-          s += "}";
-        }
-
-        builder.append(s);
-        if (i != getReadPrefTagSets().size() - 1) {
-          builder.append("#@#");
-        }
-      }
-      return builder.toString();
-    }
-    return null;
-  }
-
   @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(300);
 
-    xml.append("    ").append(XmlHandler.addTagValue("hostname", getHostnames()));
-    xml.append("    ").append(XmlHandler.addTagValue("port", getPort()));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue("use_all_replica_members", getUseAllReplicaSetMembers()));
-    xml.append("    ").append(XmlHandler.addTagValue("db_name", getDbName()));
-    xml.append("    ").append(XmlHandler.addTagValue("fields_name", fields));
-    xml.append("    ").append(XmlHandler.addTagValue("collection", getCollection()));
+    xml.append("    ").append(XmlHandler.addTagValue("connection", connectionName));
+    xml.append("    ").append(XmlHandler.addTagValue("fields_name", jsonField ));
+    xml.append("    ").append(XmlHandler.addTagValue("collection", collection));
     xml.append("    ").append(XmlHandler.addTagValue("json_field_name", jsonFieldName));
     xml.append("    ").append(XmlHandler.addTagValue("json_query", jsonQuery));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue("auth_database", getAuthenticationDatabaseName()));
-    xml.append("    ").append(XmlHandler.addTagValue("auth_user", getAuthenticationUser()));
-    xml.append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "auth_password",
-                Encr.encryptPasswordIfNotUsingVariables(getAuthenticationPassword())));
-    xml.append("    ").append(XmlHandler.addTagValue("auth_mech", getAuthenticationMechanism()));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue("auth_kerberos", getUseKerberosAuthentication()));
-    xml.append("    ").append(XmlHandler.addTagValue("connect_timeout", getConnectTimeout()));
-    xml.append("    ").append(XmlHandler.addTagValue("socket_timeout", getSocketTimeout()));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue("use_ssl_socket_factory", isUseSSLSocketFactory()));
-    xml.append("    ").append(XmlHandler.addTagValue("read_preference", getReadPreference()));
     xml.append("    ").append(XmlHandler.addTagValue("output_json", outputJson));
     xml.append("    ").append(XmlHandler.addTagValue("query_is_pipeline", aggPipeline));
     xml.append("    ")
         .append(XmlHandler.addTagValue("execute_for_each_row", executeForEachIncomingRow));
 
-    if (m_fields != null && m_fields.size() > 0) {
+    if ( fields != null && fields.size() > 0) {
       xml.append("\n    ").append(XmlHandler.openTag("mongo_fields"));
 
-      for (MongoField f : m_fields) {
+      for (MongoField f : fields ) {
         xml.append("\n      ").append(XmlHandler.openTag("mongo_field"));
 
         xml.append("\n        ").append(XmlHandler.addTagValue("field_name", f.fieldName));
@@ -316,12 +224,6 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
       xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
     }
-
-    String tags = tagSetsToString();
-    if (!StringUtils.isEmpty(tags)) {
-      xml.append("    ").append(XmlHandler.addTagValue("tag_sets", tags));
-    }
-
     return xml.toString();
   }
 
@@ -365,12 +267,12 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
   /** @return the fields */
   public String getFieldsName() {
-    return fields;
+    return jsonField;
   }
 
   /** @param fields a field name to set */
   public void setFieldsName(String fields) {
-    this.fields = fields;
+    this.jsonField = fields;
   }
 
   /** @return the jsonFieldName */

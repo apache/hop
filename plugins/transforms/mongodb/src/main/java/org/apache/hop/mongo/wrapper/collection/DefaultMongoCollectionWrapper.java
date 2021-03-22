@@ -75,8 +75,8 @@ public class DefaultMongoCollectionWrapper implements MongoCollectionWrapper {
   }
 
   @Override
-  public WriteResult insert(List<DBObject> m_batch) throws MongoDbException {
-    return collection.insert(m_batch);
+  public WriteResult insert(List<DBObject> batch) throws MongoDbException {
+    return collection.insert(batch);
   }
 
   @Override

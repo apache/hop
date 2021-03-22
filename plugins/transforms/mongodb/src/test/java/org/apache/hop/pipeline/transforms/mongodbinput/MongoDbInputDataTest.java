@@ -17,19 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.mongo.MongoProperties;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +39,10 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -56,6 +56,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MongoDbInputDataTest {
+  private IHopMetadataProvider metadataProvider;
   private MongoDbInputData mongoDbInputData;
 
   protected static String s_testData =
@@ -68,130 +69,14 @@ public class MongoDbInputDataTest {
           + "{ \"rec1\" : { \"f1\" : \"sid\", \"f2\" : \"zaphod\" } } ] }, "
           + "\"name\" : \"george\", \"aNumber\" : \"Forty two\" }";
 
-  static {
-    try {
-      ValueMetaPluginType.getInstance().searchPlugins();
-    } catch (HopPluginException ex) {
-      ex.printStackTrace();
-    }
-  }
-
   @Before
-  public void setUp() {
+  public void setUp() throws HopException {
+    HopClientEnvironment.init();
+    metadataProvider = mock(IHopMetadataProvider.class);
     mongoDbInputData = new MongoDbInputData();
   }
 
-  @Test
-  public void testDiscoverFields() throws Exception {
-    String dbName = "testDb";
-    String collection = "testCollection";
-    String query = "testQuery";
-    String fields = "testFields";
 
-    MongoDbInputMeta meta = mock(MongoDbInputMeta.class);
-    when(meta.getName()).thenReturn(dbName);
-    when(meta.getCollection()).thenReturn(collection);
-    when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
-
-    IVariables vars = mock(IVariables.class);
-    when(vars.resolve(dbName)).thenReturn(dbName);
-    when(vars.resolve(collection)).thenReturn(collection);
-    when(vars.resolve(query)).thenReturn(query);
-    when(vars.resolve(fields)).thenReturn(fields);
-
-    int docsToSample = 1;
-
-    MongoDbInputDialog dialog = mock(MongoDbInputDialog.class);
-
-    // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
-    MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
-    final List<MongoField> mongoFields = new ArrayList<>();
-
-    doAnswer(
-            invocationOnMock -> {
-              ((DiscoverFieldsCallback) invocationOnMock.getArguments()[8])
-                  .notifyFields(mongoFields);
-              return null;
-            })
-        .when(mongoDbInputDiscoverFields)
-        .discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            anyInt(),
-            any(MongoDbInputMeta.class),
-            any(DiscoverFieldsCallback.class));
-
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
-
-    MongoDbInputDialog.discoverFields(meta, vars, docsToSample, dialog);
-    verify(holder, atLeastOnce()).getMongoDbInputDiscoverFields();
-
-    // Test case when docsToSample is zero
-    MongoDbInputDialog.discoverFields(meta, vars, 0, dialog);
-    verify(holder, atLeastOnce()).getMongoDbInputDiscoverFields();
-  }
-
-  @Test
-  public void testDiscoverFieldsExceptionCallback() throws Exception {
-    String dbName = "testDb";
-    String collection = "testCollection";
-    String query = "testQuery";
-    String fields = "testFields";
-
-    MongoDbInputMeta meta = mock(MongoDbInputMeta.class);
-    when(meta.getName()).thenReturn(dbName);
-    when(meta.getCollection()).thenReturn(collection);
-    when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
-
-    IVariables vars = mock(IVariables.class);
-    when(vars.resolve(dbName)).thenReturn(dbName);
-    when(vars.resolve(collection)).thenReturn(collection);
-    when(vars.resolve(query)).thenReturn(query);
-    when(vars.resolve(fields)).thenReturn(fields);
-
-    int docsToSample = 1;
-
-    MongoDbInputDialog dialog = mock(MongoDbInputDialog.class);
-
-    // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
-    MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
-
-    doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocationOnMock) {
-                ((DiscoverFieldsCallback) invocationOnMock.getArguments()[8])
-                    .notifyException(new HopException());
-                return null;
-              }
-            })
-        .when(mongoDbInputDiscoverFields)
-        .discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            anyInt(),
-            any(MongoDbInputMeta.class),
-            any(DiscoverFieldsCallback.class));
-
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
-
-    MongoDbInputDialog.discoverFields(meta, vars, docsToSample, dialog);
-    verify(dialog, atLeastOnce()).handleNotificationException(any(Exception.class));
-  }
 
   @Test
   public void testDiscoverFieldsThrowsException() throws Exception {
@@ -214,17 +99,14 @@ public class MongoDbInputDataTest {
 
     int docsToSample = 1;
 
-    MongoDbInputDialog dialog = mock(MongoDbInputDialog.class);
-
     // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
     MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
 
     doThrow(new HopException())
         .when(mongoDbInputDiscoverFields)
         .discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
+            any(IVariables.class),
+            any(MongoDbConnection.class),
             anyString(),
             anyString(),
             anyString(),
@@ -233,66 +115,11 @@ public class MongoDbInputDataTest {
             any(MongoDbInputMeta.class),
             any(DiscoverFieldsCallback.class));
 
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
-
     try {
-      MongoDbInputDialog.discoverFields(meta, vars, docsToSample, dialog);
+      MongoDbInputDialog.discoverFields(meta, vars, docsToSample, metadataProvider);
     } catch (Exception expected) {
       // expected
     }
-  }
-
-  @Test
-  public void testDiscoverFieldsWithoutCallback() throws Exception {
-    String dbName = "testDb";
-    String collection = "testCollection";
-    String query = "testQuery";
-    String fields = "testFields";
-
-    MongoDbInputMeta meta = mock(MongoDbInputMeta.class);
-    when(meta.getName()).thenReturn(dbName);
-    when(meta.getCollection()).thenReturn(collection);
-    when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
-
-    IVariables vars = mock(IVariables.class);
-    when(vars.resolve(dbName)).thenReturn(dbName);
-    when(vars.resolve(collection)).thenReturn(collection);
-    when(vars.resolve(query)).thenReturn(query);
-    when(vars.resolve(fields)).thenReturn(fields);
-
-    int docsToSample = 1;
-
-    // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
-    MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
-    List<MongoField> mongoFields = new ArrayList<>();
-    mongoFields.add(new MongoField());
-    when(mongoDbInputDiscoverFields.discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            anyInt(),
-            any(MongoDbInputMeta.class)))
-        .thenReturn(mongoFields);
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
-
-    boolean result = MongoDbInputDialog.discoverFields(meta, vars, docsToSample);
-    assertTrue(result);
-
-    // Test case when docsToSample is zero
-    result = MongoDbInputDialog.discoverFields(meta, vars, 0);
-    assertTrue(result);
-
-    // Test case when no fields are found
-    mongoFields.clear();
-    result = MongoDbInputDialog.discoverFields(meta, vars, docsToSample);
-    assertFalse(result);
   }
 
   @Test
@@ -317,11 +144,10 @@ public class MongoDbInputDataTest {
     int docsToSample = 1;
 
     // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
     MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
     when(mongoDbInputDiscoverFields.discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
+            any(IVariables.class),
+            any(MongoDbConnection.class),
             anyString(),
             anyString(),
             anyString(),
@@ -329,11 +155,9 @@ public class MongoDbInputDataTest {
             anyInt(),
             any(MongoDbInputMeta.class)))
         .thenThrow(new HopException("testException"));
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
 
     try {
-      MongoDbInputDialog.discoverFields(meta, vars, docsToSample);
+      MongoDbInputDialog.discoverFields(meta, vars, docsToSample, metadataProvider);
     } catch (HopException e) {
       // Expected
     }
@@ -361,11 +185,10 @@ public class MongoDbInputDataTest {
     int docsToSample = 1;
 
     // Mock the discoverFields call so that it returns a list of mongofields from the expected input
-    MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
     MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
     when(mongoDbInputDiscoverFields.discoverFields(
-            any(MongoProperties.Builder.class),
-            anyString(),
+            any(IVariables.class),
+            any(MongoDbConnection.class),
             anyString(),
             anyString(),
             anyString(),
@@ -373,11 +196,9 @@ public class MongoDbInputDataTest {
             anyInt(),
             any(MongoDbInputMeta.class)))
         .thenThrow(new NullPointerException());
-    when(holder.getMongoDbInputDiscoverFields()).thenReturn(mongoDbInputDiscoverFields);
-    mongoDbInputData.setMongoDbInputDiscoverFieldsHolder(holder);
 
     try {
-      MongoDbInputDialog.discoverFields(meta, vars, docsToSample);
+      MongoDbInputDialog.discoverFields(meta, vars, docsToSample, metadataProvider);
     } catch (HopException e) {
       // Expected
     }
@@ -385,7 +206,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testGetNonExistentField() throws HopException {
-    Object mongoO = JSON.parse(s_testData);
+    Object mongoO = BasicDBObject.parse(s_testData);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> discoveredFields = new ArrayList<>();
@@ -409,14 +230,14 @@ public class MongoDbInputDataTest {
     Variables vars = new Variables();
     Object[] result = data.mongoDocumentToHop((DBObject) mongoO, vars)[0];
 
-    assertTrue(result != null);
+    assertNotNull(result);
     assertEquals(1, result.length - RowDataUtil.OVER_ALLOCATE_SIZE);
-    assertTrue(result[0] == null);
+    assertNull(result[0]);
   }
 
   @Test
   public void testArrayUnwindArrayFieldsOnly() throws HopException {
-    Object mongoO = JSON.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -442,19 +263,19 @@ public class MongoDbInputDataTest {
 
     Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
 
-    assertTrue(result != null);
+    assertNotNull(result);
     assertEquals(2, result.length);
 
     // should be two rows returned due to the array expansion
-    assertTrue(result[0] != null);
-    assertTrue(result[1] != null);
+    assertNotNull(result[0]);
+    assertNotNull(result[1]);
     assertEquals("bob", result[0][0]);
     assertEquals("sid", result[1][0]);
   }
 
   @Test
   public void testArrayUnwindOneArrayExpandFieldAndOneNormalField() throws HopException {
-    Object mongoO = JSON.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -486,15 +307,15 @@ public class MongoDbInputDataTest {
 
     Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
 
-    assertTrue(result != null);
+    assertNotNull(result);
     assertEquals(2, result.length);
 
     // each row should have two entries
     assertEquals(2 + RowDataUtil.OVER_ALLOCATE_SIZE, result[0].length);
 
     // should be two rows returned due to the array expansion
-    assertTrue(result[0] != null);
-    assertTrue(result[1] != null);
+    assertNotNull(result[0]);
+    assertNotNull(result[1]);
     assertEquals("bob", result[0][0]);
     assertEquals("sid", result[1][0]);
 
@@ -505,7 +326,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testArrayUnwindWithOneExistingAndOneNonExistingField() throws HopException {
-    Object mongoO = JSON.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -537,12 +358,12 @@ public class MongoDbInputDataTest {
 
     Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
 
-    assertTrue(result != null);
+    assertNotNull(result);
     assertEquals(2, result.length);
 
     // should be two rows returned due to the array expansion
-    assertTrue(result[0] != null);
-    assertTrue(result[1] != null);
+    assertNotNull(result[0]);
+    assertNotNull(result[1]);
     assertEquals("bob", result[0][0]);
     assertEquals("sid", result[1][0]);
 
@@ -550,27 +371,25 @@ public class MongoDbInputDataTest {
     assertEquals(2 + RowDataUtil.OVER_ALLOCATE_SIZE, result[0].length);
 
     // this field doesn't exist in the doc structure, so we expect null
-    assertTrue(result[0][1] == null);
-    assertTrue(result[1][1] == null);
+    assertNull(result[0][1]);
+    assertNull(result[1][1]);
   }
 
   @Test
   public void testCleansePath() {
     // param at end of path
-    assertThat(
-        MongoDbInputData.cleansePath("my.path.with.${a.dot.param}"),
-        equalTo("my.path.with.${a_dot_param}"));
+    assertEquals(
+        MongoDbInputData.cleansePath("my.path.with.${a.dot.param}"), "my.path.with.${a_dot_param}");
     // param at start of path
-    assertThat(
-        MongoDbInputData.cleansePath("${a.dot.param}.my.path.with"),
-        equalTo("${a_dot_param}.my.path.with"));
+    assertEquals(
+        MongoDbInputData.cleansePath("${a.dot.param}.my.path.with"), "${a_dot_param}.my.path.with");
     // param in middle of path
-    assertThat(
+    assertEquals(
         MongoDbInputData.cleansePath("my.path.with.${a.dot.param}.otherstuff"),
-        equalTo("my.path.with.${a_dot_param}.otherstuff"));
+        "my.path.with.${a_dot_param}.otherstuff");
     // multiple params
-    assertThat(
+    assertEquals(
         MongoDbInputData.cleansePath("my.${oneparam}.with.${a.dot.param}.otherstuff"),
-        equalTo("my.${oneparam}.with.${a_dot_param}.otherstuff"));
+        "my.${oneparam}.with.${a_dot_param}.otherstuff");
   }
 }

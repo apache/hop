@@ -51,21 +51,8 @@ public class MongoDbOutputMetaTest {
   public void testRoundTrips() throws HopException {
     List<String> commonFields =
         Arrays.asList(
-            "mongo_host",
-            "mongo_port",
-            "use_all_replica_members",
-            "mongo_user",
-            "mongo_password",
-            "auth_kerberos",
-            "mongo_db",
             "mongo_collection",
             "batch_insert_size",
-            "connect_timeout",
-            "socket_timeout",
-            "read_preference",
-            "write_concern",
-            "w_timeout",
-            "journaled_writes",
             "truncate",
             "update",
             "upsert",
@@ -76,27 +63,11 @@ public class MongoDbOutputMetaTest {
             "mongo_fields",
             "mongo_indexes");
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("mongo_host", "getHostnames");
-    getterMap.put("mongo_port", "getPort");
-    getterMap.put("use_all_replica_members", "getUseAllReplicaSetMembers");
-    getterMap.put("mongo_user", "getAuthenticationUser");
-    getterMap.put("mongo_password", "getAuthenticationPassword");
-    getterMap.put("auth_kerberos", "getUseKerberosAuthentication");
-    getterMap.put("mongo_db", "getDbName");
     getterMap.put("mongo_collection", "getCollection");
-    getterMap.put("journaled_writes", "getJournal");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("mongo_host", "setHostnames");
-    setterMap.put("mongo_port", "setPort");
-    setterMap.put("use_all_replica_members", "setUseAllReplicaSetMembers");
-    setterMap.put("mongo_user", "setAuthenticationUser");
-    setterMap.put("mongo_password", "setAuthenticationPassword");
-    setterMap.put("auth_kerberos", "setUseKerberosAuthentication");
-    setterMap.put("mongo_db", "setDbName");
     setterMap.put("mongo_collection", "setCollection");
     setterMap.put("batch_insert_size", "setBatchInsertSize");
-    setterMap.put("journaled_writes", "setJournal");
 
     LoadSaveTester tester =
         new LoadSaveTester(MongoDbOutputMeta.class, commonFields, getterMap, setterMap);
@@ -110,13 +81,13 @@ public class MongoDbOutputMetaTest {
                 validatorFactory,
                 MongoField.class,
                 Arrays.asList(
-                    "m_incomingFieldName",
-                    "m_mongoDocPath",
-                    "m_useIncomingFieldNameAsMongoFieldName",
-                    "m_updateMatchField",
-                    "m_modifierUpdateOperation",
-                    "m_modifierOperationApplyPolicy",
-                    "m_JSON",
+                    "incomingFieldName",
+                    "mongoDocPath",
+                    "useIncomingFieldNameAsMongoFieldName",
+                    "updateMatchField",
+                    "modifierUpdateOperation",
+                    "modifierOperationApplyPolicy",
+                    "inputJson",
                     "insertNull"))));
 
     validatorFactory.registerValidator(
@@ -125,7 +96,7 @@ public class MongoDbOutputMetaTest {
             new ObjectValidator<>(
                 validatorFactory,
                 MongoIndex.class,
-                Arrays.asList("m_pathToFields", "m_drop", "m_unique", "m_sparse"))));
+                Arrays.asList("pathToFields", "drop", "unique", "sparse"))));
 
     tester.testXmlRoundTrip();
   }

@@ -18,7 +18,6 @@
 package org.apache.hop.mongo.wrapper;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -30,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
@@ -57,12 +55,7 @@ public class MongoFieldTest {
     MockitoAnnotations.initMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
-            new Answer<String>() {
-              @Override
-              public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (String) invocationOnMock.getArguments()[0];
-              }
-            });
+            (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.init();
   }
@@ -131,7 +124,7 @@ public class MongoFieldTest {
   @Test
   public void testConvertArrayIndicesToHopValue() throws HopException {
     BasicDBObject dbObj =
-        (BasicDBObject) JSON.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
+        (BasicDBObject) BasicDBObject.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
 
     initField("fieldName", "$.parent.fieldName[0]", "String");
     assertThat(field.convertToHopValue(dbObj), equalTo((Object) "valA"));
