@@ -1191,7 +1191,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
         GoogleAnalyticsMeta oneMeta = new GoogleAnalyticsMeta();
         getInfo( oneMeta );
         PipelineMeta previewMeta =
-                PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
+                PipelinePreviewFactory.generatePreviewPipeline( metadataProvider, oneMeta, wTransformName.getText() );
 
         EnterNumberDialog numberDialog =
                 new EnterNumberDialog( shell, props.getDefaultPreviewSize(),

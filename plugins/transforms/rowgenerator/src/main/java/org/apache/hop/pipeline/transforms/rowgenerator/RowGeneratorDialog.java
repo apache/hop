@@ -503,7 +503,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-            variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+          pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(

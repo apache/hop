@@ -1653,7 +1653,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "MailInputDialog.NumberRows.DialogTitle" ),

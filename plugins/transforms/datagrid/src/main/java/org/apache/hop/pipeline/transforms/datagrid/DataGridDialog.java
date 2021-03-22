@@ -551,7 +551,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     DataGridMeta oneMeta = new DataGridMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =

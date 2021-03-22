@@ -29,7 +29,6 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -59,9 +58,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -1574,7 +1571,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              variables, metadataProvider, oneMeta, wTransformName.getText());
+            metadataProvider, oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(

@@ -863,7 +863,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     CsvInputMeta oneMeta = new CsvInputMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
@@ -935,7 +935,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
         meta.getFields( rowMeta, transformName, null, null, variables, metadataProvider );
 
-        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
+        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(),
           meta, transformName );
         final Pipeline pipeline = new LocalPipelineEngine( previewPipelineMeta );
         pipeline.prepareExecution();

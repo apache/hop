@@ -57,7 +57,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -1685,7 +1684,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         return;
       }
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog =
         new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,

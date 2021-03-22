@@ -747,8 +747,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     this.getInfo(oneMeta);
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-            variables,
-            HopGui.getInstance().getMetadataProvider(),
+          HopGui.getInstance().getMetadataProvider(),
             oneMeta,
             this.wTransformName.getText());
     EnterNumberDialog numberDialog =

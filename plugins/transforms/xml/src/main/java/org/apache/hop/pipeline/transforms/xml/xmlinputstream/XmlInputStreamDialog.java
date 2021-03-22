@@ -1229,7 +1229,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     XmlInputStreamMeta oneMeta = new XmlInputStreamMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( metadataProvider, oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,

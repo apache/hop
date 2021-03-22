@@ -1431,7 +1431,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(

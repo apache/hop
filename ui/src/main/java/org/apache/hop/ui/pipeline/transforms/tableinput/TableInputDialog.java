@@ -556,7 +556,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     TableInputMeta oneMeta = new TableInputMeta();
     getInfo( oneMeta, true );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
