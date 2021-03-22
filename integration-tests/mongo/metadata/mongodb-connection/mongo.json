@@ -1,0 +1,20 @@
+{
+  "authenticationDatabaseName": "",
+  "usingKerberos": false,
+  "journaled": true,
+  "dbName": "local",
+  "authenticationUser": "${MONGO_USERNAME}",
+  "writeConcern": "",
+  "connectTimeoutMs": "",
+  "usingSslSocketFactory": false,
+  "authenticationPassword": "${MONGO_PASSWORD}",
+  "usingAllReplicaSetMembers": false,
+  "replicationTimeoutMs": "",
+  "hostname": "${MONGO_HOSTNAME}",
+  "port": "${MONGO_PORT}",
+  "socketTimeoutMs": "",
+  "name": "mongo",
+  "readPreference": "PRIMARY",
+  "readPrefTagSets": "",
+  "authenticationMechanism": "PLAIN"
+}
