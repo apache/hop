@@ -54,7 +54,7 @@ A query:
 ----
 SELECT field1,
 field2,
-${myvar} AS field3 
+${myvar} AS field3
 FROM table
 WHERE field1=xxxx
 ----

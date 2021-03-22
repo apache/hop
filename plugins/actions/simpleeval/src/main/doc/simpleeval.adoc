@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/simpleeval/src/main/doc/simpleeval.adoc
+:openvar: ${
+:closevar: }
 = Simple Evaluation
 
 == Description
@@ -57,7 +59,7 @@ Connect two actions with the output of the Simple Evaluation. The green connecti
 |===
 |Field|Value|Explanation
 |Source: Evaluate|Variable|Select this to evaluate a variable set before
-|Source: Variable name|e. g. ${VAR1}|Enter the variable name using the usual syntax
+|Source: Variable name|e. g. {openvar}VAR1{closevar}|Enter the variable name using the usual syntax
 |Source: Type|String, Number etc.|The type of your variable
 |Success on: Success when variable set||When this option is selected, the true path is followed when the variable is set.
 Note: The workflow action checks if the variable is defined, so an empty or null value is also true. When testing this within Hop you need to delete the line with the variable in the variables section of the Execute a workflow window. And remember: Once this variable is set, the variable keeps existing, even when deleting it from the list.
