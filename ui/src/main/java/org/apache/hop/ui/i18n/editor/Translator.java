@@ -1331,10 +1331,11 @@ public class Translator {
     if (shortSourceFolder==null) {
       return null;
     }
+
     if (rootFolder.endsWith( File.separator )) {
-      return rootFolder+shortSourceFolder;
+      return rootFolder + shortSourceFolder;
     } else {
-      return rootFolder + File.separator + shortSourceFolder;
+      return rootFolder + File.separatorChar + shortSourceFolder.replace("/", String.valueOf(File.separatorChar));
     }
   }
 
