@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /plugins/projects/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/projects/src/main/doc/projects.adoc
+:openvar: ${
+:closevar: }
 = Projects & Environments
 
 This document explains the basic structure and working of the 'projects' plugin
