@@ -24,7 +24,7 @@ The dropbox output step writes information to a Dropbox storage account.
 
 NOTE: create a Dropbox api key in the Dropbox https://www.dropbox.com/developers/apps/create[console].
 
-### Fields
+## Fields
 
 [width="90%", options="header"]
 |===
