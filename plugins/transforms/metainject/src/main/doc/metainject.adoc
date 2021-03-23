@@ -73,7 +73,7 @@ To specify the source field as metadata to be injected, perform the following tr
 3. Optionally, select Use constant value to specify a constant value for the injected metadata through one of the following actions:
   - Manually entering a value.
   - Using an internal variable to set the value ({openvar}Internal.transform.Unique.Count{closevar} for example).
-  - Using a combination of manually specified values and parameter values ({openvarF}ILE_PREFIX{closevar}_{openvarF}ILE_DATE{closevar}.txt for example).
+  - Using a combination of manually specified values and parameter values ({openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt for example).
 
 ==== Injecting Metadata into the ETL Metadata Injection transform
 

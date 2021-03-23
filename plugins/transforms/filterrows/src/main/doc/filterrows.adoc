@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/filterrows/src/main/doc/filterrows.adoc
+:openvar: {
+:closevar: }
 = Filter Rows
 
 == Description
@@ -70,7 +72,7 @@ field1 = field3
 
 === Filtering special characters
 
-To filter special characters like explicit EOF (e.g. from old cobol files) Use a REGEX expression in the "filter row" transform with the syntax: "\x{1A}" where \x mean HEX representation and 1A into parenthesis is the EOF char to match in HEX.
+To filter special characters like explicit EOF (e.g. from old cobol files) Use a REGEX expression in the "filter row" transform with the syntax: "\x{openvar}1A{closevar}" where \x mean HEX representation and 1A into parenthesis is the EOF char to match in HEX.
 
 == Metadata injection support 
 

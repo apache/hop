@@ -273,7 +273,7 @@ To execute an Apache Beam pipeline a lot of information and metadata is needed. 
 * By referencing the ```samples``` project Hop knows where the project is located (```config/projects/samples```)
 * Since we know the location of the project, we can specify pipelines and workflows with a relative path
 * The project knows where its metadata is stored (```config/projects/samples/metadata```) so it knows where to find the ```Direct``` pipeline run configuration (```config/projects/samples/metadata/pipeline-run-configuration/Direct.json```)
-* This run configuration defines its own pipeline engine specific variables, in this case the output folder : ```DATA_OUTPUT=${PROJECT_HOME}/beam/output/```
+* This run configuration defines its own pipeline engine specific variables, in this case the output folder : ```DATA_OUTPUT={openvar}PROJECT_HOME{closevar}/beam/output/```
 * The output of the samples is as such written to ```config/projects/samples/beam/output```
 
 To reference an environment you can execute using ```-e``` or ```--environment```.  The only difference is that you'll have a number of extra environment variables set while executing.
