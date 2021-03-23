@@ -21,7 +21,7 @@ import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 
-@VfsPlugin(type = "gs", typeDescription = "Google Drive VFS")
+@VfsPlugin(type = "gs", typeDescription = "Google Storage VFS")
 public class GoogleStorageVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {
