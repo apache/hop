@@ -1194,7 +1194,7 @@
     </Arguments>
   </jsFunction>
   <jsFunction name="setVariable">
-    <help>Sets the PDI Variable to the given value.</help>
+    <help>Sets the Hop Variable to the given value.</help>
     <sample>// Set a Value as Hop variable
       //
       // Usage:
@@ -1223,7 +1223,7 @@
 
 
   <jsFunction name="getVariable">
-    <help>Returns Value of the given PDI variable or the default.</help>
+    <help>Returns Value of the given Hop variable or the default.</help>
     <sample>// Retrieves the value of a given Hop Variable
       //
       // Usage:
