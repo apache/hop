@@ -55,7 +55,7 @@ public class DataProbeGuiPlugin {
       type = GuiActionType.Info,
       name = "Add data probe",
       tooltip = "Streams the rows to a pipeline defined in a selected pipeline probe",
-      image = "ui/images/data.svg",
+      image = "probe.svg",
       category = "Preview",
       categoryOrder = "3")
   public void addDataProbeForTransform(HopGuiPipelineTransformContext context) {
