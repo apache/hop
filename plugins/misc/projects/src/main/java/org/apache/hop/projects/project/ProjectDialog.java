@@ -124,7 +124,7 @@ public class ProjectDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText("Project dialog");
+    shell.setText(BaseMessages.getString(PKG, "ProjectDialog.Shell.Name"));
 
     // Buttons go at the bottom of the dialog
     //

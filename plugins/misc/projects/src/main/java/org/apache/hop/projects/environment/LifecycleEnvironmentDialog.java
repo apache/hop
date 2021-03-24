@@ -112,7 +112,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( "Project Lifecycle Environment dialog" );
+    shell.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Shell.Name") );
 
     // Buttons go at the bottom of the dialog
     //
