@@ -93,12 +93,12 @@ public class KettleImportDialog extends Dialog {
         formLayout.marginWidth = Const.FORM_MARGIN;
         formLayout.marginHeight = Const.FORM_MARGIN;
         shell.setLayout(formLayout);
-        shell.setText("Import code to Hop");
+        shell.setText(BaseMessages.getString(PKG, "KettleImportDialog.Shell.Name"));
 
         // Select folder to import from
         Label wlImportFrom = new Label( shell, SWT.RIGHT );
         props.setLook( wlImportFrom );
-        wlImportFrom.setText( "Import From " );
+        wlImportFrom.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportFrom") );
         FormData fdlImportFrom = new FormData();
         fdlImportFrom.left = new FormAttachment( 0, 0 );
         fdlImportFrom.right = new FormAttachment( middle, 0 );
@@ -107,7 +107,7 @@ public class KettleImportDialog extends Dialog {
 
         Button wbImportFrom = new Button(shell, SWT.PUSH);
         props.setLook( wbImportFrom );
-        wbImportFrom.setText( "Browse..." );
+        wbImportFrom.setText( BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse") );
         FormData fdbImportFrom = new FormData();
         fdbImportFrom.right = new FormAttachment(100, 0);
         fdbImportFrom.top = new FormAttachment(wlImportFrom, 0, SWT.CENTER);
@@ -126,7 +126,7 @@ public class KettleImportDialog extends Dialog {
         // Import in existing project?
         Label wlImportInExisting = new Label(shell, SWT.RIGHT);
         props.setLook(wlImportInExisting);
-        wlImportInExisting.setText("Import in existing project");
+        wlImportInExisting.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportInExistingProject") );
         FormData fdlImportInExisting = new FormData();
         fdlImportInExisting.left = new FormAttachment(0,0);
         fdlImportInExisting.right = new FormAttachment(middle, 0);
@@ -148,7 +148,7 @@ public class KettleImportDialog extends Dialog {
         // Import in project
         Label wlImportTo = new Label(shell, SWT.RIGHT);
         props.setLook(wlImportTo);
-        wlImportTo.setText("Import in project ");
+        wlImportTo.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportInProject") );
         FormData fdlImportTo = new FormData();
         fdlImportTo.left = new FormAttachment(0, 0);
         fdlImportTo.right = new FormAttachment(middle, 0);
@@ -168,7 +168,7 @@ public class KettleImportDialog extends Dialog {
         // Import in path
         Label wlImportPath = new Label(shell, SWT.RIGHT);
         props.setLook(wlImportPath);
-        wlImportPath.setText("Import to folder");
+        wlImportPath.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportToFolder") );
         FormData fdlImportPath = new FormData();
         fdlImportPath.left = new FormAttachment(0,0);
         fdlImportPath.right = new FormAttachment(middle, 0);
@@ -177,7 +177,7 @@ public class KettleImportDialog extends Dialog {
 
         wbImportPath = new Button(shell, SWT.PUSH);
         props.setLook(wbImportPath);
-        wbImportPath.setText("Browse...");
+        wbImportPath.setText( BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse") );
         FormData fdbImportPath = new FormData();
         fdbImportPath.right = new FormAttachment(100, 0);
         fdbImportPath.top = new FormAttachment(wlImportPath, 0, SWT.CENTER);
@@ -198,7 +198,7 @@ public class KettleImportDialog extends Dialog {
         // Kettle properties path
         Label wlKettleProps = new Label(shell, SWT.RIGHT);
         props.setLook(wlKettleProps);
-        wlKettleProps.setText("Path to kettle.properties ");
+        wlKettleProps.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToKettleProperties") );
         FormData fdlKettleProps = new FormData();
         fdlKettleProps.left = new FormAttachment(0, 0);
         fdlKettleProps.right = new FormAttachment(middle, 0);
@@ -207,7 +207,7 @@ public class KettleImportDialog extends Dialog {
 
         Button wbKettleProps = new Button(shell, SWT.PUSH);
         props.setLook(wbKettleProps);
-        wbKettleProps.setText("Browse...");
+        wbKettleProps.setText( BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse") );
         FormData fdbKettleProps = new FormData();
         fdbKettleProps.right = new FormAttachment(100, 0);
         fdbKettleProps.top = new FormAttachment(wlKettleProps, 0, SWT.CENTER);
@@ -226,7 +226,7 @@ public class KettleImportDialog extends Dialog {
         // Shared.xml path
         Label wlShared = new Label(shell, SWT.RIGHT);
         props.setLook(wlShared);
-        wlShared.setText("Path to shared.xml");
+        wlShared.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToSharedXml") );
         FormData fdlShared = new FormData();
         fdlShared.left = new FormAttachment(0, 0);
         fdlShared.right = new FormAttachment(middle, 0);
@@ -234,7 +234,7 @@ public class KettleImportDialog extends Dialog {
         wlShared.setLayoutData(fdlShared);
 
         Button wbShared = new Button(shell, SWT.PUSH);
-        wbShared.setText("Browse...");
+        wbShared.setText( BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse") );
         FormData fdbShared = new FormData();
         fdbShared.right = new FormAttachment(100, 0);
         fdbShared.top = new FormAttachment(wlShared, 0, SWT.CENTER);
@@ -253,7 +253,7 @@ public class KettleImportDialog extends Dialog {
         // Jdbc properties path
         Label wlJdbcProps = new Label(shell, SWT.RIGHT);
         props.setLook(wlJdbcProps);
-        wlJdbcProps.setText("Path to jdbc.properties");
+        wlJdbcProps.setText( BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToJDBCProperties") );
         FormData fdlJdbcProps = new FormData();
         fdlJdbcProps.left = new FormAttachment(0, 0);
         fdlJdbcProps.right = new FormAttachment(middle, 0);
@@ -262,7 +262,7 @@ public class KettleImportDialog extends Dialog {
 
         Button wbJdbcProps = new Button(shell, SWT.PUSH);
         props.setLook(wbJdbcProps);
-        wbJdbcProps.setText("Browse...");
+        wbJdbcProps.setText( BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse") );
         FormData fdbJdbcProps = new FormData();
         fdbJdbcProps.right = new FormAttachment(100, 0);
         fdbJdbcProps.top = new FormAttachment(wlJdbcProps, 0, SWT.CENTER);
