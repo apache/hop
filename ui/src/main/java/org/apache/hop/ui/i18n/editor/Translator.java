@@ -474,13 +474,14 @@ public class Translator {
             true,
             null,
             props);
+
     FormData fdPackages = new FormData();
     fdPackages.left = new FormAttachment(0, 0);
     fdPackages.right = new FormAttachment(100, 0);
     fdPackages.top = new FormAttachment(wLocale, props.getMargin());
     fdPackages.bottom = new FormAttachment(100, 0);
     wPackages.setLayoutData(fdPackages);
-    wPackages.setSortable(false);
+    wPackages.setSortable(true);
 
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
