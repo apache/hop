@@ -474,13 +474,14 @@ public class Translator {
             true,
             null,
             props);
+
     FormData fdPackages = new FormData();
     fdPackages.left = new FormAttachment(0, 0);
     fdPackages.right = new FormAttachment(100, 0);
     fdPackages.top = new FormAttachment(wLocale, props.getMargin());
     fdPackages.bottom = new FormAttachment(100, 0);
     wPackages.setLayoutData(fdPackages);
-    wPackages.setSortable(false);
+    wPackages.setSortable(true);
 
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
@@ -1085,10 +1086,11 @@ public class Translator {
       wSourceFile.setText(Const.NVL(javaFilename, ""));
       if (Const.NVL(javaFilename, "") != null) {
         selectedSourceFile = Const.NVL(javaFilename, "");
+        String lookupStr = File.separator + "src" + File.separator + "main" + File.separator + "java";
         selectedSourceFile =
             rootFolder
                 + selectedSourceFile.substring(
-                    0, selectedSourceFile.indexOf("/src/main/java") + "/src/main/java".length());
+                    0, selectedSourceFile.indexOf(lookupStr) + lookupStr.length());
       } else {
         selectedSourceFile = "";
       }
@@ -1196,7 +1198,6 @@ public class Translator {
         && selectedSourceFile != null) {
       // Store the last modified value
       //
-      String sourceFolder = selectedSourceFolder+"/src/main/resources/";
 
       if (!Utils.isEmpty(lastValue)) {
         store.storeValue(
@@ -1335,6 +1336,7 @@ public class Translator {
     if (rootFolder.endsWith( File.separator )) {
       return rootFolder + shortSourceFolder;
     } else {
+      // Use File.separator to build a path that is system agnostic
       return rootFolder + File.separatorChar + shortSourceFolder.replace("/", String.valueOf(File.separatorChar));
     }
   }

@@ -213,17 +213,13 @@ public class BundlesStore {
       // We need to come up with /path/plugins/databases/firebird/src/main/resources
 
       String bundleFileName = sourceFolder
-          // normalize file separator for windows
-          .replace(File.separator,"/")
-          // replace "java" with "resources" and append /
-          .replace("/java", "/resources/" )
+              // Use File.separator to build a path that is system agnostic
+          .replace("java", "resources" + File.separator )
           // append package folders
-          .concat(packageName.replace( ".", "/" ))
+          .concat(packageName.replace( ".", File.separator ))
           // append messages folder and localized file
-          .concat("/messages/messages_" + locale + ".properties")
-          // restore os file separator
-          .replace("/", File.separator );
-      
+          .concat(File.separator + "messages" + File.separator + "messages_" + locale + ".properties");
+
       // TODO finish/test calculating filename
       bundleFile = new BundleFile(bundleFileName, packageName, locale, new HashMap<>());
       languageBundleFileMap.put(locale, bundleFile);
