@@ -112,7 +112,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( "Project Lifecycle Environment dialog" );
+    shell.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Shell.Name") );
 
     // Buttons go at the bottom of the dialog
     //
@@ -126,7 +126,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     Label wlName = new Label( shell, SWT.RIGHT );
     props.setLook( wlName );
-    wlName.setText( "Name " );
+    wlName.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentName"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, 0 );
@@ -143,7 +143,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     Label wlPurpose = new Label( shell, SWT.RIGHT );
     props.setLook( wlPurpose );
-    wlPurpose.setText( "Purpose " );
+    wlPurpose.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentPurpose"));
     FormData fdlPurpose = new FormData();
     fdlPurpose.left = new FormAttachment( 0, 0 );
     fdlPurpose.right = new FormAttachment( middle, 0 );
@@ -161,7 +161,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     Label wlProject = new Label( shell, SWT.RIGHT );
     props.setLook( wlProject );
-    wlProject.setText( "Project " );
+    wlProject.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.ReferencedProject") );
     FormData fdlProject = new FormData();
     fdlProject.left = new FormAttachment( 0, 0 );
     fdlProject.right = new FormAttachment( middle, 0 );
@@ -179,7 +179,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     Label wlConfigFiles = new Label( shell, SWT.LEFT );
     props.setLook( wlConfigFiles );
-    wlConfigFiles.setText( "Configuration files: " );
+    wlConfigFiles.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Group.Label.ConfigurationFiles") );
     FormData fdlConfigFiles = new FormData();
     fdlConfigFiles.left = new FormAttachment( 0, 0 );
     fdlConfigFiles.right = new FormAttachment( 100, 0 );
@@ -188,7 +188,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     wbSelect = new Button(shell, SWT.PUSH);
     props.setLook( wbSelect );
-    wbSelect.setText( "Select..." );
+    wbSelect.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select") );
     FormData fdAdd = new FormData();
     fdAdd.right = new FormAttachment(100, 0);
     fdAdd.top = new FormAttachment(wlConfigFiles, margin);
@@ -196,7 +196,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wbSelect.addListener( SWT.Selection, this::addConfigFile );
 
     ColumnInfo[] columnInfo = new ColumnInfo[] {
-      new ColumnInfo( "Filename", ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
+      new ColumnInfo( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.Label.Filename")
+              , ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
     };
     columnInfo[ 0 ].setUsingVariables( true );
 
@@ -212,7 +213,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     wbNew = new Button(shell, SWT.PUSH);
     props.setLook( wbNew );
-    wbNew.setText( "New..." );
+    wbNew.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.New") );
     FormData fdNew = new FormData();
     fdNew.left = new FormAttachment(wConfigFiles, 2*margin);
     fdNew.right = new FormAttachment(100, 0);
@@ -222,7 +223,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     wbEdit = new Button(shell, SWT.PUSH);
     props.setLook( wbEdit );
-    wbEdit.setText( "Edit..." );
+    wbEdit.setText( BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Edit") );
     FormData fdEdit = new FormData();
     fdEdit.left = new FormAttachment(wConfigFiles, 2*margin);
     fdEdit.right = new FormAttachment(100, 0);
@@ -387,12 +388,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     wProject.setItems( config.listProjectConfigNames().toArray( new String[ 0 ] ) );
     wPurpose.setItems( new String[] {
-      "Development",
-      "Testing",
-      "Acceptance",
-      "Production",
-      "Continuous Integration",
-      "Common Build",
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Development"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Testing"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Acceptance"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Production"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CI"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CB")
     } );
 
     wName.setText( Const.NVL( environment.getName(), "" ) );

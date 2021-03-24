@@ -53,6 +53,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+
 public class ProjectDialog extends Dialog {
   private static final Class<?> PKG = ProjectDialog.class; // For Translator
 
@@ -123,7 +124,7 @@ public class ProjectDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText("Project dialog");
+    shell.setText(BaseMessages.getString(PKG, "ProjectDialog.Shell.Name"));
 
     // Buttons go at the bottom of the dialog
     //
@@ -137,7 +138,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlName = new Label(shell, SWT.RIGHT);
     props.setLook(wlName);
-    wlName.setText("Name ");
+    wlName.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectName"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
@@ -154,7 +155,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlHome = new Label(shell, SWT.RIGHT);
     props.setLook(wlHome);
-    wlHome.setText("Home folder ");
+    wlHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.HomeFolder"));
     FormData fdlHome = new FormData();
     fdlHome.left = new FormAttachment(0, 0);
     fdlHome.right = new FormAttachment(middle, 0);
@@ -179,7 +180,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlConfigFile = new Label(shell, SWT.RIGHT);
     props.setLook(wlConfigFile);
-    wlConfigFile.setText("Configuration file (relative path) ");
+    wlConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ConfigurationFile"));
     FormData fdlConfigFile = new FormData();
     fdlConfigFile.left = new FormAttachment(0, 0);
     fdlConfigFile.right = new FormAttachment(middle, 0);
@@ -196,7 +197,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlParentProject = new Label(shell, SWT.RIGHT);
     props.setLook(wlParentProject);
-    wlParentProject.setText("Parent project to inherit from ");
+    wlParentProject.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ParentProject"));
     FormData fdlParentProject = new FormData();
     fdlParentProject.left = new FormAttachment(0, 0);
     fdlParentProject.right = new FormAttachment(middle, 0);
@@ -213,7 +214,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDescription = new Label(shell, SWT.RIGHT);
     props.setLook(wlDescription);
-    wlDescription.setText("Description ");
+    wlDescription.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Description"));
     FormData fdlDescription = new FormData();
     fdlDescription.left = new FormAttachment(0, 0);
     fdlDescription.right = new FormAttachment(middle, 0);
@@ -230,7 +231,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlCompany = new Label(shell, SWT.RIGHT);
     props.setLook(wlCompany);
-    wlCompany.setText("Company ");
+    wlCompany.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Company"));
     FormData fdlCompany = new FormData();
     fdlCompany.left = new FormAttachment(0, 0);
     fdlCompany.right = new FormAttachment(middle, 0);
@@ -247,7 +248,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDepartment = new Label(shell, SWT.RIGHT);
     props.setLook(wlDepartment);
-    wlDepartment.setText("Department ");
+    wlDepartment.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Department"));
     FormData fdlDepartment = new FormData();
     fdlDepartment.left = new FormAttachment(0, 0);
     fdlDepartment.right = new FormAttachment(middle, 0);
@@ -264,7 +265,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlMetadataBaseFolder = new Label(shell, SWT.RIGHT);
     props.setLook(wlMetadataBaseFolder);
-    wlMetadataBaseFolder.setText("Metadata base folder (HOP_METADATA_FOLDER)");
+    wlMetadataBaseFolder.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.MetadataBaseFolder"));
     FormData fdlMetadataBaseFolder = new FormData();
     fdlMetadataBaseFolder.left = new FormAttachment(0, 0);
     fdlMetadataBaseFolder.right = new FormAttachment(middle, 0);
@@ -282,7 +283,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlUnitTestsBasePath = new Label(shell, SWT.RIGHT);
     props.setLook(wlUnitTestsBasePath);
-    wlUnitTestsBasePath.setText("Unit tests base path (HOP_UNIT_TESTS_FOLDER) ");
+    wlUnitTestsBasePath.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.UnitTestBaseFolder"));
     FormData fdlUnitTestsBasePath = new FormData();
     fdlUnitTestsBasePath.left = new FormAttachment(0, 0);
     fdlUnitTestsBasePath.right = new FormAttachment(middle, 0);
@@ -300,7 +301,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDataSetCsvFolder = new Label(shell, SWT.RIGHT);
     props.setLook(wlDataSetCsvFolder);
-    wlDataSetCsvFolder.setText("Data Sets CSV Folder (HOP_DATASETS_FOLDER)");
+    wlDataSetCsvFolder.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.DatasetCSVFolder"));
     FormData fdlDataSetCsvFolder = new FormData();
     fdlDataSetCsvFolder.left = new FormAttachment(0, 0);
     fdlDataSetCsvFolder.right = new FormAttachment(middle, 0);
@@ -318,7 +319,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlEnforceHomeExecution = new Label(shell, SWT.RIGHT);
     props.setLook(wlEnforceHomeExecution);
-    wlEnforceHomeExecution.setText("Enforce executions in project home? ");
+    wlEnforceHomeExecution.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.EnforceExecutionInHome"));
     FormData fdlEnforceHomeExecution = new FormData();
     fdlEnforceHomeExecution.left = new FormAttachment(0, 0);
     fdlEnforceHomeExecution.right = new FormAttachment(middle, 0);
@@ -335,7 +336,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlVariables = new Label(shell, SWT.LEFT);
     props.setLook(wlVariables);
-    wlVariables.setText("Project variables to set : ");
+    wlVariables.setText(BaseMessages.getString(PKG, "ProjectDialog.Group.Label.ProjectVariablesToSet"));
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment(0, 0);
     fdlVariables.right = new FormAttachment(100, 0);
@@ -344,10 +345,10 @@ public class ProjectDialog extends Dialog {
 
     ColumnInfo[] columnInfo =
         new ColumnInfo[] {
-          new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableName"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableValue"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
           new ColumnInfo(
-              "Description (optional information)", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+                  BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableDescription"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
         };
     columnInfo[0].setUsingVariables(true);
     columnInfo[1].setUsingVariables(true);
