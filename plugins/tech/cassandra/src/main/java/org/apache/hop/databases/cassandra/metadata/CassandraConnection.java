@@ -55,7 +55,6 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
   public static final String WIDGET_ID_SCHEMA_HOSTNAME = "10800-schema-hostname";
   public static final String WIDGET_ID_SCHEMA_PORT = "10900-schema-port";
   public static final String WIDGET_ID_USE_COMPRESSION = "11000-use-compression";
-  public static final String WIDGET_ID_MAX_LENGTH = "11100-max-length";
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -139,16 +138,6 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       toolTip = "Check this option if you want to use compression over the connection")
   private boolean usingCompression;
 
-  @HopMetadataProperty
-  @GuiWidgetElement(
-      id = WIDGET_ID_MAX_LENGTH,
-      type = GuiElementType.TEXT,
-      parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Maximum transport length",
-      toolTip =
-          "Max size of an object that can be transported. Blank means use the default (16384000)")
-  private String maxLength;
-
   public CassandraConnection() {}
 
   public CassandraConnection(CassandraConnection c) {
@@ -162,7 +151,6 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     this.schemaHostname = c.schemaHostname;
     this.schemaPort = c.schemaPort;
     this.usingCompression = c.usingCompression;
-    this.maxLength = c.maxLength;
   }
 
   public Connection createConnection(IVariables variables, boolean output) throws Exception {
@@ -345,19 +333,5 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
   /** @param usingCompression The usingCompression to set */
   public void setUsingCompression(boolean usingCompression) {
     this.usingCompression = usingCompression;
-  }
-
-  /**
-   * Gets maxLength
-   *
-   * @return value of maxLength
-   */
-  public String getMaxLength() {
-    return maxLength;
-  }
-
-  /** @param maxLength The maxLength to set */
-  public void setMaxLength(String maxLength) {
-    this.maxLength = maxLength;
   }
 }

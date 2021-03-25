@@ -16,9 +16,26 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/tech/neo4j/src/main/doc/cassandra-exec-cql.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/tech/cassandra/src/main/doc/cassandra-exec-cql.adoc
 :openvar: ${
 :closevar: }
 
 = Cassandra Exec CQL
 
+This action allows you to execute one or more CassandraQL statements on a Cassandra cluster.
+You can use it to create or drop keyspaces, tables, indexes and so on.
+If all statements executed successfully the result will be true (success).
+
+== Options
+
+* Cassandra Connection: You can specify the name of the connection to use either as a fixed value or as a variable expression. There are buttons to the right of the input field to hel you manage the metadata.
+* CQL Script: You can enter one or more CQL statements ending with a semi-colon on a new line.
+
+== Example:
+
+[source]
+----
+CREATE KEYSPACE IF NOT EXISTS hop
+WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3}
+;
+----
