@@ -130,7 +130,7 @@ var handleEvent = function( event ) {
         gc.lineWidth = 3;
         gc.strokeStyle = 'rgb(0, 93, 166)';
       } else {
-        gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalTextPentaho
+        gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalText
       }
       drawRoundRectangle( gc, x - 1, y - 1, iconsize + 1, iconsize + 1, 8, 8, false );
       gc.strokeStyle = 'black';

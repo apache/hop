@@ -39,7 +39,7 @@ import java.util.Arrays;
  *
  * @since 1.0
  */
-public class PentahoJaroWinklerDistance {
+public class HopJaroWinklerDistance {
 
   /**
    * Represents a failed index search.

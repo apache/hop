@@ -206,7 +206,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForcePentahoIntegerValue() throws Exception {
+  public void testWriteToSalesForceHopIntegerValue() throws Exception {
     SalesforceUpsertMeta meta = generateSalesforceUpsertMeta( new String[] { ACCOUNT_ID }, new Boolean[] { false } );
     SalesforceUpsertData data = generateSalesforceUpsertData();
     SalesforceUpsert sfInputTransform = new SalesforceUpsert( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
