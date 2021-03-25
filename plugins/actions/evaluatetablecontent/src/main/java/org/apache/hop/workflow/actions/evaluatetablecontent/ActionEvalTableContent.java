@@ -241,7 +241,6 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     Result result = previousResult;
     result.setResult( false );
 
-    // see PDI-10270, PDI-10644 for details
     boolean oldBehavior = "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
 
     String countSqlStatement = null;

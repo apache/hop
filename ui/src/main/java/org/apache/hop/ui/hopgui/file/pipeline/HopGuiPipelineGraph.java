@@ -3455,7 +3455,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/preview.svg",
       category = "Preview",
       categoryOrder = "3")
-  /** Preview a single step */
+  /** Preview a single transform */
   public void preview(HopGuiPipelineTransformContext context) {
     try {
       context.getPipelineMeta().unselectAll();
@@ -3501,7 +3501,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/debug.svg",
       category = "Preview",
       categoryOrder = "3")
-  /** Debug a single step */
+  /** Debug a single transform */
   public void debug(HopGuiPipelineTransformContext context) {
     try {
       context.getPipelineMeta().unselectAll();

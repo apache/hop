@@ -204,7 +204,7 @@ To display all array values, use the asterisk as the key, like this $.email[*]. 
 |Indicates the data type.
 
 |Indexed values
-|Specify a comma-separated list of legal values for String fields. When you specify values in this field, the Kettle indexed data type is applied to the data. If no values are specified, the String data type is applied. Usually, you will only need to modify this field if you are using Weka metadata for nominal fields.
+|Specify a comma-separated list of legal values for String fields. When you specify values in this field, the Hop indexed data type is applied to the data. If no values are specified, the String data type is applied. Usually, you will only need to modify this field if you are using Weka metadata for nominal fields.
 
 |Sample: array min: max index
 |Indicates minimum and maximum values for the index in the sampled documents.
@@ -213,7 +213,7 @@ To display all array values, use the asterisk as the key, like this $.email[*]. 
 |Indicates how often the field occurs and the number of documents processed.
 
 |Sample: disparate types
-|Indicates if different data types populate the same field in the sampled documents. When several documents are sampled and the same field contain different data types, the Sample: disparate types field is populated with a Y and the Type field displays the String data type. The Kettle type for the field is set to the String data type, for different output value types.
+|Indicates if different data types populate the same field in the sampled documents. When several documents are sampled and the same field contain different data types, the Sample: disparate types field is populated with a Y and the Type field displays the String data type. The Hop type for the field is set to the String data type, for different output value types.
 
 |===
 
@@ -224,7 +224,7 @@ The following sections contain examples of query expressions and aggregate pipel
 === Query expression
 
 MongoDB allows you to select and filter documents in a collection using specific fields and values.
-The http://docs.mongodb.org/manual/reference/mongodb-extended-json/[MongoDB Extended JSON] documentation details how to use queries. Pentaho supports only the features discussed on this page.
+The http://docs.mongodb.org/manual/reference/mongodb-extended-json/[MongoDB Extended JSON] documentation details how to use queries. Apache Hop supports only the features discussed on this page.
 
 The following table displays some examples of the syntax and structure of the queries you can use to request data from MongoDB:
 

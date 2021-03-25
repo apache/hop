@@ -96,7 +96,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
   private boolean fileAppended;
 
-  /** Flag to indicate whether or not to create JSON structures compatible with pre PDI-4.3.0 */
+  /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */

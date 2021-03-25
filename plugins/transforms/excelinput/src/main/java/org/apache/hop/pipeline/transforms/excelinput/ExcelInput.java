@@ -707,7 +707,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
 
   /**
    * This method is responsible for setting the configuration values that control how the ZipSecureFile class behaves
-   * when trying to detect zipbombs (check PDI-17586 for more details).
+   * when trying to detect zipbombs
    */
   protected void setZipBombConfiguration() {
 

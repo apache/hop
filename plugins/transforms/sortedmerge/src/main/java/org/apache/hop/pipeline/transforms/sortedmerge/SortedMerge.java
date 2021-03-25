@@ -70,7 +70,6 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
       data.sortedBuffer = new ArrayList<>();
       data.rowMeta = null;
 
-      // PDI-1212:
       // If one of the inputRowSets holds a null row (the input yields
       // 0 rows), then the null rowSet is removed from the InputRowSet buffer.. (BaseTransform.getRowFrom())
       // which throws this loop off by one (the next set never gets processed).

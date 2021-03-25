@@ -64,18 +64,17 @@ public class ValueDataUtil {
    * <li>
    * If incorrect value set - default value used (ROUND_CEILING).</li>
    * </ul>
-   * See (PDI-9920)
    */
   private static final String SYS_PROPERTY_ROUND_2_MODE = "ROUND_2_MODE";
   /**
    * Value of system property ROUND_2_MODE
-   * Provides correct rounding (PDI-9920)
+   * Provides correct rounding
    */
   private static final String SYS_PROPERTY_ROUND_2_MODE_DEFAULT_VALUE = "ROUND_HALF_CEILING";
   private static final int ROUND_2_MODE_DEFAULT_VALUE = Const.ROUND_HALF_CEILING;
   /**
    * Value of system property ROUND_2_MODE
-   * Provides backward compatibility (PDI-9920)
+   * Provides backward compatibility
    */
   private static final String SYS_PROPERTY_ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE = "ROUND_HALF_EVEN";
   private static final int ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE = BigDecimal.ROUND_HALF_EVEN;
@@ -1664,7 +1663,7 @@ public class ValueDataUtil {
     final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     // depending on the use case, this code might deliver the wrong values due to extra conversion with toCharArray
-    // see Checksum transform and PDI-5190
+    // see Checksum transform
     // "Add Checksum transform gives incorrect results (MD5, CRC32, ADLER32, SHA-1 are affected)"
     String hex = metaA.getString( dataA );
 

@@ -53,7 +53,7 @@ public class VariablesTest {
   private Variables variables = new Variables();
 
   /**
-   * Test for PDI-12893 issue.  Checks if an ConcurrentModificationException while iterating over the System properties
+   * Checks if an ConcurrentModificationException while iterating over the System properties
    * is occurred.
    */
   @Test

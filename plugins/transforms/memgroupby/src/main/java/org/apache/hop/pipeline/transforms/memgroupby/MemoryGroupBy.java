@@ -320,7 +320,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           boolean subjIsNull = subjMeta.isNull( subj );
           boolean valueIsNull = valueMeta.isNull( value );
           if ( minNullIsValued || ( !subjIsNull && !valueIsNull ) ) {
-            // PDI-11530 do not compare null
+            // do not compare null
             aggregate.agg[ i ] = subjMeta.compare( subj, valueMeta, value ) < 0 ? subj : value;
           } else if ( valueIsNull && !subjIsNull ) {
             // By default set aggregate to first not null value
@@ -531,7 +531,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
             break;
         }
         if ( ag == null && allNullsAreZero ) {
-          // PDI-11530 seems all rows for min function was nulls...
+          // seems all rows for min function was nulls...
           IValueMeta vm = data.aggMeta.getValueMeta( i );
           ag = ValueDataUtil.getZeroForValueMetaType( vm );
         }

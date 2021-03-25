@@ -275,7 +275,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     gc.setLineStyle( ELineStyle.DASHDOT );
     gc.setLineWidth( lineWidth );
     gc.setForeground( EColor.GRAY );
-    // PDI-2619: SWT on Windows doesn't cater for negative rect.width/height so handle here.
+    // SWT on Windows doesn't cater for negative rect.width/height so handle here.
     Point s = real2screen( rect.x, rect.y );
     if ( rect.width < 0 ) {
       s.x = s.x + rect.width;

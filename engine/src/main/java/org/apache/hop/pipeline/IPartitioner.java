@@ -51,14 +51,14 @@ import org.w3c.dom.Node;
  * <p>
  * <i><a href="#getXml()">public String getXml()</a></i>
  * <p>
- * This method is called by PDI whenever the plugin needs to serialize its settings to XML. It is called when saving a
+ * This method is called by Apache Hop whenever the plugin needs to serialize its settings to XML. It is called when saving a
  * pipeline in HopGui. The method returns an XML string, containing the serialized settings. The string contains a
  * series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically
  * used to construct the XML string.
  * <p>
  * <i><a href="#loadXml(org.w3c.dom.Node)">public void loadXml(...)</a></i>
  * <p>
- * This method is called by PDI whenever a plugin needs to read its settings from XML. The XML node containing the
+ * This method is called by Apache Hop whenever a plugin needs to read its settings from XML. The XML node containing the
  * plugin's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
  * typically used to conveniently read the settings from the XML node.
  * <p>

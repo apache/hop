@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class StringUtilTest extends TestCase {
   /**
-   * Test initCap for JIRA PDI-619.
+   * Test initCap
    */
   public void testinitCap() {
     assertEquals( "", StringUtil.initCap( null ) );

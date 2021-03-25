@@ -265,7 +265,7 @@ public class LoggingRegistry {
   protected Set<String> getLogChannelFileWriterBufferIds() {
     Set<String> bufferIds = this.fileWriterBuffers.keySet();
 
-    // Changed to a set as a band-aid for PDI-16658. This stuff really should be done
+    // Changed to a set as a band-aid. This stuff really should be done
     // using a proper LRU cache.
     Set<String> ids = new HashSet<>();
     for ( String id : bufferIds ) {

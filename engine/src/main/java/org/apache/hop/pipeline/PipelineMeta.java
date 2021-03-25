@@ -388,7 +388,7 @@ public class PipelineMeta extends AbstractMeta
       for (TransformMeta transform : transforms) {
         pipelineMeta.addTransform((TransformMeta) transform.clone());
       }
-      // PDI-15799: Transform references are original yet. Set them to the clones.
+      // Transform references are original yet. Set them to the clones.
       for (TransformMeta transform : pipelineMeta.getTransforms()) {
         final ITransformMeta transformMetaInterface = transform.getTransform();
         if (transformMetaInterface != null) {
@@ -2118,8 +2118,7 @@ public class PipelineMeta extends AbstractMeta
         // Clear the pipeline
         clear();
 
-        // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX:
-        // PDI-8890
+        // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX.
         //
         setFilename(filename);
 

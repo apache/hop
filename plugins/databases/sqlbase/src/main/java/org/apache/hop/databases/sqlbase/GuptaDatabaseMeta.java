@@ -207,7 +207,6 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /**
    * Most databases allow you to retrieve result metadata by preparing a SELECT statement. Gupta though doesn't.
-   * See PDI-14893
    *
    * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
    * needs to be executed first.

@@ -238,7 +238,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       if ( rtn != null ) {
         return rtn;
       } else {
-        // Fix for PDI-4816
         String inputRowMetaStringMeta = null;
         try {
           inputRowMetaStringMeta = data.inputRowMeta.toStringMeta();
@@ -480,7 +479,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           // use the time the transform execution begins as the date from.
           // before, the current system time was used. this caused an exclusion of the row in the
           // lookup portion of the transform that uses this 'valueDate' and not the current time.
-          // the result was multiple inserts for what should have been 1 [PDI-4317]
+          // the result was multiple inserts for what should have been 1
           valueDateFrom = valueDate;
         } else {
           valueDateFrom = data.minDate;
@@ -533,7 +532,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
          * TODO: we can't really assume like this that the cache layout of the incoming rows (below) is the same as the
          * stored data. Storing this in the cache gives us data/metadata collision errors. (class cast problems etc)
          * Perhaps we need to convert this data to the target data types. Alternatively, we can use a separate cache in
-         * the future. Reference: PDI-911
+         * the future.
          *
          * if (meta.getCacheSize()>=0) { Object[] values = getCacheValues(rowMeta, row, technicalKey, valueVersion,
          * valueDateFrom, valueDateTo);
@@ -594,7 +593,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             // find the returnRowMeta based on the field in the fieldLookup list
             IValueMeta v2 = null;
             Object valueData2 = null;
-            // Fix for PDI-8122
             // See if it's already been computed.
             returnRowColNum = columnLookupArray[ i ];
             if ( returnRowColNum == -1 ) {
@@ -1104,7 +1102,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         // use the time the transform execution begins as the date from (passed in as dateFrom).
         // before, the current system time was used. this caused an exclusion of the row in the
         // lookup portion of the transform that uses this 'valueDate' and not the current time.
-        // the result was multiple inserts for what should have been 1 [PDI-4317]
+        // the result was multiple inserts for what should have been 1
         insertRow[ insertIndex++ ] = dateFrom;
         break;
       case DimensionLookupMeta.START_DATE_ALTERNATIVE_START_OF_PIPELINE:

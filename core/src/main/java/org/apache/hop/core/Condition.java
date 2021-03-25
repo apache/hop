@@ -346,12 +346,6 @@ public class Condition implements Cloneable, IXml {
         if ( leftFieldnr >= 0 ) {
           fieldMeta = rowMeta.getValueMeta( leftFieldnr );
           field = r[ leftFieldnr ];
-          // JIRA PDI-38
-          // if (field==null)
-          // {
-          // throw new
-          // HopException("Unable to find field ["+left_valuename+"] in the input row!");
-          // }
         } else {
           return false; // no fields to evaluate
         }
@@ -362,27 +356,7 @@ public class Condition implements Cloneable, IXml {
         if ( field2 == null && rightFieldnr >= 0 ) {
           fieldMeta2 = rowMeta.getValueMeta( rightFieldnr );
           field2 = r[ rightFieldnr ];
-          // JIRA PDI-38
-          // if (field2==null)
-          // {
-          // throw new
-          // HopException("Unable to find field ["+right_valuename+"] in the input row!");
-          // }
         }
-
-        // if (field==null)
-        // {
-        // throw new
-        // HopException("Unable to find value for field ["+left_valuename+"] in the input row!");
-        // }
-
-        // This condition goes too as field2 can indeed be null, just not
-        // fieldMeta2
-        // if (field2==null && function!=FUNC_NULL && function!=FUNC_NOT_NULL)
-        // {
-        // throw new
-        // HopException("Unable to find value for field ["+right_valuename+"] in the input row!");
-        // }
 
         // Evaluate
         switch ( function ) {
@@ -394,7 +368,6 @@ public class Condition implements Cloneable, IXml {
             break;
           case FUNC_SMALLER:
             if ( fieldMeta.isNull( field ) ) {
-              // BACKLOG-18831
               retval = false;
             } else {
               retval = ( fieldMeta.compare( field, fieldMeta2, field2 ) < 0 );

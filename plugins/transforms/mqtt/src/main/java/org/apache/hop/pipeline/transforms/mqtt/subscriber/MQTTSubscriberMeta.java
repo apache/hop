@@ -106,14 +106,14 @@ public class MQTTSubscriberMeta
   }
 
   /**
-   * @param type the Kettle type of the message being received
+   * @param type the Hop type of the message being received
    */
   public void setMessageType( String type ) {
     messageType = type;
   }
 
   /**
-   * @return the Kettle type of the message being received
+   * @return the Hop type of the message being received
    */
   public String getMessageType() {
     return messageType;

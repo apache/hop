@@ -443,7 +443,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
       for (int i = 0; i < returnValueNewName.length; i++) {
         IValueMeta v = info[0].searchValueMeta(returnValueField[i]);
         if (v != null) {
-          IValueMeta copy = v.clone(); // avoid renaming other value meta - PDI-9844
+          IValueMeta copy = v.clone(); // avoid renaming other value meta
           copy.setName(returnValueNewName[i]);
           copy.setOrigin(name);
           row.addValueMeta(copy);

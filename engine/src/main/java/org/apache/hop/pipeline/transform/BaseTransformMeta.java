@@ -92,7 +92,7 @@ public class BaseTransformMeta implements Cloneable {
     try {
       BaseTransformMeta retval = (BaseTransformMeta) super.clone();
 
-      // PDI-15799: Makes a copy of the TransformMeta. This copy can be used within the same Pipeline.
+      // Makes a copy of the TransformMeta. This copy can be used within the same Pipeline.
       // That means than inner transform references are copied rather then cloned.
       // If the copy is acquired for another Pipeline (e.g. this method is called from Pipeline.clone() )
       // then the transform references must be corrected.

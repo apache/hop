@@ -178,7 +178,6 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
   @Test
   public void testVerticaTimeType() throws Exception {
-    // PDI-12244
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
     IValueMeta iValueMeta = mock( ValueMetaInternetAddress.class );
 

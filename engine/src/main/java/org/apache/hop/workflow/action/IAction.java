@@ -59,7 +59,7 @@ import java.util.Map;
  * follows:<br/>
  * <br/>
  * <a href="#getXml()"><code>String getXml()</code></a><br/>
- * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving a
+ * This method is called by Apache Hop whenever a action needs to serialize its settings to XML. It is called when saving a
  * workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series of
  * XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used to
  * construct the XML string.<br/>
@@ -83,7 +83,7 @@ import java.util.Map;
  * other actions, which carry an inherent boolean outcome, like the "file exists" action for instance. It may
  * make sense in such cases to suppress the unconditional outgoing hop.<br/>
  * <br/>
- * The action plugin class must implement two methods to indicate to PDI which outgoing hops it supports:<br/>
+ * The action plugin class must implement two methods to indicate to Apache Hop which outgoing hops it supports:<br/>
  * <br/>
  * <a href="#isEvaluation()"><code>boolean isEvaluation()</code></a><br/>
  * This method must return true if the action supports the true/false outgoing hops. If the action does not
@@ -229,7 +229,7 @@ public interface IAction extends IVariables, IHasLogChannel {
   boolean hasChanged();
 
   /**
-   * This method is called by PDI whenever a action needs to read its settings from XML. The XML node containing the
+   * This method is called by Apache Hop whenever a action needs to read its settings from XML. The XML node containing the
    * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
    * typically used to conveniently read the settings from the XML node.
    *
@@ -241,7 +241,7 @@ public interface IAction extends IVariables, IHasLogChannel {
   void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException;
 
   /**
-   * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving
+   * This method is called by Apache Hop whenever a action needs to serialize its settings to XML. It is called when saving
    * a workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series
    * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used
    * to construct the XML string.

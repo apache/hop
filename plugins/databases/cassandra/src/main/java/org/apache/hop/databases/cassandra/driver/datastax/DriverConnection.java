@@ -186,7 +186,7 @@ public class DriverConnection implements Connection, AutoCloseable {
   }
 
   private void registerCodecs(CodecRegistry registry) {
-    // where kettle expects specific types that don't match default deserialization
+    // where Hop expects specific types that don't match default deserialization
     registry.register(
         new MappingCodec<Long, Integer>(TypeCodec.cint(), Long.class) {
           @Override

@@ -466,7 +466,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes)
-        // together with error handling (PDI-366).
+        // together with error handling
         // For these situations we can use savepoints to help out.
         //
         data.useSafePoints =
@@ -488,7 +488,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
             && data.commitSize > 0 && !meta.isReturningGeneratedKeys()
             && !data.useSafePoints;
 
-        // Per PDI-6211 : give a warning that batch mode operation in combination with transform error handling can lead to
+        // give a warning that batch mode operation in combination with transform error handling can lead to
         // incorrectly processed rows.
         //
         if ( getTransformMeta().isDoingErrorHandling() && !dbInterface.supportsErrorHandlingOnBatchUpdates() ) {
@@ -516,7 +516,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           logBasic( "Connected to database [" + meta.getDatabaseMeta() + "] (commit=" + data.commitSize + ")" );
         }
 
-        // Postpone commit as long as possible. PDI-2091
+        // Postpone commit as long as possible.
         //
         if ( data.commitSize == 0 ) {
           data.commitSize = Integer.MAX_VALUE;

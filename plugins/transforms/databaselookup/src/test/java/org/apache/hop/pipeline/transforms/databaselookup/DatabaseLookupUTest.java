@@ -287,8 +287,7 @@ public class DatabaseLookupUTest {
     DatabaseLookup look = new MockDatabaseLookup( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
     look.init();
-    assertTrue( data.allEquals ); // Test for fix on PDI-15202
-
+    assertTrue( data.allEquals );
   }
 
   @Test

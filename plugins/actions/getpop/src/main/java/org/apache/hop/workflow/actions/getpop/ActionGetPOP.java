@@ -1035,7 +1035,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
                   // save message content in the file
                   mailConn.saveMessageContentToFile( localfilenameMessage, realOutputFolder );
-                  // PDI-10942 explicitly set message as read
+                  // explicitly set message as read
                   mailConn.getMessage().setFlag( Flag.SEEN, true );
 
                   if ( isDetailed() ) {

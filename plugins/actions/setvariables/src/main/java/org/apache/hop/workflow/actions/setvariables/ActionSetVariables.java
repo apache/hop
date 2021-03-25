@@ -255,7 +255,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
             if (value != null) {
               System.setProperty(varname, value);
             } else {
-              System.clearProperty(varname); // PDI-17536
+              System.clearProperty(varname);
             }
             setVariable(varname, value);
             IWorkflowEngine<WorkflowMeta> parentWorkflowTraverse = parentWorkflow;

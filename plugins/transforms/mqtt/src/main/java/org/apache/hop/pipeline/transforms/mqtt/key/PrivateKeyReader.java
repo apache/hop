@@ -454,15 +454,15 @@ public class PrivateKeyReader {
         case DerParser.GRAPHIC_STRING:
         case DerParser.ISO646_STRING:
         case DerParser.GENERAL_STRING:
-          encoding = "ISO-8859-1"; //$NON-NLS-1$
+          encoding = "ISO-8859-1";
           break;
 
         case DerParser.BMP_STRING:
-          encoding = "UTF-16BE"; //$NON-NLS-1$
+          encoding = "UTF-16BE";
           break;
 
         case DerParser.UTF8_STRING:
-          encoding = "UTF-8"; //$NON-NLS-1$
+          encoding = "UTF-8";
           break;
 
         case DerParser.UNIVERSAL_STRING:

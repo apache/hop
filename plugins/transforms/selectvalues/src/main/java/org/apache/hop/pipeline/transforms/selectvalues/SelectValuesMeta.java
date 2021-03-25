@@ -402,7 +402,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
           }
           // Change the type?
           if ( metaChange.getType() != IValueMeta.TYPE_NONE && v.getType() != metaChange.getType() ) {
-            // Fix for PDI-16388 - clone copies over the conversion mask instead of using the default for the new type
+            // clone copies over the conversion mask instead of using the default for the new type
             if ( !metaTypeChangeUsesNewTypeDefaults ) {
               v = ValueMetaFactory.cloneValueMeta( v, metaChange.getType() );
             } else {

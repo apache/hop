@@ -519,7 +519,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
     // create some properties and get the default Session
 
     String protocol = "smtp";
-    if ( meta.isUsingSecureAuthentication() ) { // PDI-2955
+    if ( meta.isUsingSecureAuthentication() ) {
       // if (meta.isUsingAuthentication()) {
       if ( meta.getSecureConnectionType().equals( "TLS" ) ) {
         // Allow TLS authentication

@@ -582,7 +582,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         ActionWorkflowRunner runner = new ActionWorkflowRunner(workflow, result, nr, log);
         Thread workflowRunnerThread = new Thread(runner);
-        // PDI-6518
         // added UUID to thread name, otherwise threads do share names if workflows actions are
         // executed in parallel in a
         // parent workflow

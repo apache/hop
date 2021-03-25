@@ -432,8 +432,8 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
   }
 
   private void createReader() throws HopException {
-    // provide reader input fields with real path [PDI-15942]
-    // [PDI-18283] Need to have this run before we create the FastJsonReader, so we can use resolve Json Paths
+    // provide reader input fields with real path
+    // Need to have this run before we create the FastJsonReader, so we can use resolve Json Paths
     JsonInputField[] inputFields = new JsonInputField[data.nrInputFields];
     for ( int i = 0; i < data.nrInputFields; i++ ) {
       JsonInputField field = meta.getInputFields()[ i ].clone();

@@ -72,7 +72,7 @@ public class DenormaliserAggregationsTest {
   }
 
   /**
-   * PDI-11597 100+null=100 , null+100=100
+   * 100+null=100 , null+100=100
    *
    * @throws HopValueException
    */
@@ -99,7 +99,7 @@ public class DenormaliserAggregationsTest {
   }
 
   /**
-   * PDI-9662 respect of new variable for null comparsion
+   * respect of new variable for null comparison
    *
    * @throws HopValueException
    */
@@ -116,7 +116,7 @@ public class DenormaliserAggregationsTest {
   }
 
   /**
-   * PDI-9662 respect of new variable for null comparsion
+   * respect of new variable for null comparison
    *
    * @throws HopValueException
    */
@@ -170,7 +170,7 @@ public class DenormaliserAggregationsTest {
   }
 
   /**
-   * PDI-9662 respect to HOP_AGGREGATION_ALL_NULLS_ARE_ZERO variable
+   * respect to HOP_AGGREGATION_ALL_NULLS_ARE_ZERO variable
    *
    * @throws HopValueException
    */
@@ -200,8 +200,7 @@ public class DenormaliserAggregationsTest {
   }
 
   /**
-   * PDI-16017. Method newGroup should not initialize result by default for MIN
-   * (in addition PDI-16015 without converting)
+   * Method newGroup should not initialize result by default for MIN
    *
    * @throws Exception
    */

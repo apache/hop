@@ -120,7 +120,7 @@ public class XmlOutputTest {
   }
 
   /**
-   * [PDI-15575] Testing to verify that getIfPresent defaults the XMLField ContentType value
+   * Testing to verify that getIfPresent defaults the XMLField ContentType value
    */
   @Test
   public void testDefaultXmlFieldContentType() {

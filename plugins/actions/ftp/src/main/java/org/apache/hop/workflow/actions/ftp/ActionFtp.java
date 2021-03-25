@@ -99,7 +99,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
   private String controlEncoding; /* how to convert list of filenames e.g. */
 
-  /** Implicit encoding used before PDI v2.4.1 */
+  /** Implicit encoding used before older version v2.4.1 */
   private static String LEGACY_CONTROL_ENCODING = "US-ASCII";
 
   /** Default encoding when making a new ftp action instance. */
@@ -404,7 +404,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
         }
         String originalLocation = ftpClient.printWorkingDirectory();
         try {
-          // does not work for folders, see PDI-2567:
+          // does not work for folders
           // folderExist=ftpClient.exists(realMoveToFolder);
           // try switching to the 'move to' folder.
           ftpClient.changeWorkingDirectory(realMoveToFolder);

@@ -146,7 +146,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         m_wGeneralTab = new CTabItem(m_wTabFolder, SWT.NONE);
         m_wGeneralTab.setText(BaseMessages
                 .getString(MQTTPublisherMeta.PKG,
-                        "MQTTClientDialog.GeneralTab.Label")); //$NON-NLS-1$
+                        "MQTTClientDialog.GeneralTab.Label"));
 
         FormLayout mainLayout = new FormLayout();
         mainLayout.marginWidth = 3;
@@ -330,7 +330,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         m_wCredentialsTab = new CTabItem(m_wTabFolder, SWT.NONE);
         m_wCredentialsTab.setText(BaseMessages
                 .getString(MQTTPublisherMeta.PKG,
-                        "MQTTClientDialog.CredentialsTab.Title")); //$NON-NLS-1$
+                        "MQTTClientDialog.CredentialsTab.Title"));
 
         Composite wCredentialsComp = new Composite(m_wTabFolder, SWT.NONE);
         props.setLook(wCredentialsComp);
@@ -373,7 +373,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         m_wlUsername = new Label(wCredentialsComp, SWT.RIGHT);
         m_wlUsername.setEnabled(false);
         m_wlUsername.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.Username.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.Username.Label"));
         props.setLook(m_wlUsername);
         FormData fdlUsername = new FormData();
         fdlUsername.left = new FormAttachment(0, -margin);
@@ -399,7 +399,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         m_wlPassword = new Label(wCredentialsComp, SWT.RIGHT);
         m_wlPassword.setEnabled(false);
         m_wlPassword.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.Password.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.Password.Label"));
         props.setLook(m_wlPassword);
         FormData fdlPassword = new FormData();
         fdlPassword.left = new FormAttachment(0, -margin);
@@ -435,7 +435,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         // ====================
         m_wSSLTab = new CTabItem(m_wTabFolder, SWT.NONE);
         m_wSSLTab.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.SSLTab.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.SSLTab.Label"));
 
         Composite wSSLComp = new Composite(m_wTabFolder, SWT.NONE);
         props.setLook(wSSLComp);
@@ -448,7 +448,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         // Server CA file path
         Label wlCAFile = new Label(wSSLComp, SWT.RIGHT);
         wlCAFile.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.CAFile.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.CAFile.Label"));
         props.setLook(wlCAFile);
         FormData fdlCAFile = new FormData();
         fdlCAFile.left = new FormAttachment(0, -margin);
@@ -472,7 +472,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         // Client certificate file path
         Label wlCertFile = new Label(wSSLComp, SWT.RIGHT);
         wlCertFile.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.CertFile.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.CertFile.Label"));
         props.setLook(wlCertFile);
         FormData fdlCertFile = new FormData();
         fdlCertFile.left = new FormAttachment(0, -margin);
@@ -496,7 +496,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         // Client key file path
         Label wlKeyFile = new Label(wSSLComp, SWT.RIGHT);
         wlKeyFile.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "MQTTClientDialog.KeyFile.Label")); //$NON-NLS-1$
+                "MQTTClientDialog.KeyFile.Label"));
         props.setLook(wlKeyFile);
         FormData fdlKeyFile = new FormData();
         fdlKeyFile.left = new FormAttachment(0, -margin);
@@ -521,7 +521,7 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         Label wlKeyPassword = new Label(wSSLComp, SWT.RIGHT);
         wlKeyPassword.setText(BaseMessages
                 .getString(MQTTPublisherMeta.PKG,
-                        "MQTTClientDialog.KeyPassword.Label")); //$NON-NLS-1$
+                        "MQTTClientDialog.KeyPassword.Label"));
         props.setLook(wlKeyPassword);
         FormData fdlKeyPassword = new FormData();
         fdlKeyPassword.left = new FormAttachment(0, -margin);
@@ -557,10 +557,10 @@ public class MQTTPublisherDialog extends BaseTransformDialog implements ITransfo
         // ====================
         wOk = new Button(shell, SWT.PUSH);
         wOk.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "System.Button.OK")); //$NON-NLS-1$
+                "System.Button.OK"));
         wCancel = new Button(shell, SWT.PUSH);
         wCancel.setText(BaseMessages.getString(MQTTPublisherMeta.PKG,
-                "System.Button.Cancel")); //$NON-NLS-1$
+                "System.Button.Cancel"));
 
         setButtonPositions(new Button[]{wOk, wCancel}, margin, null);
 

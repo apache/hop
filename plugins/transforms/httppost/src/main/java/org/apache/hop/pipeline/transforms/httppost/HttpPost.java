@@ -264,7 +264,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
             }
             Header[] headers = searchForHeaders( httpResponse );
             // Use request encoding if specified in component to avoid strange response encodings
-            // See PDI-3815
 
             JSONObject json = new JSONObject();
             for ( Header header : headers ) {

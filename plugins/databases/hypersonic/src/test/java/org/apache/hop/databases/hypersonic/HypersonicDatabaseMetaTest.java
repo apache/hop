@@ -263,14 +263,14 @@ public class HypersonicDatabaseMetaTest {
     IValueMeta vm = new ValueMetaString();
     String sql = hypersonicDatabaseMeta.getFieldDefinition( vm, null, null, false, false, false );
     String expectedSql = "VARCHAR()";
-    assertEquals( "Check PDI-11461 without length", expectedSql, sql );
+    assertEquals( "Check Apache Hop string without length", expectedSql, sql );
     vm.setLength( DatabaseMeta.CLOB_LENGTH - 1 );
     sql = hypersonicDatabaseMeta.getFieldDefinition( vm, null, null, false, false, false );
     expectedSql = "VARCHAR(" + ( DatabaseMeta.CLOB_LENGTH - 1 ) + ")";
-    assertEquals( "Check PDI-11461 with length", expectedSql, sql );
+    assertEquals( "Check Apache Hop string with length", expectedSql, sql );
     vm.setLength( DatabaseMeta.CLOB_LENGTH );
     sql = hypersonicDatabaseMeta.getFieldDefinition( vm, null, null, false, false, false );
     expectedSql = "LONGVARCHAR";
-    assertEquals( "Check PDI-11461 with clob/text length", expectedSql, sql );
+    assertEquals( "Check Apache Hop string with clob/text length", expectedSql, sql );
   }
 }

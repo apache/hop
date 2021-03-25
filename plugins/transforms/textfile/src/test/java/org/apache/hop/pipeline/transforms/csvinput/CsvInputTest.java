@@ -60,7 +60,6 @@ public class CsvInputTest extends CsvInputUnitTestBase {
     assertNull( saData );
   }
 
-  // PDI-17831
   @Test
   public void testFileIsReleasedAfterProcessing() throws Exception {
     // Create a file with some content to be processed

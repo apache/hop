@@ -79,7 +79,7 @@ public class PipelineTest {
   }
 
   /**
-   * PDI-14948 - Execution of pipeline with no transforms never ends
+   * Execution of pipeline with no transforms never ends
    */
   @Test( timeout = 1000 )
   public void pipelineWithNoTransformsIsNotEndless() throws Exception {
@@ -96,7 +96,7 @@ public class PipelineTest {
   }
 
   /**
-   * PDI-10762 - Pipeline and PipelineMeta leak
+   * Pipeline and PipelineMeta leak
    */
   @Test
   public void testLoggingObjectIsNotLeakInMeta() {
@@ -108,7 +108,7 @@ public class PipelineTest {
   }
 
   /**
-   * PDI-5229 - ConcurrentModificationException when restarting pipeline Test that listeners can be accessed
+   * ConcurrentModificationException when restarting pipeline Test that listeners can be accessed
    * concurrently during pipeline finish
    *
    * @throws HopException
@@ -357,7 +357,6 @@ public class PipelineTest {
   }
 
   /**
-   * This test demonstrates the issue fixed in PDI-17436.
    * When a workflow is scheduled twice, it gets the same log channel Id and both logs get merged
    */
   @Test

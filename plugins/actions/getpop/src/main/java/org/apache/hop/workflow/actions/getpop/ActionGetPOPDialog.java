@@ -829,7 +829,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveAllMails.Label"));
-    // PDI-7241 POP3 does not support retrive unread
+    // POP3 does not support retrieve unread
     // wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveUnreadMails.Label" ) );
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveFirstMails.Label"));
     wListmails.select(0); // +1: starts at -1
@@ -2005,7 +2005,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     action.setOutputDirectory(wOutputDirectory.getText());
     action.setFilenamePattern(wFilenamePattern.getText());
 
-    // [PDI-7241] Option 'retrieve unread' is removed and there is only 2 options.
+    // Option 'retrieve unread' is removed and there is only 2 options.
     // for backward compatibility: 0 is 'retrieve all', 1 is 'retrieve first...'
     int actualIndex = wListmails.getSelectionIndex();
     action.setRetrievemails(actualIndex > 0 ? 2 : 0);

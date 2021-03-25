@@ -258,7 +258,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
     result.setEntryNr(nrnotexistcolums);
     result.setNrLinesWritten(nrexistcolums);
-    // result is true only if all columns found (PDI-15801)
+    // result is true only if all columns found
     if (nrexistcolums == arguments.length) {
       result.setNrErrors(0);
       result.setResult(true);

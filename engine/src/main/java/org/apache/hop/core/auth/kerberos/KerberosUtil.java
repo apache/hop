@@ -58,7 +58,7 @@ public class KerberosUtil {
   /**
    * The application name to use when creating login contexts.
    */
-  public static final String KERBEROS_APP_NAME = "pentaho";
+  public static final String KERBEROS_APP_NAME = "Apache Hop";
 
   /**
    * The environment property to set to enable JAAS debugging for the LoginConfiguration created by this utility.

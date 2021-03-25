@@ -44,14 +44,14 @@ import java.util.TimeZone;
 /**
  * IValueMeta objects are used to determine the characteristics of the row fields. They are typically obtained
  * from a IRowMeta object, which is acquired by a call to getInputRowMeta(). The getType() method returns one of
- * the static constants declared by IValueMeta to indicate the PDI field type. Each field type maps to a
+ * the static constants declared by IValueMeta to indicate the Apache Hop field type. Each field type maps to a
  * corresponding native Java type for the actual value.
  * <p>
- * <b>PDI Field Type / Java Mapping</b>
+ * <b>Apache Hop Field Type / Java Mapping</b>
  * <p>
  * <Table border="1">
  * <tr>
- * <th>PDI data type</th>
+ * <th>Apache Hop data type</th>
  * <th>Type constant</th>
  * <th>Java data type</th>
  * <th>Description</th>

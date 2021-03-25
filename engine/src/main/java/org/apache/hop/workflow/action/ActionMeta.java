@@ -128,7 +128,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
         if ( actionCopyAttributesNode != null ) {
           attributesMap = AttributesUtil.loadAttributes( actionCopyAttributesNode );
         } else {
-          // [PDI-17345] If the appropriate attributes node wasn't found, this must be an old file (prior to this fix).
+          // If the appropriate attributes node wasn't found, this must be an old file (prior to this fix).
           // Before this fix it was very probable to exist two attributes groups. While this is not very valid, in some
           // scenarios the Workflow worked as expected; so by trying to load the LAST one into the ActionCopy, we
           // simulate that behaviour.

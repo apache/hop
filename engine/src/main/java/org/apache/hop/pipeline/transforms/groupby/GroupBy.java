@@ -475,17 +475,17 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           break;
         case GroupByMeta.TYPE_GROUP_MIN: {
           if ( subj == null && !minNullIsValued ) {
-            // PDI-10250 do not compare null
+            // do not compare null
             break;
           }
-          // PDI-15648 set the initial value for further comparing
+          // set the initial value for further comparing
           if ( value == null && subj != null && !minNullIsValued ) {
             data.agg[ i ] = subj;
             break;
           }
 
           if ( subjMeta.isSortedDescending() ) {
-            // Account for negation in ValueMeta.compare() - See PDI-2302
+            // Account for negation in ValueMeta.compare()
             if ( subjMeta.compare( value, valueMeta, subj ) < 0 ) {
               data.agg[ i ] = subj;
             }
@@ -498,7 +498,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
         }
         case GroupByMeta.TYPE_GROUP_MAX:
           if ( subjMeta.isSortedDescending() ) {
-            // Account for negation in ValueMeta.compare() - See PDI-2302
+            // Account for negation in ValueMeta.compare()
             if ( subjMeta.compare( value, valueMeta, subj ) > 0 ) {
               data.agg[ i ] = subj;
             }
@@ -766,7 +766,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           break;
       }
       if ( ag == null && allNullsAreZero ) {
-        // PDI-10250, 6960 seems all rows for min function was nulls...
+        // seems all rows for min function was nulls...
         // get output subject meta based on original subject meta calculation
         IValueMeta vm = data.aggMeta.getValueMeta( i );
         ag = ValueDataUtil.getZeroForValueMetaType( vm );

@@ -240,7 +240,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
           bBuffer.get( bytes );
           bufferedWriter.write( bytes );
 
-        } //No else.  Anything else will be thrown to a Kettle exception prior to getting here.
+        } //No else.  Anything else will be thrown to a Hop exception prior to getting here.
         cbuf = new char[ 5000 ];
       }
 

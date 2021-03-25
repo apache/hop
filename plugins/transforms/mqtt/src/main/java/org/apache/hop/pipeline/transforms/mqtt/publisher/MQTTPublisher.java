@@ -120,13 +120,13 @@ public class MQTTPublisher extends BaseTransform<MQTTPublisherMeta, MQTTPublishe
 
       int numErrors = 0;
       if ( Utils.isEmpty( inputField ) ) {
-        logError( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.FieldNameIsNull" ) ); //$NON-NLS-1$
+        logError( BaseMessages.getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.FieldNameIsNull" ) );
         numErrors++;
       }
       data.inputFieldNr = inputRowMeta.indexOfValue( inputField );
       if ( data.inputFieldNr < 0 ) {
         logError( BaseMessages
-            .getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.CouldntFindField", inputField ) ); //$NON-NLS-1$
+            .getString( MQTTPublisherMeta.PKG, "MQTTClientStep.Log.CouldntFindField", inputField ) );
         numErrors++;
       }
 

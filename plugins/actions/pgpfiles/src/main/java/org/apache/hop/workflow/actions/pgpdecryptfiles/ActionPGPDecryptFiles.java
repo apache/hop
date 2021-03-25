@@ -496,7 +496,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
-        // PDI will create it
+        // Apache Hop will create it
         if ( createDestinationFolder( destinationfilefolder ) ) {
 
           // Basic Tests

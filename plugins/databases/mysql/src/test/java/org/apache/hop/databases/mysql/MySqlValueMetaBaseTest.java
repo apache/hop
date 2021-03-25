@@ -98,7 +98,6 @@ public class MySqlValueMetaBaseTest {
     verify(preparedStatementMock, times(1)).setString(0, data);
   }
 
-  // PDI-14721 ESR-5021
   @Test
   public void testGetValueFromSqlTypeBinaryMysql() throws Exception {
 

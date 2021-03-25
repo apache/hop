@@ -71,11 +71,11 @@ public interface ITableMetaData {
   boolean columnExistsInSchema(String colName);
 
   /**
-   * Return the appropriate Kettle type for the table's key. This should handle a composite key
-   * value too - i.e. only Kettle type String can be used as a catch-all for all composite
+   * Return the appropriate Hop type for the table's key. This should handle a composite key
+   * value too - i.e. only Hop type String can be used as a catch-all for all composite
    * possibilities
    *
-   * @return the appropriate Kettle type for the table's key
+   * @return the appropriate Hop type for the table's key
    */
   IValueMeta getValueMetaForKey();
 
@@ -88,32 +88,32 @@ public interface ITableMetaData {
   List<String> getKeyColumnNames();
 
   /**
-   * Return the appropriate Kettle type for the named column. If the column is not explicitly named
-   * in the table schema then the Kettle type equivalent to the default validation class should be
+   * Return the appropriate Hop type for the named column. If the column is not explicitly named
+   * in the table schema then the Hop type equivalent to the default validation class should be
    * returned. Note that columns that make up a composite key should be covered by this method too -
-   * i.e. the appropriate Kettle type for each should be returned
+   * i.e. the appropriate Hop type for each should be returned
    *
-   * @param colName the Cassandra column name to get the Kettle type for
-   * @return the Kettle type for the named column.
+   * @param colName the Cassandra column name to get the Hop type for
+   * @return the Hop type for the named column.
    */
   IValueMeta getValueMetaForColumn(String colName);
 
   /**
-   * Return a list of Kettle types for all the columns explicitly defined in this table (not
+   * Return a list of Hop types for all the columns explicitly defined in this table (not
    * including the default validator).
    *
-   * @return a list of Kettle types for explicitly defined columns in this table
+   * @return a list of Hop types for explicitly defined columns in this table
    */
   List<IValueMeta> getValueMetasForSchema();
 
   /**
-   * Return the appropriate Kettle type for the selector depending on id this is column or function.
+   * Return the appropriate Hop type for the selector depending on id this is column or function.
    * If the column is not explicitly named in the table schema or the function is incorrect named
-   * then the Kettle type equivalent to the default validation class should be returned.
+   * then the Hop type equivalent to the default validation class should be returned.
    *
    * @param selector the selector that corresponds either to Cassandra column name or Cassandra
-   *     function to get the Kettle type
-   * @return the Kettle type for the selector
+   *     function to get the Hop type
+   * @return the Hop type for the selector
    */
   IValueMeta getValueMeta(Selector selector);
 

@@ -236,7 +236,6 @@ public class InsertUpdateMetaTest {
     Assert.assertFalse( result );
   }
 
-  //PDI-16349
   @Test
   @Ignore
   public void keyStream2ProcessRow() throws HopException {

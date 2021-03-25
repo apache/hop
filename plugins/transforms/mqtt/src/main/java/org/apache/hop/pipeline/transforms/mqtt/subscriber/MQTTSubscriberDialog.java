@@ -161,7 +161,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
     wGeneralTab.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.GeneralTab.Label" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.GeneralTab.Label" ) );
 
     FormLayout mainLayout = new FormLayout();
     mainLayout.marginWidth = 3;
@@ -319,7 +319,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     wCredentialsTab = new CTabItem( wTabFolder, SWT.NONE );
     wCredentialsTab.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.CredentialsTab.Title" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.CredentialsTab.Title" ) );
 
     Composite wCredentialsComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wCredentialsComp );
@@ -363,7 +363,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     wlUsername.setEnabled( false );
     wlUsername.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.Username.Label" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.Username.Label" ) );
     props.setLook( wlUsername );
     FormData fdlUsername = new FormData();
     fdlUsername.left = new FormAttachment( 0, -margin );
@@ -391,7 +391,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     wlPassword.setEnabled( false );
     wlPassword.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.Password.Label" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.Password.Label" ) );
     props.setLook( wlPassword );
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment( 0, -margin );
@@ -428,7 +428,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     // ====================
     wSSLTab = new CTabItem( wTabFolder, SWT.NONE );
     wSSLTab.setText( BaseMessages.getString( MQTTSubscriberMeta.PKG,
-      "MQTTClientDialog.SSLTab.Label" ) ); //$NON-NLS-1$
+      "MQTTClientDialog.SSLTab.Label" ) );
 
     Composite wSSLComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wSSLComp );
@@ -441,7 +441,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     // Server CA file path
     Label wlCAFile = new Label( wSSLComp, SWT.RIGHT );
     wlCAFile.setText( BaseMessages.getString(MQTTSubscriberMeta.PKG,
-      "MQTTClientDialog.CAFile.Label" ) ); //$NON-NLS-1$
+      "MQTTClientDialog.CAFile.Label" ) );
     props.setLook( wlCAFile );
     FormData fdlCAFile = new FormData();
     fdlCAFile.left = new FormAttachment( 0, -margin );
@@ -467,7 +467,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     Label wlCertFile = new Label( wSSLComp, SWT.RIGHT );
     wlCertFile.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.CertFile.Label" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.CertFile.Label" ) );
     props.setLook( wlCertFile );
     FormData fdlCertFile = new FormData();
     fdlCertFile.left = new FormAttachment( 0, -margin );
@@ -492,7 +492,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     // Client key file path
     Label wlKeyFile = new Label( wSSLComp, SWT.RIGHT );
     wlKeyFile.setText( BaseMessages.getString( MQTTSubscriberMeta.PKG,
-      "MQTTClientDialog.KeyFile.Label" ) ); //$NON-NLS-1$
+      "MQTTClientDialog.KeyFile.Label" ) );
     props.setLook( wlKeyFile );
     FormData fdlKeyFile = new FormData();
     fdlKeyFile.left = new FormAttachment( 0, -margin );
@@ -518,7 +518,7 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     Label wlKeyPassword = new Label( wSSLComp, SWT.RIGHT );
     wlKeyPassword.setText( BaseMessages
       .getString( MQTTSubscriberMeta.PKG,
-        "MQTTClientDialog.KeyPassword.Label" ) ); //$NON-NLS-1$
+        "MQTTClientDialog.KeyPassword.Label" ) );
     props.setLook( wlKeyPassword );
     FormData fdlKeyPassword = new FormData();
     fdlKeyPassword.left = new FormAttachment( 0, -margin );
@@ -632,10 +632,10 @@ public class MQTTSubscriberDialog  extends BaseTransformDialog implements ITrans
     // ====================
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( MQTTSubscriberMeta.PKG,
-      "System.Button.OK" ) ); //$NON-NLS-1$
+      "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( MQTTSubscriberMeta.PKG,
-      "System.Button.Cancel" ) ); //$NON-NLS-1$
+      "System.Button.Cancel" ) );
 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 

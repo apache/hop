@@ -695,7 +695,7 @@ public class XmlOutputMeta extends BaseTransformMeta
    * @param definitions
    * @param resourceNamingInterface The repository to optionally load other resources from (to be
    *     converted to XML)
-   * @param metadataProvider the metadataProvider in which non-kettle metadata could reside.
+   * @param metadataProvider the metadataProvider in which non-Hop metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources(

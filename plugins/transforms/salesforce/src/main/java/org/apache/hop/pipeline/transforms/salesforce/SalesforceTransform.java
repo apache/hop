@@ -102,7 +102,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
    * normalize object for future sent in Salesforce
    *
    * @param valueMeta value meta
-   * @param value pentaho internal value object
+   * @param value Hop internal value object
    * @return object for sending in Salesforce
    * @throws HopValueException
    */

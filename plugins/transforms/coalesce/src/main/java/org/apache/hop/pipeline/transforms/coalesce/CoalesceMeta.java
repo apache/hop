@@ -279,7 +279,7 @@ public class CoalesceMeta extends BaseTransformMeta
               transformMeta));
     }
 
-    // See if there are input streams leading to this step!
+    // See if there are input streams leading to this transform!
     if (input.length > 0) {
       remarks.add(
           new CheckResult(

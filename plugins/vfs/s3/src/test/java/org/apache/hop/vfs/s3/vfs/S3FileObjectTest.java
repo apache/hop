@@ -207,7 +207,7 @@ public class S3FileObjectTest {
     out.write(new byte[1024 * 1024 * 6]); // 6MB
     out.close();
 
-    // check kettle.properties 's3.vfs.partSize' is less than [5MB, 6MB)
+    // check that property 's3.vfs.partSize' is less than [5MB, 6MB)
     verify(s3ServiceMock, times(2)).uploadPart(any());
     verify(s3ServiceMock, atMost(1)).completeMultipartUpload(any());
   }

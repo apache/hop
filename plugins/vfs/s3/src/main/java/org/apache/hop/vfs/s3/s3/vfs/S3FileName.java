@@ -69,7 +69,7 @@ public class S3FileName extends AbstractFileName {
 
   protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
     buffer.append(getScheme());
-    // [PDI-18634] Only 1 slash is needed here, because this class is not expecting an authority,
+    // Only 1 slash is needed here, because this class is not expecting an authority,
     // instead it is
     // expecting that the connection has already been established to the Amazon AWS S3 file system,
     // the second slash

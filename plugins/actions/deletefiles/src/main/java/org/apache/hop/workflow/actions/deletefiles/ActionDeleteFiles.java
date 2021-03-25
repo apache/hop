@@ -182,7 +182,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         // Relative paths are permitted, and providing an empty path means deleting all files inside
         // a root pdi-folder.
         // It is much more likely to be a mistake than a desirable action, so we don't delete
-        // anything (see PDI-15181)
+        // anything
         if (log.isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.NoPathProvided"));
         }

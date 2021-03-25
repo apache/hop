@@ -171,7 +171,7 @@ public class HopServerTest {
         .when(hopServer)
         .buildSendExportMethod(any(Variables.class), anyString(), anyString(), any(InputStream.class));
     File tempFile;
-    tempFile = File.createTempFile("PDI-", "tmp");
+    tempFile = File.createTempFile("ApacheHop-", "tmp");
     tempFile.deleteOnExit();
     hopServer.sendExport(variables, tempFile.getAbsolutePath(), "", "");
     fail("Incorrect connection details had been used, but no exception was thrown");
@@ -208,7 +208,7 @@ public class HopServerTest {
         .when(hopServer)
         .buildSendExportMethod(any(Variables.class), anyString(), anyString(), any(InputStream.class));
     File tempFile;
-    tempFile = File.createTempFile("PDI-", "tmp");
+    tempFile = File.createTempFile("ApacheHop-", "tmp");
     tempFile.deleteOnExit();
     String result = hopServer.sendExport(variables, tempFile.getAbsolutePath(), null, null);
     assertEquals(responseContent, result);

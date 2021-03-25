@@ -190,7 +190,7 @@ public class DatabaseMetaInformation {
             }
           }
           if ( schemaList.isEmpty() ) {
-            // Support schemas for MS SQL server due to PDI-1531
+            // Support schemas for MS SQL server
             //
             String sql = databaseMeta.getSqlListOfSchemas();
             if ( !Utils.isEmpty( sql ) ) {

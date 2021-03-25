@@ -547,7 +547,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
       if (length > string.length()) {
         // we need to pad this
 
-        // Also for PDI-170: not all encoding use single characters, so we need to cope
+        // not all encoding use single characters, so we need to cope
         // with this.
         int size = 0;
         byte[] filler = null;

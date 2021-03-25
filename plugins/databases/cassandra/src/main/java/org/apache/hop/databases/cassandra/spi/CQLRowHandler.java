@@ -93,7 +93,7 @@ public interface CQLRowHandler {
    * than one row returned if the query is CQL 3 and there is a collection that has been unwound.
    * Returns null when there are no more output rows to be produced from the query.
    *
-   * @param outputRowMeta the Kettle output row structure
+   * @param outputRowMeta the Hop output row structure
    * @param outputFormatMap map of field names to 0-based indexes in the outgoing row structure
    * @return the next output row(s) from the query
    * @throws Exception if a query hasn't been executed or another problem occurs.

@@ -61,7 +61,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> implements ITransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
 
-  //Added for PDI-17530
   private static final Lock repoSaveLock = new ReentrantLock();
 
   public MetaInject(
@@ -127,7 +126,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
       injectPipeline.setParentPipeline( getPipeline() );
       injectPipeline.setMetadataProvider( getMetadataProvider() );
       if ( getPipeline().getParentWorkflow() != null ) {
-        injectPipeline.setParentWorkflow( getPipeline().getParentWorkflow() ); // See PDI-13224
+        injectPipeline.setParentWorkflow( getPipeline().getParentWorkflow() );
       }
 
       // Copy all variables over...

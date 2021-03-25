@@ -53,9 +53,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /*
- * tests fix for PDI-1044
  * Action: Evaluate rows number in a table:
- * PDI Server logs with error from Quartz even though the workflow finishes successfully.
+ * Apache Hop Server logs with error from Quartz even though the workflow finishes successfully.
  */
 public class WorkflowActionEvalTableContentTest {
   private static final Map<Class<?>, String> dbMap = new HashMap<>();

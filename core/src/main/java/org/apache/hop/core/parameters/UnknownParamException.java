@@ -18,7 +18,7 @@
 package org.apache.hop.core.parameters;
 
 /**
- * This is a PDI Exception for the named parameters.
+ * This is an Apache Hop Exception for the named parameters.
  *
  * @author Sven Boden
  * @since 28Feb2009

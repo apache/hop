@@ -45,7 +45,7 @@ public class DimensionCacheTest {
     final Date D4 = new Timestamp( t0 + 3600000L * 3 );
     final Date D5 = new Timestamp( t0 + 3600000L * 4 );
 
-    // [PDI-13508] NPE in DimensionCache class after update to Java 1.7u76
+    // NPE in DimensionCache class after update to Java 1.7u76
     // fix prevents NullPointerException in the combinations marked "NPE"
 
     assertCompareDateInterval( dc, null, null, null, null, 0 );

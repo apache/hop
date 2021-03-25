@@ -143,7 +143,6 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> im
   public boolean init() {
 
     if ( super.init() ) {
-      // PDI-6785
       // could it be a better idea to have a clone on the condition in data and do this on the first row?
       meta.getCondition().clearFieldPositions();
 

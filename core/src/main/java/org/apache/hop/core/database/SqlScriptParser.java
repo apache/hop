@@ -122,7 +122,6 @@ public class SqlScriptParser {
 
             /*
              * usingBackslashAsEscapeCharForQuotation
-             * PDI-16224.
              *
              * ANSI standards specify that using the backslash character (\) to escape single (' ') or double (" ")
              * quotation marks is invalid. For example, the following attempt to find a quotation mark does not conform to ANSI standards:
@@ -216,7 +215,6 @@ public class SqlScriptParser {
 
             /*
              * usingBackslashAsEscapeCharForQuotation
-             * PDI-16224.
              *
              * ANSI standards specify that using the backslash character (\) to escape single (' ') or double (" ")
              * quotation marks is invalid. For example, the following attempt to find a quotation mark does not conform to ANSI standards:

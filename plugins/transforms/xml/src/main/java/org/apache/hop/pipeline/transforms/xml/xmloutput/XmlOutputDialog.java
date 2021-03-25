@@ -935,7 +935,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
       if (field.getElementName() != null) {
         item.setText(index++, field.getElementName());
       } else {
-        // Fixup for defect JIRA PDI-607. Make it the same functionality
+        // Fixup for defect. Make it the same functionality
         // as the loading of the original XML file.
         if (field.getFieldName() != null) {
           item.setText(index++, field.getFieldName());

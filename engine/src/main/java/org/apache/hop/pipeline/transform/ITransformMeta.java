@@ -55,7 +55,7 @@ import java.util.Map;
  * This method is called every time a new transform is created and should allocate or set the transform configuration to sensible
  * defaults. The values set here will be used by HopGui when a new transform is created. This is often a good place to ensure
  * that the transform&#8217;s settings are initialized to non-null values. Null values can be cumbersome to deal with in
- * serialization and dialog population, so most PDI transform implementations stick to non-null values for all transform settings.
+ * serialization and dialog population, so most Apache Hop transform implementations stick to non-null values for all transform settings.
  * <p>
  * <i><a href="#clone()">public Object clone()</a></i>
  * <p>
@@ -71,20 +71,20 @@ import java.util.Map;
  * <p>
  * <i><a href="#getXml()">public String getXml()</a></i>
  * <p>
- * This method is called by PDI whenever a transform needs to serialize its settings to XML. It is called when saving a
+ * This method is called by Apache Hop whenever a transform needs to serialize its settings to XML. It is called when saving a
  * pipeline in HopGui. The method returns an XML string, containing the serialized transform settings. The string
  * contains a series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is
  * typically used to construct the XML string.
  * <p>
  * <i><a href="#loadXml(org.w3c.dom.Node)">public void loadXml(...)</a></i>
  * <p>
- * This method is called by PDI whenever a transform needs to read its settings from XML. The XML node containing the transform's
+ * This method is called by Apache Hop whenever a transform needs to read its settings from XML. The XML node containing the transform's
  * settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is typically used to
  * conveniently read the transform settings from the XML node.
  * <p>
  * <li>
  * <b>Provide instances of other plugin classes</b><br/>
- * The ITransformMeta plugin class is the main class tying in with the rest of PDI architecture. It is responsible
+ * The ITransformMeta plugin class is the main class tying in with the rest of Apache Hop architecture. It is responsible
  * for supplying instances of the other plugin classes implementing ITransformDialog, ITransform and
  * ITransformData. The following methods cover these responsibilities. Each of the method&#8217;s implementation is
  * typically constructing a new instance of the corresponding class forwarding the passed in arguments to the
@@ -97,7 +97,7 @@ import java.util.Map;
  * Each of the above methods returns a new instance of the plugin class implementing ITransformDialog, ITransform
  * and ITransformData.</li>
  * <li>
- * <b>Report the transform&#8217;s changes to the row stream</b> PDI needs to know how a transform affects the row structure. A
+ * <b>Report the transform&#8217;s changes to the row stream</b> Apache Hop needs to know how a transform affects the row structure. A
  * transform may be adding or removing fields, as well as modifying the metadata of a field. The method implementing this
  * aspect of a transform plugin is getFields().
  * <p>
@@ -107,12 +107,12 @@ import java.util.Map;
  * <p>
  * Given a description of the input rows, the plugin needs to modify it to match the structure for its output fields.
  * The implementation modifies the passed in IRowMeta object to reflect any changes to the row stream. Typically
- * a transform adds fields to the row structure, which is done by creating ValueMeta objects (PDI&#8217;s default
+ * a transform adds fields to the row structure, which is done by creating ValueMeta objects (default
  * implementation of IValueMeta), and appending them to the IRowMeta object. The section Working with
  * Fields goes into deeper detail on IValueMeta.</li>
  * <li>
  * <b>Validate transform settings</b><br>
- * HopGui supports a &#8220;validate pipeline&#8221; feature, which triggers a self-check of all transforms. PDI invokes
+ * HopGui supports a &#8220;validate pipeline&#8221; feature, which triggers a self-check of all transforms. Apache Hop invokes
  * the check() method of each transform on the canvas allowing each transform to validate its settings.
  * <p>
  * <i><a href= "#check(java.util.List, org.apache.hop.pipeline.PipelineMeta, org.apache.hop.pipeline.transform.TransformMeta,
@@ -127,7 +127,7 @@ import java.util.Map;
  * of validation warnings or errors.</li>
  * Given a description of the input rows, the plugin needs to modify it to match the structure for its output fields.
  * The implementation modifies the passed in IRowMeta object to reflect any changes to the row stream. Typically
- * a transform adds fields to the row structure, which is done by creating ValueMeta objects (PDI&#8217;s default
+ * a transform adds fields to the row structure, which is done by creating ValueMeta objects (default
  * implementation of IValueMeta), and appending them to the IRowMeta object. The section Working with
  * Fields goes into deeper detail on IValueMeta.
  * </ul>
