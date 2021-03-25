@@ -54,6 +54,7 @@
       </activation>
       <modules>
         <module>azure</module>
+        <module>cassandra</module>
         <module>google</module>
         <module>neo4j</module>
       </modules>
