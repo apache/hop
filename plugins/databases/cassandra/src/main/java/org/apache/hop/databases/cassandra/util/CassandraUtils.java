@@ -1,16 +1,12 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- ******************************************************************************/
+ */
 package org.apache.hop.databases.cassandra.util;
 
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.LocalDate;
 import com.google.common.base.Joiner;
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.Deflater;
 import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -57,63 +42,73 @@ import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.i18n.BaseMessages;
 
-/**
- * Static utility routines for various stuff.
- */
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.Deflater;
+
+/** Static utility routines for various stuff. */
 public class CassandraUtils {
 
   protected static final Class<?> PKG = CassandraUtils.class;
 
   public static class ConnectionOptions {
-    public static final String SOCKET_TIMEOUT = "socketTimeout"; // $NON-NLS-1$
-    public static final String MAX_LENGTH = "maxLength"; // $NON-NLS-1$
+    public static final String SOCKET_TIMEOUT = "socketTimeout";
+    public static final String MAX_LENGTH = "maxLength";
     public static final String COMPRESSION = "compression";
   }
 
   public static class CQLOptions {
-    public static final String DATASTAX_DRIVER_VERSION = "driverVersion"; // $NON-NLS-1$
+    public static final String DATASTAX_DRIVER_VERSION = "driverVersion";
 
     /** The highest release of CQL 3 supported by Datastax Cassandra (v3.11.1) at time of coding */
-    public static final String CQL3_STRING = "3.4.0"; // $NON-NLS-1$
+    public static final String CQL3_STRING = "3.4.0";
   }
 
   public static class BatchOptions {
-    public static final String BATCH_TIMEOUT = "batchTimeout"; // $NON-NLS-1$
+    public static final String BATCH_TIMEOUT = "batchTimeout";
     public static final String TTL = "TTL";
   }
 
   /**
-   * Return the Cassandra CQL column/key type for the given Kettle column. We use this type for CQL
+   * Return the Cassandra CQL column/key type for the given Hop column. We use this type for CQL
    * create table statements since, for some reason, the internal type isn't recognized for the key.
    * Internal types *are* recognized for column definitions. The CQL reference guide states that
    * fully qualified (or relative to org.apache.cassandra.db.marshal) class names can be used
    * instead of CQL types - however, using these when defining the key type always results in
    * BytesType getting set for the key for some reason.
    *
-   * @param vm the IValueMeta for the Kettle column
+   * @param vm the IValueMeta for the Hop column
    * @return the corresponding CQL type
    */
   public static String getCQLTypeForValueMeta(IValueMeta vm) {
     switch (vm.getType()) {
       case IValueMeta.TYPE_STRING:
-        return "varchar"; //$NON-NLS-1$
+        return "varchar";
       case IValueMeta.TYPE_BIGNUMBER:
-        return "decimal"; //$NON-NLS-1$
+        return "decimal";
       case IValueMeta.TYPE_BOOLEAN:
-        return "boolean"; //$NON-NLS-1$
+        return "boolean";
       case IValueMeta.TYPE_INTEGER:
-        return "bigint"; //$NON-NLS-1$
+        return "bigint";
       case IValueMeta.TYPE_NUMBER:
-        return "double"; //$NON-NLS-1$
+        return "double";
       case IValueMeta.TYPE_DATE:
       case IValueMeta.TYPE_TIMESTAMP:
-        return "timestamp"; //$NON-NLS-1$
+        return "timestamp";
       case IValueMeta.TYPE_BINARY:
       case IValueMeta.TYPE_SERIALIZABLE:
-        return "blob"; //$NON-NLS-1$
+        return "blob";
     }
 
-    return "blob"; //$NON-NLS-1$
+    return "blob";
   }
 
   public static DataType getCassandraDataTypeFromValueMeta(IValueMeta vm) {
@@ -145,14 +140,14 @@ public class CassandraUtils {
    * @return a list of individual CQL statements
    */
   public static List<String> splitCQLStatements(String source) {
-    String[] cqlStatements = source.split(";"); // $NON-NLS-1$
+    String[] cqlStatements = source.split(";");
     List<String> individualStatements = new ArrayList<String>();
 
     if (cqlStatements.length > 0) {
       for (String cqlC : cqlStatements) {
         cqlC = cqlC.trim();
-        if (!cqlC.endsWith(";")) { // $NON-NLS-1$
-          cqlC += ";"; // $NON-NLS-1$
+        if (!cqlC.endsWith(";")) {
+          cqlC += ";";
         }
 
         individualStatements.add(cqlC);
@@ -170,7 +165,7 @@ public class CassandraUtils {
    * @return an array of bytes containing the compressed query
    */
   public static byte[] compressCQLQuery(String queryStr, Compression compression) {
-    byte[] data = queryStr.getBytes(Charset.forName("UTF-8")); // $NON-NLS-1$
+    byte[] data = queryStr.getBytes(Charset.forName("UTF-8"));
 
     if (compression != Compression.GZIP) {
       return data;
@@ -192,40 +187,38 @@ public class CassandraUtils {
   }
 
   /**
-   * Extract the table name from a CQL SELECT query. Assumes that any kettle variables have been
+   * Extract the table name from a CQL SELECT query. Assumes that any Hop variables have been
    * already substituted in the query
    *
    * @param subQ the query with vars substituted
    * @return the table name or null if the query is malformed
    */
-  public static String getTableNameFromCQLSelectQuery(String subQ) {
+  public static String getTableNameFromCQLSelectQuery(String subQ) throws HopException {
 
     String result = null;
 
     if (Utils.isEmpty(subQ)) {
-      return null;
+      throw new HopException("No query was specified");
     }
 
     // assumes env variables already replaced in query!
 
-    if (!subQ.toLowerCase().startsWith("select")) { // $NON-NLS-1$
-      // not a select statement!
-      return null;
+    if (!subQ.toLowerCase().startsWith("select")) {
+      throw new HopException("This is not a SELECT statement");
     }
 
     if (subQ.indexOf(';') < 0) {
-      // query must end with a ';' or it will wait for more!
-      return null;
+      throw new HopException("Please end the query expression with a ;");
     }
 
     // strip off where clause (if any)
-    if (subQ.toLowerCase().lastIndexOf("where") > 0) { // $NON-NLS-1$
-      subQ = subQ.substring(0, subQ.toLowerCase().lastIndexOf("where")); // $NON-NLS-1$
+    if (subQ.toLowerCase().lastIndexOf("where") > 0) {
+      subQ = subQ.substring(0, subQ.toLowerCase().lastIndexOf("where"));
     }
 
     // determine the source table
     // look for a FROM that is surrounded by space
-    int fromIndex = subQ.toLowerCase().indexOf("from"); // $NON-NLS-1$
+    int fromIndex = subQ.toLowerCase().indexOf("from");
     String tempS = subQ.toLowerCase();
     int offset = fromIndex;
     while (fromIndex > 0
@@ -233,32 +226,30 @@ public class CassandraUtils {
         && (fromIndex + 4 < tempS.length())
         && tempS.charAt(fromIndex + 4) != ' ') {
       tempS = tempS.substring(fromIndex + 4, tempS.length());
-      fromIndex = tempS.indexOf("from"); // $NON-NLS-1$
+      fromIndex = tempS.indexOf("from");
       offset += (4 + fromIndex);
     }
 
     fromIndex = offset;
 
     if (fromIndex < 0) {
-      return null; // no from clause
+      throw new HopException("No FROM clause found in the query");
     }
 
-    result = subQ.substring(fromIndex + 4, subQ.length()).trim();
-    if (result.indexOf(' ') > 0) {
-      result = result.substring(0, result.indexOf(' '));
-    } else {
-      result = result.replace(";", ""); // $NON-NLS-1$ //$NON-NLS-2$
-    }
+    result = subQ.substring(fromIndex + 4 ).trim();
+    result = result.replace(";", "");
+    // replace leading and trailing whitespaces and newlines in the query
+    result = result.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
 
     if (result.length() == 0) {
-      return null; // no table specified
+      throw new HopException("No FROM clause found in the query");
     }
 
     return result;
   }
 
   /**
-   * Return a string representation of a Kettle row
+   * Return a string representation of a Hop row
    *
    * @param row the row to return as a string
    * @return a string representation of the row
@@ -267,9 +258,9 @@ public class CassandraUtils {
     StringBuilder buff = new StringBuilder();
 
     for (int i = 0; i < inputMeta.size(); i++) {
-      String sep = (i > 0) ? "," : ""; // $NON-NLS-1$ //$NON-NLS-2$
+      String sep = (i > 0) ? "," : "";
       if (row[i] == null) {
-        buff.append(sep).append("<null>"); // $NON-NLS-1$
+        buff.append(sep).append("<null>");
       } else {
         buff.append(sep).append(row[i].toString());
       }
@@ -301,7 +292,7 @@ public class CassandraUtils {
             BaseMessages.getString(
                 PKG,
                 "CassandraUtils.Error.SkippingRowNullKey",
-                rowToStringRepresentation(inputMeta, row))); // $NON-NLS-1$
+                rowToStringRepresentation(inputMeta, row)));
         return false;
       }
     }
@@ -311,7 +302,7 @@ public class CassandraUtils {
       int keyIndex = inputMeta.indexOfValue(keyN);
       IValueMeta keyMeta = inputMeta.getValueMeta(keyIndex);
 
-      fullKey.append(keyMeta.getString(row[keyIndex])).append(" "); // $NON-NLS-1$
+      fullKey.append(keyMeta.getString(row[keyIndex])).append(" ");
     }
 
     // quick scan to see if we have at least one non-null value apart from
@@ -331,9 +322,7 @@ public class CassandraUtils {
       if (!ok) {
         log.logBasic(
             BaseMessages.getString(
-                PKG,
-                "CassandraUtils.Error.SkippingRowNoNonNullValues",
-                fullKey.toString())); // $NON-NLS-1$
+                PKG, "CassandraUtils.Error.SkippingRowNoNonNullValues", fullKey.toString()));
       }
       return ok;
     }
@@ -361,8 +350,8 @@ public class CassandraUtils {
    * @param row the row to add to the batch
    * @param inputMeta the row format
    * @param familyMeta meta data on the columns in the cassandra table
-   * @param insertFieldsNotInMetaData true if any Kettle fields that are not in the Cassandra table
-   *     meta data are to be inserted. This is irrelevant if the user has opted to have the step
+   * @param insertFieldsNotInMetaData true if any Hop fields that are not in the Cassandra table
+   *     meta data are to be inserted. This is irrelevant if the user has opted to have the transform
    *     initially update the Cassandra meta data for incoming fields that are not known about.
    * @param log for logging
    * @return true if the row was added to the batch
@@ -410,12 +399,12 @@ public class CassandraUtils {
     // make a stab at a reasonable initial capacity
     StringBuilder batch = new StringBuilder(numRows * 80);
     if (unloggedBatch) {
-      batch.append("BEGIN UNLOGGED BATCH"); // $NON-NLS-1$
+      batch.append("BEGIN UNLOGGED BATCH");
     } else {
-      batch.append("BEGIN BATCH"); // $NON-NLS-1$
+      batch.append("BEGIN BATCH");
     }
 
-    batch.append("\n"); // $NON-NLS-1$
+    batch.append("\n");
 
     return batch;
   }
@@ -426,7 +415,7 @@ public class CassandraUtils {
    * @param batch the StringBuilder batch to complete
    */
   public static void completeCQLBatch(StringBuilder batch) {
-    batch.append("APPLY BATCH"); // $NON-NLS-1$
+    batch.append("APPLY BATCH");
   }
 
   /**
@@ -437,22 +426,22 @@ public class CassandraUtils {
    */
   public static String identifierQuoteChar(int cqlMajVersion) {
     if (cqlMajVersion >= 3) {
-      return "\""; //$NON-NLS-1$
+      return "\"";
     }
 
-    return "'"; //$NON-NLS-1$
+    return "'";
   }
 
   /**
-   * converts a kettle row to CQL insert statement and adds it to the batch
+   * converts a Hop row to CQL insert statement and adds it to the batch
    *
    * @param batch StringBuilder for collecting the batch CQL
    * @param tableName the name of the table to insert into
-   * @param inputMeta Kettle input row meta data inserting
-   * @param row the Kettle row
+   * @param inputMeta Hop input row meta data inserting
+   * @param row the Hop row
    * @param familyMeta meta data on the columns in the cassandra table
-   * @param insertFieldsNotInMetaData true if any Kettle fields that are not in the Cassandra table
-   *     meta data are to be inserted. This is irrelevant if the user has opted to have the step
+   * @param insertFieldsNotInMetaData true if any Hop fields that are not in the Cassandra table
+   *     meta data are to be inserted. This is irrelevant if the user has opted to have the transform
    *     initially update the Cassandra meta data for incoming fields that are not known about.
    * @param cqlMajVersion the major version number of the cql version to use
    * @param additionalOpts additional options for the insert statement
@@ -510,38 +499,37 @@ public class CassandraUtils {
     Joiner joiner = Joiner.on(',').skipNulls();
     batch.append("INSERT INTO ").append(tableName).append(" (");
     joiner.appendTo(batch, columns);
-    batch.append(") VALUES ("); // $NON-NLS-1$
+    batch.append(") VALUES (");
     joiner.appendTo(batch, values);
-    batch.append(")"); // $NON-NLS-1$
+    batch.append(")");
 
     if (containsInsertOptions(additionalOpts)) {
-      batch.append(" USING "); // $NON-NLS-1$
+      batch.append(" USING ");
 
       boolean first = true;
       for (Map.Entry<String, String> o : additionalOpts.entrySet()) {
         if (validInsertOption(o.getKey())) {
           if (first) {
-            batch.append(o.getKey()).append(" ").append(o.getValue()); // $NON-NLS-1$
+            batch.append(o.getKey()).append(" ").append(o.getValue());
             first = false;
           } else {
             batch
                 .append(" AND ")
                 .append(o.getKey())
-                .append(" ") // $NON-NLS-1$ //$NON-NLS-2$
+                .append(" ")
                 .append(o.getValue());
           }
         }
       }
     }
 
-    batch.append("\n"); // $NON-NLS-1$
+    batch.append("\n");
 
     return true;
   }
 
   protected static boolean validInsertOption(String opt) {
-    return (opt.equalsIgnoreCase("ttl")
-        || opt.equalsIgnoreCase("timestamp")); // $NON-NLS-1$ //$NON-NLS-2$
+    return (opt.equalsIgnoreCase("ttl") || opt.equalsIgnoreCase("timestamp"));
   }
 
   protected static boolean containsInsertOptions(Map<String, String> opts) {
@@ -557,7 +545,7 @@ public class CassandraUtils {
   protected static String escapeSingleQuotes(String source) {
 
     // escaped by doubling (as in SQL)
-    return source.replace("'", "''"); // $NON-NLS-1$ //$NON-NLS-2$
+    return source.replace("'", "''");
   }
 
   /**
@@ -598,11 +586,11 @@ public class CassandraUtils {
   }
 
   /**
-   * Static utility method that converts a Kettle value into an appropriately encoded CQL string.
+   * Static utility method that converts a Hop value into an appropriately encoded CQL string.
    * Does not handle collection types yet.
    *
-   * @param vm the ValueMeta for the Kettle value
-   * @param value the actual Kettle value
+   * @param vm the ValueMeta for the Hop value
+   * @param value the actual Hop value
    * @param cqlMajVersion the major version number of the CQL to use
    * @return an appropriately encoded CQL string representation of the value, suitable for using in
    *     an CQL query.
@@ -611,7 +599,7 @@ public class CassandraUtils {
   public static String kettleValueToCQL(IValueMeta vm, Object value, int cqlMajVersion)
       throws HopValueException {
 
-    String quote = cqlMajVersion == 2 ? "'" : ""; // $NON-NLS-1$ //$NON-NLS-2$
+    String quote = cqlMajVersion == 2 ? "'" : "";
     switch (vm.getType()) {
       case IValueMeta.TYPE_STRING:
         {
@@ -619,7 +607,7 @@ public class CassandraUtils {
           String toConvert = vm.getString(value);
           ByteBuffer decomposed = u.decompose(toConvert);
           String cassandraString = u.getString(decomposed);
-          return "'" + escapeSingleQuotes(cassandraString) + "'"; // $NON-NLS-1$ //$NON-NLS-2$
+          return "'" + escapeSingleQuotes(cassandraString) + "'";
         }
       case IValueMeta.TYPE_BIGNUMBER:
         {
@@ -660,9 +648,7 @@ public class CassandraUtils {
           Date toConvert = vm.getDate(value);
           String cassandraFormattedDateString =
               ts.toStringUTC(toConvert); // Timestamp string in format "yyyy-MM-dd'T'HH:mm:ss.SSSX"
-          return "'"
-              + escapeSingleQuotes(cassandraFormattedDateString)
-              + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+          return "'" + escapeSingleQuotes(cassandraFormattedDateString) + "'";
         }
       case IValueMeta.TYPE_BINARY:
       case IValueMeta.TYPE_SERIALIZABLE:
@@ -670,16 +656,12 @@ public class CassandraUtils {
         // TODO blob constant (hex string) for TYPE_BINARY (see
         // http://cassandra.apache.org/doc/cql3/CQL.html)
         throw new HopValueException(
-            BaseMessages.getString(
-                PKG, "CassandraUtils.Error.CantConvertBinaryToCQL")); // $NON-NLS-1$
+            BaseMessages.getString(PKG, "CassandraUtils.Error.CantConvertBinaryToCQL"));
     }
 
     throw new HopValueException(
         BaseMessages.getString(
-            PKG,
-            "CassandraUtils.Error.CantConvertType",
-            vm.getName(),
-            vm.getTypeDesc())); // $NON-NLS-1$
+            PKG, "CassandraUtils.Error.CantConvertType", vm.getName(), vm.getTypeDesc()));
   }
 
   /**
@@ -690,26 +672,22 @@ public class CassandraUtils {
    */
   public static String optionsToString(Map<String, String> opts) {
     if (opts.size() == 0) {
-      return ""; //$NON-NLS-1$
+      return "";
     }
 
     StringBuilder optsBuilder = new StringBuilder();
     for (Map.Entry<String, String> e : opts.entrySet()) {
-      optsBuilder
-          .append(e.getKey())
-          .append("=")
-          .append(e.getValue()) // $NON-NLS-1$
-          .append(" "); // $NON-NLS-1$
+      optsBuilder.append(e.getKey()).append("=").append(e.getValue()).append(" ");
     }
 
     return optsBuilder.toString();
   }
 
   /**
-   * Returns how many fields (including the key) will be written given the incoming Kettle row
+   * Returns how many fields (including the key) will be written given the incoming Hop row
    * format
    *
-   * @param inputMeta the incoming Kettle row format
+   * @param inputMeta the incoming Hop row format
    * @param keyIndex the index(es) of the key field in the incoming row format
    * @param cassandraMeta table meta data
    * @param insertFieldsNotInMetaData true if incoming fields not explicitly defined in the table
@@ -802,7 +780,7 @@ public class CassandraUtils {
   }
 
   /**
-   * A function designed to check any mismatched Kettle <-> CQL types and fix those issues For now,
+   * A function designed to check any mismatched Hop <-> CQL types and fix those issues For now,
    * it just checks if a java.util.Date is specified for a CQL Date column, and converts that object
    * to a com.datastax.driver.core.LocalDate type
    *
@@ -823,7 +801,7 @@ public class CassandraUtils {
         if (batch.get(i)[j] != null) {
           // CQL Date / Timestamp type checks
           if (cassandraMeta.getColumnCQLType(colNames.get(j)).getName() == DataType.Name.DATE) {
-            // Check that Kettle type isn't actually more like a timestamp
+            // Check that Hop type isn't actually more like a timestamp
             // NOTE: batch order does not match cassandraMeta order, need to pair up
             int index = inputMeta.indexOfValue(colNames.get(j));
             if (batch.get(i)[index].getClass() == Date.class) {

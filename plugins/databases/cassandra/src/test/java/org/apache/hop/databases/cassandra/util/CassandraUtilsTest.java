@@ -138,13 +138,13 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testKettleToCQLDateAndTimestamp() throws Exception {
-    // We will always convert a kettle Date type to a CQL timestamp type
+  public void testHopToCqlDateAndTimestamp() throws Exception {
+    // We will always convert a Hop Date type to a CQL timestamp type
     IValueMeta vmDate = mock(ValueMetaDate.class);
     IValueMeta vmTimestamp = mock(ValueMetaTimestamp.class);
     Date testTimestamp = new Date(1520816523456L);
 
-    // Kettle Date and Timestamps will produce the same CQL timestamp output result
+    // Hop Date and Timestamps will produce the same CQL timestamp output result
     when(vmDate.getType()).thenReturn(IValueMeta.TYPE_DATE);
     when(vmTimestamp.getType()).thenReturn(IValueMeta.TYPE_TIMESTAMP);
     when(vmDate.getDate(any())).thenReturn(testTimestamp);

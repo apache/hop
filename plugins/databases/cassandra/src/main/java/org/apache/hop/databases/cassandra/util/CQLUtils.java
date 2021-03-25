@@ -121,7 +121,7 @@ public class CQLUtils {
   }
 
   /**
-   * Extract select expression from the select clause. Assumes that any kettle variables have been
+   * Extract select expression from the select clause. Assumes that any Hop variables have been
    * already substituted in the query.
    *
    * @param cqlExpresssion the select clause
