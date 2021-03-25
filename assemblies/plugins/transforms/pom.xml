@@ -41,7 +41,6 @@
         <module>blockingtransform</module>
         <module>blockuntiltransformsfinish</module>
         <module>calculator</module>
-        <module>cassandra</module>
         <module>changefileencoding</module>
         <module>checksum</module>
         <module>clonerow</module>
