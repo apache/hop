@@ -31,6 +31,7 @@ import java.util.List;
 public class ProjectsConfig {
 
   public static final String HOP_CONFIG_PROJECTS_CONFIG_KEY = "projectsConfig";
+  public static final String DEFAULT_PROJECT_CONFIG_FILENAME = "project-config.json";
 
   private boolean enabled;
 
@@ -40,6 +41,7 @@ public class ProjectsConfig {
   private String defaultEnvironment;
   private String standardParentProject;
   private String standardProjectsFolder;
+  private String defaultProjectConfigFile;
 
   private List<ProjectConfig> projectConfigurations;
   private List<LifecycleEnvironment> lifecycleEnvironments;
@@ -47,6 +49,7 @@ public class ProjectsConfig {
 
   public ProjectsConfig() {
     enabled = true;
+    defaultProjectConfigFile = DEFAULT_PROJECT_CONFIG_FILENAME;
     projectConfigurations = new ArrayList<>();
     lifecycleEnvironments = new ArrayList<>();
     projectLifecycles = new ArrayList<>();
@@ -64,6 +67,7 @@ public class ProjectsConfig {
     defaultEnvironment = config.defaultEnvironment;
     standardParentProject = config.standardParentProject;
     standardProjectsFolder = config.standardProjectsFolder;
+    defaultProjectConfigFile = config.defaultProjectConfigFile;
   }
 
   public ProjectConfig findProjectConfig(String projectName) {
@@ -366,5 +370,21 @@ public class ProjectsConfig {
    */
   public void setStandardProjectsFolder( String standardProjectsFolder ) {
     this.standardProjectsFolder = standardProjectsFolder;
+  }
+
+  /**
+   * Gets defaultProjectConfigFile
+   *
+   * @return value of defaultProjectConfigFile
+   */
+  public String getDefaultProjectConfigFile() {
+    return defaultProjectConfigFile;
+  }
+
+  /**
+   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
+   */
+  public void setDefaultProjectConfigFile( String defaultProjectConfigFile ) {
+    this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
 }

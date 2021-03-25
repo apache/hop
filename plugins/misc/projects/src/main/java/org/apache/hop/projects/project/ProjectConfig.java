@@ -26,15 +26,12 @@ import java.util.Objects;
 
 public class ProjectConfig {
 
-  public static final String DEFAULT_PROJECT_CONFIG_FILENAME = "project-config.json";
-
   protected String projectName;
   protected String projectHome;
   protected String configFilename;
 
   public ProjectConfig() {
     super();
-    this.configFilename = DEFAULT_PROJECT_CONFIG_FILENAME;
   }
 
   public ProjectConfig( String projectName, String projectHome, String configFilename ) {

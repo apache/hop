@@ -52,6 +52,7 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
+  private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME = "10070-default-project-config-filename";
 
   @GuiWidgetElement(
       id = WIDGET_ID_ENABLE_PROJECTS,
@@ -127,6 +128,16 @@ public class ProjectsConfigOptionPlugin
     description = "GUI: The standard projects folder proposed when creating projects")
   private String standardProjectsFolder;
 
+  @GuiWidgetElement(
+    id = WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME,
+    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+    type = GuiElementType.TEXT,
+    variables = true,
+    label = "The standard project configuration filename proposed when creating projects")
+  @CommandLine.Option(
+    names = {"-dc", "--default-projects-folder"},
+    description = "The standard project configuration filename proposed when creating projects")
+  private String defaultProjectConfigFile;
   /**
    * Gets instance
    *
@@ -143,6 +154,7 @@ public class ProjectsConfigOptionPlugin
     instance.environmentMandatory = config.isEnvironmentMandatory();
     instance.standardParentProject = config.getStandardParentProject();
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
+    instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
     return instance;
   }
 
@@ -206,6 +218,14 @@ public class ProjectsConfigOptionPlugin
             + "'");
         changed = true;
       }
+      if (defaultProjectConfigFile != null) {
+        config.setDefaultProjectConfigFile( defaultProjectConfigFile );
+        log.logBasic(
+          "The default project configuration filename is set to '"
+            + defaultProjectConfigFile
+            + "'");
+        changed = true;
+      }
       // Save to file if anything changed
       //
       if (changed) {
@@ -259,6 +279,10 @@ public class ProjectsConfigOptionPlugin
         case WIDGET_ID_STANDARD_PROJECTS_FOLDER:
           standardProjectsFolder = ((TextVar) control).getText();
           ProjectsConfigSingleton.getConfig().setStandardProjectsFolder(standardProjectsFolder);
+          break;
+        case WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME:
+          defaultProjectConfigFile = ((TextVar) control).getText();
+          ProjectsConfigSingleton.getConfig().setDefaultProjectConfigFile(defaultProjectConfigFile);
           break;
       }
     }
@@ -373,5 +397,21 @@ public class ProjectsConfigOptionPlugin
    */
   public void setStandardProjectsFolder( String standardProjectsFolder ) {
     this.standardProjectsFolder = standardProjectsFolder;
+  }
+
+  /**
+   * Gets defaultProjectConfigFile
+   *
+   * @return value of defaultProjectConfigFile
+   */
+  public String getDefaultProjectConfigFile() {
+    return defaultProjectConfigFile;
+  }
+
+  /**
+   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
+   */
+  public void setDefaultProjectConfigFile( String defaultProjectConfigFile ) {
+    this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
 }
