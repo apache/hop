@@ -57,7 +57,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
   public static String DEFAULT_SCALE_TIME = "seconds";
 
   // before 3.1.1 it was "millisecond","second","minute","hour"-->
-  // keep compatibility see PDI-1850, PDI-1532
+  // keep compatibility
   public String[] ScaleTimeCode = {"milliseconds", "seconds", "minutes", "hours"};
 
   public DelayMeta() {
@@ -130,9 +130,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
       scaletime = XmlHandler.getTagValue(transformNode, "scaletime");
       // set all unknown values to seconds
       setScaleTimeCode(
-          getScaleTimeCode()); // compatibility reasons for pipelines before 3.1.1, see PDI-1850,
-      // PDI-1532
-
+          getScaleTimeCode()); // compatibility reasons for pipelines
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "DelayMeta.Exception.UnableToReadTransformMeta"), e);

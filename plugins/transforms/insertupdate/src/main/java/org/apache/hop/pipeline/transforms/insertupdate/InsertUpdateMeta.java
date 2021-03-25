@@ -902,7 +902,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
       return;
     }
     int nrFields = keyStream.length;
-    // PDI-16349
     if (keyStream2.length < nrFields) {
       String[] newKeyStream2 = new String[nrFields];
       System.arraycopy(keyStream2, 0, newKeyStream2, 0, keyStream2.length);

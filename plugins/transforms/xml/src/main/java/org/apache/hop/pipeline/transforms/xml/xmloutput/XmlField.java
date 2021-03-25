@@ -34,7 +34,7 @@ public class XmlField implements Cloneable {
     Element, Attribute;
 
     /**
-     * [PDI-15575] Ensuring that this enum can return with some default value. Necessary for when being used on the
+     * Ensuring that this enum can return with some default value. Necessary for when being used on the
      * GUI side if a user leaves the field empty, it will enforce a default value. This allows the object to be saved,
      * loaded, and cloned as necessary.
      * @param contentType

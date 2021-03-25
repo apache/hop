@@ -141,7 +141,6 @@ public class ParseMailInputTest {
     Header ex1 = new Header( HDR_EX1, HDR_EX1V );
     Header ex2 = new Header( HDR_EX2, HDR_EX2V );
 
-    // for fixed [PDI-6532]
     when( message.getMatchingHeaders( AdditionalMatchers.aryEq( new String[] { HDR_EX1 } ) ) ).thenReturn(
       getEnum( new Header[] { ex1 } ) );
     when( message.getMatchingHeaders( AdditionalMatchers.aryEq( new String[] { HDR_EX2 } ) ) ).thenReturn(
@@ -155,7 +154,7 @@ public class ParseMailInputTest {
   }
 
   /**
-   * [PDI-6532] When mail header is found returns his actual value.
+   * When mail header is found returns his actual value.
    *
    * @throws Exception
    * @throws HopException
@@ -184,7 +183,7 @@ public class ParseMailInputTest {
   }
 
   /**
-   * [PDI-6532] When mail header is not found returns empty String
+   * When mail header is not found returns empty String
    *
    * @throws Exception
    */

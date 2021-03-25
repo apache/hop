@@ -529,7 +529,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     // Can't use batch yet when grabbing auto-generated keys...
     // Only enable batch option when not returning keys.
-    // If we are on PostgreSQL (and look-a-likes), error handling is not supported. (PDI-366)
+    // If we are on PostgreSQL (and look-a-likes), error handling is not supported.
     //
     boolean enableBatch = wBatch.getSelection();
     enableBatch =

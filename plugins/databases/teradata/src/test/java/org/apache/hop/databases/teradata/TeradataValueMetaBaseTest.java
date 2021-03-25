@@ -104,7 +104,7 @@ public class TeradataValueMetaBaseTest {
 
   @Ignore
   @Test
-  public void testMetdataPreviewSqlDateToPentahoDateUsingTeradata() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlDateToHopDateUsingTeradata() throws SQLException, HopDatabaseException {
     doReturn( Types.DATE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( TeradataDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );

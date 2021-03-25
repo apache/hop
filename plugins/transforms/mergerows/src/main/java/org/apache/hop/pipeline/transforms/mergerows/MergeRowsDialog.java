@@ -389,7 +389,6 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
     transformName = wTransformName.getText(); // return value
 
-    // PDI-13509 Fix
     if (nrKeys > 0
         && "Y".equalsIgnoreCase(props.getCustomParameter(STRING_SORT_WARNING_PARAMETER, "Y"))) {
       MessageDialogWithToggle md =

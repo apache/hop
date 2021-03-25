@@ -811,8 +811,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
 
       try {
-        // To correct lazy programmers who built certain PDI transform...
-        //
         data.neoConnection =
             metadataProvider.getSerializer(NeoConnection.class).load(meta.getConnection());
         if (data.neoConnection == null) {

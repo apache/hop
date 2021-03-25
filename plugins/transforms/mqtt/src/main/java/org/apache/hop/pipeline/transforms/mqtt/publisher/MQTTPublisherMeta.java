@@ -115,14 +115,14 @@ public class MQTTPublisherMeta
   }
 
   /**
-   * @return Target message field name in Kettle stream
+   * @return Target message field name in Hop stream
    */
   public String getField() {
     return field;
   }
 
   /**
-   * @param field Target field name in Kettle stream
+   * @param field Target field name in Hop stream
    */
   public void setField( String field ) {
     this.field = field;

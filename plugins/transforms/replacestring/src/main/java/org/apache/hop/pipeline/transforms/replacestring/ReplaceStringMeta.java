@@ -402,7 +402,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
         // We have a new field
         valueMeta = new ValueMetaString(fieldName);
         valueMeta.setOrigin(name);
-        // set encoding to new field from source field http://jira.pentaho.com/browse/PDI-11839
+        // set encoding to new field from source field
         IValueMeta sourceField = inputRowMeta.searchValueMeta(fieldInStream[i]);
         if (sourceField != null) {
           valueMeta.setStringEncoding(sourceField.getStringEncoding());

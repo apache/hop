@@ -357,7 +357,7 @@ public class SortRowsMeta extends BaseTransformMeta
         }
         // Also see if lazy conversion is active on these key fields.
         // If so we want to automatically convert them to the normal storage type.
-        // This will improve performance, see also: PDI-346
+        // This will improve performance
         //
         valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
         valueMeta.setStorageMetadata(null);

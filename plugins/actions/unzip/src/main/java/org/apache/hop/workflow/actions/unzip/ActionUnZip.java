@@ -78,7 +78,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   public int afterunzip;
   private String wildcard;
   private String wildcardExclude;
-  private String sourcedirectory; // targetdirectory on screen, renamed because of PDI-7761
+  private String sourcedirectory; // targetdirectory on screen
   private String movetodirectory;
   private boolean addfiletoresult;
   private boolean isfromprevious;

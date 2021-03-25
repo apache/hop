@@ -266,7 +266,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
           break;
       }
       if ( resultValue == null && allNullsAreZero ) {
-        // PDI-9662 seems all rows for min function was nulls...
+        //seems all rows for min function was nulls...
         resultValue = getZero( outputIndex );
       }
       outputRowData[ outputIndex++ ] = resultValue;
@@ -353,7 +353,6 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
 
       // clone source meta as it can be used by other transforms ans set conversion meta
       // to convert date to target format
-      // See PDI-4910 for details
       IValueMeta origSourceMeta = sourceMeta;
       if ( targetMeta.isDate() ) {
         sourceMeta = origSourceMeta.clone();
@@ -371,7 +370,6 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
           break;
         case DenormaliserTargetField.TYPE_AGGR_MIN:
           if ( sourceData == null && !minNullIsValued ) {
-            // PDI-9662 do not compare null
             break;
           }
           if ( ( prevTargetData == null && !minNullIsValued )
@@ -439,7 +437,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   }
 
   /**
-   * Get the metadata used for conversion to date format See related PDI-4019
+   * Get the metadata used for conversion to date format See related
    *
    * @param mask
    * @return

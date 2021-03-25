@@ -62,20 +62,20 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // returns null if no more rows expected
     Object[] row = getRow();
 
-    // if no more rows are expected, indicate step is finished and
+    // if no more rows are expected, indicate transform is finished and
     // processRow() should not be called again
     if (row == null) {
       setOutputDone();
       return false;
     }
 
-    // the "first" flag is inherited from the base step implementation
+    // the "first" flag is inherited from the base transform implementation
     // it is used to guard some processing tasks, like figuring out field
     // indexes
     // in the row structure that only need to be done once
     if (first) {
       if (log.isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "CoalesceTransform.Log.StartedProcessing")); // $NON-NLS-1$
+        logDebug(BaseMessages.getString(PKG, "CoalesceTransform.Log.StartedProcessing"));
       }
 
       first = false;

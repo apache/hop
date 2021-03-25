@@ -104,7 +104,6 @@ public class ReplaceStringTest {
     assertArrayEquals( "Output varies", expectedRow, output );
   }
 
-  //PDI-16472
   @Test
   public void testSynchronizeDifferentFieldsArraysLengths() throws Exception {
 

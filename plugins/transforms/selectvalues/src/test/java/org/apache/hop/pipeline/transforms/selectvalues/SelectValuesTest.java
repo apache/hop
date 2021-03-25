@@ -106,8 +106,6 @@ public class SelectValuesTest {
 
   @Test
   public void testPDI16368() throws Exception {
-    // This tests that the fix for PDI-16388 doesn't get re-broken.
-    //
     SelectValuesHandler transform2 = null;
     Object[] inputRow2 = null;
     RowMeta inputRowMeta = null;

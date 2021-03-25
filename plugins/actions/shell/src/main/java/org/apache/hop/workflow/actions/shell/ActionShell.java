@@ -659,7 +659,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   @VisibleForTesting
   String replaceWinEOL(String input) {
     String result = input;
-    // replace Windows's EOL if it's contained ( see PDI-12176 )
+    // replace Windows's EOL if it's contained
     result = result.replaceAll("\\r\\n?", "\n");
 
     return result;

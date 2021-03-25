@@ -76,10 +76,20 @@ public class Project extends ConfigFile implements IConfigFile {
   @Override
   public void saveToFile() throws HopException {
     try {
+      File file = new File(configFilename);
+
+      // Does the parent folder of the file exist?
+      //
+      if (!file.getParentFile().exists()) {
+        // Create it to make sure.
+        //
+        file.getParentFile().mkdirs();
+      }
+
       ObjectMapper objectMapper = new ObjectMapper();
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
       objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-      objectMapper.writeValue(new File(configFilename), this);
+      objectMapper.writeValue(file, this);
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);

@@ -136,7 +136,6 @@ public class MongoFieldTest {
   public void testConvertUndefinedOrNullToHopValue() throws HopException {
     BasicDBObject dbObj = BasicDBObject.parse("{ test1 : undefined, test2 : null } ");
     initField("fieldName", "$.test1", "String");
-    // PDI-16090S
     assertNull("Undefined should be interpreted as null ", field.convertToHopValue(dbObj));
     initField("fieldName", "$.test2", "String");
     assertNull(field.convertToHopValue(dbObj));

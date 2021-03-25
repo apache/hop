@@ -106,7 +106,6 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
       cloned.getTransformIOMeta().getInfoStreams().get( 0 ) );
   }
 
-  //PDI-16110
   @Test
   public void testGetXml() {
     StreamLookupMeta streamLookupMeta = new StreamLookupMeta();

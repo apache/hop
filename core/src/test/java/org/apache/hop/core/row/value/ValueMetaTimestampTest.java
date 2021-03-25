@@ -55,7 +55,7 @@ public class ValueMetaTimestampTest {
     try {
       vm.setPreparedStatementValue( mock( DatabaseMeta.class ), ps, 0, null );
     } catch ( HopDatabaseException ex ) {
-      fail( "Check PDI-11547" );
+      fail( "Error setting value on prepared statement " );
     }
 
   }

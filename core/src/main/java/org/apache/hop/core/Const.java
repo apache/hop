@@ -387,22 +387,21 @@ public class Const {
       "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
 
   /**
-   * System wide flag to ignore timezone while writing date/timestamp value to the database. See
-   * PDI-10749 for details.
+   * System wide flag to ignore timezone while writing date/timestamp value to the database.
    */
   public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE =
       "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
 
   /**
    * System wide flag to set or not append and header options dependency on Text file output
-   * transform. See PDI-5252 for details.
+   * transform.
    */
   public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER =
       "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
 
   /**
    * System wide flag to control behavior of the merge rows (diff) transform in case of "identical"
-   * comparison. (PDI-736) 'Y' preserves the old behavior and takes the fields from the reference
+   * comparison. 'Y' preserves the old behavior and takes the fields from the reference
    * stream 'N' enables the documented behavior and takes the fields from the comparison stream
    * (correct behavior)
    */
@@ -411,7 +410,7 @@ public class Const {
 
   /**
    * System wide flag to control behavior of the Memory Group By transform in case of SUM and
-   * AVERAGE aggregation. (PDI-5537) 'Y' preserves the old behavior and always returns a Number type
+   * AVERAGE aggregation. 'Y' preserves the old behavior and always returns a Number type
    * for SUM and Average aggregations 'N' enables the documented behavior of returning the same type
    * as the input fields use (correct behavior).
    */
@@ -652,23 +651,18 @@ public class Const {
       "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION";
 
   /** Compatibility settings for setNrErrors */
-  // see PDI-10270 for details.
   public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS =
       "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS";
 
-  // See PDI-15781 for details
   public static final String HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS =
       "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS";
 
-  // See PDI-16388 for details
   public static final String HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS =
       "HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS";
 
-  // See PDI-17203 for details
   public static final String HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES =
       "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES";
 
-  // See PDI-17980 for details
   public static final String HOP_COMPATIBILITY_USE_JDBC_METADATA =
       "HOP_COMPATIBILITY_USE_JDBC_METADATA";
 
@@ -720,8 +714,6 @@ public class Const {
    * <p>If not set or if the configured value is invalid, it defaults to {@value
    * #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT}
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING
    */
@@ -730,8 +722,6 @@ public class Const {
   /**
    * The default value for the {@link #HOP_ZIP_MIN_INFLATE_RATIO} as a Double.
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MIN_INFLATE_RATIO
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING
    */
@@ -739,8 +729,6 @@ public class Const {
 
   /**
    * The default value for the {@link #HOP_ZIP_MIN_INFLATE_RATIO} as a String.
-   *
-   * <p>Check PDI-17586 for more details.
    *
    * @see #HOP_ZIP_MIN_INFLATE_RATIO
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
@@ -754,8 +742,6 @@ public class Const {
    * <p>If not set or if the configured value is invalid, it defaults to {@value
    * #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT}
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
@@ -764,8 +750,6 @@ public class Const {
   /**
    * The default value for the {@link #HOP_ZIP_MAX_ENTRY_SIZE} as a Long.
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
@@ -773,8 +757,6 @@ public class Const {
 
   /**
    * The default value for the {@link #HOP_ZIP_MAX_ENTRY_SIZE} as a String.
-   *
-   * <p>Check PDI-17586 for more details.
    *
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
@@ -789,8 +771,6 @@ public class Const {
    * <p>If not set or if the configured value is invalid, it defaults to {@value
    * #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT}
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING
    */
@@ -799,8 +779,6 @@ public class Const {
   /**
    * The default value for the {@link #HOP_ZIP_MAX_TEXT_SIZE} as a Long.
    *
-   * <p>Check PDI-17586 for more details.
-   *
    * @see #HOP_ZIP_MAX_TEXT_SIZE
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING
    */
@@ -808,8 +786,6 @@ public class Const {
 
   /**
    * The default value for the {@link #HOP_ZIP_MAX_TEXT_SIZE} as a Long.
-   *
-   * <p>Check PDI-17586 for more details.
    *
    * @see #HOP_ZIP_MAX_TEXT_SIZE
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT

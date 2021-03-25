@@ -72,7 +72,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> imple
       data.twoRowSet = findInputRowSet( infoStreams.get( 1 ).getTransformName() );
 
       //rowSetWhenIdentical is use in case the comparison is IDENTICAL.
-      //this should be the "Comparison" stream but can be the "Reference" stream for backward compatibility (PDI-736)
+      //this should be the "Comparison" stream but can be the "Reference" stream for backward compatibility
       String useRefWhenIdenticalVar = Const.NVL( getVariable( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL ), "N" );
       if ( "N".equalsIgnoreCase( useRefWhenIdenticalVar ) ) {
         //use the reference stream (as per documentation)
@@ -169,11 +169,11 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> imple
 
         int compareValues = data.oneRowSet.getRowMeta().compare( data.one, data.two, data.valueNrs );
         if ( compareValues == 0 ) {
-          if ( useRefWhenIdentical ) {  //backwards compatible behavior: use the reference stream (PDI-736)
+          if ( useRefWhenIdentical ) {  //backwards compatible behavior: use the reference stream
             outputRow = data.one;
             outputIndex = data.oneRowSet.getRowMeta().size();
           } else {
-            outputRow = data.two;       //documented behavior: use the comparison stream (PDI-736)
+            outputRow = data.two;       //documented behavior: use the comparison stream
             outputIndex = data.twoRowSet.getRowMeta().size();
           }
           flagField = VALUE_IDENTICAL;

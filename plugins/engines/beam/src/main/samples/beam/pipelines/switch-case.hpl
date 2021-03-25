@@ -28,53 +28,6 @@
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
-    <dependencies>
-    </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <hop-servers>
-      <hop-server>
-        <name>sandbox</name>
-        <hostname>sandbox.kettle.be</hostname>
-        <port>8080</port>
-        <webAppName>spoon</webAppName>
-        <username>cluster</username>
-        <password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password>
-        <proxy_hostname />
-        <proxy_port />
-        <non_proxy_hosts />
-        <master>N</master>
-        <sslMode>N</sslMode>
-      </hop-server>
-      <hop-server>
-        <name>server1</name>
-        <hostname>localhost</hostname>
-        <port>8300</port>
-        <webAppName />
-        <username>cluster</username>
-        <password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password>
-        <proxy_hostname />
-        <proxy_port />
-        <non_proxy_hosts />
-        <master>N</master>
-        <sslMode>N</sslMode>
-      </hop-server>
-      <hop-server>
-        <name>server2</name>
-        <hostname>localhost</hostname>
-        <port>8301</port>
-        <webAppName />
-        <username>cluster</username>
-        <password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password>
-        <proxy_hostname />
-        <proxy_port />
-        <non_proxy_hosts />
-        <master>N</master>
-        <sslMode>N</sslMode>
-      </hop-server>
-    </hop-servers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2018/11/29 13:30:22.901</created_date>
     <modified_user>-</modified_user>

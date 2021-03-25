@@ -41,7 +41,7 @@ public class PoiWorkbook implements IKWorkbook {
   private Workbook workbook;
   private String filename;
   private String encoding;
-  // for PDI-10251 we need direct access to streams
+  // we need direct access to streams
   private InputStream internalIS;
   private POIFSFileSystem poifs;
   private OPCPackage opcpkg;

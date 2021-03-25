@@ -305,8 +305,6 @@ public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, 
 
   @Override
   public boolean init( ) {
-
-    // For https://jira.pentaho.com/browse/ESR-6833
     data.mapData = "true".equalsIgnoreCase( System.getProperties().getProperty( "MAP_SALESFORCE_UPSERT_DATA_TYPES" ) );
 
     if ( super.init() ) {
@@ -349,7 +347,7 @@ public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, 
   }
 
   /**
-   * For https://jira.pentaho.com/browse/ESR-6833. Maps the field names to their data types
+   * Maps the field names to their data types
    *
    * @param fields - Array of fields to map
    * @return - Map of field names to their data types

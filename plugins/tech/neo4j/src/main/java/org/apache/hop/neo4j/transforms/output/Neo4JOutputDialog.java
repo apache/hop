@@ -129,7 +129,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Shell.Title")); // $NON-NLS-1$
+    shell.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -137,7 +137,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.StepName.Label")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.StepName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -290,9 +290,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK")); // $NON-NLS-1$
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel")); // $NON-NLS-1$
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
@@ -318,7 +318,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
      * STRING_FROM
      */
     CTabItem wFromTab = new CTabItem(wTabFolder, SWT.NONE);
-    wFromTab.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.FromTab")); // $NON-NLS-1$
+    wFromTab.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.FromTab"));
 
     FormLayout fromLayout = new FormLayout();
     fromLayout.marginWidth = 3;
@@ -378,7 +378,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     Button wGetFromLabel = new Button(wFromComp, SWT.PUSH);
     wGetFromLabel.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetFromLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -448,7 +448,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     Button wGetFromProps = new Button(wFromComp, SWT.PUSH);
     wGetFromProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetFromProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -484,7 +484,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
      */
 
     CTabItem wToTab = new CTabItem(wTabFolder, SWT.NONE);
-    wToTab.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.ToTab")); // $NON-NLS-1$
+    wToTab.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.ToTab"));
 
     FormLayout toLayout = new FormLayout();
     toLayout.marginWidth = 3;
@@ -544,7 +544,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     Button wGetToLabel = new Button(wToComp, SWT.PUSH);
     wGetToLabel.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetToLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -613,7 +613,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     Button wGetToProps = new Button(wToComp, SWT.PUSH);
     wGetToProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetToProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -648,7 +648,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
      */
     CTabItem wRelationshipsTab = new CTabItem(wTabFolder, SWT.NONE);
     wRelationshipsTab.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.RelationshipsTab")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.RelationshipsTab"));
 
     FormLayout relationshipsLayout = new FormLayout();
     relationshipsLayout.marginWidth = 3;
@@ -736,7 +736,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     Button wbRelProps = new Button(wRelationshipsComp, SWT.PUSH);
     wbRelProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wbRelProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -1145,7 +1145,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
           shell,
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage"),
-          ke); //$NON-NLS-1$ //$NON-NLS-2$
+          ke);  //$NON-NLS-2$
     }
   }
 

@@ -261,7 +261,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
         input.setChanged();
       }
     } );
-    // PDI-2107 preserve memory should be enabled to have this options on.
+    // preserve memory should be enabled to have this options on.
     wPreserveMemory.addListener( SWT.Selection, event -> {
       boolean selection = wPreserveMemory.getSelection();
       wSortedList.setEnabled( selection );
@@ -464,7 +464,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       wSortedList.setEnabled( true );
       wIntegerPair.setEnabled( true );
     }
-    // PDI-2107 usually this is sorted list or integer pair
+    // usually this is sorted list or integer pair
     // for backward compatibility they can be set both
     // but user will be forced to choose only one option later.
     wSortedList.setSelection( input.isUsingSortedList() );

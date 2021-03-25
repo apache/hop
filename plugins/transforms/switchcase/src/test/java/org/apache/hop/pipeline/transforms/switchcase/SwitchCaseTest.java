@@ -86,7 +86,7 @@ public class SwitchCaseTest {
   }
 
   /**
-   * PDI 6900. Test that process row works correctly. Simulate transform workload when input and output row sets already
+   * Test that process row works correctly. Simulate transform workload when input and output row sets already
    * created and mapped to specified case values.
    *
    * @throws HopException
@@ -171,7 +171,7 @@ public class SwitchCaseTest {
   }
 
   /**
-   * PDI-6900 Check that SwichCase transform can correctly set up input values to output IRowSets.
+   * Check that SwitchCase transform can correctly set up input values to output IRowSets.
    *
    * @throws HopException
    * @throws URISyntaxException

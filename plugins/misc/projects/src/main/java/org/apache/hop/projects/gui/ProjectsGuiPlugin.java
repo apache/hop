@@ -219,17 +219,19 @@ public class ProjectsGuiPlugin {
       image = "project-add.svg")
   public void addNewProject() {
     HopGui hopGui = HopGui.getInstance();
+    IVariables variables = hopGui.getVariables();
+
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-      String standardProjectsFolder = hopGui.getVariables().resolve( config.getStandardProjectsFolder() );
+      String standardProjectsFolder = variables.resolve( config.getStandardProjectsFolder() );
+      String defaultProjectConfigFilename = variables.resolve( config.getDefaultProjectConfigFile() );
       ProjectConfig projectConfig =
-          new ProjectConfig("", standardProjectsFolder, ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+          new ProjectConfig("", standardProjectsFolder, defaultProjectConfigFilename);
 
       Project project = new Project();
       project.setParentProjectName(config.getStandardParentProject());
       ProjectDialog projectDialog =
-          new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables());
+          new ProjectDialog(hopGui.getShell(), project, projectConfig, variables);
       String projectName = projectDialog.open();
       if (projectName != null) {
         config.addProjectConfig(projectConfig);

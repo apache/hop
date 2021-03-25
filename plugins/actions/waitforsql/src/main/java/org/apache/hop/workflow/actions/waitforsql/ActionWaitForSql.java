@@ -414,7 +414,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
     if ( result.getResult() ) {
       // Remove error count set at the beginning of the method
-      // PDI-15437
+      //
       result.setNrErrors( 0 );
     }
 

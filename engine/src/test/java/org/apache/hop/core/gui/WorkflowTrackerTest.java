@@ -36,7 +36,7 @@ public class WorkflowTrackerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
-  // PDI-11389 Number of workflow trackers should be limited by HOP_MAX_JOB_TRACKER_SIZE
+  // Number of workflow trackers should be limited by HOP_MAX_JOB_TRACKER_SIZE
   public void testAddJobTracker() throws Exception {
     final String old = System.getProperty( Const.HOP_MAX_WORKFLOW_TRACKER_SIZE );
 

@@ -144,7 +144,7 @@ public class DatabaseTest {
 
 
   /**
-   * PDI-11363. when using getLookup calls there is no need to make attempt to retrieve row set metadata for every call.
+   * When using getLookup calls there is no need to make attempt to retrieve row set metadata for every call.
    * That may bring performance penalty depends on jdbc driver implementation. For some drivers that penalty can be huge
    * (postgres).
    * <p/>

@@ -344,7 +344,6 @@ public class JsonOutputTest extends TestCase {
     Assert.assertEquals( EXPECTED_COMPATIBILITY_MODE_JSON, jsonStructure );
   }
 
-  /* PDI-7243 */
   public void testNpeIsNotThrownOnNullInput() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
       new TransformMockHelper<>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );

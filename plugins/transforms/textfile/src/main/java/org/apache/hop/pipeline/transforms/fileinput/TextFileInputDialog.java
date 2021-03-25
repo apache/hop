@@ -143,7 +143,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   private FormData fdlFilenameList, fdFilenameList;
 
   private Label wlFilemask;
-  // PDI-8664
   private TextVar wFilemask;
   private FormData fdlFilemask, fdFilemask;
 
@@ -720,7 +719,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
 
-    // PDI-8664
     wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
 
     props.setLook( wFilemask );
@@ -915,7 +913,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     colinfo[ 0 ].setUsingVariables( true );
     colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RegExpColumn.Column" ) );
 
-    // PDI-8664
     colinfo[ 1 ].setUsingVariables( true );
 
     colinfo[ 2 ].setUsingVariables( true );

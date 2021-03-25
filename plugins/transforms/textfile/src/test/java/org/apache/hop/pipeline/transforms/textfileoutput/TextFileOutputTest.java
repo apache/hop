@@ -466,7 +466,6 @@ public class TextFileOutputTest {
   }
 
   /**
-   * PDI-15650
    * File Exists=N Flag Set=N Add Header=Y Append=Y
    * Result = File is created, header is written at top of file (this changed by the fix)
    */
@@ -522,7 +521,6 @@ public class TextFileOutputTest {
   }
 
   /**
-   * PDI-15650
    * File Exists=N Flag Set=N Add Header=Y Append=Y
    * Result = File is created, header is written at top of file (this changed by the fix)
    * with file name in stream
@@ -578,9 +576,6 @@ public class TextFileOutputTest {
     assertEquals( 1, textFileOutputSpy.getResultFiles().size() );
   }
 
-  /**
-   * Test for PDI-13987
-   */
   @Test
   public void testFastDumpDisableStreamEncodeTest() throws Exception {
 

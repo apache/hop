@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Regression test for PDI-11152
+ * Regression test
  *
  * @author Pavel Sakun
  */

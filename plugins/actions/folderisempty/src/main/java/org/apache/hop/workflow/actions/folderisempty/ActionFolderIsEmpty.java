@@ -153,7 +153,6 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public Result execute( Result previousResult, int nr ) {
-    // see PDI-10270 for details
     boolean oldBehavior =
       "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
 

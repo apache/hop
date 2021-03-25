@@ -1721,7 +1721,7 @@ public class Database implements IVariables, ILoggingObject {
     if (databaseMeta.isStreamingResults() && getDatabaseMetaData().getDriverMajorVersion() == 3) {
       ps.setFetchSize(Integer.MIN_VALUE);
     } else if (fs <= getMaxRows) {
-      // PDI-11373 do not set fetch size more than max rows can returns
+      // do not set fetch size more than max rows can returns
       ps.setFetchSize(fs);
     }
   }
@@ -2514,7 +2514,6 @@ public class Database implements IVariables, ILoggingObject {
           ResultSet r = ps.executeQuery();
           try {
             //
-            // See PDI-14893
             // If we're in this private fallback method, it's because the databasemeta returns false
             // for
             // supportsPreparedStatementMetadataRetrieval() or because we got an exception trying to
@@ -4954,8 +4953,7 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  // Checks to see if the HOP_COMPATIBILITY_USE_JDBC_METADATA is set.  See PDI-17980 for more
-  // details.
+  // Checks to see if the HOP_COMPATIBILITY_USE_JDBC_METADATA is set.
   private boolean useJdbcMeta() {
     String useJdbcMeta =
         this.variables.getVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");

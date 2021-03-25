@@ -70,7 +70,7 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
     skipPropertyTest( "META_TYPE" );
   }
 
-  //PDI-16932 test default values length and precision after injection
+  // test default values length and precision after injection
   @Test
   public void testDefaultValue() throws Exception {
     IValueMeta valueMeta = new ValueMetaString( "f" );

@@ -319,7 +319,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     if (Utils.isEmpty(s)) return false;
 
-    return BaseMessages.getString(PKG, "System.Combo.Yes").equals(s); // $NON-NLS-1$
+    return BaseMessages.getString(PKG, "System.Combo.Yes").equals(s);
   }
 
   // TODO: Find a global function

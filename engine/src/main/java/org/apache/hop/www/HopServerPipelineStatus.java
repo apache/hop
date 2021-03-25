@@ -79,7 +79,6 @@ public class HopServerPipelineStatus {
   }
 
   public String getXml() throws HopException {
-    // See PDI-15781
     boolean sendResultXmlWithStatus = EnvUtil.getSystemProperty( "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N" ).equalsIgnoreCase( "Y" );
     return getXML( sendResultXmlWithStatus );
   }

@@ -469,7 +469,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   BaseMessages.getString(PKG, "ActionSimpleEval.VariableNotSet", variableName));
             }
-            // PDI-6943: this action does not set errors upon evaluation, independently of the
+            // this action does not set errors upon evaluation, independently of the
             // outcome of the check
             result.setNrErrors(0);
             return result;

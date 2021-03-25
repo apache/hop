@@ -791,7 +791,7 @@ public class PipelineDialog extends Dialog {
         throw new HopException();
       } else {
         if ( transformPerformanceCapturingDelay <= 0 ) {
-          // PDI-4848: Default to 1 second if transform performance monitoring is disabled
+          // Default to 1 second if transform performance monitoring is disabled
           transformPerformanceCapturingDelay = 1000;
         }
         pipelineMeta.setTransformPerformanceCapturingDelay( transformPerformanceCapturingDelay );

@@ -1150,7 +1150,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         }
       }
     } catch ( HopException ke ) {
-      if ( !Const.isOSX() ) { // see PDI-8871 for details
+      if ( !Const.isOSX() ) {
         shell.setFocus();
       }
       String EMPTY_FIELDS = "<EMPTY>";

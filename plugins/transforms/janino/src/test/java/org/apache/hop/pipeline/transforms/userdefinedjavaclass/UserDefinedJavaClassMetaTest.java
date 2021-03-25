@@ -78,7 +78,7 @@ public class UserDefinedJavaClassMetaTest {
 
     UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = Mockito.spy( userDefinedJavaClassMeta1 );
 
-    // Added classloader for https://jira.pentaho.com/browse/PDI-44134
+    // Added classloader
     Class<?> clazz1 = userDefinedJavaClassMetaSpy.cookClass( userDefinedJavaClassDef1, null );
     Class<?> clazz2 = userDefinedJavaClassMetaSpy.cookClass( userDefinedJavaClassDef1, clazz1.getClassLoader() );
     Assert.assertTrue( clazz1 == clazz2 ); // Caching should work here and return exact same class

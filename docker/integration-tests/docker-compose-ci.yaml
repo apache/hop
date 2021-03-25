@@ -32,10 +32,12 @@ services:
         - postgres
         - neo4j
         - mongo
+        - cassandra
       links:
         - postgres
         - neo4j
         - mongo
+        - cassandra
       environment:
         - FLASK_ENV=docker
       command: ["bash", "-c", "/files/scripts/run-tests.sh"]
@@ -56,3 +58,8 @@ services:
       image: mongo:latest
       ports:
         - "27017"
+    cassandra:
+      image: cassandra:latest
+      ports:
+        - "9042"
+        - "9160"

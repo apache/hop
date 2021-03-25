@@ -259,7 +259,7 @@ public class TestUtilities {
    * @param directory      The directory in the file system where the sort is to take place if it can't fit into
    *                       memory?
    * @param sortSize       ???
-   * @param pluginRegistry The environment's Kettle plugin registry.
+   * @param pluginRegistry The environment's Hop plugin registry.
    * @return
    */
   public static synchronized TransformMeta createSortRowsTransform( String name, String[] sortFields, boolean[] ascending,

@@ -661,7 +661,6 @@ public class StreamLookupMeta extends BaseTransformMeta
       return;
     }
     int nrFields = value.length;
-    // PDI-16110
     if (valueDefaultType.length < nrFields) {
       int[] newValueDefaultType = new int[nrFields];
       System.arraycopy(valueDefaultType, 0, newValueDefaultType, 0, valueDefaultType.length);

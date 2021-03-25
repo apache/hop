@@ -91,7 +91,7 @@
       <version>${slf4j-api.version}</version>
     </dependency>
 
-    <!-- pentaho depenencies -->
+    <!-- Hop dependencies -->
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>

@@ -92,7 +92,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   /**
-   * PDI-1284 in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
+   * in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
    * Ctrl-ALT-SPACE instead.
    *
    * @param e

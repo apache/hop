@@ -100,7 +100,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   private String socksProxyUsername;
   private String socksProxyPassword;
 
-  /** Implicit encoding used before PDI v2.4.1 */
+  /** Implicit encoding used before older version v2.4.1 */
   private static final String LEGACY_CONTROL_ENCODING = "US-ASCII";
 
   /** Default encoding when making a new ftp action instance. */

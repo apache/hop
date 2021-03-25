@@ -306,7 +306,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
         data.zip = new ZipOutputStream(fos);
         File entry = new File(buildFilename(false));
         ZipEntry zipentry = new ZipEntry(entry.getName());
-        zipentry.setComment("Compressed by Kettle");
+        zipentry.setComment("Compressed by Apache Hop");
         data.zip.putNextEntry(zipentry);
         outputStream = data.zip;
       } else {

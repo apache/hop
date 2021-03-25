@@ -117,7 +117,7 @@ public class TableView extends Composite {
   private static final Class<?> PKG = TableView.class; // For Translator
 
   // define CANCEL_KEYS here so that RWT needs not to be imported.
-  // HiromuHota/pentaho-kettle#123
+  //
   private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
 
   private final Composite parent;
@@ -659,7 +659,7 @@ public class TableView extends Composite {
           }
 
           /**
-           * This is a workaround for SWT bug (see PDI-15268). Calling a context menu should be
+           * This is a workaround for an SWT bug. Calling a context menu should be
            * ignored in SWT org.eclipse.swt.widgets.Control#gtk_event_after
            *
            * @return true if it is wrong event
@@ -1882,7 +1882,7 @@ public class TableView extends Composite {
     }
 
     // Table.getSelection() of RWT are ordered reversely.
-    // HiromuHota/pentaho-kettle#156
+    //
     if (EnvironmentUtils.getInstance().isWeb()) {
       ArrayUtils.reverse(items);
     }

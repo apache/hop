@@ -72,7 +72,6 @@ public class WorkflowTest {
   }
 
   /**
-   * This test demonstrates the issue fixed in PDI-17398.
    * When a workflow is scheduled twice, it gets the same log channel Id and both logs get merged
    */
   @Test
@@ -86,7 +85,6 @@ public class WorkflowTest {
   }
 
   /**
-   * This test demonstrates the fix for PDI-17398.
    * Two schedules -> two HopServer object Ids -> two log channel Ids
    */
   @Test

@@ -101,7 +101,7 @@ public class HttpUtil {
     ByteArrayInputStream zip = new ByteArrayInputStream( bytes64 );
 
 
-    // PDI-4325 originally used xml encoding in servlet
+    // originally used xml encoding in servlet
     try ( GZIPInputStream unzip = new GZIPInputStream( zip, HttpUtil.ZIP_BUFFER_SIZE );
           BufferedInputStream in = new BufferedInputStream( unzip, HttpUtil.ZIP_BUFFER_SIZE );
           InputStreamReader reader = new InputStreamReader( in, StandardCharsets.UTF_8 ) ) {

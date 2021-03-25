@@ -492,7 +492,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wListmails.add( BaseMessages.getString( PKG, "MailInput.RetrieveAllMails.Label" ) );
-    // [PDI-7241] pop3 does not support retrive unread option
+    // pop3 does not support retrieve unread option
     // wListmails.add( BaseMessages.getString( PKG, "MailInput.RetrieveUnreadMails.Label" ) );
     wListmails.add( BaseMessages.getString( PKG, "MailInput.RetrieveFirstMails.Label" ) );
     wListmails.select( 0 ); // +1: starts at -1
@@ -1239,7 +1239,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wProtocol.setText( protocol );
     int iRet = input.getRetrievemails();
 
-    // [PDI-7241] POP3 does not support retrieve email flags.
+    // POP3 does not support retrieve email flags.
     // if anyone already used 'unread' for POP3 in pipeline or 'retrieve... first'
     // now they realize that all this time it was 'retrieve all mails'.
     if ( iRet > 0 ) {
@@ -1359,7 +1359,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     in.setUseSSL( wUseSSL.getSelection() );
     in.setPort( wPort.getText() );
 
-    // [PDI-7241] Option 'retrieve unread' is removed and there is only 2 options.
+    // Option 'retrieve unread' is removed and there is only 2 options.
     // for backward compatibility: 0 is 'retrieve all', 2 is 'retrieve first...'
     int actualIndex = wListmails.getSelectionIndex();
     in.setRetrievemails( actualIndex > 0 ? 2 : 0 );

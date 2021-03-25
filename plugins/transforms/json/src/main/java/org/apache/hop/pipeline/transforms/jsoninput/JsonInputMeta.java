@@ -927,7 +927,7 @@ public class JsonInputMeta
    * @param variables the variable variables to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metadataProvider the metadataProvider in which non-kettle metadata could reside.
+   * @param metadataProvider the metadataProvider in which non-Hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override

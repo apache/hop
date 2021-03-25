@@ -87,7 +87,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Every transform is given the opportunity to do one-time initialization tasks like opening files or establishing database
  * connections. For any transforms derived from BaseTransform it is mandatory that super.init() is called to ensure correct
  * behavior. The method must return true in case the transform initialized correctly, it must returned false if there was an
- * initialization error. PDI will abort the execution of a pipeline in case any transform returns false upon
+ * initialization error. Apache Hop will abort the execution of a pipeline in case any transform returns false upon
  * initialization.
  * <p></li>
  * <p>
@@ -1420,7 +1420,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       && getLinesRejected() > 0
       && ( minRowsForMaxErrorPercent <= 0 || getLinesRead() >= minRowsForMaxErrorPercent ) ) {
       int pct =
-        (int) Math.ceil( 100 * (double) getLinesRejected() / getLinesRead() ); // additional conversion for PDI-10210
+        (int) Math.ceil( 100 * (double) getLinesRejected() / getLinesRead() );
       if ( pct > maxPercentErrors ) {
         logError( BaseMessages.getString(
           PKG, "BaseTransform.Log.MaxPercentageRejectedReached", Integer.toString( pct ), Long

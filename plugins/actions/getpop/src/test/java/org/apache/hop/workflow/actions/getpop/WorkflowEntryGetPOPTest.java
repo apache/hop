@@ -92,7 +92,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-10942 - Workflow get emails Action does not mark emails as 'read' when load emails content.
+   * Workflow get emails Action does not mark emails as 'read' when load emails content.
    * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * Set for openFolder rw mode if this is pop3.
@@ -109,7 +109,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-10942 - Workflow get emails Action does not mark emails as 'read' when load emails content.
+   * Workflow get emails Action does not mark emails as 'read' when load emails content.
    * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * protocol IMAP and default remote folder is overridden
@@ -126,7 +126,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-10942 - Workflow get emails Action does not mark emails as 'read' when load emails content.
+   * Workflow get emails Action does not mark emails as 'read' when load emails content.
    * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * protocol IMAP and default remote folder is NOT overridden
@@ -143,7 +143,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-11943 - Get Mail Workflow Entry: Attachments folder not created
+   * Get Mail Workflow Entry: Attachments folder not created
    * <p>
    * Test that the Attachments folder is created when the entry is
    * configured to save attachments and messages in the same folder
@@ -175,7 +175,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-11943 - Get Mail Workflow Entry: Attachments folder not created
+   * Get Mail Workflow Entry: Attachments folder not created
    * <p>
    * Test that the Attachments folder is created when the entry is
    * configured to save attachments and messages in different folders
@@ -208,7 +208,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-11943 - Get Mail Workflow Entry: Attachments folder not created
+   * Get Mail Workflow Entry: Attachments folder not created
    * <p>
    * Test that the Attachments folder is not created when the entry is
    * configured to not create folders
@@ -258,7 +258,7 @@ public class WorkflowEntryGetPOPTest {
   }
 
   /**
-   * PDI-14305 - Get Mails (POP3/IMAP) Not substituting environment variables for target directories
+   * Get Mails (POP3/IMAP) Not substituting environment variables for target directories
    * <p>
    * Test that environment variables are appropriately substituted when creating output and attachment folders
    */

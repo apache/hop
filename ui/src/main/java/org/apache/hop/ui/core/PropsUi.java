@@ -572,7 +572,7 @@ public class PropsUi extends Props {
         background = GuiResource.getInstance().getColorWhite();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
-        // need to make a copy of the tab selection background color to get around PDI-13940
+        // need to make a copy of the tab selection background color to get around bug
         Color c = GuiResource.getInstance().getColorTab();
         Color tabColor = new Color(c.getDevice(), c.getRed(), c.getGreen(), c.getBlue());
         tabFolder.setSelectionBackground(tabColor);

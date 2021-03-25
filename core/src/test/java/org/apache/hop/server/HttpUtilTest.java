@@ -41,7 +41,7 @@ public class HttpUtilTest {
     + "\u30eb(\u256f\u00b0\u25a1\u00b0)\u256f\u253b\u2501\u2501\u253b\u30aa\u30d5";
 
   /**
-   * [PDI-4325] Test that we can decode/encode Strings without loss of data.
+   * Test that we can decode/encode Strings without loss of data.
    *
    * @throws IOException
    * @throws NoSuchAlgorithmException

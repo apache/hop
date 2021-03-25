@@ -149,7 +149,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     int missingfiles = 0;
     int nrErrors = 0;
 
-    // see PDI-10270 for details
     boolean oldBehavior =
       "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
 

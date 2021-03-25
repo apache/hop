@@ -1542,7 +1542,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       try {
 
         String sArg1 = Context.toString( ArgList[ 0 ] );
-        // PDI-1276 Function getEnvironmentVar() does not work for user defined variables.
+        // Function getEnvironmentVar() does not work for user defined variables.
         // check if the system property exists, and if it does not, try getting a Hop var instead
         if ( System.getProperties().containsValue( sArg1 ) ) {
           sRC = System.getProperty( sArg1, "" );

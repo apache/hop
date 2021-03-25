@@ -130,7 +130,7 @@ var handleEvent = function( event ) {
         gc.lineWidth = 3;
         gc.strokeStyle = 'rgb(0, 93, 166)';
       } else {
-        gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalTextPentaho
+        gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalText
       }
       drawRoundRectangle( gc, x - 1, y - 1, iconsize + 1, iconsize + 1, 8, 8, false );
       gc.strokeStyle = 'black';
@@ -145,8 +145,7 @@ var handleEvent = function( event ) {
     // Draw notes
     notes.forEach( function ( note ) {
       gc.beginPath();
-      // margin = 10 see org.pentaho.di.core.gui.BasePainter.drawNote(NotePadMeta)
-      if ( mode == "drag" && note.selected ) {
+      if ( mode === "drag" && note.selected ) {
         gc.rect( snapToGrid( note.x + dx, gridsize), snapToGrid( note.y + dy, gridsize), note.width + 10, note.height + 10 );
       } else {
         gc.rect( note.x, note.y, note.width + 10, note.height + 10 );

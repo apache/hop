@@ -121,8 +121,8 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         }
       }
 
-      // Add next value AFTER pipeline execution, in case we are grouping by field (see PDI-14958),
-      // and BEFORE checking size of a group, in case we are grouping by size (see PDI-14121).
+      // Add next value AFTER pipeline execution, in case we are grouping by field,
+      // and BEFORE checking size of a group, in case we are grouping by size.
       pipelineExecutorData.groupBuffer.add( new RowMetaAndData( getInputRowMeta(), row ) ); // should we clone for safety?
 
       // Grouping by size.

@@ -1334,7 +1334,7 @@ public class ValueMetaBase implements IValueMeta {
         }
       }
 
-      // PDI-17366: Cannot simply cast a number to a BigDecimal,
+      // Cannot simply cast a number to a BigDecimal,
       //            If the Number is not a BigDecimal.
       //
       if ( number instanceof Double ) {
@@ -1345,8 +1345,6 @@ public class ValueMetaBase implements IValueMeta {
       return (BigDecimal) number;
 
     } catch ( Exception e ) {
-      // We added this workaround for PDI-1824
-      //
       try {
         return new BigDecimal( string );
       } catch ( NumberFormatException ex ) {
@@ -4695,9 +4693,9 @@ public class ValueMetaBase implements IValueMeta {
             length = rm.getColumnDisplaySize( index );
           } else if ( databaseMeta.isMySqlVariant()
             && ( type == Types.VARBINARY || type == Types.LONGVARBINARY ) ) {
-            // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
+            // don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
-            // CONCAT see PDI-4812)
+            // CONCAT)
           } else if ( databaseMeta.getIDatabase().isSqliteVariant() ) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
@@ -4771,14 +4769,14 @@ public class ValueMetaBase implements IValueMeta {
     int originalScale = rm.getScale( index );
     v.setOriginalScale( originalScale );
 
-    // DISABLED FOR PERFORMANCE REASONS : PDI-1788
+    // DISABLED FOR PERFORMANCE REASONS
     //
     // boolean originalAutoIncrement=rm.isAutoIncrement(index); DISABLED FOR
-    // PERFORMANCE REASONS : PDI-1788
+    // PERFORMANCE REASONS
     // v.setOriginalAutoIncrement(originalAutoIncrement);
 
     // int originalNullable=rm.isNullable(index); DISABLED FOR PERFORMANCE
-    // REASONS : PDI-1788
+    // REASONS
     // v.setOriginalNullable(originalNullable);
     //
 
@@ -4829,7 +4827,7 @@ public class ValueMetaBase implements IValueMeta {
 
         case Types.BIGINT:
           // SQL BigInt is equivalent to a Java Long
-          // And a Java Long is equivalent to a PDI Integer.
+          // And a Java Long is equivalent to an Apache Hop Integer.
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 9.223.372.036.854.775.807
           length = 15;
@@ -4991,9 +4989,9 @@ public class ValueMetaBase implements IValueMeta {
             length = originalColumnDisplaySize;
           } else if ( databaseMeta.isMySqlVariant()
             && ( originalColumnType == Types.VARBINARY || originalColumnType == Types.LONGVARBINARY ) ) {
-            // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
+            // don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
-            // CONCAT see PDI-4812)
+            // CONCAT)
           } else if ( databaseMeta.getIDatabase().isSqliteVariant() ) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
@@ -5080,7 +5078,7 @@ public class ValueMetaBase implements IValueMeta {
             data = resultSet.getTimestamp( index + 1 );
             break; // Timestamp extends java.util.Date
           } else if ( iDatabase.isNetezzaVariant() ) {
-            // PDI-10877 workaround for IBM netezza jdbc 'special' implementation
+            // workaround for IBM netezza jdbc 'special' implementation
             data = getNetezzaDateValueWorkaround( iDatabase, resultSet, index + 1 );
             break;
           } else {

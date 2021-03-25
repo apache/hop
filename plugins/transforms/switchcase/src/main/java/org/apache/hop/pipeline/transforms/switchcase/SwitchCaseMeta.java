@@ -127,7 +127,6 @@ public class SwitchCaseMeta extends BaseTransformMeta
     } catch (CloneNotSupportedException ex) {
       // I hate this design pattern, but most of the other implementations of
       // clone catch the exception and return null. So, I'm sticking with what is known
-      // MB - PDI-15057
       return null;
     }
   }

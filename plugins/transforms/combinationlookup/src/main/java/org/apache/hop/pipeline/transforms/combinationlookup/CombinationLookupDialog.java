@@ -755,7 +755,6 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         wTableMax.setSelection( false );
       }
     } else {
-      // KETTLE post 2.2 version:
       // The "creation" field now determines the behaviour of the
       // key creation.
       if ( CombinationLookupMeta.CREATION_METHOD_AUTOINC.equals( techKeyCreation ) ) {

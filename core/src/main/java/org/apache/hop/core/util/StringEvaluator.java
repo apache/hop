@@ -506,7 +506,7 @@ public class StringEvaluator {
   }
 
   /**
-   * PDI-7736: Only list of successful evaluations returned.
+   * Only list of successful evaluations returned.
    *
    * @return The list of string evaluation results
    */

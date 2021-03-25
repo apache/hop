@@ -111,9 +111,7 @@ public class HopServerPipelineStatusTest {
     Result result = new Result();
     result.setRows( rows );
     pipelineStatus.setResult( result );
-    //PDI-15781
     Assert.assertFalse( pipelineStatus.getXml().contains( testData ) );
-    //PDI-17061
     Assert.assertTrue( pipelineStatus.getXML( true ).contains( testData ) );
   }
 }

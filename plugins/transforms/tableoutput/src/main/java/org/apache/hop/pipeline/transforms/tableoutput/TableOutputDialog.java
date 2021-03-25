@@ -1250,7 +1250,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       return;
     }
 
-    // PDI-6211 : Show a warning in case batch processing is not truly supported in combination
+    // Show a warning in case batch processing is not truly supported in combination
     // with error handling...
     // Show it *every* time the user OK's the dialog.
     //
