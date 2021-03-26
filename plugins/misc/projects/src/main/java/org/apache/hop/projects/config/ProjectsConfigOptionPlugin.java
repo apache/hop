@@ -25,6 +25,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -45,6 +46,8 @@ import picocli.CommandLine;
 public class ProjectsConfigOptionPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
+  protected static Class<?> PKG = ProjectsConfigOptionPlugin.class; // For Translator
+
   private static final String WIDGET_ID_ENABLE_PROJECTS = "10000-enable-projects-plugin";
   private static final String WIDGET_ID_PROJECT_MANDATORY = "10010-project-mandatory";
   private static final String WIDGET_ID_ENVIRONMENT_MANDATORY = "10020-environment-mandatory";
@@ -58,7 +61,7 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_ENABLE_PROJECTS,
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "Enable the projects plugin")
+      label = "i18n::ProjectConfig.EnableProjectPlugin.Message")
   @CommandLine.Option(
       names = {"-pn", "--projects-enabled"},
       description = "Enable or disable the projects plugin")
@@ -68,7 +71,7 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_PROJECT_MANDATORY,
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "Use of a project is mandatory")
+      label = "i18n::ProjectConfig.ProjectMandatory.Message")
   @CommandLine.Option(
       names = {"-py", "--project-mandatory"},
       description = "Make it mandatory to reference a project")
@@ -78,7 +81,7 @@ public class ProjectsConfigOptionPlugin
     id = WIDGET_ID_ENVIRONMENT_MANDATORY,
     parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    label = "Use of an environment is mandatory")
+    label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
   @CommandLine.Option(
     names = {"-ey", "--environment-mandatory"},
     description = "Make it mandatory to reference an environment")
@@ -89,7 +92,7 @@ public class ProjectsConfigOptionPlugin
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The default project to use when none is specified")
+      label = "i18n::ProjectConfig.DefaultProject.Message")
   @CommandLine.Option(
       names = {"-dp", "--default-project"},
       description = "The name of the default project to use when none is specified")
@@ -100,7 +103,7 @@ public class ProjectsConfigOptionPlugin
     parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
     type = GuiElementType.TEXT,
     variables = true,
-    label = "The default environment to use when none is specified")
+    label = "i18n::ProjectConfig.DefaultEnvironment.Message")
   @CommandLine.Option(
     names = {"-de", "--default-environment"},
     description = "The name of the default environment to use when none is specified")
@@ -111,7 +114,7 @@ public class ProjectsConfigOptionPlugin
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The parent project to propose when creating projects")
+      label = "i18n::ProjectConfig.ParentProject.Message")
   @CommandLine.Option(
       names = {"-sp", "--standard-parent-project"},
       description = "The name of the standard project to use as a parent when creating new projects")
@@ -122,7 +125,7 @@ public class ProjectsConfigOptionPlugin
     parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
     type = GuiElementType.TEXT,
     variables = true,
-    label = "GUI: The standard projects folder proposed when creating projects")
+    label = "i18n::ProjectConfig.StdProjectFolder.Message")
   @CommandLine.Option(
     names = {"-sj", "--standard-projects-folder"},
     description = "GUI: The standard projects folder proposed when creating projects")
@@ -291,7 +294,9 @@ public class ProjectsConfigOptionPlugin
     try {
       ProjectsConfigSingleton.saveConfig();
     } catch (Exception e) {
-      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error saving option", e);
+      new ErrorDialog(HopGui.getInstance().getShell()
+              , BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Header")
+              , BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Message"), e);
     }
   }
 

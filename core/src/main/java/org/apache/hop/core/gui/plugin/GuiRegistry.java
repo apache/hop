@@ -18,6 +18,7 @@
 package org.apache.hop.core.gui.plugin;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
@@ -29,6 +30,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -393,28 +395,45 @@ public class GuiRegistry {
    */
   public void addGuiContextAction(
       String guiPluginClassName, Method method, GuiContextAction ca, ClassLoader classLoader) {
+
+    String name = translate(ca.name(), method.getDeclaringClass());
+    String category = translate(ca.category(), method.getDeclaringClass());
+    String tooltip = translate(ca.tooltip(), method.getDeclaringClass());
+
     GuiAction action =
-        new GuiAction(
-            ca.id(),
-            ca.type(),
-            ca.name(),
-            ca.tooltip(),
-            ca.image(),
-            guiPluginClassName,
-            method.getName());
-    action.setCategory(StringUtils.isEmpty(ca.category()) ? null : ca.category());
+            new GuiAction(
+                    ca.id(), ca.type(), name, tooltip, ca.image(), guiPluginClassName, method.getName());
+    action.setCategory(StringUtils.isEmpty(category) ? null : category);
     action.setCategoryOrder(StringUtils.isEmpty(ca.categoryOrder()) ? null : ca.categoryOrder());
     action.setKeywords(Arrays.asList(ca.keywords()));
     action.setClassLoader(classLoader);
 
-    List<GuiAction> actions = contextActionsMap.get(ca.parentId());
-    if (actions == null) {
-      actions = new ArrayList<>();
-      contextActionsMap.put(ca.parentId(), actions);
-    }
+    List<GuiAction> actions =
+            contextActionsMap.computeIfAbsent(ca.parentId(), k -> new ArrayList<>());
     actions.add(action);
   }
 
+  private String translate(String name, Class<?> parentObjectClass) {
+    if (name.startsWith(Const.I18N_PREFIX)) {
+      String[] parts = name.split(":");
+      if (parts.length != 3) {
+        return name;
+      }
+
+      String packageName = parts[1];
+      String key = parts[2];
+
+      String translation;
+      if (StringUtils.isEmpty(packageName)) {
+        translation = BaseMessages.getString(parentObjectClass, key);
+      } else {
+        translation = BaseMessages.getString(packageName, key);
+      }
+      return translation;
+    } else {
+      return name;
+    }
+  }
   public List<GuiAction> getGuiContextActions(String parentContextId) {
     return contextActionsMap.get(parentContextId);
   }
