@@ -190,7 +190,6 @@
    hadoop-yarn-client - 2.6.5
    hadoop-yarn-common - 2.6.5
    hadoop-yarn-server-common - 2.6.5
-   Hibernate Validator Engine - 4.3.0.Final
    HPPC Collections - 0.5.4
    htrace-core - 3.0.4
    HttpClient - 3.1
@@ -231,7 +230,6 @@
    JavaEWAH - 1.1.6
    Javassist - 3.20.0-GA
    javax.inject - 1
-   JBoss Logging 3 - 3.1.0.CR2
    JCIP Annotations under Apache License - 1.0.1
    Jetty HTTP Client - 6.1.26
    Jetty :: Http Utility - 9.4.35.v20201120
@@ -268,8 +266,6 @@
    kafka-schema-registry-client - 5.3.2
    LZ4 and xxHash - 1.4.0
    Metrics Core - 3.1.5
-   metrics reporter config base - 3.0.3
-   metrics reporter config 3.x - 3.0.3
    Microsoft Azure Storage Client SDK - 8.6.6
    MongoDB Java Driver - 3.12.7
    Neo4j Java Driver - 4.2.3
