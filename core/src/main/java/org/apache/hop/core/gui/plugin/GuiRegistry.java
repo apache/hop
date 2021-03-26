@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Field;
@@ -396,9 +397,9 @@ public class GuiRegistry {
   public void addGuiContextAction(
       String guiPluginClassName, Method method, GuiContextAction ca, ClassLoader classLoader) {
 
-    String name = translate(ca.name(), method.getDeclaringClass());
-    String category = translate(ca.category(), method.getDeclaringClass());
-    String tooltip = translate(ca.tooltip(), method.getDeclaringClass());
+    String name = TranslateUtil.translate(ca.name(), method.getDeclaringClass());
+    String category = TranslateUtil.translate(ca.category(), method.getDeclaringClass());
+    String tooltip = TranslateUtil.translate(ca.tooltip(), method.getDeclaringClass());
 
     GuiAction action =
             new GuiAction(
@@ -413,27 +414,6 @@ public class GuiRegistry {
     actions.add(action);
   }
 
-  private String translate(String name, Class<?> parentObjectClass) {
-    if (name.startsWith(Const.I18N_PREFIX)) {
-      String[] parts = name.split(":");
-      if (parts.length != 3) {
-        return name;
-      }
-
-      String packageName = parts[1];
-      String key = parts[2];
-
-      String translation;
-      if (StringUtils.isEmpty(packageName)) {
-        translation = BaseMessages.getString(parentObjectClass, key);
-      } else {
-        translation = BaseMessages.getString(packageName, key);
-      }
-      return translation;
-    } else {
-      return name;
-    }
-  }
   public List<GuiAction> getGuiContextActions(String parentContextId) {
     return contextActionsMap.get(parentContextId);
   }
