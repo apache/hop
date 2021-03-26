@@ -52,8 +52,6 @@
       <useProjectArtifact>false</useProjectArtifact>
       <scope>runtime</scope>
       <includes>
-        <include>com.addthis.metrics:reporter-config3:jar</include>
-        <include>com.addthis.metrics:reporter-config-base:jar</include>
         <include>com.boundary:high-scale-lib:jar</include>
         <include>com.carrotsearch:hppc:jar</include>
         <include>com.datastax.cassandra:cassandra-driver-core:jar</include>
@@ -102,8 +100,6 @@
         <include>org.caffinitas.ohc:ohc-core:jar</include>
         <include>org.eclipse.jdt.core.compiler:ecj:jar</include>
         <include>org.fusesource:sigar:jar</include>
-        <include>org.hibernate:hibernate-validator:jar</include>
-        <include>org.jboss.logging:jboss-logging:jar</include>
         <include>org.jctools:jctools-core:jar</include>
         <include>org.mindrot:jbcrypt:jar</include>
         <include>org.ow2.asm:asm-analysis:jar</include>
