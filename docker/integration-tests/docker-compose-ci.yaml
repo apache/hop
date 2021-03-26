@@ -29,10 +29,14 @@ services:
     volumes:
       - ../../integration-tests/:/files
     depends_on:
-      - postgres
-      - neo4j
-      - mongo
-      - cassandra
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      cassandra:
+        condition: service_healthy
     links:
       - postgres
       - neo4j
@@ -59,6 +63,11 @@ services:
       - "7687"
     environment:
       - NEO4J_AUTH=neo4j/abcd
+    healthcheck:
+      test: echo 'ok'
+      interval: 10s
+      timeout: 10s
+      retries: 5
   mongo:
     image: mongo:latest
     ports:
