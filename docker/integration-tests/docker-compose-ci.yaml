@@ -47,6 +47,11 @@ services:
             - database.env
         ports:
           - "5432"
+        healthcheck:
+          test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+          interval: 10s
+          timeout: 5s
+          retries: 5
     neo4j:
       image: neo4j:latest
       ports:
@@ -58,8 +63,18 @@ services:
       image: mongo:latest
       ports:
         - "27017"
+      healthcheck:
+        test: echo 'db.runCommand("ping").ok' | mongo 127.0.0.1:27017/test --quiet
+        interval: 10s
+        timeout: 10s
+        retries: 5
     cassandra:
       image: cassandra:latest
       ports:
         - "9042"
         - "9160"
+      healthcheck:
+        test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+        interval: 10s
+        timeout: 5s
+        retries: 50
