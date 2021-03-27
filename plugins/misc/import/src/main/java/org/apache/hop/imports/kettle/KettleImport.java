@@ -24,6 +24,11 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.imports.HopImport;
 import org.apache.hop.imports.IHopImport;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,29 +62,67 @@ public class KettleImport extends HopImport implements IHopImport {
     @Override
     public void importHopFolder(){
 
+        HopGui hopGui = HopGui.getInstance();
+        Shell shell = hopGui.getShell();
+
         FilenameFilter kettleFilter = (dir, name) -> name.endsWith(".ktr") | name.endsWith("*.kjb");
         String[] kettleFileNames = inputFolder.list(kettleFilter);
 
         try {
-            // Walk over all ktr and kjb files we received, migrate to hpl and hwf
-            Stream<Path> kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
-            List<String> result = kettleWalk.map(x -> x.toString()).filter(f -> f.endsWith(".ktr") || f.endsWith(".kjb")).collect(Collectors.toList());
-            result.forEach(kettleFilename -> {
-                File kettleFile = new File(kettleFilename);
-                importHopFile(kettleFile);
-            });
-            kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
-            // TODO: add a proper way to exclude folders instead of hard coded .git exclude.
-            List<String> otherFilesList = kettleWalk.map(x -> x.toString()).filter(f -> !f.endsWith(".ktr") && !f.endsWith(".kjb") && !f.contains(".git/")).collect(Collectors.toList());
-            otherFilesList.forEach(otherFilename -> {
-                File otherFile = new File(otherFilename);
-                if(!otherFile.isDirectory()){
-                    migratedFilesMap.put(otherFilename, null);
-                    otherCounter++;
+            IRunnableWithProgress op = monitor -> {
+                monitor.setTaskName("Import Kettle/PDI Files to Hop... ");
+                try{
+                    Stream<Path> kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
+                    List<String> result = kettleWalk.map(x -> x.toString()).filter(f -> f.endsWith(".ktr") || f.endsWith(".kjb")).collect(Collectors.toList());
+                    result.forEach(kettleFilename -> {
+                        File kettleFile = new File(kettleFilename);
+                        importHopFile(kettleFile);
+                    });
+                }catch(IOException e){
+                    e.printStackTrace();
                 }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+            };
+
+            ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+            pmd.run(true, false, op);
+        }catch(Exception e){
+            new ErrorDialog(shell, "Error", "Error importing PDI/Kettle files into Hop project", e);
+        }
+
+        try {
+            IRunnableWithProgress op = monitor -> {
+
+                monitor.setTaskName("Import other files to Hop... ");
+                // Walk over all ktr and kjb files we received, migrate to hpl and hwf
+                try{
+                    Stream<Path> kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
+
+                    List<String> result = kettleWalk.map(x -> x.toString()).filter(f -> f.endsWith(".ktr") || f.endsWith(".kjb")).collect(Collectors.toList());
+                    result.forEach(kettleFilename -> {
+                        File kettleFile = new File(kettleFilename);
+                        importHopFile(kettleFile);
+                    });
+                    kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
+                    // TODO: add a proper way to exclude folders instead of hard coded .git exclude.
+                    List<String> otherFilesList = kettleWalk.map(x -> x.toString()).filter(f -> !f.endsWith(".ktr") && !f.endsWith(".kjb") && !f.contains(".git/")).collect(Collectors.toList());
+                    otherFilesList.forEach(otherFilename -> {
+                        File otherFile = new File(otherFilename);
+                        if (!otherFile.isDirectory()) {
+                            migratedFilesMap.put(otherFilename, null);
+                            otherCounter++;
+                        }
+                    });
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            };
+
+            ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+            pmd.run(true, false, op);
+
+
+        }catch(Exception e){
+            new ErrorDialog(shell, "Error", "Error importing other files into Hop project", e);
         }
         log.logBasic("We found " + kettleFileNames.length + " kettle files. ");
     }

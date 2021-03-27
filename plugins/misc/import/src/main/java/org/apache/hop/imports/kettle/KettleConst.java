@@ -52,7 +52,8 @@ public class KettleConst {
                 {"target_step", "target_transform"},
                 {"step1", "transform1"},
                 {"step2", "transform2"},
-                {"accept_stepname","accept_transform_name"}
+                {"accept_stepname","accept_transform_name"},
+                {"steps","transforms"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -101,6 +102,7 @@ public class KettleConst {
                 {"StepMetastructure", "TransformMetaStructure"},
                 {"Pentaho local", "local"},
                 {"JobExecutor", "WorkflowExecutor"},
+                {"execution_result_target_step","execution_result_target_transform"},
                 {"TransExecutor", "PipelineExecutor"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));

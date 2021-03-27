@@ -302,7 +302,6 @@ public class KettleImportDialog extends Dialog {
         //
         Button wOK = new Button( shell, SWT.PUSH );
         wOK.setText("Import");
-//        wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
         wOK.addListener( SWT.Selection, event -> doImport() );
         Button wCancel = new Button( shell, SWT.PUSH );
         wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
