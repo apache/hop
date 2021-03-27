@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-valuetypes</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.99-SNAPSHOT</version>
   <modules>
   </modules>
   <packaging>pom</packaging>
@@ -33,7 +33,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
   </parent>
 
   <profiles>

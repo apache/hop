@@ -29,14 +29,14 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-plugins</artifactId>
-      <version>0.70-SNAPSHOT</version>
+      <version>0.99-SNAPSHOT</version>
       <type>pom</type>
     </dependency>
   </dependencies>

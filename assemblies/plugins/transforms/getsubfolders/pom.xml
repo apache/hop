@@ -25,12 +25,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.70-SNAPSHOT</version>
+        <version>0.99-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-getsubfolders</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Get Subfolders</name>

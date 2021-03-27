@@ -23,14 +23,14 @@
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-ui-rap</artifactId>
   <packaging>jar</packaging>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.99-SNAPSHOT</version>
 
   <name>Hop GUI (RAP fragment)</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
   </parent>
 
   <properties>
