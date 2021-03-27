@@ -673,6 +673,7 @@ public class WorkflowDialog extends Dialog {
   private void ok() {
 
     workflowMeta.setName( wWorkflowName.getText() );
+    workflowMeta.setNameSynchronizedWithFilename( wNameFilenameSync.getSelection() );
     workflowMeta.setDescription( wDescription.getText() );
     workflowMeta.setExtendedDescription( wExtendedDescription.getText() );
     workflowMeta.setWorkflowVersion( wVersion.getText() );
