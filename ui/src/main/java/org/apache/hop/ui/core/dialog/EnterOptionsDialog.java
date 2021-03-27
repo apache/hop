@@ -25,6 +25,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
@@ -1250,7 +1251,7 @@ public class EnterOptionsDialog extends Dialog {
           // Add a tab
           //
           CTabItem wPluginTab = new CTabItem(wTabFolder, SWT.NONE);
-          wPluginTab.setText(Const.NVL(annotation.description(), ""));
+          wPluginTab.setText(Const.NVL(TranslateUtil.translate(annotation.description(), emptySourceData.getClass()), ""));
 
           ScrolledComposite sOtherComp =
               new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);

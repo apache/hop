@@ -41,7 +41,7 @@ import picocli.CommandLine;
     id = "ProjectsConfigOptionPlugin",
     description = "Configuration options for the global projects plugin")
 @GuiPlugin(
-    description = "Projects" // Tab label in options dialog
+    description = "i18n::ProjectConfig.Tab.Name" // Tab label in options dialog
     )
 public class ProjectsConfigOptionPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
