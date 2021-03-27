@@ -25,12 +25,12 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.70-SNAPSHOT</version>
+        <version>0.99-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-oracle</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases Oracle</name>

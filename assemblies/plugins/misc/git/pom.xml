@@ -25,11 +25,11 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies-plugins-misc</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
   </parent>
 
   <artifactId>hop-assemblies-plugins-misc-git</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.99-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Miscellaneous Git</name>
   <description></description>

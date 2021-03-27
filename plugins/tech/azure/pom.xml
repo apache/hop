@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-tech-azure</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.99-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Technology Azure</name>
@@ -32,7 +32,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-tech</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.99-SNAPSHOT</version>
   </parent>
 
   <licenses>
