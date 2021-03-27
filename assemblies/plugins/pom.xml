@@ -29,7 +29,7 @@
   <parent>
     <artifactId>hop-assemblies</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.70</version>
   </parent>
 
   <modules>

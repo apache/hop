@@ -23,14 +23,14 @@
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-ui-rcp</artifactId>
   <packaging>jar</packaging>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.70</version>
 
   <name>Hop GUI (RCP fragment)</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.70</version>
   </parent>
 
   <dependencies>

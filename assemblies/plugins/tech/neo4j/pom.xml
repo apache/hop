@@ -25,11 +25,11 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies-plugins-tech</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.70</version>
   </parent>
 
   <artifactId>hop-assemblies-plugins-tech-neo4j</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.70</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Technology Neo4j</name>
   <description></description>

@@ -25,12 +25,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.70-SNAPSHOT</version>
+        <version>0.70</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-sql</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.70</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms SQL</name>

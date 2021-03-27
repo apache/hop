@@ -23,7 +23,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>hop-plugins-misc-debug</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>0.70</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Miscellaneous Debug</name>
@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-misc</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>0.70</version>
   </parent>
 
   <dependencies>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui</artifactId>
-      <version>0.70-SNAPSHOT</version>
+      <version>0.70</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
