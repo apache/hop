@@ -74,6 +74,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -424,6 +426,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     wsCanvas.setLayoutData(fdsCanvas);
 
     canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND);
+    Listener listener = CanvasListener.getInstance();
+    canvas.addListener(SWT.MouseDown, listener);
+    canvas.addListener(SWT.MouseMove, listener);
+    canvas.addListener(SWT.MouseUp, listener);
+    canvas.addListener(SWT.Paint, listener);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -606,6 +613,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown(MouseEvent e) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseHover(e);
+    }
     doubleClick = false;
     mouseMovedSinceClick = false;
 
@@ -705,8 +716,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else if (e.button == 2 || (e.button == 1 && shift)) {
             // SHIFT CLICK is start of drag to create a new hop
             //
+            canvas.setData("mode", "hop");
             startHopTransform = transformMeta;
           } else {
+            canvas.setData("mode", "drag");
             selectedTransforms = pipelineMeta.getSelectedTransforms();
             selectedTransform = transformMeta;
             //
@@ -763,12 +776,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       } else {
         // No area-owner & no hop means : background click:
         //
+        canvas.setData("mode", "select");
         startHopTransform = null;
         if (!control && e.button == 1) {
           selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
         }
         updateGui();
       }
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseMove(e);
     }
   }
 
@@ -781,6 +799,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent e) {
+    // canvas.setData("mode", null); does not work.
+    canvas.setData("mode", "null");
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseMove(e);
+    }
 
     boolean control = (e.stateMask & SWT.MOD1) != 0;
     PipelineHopMeta selectedHop = findPipelineHop(e.x, e.y);
@@ -3204,6 +3229,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
+    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class);
   }
 
   @Override

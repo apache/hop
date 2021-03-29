@@ -56,6 +56,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -329,6 +331,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     wsCanvas.setLayoutData(fdsCanvas);
 
     canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND);
+    Listener listener = CanvasListener.getInstance();
+    canvas.addListener(SWT.MouseDown, listener);
+    canvas.addListener(SWT.MouseMove, listener);
+    canvas.addListener(SWT.MouseUp, listener);
+    canvas.addListener(SWT.Paint, listener);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -489,6 +496,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void mouseDown(MouseEvent e) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseHover(e);
+    }
     doubleClick = false;
 
     if (ignoreNextClick) {
@@ -540,9 +551,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             } else if (e.button == 2 || (e.button == 1 && shift)) {
               // SHIFT CLICK is start of drag to create a new hop
               //
+              canvas.setData("mode", "hop");
               startHopAction = actionCopy;
 
             } else {
+              canvas.setData("mode", "drag");
               selectedActions = workflowMeta.getSelectedActions();
               selectedAction = actionCopy;
               //
@@ -609,6 +622,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         } else {
           // No area-owner means: background:
           //
+          canvas.setData("mode", "select");
           startHopAction = null;
           if (!control) {
             selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
@@ -616,6 +630,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           updateGui();
         }
       }
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseMove(e);
     }
   }
 
@@ -627,6 +645,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void mouseUp(MouseEvent e) {
+    // canvas.setData("mode", null); does not work.
+    canvas.setData("mode", "null");
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseMove(e);
+    }
+
     boolean control = (e.stateMask & SWT.MOD1) != 0;
 
     boolean singleClick = false;
@@ -2612,6 +2637,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
+    CanvasFacade.setData(canvas, magnification, workflowMeta, HopGuiWorkflowGraph.class);
   }
 
   protected Point getOffset() {
