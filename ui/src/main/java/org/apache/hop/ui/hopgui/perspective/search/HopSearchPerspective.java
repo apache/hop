@@ -19,8 +19,6 @@ package org.apache.hop.ui.hopgui.perspective.search;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
@@ -35,7 +33,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -368,7 +365,8 @@ public class HopSearchPerspective implements IHopPerspective {
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_LOCATION, searchablesLocation.getLocationDescription() );
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_STRING, wSearchString.getText() );
 
-      Iterator<ISearchable> iterator = searchablesLocation.getSearchables();
+      Iterator<ISearchable> iterator =
+          searchablesLocation.getSearchables(hopGui.getMetadataProvider(), hopGui.getVariables() );
       while ( iterator.hasNext() ) {
         // Load the next object
         //
