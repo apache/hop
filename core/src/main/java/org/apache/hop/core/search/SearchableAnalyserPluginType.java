@@ -18,9 +18,13 @@
 package org.apache.hop.core.search;
 
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.PluginAnnotationType;
+import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
+@PluginMainClassType( ISearchableAnalyser.class )
+@PluginAnnotationType( SearchableAnalyserPlugin.class )
 public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnalyserPlugin> {
 
   private static SearchableAnalyserPluginType pluginType;

@@ -22,7 +22,9 @@ import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -51,12 +53,11 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
   private List<ISearchable> searchables;
   private Iterator<ISearchable> iterator;
 
-  public ProjectSearchablesIterator( ProjectConfig projectConfig ) throws HopException {
+  public ProjectSearchablesIterator( IHopMetadataProvider metadataProvider, IVariables variables, ProjectConfig projectConfig ) throws HopException {
     this.projectConfig = projectConfig;
     this.searchables = new ArrayList<>();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    HopGui hopGui = HopGui.getInstance();
 
     try {
       List<String> configurationFiles = new ArrayList<>();
@@ -70,23 +71,23 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       File homeFolderFile = new File(projectConfig.getProjectHome());
       Collection<File> pipelineFiles = FileUtils.listFiles( homeFolderFile, new String[] { "hpl" }, true );
       for (File pipelineFile : pipelineFiles) {
-        PipelineMeta pipelineMeta = new PipelineMeta(pipelineFile.getPath(), hopGui.getMetadataProvider(), true, hopGui.getVariables());
+        PipelineMeta pipelineMeta = new PipelineMeta(pipelineFile.getPath(), metadataProvider, true, variables);
         searchables.add(new HopGuiPipelineSearchable( "Project pipeline file", pipelineMeta ) );
       }
 
       Collection<File> workflowFiles = FileUtils.listFiles( homeFolderFile, new String[] { "hwf" }, true );
       for (File workflowFile : workflowFiles) {
-        WorkflowMeta workflowMeta = new WorkflowMeta(hopGui.getVariables(), workflowFile.getPath(), hopGui.getMetadataProvider() );
+        WorkflowMeta workflowMeta = new WorkflowMeta(variables, workflowFile.getPath(),metadataProvider );
         searchables.add(new HopGuiWorkflowSearchable( "Project workflow file", workflowMeta ) );
       }
 
       // Add the available metadata objects
       //
-      for ( Class<IHopMetadata> metadataClass : hopGui.getMetadataProvider().getMetadataClasses() ) {
-        IHopMetadataSerializer<IHopMetadata> serializer = hopGui.getMetadataProvider().getSerializer( metadataClass );
+      for ( Class<IHopMetadata> metadataClass : metadataProvider.getMetadataClasses() ) {
+        IHopMetadataSerializer<IHopMetadata> serializer = metadataProvider.getSerializer( metadataClass );
         for ( final String metadataName : serializer.listObjectNames() ) {
           IHopMetadata hopMetadata = serializer.load( metadataName );
-          HopGuiMetadataSearchable searchable = new HopGuiMetadataSearchable( hopGui.getMetadataProvider(), serializer, hopMetadata, serializer.getManagedClass() );
+          HopGuiMetadataSearchable searchable = new HopGuiMetadataSearchable( metadataProvider, serializer, hopMetadata, serializer.getManagedClass() );
           searchables.add( searchable );
         }
       }
@@ -101,7 +102,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       // Now the described variables in the configuration files...
       //
       for (String configurationFile : configurationFiles) {
-        String realConfigurationFile = hopGui.getVariables().resolve( configurationFile );
+        String realConfigurationFile = variables.resolve( configurationFile );
 
         if (new File(realConfigurationFile).exists()) {
           DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( realConfigurationFile );
