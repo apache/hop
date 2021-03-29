@@ -33,6 +33,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -51,6 +52,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -68,13 +70,14 @@ import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
   id = "100-HopDataOrchestrationPerspective",
-  name = "Data Orchestration (CTRL+SHIFT+D)",
+  name = "i18n::DataOrchestrationPerspective.Name",
   image = "ui/images/data_orch.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
-@GuiPlugin (description="Hop Data Orchestration Perspective GUI" )
+@GuiPlugin (description="i18n::DataOrchestrationPerspective.GuiPlugin.Description" )
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
+  private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
@@ -173,7 +176,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Create menu item
     MenuItem miClose = new MenuItem(menu, SWT.NONE);
-    miClose.setText("Close");
+    miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
     miClose.addListener( SWT.Selection, (event) -> {    	
       if ( activeItem!=null ) {    	  
     	  activeItem.getTypeHandler().close();
@@ -194,7 +197,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
         
     MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
-    miCloseAll.setText("Close All");
+    miCloseAll.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
     miCloseAll.addListener( SWT.Selection, (event) -> {    	   
     	items.forEach((item) -> {
 			// FIXME: Works only if you activate the item

@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -85,12 +86,13 @@ import java.util.List;
 
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
-    name = "Metadata  (CTRL+SHIFT+M)",
+    name = "i18n::MetadataPerspective.Name",
     description = "The Hop Metatada Perspective",
     image = "ui/images/metadata.svg")
-@GuiPlugin(description = "This perspective allows you to see and edit all available metadata")
+@GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective {
 
+  public static final Class<?> PKG = MetadataPerspective.class; //i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
@@ -529,7 +531,9 @@ public class MetadataPerspective implements IHopPerspective {
 
         manager.newMetadataWithEditor();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error create metadata", e);
+        new ErrorDialog(getShell()
+                , BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header")
+                , BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"), e);
       }
     }
   }
@@ -564,7 +568,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EDIT,
-      toolTip = "Edit",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Edit.Tooltip",
       image = "ui/images/edit.svg")
   public void onRenameMetadata() {
 
@@ -597,7 +601,9 @@ public class MetadataPerspective implements IHopPerspective {
                       text.dispose();
                     }
                   } catch (Exception e) {
-                    new ErrorDialog(getShell(), "Error", "Error rename metadata", e);
+                    new ErrorDialog(getShell()
+                            , BaseMessages.getString(PKG, "MetadataPerspective.EditMetadata.Error.Header")
+                            , BaseMessages.getString(PKG, "MetadataPerspective.EditMetadata.Error.Message"), e);
                   }
                 }
                 break;
@@ -615,7 +621,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
-      toolTip = "Delete",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg")
   public void onDeleteMetadata() {
 
@@ -643,7 +649,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DUPLICATE,
-      toolTip = "Create a copy",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.CreateCopy.Tooltip",
       image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
 
@@ -674,7 +680,8 @@ public class MetadataPerspective implements IHopPerspective {
         }
         refresh();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error duplicating metadata", e);
+        new ErrorDialog(getShell(), BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Header")
+                , BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Message"), e);
       }
     }
   }
@@ -716,7 +723,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
-      toolTip = "Refresh",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
   public void refresh() {
     try {
@@ -777,7 +784,8 @@ public class MetadataPerspective implements IHopPerspective {
 
       tree.setRedraw(true);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error refreshing metadata tree", e);
+      new ErrorDialog(getShell(), BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Header")
+              , BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"), e);
     }
   }
 
