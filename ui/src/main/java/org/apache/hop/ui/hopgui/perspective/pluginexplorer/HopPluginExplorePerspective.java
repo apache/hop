@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -65,13 +66,13 @@ import java.util.Map;
 
 @HopPerspectivePlugin(
 	id = "500-HopPluginExplorerPerspective",
-	name = "Plugin explorer",
+	name = "i18n::PluginExplorerPerspective.Name",
 	description = "The Hop Plugin Explorer Perspective",
 	image = "ui/images/plugin.svg"
 )
-@GuiPlugin(description="Hop Plugin Explorer Perspective GUI")
+@GuiPlugin(description="i18n::PluginExplorerPerspective.GuiPlugin.Description")
 public class HopPluginExplorePerspective implements IHopPerspective {
-
+	public static final Class<?> PKG = HopPluginExplorePerspective.class; //i18n
 	public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";
 
 	private HopGui hopGui;
@@ -135,7 +136,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		composite.setLayoutData( formData );
 
 		Label label = new Label( composite, SWT.LEFT );
-		label.setText( "Plugin type" );
+		label.setText( BaseMessages.getString(PKG, "PluginExplorerPerspective.PluginType.Label") );
 		FormData fdlFields = new FormData();
 		fdlFields.left = new FormAttachment( 0, 0 );
 		fdlFields.top = new FormAttachment( 0, props.getMargin() );
@@ -207,7 +208,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 				selectedPluginType = pluginsType[ 0 ];
 			}
 		} catch ( HopPluginException e ) {
-			new ErrorDialog( hopGui.getShell(), "Error", "Error collect plugins", e );
+			new ErrorDialog( hopGui.getShell()
+					, BaseMessages.getString(PKG, "PluginExplorerPerspective.Error.CollectPlugin.Header")
+					, BaseMessages.getString(PKG, "PluginExplorerPerspective.Error.CollectPlugin.Message"), e );
 		}
 	}
 

@@ -47,6 +47,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -442,7 +443,7 @@ public class HopGui
         // Create a toolbar item
         //
         ToolItem item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-        item.setToolTipText(Const.NVL(perspectivePlugin.getName(), perspective.getId()));
+        item.setToolTipText(Const.NVL(TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass), perspective.getId()));
         item.setData(perspective);
         item.addListener(
             SWT.Selection,

@@ -38,6 +38,7 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -91,11 +92,13 @@ import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "300-HopExplorerPerspective",
-    name = "File Explorer (CTRL+SHIFT+E)",
+    name = "i18n::ExplorerPerspective.Name",
     description = "The Hop Explorer Perspective",
     image = "ui/images/folder.svg")
-@GuiPlugin(description = "A file explorer for your current project")
+@GuiPlugin(description = "i18n::ExplorerPerspective.GuiPlugin.Description")
 public class ExplorerPerspective implements IHopPerspective {
+
+  public static final Class<?> PKG = ExplorerPerspective.class; //i18n
 
   public static final String GUI_TOOLBAR_CREATED_CALLBACK_ID =
       "ExplorerPerspective-Toolbar-Created";
@@ -324,7 +327,9 @@ public class ExplorerPerspective implements IHopPerspective {
       rootName = ext.rootName;
     } catch (Exception e) {
       new ErrorDialog(
-          getShell(), "Error", "Error getting root folder/name of explorer perspective", e);
+          getShell(), BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Header")
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Message")
+              , e);
     }
 
     if (!StringUtils.equals(oldRootFolder, rootFolder)
@@ -407,7 +412,9 @@ public class ExplorerPerspective implements IHopPerspective {
         updateGui();
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error opening file", e);
+      new ErrorDialog(hopGui.getShell()
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header")
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"), e);
     }
   }
 
@@ -417,8 +424,9 @@ public class ExplorerPerspective implements IHopPerspective {
       if (tif != null && tif.fileType != null) {
 
         MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-        box.setText( "Delete file?" );
-        box.setMessage( "Are you sure you want to delete the following file?"+Const.CR+Const.CR+tif.path );
+        box.setText( BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header") );
+        box.setMessage( BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message")
+                + Const.CR + Const.CR + tif.path );
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
           FileObject fileObject = HopVfs.getFileObject(tif.path);
@@ -430,7 +438,9 @@ public class ExplorerPerspective implements IHopPerspective {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error opening file", e);
+      new ErrorDialog(hopGui.getShell()
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header")
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"), e);
     }
   }
 
@@ -668,7 +678,7 @@ public class ExplorerPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_OPEN,
-      toolTip = "Open selected file",
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.Open.Tooltip",
       image = "ui/images/arrow-right.svg")
   public void openFile() {
     TreeItem[] selection = tree.getSelection();
@@ -681,7 +691,7 @@ public class ExplorerPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
-      toolTip = "Delete selected file",
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg",
       separator = true)
   public void deleteFile() {
@@ -699,7 +709,7 @@ public class ExplorerPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
-      toolTip = "Refresh",
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
   public void refresh() {
     try {
@@ -738,7 +748,9 @@ public class ExplorerPerspective implements IHopPerspective {
         TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error refreshing file explorer tree", e);
+      new ErrorDialog(getShell()
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header")
+              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"), e);
     }
     ExplorerPerspective.getInstance().updateSelection();
   }
