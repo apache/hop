@@ -50,7 +50,7 @@
   </parent>
 
   <properties>
-    <apache-beam-version>2.27.0</apache-beam-version>
+    <apache-beam-version>2.28.0</apache-beam-version>
     <spark-version>2.4.7</spark-version>
     <flink-version>1.9.3</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
