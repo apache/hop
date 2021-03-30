@@ -2063,7 +2063,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Text",
-      tooltip = "HopGuiWorkflowGraph.ContextualAction.DeleteHop.Tooltip",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Tooltip",
       image = "ui/images/HOP_delete.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
