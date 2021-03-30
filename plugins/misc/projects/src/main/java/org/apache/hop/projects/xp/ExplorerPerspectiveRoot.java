@@ -52,7 +52,7 @@ public class ExplorerPerspectiveRoot
     if (projectConfig==null) {
       return;
     }
-    ext.rootFolder = projectConfig.getProjectHome();
+    ext.rootFolder = variables.resolve(projectConfig.getProjectHome());
     ext.rootName = projectName;
   }
 }
