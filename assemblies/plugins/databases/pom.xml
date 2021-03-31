@@ -71,6 +71,7 @@
         <module>googlebigquery-assemblies</module>
         <module>snowflake-assemblies</module>
         <module>clickhouse-assemblies</module>
+        <module>doris-assemblies</module>
     </modules>
 
 
