@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -80,6 +81,8 @@ import java.util.Objects;
 
 @GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
+
+  public static final Class<?> PKG = ContextDialog.class; // i18n
 
   public static final String CATEGORY_OTHER = "Other";
 
@@ -379,7 +382,7 @@ public class ContextDialog extends Dialog {
     searchComposite.setLayoutData(fdlSearchComposite);
 
     Label wlSearch = new Label(searchComposite, SWT.LEFT);
-    wlSearch.setText("Search ");
+    wlSearch.setText(BaseMessages.getString(PKG, "ContextDialog.Search.Label.Text"));
     props.setLook(wlSearch);
 
     wSearch = new Text(searchComposite, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH);
@@ -624,7 +627,9 @@ public class ContextDialog extends Dialog {
       try {
         HopConfig.getInstance().saveToFile();
       } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error saving GUI options to hop-config.json", e);
+        new ErrorDialog(shell
+                , BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Header")
+                , BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"), e);
       }
     }
 
@@ -666,7 +671,7 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COLLAPSE_ALL,
-      toolTip = "Collapse all categories",
+      toolTip = "i18n::ContextDialog.GuiAction.CollapseCategories.Tooltip",
       image = "ui/images/collapse-all.svg")
   public void collapseAll() {
     for (CategoryAndOrder category : categories) {
@@ -678,7 +683,7 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EXPAND_ALL,
-      toolTip = "Expand all categories",
+      toolTip = "i18n::ContextDialog.GuiAction.ExpandCategories",
       image = "ui/images/expand-all.svg")
   public void expandAll() {
     for (CategoryAndOrder category : categories) {
@@ -690,7 +695,7 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ENABLE_CATEGORIES,
-      label = "Show categories",
+      label = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
       toolTip = "Enable/Disable categories",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableCategories() {
@@ -709,7 +714,7 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_CLEAR_SEARCH,
-      toolTip = "Clear search filter",
+      toolTip = "i18n::ContextDialog.GuiAction.ClearSearchFilter.Tooltip",
       image = "ui/images/clear-text.svg",
       separator = true)
   public void clearSearchFilter() {
