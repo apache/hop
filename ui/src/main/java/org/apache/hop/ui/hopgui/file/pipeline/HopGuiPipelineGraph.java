@@ -3730,9 +3730,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-        messageDialog.setText("Save file?");
-        messageDialog.setMessage(
-            "Do you want to save file '" + buildTabName() + "' before closing?");
+        messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.SaveFile.Dialog.Header"));
+        messageDialog.setMessage(BaseMessages.getString(PKG, "PipelineGraph.SaveFile.Dialog.Message", buildTabName()));
         int answer = messageDialog.open();
         if ((answer & SWT.YES) != 0) {
           if (StringUtils.isEmpty(this.getFilename())) {
