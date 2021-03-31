@@ -1002,21 +1002,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         String message = null;
         switch (fSingleClickType) {
           case Workflow:
-            message = "Select the action to execute or the action to create:";
+            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
             contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
             break;
           case Action:
-            message = "Select the action to take on action '" + fSingleClickAction.getName() + "':";
+            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header", fSingleClickAction.getName());
             contextHandler =
                 new HopGuiWorkflowActionContext(workflowMeta, fSingleClickAction, this, real);
             break;
           case Note:
-            message = "Select the note action to take:";
+            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
             contextHandler =
                 new HopGuiWorkflowNoteContext(workflowMeta, fSingleClickNote, this, real);
             break;
           case Hop:
-            message = "Select the hop action to take:";
+            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
             contextHandler =
                 new HopGuiWorkflowHopContext(workflowMeta, fSingleClickHop, this, real);
             break;
@@ -1686,10 +1686,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-action-10050-create-hop",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "Create hop",
-      tooltip = "Create a new hop between 2 actions",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.CreateHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.CreateHop.Tooltip",
       image = "ui/images/hop.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void newHopCandidate(HopGuiWorkflowActionContext context) {
     startHopAction = context.getActionMeta();
@@ -1701,10 +1701,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-action-10800-edit-description",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit action description",
-      tooltip = "Modify the action description",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Tooltip",
       image = "ui/images/edit.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editActionDescription(HopGuiWorkflowActionContext context) {
     ActionMeta action = context.getActionMeta();
@@ -1725,10 +1725,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-transform-10600-parallel",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Parallel execution",
-      tooltip = "Enable of disable parallel execution of next actions",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.ParallelExecution.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.ParallelExecution.Tooltip",
       image = "ui/images/parallel.svg",
-      category = "Advanced",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Advanced.Text",
       categoryOrder = "3")
   public void editActionParallel(HopGuiWorkflowActionContext context) {
 
@@ -1781,10 +1781,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-action-10900-delete",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete this action",
-      tooltip = "Delete the selected action from the workflow",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteAction.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteAction.Tooltip",
       image = "ui/images/delete.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void deleteAction(HopGuiWorkflowActionContext context) {
     deleteSelected(context.getActionMeta());
@@ -1853,10 +1853,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-workflow-paste",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Paste from the clipboard",
-      tooltip = "Paste actions, notes or a whole workflow from the clipboard",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.PasteFromClipboard.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.PasteFromClipboard.Tooltip",
       image = "ui/images/paste.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void pasteFromClipboard(HopGuiWorkflowContext context) {
     workflowClipboardDelegate.pasteXml(
@@ -1868,10 +1868,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-edit-workflow",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit workflow",
-      tooltip = "Edit the workflow properties",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditWorkflow.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditWorkflow.Tooltip",
       image = "ui/images/workflow.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editWorkflowProperties(HopGuiWorkflowContext context) {
     editProperties(workflowMeta, hopGui, true);
@@ -1892,10 +1892,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-new-note",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "Create a note",
-      tooltip = "Create a new note",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.CreateNote.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.CreateNote.Tooltip",
       image = "ui/images/note-add.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void newNote(HopGuiWorkflowContext context) {
     String title = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditNote.Title");
@@ -1942,10 +1942,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-10-edit-note",
       parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit",
-      tooltip = "Edit the note",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditNote.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditNote.Tooltip",
       image = "ui/images/edit.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editNote(HopGuiWorkflowNoteContext context) {
     selectionRegion = null;
@@ -1956,10 +1956,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-20-delete-note",
       parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete",
-      tooltip = "Delete the note",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteNote.Text",
+      tooltip = "HopGuiWorkflowGraph.ContextualAction.DeleteNote.Tooltip",
       image = "ui/images/delete.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void deleteNote(HopGuiWorkflowNoteContext context) {
     selectionRegion = null;
@@ -1997,10 +1997,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10010-hop-enable",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Enable hop",
-      tooltip = "Enable the hop",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableHop.Tooltip",
       image = "ui/images/hop.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void enableHop(HopGuiWorkflowHopContext context) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -2023,10 +2023,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10000-hop-disable",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Disable hop",
-      tooltip = "Disable the hop",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableHop.Tooltip",
       image = "ui/images/HOP_disable.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void disableHop(HopGuiWorkflowHopContext context) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -2062,10 +2062,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10020-hop-delete",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete hop",
-      tooltip = "Delete the hop between 2 actions",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Tooltip",
       image = "ui/images/HOP_delete.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void deleteHop(HopGuiWorkflowHopContext context) {
     workflowHopDelegate.delHop(workflowMeta, context.getHopMeta());
@@ -2076,10 +2076,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10030-hop-unconditional",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Unconditional hop",
-      tooltip = "Go to the next execution regardless of execution outcome",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.UnconditionalHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.UnconditionalHop.Tooltip",
       image = "ui/images/unconditional-hop.svg",
-      category = "Routing",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setHopUnconditional(HopGuiWorkflowHopContext context) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -2100,10 +2100,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10040-hop-evaluation-success",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Success hop",
-      tooltip = "Go to the next execution when successful",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.SuccessHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.SuccessHop.Tooltip",
       image = "ui/images/true.svg",
-      category = "Routing",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setHopEvaluationTrue(HopGuiWorkflowHopContext context) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -2124,10 +2124,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10050-hop-evaluation-failure",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Failure hop",
-      tooltip = "Go to the next execution when unsuccessful",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.FailureHop.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.FailureHop.Tooltip",
       image = "ui/images/false.svg",
-      category = "Routing",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setHopEvaluationFalse(HopGuiWorkflowHopContext context) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -2193,10 +2193,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10060-hop-enable-downstream",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Enable downstream hops",
-      tooltip = "Enable all disabled downstream hops",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableDownstream.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableDownstream.Tooltip",
       image = "ui/images/HOP_enable_downstream.svg",
-      category = "Bulk",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
       categoryOrder = "3")
   public void enableHopsDownstream(HopGuiWorkflowHopContext context) {
     enableDisableHopsDownstream(context.getHopMeta(), true);
@@ -2206,10 +2206,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-hop-10070-hop-disable-downstream",
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Disable downstream hops",
-      tooltip = "Disable all enabled downstream hops",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableDownstream.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableDownstream.Tooltip",
       image = "ui/images/HOP_disable_downstream.svg",
-      category = "Bulk",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
       categoryOrder = "3")
   public void disableHopsDownstream(HopGuiWorkflowHopContext context) {
     enableDisableHopsDownstream(context.getHopMeta(), false);
@@ -2519,7 +2519,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGui.getPerspectiveManager().findFileTypeHandler(referencedMeta);
       fileTypeHandler.openFile(hopGui, referencedMeta.getFilename(), hopGui.getVariables());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "The referenced file couldn't be loaded", e);
+      new ErrorDialog(hopShell(), BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Header")
+              , BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Message"), e);
     }
   }
 
@@ -2558,7 +2559,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
     } catch (Exception ex) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error drawing workflow", ex);
+      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header")
+              , BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"), ex);
     }
   }
 
@@ -2666,10 +2668,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-action-10000-edit",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit the action",
-      tooltip = "Edit the action properties",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditAction.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditAction.Tooltip",
       image = "ui/images/edit.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editAction(HopGuiWorkflowActionContext context) {
 
@@ -2909,10 +2911,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "workflow-graph-action-10100-action-detach",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Detach action",
-      tooltip = "Remove hops to and from this action",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DetachAction.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DetachAction.Tooltip",
       image = "ui/images/HOP_delete.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void detachAction(HopGuiWorkflowActionContext context) {
     ActionMeta actionMeta = context.getActionMeta();
@@ -2943,10 +2945,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Custom,
-      name = "Copy Action to clipboard",
-      tooltip = "Copy the XML representation of this Action to the clipboard",
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.CopyAction.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.CopyAction.Tooltip",
       image = "ui/images/copy.svg",
-      category = "Basic",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void copyActionToClipboard(HopGuiWorkflowActionContext context) {
     workflowClipboardDelegate.copySelected(

@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -54,6 +55,7 @@ import java.util.Properties;
 )
 public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase implements IHopFileType {
 
+  public static final Class<?> PKG = HopPipelineFileType.class; // i18n
   public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
 
   public HopPipelineFileType() {
@@ -153,7 +155,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       // Create the empty pipeline
       //
       PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName( "New pipeline" );
+      pipelineMeta.setName(BaseMessages.getString(PKG, "HopPipelineFileType.New.Text"));
 
       // Pass the MetaStore for reference lookups
       //
@@ -193,13 +195,16 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
     List<IGuiContextHandler> handlers = new ArrayList<>();
 
-    GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Pipeline", "Creates a new pipeline. Process your data using a network of transforms running in parallel",
+    GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create
+            , BaseMessages.getString(PKG, "HopPipelineFileType.GuiAction.Pipeline.Name")
+            , BaseMessages.getString(PKG, "HopPipelineFileType.GuiAction.Pipeline.Tooltip"),
         "ui/images/pipeline.svg",
       ( shiftClicked, controlClicked, parameters ) -> {
         try {
           HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );
         } catch ( Exception e ) {
-          new ErrorDialog( hopGui.getShell(), "Error", "Error creating new pipeline", e );
+          new ErrorDialog( hopGui.getShell(), BaseMessages.getString(PKG, "HopPipelineFileType.ErrorDialog.PipelineDrawing.Header")
+                  , BaseMessages.getString(PKG,"HopPipelineFileType.ErrorDialog.PipelineDrawing.Message"), e );
         }
       } );
     newAction.setCategory( "File" );
