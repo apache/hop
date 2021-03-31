@@ -19,10 +19,13 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 
 public class HopGuiContextDelegate {
+
+  public static final Class<?> PKG = HopGuiContextDelegate.class;
   private HopGui hopGui;
 
   public HopGuiContextDelegate( HopGui hopGui ) {
@@ -38,7 +41,12 @@ public class HopGuiContextDelegate {
     int x = 50 + hopGui.getShell().getLocation().x;
     int y = 50 + hopGui.getShell().getLocation().y;
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the item to create", new Point( x, y ), hopGui, GuiActionType.Create, "FileNew", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
+            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectItemCreate.Dialog.Header")
+            , new Point( x, y )
+            , hopGui
+            , GuiActionType.Create
+            , "FileNew", true );
   }
 
   /**
@@ -46,7 +54,12 @@ public class HopGuiContextDelegate {
    */
   public void fileMetadataEdit() {
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopGui, GuiActionType.Modify, "FileMetadataEdit", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
+            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectElementTypeEdit.Dialog.Header")
+            , new Point( 0, 0 )
+            , hopGui, GuiActionType.Modify
+            , "FileMetadataEdit"
+            , true );
   }
 
   /**
@@ -54,7 +67,12 @@ public class HopGuiContextDelegate {
    */
   public void fileMetadataDelete() {
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopGui, GuiActionType.Delete, "FileMetadataDelete", true );
+    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
+            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectElementTypeDelete.Dialog.Header")
+            , new Point( 0, 0 )
+            , hopGui
+            , GuiActionType.Delete
+            , "FileMetadataDelete", true );
   }
 
   /**

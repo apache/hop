@@ -31,6 +31,7 @@ import org.apache.hop.git.info.GitInfoExplorerFileTypeHandler;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -62,6 +63,8 @@ public class GitGuiPlugin
         IExplorerFilePaintListener,
         IExplorerRefreshListener,
         IExplorerSelectionListener {
+
+  public static final Class<?> PKG = GitGuiPlugin.class;
 
   public static final String TOOLBAR_ITEM_GIT_INFO = "ExplorerPerspective-Toolbar-20000-GitInfo";
   public static final String TOOLBAR_ITEM_ADD = "ExplorerPerspective-Toolbar-20100-Add";
@@ -121,7 +124,7 @@ public class GitGuiPlugin
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COMMIT,
-      toolTip = "Git commit",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Commit.Tooltip",
       image = "git-commit.svg")
   public void gitCommit() {
 
@@ -140,8 +143,8 @@ public class GitGuiPlugin
       if (changedFiles.isEmpty()) {
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
-        box.setText("No files to commit");
-        box.setMessage("Sorry, there are no files to commit");
+        box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToCommit.Header"));
+        box.setMessage(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToCommit.Message"));
         box.open();
       } else {
         String[] files = changedFiles.toArray(new String[0]);
@@ -165,8 +168,8 @@ public class GitGuiPlugin
           EnterStringDialog enterStringDialog =
               new EnterStringDialog(
                   HopGui.getInstance().getShell(),
-                  "Commit message",
-                  "Please enter a commit message:",
+                  BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Header"),
+                      BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Message"),
                   "");
           String message = enterStringDialog.open();
           if (message != null) {
@@ -203,8 +206,8 @@ public class GitGuiPlugin
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          "Commit error",
-          "There was an error doing a git commit",
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Message"),
           e);
     }
   }
@@ -217,35 +220,38 @@ public class GitGuiPlugin
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_PUSH,
-      toolTip = "Git push",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Push.Tooltip",
       image = "push.svg")
   public void gitPush() {
     try {
       git.push();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Push error", "There was an error doing a git push", e);
+          HopGui.getInstance().getShell()
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header")
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"), e);
     }
   }
 
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_PULL,
-      toolTip = "Git pull",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Pull.Tooltip",
       image = "pull.svg")
   public void gitPull() {
     try {
       git.pull();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Push error", "There was an error doing a git pull", e);
+          HopGui.getInstance().getShell(), BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Header")
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Message"), e);
     }
   }
 
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ADD,
-      toolTip = "Git add",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Add.Tooltip",
       image = "git-add.svg")
   public void gitAdd() {
     try {
@@ -264,14 +270,15 @@ public class GitGuiPlugin
       ExplorerPerspective.getInstance().refresh();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Add error", "There was an error doing a git add", e);
+          HopGui.getInstance().getShell(), BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Header")
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Message"), e);
     }
   }
 
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REVERT,
-      toolTip = "Git revert file to the last committed version (HEAD)",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Revert.Tooltip",
       image = "git-revert.svg")
   public void gitRevert() {
     try {
@@ -287,8 +294,8 @@ public class GitGuiPlugin
       if (revertPathFiles.isEmpty()) {
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
-        box.setText("No files to revert");
-        box.setMessage("Sorry, there are no files to revert");
+        box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToRevert.Header"));
+        box.setMessage(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToRevert.Message"));
         box.open();
       } else {
         String[] files = revertPathFiles.toArray(new String[0]);
@@ -300,8 +307,8 @@ public class GitGuiPlugin
             new EnterSelectionDialog(
                 HopGui.getInstance().getShell(),
                 files,
-                "Select files to revert",
-                "Please select the files to revert");
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFiles.Header"),
+                    BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFiles.Message"));
         selectionDialog.setMulti(true);
         // Select all files by default
         //
@@ -317,9 +324,9 @@ public class GitGuiPlugin
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(),
-          "Revert error",
-          "There was an error doing a git revert",
+          HopGui.getInstance().getShell()
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Header")
+              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Message"),
           e);
     }
 
@@ -474,7 +481,7 @@ public class GitGuiPlugin
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_GIT_INFO,
-      toolTip = "Git Info",
+      toolTip = "i18n::GitGuiPlugin.Toolbar.Info.Tooltip",
       image = "git-info.svg",
       separator = true)
   public void showGitInfo() {
@@ -492,10 +499,10 @@ public class GitGuiPlugin
     ExplorerFile activeFile = explorerPerspective.getSelectedFile();
     if (activeFile == null) {
       activeFile = new ExplorerFile();
-      activeFile.setName( "Git project" );
+      activeFile.setName( BaseMessages.getString(PKG, "GitGuiPlugin.Project.Label") );
       activeFile.setFilename( git.getDirectory() );
     }
-    activeFile.setName("Git info: " + activeFile.getName());
+    activeFile.setName(BaseMessages.getString(PKG, "GitGuiPlugin.Info.Label", activeFile.getName()));
     GitInfoExplorerFileType fileType = new GitInfoExplorerFileType();
     activeFile.setFileType(fileType);
     GitInfoExplorerFileTypeHandler fileTypeHandler =
