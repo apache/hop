@@ -3382,9 +3382,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-        messageDialog.setText("Save file?");
+        messageDialog.setText(BaseMessages.getString(PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Header"));
         messageDialog.setMessage(
-            "Do you want to save file '" + buildTabName() + "' before closing?");
+                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Message", buildTabName()));
         int answer = messageDialog.open();
         if ((answer & SWT.YES) != 0) {
           if (StringUtils.isEmpty(this.getFilename())) {
