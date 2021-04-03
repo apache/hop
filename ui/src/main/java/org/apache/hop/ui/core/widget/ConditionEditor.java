@@ -1309,8 +1309,10 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       // Set the bar's parameters...
       sbHorizontal.setMaximum(maxdrawn.width);
       sbHorizontal.setMinimum(0);
-      sbHorizontal.setPageIncrement(size_widget.width);
-      sbHorizontal.setIncrement(10);
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        sbHorizontal.setPageIncrement(size_widget.width);
+        sbHorizontal.setIncrement(10);
+      }
     }
 
     // Vertical scrollbar behavior
@@ -1325,8 +1327,10 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       // Set the bar's parameters...
       sbVertical.setMaximum(maxdrawn.height);
       sbVertical.setMinimum(0);
-      sbVertical.setPageIncrement(size_widget.height);
-      sbVertical.setIncrement(10);
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        sbVertical.setPageIncrement(size_widget.height);
+        sbVertical.setIncrement(10);
+      }
     }
   }
 
