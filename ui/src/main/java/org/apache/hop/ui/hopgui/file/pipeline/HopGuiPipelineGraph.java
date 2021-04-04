@@ -74,6 +74,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -3778,6 +3779,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void start() {
     try {
       pipelineMeta.setShowDialog(pipelineMeta.isAlwaysShowRunOptions());
+      ServerPushSessionFacade.start();
       Thread thread =
           new Thread(
               () ->
@@ -3790,6 +3792,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                               } else {
                                 pipelineRunDelegate.executePipeline(
                                     hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC);
+                                ServerPushSessionFacade.stop();
                               }
                             } catch (Throwable e) {
                               new ErrorDialog(

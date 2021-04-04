@@ -56,6 +56,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -1412,6 +1413,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
+    ServerPushSessionFacade.start();
     Thread thread =
         new Thread() {
           @Override
@@ -1422,6 +1424,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                       try {
                         workflowRunDelegate.executeWorkflow(
                             hopGui.getVariables(), workflowMeta, null);
+                        ServerPushSessionFacade.stop();
                       } catch (Exception e) {
                         new ErrorDialog(
                             getShell(),
