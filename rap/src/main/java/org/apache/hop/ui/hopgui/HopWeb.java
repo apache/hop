@@ -17,12 +17,18 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -32,11 +38,23 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 public class HopWeb implements ApplicationConfiguration {
 
   public void configure( Application application ) {
-    application.addResource( "ui/images/hopUi.ico", new ResourceLoader() {
+    application.addResource("ui/images/logo_icon.png", new ResourceLoader() {
       public InputStream getResourceAsStream( String resourceName ) throws IOException {
-        return this.getClass().getClassLoader().getResourceAsStream( "ui/images/hopUi.ico" );
+        // Convert svg to png without Display
+        PNGTranscoder t = new PNGTranscoder();
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("ui/images/logo_icon.svg");
+        TranscoderInput input = new TranscoderInput(inputStream);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        TranscoderOutput output = new TranscoderOutput(outputStream);
+        try {
+          t.transcode(input, output);
+        } catch (TranscoderException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        return new ByteArrayInputStream(outputStream.toByteArray());
       }
-    } );
+    });
     Arrays.asList(
       "org/apache/hop/ui/hopgui/clipboard.js"
     ).stream().forEach( str -> {
@@ -49,7 +67,7 @@ public class HopWeb implements ApplicationConfiguration {
     });
     Map<String, String> properties = new HashMap<String, String>();
     properties.put( WebClient.PAGE_TITLE, "Hop" );
-    properties.put( WebClient.FAVICON, "ui/images/hopUi.ico" );
+    properties.put( WebClient.FAVICON, "ui/images/logo_icon.png" );
     application.addEntryPoint( "/ui", HopWebEntryPoint.class, properties );
     application.setOperationMode( Application.OperationMode.SWT_COMPATIBILITY );
 
