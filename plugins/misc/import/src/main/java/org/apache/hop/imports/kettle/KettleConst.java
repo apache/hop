@@ -54,7 +54,9 @@ public class KettleConst {
                 {"step2", "transform2"},
                 {"accept_stepname","accept_transform_name"},
                 {"steps","transforms"},
-                {"default_target_step","default_target_transform"}
+                {"default_target_step","default_target_transform"},
+                {"input_step", "input_transform"},
+                {"output_step", "output_transform"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -105,6 +107,7 @@ public class KettleConst {
                 {"JobExecutor", "WorkflowExecutor"},
                 {"execution_result_target_step","execution_result_target_transform"},
                 {"TransExecutor", "PipelineExecutor"},
+                {"Mapping", "SimpleMapping"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
