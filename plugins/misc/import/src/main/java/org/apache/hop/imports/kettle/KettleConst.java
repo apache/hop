@@ -53,7 +53,8 @@ public class KettleConst {
                 {"step1", "transform1"},
                 {"step2", "transform2"},
                 {"accept_stepname","accept_transform_name"},
-                {"steps","transforms"}
+                {"steps","transforms"},
+                {"default_target_step","default_target_transform"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -116,7 +117,11 @@ public class KettleConst {
                 {"Internal.Transformation", "Internal.Pipeline"},
                 {"Filename.Directory", "Filename.Folder"},
                 {"Repository.Directory", "Repository.Folder"},
-                {"Current.Directory", "Current.Folder"}
+                {"Current.Directory", "Current.Folder"},
+                {"Internal.Job.Filename.Name", "Internal.Workflow.Filename.Name"},
+                {"Internal.Entry.Current.Directory", "Internal.Entry.Current.Folder"},
+                {"Internal.Workflow.Filename.Folder", "Internal.Workflow.Name"},
+                {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
