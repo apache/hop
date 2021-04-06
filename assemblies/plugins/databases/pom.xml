@@ -72,6 +72,7 @@
         <module>snowflake-assemblies</module>
         <module>clickhouse-assemblies</module>
         <module>doris-assemblies</module>
+        <module>generic-assemblies</module>
     </modules>
 
 

@@ -176,7 +176,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** Set default values for an Generic database. */
   public void setDefault() {
-    setValues("", "GENERIC", "Native", "", "", "", "", "");
+    setValues("", "NONE", "Native", "", "", "", "", "");
   }
 
   /** Add a list of common options for some databases. */
@@ -1075,7 +1075,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
 
     if ((((BaseDatabaseMeta) getIDatabase()).requiresName()
-        && !(getIDatabase() instanceof GenericDatabaseMeta))) {
+        && !(getIDatabase().getPluginId() == "GENERIC"))) {
       if (getDatabaseName() == null || getDatabaseName().length() == 0) {
         remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
       }

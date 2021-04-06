@@ -106,7 +106,7 @@ public class AesTwoWayPasswordEncoderTest {
     //
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.setName( "test" );
-    databaseMeta.setDatabaseType( "Generic" );
+    databaseMeta.setDatabaseType( "None" );
     databaseMeta.setUsername( "user" );
     databaseMeta.setPassword( "password" );
 

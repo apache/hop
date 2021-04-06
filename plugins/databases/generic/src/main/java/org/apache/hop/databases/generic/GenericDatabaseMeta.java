@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.database;
+package org.apache.hop.databases.generic;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;

@@ -128,7 +128,7 @@ public class DatabaseMetaTest {
   @Test
   public void testGetFeatureSummary() throws Exception {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    GenericDatabaseMeta odbm = new GenericDatabaseMeta();
+    NoneDatabaseMeta odbm = new NoneDatabaseMeta();
     doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta ).getFeatureSummary(variables);
     doCallRealMethod().when( databaseMeta ).getAttributes();
@@ -179,7 +179,7 @@ public class DatabaseMetaTest {
   @Test
   public void testModifyingName() throws Exception {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    GenericDatabaseMeta odbm = new GenericDatabaseMeta();
+    NoneDatabaseMeta odbm = new NoneDatabaseMeta();
     doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta ).setName( anyString() );
     doCallRealMethod().when( databaseMeta ).getName();
@@ -190,7 +190,7 @@ public class DatabaseMetaTest {
     list.add( databaseMeta );
 
     DatabaseMeta databaseMeta2 = mock( DatabaseMeta.class );
-    GenericDatabaseMeta odbm2 = new GenericDatabaseMeta();
+    NoneDatabaseMeta odbm2 = new NoneDatabaseMeta();
     doCallRealMethod().when( databaseMeta2 ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta2 ).setName( anyString() );
     doCallRealMethod().when( databaseMeta2 ).getName();

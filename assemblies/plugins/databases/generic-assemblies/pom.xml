@@ -23,49 +23,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-assemblies-plugins-transforms</artifactId>
         <version>0.99-SNAPSHOT</version>
     </parent>
 
 
-    <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
+    <artifactId>hop-assemblies-plugins-databases-generic</artifactId>
     <version>0.99-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Hop Assemblies Plugins Transforms Web Services</name>
+    <name>Hop Assemblies Plugins Databases Generic</name>
     <description></description>
+
+    <properties>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-webservices</artifactId>
+            <artifactId>hop-databases-generic</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>javax.wsdl</groupId>
-            <artifactId>com.springsource.javax.wsdl</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-            <version>1.6.2</version>
-        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>EBIPublic</id>
-            <url>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/public/</url>
-            <name>EBIPublic Repository</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
+    
 </project>

@@ -186,7 +186,7 @@ public class KettleImport extends HopImport implements IHopImport {
             });
 
             connNamesList.forEach(connName -> {
-                GenericDatabaseMeta database = new GenericDatabaseMeta();
+                NoneDatabaseMeta database = new NoneDatabaseMeta();
                 database.setDriverClass((String) properties.get(connName + "/driver"));
                 database.setManualUrl((String) properties.get(connName + "/url"));
                 database.setUsername((String) properties.get(connName + "/user"));
