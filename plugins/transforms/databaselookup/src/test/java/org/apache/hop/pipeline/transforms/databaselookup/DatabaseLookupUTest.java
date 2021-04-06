@@ -21,7 +21,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.GenericDatabaseMeta;
+import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,12 +39,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
@@ -58,24 +53,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Andrey Khayrutdinov
@@ -151,7 +131,7 @@ public class DatabaseLookupUTest {
 
 
   private DatabaseLookupMeta createDatabaseMeta() throws HopException {
-    GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
+    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setIDatabase( genericMeta );
 
@@ -250,7 +230,7 @@ public class DatabaseLookupUTest {
     data.cache = DefaultCache.newCache( data, 0 );
     data.lookupMeta = new RowMeta();
 
-    GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
+    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setIDatabase( genericMeta );
 

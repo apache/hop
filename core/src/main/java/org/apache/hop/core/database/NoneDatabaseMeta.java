@@ -22,6 +22,22 @@ import org.apache.hop.core.row.IValueMeta;
 
 @DatabaseMetaPlugin(type = "NONE", typeDescription = "No connection type")
 public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
+
+
+  /**
+   * @param driverClass The driverClass to set
+   */
+  public void setDriverClass( String driverClass ) {
+    getAttributes().put( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
+  }
+
+  @Override
+  public String getDriverClass() {
+    return getAttributeProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
+  }
+
   @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement, boolean addFieldName, boolean addCr ) {
     return null;
   }
@@ -30,9 +46,6 @@ public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
-  @Override public String getDriverClass() {
-    return "";
-  }
 
   @Override public String getURL( String hostname, String port, String databaseName ) throws HopDatabaseException {
     return "jdbc://none";
