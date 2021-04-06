@@ -59,11 +59,6 @@
         <include>com.datastax.oss:java-driver-shaded-guava:jar</include>
         <include>com.github.ben-manes.caffeine:caffeine:jar</include>
         <include>com.github.jbellis:jamm:jar</include>
-        <include>com.github.jnr:jffi:jar</include>
-        <include>com.github.jnr:jnr-constants:jar</include>
-        <include>com.github.jnr:jnr-ffi:jar</include>
-        <include>com.github.jnr:jnr-posix:jar</include>
-        <include>com.github.jnr:jnr-x86asm:jar</include>
         <include>com.github.rholder:snowball-stemmer:jar</include>
         <include>com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:jar</include>
         <include>com.googlecode.concurrent-trees:concurrent-trees:jar</include>
@@ -76,20 +71,13 @@
         <include>io.airlift:airline:jar</include>
         <include>io.dropwizard.metrics:metrics-core:jar</include>
         <include>io.dropwizard.metrics:metrics-jvm:jar</include>
+        <include>io.dropwizard.metrics:metrics-logback:jar</include>
         <include>io.netty:netty-all:jar</include>
-        <include>io.netty:netty-buffer:jar</include>
-        <include>io.netty:netty-codec:jar</include>
         <include>io.netty:netty-common:jar</include>
-        <include>io.netty:netty-handler:jar</include>
-        <include>io.netty:netty-transport:jar</include>
-        <include>it.unimi.dsi:fastutil:jar</include>
         <include>javax.inject:javax.inject:jar</include>
-        <include>javax.validation:validation-api:jar</include>
         <include>joda-time:joda-time:jar</include>
         <include>net.java.dev.jna:jna:jar</include>
         <include>net.jpountz.lz4:lz4:jar</include>
-        <include>org.antlr:antlr:jar</include>
-        <include>org.antlr:antlr-runtime:jar</include>
         <include>org.antlr:ST4:jar</include>
         <include>org.apache.cassandra:cassandra-all:jar</include>
         <include>org.apache.cassandra:cassandra-thrift:jar</include>
@@ -103,9 +91,7 @@
         <include>org.jctools:jctools-core:jar</include>
         <include>org.mindrot:jbcrypt:jar</include>
         <include>org.ow2.asm:asm-analysis:jar</include>
-        <include>org.ow2.asm:asm-commons:jar</include>
         <include>org.ow2.asm:asm:jar</include>
-        <include>org.ow2.asm:asm-tree:jar</include>
         <include>org.ow2.asm:asm-util:jar</include>
         <include>org.xerial.snappy:snappy-java:jar</include>
         <include>org.yaml:snakeyaml:jar</include>
