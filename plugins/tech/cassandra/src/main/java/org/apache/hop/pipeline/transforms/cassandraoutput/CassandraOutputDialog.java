@@ -46,8 +46,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -86,7 +84,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   private Button wUnloggedBatch;
 
   private Label wlKeyField;
-  private CCombo wKeyField;
+  private TextVar wKeyField;
 
   private Button wbGetFields;
 
@@ -134,10 +132,10 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // Buttons at the bottom of the dialog
     //
-    wOk = new Button(shell, SWT.PUSH);
+    wOk = new Button(shell, SWT.PUSH | SWT.CENTER);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    wCancel = new Button(shell, SWT.PUSH | SWT.CENTER);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, wTabFolder);
@@ -237,22 +235,16 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wbGetTables.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetTable.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(0, 0);
+    fdbTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
     wbGetTables.setLayoutData(fdbTable);
-    wbGetTables.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setupTablesCombo();
-          }
-        });
+    wbGetTables.addListener(SWT.Selection, e -> setupTablesCombo());
 
     wTable = new CCombo(wWriteComp, SWT.BORDER);
     props.setLook(wTable);
     wTable.addModifyListener(e -> wTable.setToolTipText(variables.resolve(wTable.getText())));
     FormData fdTable = new FormData();
     fdTable.right = new FormAttachment(wbGetTables, -margin);
-    fdTable.top = new FormAttachment(0, margin);
+    fdTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
     fdTable.left = new FormAttachment(middle, 0);
     wTable.setLayoutData(fdTable);
 
@@ -383,23 +375,18 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdTtl.right = new FormAttachment(100, 0);
     fdTtl.top = new FormAttachment(wlTtl, 0, SWT.CENTER);
     wTtlUnits.setLayoutData(fdTtl);
-
     for (CassandraOutputMeta.TtlUnits u : CassandraOutputMeta.TtlUnits.values()) {
       wTtlUnits.add(u.toString());
     }
-
     wTtlUnits.select(0);
-
-    wTtlUnits.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            if (wTtlUnits.getSelectionIndex() == 0) {
-              wTtlValue.setEnabled(false);
-              wTtlValue.setText("");
-            } else {
-              wTtlValue.setEnabled(true);
-            }
+    wTtlUnits.addListener(
+        SWT.Selection,
+        e -> {
+          if (wTtlUnits.getSelectionIndex() == 0) {
+            wTtlValue.setEnabled(false);
+            wTtlValue.setText("");
+          } else {
+            wTtlValue.setEnabled(true);
           }
         });
 
@@ -420,33 +407,25 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlKeyField.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.KeyField.Label"));
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
-    fdlKeyField.top = new FormAttachment(wTtlValue, margin);
+    fdlKeyField.top = new FormAttachment(wTtlValue, 2 * margin);
     fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
 
     wbGetFields = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbGetFields);
-    wbGetFields.setText(
-        " " + BaseMessages.getString(PKG, "CassandraOutputDialog.GetFields.Button") + " ");
+    wbGetFields.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetFields.Button"));
     FormData fdbGetFields = new FormData();
     fdbGetFields.right = new FormAttachment(100, 0);
-    fdbGetFields.top = new FormAttachment(wTtlValue, margin);
+    fdbGetFields.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
     wbGetFields.setLayoutData(fdbGetFields);
+    wbGetFields.addListener(SWT.Selection, e -> showEnterSelectionDialog());
 
-    wbGetFields.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            showEnterSelectionDialog();
-          }
-        });
-
-    wKeyField = new CCombo(wWriteComp, SWT.BORDER);
+    wKeyField = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wKeyField.addModifyListener(
         e -> wKeyField.setToolTipText(variables.resolve(wKeyField.getText())));
     FormData fdKeyField = new FormData();
-    fdKeyField.right = new FormAttachment(wbGetFields, -2 * margin);
-    fdKeyField.top = new FormAttachment(wTtlValue, margin);
+    fdKeyField.right = new FormAttachment(wbGetFields, -margin);
+    fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
     fdKeyField.left = new FormAttachment(middle, 0);
     wKeyField.setLayoutData(fdKeyField);
 
@@ -457,24 +436,17 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdWriteComp.bottom = new FormAttachment(100, 0);
     wWriteComp.setLayoutData(fdWriteComp);
 
-    wWriteComp.layout();
     wWriteTab.setControl(wWriteComp);
 
     // show schema button
-    Button wbShowSchema = new Button(wWriteComp, SWT.PUSH);
+    Button wbShowSchema = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
     wbShowSchema.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Schema.Button"));
     props.setLook(wbShowSchema);
     FormData fdbShowSchema = new FormData();
     fdbShowSchema.right = new FormAttachment(100, 0);
     fdbShowSchema.bottom = new FormAttachment(100, -margin * 2);
     wbShowSchema.setLayoutData(fdbShowSchema);
-    wbShowSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            popupSchemaInfo();
-          }
-        });
+    wbShowSchema.addListener(SWT.Selection, e -> popupSchemaInfo());
 
     // ---- start of the schema options tab ----
     CTabItem wSchemaTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -817,12 +789,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
           return;
         }
-
-        wKeyField.removeAll();
-        for (int i = 0; i < row.size(); i++) {
-          IValueMeta vm = row.getValueMeta(i);
-          wKeyField.add(vm.getName());
-        }
       } catch (HopException ex) {
         MessageDialog.openError(
             shell,
@@ -968,10 +934,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wUpdateTableMetaData.setSelection(input.isUpdateCassandraMeta());
     wInsertFieldsNotInTableMeta.setSelection(input.isInsertFieldsNotInMeta());
     wUnloggedBatch.setSelection(input.isUseUnloggedBatch());
-
-    wbGetFields.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.SelectFields.Button"));
-    wlKeyField.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.KeyFields.Label"));
-
+    
     if (!Utils.isEmpty(input.getTtl())) {
       wTtlValue.setText(input.getTtl());
       wTtlUnits.setText(input.getTtlUnit());
