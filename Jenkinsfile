@@ -36,7 +36,6 @@ pipeline {
 
     environment {
         MAVEN_SKIP_RC = true
-        BRANCH_NAME ='master'
         DOCKER_REPO='docker.io/apache/incubator-hop'
         DOCKER_REPO_WEB='docker.io/apache/incubator-hop-web'
     }
@@ -82,9 +81,6 @@ pipeline {
             }
         }
         stage('Get POM Version') {
-            when {
-                branch "${BRANCH_NAME}"
-            }
             steps{
                 script {
                     env.POM_VERSION = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
@@ -93,9 +89,6 @@ pipeline {
             }
         }
         stage('Test & Build') {
-            when {
-                branch "${BRANCH_NAME}"
-            }
             steps {
                 echo 'Test & Build'
 
