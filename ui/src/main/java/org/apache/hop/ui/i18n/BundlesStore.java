@@ -146,7 +146,7 @@ public class BundlesStore {
     BundleFile existingFile = languageBundleMap.get(language);
     if (existingFile != null) {
       throw new RuntimeException(
-          "Bundle file collission!  "
+          "Bundle file collision!  "
               + "We're trying to add file '"
               + bundleFile.getFilename()
               + "' to the bundle store but this file already exists "
