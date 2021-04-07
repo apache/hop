@@ -3373,7 +3373,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
      */
 
   public void close() {
-    hopGui.menuFileClose();
+    perspective.remove( this );
   }
 
   @Override
