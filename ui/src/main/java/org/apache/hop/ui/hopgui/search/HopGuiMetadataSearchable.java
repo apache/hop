@@ -19,9 +19,11 @@ package org.apache.hop.ui.hopgui.search;
 
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.json.JsonMetadataSerializer;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 
@@ -60,6 +62,9 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
 
   @Override
   public String getFilename() {
+    if (serializer instanceof JsonMetadataSerializer ) {
+     return ((JsonMetadataSerializer)serializer).calculateFilename( getName() );
+    }
     return null;
   }
 

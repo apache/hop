@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -62,6 +63,10 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
   @Override public String getDescription() {
+    HopMetadata hopMetadata = managedClass.getAnnotation( HopMetadata.class );
+    if (hopMetadata!=null) {
+      return hopMetadata.description();
+    }
     return null;
   }
 
@@ -150,7 +155,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     }
   }
 
-  private String calculateFilename( String name ) {
+  public String calculateFilename( String name ) {
     return baseFolder + Const.FILE_SEPARATOR + name + ".json";
   }
 

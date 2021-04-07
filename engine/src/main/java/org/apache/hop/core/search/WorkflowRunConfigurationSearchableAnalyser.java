@@ -26,7 +26,7 @@ import java.util.List;
   id = "WorkflowRunConfigurationSearchableAnalyser",
   name = "Search in workflow run configuration metadata"
 )
-public class WorkflowRunConfigurationSearchableAnalyser extends BaseSearchableAnalyser<WorkflowRunConfiguration> implements ISearchableAnalyser<WorkflowRunConfiguration> {
+public class WorkflowRunConfigurationSearchableAnalyser extends BaseMetadataSearchableAnalyser<WorkflowRunConfiguration> implements ISearchableAnalyser<WorkflowRunConfiguration> {
 
   @Override public Class<WorkflowRunConfiguration> getSearchableClass() {
     return WorkflowRunConfiguration.class;
@@ -34,11 +34,12 @@ public class WorkflowRunConfigurationSearchableAnalyser extends BaseSearchableAn
 
   @Override public List<ISearchResult> search( ISearchable<WorkflowRunConfiguration> searchable, ISearchQuery searchQuery ) {
     WorkflowRunConfiguration runConfig = searchable.getSearchableObject();
+    String component = getMetadataComponent();
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Workflow run configuration name", runConfig.getName(), null );
-    matchProperty( searchable, results, searchQuery, "Workflow run configuration description", runConfig.getDescription(), null );
+    matchProperty( searchable, results, searchQuery, "Workflow run configuration name", runConfig.getName(), component );
+    matchProperty( searchable, results, searchQuery, "Workflow run configuration description", runConfig.getDescription(), component );
 
     /* Analyze the variables
     //
