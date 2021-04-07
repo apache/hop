@@ -92,6 +92,15 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
-
+    <!-- samples -->
+    <dependencySet>
+      <includes>
+        <include>org.apache.hop:hop-assemblies-samples:zip</include>
+      </includes>
+      <unpack>true</unpack>
+      <outputDirectory>.</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
   </dependencySets>
 </assembly>

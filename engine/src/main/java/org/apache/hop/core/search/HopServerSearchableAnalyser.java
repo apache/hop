@@ -26,7 +26,7 @@ import java.util.List;
   id = "HopServerSearchableAnalyser",
   name = "Search in hop server metadata"
 )
-public class HopServerSearchableAnalyser extends BaseSearchableAnalyser<HopServer> implements ISearchableAnalyser<HopServer> {
+public class HopServerSearchableAnalyser extends BaseMetadataSearchableAnalyser<HopServer> implements ISearchableAnalyser<HopServer> {
 
   @Override public Class<HopServer> getSearchableClass() {
     return HopServer.class;
@@ -34,14 +34,14 @@ public class HopServerSearchableAnalyser extends BaseSearchableAnalyser<HopServe
 
   @Override public List<ISearchResult> search( ISearchable<HopServer> searchable, ISearchQuery searchQuery ) {
     HopServer hopServer = searchable.getSearchableObject();
-
+    String component = getMetadataComponent();
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Hop server name", hopServer.getName(), null );
-    matchProperty( searchable, results, searchQuery, "Hop server hostname", hopServer.getHostname(), null );
-    matchProperty( searchable, results, searchQuery, "Hop server port", hopServer.getPort(), null );
-    matchProperty( searchable, results, searchQuery, "Hop server username", hopServer.getUsername(), null );
-    matchProperty( searchable, results, searchQuery, "Hop server webapp", hopServer.getWebAppName(), null );
+    matchProperty( searchable, results, searchQuery, "Hop server name", hopServer.getName(), component );
+    matchProperty( searchable, results, searchQuery, "Hop server hostname", hopServer.getHostname(), component );
+    matchProperty( searchable, results, searchQuery, "Hop server port", hopServer.getPort(), component );
+    matchProperty( searchable, results, searchQuery, "Hop server username", hopServer.getUsername(), component );
+    matchProperty( searchable, results, searchQuery, "Hop server webapp", hopServer.getWebAppName(), component );
     return results;
   }
 }

@@ -20,6 +20,8 @@ package org.apache.hop.core.search;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.server.HopServer;
 
 import java.util.ArrayList;
 import java.util.List;

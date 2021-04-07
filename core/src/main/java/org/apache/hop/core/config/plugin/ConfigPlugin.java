@@ -35,6 +35,7 @@ public @interface ConfigPlugin {
   String CATEGORY_CONFIG = "config";
   String CATEGORY_RUN = "run";
   String CATEGORY_SEARCH = "search";
+  String CATEGORY_IMPORT = "import";
 
   String id();
   String description() default "";
