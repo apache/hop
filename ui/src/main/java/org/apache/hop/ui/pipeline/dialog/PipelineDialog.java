@@ -191,8 +191,9 @@ public class PipelineDialog extends Dialog {
         extraTab.addTab( pipelineMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
-        new ErrorDialog( shell, "Error", "Error loading pipeline dialog plugin with id "
-          + pipelineDialogPlugin.getIds()[ 0 ], e );
+        new ErrorDialog( shell, BaseMessages.getString(PKG, "PipelineDialog.LoadDialogPlugin.Error.Header")
+                , BaseMessages.getString(PKG, "PipelineDialog.LoadDialogPlugin.Error.Message", pipelineDialogPlugin.getIds()[ 0 ])
+          , e );
       }
     }
 

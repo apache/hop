@@ -320,7 +320,8 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
       return true;
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error in settings", "There is an error in the dialog settings", e);
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Header")
+              , BaseMessages.getString(PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Message"), e);
       return false;
     }
   }

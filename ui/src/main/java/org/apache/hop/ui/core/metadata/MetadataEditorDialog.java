@@ -136,7 +136,8 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
 			
 			dispose();
 		} catch (HopException e) {
-			new ErrorDialog(getParent(), "Error", "Error saving metadata", e);
+			new ErrorDialog(getParent(), BaseMessages.getString(PKG, "MetadataEditor.Dialog.Ok.Error.Header")
+					, BaseMessages.getString(PKG, "MetadataEditor.Dialog.Ok.Error.Message"), e);
 		} 
 	}
 
