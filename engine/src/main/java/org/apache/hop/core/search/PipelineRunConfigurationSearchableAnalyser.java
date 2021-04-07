@@ -27,7 +27,7 @@ import java.util.List;
   id = "PipelineRunConfigurationSearchableAnalyser",
   name = "Search in pipeline run configuration metadata"
 )
-public class PipelineRunConfigurationSearchableAnalyser extends BaseSearchableAnalyser<PipelineRunConfiguration> implements ISearchableAnalyser<PipelineRunConfiguration> {
+public class PipelineRunConfigurationSearchableAnalyser extends BaseMetadataSearchableAnalyser<PipelineRunConfiguration> implements ISearchableAnalyser<PipelineRunConfiguration> {
 
   @Override public Class<PipelineRunConfiguration> getSearchableClass() {
     return PipelineRunConfiguration.class;
@@ -35,11 +35,12 @@ public class PipelineRunConfigurationSearchableAnalyser extends BaseSearchableAn
 
   @Override public List<ISearchResult> search( ISearchable<PipelineRunConfiguration> searchable, ISearchQuery searchQuery ) {
     PipelineRunConfiguration runConfig = searchable.getSearchableObject();
+    String component = getMetadataComponent();
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Pipeline run configuration name", runConfig.getName(), null );
-    matchProperty( searchable, results, searchQuery, "Pipeline run configuration description", runConfig.getDescription(), null );
+    matchProperty( searchable, results, searchQuery, "Pipeline run configuration name", runConfig.getName(), component );
+    matchProperty( searchable, results, searchQuery, "Pipeline run configuration description", runConfig.getDescription(), component );
 
     // Analyze the variables
     //

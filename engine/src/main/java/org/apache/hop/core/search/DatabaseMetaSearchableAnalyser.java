@@ -26,7 +26,7 @@ import java.util.List;
   id = "DatabaseMetaSearchableAnalyser",
   name = "Search in relational database metadata"
 )
-public class DatabaseMetaSearchableAnalyser extends BaseSearchableAnalyser<DatabaseMeta> implements ISearchableAnalyser<DatabaseMeta> {
+public class DatabaseMetaSearchableAnalyser extends BaseMetadataSearchableAnalyser<DatabaseMeta> implements ISearchableAnalyser<DatabaseMeta> {
 
   @Override public Class<DatabaseMeta> getSearchableClass() {
     return DatabaseMeta.class;
@@ -39,7 +39,7 @@ public class DatabaseMetaSearchableAnalyser extends BaseSearchableAnalyser<Datab
 
     matchProperty( searchable, results, searchQuery, "database name", databaseMeta.getName(), null );
 
-    matchObjectFields( searchable, results, searchQuery, databaseMeta.getIDatabase(), "database '"+databaseMeta.getName()+"' property", null );
+    matchObjectFields( searchable, results, searchQuery, databaseMeta.getIDatabase(), "database '"+databaseMeta.getName()+"' property", getMetadataComponent() );
 
     return results;
   }
