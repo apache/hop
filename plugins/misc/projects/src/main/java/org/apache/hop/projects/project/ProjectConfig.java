@@ -66,7 +66,7 @@ public class ProjectConfig {
     String actualHomeFolder = variables.resolve( getProjectHome() );
     File actualHome = new File( actualHomeFolder );
     if (!actualHome.exists()) {
-      throw new HopException("Project home folder '"+actualHomeFolder+"' does not exist");
+      throw new HopException("Project home folder '" + actualHomeFolder + "' does not exist");
     }
     String actualConfigFilename = variables.resolve( getConfigFilename() );
     String fullFilename = FilenameUtils.concat( actualHome.getAbsolutePath(), actualConfigFilename );

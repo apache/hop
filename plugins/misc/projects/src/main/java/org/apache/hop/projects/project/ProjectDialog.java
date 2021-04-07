@@ -425,7 +425,8 @@ public class ProjectDialog extends Dialog {
 
   private void browseConfigFolder(Event event) {
     // Set the root of the possible path to config file to project's root
-    wConfigFile.setText(wHome.getText());
+    String rootPath = wHome.getText();
+    wConfigFile.setText(rootPath);
     String configFile = BaseDialog.presentFileDialog(shell, wConfigFile, variables
             , new String[]{"*.json", "*.*"}
             , new String[]{BaseMessages.getString(PKG, "ProjectDialog.FileList.PrjFiles.Text")
@@ -435,7 +436,14 @@ public class ProjectDialog extends Dialog {
     // Set the name to the base folder if the name is empty
     //
     if (configFile != null) {
-      wConfigFile.setText(Const.NVL(configFile, ""));
+      if (!configFile.startsWith(rootPath)) {
+        // TODO Error
+      }
+      // Calculate relative path to existing config file
+      String relativeConfigFile = StringUtils.difference(rootPath, configFile);
+      wConfigFile.setText(Const.NVL((relativeConfigFile.startsWith(File.separator)
+              ? relativeConfigFile.substring(1)
+              : relativeConfigFile), ""));
     }
   }
 

@@ -244,10 +244,10 @@ public class ProjectsGuiPlugin {
 
         // Save the project-config.json file as well in the project itself
         //
-        File configFile = new File(projectConfig.getConfigFilename());
+        File configFile = new File(projectConfig.getActualProjectConfigFilename(variables));
 
         if (!configFile.exists()) {
-          // Create the configuration file if it does not exists
+          // Create the empty configuration file if it does not exists
           project.saveToFile();
         } else {
           // If projects exists load configuration
