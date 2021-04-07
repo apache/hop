@@ -103,7 +103,8 @@ public class ProjectDialog extends Dialog {
     try {
       project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
     } catch(Exception e) {
-      new ErrorDialog(parent, "Error", "There is an error in the project definition, variables couldn't be set", e);
+      new ErrorDialog(parent, BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Header")
+              , BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Message"), e);
     }
   }
 
@@ -163,7 +164,7 @@ public class ProjectDialog extends Dialog {
     wlHome.setLayoutData(fdlHome);
     Button wbHome = new Button(shell, SWT.PUSH);
     props.setLook(wbHome);
-    wbHome.setText("Browse...");
+    wbHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
     FormData fdbHome = new FormData();
     fdbHome.right = new FormAttachment(100, 0);
     fdbHome.top = new FormAttachment(wlHome, 0, SWT.CENTER);
@@ -186,11 +187,19 @@ public class ProjectDialog extends Dialog {
     fdlConfigFile.right = new FormAttachment(middle, 0);
     fdlConfigFile.top = new FormAttachment(lastControl, margin);
     wlConfigFile.setLayoutData(fdlConfigFile);
+    Button wbConfigFile = new Button(shell, SWT.PUSH);
+    props.setLook(wbConfigFile);
+    wbConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
+    FormData fdbConfigFile = new FormData();
+    fdbConfigFile.right = new FormAttachment(100, 0);
+    fdbConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
+    wbConfigFile.setLayoutData(fdbConfigFile);
+    wbConfigFile.addListener(SWT.Selection, this::browseConfigFolder);
     wConfigFile = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wConfigFile);
     FormData fdConfigFile = new FormData();
     fdConfigFile.left = new FormAttachment(middle, margin);
-    fdConfigFile.right = new FormAttachment(100, 0);
+    fdConfigFile.right = new FormAttachment(wbConfigFile, -margin);
     fdConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
     wConfigFile.setLayoutData(fdConfigFile);
     lastControl = wConfigFile;
@@ -414,6 +423,22 @@ public class ProjectDialog extends Dialog {
     }
   }
 
+  private void browseConfigFolder(Event event) {
+    // Set the root of the possible path to config file to project's root
+    wConfigFile.setText(wHome.getText());
+    String configFile = BaseDialog.presentFileDialog(shell, wConfigFile, variables
+            , new String[]{"*.json", "*.*"}
+            , new String[]{BaseMessages.getString(PKG, "ProjectDialog.FileList.PrjFiles.Text")
+                    , BaseMessages.getString(PKG, "ProjectDialog.FileList.AllFiles.Text")}
+            , true);
+
+    // Set the name to the base folder if the name is empty
+    //
+    if (configFile != null) {
+      wConfigFile.setText(Const.NVL(configFile, ""));
+    }
+  }
+
   private void updateIVariables() {
     Project env = new Project();
     ProjectConfig pc = new ProjectConfig();
@@ -421,7 +446,8 @@ public class ProjectDialog extends Dialog {
       getInfo(env, pc);
       env.modifyVariables(variables, pc, Collections.emptyList(), null);
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "There is a configuration error in the project:", e);
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Header")
+              , BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Message"), e);
     }
   }
 
@@ -457,7 +483,8 @@ public class ProjectDialog extends Dialog {
       returnValue = projectConfig.getProjectName();
       dispose();
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "There is a configuration error in the project:", e);
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Header")
+              , BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Message"), e);
     }
   }
 
@@ -505,7 +532,8 @@ public class ProjectDialog extends Dialog {
       }
       wParentProject.setItems(names.toArray(new String[0]));
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting list of project names", e);
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "ProjectDialog.ProjectList.Error.Dialog.Header")
+              , BaseMessages.getString(PKG, "ProjectDialog.ProjectList.Error.Dialog.Message"), e);
     }
   }
 

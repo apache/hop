@@ -76,6 +76,7 @@ public class Project extends ConfigFile implements IConfigFile {
   @Override
   public void saveToFile() throws HopException {
     try {
+
       File file = new File(configFilename);
 
       // Does the parent folder of the file exist?
