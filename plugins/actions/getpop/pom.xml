@@ -34,16 +34,16 @@
     <name>Hop Plugins Actions Get mails (POP3/IMAP)</name>
 
     <properties>
-      <mail.version>1.4.7</mail.version>
+        <mail.version>1.4.7</mail.version>
     </properties>
-  
+
     <dependencies>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>${mail.version}</version>
-        <scope>compile</scope>
-      </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${mail.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
-      
+
 </project>
