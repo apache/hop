@@ -46,5 +46,13 @@
                 <include>org.apache.hop:hop-action-getpop:jar</include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>javax.mail:mail:jar</include>
+                <include>javax.activation:activation:jar</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </assembly>
