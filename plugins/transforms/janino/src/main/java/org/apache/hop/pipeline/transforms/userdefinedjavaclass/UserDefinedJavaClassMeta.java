@@ -76,35 +76,35 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
-    classType,
-    className,
+    class_type,
+    class_name,
     class_source,
     definitions,
     definition,
     fields,
     field,
-    fieldName,
-    fieldType,
-    fieldLength,
-    fieldPrecision,
-    clearResultFields,
+    field_name,
+    field_type,
+    field_length,
+    field_precision,
+    clear_result_fields,
 
-    infoTransforms,
-    infoTransform,
+    info_transforms,
+    info_transform,
     info_,
     target_transforms,
     target_transform,
     target_,
 
     transform_tag,
-    transformName,
-    transformDescription,
+    transform_name,
+    transform_description,
 
     usage_parameters,
     usage_parameter,
     parameter_tag,
-    parameterValue,
-    parameterDescription,
+    parameter_value,
+    parameter_description,
   }
 
   @InjectionDeep private List<FieldInfo> fields = new ArrayList<FieldInfo>();
@@ -409,11 +409,14 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
 
       for (int i = 0; i < nrDefinitions; i++) {
         Node fnode = XmlHandler.getSubNodeByNr(definitionsNode, ElementNames.definition.name(), i);
+
+        UserDefinedJavaClassDef.ClassType classType = UserDefinedJavaClassDef.ClassType.valueOf(
+          XmlHandler.getTagValue( fnode, ElementNames.class_type.name() ) );
+
         definitions.add(
             new UserDefinedJavaClassDef(
-                UserDefinedJavaClassDef.ClassType.valueOf(
-                    XmlHandler.getTagValue(fnode, ElementNames.classType.name())),
-                XmlHandler.getTagValue(fnode, ElementNames.className.name()),
+                classType,
+                XmlHandler.getTagValue(fnode, ElementNames.class_name.name()),
                 XmlHandler.getTagValue(fnode, ElementNames.class_source.name())));
       }
       definitions = orderDefinitions(definitions);
@@ -425,31 +428,31 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
         Node fnode = XmlHandler.getSubNodeByNr(fieldsNode, ElementNames.field.name(), i);
         fields.add(
             new FieldInfo(
-                XmlHandler.getTagValue(fnode, ElementNames.fieldName.name()),
+                XmlHandler.getTagValue(fnode, ElementNames.field_name.name()),
                 ValueMetaFactory.getIdForValueMeta(
-                    XmlHandler.getTagValue(fnode, ElementNames.fieldType.name())),
-                Const.toInt(XmlHandler.getTagValue(fnode, ElementNames.fieldLength.name()), -1),
+                    XmlHandler.getTagValue(fnode, ElementNames.field_type.name())),
+                Const.toInt(XmlHandler.getTagValue(fnode, ElementNames.field_length.name()), -1),
                 Const.toInt(
-                    XmlHandler.getTagValue(fnode, ElementNames.fieldPrecision.name()), -1)));
+                    XmlHandler.getTagValue(fnode, ElementNames.field_precision.name()), -1)));
       }
 
       setClearingResultFields(
           !"N"
               .equals(
-                  XmlHandler.getTagValue(transformNode, ElementNames.clearResultFields.name())));
+                  XmlHandler.getTagValue(transformNode, ElementNames.clear_result_fields.name())));
 
       infoTransformDefinitions.clear();
-      Node infosNode = XmlHandler.getSubNode(transformNode, ElementNames.infoTransforms.name());
-      int nrInfos = XmlHandler.countNodes(infosNode, ElementNames.infoTransform.name());
+      Node infosNode = XmlHandler.getSubNode(transformNode, ElementNames.info_transforms.name());
+      int nrInfos = XmlHandler.countNodes(infosNode, ElementNames.info_transform.name());
       for (int i = 0; i < nrInfos; i++) {
-        Node infoNode = XmlHandler.getSubNodeByNr(infosNode, ElementNames.infoTransform.name(), i);
+        Node infoNode = XmlHandler.getSubNodeByNr(infosNode, ElementNames.info_transform.name(), i);
         InfoTransformDefinition transformDefinition = new InfoTransformDefinition();
         transformDefinition.tag =
             XmlHandler.getTagValue(infoNode, ElementNames.transform_tag.name());
         transformDefinition.transformName =
-            XmlHandler.getTagValue(infoNode, ElementNames.transformName.name());
+            XmlHandler.getTagValue(infoNode, ElementNames.transform_name.name());
         transformDefinition.description =
-            XmlHandler.getTagValue(infoNode, ElementNames.transformDescription.name());
+            XmlHandler.getTagValue(infoNode, ElementNames.transform_description.name());
         infoTransformDefinitions.add(transformDefinition);
       }
 
@@ -464,9 +467,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
         transformDefinition.tag =
             XmlHandler.getTagValue(targetNode, ElementNames.transform_tag.name());
         transformDefinition.transformName =
-            XmlHandler.getTagValue(targetNode, ElementNames.transformName.name());
+            XmlHandler.getTagValue(targetNode, ElementNames.transform_name.name());
         transformDefinition.description =
-            XmlHandler.getTagValue(targetNode, ElementNames.transformDescription.name());
+            XmlHandler.getTagValue(targetNode, ElementNames.transform_description.name());
         targetTransformDefinitions.add(transformDefinition);
       }
 
@@ -481,9 +484,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
         usageParameter.tag =
             XmlHandler.getTagValue(parameterNode, ElementNames.parameter_tag.name());
         usageParameter.value =
-            XmlHandler.getTagValue(parameterNode, ElementNames.parameterValue.name());
+            XmlHandler.getTagValue(parameterNode, ElementNames.parameter_value.name());
         usageParameter.description =
-            XmlHandler.getTagValue(parameterNode, ElementNames.parameterDescription.name());
+            XmlHandler.getTagValue(parameterNode, ElementNames.parameter_description.name());
         usageParameters.add(usageParameter);
       }
     } catch (Exception e) {
@@ -605,10 +608,10 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       retval.append(String.format("\n        <%s>", ElementNames.definition.name()));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.classType.name(), def.getClassType().name()));
+          .append(XmlHandler.addTagValue(ElementNames.class_type.name(), def.getClassType().name()));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.className.name(), def.getClassName()));
+          .append(XmlHandler.addTagValue(ElementNames.class_name.name(), def.getClassName()));
       retval.append("\n        ");
       retval.append(XmlHandler.addTagValue(ElementNames.class_source.name(), def.getSource()));
       retval.append(String.format("\n        </%s>", ElementNames.definition.name()));
@@ -620,43 +623,43 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       retval.append(String.format("\n        <%s>", ElementNames.field.name()));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.fieldName.name(), fi.name));
+          .append(XmlHandler.addTagValue(ElementNames.field_name.name(), fi.name));
       retval
           .append("\n        ")
           .append(
               XmlHandler.addTagValue(
-                  ElementNames.fieldType.name(), ValueMetaFactory.getValueMetaName(fi.type)));
+                  ElementNames.field_type.name(), ValueMetaFactory.getValueMetaName(fi.type)));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.fieldLength.name(), fi.length));
+          .append(XmlHandler.addTagValue(ElementNames.field_length.name(), fi.length));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.fieldPrecision.name(), fi.precision));
+          .append(XmlHandler.addTagValue(ElementNames.field_precision.name(), fi.precision));
       retval.append(String.format("\n        </%s>", ElementNames.field.name()));
     }
     retval.append(String.format("\n    </%s>", ElementNames.fields.name()));
     retval.append(
-        XmlHandler.addTagValue(ElementNames.clearResultFields.name(), clearingResultFields));
+        XmlHandler.addTagValue(ElementNames.clear_result_fields.name(), clearingResultFields));
 
     // Add the XML for the info transform definitions...
     //
-    retval.append(XmlHandler.openTag(ElementNames.infoTransforms.name()));
+    retval.append(XmlHandler.openTag(ElementNames.info_transforms.name()));
     for (InfoTransformDefinition transformDefinition : infoTransformDefinitions) {
-      retval.append(XmlHandler.openTag(ElementNames.infoTransform.name()));
+      retval.append(XmlHandler.openTag(ElementNames.info_transform.name()));
       retval.append(
           XmlHandler.addTagValue(ElementNames.transform_tag.name(), transformDefinition.tag));
       retval.append(
           XmlHandler.addTagValue(
-              ElementNames.transformName.name(),
+              ElementNames.transform_name.name(),
               transformDefinition.transformMeta != null
                   ? transformDefinition.transformMeta.getName()
                   : null));
       retval.append(
           XmlHandler.addTagValue(
-              ElementNames.transformDescription.name(), transformDefinition.description));
-      retval.append(XmlHandler.closeTag(ElementNames.infoTransform.name()));
+              ElementNames.transform_description.name(), transformDefinition.description));
+      retval.append(XmlHandler.closeTag(ElementNames.info_transform.name()));
     }
-    retval.append(XmlHandler.closeTag(ElementNames.infoTransforms.name()));
+    retval.append(XmlHandler.closeTag(ElementNames.info_transforms.name()));
 
     // Add the XML for the target transform definitions...
     //
@@ -667,13 +670,13 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
           XmlHandler.addTagValue(ElementNames.transform_tag.name(), transformDefinition.tag));
       retval.append(
           XmlHandler.addTagValue(
-              ElementNames.transformName.name(),
+              ElementNames.transform_name.name(),
               transformDefinition.transformMeta != null
                   ? transformDefinition.transformMeta.getName()
                   : null));
       retval.append(
           XmlHandler.addTagValue(
-              ElementNames.transformDescription.name(), transformDefinition.description));
+              ElementNames.transform_description.name(), transformDefinition.description));
       retval.append(XmlHandler.closeTag(ElementNames.target_transform.name()));
     }
     retval.append(XmlHandler.closeTag(ElementNames.target_transforms.name()));
@@ -683,10 +686,10 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       retval.append(XmlHandler.openTag(ElementNames.usage_parameter.name()));
       retval.append(XmlHandler.addTagValue(ElementNames.parameter_tag.name(), usageParameter.tag));
       retval.append(
-          XmlHandler.addTagValue(ElementNames.parameterValue.name(), usageParameter.value));
+          XmlHandler.addTagValue(ElementNames.parameter_value.name(), usageParameter.value));
       retval.append(
           XmlHandler.addTagValue(
-              ElementNames.parameterDescription.name(), usageParameter.description));
+              ElementNames.parameter_description.name(), usageParameter.description));
       retval.append(XmlHandler.closeTag(ElementNames.usage_parameter.name()));
     }
     retval.append(XmlHandler.closeTag(ElementNames.usage_parameters.name()));
