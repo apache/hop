@@ -131,8 +131,8 @@
     </partitioning>
     <definitions>
       <definition>
-        <classType>TRANSFORM_CLASS</classType>
-        <className>WorkflowSvgGenerator</className>
+        <class_type>TRANSFORM_CLASS</class_type>
+        <class_name>WorkflowSvgGenerator</class_name>
         <class_source>import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -194,14 +194,14 @@ public boolean processRow() throws HopException
     </definitions>
     <fields>
       <field>
-        <fieldName>svg</fieldName>
-        <fieldType>String</fieldType>
-        <fieldLength>-1</fieldLength>
-        <fieldPrecision>-1</fieldPrecision>
+        <field_name>svg</field_name>
+        <field_type>String</field_type>
+        <field_length>-1</field_length>
+        <field_precision>-1</field_precision>
       </field>
     </fields>
-    <clearResultFields>Y</clearResultFields>
-    <infoTransforms/>
+    <clear_result_fields>Y</clear_result_fields>
+    <info_transforms/>
     <target_transforms/>
     <usage_parameters/>
     <attributes/>
