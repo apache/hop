@@ -104,8 +104,8 @@
     </partitioning>
     <definitions>
       <definition>
-        <classType>TRANSFORM_CLASS</classType>
-        <className>Processor</className>
+        <class_type>TRANSFORM_CLASS</class_type>
+        <class_name>Processor</class_name>
         <class_source>
 String firstnameField;
 String lastnameField;
@@ -158,30 +158,30 @@ public boolean processRow() throws HopException
     </definitions>
     <fields>
       <field>
-        <fieldName>name</fieldName>
-        <fieldType>String</fieldType>
-        <fieldLength>-1</fieldLength>
-        <fieldPrecision>-1</fieldPrecision>
+        <field_name>name</field_name>
+        <field_type>String</field_type>
+        <field_length>-1</field_length>
+        <field_precision>-1</field_precision>
       </field>
     </fields>
-    <clearResultFields>N</clearResultFields>
-    <infoTransforms/>
+    <clear_result_fields>N</clear_result_fields>
+    <info_transforms/>
     <target_transforms/>
     <usage_parameters>
       <usage_parameter>
         <parameter_tag>FIRSTNAME_FIELD</parameter_tag>
-        <parameterValue>first</parameterValue>
-        <parameterDescription>First name field</parameterDescription>
+        <parameter_value>first</parameter_value>
+        <parameter_description>First name field</parameter_description>
       </usage_parameter>
       <usage_parameter>
         <parameter_tag>LASTNAME_FIELD</parameter_tag>
-        <parameterValue>last</parameterValue>
-        <parameterDescription>Last name field</parameterDescription>
+        <parameter_value>last</parameter_value>
+        <parameter_description>Last name field</parameter_description>
       </usage_parameter>
       <usage_parameter>
         <parameter_tag>NAME_FIELD</parameter_tag>
-        <parameterValue>name</parameterValue>
-        <parameterDescription>The name field as output</parameterDescription>
+        <parameter_value>name</parameter_value>
+        <parameter_description>The name field as output</parameter_description>
       </usage_parameter>
     </usage_parameters>
     <attributes/>
