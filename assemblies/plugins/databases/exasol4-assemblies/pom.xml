@@ -36,28 +36,13 @@
     <name>Hop Assemblies Plugins Databases Exasol</name>
     <description></description>
 
-    <properties>
-        <exasol.version>6.2.1</exasol.version>
-    </properties>
 
-    <repositories>
-        <repository>
-            <id>exasol</id>
-            <name>Exasol Repository</name>
-            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-exasol4</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.exasol</groupId>
-            <artifactId>exasol-jdbc</artifactId>
-            <version>${exasol.version}</version>
         </dependency>
     </dependencies>
 
