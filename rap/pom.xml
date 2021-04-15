@@ -34,8 +34,7 @@
   </parent>
 
   <properties>
-    <!-- webSpoon specific dependencies -->
-    <rap.version>3.13.0</rap.version>
+    <rap.version>3.16.0</rap.version>
   </properties>
 
 
