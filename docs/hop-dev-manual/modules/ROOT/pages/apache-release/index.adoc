@@ -1,0 +1,5 @@
+[[ApacheRelease]]
+= Release process
+
+* xref:apache-release/creating-a-release.adoc[Creating a Release]
+* xref:apache-release/checking-a-release.adoc[Checking a Release]

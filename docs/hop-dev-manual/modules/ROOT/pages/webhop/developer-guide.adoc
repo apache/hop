@@ -1,0 +1,49 @@
+= Developer Guide
+
+== Methods to use
+
+=== EnvironmentUtils.getInstance().isWeb() to see if the client is a web browser instead of a desktop app.
+
+== Methods to avoid
+
+
+=== Display.getDefault() is not allowed
+
+See https://www.eclipse.org/forums/index.php/t/805303/
+
+____
+RAP is multi user framework by its nature. Every user session is
+associated with a display. In RAP, Display#getDefault() will not create
+a new display when it's called from non-UI thread - read
+Display#getDefault JavaDoc. When you execute a code in a background
+thread, RAP needs to know for which UI session (display) it belongs.
+That's why you have to provide the correct UISession/display from outside.
+____
+
+[source,java]
+----
+Display.getDefault() cannot be used in non-UI thread with RAP/RWT.
+----
+
+
+=== SWT.CASCADE without submenu does not work
+
+See https://bugs.eclipse.org/bugs/show_bug.cgi?id=569046
+
+____
+A menuitem with SWT.CASCADE without a submenu looks and behaves differently from SWT.
+
+SWT:
+
+- The menuitem does not have a right arrow on the right hand of the menu text.
+- The menuitem is clickable.
+
+RWT:
+
+- The menuitem has a right arrow.
+- The menuitem is NOT clickable.
+____
+
+=== CTabFolder.setSimple() is not allowed
+
+This method is not implemented in RAP/RWT.

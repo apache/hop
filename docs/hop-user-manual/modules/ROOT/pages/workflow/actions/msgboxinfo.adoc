@@ -1,0 +1,41 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/msgboxinfo/src/main/doc/msgboxinfo.adoc
+= Display Msgbox info
+
+== Description
+
+The Display Msgbox info action allow you to display a message box in a workflow. You can easily see where you are in the process. This workflow action is only available using the Graphical User Interface to execute the workflow.
+
+The message box displays "OK" and "Cancel" buttons.
+
+    Clicking on "OK" exits on the green hop
+    Clicking on "Cancel" exits on the red hop
+
+When the question cannot be asked (no Graphical User Interface), the action always exits on the green hop.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Message title|The title of the message
+|Message body|The message to display 
+|===

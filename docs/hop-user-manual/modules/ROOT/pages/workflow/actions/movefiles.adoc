@@ -1,0 +1,107 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/movefiles/src/main/doc/movefiles.adoc
+= Move Files
+
+== Description
+
+The Move Files action allows you to move a number of files and/or folders to alternate locations on your file system.
+
+This works also on remote file systems (via VFS, e.g. with FTP.
+
+Example for a move (rename) of a file on a FTP server (username/password must be given for source and destination).
+
+* File source: \ftp://username:password@ftpserver/dir/testfile_partly.txt
+* File destination: \ftp://username:password@ftpserver/dir/testfile.txt
+* Check "Destination is a file" in the "Destination File" tab.
+
+== Options
+
+=== General Tab
+
+In this tab you can specify the files and/or folders to move.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Settings a|
+* Include Subfolders: also move the content of sub-folders
+* Move empty folders : also move empty folders
+* Simulate : don't actually move anything, just see if it's possible at all.
+* Copy previous results to args : use the result files from the previous workflow action (actions) as files and/or folders to move.
+|Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
+You can add a different source/destination on each line.
+**NOTE**: You can use the "Add" button to add a line to the Files/Folders list 
+|===
+
+
+=== Destination File Tab
+
+In this tab you can specify the destination of the files and/or folders and their new filenames.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Destination file a|
+	
+
+* Create destination folder : use this option to create the destination folder
+* Destination is a file
+* Do not keep folder structure : flatten the sub-folder structure if any sub-folders are used
+* Add date to destination filename (yyyyMMdd or 20091231)
+* Add time to destination filename (HHmmss or 235959)
+* Specify date time format : allows you to specify your own date-time format. The default is  yyyyMMdd'_'HHmmss
+* Add date before extension
+* If destination file exists: select one of these options:
+** Do nothing
+** Overwrite destination file
+** Create file with unique name
+** Delete source file
+** Move source file to folder : use the lower part of the dialog (next option in this grid)
+** Fail
+
+|Move to folder a|
+* Destination folder : the target folder to move to
+* Create folder
+* Add date
+* Add time
+* Specify format : allows you to specify your own date-time format. The default is  yyyyMMdd'_'HHmmss
+* If file exists in destination folder: select one of these options:
+** Do nothing
+** Overwrite file
+** Unique name
+** Fail
+|===
+
+
+=== Advanced Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Success on a|
+	
+
+* Success condition : select one of these option:
+** Success when all works fine
+** Success when at least x files moved (specify x in the limit field below)
+** Success when number of errors lesser than  (specify the max number of errors in the limit field below)
+|Result files name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions. 
+|===

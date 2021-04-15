@@ -1,0 +1,103 @@
+[[PluginDevelopment-OwnPluginDevelopment]]
+= Creating a remote plugin
+
+This guide is to help you set up and start development on a plugin that will not be included in the Hop repository. For more information on plugin types and how to add them to the Hop repository check out xref:plugin-development.adoc[following guide].
+
+The Apache software foundation has a strict policy on source licenses including all dependencies used to provide certain functionality. To see which dependencies are allowed in an Apache project check https://www.apache.org/legal/resolved.html[following page].
+If your plugin consists of code and dependencies in category A it can safely be added to the Hop repository and community can help maintain the code. If it uses category B or X it can no longer be added to the default distribution of Hop.
+
+== Getting started
+
+This guides assumes your are using IntelliJ for your development, some steps might be different in Eclipse.
+
+. Clone the skeleton repository found https://github.com/project-hop/hop-plugin-sample[here]
+. Import the project in Intellij
+. Start coding
+
+=== Project structure
+
+The sample project consists out of 3 main modules and 3 sub-modules
+
+image::start-your-own-plugin/plugin-sample-1.png[]
+
+the main modules are:
+
+* hop-action-sample
+* hop-transform-sample
+* assemblies
+** assemblies-action-sample
+** assemblies-transform-sample
+** debug
+
+In our sample repository one action and one transform are provided, they all work but they do not manipulate data or perform any actions. The assemblies module is used to create a distribution or test your action or transform during development. 
+
+
+=== Debugging
+
+To debug the project create a new `application` configuration with following configuration:
+
+image::start-your-own-plugin/plugin-sample-2.png[]
+
+Important is the working directory, for hop to work including all the plugins provided by the project a certain folder structure is required. this is generated at the debug location using following pom.
+
+```
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${hop.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${hop.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui-swt</artifactId>
+            <version>${hop.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-assemblies-plugins-dist</artifactId>
+            <version>${hop.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.project.hop</groupId>
+            <artifactId>assemblies-transform-sample</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.project.hop</groupId>
+            <artifactId>assemblies-action-sample</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+```
+
+When compiling you will notice a plugins directory is added to the debug location, this contains all plugins distributed by the Apache Hop team, the assemblies for the sample transform and action follow the same logic to make sure they are copied to the correct location too, this allows the Hop plugin loader to find and load all the plugins for the GUI.

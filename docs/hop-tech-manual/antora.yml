@@ -1,0 +1,5 @@
+name: tech-manual
+title: Technical Documentation
+version: latest
+nav:
+- modules/ROOT/nav.adoc

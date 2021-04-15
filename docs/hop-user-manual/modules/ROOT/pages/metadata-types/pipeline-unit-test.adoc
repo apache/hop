@@ -1,0 +1,33 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Pipeline Unit Test
+
+== Description
+
+image:icons/Test_tube_icon.svg[]
+
+Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Name||the name to use for this unit test
+|Description||the description to use for this unit test
+|Type of test|Development|'Development' or 'unit test'
+|The pipeline to test||the pipeline that will be tested by this unit test
+|Test pipeline filename (Optional)||
+|Base test path (or use HOP_UNIT_TESTS_FOLDER)||
+|Select this test automatically|false|
+|Replace a database connection with another||List of database connections in the pipeline to test (Original DB) to replace by database connections in this unit test (Replacement DB)
+|Variables||list of variable names and values to use for this test
+|===
+
+== Samples
+ None

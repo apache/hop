@@ -1,0 +1,19 @@
+= Hop Gui Perspectives
+:imagesdir: ../assets/images
+
+Hop comes with a number of perspectives built in.
+
+Change the current perspectives by clicking on the icon in the left hand toolbar, or through the corresponding keyboard shortcut.
+Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to cycle through perspectives.
+
+include::perspective-data-orchestration.adoc[]
+
+include::perspective-metadata.adoc[]
+
+include::perspective-file-explorer.adoc[]
+
+include::perspective-search.adoc[]
+
+include::perspective-plugin.adoc[]
+
+include::perspective-neo4.adoc[]

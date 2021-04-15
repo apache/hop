@@ -1,0 +1,18 @@
+[[HopAndKettle]]
+:imagesdir: ../assets/images
+:page-pagination:
+:page-pagination-no-back:
+
+= Hop vs Kettle
+
+Hop initially (late 2019) started as a fork of the Kettle (Pentaho Data Integration).
+
+Hop and Kettle/PDI are independent projects, each with their own roadmap and priorities. Given these different roadmaps, architectural vision and development track, Hop and Kettle/PDI are incompatible.
+
+However, since Hop shares a common history with Kettle/PDI, we provide the Hop community a way to import existing PDI/Kettle projects into Hop as seamlessly as possible.
+
+Check the following pages to find out more:
+
+* xref:hop-vs-kettle/hop-vs-kettle.adoc[Hop vs Kettle]: a comparison between the concepts and approaches in Kettle/PDI vs Hop
+* xref:hop-vs-kettle/if-you-know-kettle.adoc[If you know Kettle] provides guidance on how to get started with Hop quickly if you've used Kettle/PDI before
+* xref:hop-vs-kettle/import-kettle-projects.adoc[Import Kettle] explains how your existing Kettle/PDI projects can be imported into Hop

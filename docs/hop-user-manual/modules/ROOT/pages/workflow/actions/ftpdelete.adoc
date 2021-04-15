@@ -1,0 +1,97 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/ftpdelete/src/main/doc/ftpdelete.adoc
+= FTP delete
+
+== Description
+
+Use the FTP delete action to delete files on an FTP server.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Protocol a|
+
+* FTP
+* FTPS
+* SFTP
+* SSH
+
+|FTP server name/IP address|The name of the server or the IP address.
+|Server Port|Port number of the FTP server.
+|Username|The user name associated with FTP server account.
+|Password|The password associated the FTP server account.
+
+|Connection type a| FTPS connection type.
+
+* FTP
+* Implicit SSL
+* Authentication SSL
+* Implicit SSL with crypted FTP connection
+* Authentication TLS
+* Implicit TLS
+* Implicit TLS with crypted FTP connection
+
+|Use proxy|Whether or not to use a proxy.
+|Proxy host|Proxy server host name.
+|Proxy port|Proxy server port number.
+|Proxy username|Proxy server account user name.
+|Proxy password|Proxy server account password.
+|Use Public Key|Whether or not to use a public key with an SSH connection.
+|Key file|The public key file.
+|Browse...|Browse the filesystem for a public key file.
+|Key passphrase|The public key passphrase.
+|Test connection|Tests the configured connection.
+|===
+
+=== Files
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Timeout|The timeout period.
+|Use active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open. The default is Passive mode.
+|Copy previous results to args?
+|Remote directory|The directory on the remote FTP server.
+|Check folder|Checks if the directory exists.
+|Wildcard (regular expression)
+|Success on a| The success condition
+
+* All works fine
+* At least we delete x files
+* Nr errors less than
+
+|Limit files|Sets a limit to the number of deleted files (default 10).
+|===
+
+=== Socks Proxy
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Host|Socks Proxy host name.
+|Port|Socks Proxy port number.
+|Username|User name associated with the Socks Proxy account.
+|Password|Password associated with the Socks Proxy account.
+|===

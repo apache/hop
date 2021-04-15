@@ -1,0 +1,97 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl:  https://github.com/apache/incubator-hop/edit/master/plugins/actions/pgpencryptfiles/src/main/doc/pgpencryptfiles.adoc
+= Encrypt files with PGP
+
+== Description
+
+This workflow action can be used to encrypt and sign files.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|GPG location|The signature file path.
+|Use ASCII mode|Whether or not to use ASCII mode when encrypting.
+|Include subfolders|Whether or not to include subfolders.
+|Copy previous results to args|
+|Action|Encrypt, Sign, Sign and Encrypt
+|File/Folder source|The file to encrypt, can be added to the Files/Folders list using Add.
+|File/Folder destination|The destination of the encrypted files.
+|Wildcard|A regex wildcard.
+|User ID|
+|Files/Folders|The files to encrypt.
+|===
+
+=== Destination File Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Create destination folder|Whether or not to create the destination folder.
+|Destination is a file|Whether or not the destination is a file.
+|Do not keep folder structure|Whether or not to keep the folder structure.
+|Add date to filename|Adds the date to the file name.
+|Add time to filename|Adds the time to the file name.
+|Specify Date time format|Whether or not to specify the date time format.
+|Date time format|The format of the date time.
+|Add date before extension|Before or after extension.
+|If destination file exists a|
+
+* Do nothing
+* Overwrite the destination file
+* Create file with unique name
+* Delete source file
+* Move source file to folder
+* Fail
+
+|Destination folder|The destination folder.
+|Create folder|Whether or not to create the folder.
+|Add date|Adds the date.
+|Add time|Adds the time.
+|Specify format|Whether or not to specify the date time format.
+|Add date before extension|The format of the date time.
+|If file exists in destination folder a|
+
+* Do nothing
+* Overwrite the destination file
+* Create file with unique name
+* Delete source file
+* Move source file to folder
+* Fail
+|===
+
+
+=== Destination File Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Success condition a|Which condition to validate for a successful run
+
+* Success when all works
+* Success when at least x files decrypted
+* Success when number of errors lesser than
+|Nr error lesser than|Success if errors lesser than.
+|Add files to result files name|
+|===

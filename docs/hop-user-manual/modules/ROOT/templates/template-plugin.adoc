@@ -1,0 +1,5 @@
+[[PluginName]]
+= PluginName
+
+*This is a template document*
+

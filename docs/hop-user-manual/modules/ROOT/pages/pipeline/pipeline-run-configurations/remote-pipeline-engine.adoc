@@ -1,0 +1,20 @@
+[[RemotePipelineEngine]]
+:imagesdir: ../assets/images
+= Remote Pipeline Engine
+
+== Remote
+
+The remote runner runs on a remote Hop Server, or a cluster thereof.
+
+image::run-configuration/remote-engine.png[Hop Remote Engine, 65% , align="left"]
+
+=== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description|Default
+|Hop server|The remote Hop server to run this pipeline on.|none
+|Run Configuration|The configuration to use on the remote Hop Server.|-
+|Server poll delay (ms)|The delay in milliseconds between periodic polls to the remote server.|-
+|Server poll interval (ms)|The interval in milliseconds between periodic polls to the remote server.|-
+|===

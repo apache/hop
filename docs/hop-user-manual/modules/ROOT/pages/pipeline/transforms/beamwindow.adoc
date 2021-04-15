@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/engines/beam/src/main/doc/beamtimestamp.adoc
+= Beam Window
+
+== Description
+
+The Beam Window transform adds event-time-based window functions using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Window type a|
+
+* Fixed
+* Sliding
+* Session
+* Global
+|Window size (duration in seconds)|Sets the window duration size in seconds, default 60.
+|Every x seconds (Sliding windows)|Sets the slide window duration in seconds.
+|Window start field|The field containing the window start time.
+|Window end field|The field containing the window end time.
+|Window max field|The field containing the max duration between events.
+|===
+
+== Window Types
+
+=== Fixed
+
+Fixed or tumbling windows are used to repeatedly segment data into distinct time segments and do not overlap. Events cannot belong to more than one window.
+
+=== Sliding
+
+Sliding windows produce an output only when an event occurs and continuously move forward. Every window will have at least one event and can overlap. Events can belong to more than one window.
+
+=== Session
+
+Session windows group events which arrive at similar times and filter out periods of time when there is no data.
+
+The window begins when the first event occurs and extends to include new events within a specified timeout. If events keep occurring the window will keep extending until maximum duration is reached.
+
+=== Global
+
+Global windowing is the default in Beam and ignores event time (spanning all of event time) and uses triggers to provide snapshots of that window.

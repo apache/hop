@@ -1,0 +1,5 @@
+name: dev-manual
+title: Development Documentation
+version: latest
+nav:
+- modules/ROOT/nav.adoc

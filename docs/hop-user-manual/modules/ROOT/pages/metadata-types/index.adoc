@@ -1,0 +1,34 @@
+:page-pagination:
+:page-pagination-no-back:
+
+= Metadata Types
+
+Metadata is one of the cornerstones in Hop. Metadata can be defined as workflows, pipelines and any other type of metadata objects.
+
+Hop Gui has a Metadata Perspective to manage all types of metadata: run configurations, database (relational and NoSQL) connections, logging, and pipeline probes just to name a few.
+
+Metadata is typically stored as json files in a projects' metadata folder as a set of json files, in subfolders per metadata type. The only exception to the rule are workflows and pipelines, which are defined as XML (for now, because of historical reasons). Since workflows and pipelines are what Hop is all about, these are typically stored in your project folder, not in your project's metadata folder.
+
+
+TIP: We've made it as easy as possible to add or remove plugins in Hop. Since metadata types are plugin types too, the available metadata types in your Hop installation may not match this list entirely.
+
+By default, Hop contains the following metadata types:
+
+
+* xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
+* xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
+* xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
+* xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
+* xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
+* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: A shared connection to a Neo4j server
+* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: Description of the nodes, relationships, indexes, ... of a Neo4j graph
+* xref:metadata-types/partition-schema.adoc[Partition Schema]: Describes a partition schema
+* xref:metadata-types/pipeline-log.adoc[Pipeline Log]: Allows to log the activity of a pipeline with another pipeline
+* xref:metadata-types/pipeline-probe.adoc[Pipeline Probe]: Allows to stream output rows of a pipeline to another pipeline
+* xref:metadata-types/pipeline-run-config.adoc[Pipeline Run Configuration]: Describes how and with which engine a pipeline is to be executed
+* xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]: Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
+* xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]: Describes all the metadata needed to connect to a relational database
+* xref:metadata-types/splunk-connection.adoc[Splunk Connection]: Describes a Splunk connection
+* xref:metadata-types/web-service.adoc[Web Service]: Allows to run a pipeline to generate output for a servlet on Hop Server
+* xref:metadata-types/workflow-log.adoc[Workflow Log]: Allows to log the activity of a workflow with a pipeline
+* xref:metadata-types/workflow-run-config.adoc[Workflow Run Configuration]: Describes how to run a workflow

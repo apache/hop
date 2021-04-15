@@ -1,0 +1,1 @@
+Hop Conf is a command line tool to manage various aspects of your Hop configuration: projects, environments, cloud configuration and more

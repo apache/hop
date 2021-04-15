@@ -1,0 +1,35 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Pipeline Log
+
+== Description
+
+image:icons/pipeline-log.svg[]
+
+Allows to log the activity of a pipeline with another pipeline.
+
+A pipeline log streams logging information from a running pipeline to another pipeline. This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+
+== Related Plugins
+
+* Pipeline Logging
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Name|The name to be used for this pipeline log|
+|Enabled?|true|
+|Logging parent pipelines only|true|
+|Pipeline executed to capture logging||the pipeline to process the logging information for this pipeline log
+|Execute at the start of the pipeline?|true|Should this pipeline log be executed at the start of a pipeline run
+|Execute at the end of the pipeline?|false|Should this pipeline log be executed at the end of a pipeline run
+|Execute periodically during execution?|true|Should this pipeline log be executed periodically during a pipeline run
+|Interval in seconds|30|if executed periodically, indicates the interval at which the pipeline log is executed
+|===
+
+== Samples
+
+None

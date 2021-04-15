@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   >
+  <rect
+     y="1.9834554"
+     x="5.9834528"
+     height="20.033089"
+     width="12.033094"
+     style="fill:#0e3a5a;fill-opacity:1;stroke:#0e3a5a;stroke-width:1.96691;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  <rect
+     y="4"
+     x="8"
+     height="2"
+     width="8"
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.75862;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  <rect
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.75862;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     width="8"
+     height="2"
+     x="8"
+     y="7" />
+  <rect
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.75862;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     width="8"
+     height="2"
+     x="8"
+     y="10" />
+  <rect
+     y="18"
+     x="11"
+     height="2"
+     width="2"
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.879308;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+</svg>

@@ -1,0 +1,11 @@
+:imagesdir: ../assets/images
+
+== File Explorer Perspective
+
+Icon: image:icons/folder.svg[width="24px"]
+
+Description::
+The file explorer perspective is where you'll perform a lot of your file operation. This perspective contains handlers for the most common file types known to Hop. These are obviously hwf (workflows) and hpl (pipelines), but also JSON, CSV, TXT, XML, Markdown, SVG, Log and SAS 7 BDAT files. The File Explorer perspective is also where you'll manage version control for your projects through xref:hop-gui/hop-gui-git.adoc[Git integration].
+
+TIP: Even though fully functional, the editor for most file types in the File Explorer is rather basic. Expect these to evolve in the next Hop releases, or check the http://hop.apache.org/community/contribution-guides/code-contribution-guide/[code contribution guide] if you'd like to help us improve Hop by contributing file editors.
+

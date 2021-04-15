@@ -1,0 +1,46 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/sendnagiospassivecheck/src/main/doc/sendnagiospassivecheck.adoc
+= Send Nagios check
+
+== Description
+
+The Send Nagios check action allows you to send passive checks to Nagios. You can send monitoring information e.g. about start and end processes within your workflow.
+
+It needs the NCSA addon installed on the Nagios server (NSCA is a Linux/Unix daemon allows you to integrate passive alerts and checks from remote machines and applications with Nagios. Useful for processing security alerts, as well as redundant and distributed Nagios setups.)
+
+More details and setup instructions for the Nagios NSCA addon can be found at the Nagios link:http://nagios.sourceforge.net/docs/3_0/passivechecks.html[Passive Checks documentation.]
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Host Name/IP Address|Nagios server name / IP Address
+|Server port|Nagios server port (often 5667).
+|Password|The password to connect to the Nagios server NSCA (shared between the Nagios server and the client). This field can be set empty when connections without password are allowed.
+|Connection Timeout|Fail after the specified connection timeout.
+|Response Timeout|Fail after the specified response timeout.
+|Host Name/IP Address|Define your sender host name / IP Address.
+|Service Name|Define the service name used to log the events.
+|Encryption mode|Encryption mode for the connection.
+|Level|Log level: Unknown, OK, Warning, Critical.
+|Message|The message to get logged. 
+|===

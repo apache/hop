@@ -1,0 +1,122 @@
+:openvar: ${
+:closevar: }
+
+
+=== Configuration on the command line
+
+The ```hop-conf``` script offers many options to edit environment definitions.
+
+
+==== Creating an environment
+
+[source,bash]
+----
+$ sh hop-conf.sh \
+     --environment-create \
+     --environment hop2 \
+     --environment-project hop2 \
+     --environment-purpose=Development \
+     --environment-config-files=/home/user/projects/hop2-conf.json
+Creating environment 'hop2'
+Environment 'hop2' was created in Hop configuration file <path-to-hop>/config/hop-config.json
+2021/02/01 16:37:02 - General - ERROR: Configuration file '/home/user/projects/hop2-conf.json' does not exist to read variables from.
+Created empty environment configuration file : /home/user/projects/hop2-conf.json
+  hop2
+    Purpose: Development
+    Configuration files:
+    Project name: hop2
+      Config file: /home/user/projects/hop2-conf.json
+
+----
+
+As you can see from the log, an empty file was created to set variables in:
+
+[source,json]
+----
+{ }
+----
+
+==== Setting variables in an environment
+
+This command adds a variable to the environment configuration file:
+
+[source,bash]
+----
+$ h hop-conf.sh --config-file /home/user/projects/hop2-conf.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+Configuration file '/home/user/projects/hop2-conf.json' was modified.
+----
+
+If we look at the file ```hop2-conf.json``` we'll see that the variables were added:
+[source,json]
+----
+{
+  "variables" : [ {
+    "name" : "DB_HOSTNAME",
+    "value" : "localhost",
+    "description" : ""
+  }, {
+    "name" : "DB_PASSWORD",
+    "value" : "abcd",
+    "description" : ""
+  } ]
+}
+----
+
+Please note that you can add descriptions for the variables as well with the ```--describe-variable``` option.  Please run hop-conf without options to see all the possibilities.
+
+==== Deleting an environment
+
+The following deletes an environment from the Hop configuration file:
+
+[source,bash]
+----
+$ $ sh hop-conf.sh --environment-delete --environment hop2
+Lifecycle environment 'hop2' was deleted from Hop configuration file <path-to-hop>/config/hop-config.json
+----
+
+=== Projects Plugin configuration
+
+There are various options to configure the behavior of the ```Projects``` plugin itself. In Hop configuration file ```hop-config.json``` we can find the following options:
+
+[source,json]
+----
+{
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : "/home/matt/test-stuff/"
+}
+----
+
+
+|===
+|Option |Description |hop-conf option
+
+|projectMandatory
+|This will prevent anyone from using hop-run without specifying a project
+|```--project-mandatory```
+
+|environmentMandatory
+|This will prevent anyone from using hop-run without specifying an environment
+|```--environment-mandatory```
+
+|defaultProject
+|The default project to use when none is specified
+|```--default-project```
+
+|defaultEnvironment
+|The default environment to use when none is specified
+|```--default-environment```
+
+|standardParentProject
+|The standard parent project to propose when creating new project
+|```--standard-parent-project```
+
+|standardProjectsFolder
+|The folder to which you'll browse by default in the GUI when creating new projects
+|```--standard-projects-folder```
+
+|===
+

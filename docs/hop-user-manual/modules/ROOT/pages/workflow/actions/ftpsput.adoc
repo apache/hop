@@ -1,0 +1,69 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/ftpsput/src/main/doc/ftpsput.adoc
+= Upload files to FTPS
+
+
+== Description
+
+The Upload files to FTPS action can upload files to FTPS.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|FTP server name / IP address|The FTP host.
+|Port|The FTP port.
+|Username|The FTP username.
+|Password|The FTP password.
+|Proxy host|The FTP proxy host.
+|Proxy username|The FTP proxy username.
+|Proxy password|The FTP proxy password.
+|Connection type a|The type of connection to establish.
+
+* FTP
+* Implicit SSL
+* Authentication SSL
+* Implicit SSL with crypted FTP connection
+* Authentication TLS
+* Implicit TLS
+* Implicit TLS with crypted FTP connection
+
+|Test connection|Test the connection.
+|Binary mode|Whether or not to use binary mode.
+|Timeout|The timeout period.
+|Use active FTP connection|Whether or not to use an active FTP connection.
+|===
+
+=== Files Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Local directory|The directory of the source files.
+|Wildcard (regular expression)|A regex wildcard.
+|Remove files after transferal|Whether or not to remove the files after uploading.
+|Don't overwrite files|Skip existing files.
+|Remote directory|The directory in which to upload the files.
+|Test folder|Test if folder exists
+|===

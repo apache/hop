@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="42px"
+   height="42px"
+   viewBox="0 0 42 42"
+   enable-background="new 0 0 42 42"
+   xml:space="preserve"><metadata
+   id="metadata25"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs23" />
+
+
+<text
+   id="text816"
+   y="19.834593"
+   x="56.459057"
+   style="font-style:normal;font-weight:normal;font-size:192px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+   xml:space="preserve"><tspan
+     y="194.53062"
+     x="56.459057"
+     id="tspan814" /></text>
+
+<text
+   id="text820"
+   y="28.070263"
+   x="2.978379"
+   style="font-style:normal;font-weight:normal;font-size:44.69970703px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.23281099"
+   xml:space="preserve"><tspan
+     style="stroke-width:0.23281099"
+     y="28.070263"
+     x="2.978379"
+     id="tspan818">e</tspan></text>
+
+<g
+   transform="matrix(0.48941052,0,0,0.48941052,24.528835,24.811866)"
+   id="art"><polygon
+     id="polygon6"
+     points="18.2,0 13.8,0 13.8,13.8 0,13.8 0,18.2 13.8,18.2 13.8,32 18.2,32 18.2,18.2 32,18.2 32,13.8 18.2,13.8 "
+     style="fill:#3d6380" /></g></svg>

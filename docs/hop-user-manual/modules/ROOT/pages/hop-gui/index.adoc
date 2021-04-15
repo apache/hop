@@ -1,0 +1,13 @@
+[[HopGui]]
+
+= Hop Gui
+
+This page covers a number of topics that are very specific to working with Hop Gui.
+
+Refer to the corresponding chapters in the left-hand menu to learn more about creating and managing your Hop work.
+
+Covered here are
+
+* xref:hop-gui/file-dialog.adoc[File Dialog]: the versatile Hop file browser and chooser dialog.
+* xref:hop-gui/perspectives.adoc[Perspectives]: the various perspectives in the Hop Gui
+* xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.

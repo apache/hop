@@ -1,0 +1,19 @@
+[[SvgFiles-SvgFiles]]
+= SVG Files
+
+When adding or modifying SVG files in the Apache Hop project we kindly ask developers to keep the concerns below in mind.
+
+== Plain SVG files please
+
+We often find files in the codebase saved by Inkscape or other vector graphics tools that are not saved as "Plain SVG" or "SVG" file but as "Inkscape SVG" and so on.
+This causes a lot of extra information to be saved into the SVG files.  Often the size of the small icons is easily doubled in size.
+
+== Copyright
+
+Make sure that if you're downloading a file from the Internet somewhere that the file has a license which is compatible with the Apache Public License v2.0.
+Since there are a lot of licenses out there so be very careful.  Check with the other devs and on https://www.apache.org/legal/resolved.html[this page] to make sure an SVG file can be included in the project.
+
+== Colors scheme
+
+If you want to re-color or create icons that fit the Hop look & feel, please refer to http://hop.apache.org/tech-manual/latest/_attachments/BrandGuideline_Hop.pdf[Hop Branding guide] for some guidance.
+

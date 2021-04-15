@@ -70,17 +70,22 @@ pipeline {
                 checkout scm
             }
         }
-        stage ('Start Docs build') {
+        stage ('Start Website build') {
             when {
                 branch 'master'
-                changeset '**/*.adoc'
+                changeset 'docs/**'
             }
             steps {
                 echo 'Trigger Documentation Build'
-                build job: 'Hop/Hop-Documentation/asf-site', wait: false
+                build job: 'Hop/Hop-website/master', wait: false
             }
         }
         stage('Get POM Version') {
+            when {
+                not {
+                    changeset 'docs/**'
+                }
+            }
             steps{
                 script {
                     env.POM_VERSION = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
@@ -89,6 +94,11 @@ pipeline {
             }
         }
         stage('Test & Build') {
+            when {
+                not {
+                    changeset 'docs/**'
+                }
+            }
             steps {
                 echo 'Test & Build'
 
@@ -108,6 +118,9 @@ pipeline {
         stage('Unzip Apache Hop'){
             when {
                 branch 'master'
+                not {
+                    changeset 'docs/**'
+                }
             }
             steps{
                 sh "unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
@@ -118,6 +131,9 @@ pipeline {
         stage('Build Hop Docker Image') {
             when {
                 branch 'master'
+                not {
+                    changeset 'docs/**'
+                }
             }
             steps {
                 echo 'Building Hop Docker Image'
@@ -133,6 +149,9 @@ pipeline {
         stage('Build Hop Web Docker Image') {
             when {
                 branch 'master'
+                not {
+                    changeset 'docs/**'
+                }
             }
             steps {
                 echo 'Building Hop Web Docker Image'
@@ -149,6 +168,9 @@ pipeline {
         stage('Deploy'){
             when {
                 branch 'master'
+                not {
+                    changeset 'docs/**'
+                }
             }
             steps{
                 echo 'Deploying'

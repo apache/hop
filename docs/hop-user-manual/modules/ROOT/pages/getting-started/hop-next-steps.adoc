@@ -1,0 +1,16 @@
+[[NetSteps]]
+:imagesdir: ../../assets/images
+:page-pagination:
+:page-pagination-no-next:
+
+= Next Steps
+
+You now know what Hop is and how to create your first workflows and pipelines.
+
+There's a lot more to discover in Hop. Here are a couple of topics you may want to look into:
+
+* xref:pipeline/pipelines.adoc[Pipelines] takes closer look at the various aspects of creating and running pipelines, and contains the entire list of transforms that are at your disposal
+* xref:workflow/workflows.adoc[Workflows] takes a closer look at the various aspects of create and running workflows, and contains the entire list of actions that are at your disposal
+* xref:projects/projects.adoc[Projects] explains how to work with projects and environments
+* xref:vfs.adoc[VFS] explains how you can access resources in the 3 main cloud platforms: AWS, Azure and GCP.
+* xref:logging/logging-basics.adoc[Logging] explains how to configure Hop for your desired log level and target platform

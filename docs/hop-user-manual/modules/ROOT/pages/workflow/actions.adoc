@@ -1,0 +1,8 @@
+[[actions-plugins]]
+= Action Plugins
+
+Actions are used to create a workflow, they are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
+
+// tag::website-links[]
+
+// end::website-links[]

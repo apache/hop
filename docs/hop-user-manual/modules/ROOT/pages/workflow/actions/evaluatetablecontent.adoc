@@ -1,0 +1,46 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/evaluatetablecontent/src/main/doc/evaluatetablecontent.adoc
+= Evaluate rows number in a table
+
+== Description
+
+With this workflow action you can define the success condition that can be evaluated and branch the workflow process by the result.
+
+You can either just test the number of rows in a target table, or write a custom SQL statement.
+
+For the success condition you can check the number of rows if they are:
+
+* Equal to
+* Different from
+* Smaller than
+* Smaller or equal to
+* Greater than
+* Greater or equal to 
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Property|Description
+|Custom SQL|Check this option when you want to specify a custom SQL statement in the below field
+|Use variable substitution|Variables in the SQL statements will be substituted.
+|Clear list of result rows|Clears the internal list of result rows before executing.
+|Add rows to result|Adds all rows returned from the SQL statement within the internal list of result rows. This list of result rows can then be used in subsequent workflow actions to loop over or e.g. within a pipeline by the Get rows from result transform.
+|===

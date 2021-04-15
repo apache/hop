@@ -1,0 +1,217 @@
+:openvar: ${
+:closevar: }
+
+= Hop Conf - The Hop command line configuration tool
+
+== Usage
+
+Hop Conf is a command line tool to manage environments. The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
+
+[source,bash]
+Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
+                    [-pn] [-py] [-aza=<account>] [-azi=<blockIncrement>]
+                    [-azk=<key>] [-cfg=<configFile>]
+                    [-dc=<defaultProjectConfigFile>] [-de=<defaultEnvironment>]
+                    [-dp=<defaultProject>] [-dv=<describeVariable>]
+                    [-e=<environmentName>] [-ep=<environmentProject>]
+                    [-eu=<environmentPurpose>] [-fj=<fatJarFilename>]
+                    [-gck=<serviceAccountKeyFile>] [-gdc=<credentialsFile>]
+                    [-gdt=<tokensFolder>] [-p=<projectName>]
+                    [-pa=<projectMetadataBaseFolder>]
+                    [-pb=<projectDataSetsCsvFolder>] [-pf=<projectConfigFile>]
+                    [-ph=<projectHome>] [-pp=<projectCompany>]
+                    [-pr=<projectParent>] [-ps=<projectDescription>]
+                    [-pt=<projectDepartment>] [-pu=<projectUnitTestsBasePath>]
+                    [-px=<projectEnforceExecutionInHome>]
+                    [-sj=<standardProjectsFolder>]
+                    [-sp=<standardParentProject>] [-sv=<setVariable>]
+                    [-cfd=<configDescribeVariables>[,
+                    <configDescribeVariables>...]]... [-cfv=<configSetVariables>
+                    [,<configSetVariables>...]]... [-eg=<environmentConfigFiles>
+                    [,<environmentConfigFiles>...]]... [-pv=<projectVariables>[,
+                    <projectVariables>...]]...
+      -aza, --azure-account=<account>
+                            The account to use for the Azure VFS
+      -azi, --azure-block-increment=<blockIncrement>
+                            The block increment size for new files on Azure,
+                              multiples of 512 only.
+      -azk, --azure-key=<key>
+                            The key to use for the Azure VFS
+      -cfd, --config-file-describe-variables=<configDescribeVariables>[,
+        <configDescribeVariables>...]
+                            A list of variable=description combinations separated by
+                              a comma
+      -cfg, --config-file=<configFile>
+                            Specify the configuration JSON file to manage
+      -cfv, --config-file-set-variables=<configSetVariables>[,
+        <configSetVariables>...]
+                            A list of variable=value combinations separated by a
+                              comma
+      -dc, --default-projects-folder=<defaultProjectConfigFile>
+                            The standard project configuration filename proposed
+                              when creating projects
+      -de, --default-environment=<defaultEnvironment>
+                            The name of the default environment to use when none is
+                              specified
+      -dp, --default-project=<defaultProject>
+                            The name of the default project to use when none is
+                              specified
+      -dv, --describe-variable=<describeVariable>
+                            Describe a variable, use format VARIABLE=Description
+  -e, --environment=<environmentName>
+                            The name of the lifecycle environment to manage
+      -ec, --environment-create
+                            Create a new project lifecycle environment. Also specify
+                              its name, purpose, the project name and the
+                              configuration files.
+      -ed, --environment-delete
+                            Delete a lifecycle environment
+      -eg, --environment-config-files=<environmentConfigFiles>[,
+        <environmentConfigFiles>...]
+                            A list of configuration files for this lifecycle
+                              environment, comma separated
+      -el, --environments-list
+                            List the defined lifecycle environments
+      -em, --environment-modify
+                            Modify a lifecycle environment
+      -ep, --environment-project=<environmentProject>
+                            The project for the environment
+      -eu, --environment-purpose=<environmentPurpose>
+                            The purpose of the environment: Development, Testing,
+                              Production, CI, ...
+      -ey, --environment-mandatory
+                            Make it mandatory to reference an environment
+      -fj, --generate-fat-jar=<fatJarFilename>
+                            Specify the filename of the fat jar to generate from
+                              your current software installation
+      -gck, --google-cloud-service-account-key-file=<serviceAccountKeyFile>
+                            Configure the path to a Google Cloud service account
+                              JSON key file
+      -gdc, --google-drive-credentials-file=<credentialsFile>
+                            Configure the path to a Google Drive credentials JSON
+                              file
+      -gdt, --google-drive-tokens-folder=<tokensFolder>
+                            Configure the path to a Google Drive tokens folder
+  -h, --help                Displays this help message and quits.
+  -p, --project=<projectName>
+                            The name of the project to manage
+      -pa, --project-metadata-base=<projectMetadataBaseFolder>
+                            The metadata base folder (relative to home)
+      -pb, --project-datasets-base=<projectDataSetsCsvFolder>
+                            The data sets CSV folder (relative to home)
+      -pc, --project-create Create a new project. Also specify the name and its home
+      -pd, --project-delete Delete a project
+      -pf, --project-config-file=<projectConfigFile>
+                            The configuration file relative to the home folder. The
+                              default value is project-config.json
+      -ph, --project-home=<projectHome>
+                            The home directory of the project
+      -pl, -projects-list   List the defined projects
+      -pm, --project-modify Modify a project
+      -pn, --projects-enabled
+                            Enable or disable the projects plugin
+      -pp, --project-company=<projectCompany>
+                            The company
+      -pr, --project-parent=<projectParent>
+                            The name of the parent project to inherit metadata and
+                              variables from
+      -ps, --project-description=<projectDescription>
+                            The description of the project
+      -pt, --project-department=<projectDepartment>
+                            The department
+      -pu, --project-unit-tests-base=<projectUnitTestsBasePath>
+                            The unit tests base folder (relative to home)
+      -pv, --project-variables=<projectVariables>[,<projectVariables>...]
+                            A list of variable=value combinations separated by a
+                              comma
+      -px, --project-enforce-execution=<projectEnforceExecutionInHome>
+                            Validate before execution that a workflow or pipeline is
+                              located in the project home folder or a sub-folder
+                              (true/false).
+      -py, --project-mandatory
+                            Make it mandatory to reference a project
+      -sj, --standard-projects-folder=<standardProjectsFolder>
+                            GUI: The standard projects folder proposed when creating
+                              projects
+      -sp, --standard-parent-project=<standardParentProject>
+                            The name of the standard project to use as a parent when
+                              creating new projects
+      -sv, --set-variable=<setVariable>
+                            Set a variable, use format VAR=Value
+./hop-conf.sh  11.11s user 0.51s system 341% cpu 3.405 total
+====
+
+The available options are listed below:
+
+.Hop-conf Options
+[id="hop-conf", cols="10%, 40%,50%" width="90%", options="header"]
+|===
+|Short Option|Extended Option|Description
+|-h|--help|Displays this help message and quits.
+|-ec|--environment-create|Create an environment. Also specify the name and its home
+|-ed|--environment-delete|Delete an environment
+|-el|--environment-list|List the defined environments
+|-em|--environment-modify|Modify an environment
+|-pc|--project-create|Create a new project. Also specify the name and its home
+|-pd|--prject-delete|Delete a project
+|-pl|--project-list|List the defined projects
+|-pm|--project-modify|Modify a project
+|-dv|--describe-variable=<describeVariable>|Describe a variable
+|-e|-environment=<environmentName>|The name of the environment to manage
+|-ep|--environment-project=<environmentProject>|The project for the environment
+|-eu|--environment-purpose=<environmentPurpose>|The purpose of the environment: Development, Testing, Production, CI, ...
+|-fj|--generate-fat-jar=<fatJarFilename>|Specify the filename of the fat jar to generate from your current software installation
+|-p|--project=<projectName>|The project name
+|-pa|--project-metadata-base=<projectMetadataBaseFolder>|The metadata base folder (relative to home)
+|-pb|--project-datasets-base-base=<projectDataSetsCsvFolder>|The data sets CSV folder (relative to home)
+|-pf|--project-config-file=<projectConfigFile>|The configuration file relative to the home folder. The default value is project-config.json
+|-ph|--project-home=<projectHome>|The home directory of the project
+|-pp|--project-company=<projectCompany>|The company
+|-ps|--project-description=<projectDescription>|The description of the project
+|-pt|--project-department=<projectDepartment>|The department
+|-pu|--project-unit-tests-base=<projectUnitTestsBasePath>|The unit tests base folder (relative to home)
+|-px|--project-enforce-execution=<projectEnforceExecutionInHome>|Validate before execution that a workflow or pipeline islocated in the project home folder or a sub-folder (true/false)
+|-sv|--set-variable=<setVariable>|Set a variable, use format VAR=Value
+|-cfg|--config-file=<configFile>|Specify the configuration JSON file to manage
+|-cfd|--config-file-describe-variables=<configDescribeVariables>[,<configDescribeVariables>...]|A list of variable=description combinations separated by a comma
+|-cfv|--config-file-set-variables=<configSetVariables> ,<configSetVariables>...]|A list of variable=value combinations separated by a comma
+|-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
+|-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
+|===
+
+== Project Usage and Configuration
+
+include::hop-conf-projects.adoc[]
+
+== Running Projects and Pipelines
+
+include::hop-conf-run-hpl-hwf.adoc[]
+
+== Cloud Storage Configuration
+
+Hop Conf can be used to configure your AWS, Azure and Google Cloud (Cloud Storage and Drive) accounts with Hop through xref:vfs.adoc[VFS]
+
+=== Amazon Web Services S3
+
+N/A
+
+=== Azure
+
+Set the account, block increment size for new files and your Azure key
+
+include::hop-conf-cloud-azure-blob-storage.adoc[]
+
+=== Google
+
+==== Google Cloud Storage
+
+Set the path to your Google Cloud service account JSON key file
+
+include::hop-conf-cloud-google-cloud-storage.adoc[]
+
+==== Google Drive
+
+Set the path to your Google Drive credentials JSON file or Google Drive tokens folder.
+
+include::hop-conf-cloud-google-drive.adoc[]
+

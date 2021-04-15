@@ -1,0 +1,1 @@
+A Workflow is a sequence of operations that are performed sequentially by default (with optional parallel execution). Workflows usually do not operate on the data directly, but perform orchestration tasks. Typical tasks in a Workflow consist of retrieving and archiving data, sending emails, error handling etc. )

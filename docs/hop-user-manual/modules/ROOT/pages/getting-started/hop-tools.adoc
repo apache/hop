@@ -1,0 +1,95 @@
+[[HopTools]]
+:imagesdir: ../../assets/images
+:page-pagination:
+
+= Hop Tools
+
+Hop contains a number of tools that are optimized for the various tasks Hop developers and administrators need to perform.
+
+== Hop GUI
+
+include::../snippets/hop-tools/hop-gui.adoc[]
+
+TIP: Hop Gui is designed to be platform independent. Hop Web is a version of Hop Gui that works on browsers and mobile devices, and will be available in the very near future.
+
+Windows
+[source,bash]
+hop-gui.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-gui.sh
+
+
+== Hop Conf
+
+include::../snippets/hop-tools/hop-conf.adoc[]
+
+Windows
+[source,bash]
+hop-conf.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-conf.sh
+
+== Hop Encrypt
+
+include::../snippets/hop-tools/hop-encrypt.adoc[]
+
+Windows
+[source,bash]
+hop-encrypt.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-encrypt.sh
+
+== Hop Run
+
+include::../snippets/hop-tools/hop-run.adoc[]
+
+Windows
+
+[source,bash]
+hop-run.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-run.sh
+
+xref::../hop-run/index.adoc[Read more]
+
+== Hop Search
+
+include::../snippets/hop-tools/hop-search.adoc[]
+
+== Hop Server
+
+include::../snippets/hop-tools/hop-server.adoc[]
+
+Windows
+[source,bash]
+hop-server.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-server.sh
+
+xref::../hop-server/index.adoc[Read more]
+
+== Hop Translator
+
+include::../snippets/hop-tools/hop-translator.adoc[]
+
+TIP: check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] if you want to find out more about translating Hop.
+
+Windows
+[source,bash]
+hop-translator.bat
+
+MacOS, Linux
+[source,bash]
+ ./hop-translator.sh
+
+https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Read more]

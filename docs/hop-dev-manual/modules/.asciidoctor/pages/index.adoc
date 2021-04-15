@@ -1,0 +1,16 @@
+:author: Project Hop
+:email: info@project-hop.org
+:sectnums:
+:sectnumlevels: 5
+:toc:
+:toc-title: Hop Technical Guide
+:toc: left
+:toclevels: 5
+
+:description: This guide will help you with more complex installations and configurations.
+:keywords: hop technical
+:sourcepath: ../../ROOT/pages
+
+= Hop Technical Guide
+
+include::{sourcepath}/getting-started.adoc[]
