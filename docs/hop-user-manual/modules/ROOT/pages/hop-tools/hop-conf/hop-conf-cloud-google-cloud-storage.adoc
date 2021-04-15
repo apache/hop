@@ -1,0 +1,5 @@
+[source,shell script]
+----
+      -gck, --google-cloud-service-account-key-file=<serviceAccountKeyFile>
+                            Configure the path to a Google Cloud service account JSON key file
+----

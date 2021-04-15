@@ -1,0 +1,40 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/folderscompare/src/main/doc/folderscompare.adoc
+= Folders Compare
+
+== Description
+
+The Folders Compare action compares two folders to determine if the content is identical; the result will either be true or false.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|Include Subfolders|Also compare the content of sub-folders.
+|Compare|Specify what to compare: All, Only files, Only folders, or Let me specify...
+|Wildcard|If you chose Let me specify in the previous option, you can specify the regular expression of files to compare.
+|Compare file size|Check this to compare file size, in opposed to just comparing folder names.
+|Compare file content|Checks if files have the same content. Note: this may cause slower processing speeds.
+|File/Folder name 1|This is the first file or folder to compare
+|File/Folder name 2|This is the second file or folder to compare 
+|===
+

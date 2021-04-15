@@ -1,0 +1,33 @@
+:page-pagination:
+
+= Hop Server
+
+== Description
+
+image:icons/server.svg[]
+
+Hop Server is a lightweight web server that hosts a Hop runtime for remote execution, with a web interfaces and a set of servlets to check execution status etc.
+
+Check the xref:hop-server/index.adoc[Hop Server docs] for more details.
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Server name|the name to use for this server definition
+|Hostname or IP address|
+|Port (empty is port 80)|
+|Web app name (optional)|
+|Username|
+|Password|
+|Use https protocal|default: false
+|===
+
+== Samples
+
+None

@@ -1,0 +1,126 @@
+[[CheckingARelease]]
+= Checking a Release
+
+After the release manager creates a release as described in xref:apache-release/creating-a-release.adoc[Creating a Release] the voting process starts. This guide will contain some steps you can take to validate a release candidate and base your vote on. Each member will have his own way to check some parts of a release. There is no general rule on how to check a release, there is only a list on what has to be checked this list can be found in the https://www.apache.org/legal/release-policy.html[official release documentation].
+
+== Possible checks that can be followed (Linux)
+
+Start by grabbing the artifacts mentioned in the vote mail. Either use the link provided in the mail or grab them https://dist.apache.org/repos/dist/dev/incubator/hop/[here].
+
+In these examples a folder to check everything in was created in `/tmp` and the artifacts are already in place.
+
+[source,bash]
+----
+mkdir /tmp/release_check
+----
+
+First check would be to see if the keys and hashes are in order
+
+[source,bash]
+----
+# check the sha512
+
+sha512sum -c apache-hop-X.XX-incubating-rcX.tar.gz.sha512
+
+# should echo the artifact name and OK
+
+# check the gpg signature
+
+gpg --verify apache-hop-X.XX-incubating-rcX.tar.gz.asc
+
+# if it prints out gpg: Can't check signature: No public key fetch the key from public keyserver
+# 1. Check if the keyid matches a known key in the KEYS file https://dist.apache.org/repos/dist/dev/incubator/hop/KEYS
+# 2. grab the key from the public keyserver found in the release mail
+
+gpg --keyserver <KEY SERVER>  --receive-keys <KEY ID>
+
+# verify the package again
+
+gpg --verify apache-hop-X.XX-incubating-rcX.tar.gz.asc
+
+# output should be:
+# gpg: Good signature from "Owner Name <Owner@apache.org>" [ultimate]
+
+----
+
+If these steps pass we can start checking the content of the release.
+First step would be to download the matching source code from github.
+
+[source,bash]
+----
+# replace branch with the branch name mentioned in the release mail
+
+git clone --depth 1 --branch X.XX-rcX https://github.com/apache/incubator-hop.git source_version
+
+# check if the git commit matches the commit mentioned in the release mail
+
+cd source_version
+git rev-parse --short HEAD
+
+# remove the .git folder
+
+rm -rf .git
+cd ..
+----
+
+final step is to see if the content of the source repository matches the content of the downloaded archive.
+
+[source,bash]
+----
+# unpack the downloaded source code
+
+tar -xvf apache-hop-X.XX-incubating-rcX.tar.gz
+
+# do a diff to see if they match
+
+diff -qr source_version apache-hop-X.XX-incubating
+
+# this should show no output indicating that all files match
+# the folder containing the source code can now be removed
+
+rm -rf source_version
+----
+
+Check if the unpacked archive contains following files and if they are correct
+
+* DISCLAIMER
+* LICENSE
+** check if mentioned licenses are available in the licenses folder
+* NOTICE
+* README
+** check for build instructions
+
+Validate if all files contain the correct headers
+
+[source,bash]
+----
+mvn apache-rat:rat -debug
+----
+
+Now build and test the released code
+
+[source,bash]
+----
+# run maven clean install (you can add -T 4 to build multi threaded)
+
+mvn clean install
+
+# switch to the finished artifact, extract and test
+cd assemblies/client/target
+unzip hop-client-*.zip
+cd hop 
+./hop-gui.sh
+----
+
+
+
+
+== Extra checks
+
+You can also check for unwanted binary files on the checked out tag
+
+[source,bash]
+----
+git ls-files -z | xargs -0 file -b | sort | uniq -c
+----
+

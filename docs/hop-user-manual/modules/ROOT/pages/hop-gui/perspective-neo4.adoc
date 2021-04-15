@@ -1,0 +1,14 @@
+:imagesdir: ../assets/images
+
+== Neo4j Perspective
+
+Icon: image:icons/neo4j_logo.svg[width="24px"]
+
+Description::
+The Neo4j perspective provides a view on and allows you to query Hop execution history from a Neo4j database.
+
+The perspective shows the value the `NEO4J_LOGGING_CONNECTION` (used to load execution logging to Neo4j), allows to select a workflow or pipeline to display logging for (optionally, specify the number of executions and only show root executions).
+
+For the selected workflow or pipeline, or all executions if none selected), the id, name, type, number of rows read, written, input, output and rejected, the number of error rows and the execution date and duration are shown.
+
+In the bottom half of the perspective dialog, the logging text, path to errors and a number of useful cypher queries are shown.

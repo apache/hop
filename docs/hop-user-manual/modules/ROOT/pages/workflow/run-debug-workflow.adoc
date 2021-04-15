@@ -1,0 +1,40 @@
+[[RunDebugWorkflow]]
+:imagesdir: ../assets/images
+
+= Run and Debug a Workflow
+
+== Run your first Workflow
+
+As with designing workflows, the steps to run a workflow are very similar to running a pipeline.
+
+Click the 'run' button image:getting-started/icons/run.svg[Run, 25px, align="bottom"] in your workflow toolbar
+
+In the workflow run dialog, hit the 'New' button in the upper right corner to create a new 'Workflow run configuration'.
+
+image::getting-started/getting-started-run-workflow-dialog.png[Hop - New Workflow Config, 75% , align="left"]
+
+In the dialog that pops up, add 'Local Workflow' as the workflow configuration name and choose the 'Local workflow engine'.
+
+image::getting-started/getting-started-run-workflow-config-dialog.png[Hop - New Workflow Config Dialog, 75% , align="left"]
+
+Click 'OK' to return to the workflow run dialog. 
+
+Choose the logging level as described below.
+
+[width="85%", cols="30%, 70%", options="header"]
+|===
+|LogLevel|Description
+|Nothing| Do not record any logging output.
+|Error|Only record errors in logging output.
+|Minimal|Only use minimal logging.
+|Basic|This is the default logging level.
+|Detailed| This logging level gives a detailed logging output.
+|Debugging|Results in a very detailed output for debugging purposes.
+|Row Level|Logging at row level.
+|===
+
+Make sure your configuration is selected and hit 'Launch'.
+
+image::getting-started/getting-started-run-workflow-with-config.png[Hop - New Workflow With Config Dialog, 75% , align="left"]
+
+This workflow with our very basic pipeline should execute in less than one second. You'll now have the execution results pane which again looks very similar to the pipeline execution results.

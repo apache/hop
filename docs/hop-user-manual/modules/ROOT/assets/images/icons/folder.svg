@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   height="24"
+   viewBox="0 0 24 24"
+   width="24"
+   version="1.1"
+   >
+  <path
+     d="M0 0h24v24H0z"
+     fill="none"
+      />
+  <path
+     d="m 20.799999,5.2499999 h -8.8 L 9.8,3 H 3.2 C 1.99,3 1.0110001,4.0124999 1.0110001,5.2499999 L 1,18.749999 C 1,19.987499 1.99,21 3.2,21 H 20.799999 C 22.01,21 23,19.987499 23,18.749999 V 7.5000001 C 23,6.2625 22.01,5.2499999 20.799999,5.2499999 Z m 0,13.4999991 H 3.2 V 7.5000001 h 17.599999 z"
+     style="fill:#0e3a5a;fill-opacity:1;stroke-width:1.11243" />
+</svg>

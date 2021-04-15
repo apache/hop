@@ -1,0 +1,41 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/xml/src/main/doc/xsdvalidator.adoc
+= XSD Validator
+
+== Description
+
+The XSD Validator action performs an XSD validation against data in a file or in an input field. XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema] Definition.
+
+As such, there are 2 entities at work here:
+
+* The XML you want to validate the layout for
+* The XSD (Schema) file that describes what the XML file should look like.
+
+See also the XSD Validator action.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|XML File name|The name of the XML file
+|XSD File name|The name of the XSD file 
+|===

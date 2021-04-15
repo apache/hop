@@ -1,0 +1,436 @@
+[[LoggingReflection]]
+:imagesdir: ../assets/images/logging
+
+= Reflection
+
+The Hop Reflection plugin adds easy ways for you to get more information about what's going on inside your pipelines or workflows.  It offers 3 main ways of reflecting on what's going on during execution:
+
+* Log pipeline and transform execution information
+* Log workflow and action execution information
+* Listen to what the output is of a particular transform
+
+== Pipeline Log
+
+You can have a pipeline and its transforms log what it's doing by creating a new `Pipeline Log` metadata object.  For each metadata object of this type you create Hop will execute a pipeline of your choice.  It will pass runtime information of all your pipelines to it.
+These are the options:
+
+=== Options
+
+|===
+|Option |Description
+
+|Name
+|The name of the metadata object
+
+|Enabled
+|Use this to enable or disable pipeline logging for this object
+
+|Logging parent pipelines only?
+|If you enable this only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged.  When disabled every pipeline will be logged with the exclusion of logging and data probing pipelines obviously.
+
+|Pipeline executed to capture logging
+|The filename of the pipeline which will get executed every time a pipeline is executed.
+You can hit the `new` button and it will create a sample pipeline for you containing the `Pipeline Logging` transform which will give you all the possible logging information about your pipelines.
+
+|Execute at the start of a pipeline?
+|Execute right before a pipeline starts. The loggingPhase field of the `Pipeline Logging` transform will contain `start` at this time.  Please note that there will not be any transform execution information yet during this phase.
+
+|Execute at the end of a pipeline?
+|Execute after the pipeline finished execution. The loggingPhase field of the `Pipeline Logging` transform will contain `end` at this time.
+
+|Execute periodically during execution?
+|Enable this flag if you want to be kept apprised of long-running pipelines.  The logging pipeline specified above will be called at regular intervals. The loggingPhase field of the `Pipeline Logging` transform will contain `interval` at this time.
+
+|Interval in seconds
+|The interval of the period execution of the logging pipeline
+|===
+
+=== Transform
+
+The `Pipeline Logging` transform only has one option at this time:
+
+* Also log transform details : besides information about a running pipeline it will give you a series of fields detailed below per running or finished transform copy.
+
+
+|===
+|Field |Type |Level |Description
+
+|loggingDate
+|Date
+|Pipeline
+|Logging date
+
+|loggingPhase
+|String
+|Pipeline
+|Logging phase (see above)
+
+|pipelineName
+|String
+|Pipeline
+|Name of the pipeline
+
+|pipelineFilename
+|String
+|Pipeline
+|Filename of the pipeline
+
+|pipelineStart
+|Date
+|Pipeline
+|Start date of the pipeline
+
+|pipelineEnd
+|Date
+|Pipeline
+|End date of the pipeline
+
+|pipelineLogChannelId
+|String
+|Pipeline
+|Pipeline log channel ID
+
+|parentLogChannelId
+|String
+|Pipeline
+|Parent log channel ID
+
+|pipelineLogging
+|String
+|Pipeline
+|Logging text of the pipeline
+
+|pipelineErrorCount
+|Integer
+|Pipeline
+|Number of errors
+
+|pipelineStatusDescription
+|String
+|Pipeline
+|Pipeline status description
+
+|transformName
+|String
+|Transform
+|Name of the transform
+
+|transformCopyNr
+|Integer
+|Transform
+|Copy number of the transform
+
+|transformStatusDescription
+|String
+|Transform
+|Transform status description
+
+|transformLogChannelId
+|String
+|Transform
+|Transform log channel ID
+
+|transformLoggingText
+|String
+|Transform
+|Transform logging text
+
+|transformLinesRead
+|Integer
+|Transform
+|Number of lines read
+
+|transformLinesWritten
+|Integer
+|Transform
+|Number of lines written
+
+|transformLinesInput
+|Integer
+|Transform
+|Number of lines input
+
+|transformLinesOutput
+|Integer
+|Transform
+|Number of lines output
+
+|transformLinesUpdated
+|Integer
+|Transform
+|Number of lines updated
+
+|transformLinesRejected
+|Integer
+|Transform
+|Number of lines rejected by error handling
+
+|transformErrors
+|Integer
+|Transform
+|Number of errors
+
+|transformStart
+|Date
+|Transform
+|Execution start
+
+|transformEnd
+|Date
+|Transform
+|Execution end
+
+|transformDuration
+|Integer
+|Transform
+|Execution duration in ms
+
+|===
+
+
+
+== Workflow Log
+
+You can have a workflow and its actions log what it's doing by creating a new `Workflow Log` metadata object.  For each metadata object of this type you create Hop will execute a pipeline of your choice.  It will pass runtime information of all your workflows to it.
+These are the options:
+
+=== Options
+
+|===
+|Option |Description
+
+|Name
+|The name of the metadata object
+
+|Enabled
+|Use this to enable or disable workflow logging for this object
+
+|Logging parent workflows only?
+|If you enable this only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged.  When disabled every workflow execution will be logged.
+
+|Pipeline executed to capture logging
+|The filename of the pipeline which will get executed every time a workflow is executed.
+You can hit the `new` button and it will create a sample pipeline for you containing the `Workflow Logging` transform which will give you all the possible logging information about your workflows.
+
+|Execute at the start of a workflow?
+|Execute right before a workflow starts. The loggingPhase field of the `Workflow Logging` transform will contain `start` at this time.
+
+|Execute at the end of a workflow?
+|Execute after the workflow finished execution. The loggingPhase field of the `Workflow Logging` transform will contain `end` at this time.
+
+|Execute periodically during execution?
+|Enable this flag if you want to be kept apprised of long-running workflows. The logging pipeline specified above will be called at regular intervals. The loggingPhase field of the `Workflow Logging` transform will contain `interval` at this time.
+
+|Interval in seconds
+|The interval of the period execution of the logging pipeline
+|===
+
+=== Transform
+
+The `Workflow Logging` transform only has one option at this time:
+
+* Also log action details : besides information about a running workflow it will give you a series of fields detailed below per running or finished action.
+
+
+|===
+|Field |Type |Level |Description
+
+|loggingDate
+|Date
+|Workflow
+|Logging date
+
+|loggingPhase
+|String
+|Workflow
+|Logging phase (see above)
+
+|workflowName
+|String
+|Workflow
+|Workflow name
+
+|workflowFilename
+|String
+|Workflow
+|Workflow filename
+
+|workflowStart
+|Date
+|Workflow
+|Execution start
+
+|workflowEnd
+|Date
+|Workflow
+|Execution end
+
+|workflowLogChannelId
+|String
+|Workflow
+|Workflow log channel ID
+
+|workflowParentLogChannelId
+|String
+|Workflow
+|Parent log channel ID
+
+|workflowLogging
+|String
+|Workflow
+|Logging text of the workflow
+
+|workflowErrorCount
+|Integer
+|Workflow
+|Number of errors
+
+|workflowStatusDescription
+|String
+|Workflow
+|Workflow status description
+
+|actionName
+|String
+|Action
+|Action name
+
+|actionNr
+|Integer
+|Action
+|Action number
+
+|actionResult
+|Boolean
+|Action
+|Result (true/false)
+
+|actionLogChannelId
+|String
+|Action
+|Log channel ID of the action
+
+|actionLoggingText
+|String
+|Action
+|Logging text of the action
+
+|actionErrors
+|Integer
+|Action
+|Number of errors
+
+|actionLogDate
+|Date
+|Action
+|Action logging date
+
+|actionDuration
+|Integer
+|Action
+|Action duration
+
+|actionExitStatus
+|Integer
+|Action
+|Action exit status (of shell scripts)
+
+|actionNrFilesRetrieved
+|Integer
+|Action
+|Number of files retrieved (from remote systems)
+
+|actionFilename
+|String
+|Action
+|The filename of the action (if there is any referenced)
+
+|actionComment
+|String
+|Action
+|Action comment
+
+|actionReason
+|String
+|Action
+|Action reason
+
+|===
+
+
+== Pipeline Probe
+
+You can have the output of one or more pipeline transforms streamed to another pipeline in a normalized fashion.  You can do this by creating a `Pipeline Probe` metadata object.  These are its options:
+
+=== Options
+
+|===
+|Option |Description
+
+|Name
+|The name of the pipeline probe
+
+|Enabled
+|When enabled data from all the specified pipeline transforms will be streamed to the specified pipeline
+
+|Pipeline executed to capture data
+|The filename of the pipeline which will get executed every time a specified source pipeline is execute containing the specified source transform.
+
+| Capture output of the following transforms
+| You can specify a set of `source pipeline` and `source transform` combinations.
+
+|===
+
+Please note that to add capture sources you can use a transform action called `Add data probe` in the `Preview` section of the context dialog.
+
+=== Transform
+
+|===
+|Field name|Type|Description
+
+
+|sourcePipelineName
+|String
+|THe name of the pipeline where this data originates
+
+|sourceTransformLogChannelId
+|String
+|The log channel ID of the source transform
+
+|sourceTransformName
+|String
+|The name of the source transform
+
+|sourceTransformCopy
+|Integer
+|The copy number of the source transform
+
+|rowNr
+|Integer
+|The source row number.  You have one or more fields per source row.
+
+|fieldName
+|String
+|The field name
+
+|fieldType
+|String
+|The field type
+
+|fieldFormat
+|String
+|The field format
+
+|fieldLength
+|Integer
+|The field length
+
+|fieldPrecision
+|Integer
+|The field precision
+
+|value
+|String
+|The value in String format
+
+|===

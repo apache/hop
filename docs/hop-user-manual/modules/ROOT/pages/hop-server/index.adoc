@@ -1,0 +1,87 @@
+[[HopServer]]
+:imagesdir: ../assets/images
+
+= Hop Server
+
+Hop Server is a lightweight, Jetty-based server for https://hop.apache.org/manual/latest/hop-gui/run-configurations/pipeline/remote-pipeline-engine.html[remote execution] of workflows and pipelines.
+
+Except for remote execution, Hop Server can also be accessed directly through a number of REST services.
+
+== Start Hop Server
+
+Hop Server is available as a script in your Hop installation directory.
+
+Run Hop Server without any parameters to display its usage options. On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
+
+The output you'll get is similar to what is in the screenshot below.
+
+image::hop-server/hop-server-options.png[Hop Server - Options, align="left"]
+
+Hop Server takes a hostname or ip address and port number as unnamed arguments. All other arguments are named.
+Alternatively, the options can be provided in a configuration XML file.
+*TODO*: document XML configuration file structure.
+
+[source,shell]
+hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
+
+or
+
+[source,shell]
+hop-server <Configuration File>
+
+The Hop Server options are listed in detail in the table below:
+
+[width="90%", options="header"]
+|===
+|Short|Extended|Description
+|h|help|This help text
+|p|password|The administrator password.  Required only if stopping the Hop Server server.
+|s|stop|Stop the running hopServer server.  This is only allowed when using the hostname/port form of the command.
+|u|username|The administrator user name.  Required only if stopping the Hop Server server.
+|===
+
+
+Example startup commands are:
+
+[source,shell]
+hop-server.sh 127.0.0.1 8080
+
+[source,shell]
+hop-server.sh 192.168.1.221 8081
+
+[source,shell]
+hop-server.sh /foo/bar/hop-server-config.xml
+
+[source,shell]
+hop-server.sh http://www.example.com/hop-server-config.xml
+
+[source,shell]
+hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
+
+Starting a Hop Server on the local machine on port 8081 will only take 1 or 2 seconds.
+
+The console output will look similar to what is listed below:
+
+[source,shell]
+2020/06/20 18:35:12 - HopServer - Installing timer to purge stale objects after 1440 minutes.
+2020/06/20 18:35:12 - HopServer - Created listener for webserver @ address : localhost:8081
+
+== Connect to the Hop Server UI
+
+To connect to the previously started server, point your browser to http://localhost:8081.
+
+You'll be prompted for your username and password. The default is `cluster` for both the username and password. The defaults obviously should be changed in any environment that goes beyond a simple local developer setup.
+
+Click 'Show status' to move beyond the initial screen.
+
+image::hop-server/hop-server-index.png[Hop Server - Index, align="left"]
+
+Since no workflows or pipelines have been executed on this server yet, the workflow and pipelines lists will be empty.
+
+image::hop-server/hop-server-no-tasks.png[Hop Server - No Tasks, align="left"]
+
+TODO: explain UI for workflows, pipelines
+
+== Hop Server Web Services Overview
+
+TODO: explain Hop Server web services.

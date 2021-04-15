@@ -1,0 +1,36 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Partition Schema
+
+== Description
+
+image:icons/partition_schema.svg[]
+
+Describes a partition schema. A partition schema defines how many ways the row stream will be split. The names used for the partitions can be anything you like.
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Partition schema name||The name to be used for this partition schema
+|Dynamically create the schema definition|?|
+|Number of partitions?|4|
+|Partitions||list of partition IDs
+|===
+
+== Samples (Integration Tests)
+
+* integration-tests/partitioning/0006-partitioned-when-stream-lookup-should-fail2.hpl
+* integration-tests/partitioning/0004-copies-repartitioning.hpl
+* integration-tests/partitioning/0001-static-partitioning.hpl
+* integration-tests/partitioning/0005-partitioned-stream-lookup.hpl
+* integration-tests/partitioning/0006-partitioned-when-stream-lookup-should-fail.hpl
+* integration-tests/partitioning/0003-repartitioning.hpl
+* integration-tests/partitioning/0005-non-partitioned-stream-lookup.hpl
+* integration-tests/partitioning/0002-dynamic-partitioning.hpl

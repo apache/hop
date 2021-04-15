@@ -1,0 +1,9 @@
+== Projects and Environments
+
+Project::
+include::project.adoc[]
+
+Environment::
+include::environment.adoc[]
+
+image::concepts/environments.png[Environment Examples]

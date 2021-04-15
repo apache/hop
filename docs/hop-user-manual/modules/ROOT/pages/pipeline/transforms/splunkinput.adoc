@@ -1,0 +1,44 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/splitfieldtorows/src/main/doc/splunk-input.adoc
+
+= Splunk input
+
+== Description
+
+This transform allows you to split a row containing a delimited field into multiple new rows, one per split value.
+The original row is not delivered to following transforms.
+The original field is left in each new row to assist in debugging or error handling.
+It can be removed via a Select Values transform if needed.
+
+The original field must be a string field.
+A new field name must be specified.
+If the value type/format of the new row is not specified, the new field will use the same type/format as the original field.
+
+== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Field to split|The field you want to split
+|Delimiter|The delimiter or separator used.
+Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
+|New name field|The name of the new field
+|===

@@ -1,0 +1,38 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Pipeline Run Configuration
+
+== Description
+
+image:icons/pipeline_run_config.svg[]
+
+Describes how and with which engine a pipeline is to be executed.
+
+Pipelines can be executed on a variety of runtime engines. Check xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations] for more details.
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Name|the name to be used for this pipeline run configuration
+|Description|the description to be used for this pipeline run configuration
+|Engine Type
+a|The available pipeline engines are listed below. Detailed configuration depends on the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[selected engine].
+
+* Beam Dataflow pipeline engine
+* Beam Direct pipeline engine
+* Beam Flink pipeline engine
+* Beam Spark pipeline engine
+* Hop local pipeline engine
+* Hop remote pipeline engine
+|===
+
+== Samples
+
+Your Hop installation comes with a default 'local' pipeline run configuration.

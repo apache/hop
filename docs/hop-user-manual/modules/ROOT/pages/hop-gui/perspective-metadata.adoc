@@ -1,0 +1,8 @@
+:imagesdir: ../assets/images
+
+== Metadata Perspective
+
+Icon: image:icons/metadata.svg[width="24px"]
+
+Description::
+The Metadata perspective is where you manage the different xref:metadata-types/index.adoc[metadata types] available in your Hop projects.

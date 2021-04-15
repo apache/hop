@@ -1,0 +1,6 @@
+= Index Page
+
+* xref:getting-started.adoc[Getting started]
+* xref:docker-container.adoc[Docker container]
+* xref:hop-logo-and-icons.adoc[Hop logo and icons]
+* xref:hop-vs-kettle/index.adoc[Kettle/PDI and Hop]

@@ -1,0 +1,63 @@
+[[LoggingBasics]]
+:imagesdir: ../assets/images/logging
+
+= Logging
+
+Every workflow or pipeline as well as the tools generate logging.
+Most of the obvious logging is available in the form of logging text.
+
+== Levels
+
+=== Descriptions
+
+The amount of text logging generated depends on the logging level which is used when executing a workflow or pipeline:
+
+|===
+|Level |Description
+
+|NONE
+|No logging is generated
+
+|ERROR
+|Only errors are reported
+
+|MINIMAL
+|The bare essential, nothing more
+
+|BASIC
+|The standard logging which tries to be concise and informative
+
+|DETAILED
+|More logging information about what happens behind the scenes is reported
+
+|DEBUG
+|A lot of information is produced, often with specific values being reported
+
+|ROWLEVEL
+|Values are reported on an individual row level
+
+|===
+
+=== Runtime levels
+
+The logging level can be specified when executing using hop-run or in the Hop GUI.
+It is also possible to use the debug plugin to set custom logging levels on a transform:
+
+image::logging/custom-logging-actions.png[Transform action - show logging options, 35% , align="left"]
+
+You can set a custom logging level for this particular transform and only for certain rows of data:
+
+image::logging/custom-transform-logging-level.png[Setting a custom transform logging level, 60%, align="left"]
+
+You can do likewise for a workflow:
+
+image::logging/custom-action-logging-level.png[Setting a custom action logging level, 35%, align="left"]
+
+== Hop GUI logging
+
+The logging file of the Hop GUI is saved in the `audit/` folder (or in the folder set by `HOP_AUDIT_FOLDER`) in the `hopui.log` file.
+
+== Tools logging
+
+If you want to send logging of tools like hop-run or hop-conf to a logging file you need to do this simply by piping the text stream to a file.
+

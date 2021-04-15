@@ -1,0 +1,68 @@
+[[HopvsKettle]]
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+:page-pagination:
+
+= Hop vs Kettle - A Quick Comparison
+
+== Concepts
+
+[width=90%", cols="6,2,2", options="header"]
+|===
+|Terminology|Kettle|Hop
+|Parallel scalable data pipeline|Transformation|Pipeline
+|An operation in a parallel pipeline|Step|Transform
+|Sequential series of actions|Job|Workflow
+|An action in a workflow|Job Entry|Action
+| Shared metadata container|Metastore|Hop Metadata
+|The graphical user interface|Spoon|Hop Gui
+|Script to run data pipelines|Pan|Hop Run
+|Script to run workflows|Kitchen|Hop Run
+|Server for remote execution|Carte|Hop Server
+|Script for configuration|-|Hop Config
+|===
+
+== Configuration
+
+[width="90%", cols="2,3,3", options="header"]
+|===
+|Configuration|Kettle|Hop
+|System variables|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
+|GUI preferences (fonts, colors, preferences…)|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
+|Language choice|{openvar}KETTLE_HOME{closevar}/.kettle/.languageChoice|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
+|Shared objects|{openvar}KETTLE_HOME{closevar}/.kettle/shared.xml|All stored in Hop shared metadata
+|GUI usage information|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_AUDIT_FOLDER{closevar}/<project>/
+|Shared metadata|{openvar}PENTAHO_METASTORE_FOLDER{closevar} or {openvar}HOME{closevar}/.pentaho/metastore|{openvar}HOP_METADATA_FOLDER{closevar} or {openvar}HOP_CONFIG_FOLDER{closevar}/metadata
+|Environment/Project configurations|{openvar}KETTLE_HOME{closevar}/.kettle/environment/metastore|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
+|===
+
+== Engines
+
+[width="90%", cols="70%,15%,15%", options="header"]
+|===
+|Engine|Kettle|Hop
+|Unit Testing|Plugin|Yes
+|Apache Spark Support|No (PDI EE only)|Yes (Beam)
+|Apache Flink Support|No|Yes (Beam)
+|Google Cloud DataFlow Support|No|Yes (Beam)
+|===
+
+== Features
+
+[width="90%", cols="70%,15%,15%", options="header"]
+|===
+|Feature|Kettle|Hop
+|Projects and Lifecycle Configuration |No|Yes
+|Search Information in projects and configurations|No|Yes
+|Configuration management through UI and command line|No|Yes
+|Standardized shared metadata|No|Yes
+|Pluggable runtime engines|No|Yes
+|Advanced GUI features: memory, native zooom, ...|No|Yes
+|Metadata Injection|Yes|Yes (most transforms)
+|Mapping (sub-transformation/pipeline|Yes|Yes(simplified)
+|Web Interface|WebSpoon|HopWeb (in progress)
+|APL 2.0 license compliance|LGPL doubts regarding pentaho-metastore library|Yes
+|Pluggable metadata objects|No|Yes
+|GUI plugin architecture|XUL based (XML)|Java annotations
+|===

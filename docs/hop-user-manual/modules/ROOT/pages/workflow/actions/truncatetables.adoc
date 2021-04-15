@@ -1,0 +1,39 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/truncatetables/src/main/doc/truncatetables.adoc
+= Truncate Tables
+
+== Description
+
+The Truncate Tables action allows you to truncate one or several tables at once without writing 0 SQL command.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Connection|Name of the database connection on which the tables reside. Use "Edit..." and "New..." to edit and/or create a new connection.
+|Previous results to args?|Check this option if you want to get in a dynamic way tables to truncate from results of previous workflow action.
+|Click here to return tables name list|This button will return all tables defined on the connection. Select tables (one or several) and press "OK". Tables name will be automatically added to "Selected tables" grid.
+|Selected tables grid|Specify here the tables to truncate (insert it manually or use the previous button). If the table is in a different schema that the default one, please specify the schema name.
+|Delete|Remove actions from grid (select one several actions and click on this button to remove it).
+|OK|Click on this button to save workflow action settings changes
+|Cancel|Discard workflow action settings changes 
+|===

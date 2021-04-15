@@ -1,0 +1,1 @@
+Pipelines are the actual data workers. Operations in a Pipeline read, modify, enrich, clean and write data. Orchestration of Pipelines is done through othere Pipelines and/or Workflows.

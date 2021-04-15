@@ -1,0 +1,107 @@
+[[HopEnvironments]]
+:imagesdir: ../../../assets/images
+:language: en_US
+:page-pagination:
+:openvar: ${
+:closevar: }
+
+= Projects and Environments
+
+== Create a project
+
+To create a new project click the *Add a new project* button.
+
+image:hop-gui/environment/project-add.svg[Add a new project]
+
+
+This button opens the following dialogue:
+
+image:hop-gui/environment/create-project-dialogue.png[Create a project, width="60%"]
+
+
+.Project Properties
+[id="tab-proj-props", cols="20%,45%,5%,5%,25%", options="header"]
+|===
+|Property|Description|Variables Supported|Mandatory|Default
+|Name|The project name|Yes|No|
+|Home folder|The folder where the project is located|Yes|No|
+|Configuration file (relative path)|The folder where the project's configuration json is located.|Yes|Yes|
+|Description|A description for this environment|No|No|
+|Company|The company this environment belongs to|No|No|
+|Department|The department this environment is created for|No|No|
+|Metadata base folder|The folder where this environment's metadata will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}/metadata
+|Unit test base path|The folder where this environment's unit tests will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}
+|Data Sets CSV Folder|The folder where this environment's data files will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}/datasets
+|Enforce execution in environment home|Give an error when trying to execute a pipeline or workflow which is not located in the environment home directory or in a sub-directory|Yes|Yes|checked
+|Project variables to set|A list of variable names, values and variable descriptions to use with this project|No|Yes|
+|===
+
+After creating a project the user interface will switch to it and ask if you want to create an environment.
+
+== Create an environment
+
+To create a new environment click the *Add a new environment* button.
+
+image:hop-gui/environment/environment-add.svg[Environment]
+
+This button opens the following dialogue:
+
+image:hop-gui/environment/create-environment-dialogue.png[Create an environment, width="45%"]
+
+.Environment Properties
+[id="tab-env-props", cols="20%,45%,5%,5%,25%", options="header"]
+|===
+|Property|Description|Variables Supported|Mandatory|Default
+|Name|The environment name|No|No|The last created project
+|Purpose a|The purpose of this environment
+
+* Development
+* Testing
+* Acceptance
+* Production
+* Continuous integration
+* Common build
+* ...|No|No|
+|Project|The project to which this environment belongs|No|No|The last created project
+|Configuration files|Files to use as configuration for this environment|No|No|
+|===
+
+After creating an environment the user interface will switch to it.
+
+== Switch between projects and environments
+
+To switch between projects the projects list can be used from the main Hop Gui toolbar.
+
+image::hop-gui/environment/switch-project-list.png[Switch project]
+
+After switching to a project the environments list will be updated to the environments which belong to this project. All open files will be restored, including their zoom level and other UI settings.
+
+image::hop-gui/environment/switch-environment-list.png[Switch environment]
+
+
+== Edit and delete projects
+
+To edit an existing project click the *Edit the selected project* button.
+
+image:hop-gui/environment/project-edit.svg[Edit the selected project]
+
+Clicking this button will re-open the project dialogue where changes can be made as described in <<tab-proj-props>>.
+
+To delete a project click the *Delete the selected project* button.
+
+image:hop-gui/environment/environment-edit.svg[Delete the selected project]
+
+== Editing and deleting environments
+
+To edit an existing environment click the *Edit the selected environment* button.
+
+image:hop-gui/environment/project-edit.svg[Edit the selected environment]
+
+Clicking this button will re-open the project dialogue where changes can be made as described in <<tab-env-props>>.
+
+To delete a project click the *Delete the selected environment* button.
+
+image:hop-gui/environment/environment-delete.svg[Delete the selected environment]
+
+
+

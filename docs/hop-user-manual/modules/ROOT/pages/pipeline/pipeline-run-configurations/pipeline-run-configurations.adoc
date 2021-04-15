@@ -1,0 +1,58 @@
+[[PipelineRunConfigurations]]
+:imagesdir: ../assets/images
+= Pipeline Run Configurations
+
+== Description
+
+Run configurations decouple the design and execution phases of Hop pipeline development.
+A pipeline is a definition of _how_ data is processed, a run configurations defines _where_ the pipeline is executed.
+Hop comes supports a number of different runtime engines, each of which will be described in more detail in this section.
+Each run configuration comes with its own set of parameters and configuration options, all of which are stored as Hop Metadata.
+
+== Choosing a Run Configuration
+
+When starting a new transformation click **New** next to 'Pipeline run configuration'.
+All run configurations have a name, description and an engine type, each engine type has its own set of configuration options.
+
+Once created, run configurations are available from the 'Pipeline run configuration' list and are ready to use.
+
+image::run-configuration/configuration-selection.png[Hop Configuration Selection, 45% , align="left"]
+
+== Options
+
+=== Main Tab
+
+The main tab contains the name, description and the dropdown list for the available engine types.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Name|The name you want to use for this pipeline run configuration.
+|Description|A description you want to use for this pipeline run configuration (optional).
+|Engine type a|
+The available engine types are:
+
+* *Beam DataFlow pipeline engine*: this configuration runs pipelines on Google DataFlow over Apache Beam
+* *Beam Direct pipeline engine*: this configuration runs pipelines on the direct Beam runner (mainly for testing purposes)
+* *Beam Flink pipeline engine*: this configuration runs pipelines on Apache Flink over Apache Beam
+* *Beam Spark pipeline engine*: this configuration runs pipelines on Apache Spark over Apache Beam
+* *Local pipeline engine*: this configuration runs pipelines locally in the native Hop engine
+* *Remote pipeline engine*: this configuration runs pipelines in the native Hop engine on a remote machine
+|===
+
+TIP: Check the link:https://beam.apache.org/documentation/runners/capability-matrix/[Beam Capability Matrix] to help you decide which Beam engine works best for your pipeline.
+
+=== Variables Tab
+
+This tab allows Hop developers to specify a set of variables to be used in the run configurations.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Variable name|A variable name.
+|Value|The variable value.
+|Description|A description for the variable. The description is optional but recommended.
+|===
+
+== Runners
+

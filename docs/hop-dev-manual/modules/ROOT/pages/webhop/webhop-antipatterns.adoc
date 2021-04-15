@@ -1,0 +1,159 @@
+= Developer Antipatterns
+
+Due to the https://www.eclipse.org/rap/developers-guide/devguide.php?topic=rwt.html[differences between RWT and SWT], there are some anti-patterns that should be avoided when developing webSpoon and (webSpoon-) compatible plugins.
+
+== Avoid sharing session-unique instances among sessions
+
+The *singleton pattern* is a design pattern where only one instance of a class is created.
+This pattern can be seen here and there in Spoon's source code.
+An example is `GUIResource`, which mainly manages colors, fonts, and images.
+The following code snippet (excerpt of https://github.com/pentaho/pentaho-kettle/blob/8.0.0.0-R/ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java[here]) illustrates how it is ensured that `GUIResource` can only be instantiated once.
+The resources (colors, fonts, and images) are accessed through `GUIResource.getInstance()`.
+
+[source,java]
+----
+public class GUIResource {
+  private static GUIResource guiResource;
+
+  // Making the constructor private prevents instantiation from outside
+  private GUIResource( Display display ) {
+  ...
+  }
+
+  public static final GUIResource getInstance() {
+    if ( guiResource != null ) {
+      return guiResource;
+    }
+    guiResource = new GUIResource( PropsUI.getDisplay() );
+    return guiResource;
+  }
+}
+----
+
+`Spoon` is another example that takes the singleton pattern (not strictly as it can be instantiated more than once).
+If you look at the following code snippet (excerpt of https://github.com/pentaho/pentaho-kettle/blob/8.0.0.0-R/ui/src/main/java/org/pentaho/di/ui/spoon/Spoon.java[here]), you would notice that `Display` is a member field of `Spoon`.
+This means that `Spoon` can only manages a single instance of `Display`.
+The singleton pattern for `Spoon` class is nothing wrong for Spoon that servers only a single user, but makes troubles for webSpoon where `Display` is instantiated for each session.
+
+[source,java]
+----
+public class Spoon extends ApplicationWindow implements AddUndoPositionInterface,
+    ..., PartitionSchemasProvider {
+  private static Spoon staticSpoon;
+  private Display display;
+  public static Spoon getInstance() {
+    return staticSpoon;
+  }
+}
+----
+
+Fortunately, RAP/RWT provides http://www.eclipse.org/rap/developers-guide/devguide.php?topic=singletons.html&version=3.3[SingletonUtil] as a remedy.
+`Spoon.getInstance()` in the following code will return an instance of `Spoon` that is unique to a session.
+As a result, each instance of `Display` can be referenced by their corresponding instance of `Spoon`.
+
+[source,java]
+----
+public class Spoon {
+  private Display display;
+  public static Spoon getInstance() {
+    return SingletonUtil.getSessionInstance( Spoon.class );
+  }
+}
+----
+
+The rule-of-thumb is that such a session-unique instance should accessed only by the corresponding session and not by any other.
+Let's look at examples below how this rule can be violated.
+
+=== Example: use of the static modifier for session-unique instances
+
+The code below violates the rule, but how?
+
+[source,java]
+----
+public class RepositoryOpenSaveDialog extends ThinDialog {
+  private static final Image LOGO = GUIResource.getInstance().getImageLogoSmall();
+}
+----
+
+Let us assume that `GUIResource` has already been adapted to RAP/RWT and `GUIResource.getInstance()` returns a session-unique instance of `GUIResource`.
+An instance of `Image` returned by `GUIResource.getInstance().getImageLogoSmall()` also becomes session-unique.
+When `RepositoryOpenSaveDialog` is instantiated, say in session A, `LOGO` is instantiated and assigned with an instance of `Image` unique to session A.
+By the static modifier, `LOGO` keeps the reference to that particular instance ever after and returns that instance when accessed in any later sessions.
+
+Sharing session-unique instance of `Image` is not necessarily harmful especially when the image is inherently common to all sessions (e.g., the kettle small logo).
+However, issues like https://github.com/HiromuHota/pentaho-kettle/issues/92[#92] happen when the session A gets terminated and the instance of `Image` is disposed, but accessed by another session.
+To resolve these issues, remove the static modifier as follows:
+
+[source,java]
+----
+public class RepositoryOpenSaveDialog extends ThinDialog {
+  private final Image LOGO = GUIResource.getInstance().getImageLogoSmall();
+}
+----
+
+=== Example: caching session-unique instances in plugins
+
+PDI plugins, even in webSpoon, have application scope instead of session scope and only one instance is instantiated for each one of these plugins (= effectively singleton).
+Let's take a look at a modified snippet of https://github.com/pentaho/big-data-plugin/blob/8.0.0.0-R/legacy/src/main/java/org/pentaho/di/core/hadoop/HadoopClusterViewTreeExtension.java[HadoopClusterViewTreeExtension].
+
+[source,java]
+----
+public class HadoopClusterViewTreeExtension implements ExtensionPointInterface {
+  private Spoon spoon = null;
+  private Image hadoopClusterImage = null;
+
+  public HadoopClusterViewTreeExtension() {
+    spoon = Spoon.getInstance();
+    hadoopClusterImage = getHadoopClusterImage( spoon.getDisplay() );
+  }
+
+  private void refreshNamedClusterSubtree( SelectionTreeExtension selectionTreeExtension ) {
+    for ( NamedCluster namedCluster : namedClusters ) {
+      createTreeItem( tiNcTitle, namedCluster.getName(), hadoopClusterImage );
+    }
+  }
+}
+----
+
+The constructor assigns a session-unique `Spoon` and (effectively) session-unique `Image` to its member fields.
+These member fields could be technically re-assigned but never in Spoon.
+In webSpoon, this code causes issues such as https://github.com/HiromuHota/pentaho-kettle/issues/23[#23] and a non-reported issue resolved by https://github.com/HiromuHota/big-data-plugin/commit/adbb00a697400e52a5e42774d7464bde214dce45[adbb00a].
+To resolve the issues, stop caching session-unique instances in the member fields and retrieve them on-demand.
+The code below is the corrected one.
+
+[source,java]
+----
+public class HadoopClusterViewTreeExtension implements ExtensionPointInterface {
+  // private Spoon spoon = null;
+  // private Image hadoopClusterImage = null;
+
+  public HadoopClusterViewTreeExtension() {
+    // spoon = Spoon.getInstance();
+    // hadoopClusterImage = getHadoopClusterImage( spoon.getDisplay() );
+  }
+
+  private void refreshNamedClusterSubtree( SelectionTreeExtension selectionTreeExtension ) {
+    for ( NamedCluster namedCluster : namedClusters ) {
+      createTreeItem( tiNcTitle, namedCluster.getName(),
+        getHadoopClusterImage( Spoon.getInstance().getDisplay() ) ) );
+    }
+  }
+}
+----
+
+== Avoid use of unimplemented SWT APIs
+
+=== Example: drawing on an Image
+
+SWT can paint on any widgets or image, while RAP/RWT can only paint on `Canvas` widget.
+SWT supports the following codes:
+
+[source,java]
+----
+  Image image = new Image( device, width, height );
+  GC gc = new GC( image );
+  gc.drawRectangle( 0, 0, 10, 20 );
+----
+
+but RWT does not.
+You can see an example of how this limitation has been overcame in https://github.com/HiromuHota/pdi-dataservice-server-plugin/commit/3a36a606d76eee40244568726d486b2b0c501fcf[pdi-dataservice-server-plugin].

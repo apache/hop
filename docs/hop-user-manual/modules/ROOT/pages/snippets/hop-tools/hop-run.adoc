@@ -1,0 +1,1 @@
+Hop Run is a command line tool to run workflows and pipelines, with options to (list or) specify projects, environments, properties and run configurations.

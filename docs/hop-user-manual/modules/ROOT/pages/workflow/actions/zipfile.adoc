@@ -1,0 +1,66 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/zipfile/src/main/doc/zipfile.adoc
+= Zip File
+
+== Description
+
+The Zip File action creates a standard ZIP archive using the options you specify in the dialog.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Get arguments from previous a|This checkbox takes the filename specification from the result rows of a previous workflow action.  This is what will be taken from the rows.
+
+* The first field has to contain the filename or folder.
+* The second field should contain the inclusion wildcard
+* The third field should contain the exclusion wildcard.
+* The fourth field should contain the target zip file (this can be different for each file).
+
+|Source directory|The source directory of the files to be zipped
+|Include wildcard|The wildcard (regular expression) of the files to include in the zip archive
+|Exclude wildcard|The wildcard (regular expression) of the files to exclude from the zip archive
+|Include sub-folders|Enable this option to search files in sub-folders 
+|Zip file name|The full name of the destination archive
+|Create parent folder|Create the parent folder if it doesn't exist
+|Include date in filename|Add the date to the file name
+|Include time in filename|Add the time to the file name
+|Specify date time format|Allows you to specify the date/time format mask,
+|Date time format|The date time format mask, like yyyy/MM/dd HHmmss
+|Show filename|Shows an example filename based on the options you specified 
+|===
+
+=== Advanced Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Compression|The compression level to be used (Default, Best Compression, Best speed)
+|If zip file exists|The action to take when there already is a file at the target destination.
+|After zipping|The action to take after zipping
+|Move files to|The target directory to move the source files to after zipping
+|Create folder|Create the folder to move to
+|Stored source path depth a|This is the part of the source file path which is taken over in the ZIP file archive structure.
+|Add Zip file to result|Enable this option to add the target zip file(s) to the result 
+|===

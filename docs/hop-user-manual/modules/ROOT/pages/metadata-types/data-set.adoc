@@ -1,0 +1,30 @@
+:page-pagination:
+
+= Data Set
+
+image:icons/dataset.svg[]
+
+
+This defines a data set, a static pre-defined collection of rows
+
+Data sets are used in xref:metadata-types/pipeline-unit-test.adoc[unit testing], where a data set is used as an alternative input data set. This input set is used to be processed in a unit testing pipeline. After processing the result of the pipeline is compared to a data set that has been specified as the 'golden data set' for the test.
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this data set
+|Description|The description to be used for this data set
+|Set Folder (or use HOP_DATASETS_FOLDER)|project folder where data sets can be found and are saved
+|Base file name|the data set default name
+|data set fields and their column names in the file|List of field name, type, format, length and precision. Describes the file layout for this data set.
+|===
+
+== Samples
+
+None

@@ -1,0 +1,31 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Pipeline Probe
+
+== Description
+
+image:icons/probe.svg[]
+
+Allows to stream output rows of a pipeline to another pipeline.
+
+A pipeline log streams data from a running pipeline to another pipeline. This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
+
+== Related Plugins
+
+* Pipeline Probe
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Name||The name to be used for this pipeline probe
+|Enabled|true|
+|Pipeline executed to capture logging||the pipeline to process the data for this pipeline probe
+|Capture output of the following transforms||list of pipelines and transforms to capture logging for
+|===
+
+== Samples
+
+None

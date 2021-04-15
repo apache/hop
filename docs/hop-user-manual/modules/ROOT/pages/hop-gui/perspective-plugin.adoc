@@ -1,0 +1,8 @@
+:imagesdir: ../assets/images
+
+== Plugin Perspective
+
+Icon: image:icons/plugin.svg[width="24px"]
+
+Description::
+The plugin perspective gives you an overview of all the available plugins in your Hop installation. This includes a dropdown to filter by plugin type (top), and a table showing the plugin type, id, name, description and image file (icon).

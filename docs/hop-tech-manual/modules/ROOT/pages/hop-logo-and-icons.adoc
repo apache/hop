@@ -1,0 +1,38 @@
+[[HopLogoAndIcons-HopLogoAndIcons]]
+= Hop Logo and Icons
+
+== CMYK for Printing
+image::logo/CMYK/jpg/HOP_logo_CMYK-2.jpg[HOP_logo_CMYK-2.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-1.jpg[HOP_logo_CMYK-1.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-3.jpg[HOP_logo_CMYK-3.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-4.jpg[HOP_logo_CMYK-4.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-5.jpg[HOP_logo_CMYK-5.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-6.jpg[HOP_logo_CMYK-6.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-7.jpg[HOP_logo_CMYK-7.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-8.jpg[HOP_logo_CMYK-8.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-9.jpg[HOP_logo_CMYK-9.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-10.jpg[HOP_logo_CMYK-10.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-11.jpg[HOP_logo_CMYK-11.jpg]
+image::logo/CMYK/jpg/HOP_logo_CMYK-12.jpg[HOP_logo_CMYK-12.jpg]
+
+== RGB for Web usage
+image::logo/RGB/jpg/HOP_logo_RGB-1.jpg[HOP_logo_RGB-1.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-2.jpg[HOP_logo_RGB-2.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-3.jpg[HOP_logo_RGB-3.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-4.jpg[HOP_logo_RGB-4.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-5.jpg[HOP_logo_RGB-5.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-6.jpg[HOP_logo_RGB-6.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-7.jpg[HOP_logo_RGB-7.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-8.jpg[HOP_logo_RGB-8.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-9.jpg[HOP_logo_RGB-9.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-10.jpg[HOP_logo_RGB-10.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-11.jpg[HOP_logo_RGB-11.jpg]
+image::logo/RGB/jpg/HOP_logo_RGB-12.jpg[HOP_logo_RGB-12.jpg]
+
+== Style guide:
+
+link:{attachmentsdir}/BrandGuideline_Hop.pdf[BrandGuideline_Hop.pdf]
+
+
+
+

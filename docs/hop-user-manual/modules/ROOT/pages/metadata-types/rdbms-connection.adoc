@@ -1,0 +1,85 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Relational Database Connection
+
+== Description
+
+image:icons/database.svg[]
+
+Describes all the metadata needed to connect to a relational database.
+
+== Related Plugins
+
+Actions:
+
+* xref:workflow/actions/checkdbconnection.adoc[Check DB Connections]
+* xref:workflow/actions/columnsexist.adoc[Columns exist in table]
+* xref:workflow/actions/mssqlbulkload.adoc[MS SQL Bulk Loader]
+* xref:workflow/actions/mysqlbulkfile.adoc[MySQL Bulk File]
+* xref:workflow/actions/mysqlbulkload.adoc[MySQL Bulk Loader]
+* xref:workflow/actions/sql.adoc[SQL]
+* xref:workflow/actions/tableexists.adoc[Table Exists]
+* xref:workflow/actions/truncatetables.adoc[Truncate Tables]
+* xref:workflow/actions/waitforsql.adoc[Wait for SQL]
+
+Transforms:
+
+* xref:pipeline/transforms/dbproc.adoc[Call DB Procedure]
+* xref:pipeline/transforms/columnexists.adoc[Column Exists]
+* xref:pipeline/transforms/combinationlookup.adoc[Combination Lookup/Update]
+* xref:pipeline/transforms/databasejoin.adoc[Database Join]
+* xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
+* xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL Row]
+* xref:pipeline/transforms/execsqlrow.adoc[Execute SQL Row]
+* xref:pipeline/transforms/insertupdate.adoc[Insert/Update]
+* xref:pipeline/transforms/pgbulkloader.adoc[PostgreSQL Bulk Loader]
+* xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize After Merge]
+* xref:pipeline/transforms/tablecompare.adoc[Table Compare]
+* xref:pipeline/transforms/tableexists.adoc[Table Exists]
+* xref:pipeline/transforms/tableinput.adoc[Table Input]
+* xref:pipeline/transforms/tableoutput.adoc[Table Output]
+* xref:pipeline/transforms/terafast.adoc[Teradata Bulk Loader]
+* xref:pipeline/transforms/update.adoc[Update]
+
+== Options
+
+The options describe below are for the Generic database connection.
+
+The options for your selected database depend on the database vendor and/or engine. Check the list of xref:database/databases.adoc[databases] for more details.
+
+=== General
+
+[options="header"]
+|===
+|Option|Description
+|Connection name|the name to use for this connection
+|Connection type|the description to use for this connection
+|Username|
+|Password|
+|Driver class|classname to use for this connection. This is usually only needed for generic connections. There shouldn't be a need to specify if your select a specific database engine.
+|Manual Connection URL|This is usually only needed for generic connections. There shouldn't be a need to specify if your select a specific database engine.
+|===
+
+=== Advanced
+
+[options="header"]
+|===
+|Option|Default|Description
+|Supports the Boolean data type|true|
+|Supports the Timestamp data type|true|
+|Quote all identifiers in database||
+|Force all identifiers to lower case||
+|Force all identifiers to upper case||
+|Reserve case of reserved words?|true|
+|The preferred schema name||
+|The SQL statements to run after connecting (; separated||
+|===
+
+=== Options
+
+Specify a list of extra JDBC connection options as a parameter/value list.
+
+== Samples
+
+None

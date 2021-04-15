@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   height="24"
+   width="24">
+  <g
+     transform="translate(-379.90478,129.88361)"
+     >
+    <path
+       style="fill:#0e3a5a;fill-opacity:1;stroke-width:2.35679"
+       d="m 400.89385,-116.33557 -15.90672,8.2033 c -1.34993,0.69546 -3.08235,-0.14665 -3.08235,-1.54867 v -16.40659 c 0,-1.39981 1.72992,-2.24413 3.08235,-1.54645 l 15.90672,8.20329 a 2.0049015,1.7819724 0 0 1 0,3.09512 z" />
+  </g>
+</svg>

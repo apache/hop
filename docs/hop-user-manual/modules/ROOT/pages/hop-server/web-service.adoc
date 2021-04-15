@@ -1,0 +1,107 @@
+[[WebService-WebService]]
+:imagesdir: ../assets/images/hop-server/
+
+= Web Service
+
+== Introduction
+
+Hop has a simple way of exposing data through a servlet.
+
+== Web Service Metadata
+
+=== Screenshot
+
+image::hop-server/web-service-example.png[Web Service metadata example, 75%, align="left"]
+
+=== Options
+
+|===
+|Option |Description
+
+|Name
+|The name of the web service.  This is the name that is passed into the webService URL.
+
+|Enabled
+|Enables or disabled the web service
+
+|Filename on the server
+|This is the filename on the server.  Make sure that the pipeline you want to execute is available on the server.
+
+|Output transform
+|The name of the transform from which this service will take the output row(s).
+
+|Output field
+|The output field from which this service will take data from, convert it to a String and output it
+
+|Content type
+|The content type which will get reported by the webService servlet
+
+|List status on server
+|Enable this option if you want the executions of the web service pipeline to be listed in the status of the server.
+
+|===
+
+== Hop Server configuration
+
+Your Hop Server needs to know about the metadata you defined.
+As stated above you need to make sure the server has access to the pipeline(s) you want to execute as well as the server metadata.
+
+The best way to do this is to set the following option in your XML configuration file:
+
+[source,xml]
+----
+<metadata_folder>/path/to/your/metadata</metadata_folder>
+----
+
+A simple example would be:
+
+[source,xml]
+----
+<hop-server-config>
+  <hop-server>
+    <name>8181</name>
+    <hostname>localhost</hostname>
+    <port>8181</port>
+  </hop-server>
+  <metadata_folder>/home/hop/project/services/metadata</metadata_folder>
+
+</hop-server-config>
+----
+
+== Using the service
+
+=== Base request
+
+[source,http request]
+----
+http://<hop-server-url>/hop/webService
+----
+
+=== Request parameters
+
+|===
+|Parameter |Description
+
+|`service`
+|The name of the service.  This corresponds to the Web Service metadata object.
+
+|Any parameter name
+|Any parameter can be set simply by passing the value through the request URL
+
+|Any variable name
+|Any variable can be set simply by passing the value through the request URL
+
+|===
+
+=== Request example
+
+The following executes Hop Web Service `test` as seen in the screenshot above.  It passes a parameter B and a variable A and outputs JSON produced by a JSON Output transform.
+
+[source,http request]
+----
+http://localhost:8181/hop/webService/?service=test&A=valueA&B=valueB
+----
+
+The web service pipeline looks like this:
+
+image::hop-server/web-service-pipeline-example.png[Web Service pipeline example, 75%, align="left"]

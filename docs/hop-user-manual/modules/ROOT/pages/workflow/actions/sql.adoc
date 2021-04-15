@@ -1,0 +1,38 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/sql/src/main/doc/sql.adoc
+= SQL Script Executor
+
+== Description
+
+The SQL Script Executor action can be used to execute an SQL script. You can execute more than one SQL statement, as long as they are separated by semi-colons. The SQL workflow action is flexible; you can perform procedure calls, create and analyze tables, and more. Common uses associated with the SQL workflow action include truncating tables, drop index, partition loading, refreshing materialized views, disabling constraints, disabling statistics, and so on..
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Database Connection|The database connection to use.
+|SQL from file|Enable this option to load the SQL statement from a file given by the SQL filename
+|SQL filename|The filename for the file with SQL statements.
+|Send SQL as single statement?|Enable this option to not separate the statement by semicolons. This is often useful when a script is given or multiple statements should be processed and committed as one single statement.
+|Use variable substitution?|Enables variables to be used in the SQL Script.
+|SQL script|The SQL script to execute. Multiple statements can be separated by semicolons. 
+|===

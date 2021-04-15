@@ -1,0 +1,27 @@
+[[DownloadInstall]]
+:imagesdir: ../../assets/images
+:page-pagination:
+
+= Download and Install Hop
+
+Hop is designed to be as easy and accessible to use as possible.
+
+Getting and starting Hop couldn't be easier:
+
+== Download
+
+Download Hop from the http://hop.apache.org/download/[downloads page], where you can choose between a Hop release or a nightly build (Current Development Builds).
+
+TIP: Development builds go through rigorous testing before a build is considered successful. Even though they are considered stable, you shouldn't run the latest nightly build in production without proper testing.
+
+== Prerequisites
+
+Hop is self contained, all you need is a Java runtime. Hop has been developed and tested with Java 8, but you shouldn't have any issues running Hop with Java 11. Check the https://java.com/en/download/help/download_options.html[Java docs] to download and install a Java runtime for your operating system.
+
+== Install
+
+Unzip Hop to a folder of your choice. From that folder, you'll be able to run the different Hop <<../hop-tools.adoc, tools>> through their corresponding scripts.
+
+Now that you have Hop installed, let's have a look at all of the Hop tools you have at your disposal.
+
+
