@@ -1,0 +1,15 @@
+[[ImageTestpage]]
+:imagesdir: ../assets/images
+:page-alternativeEditUrl: http://www.google.com
+:page-test: test
+:page-hello: http://www.google.com
+
+
+= Image testpage
+
+This page is used to test if images work in both the documentation and the book
+
+image::test_image.jpg[The alt text of the image]
+
+more text
+

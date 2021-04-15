@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/neo4j/src/main/doc/neo4j-output.adoc
+= Neo4j Output
+
+== Description
+
+This transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship. The transform generates the required Cypher statements with accompanying parameters.
+
+== Usage
+
+You can update one node or two nodes and a relationship. Nodes and relationships can have properties and the appropriate MERGE statements will be generated based on the information you provided. Make use of the "Get fields" buttons on the right hand side of the dialog to prevent you from having to type too much.
+
+== Labels
+
+You can get one node labels from a list of fields or you can use static values (with optionally variables). If you specify both the static value will be used if the field value is null. A label will not be used for the node if the label is null or empty.
+
+
+
+== Notable options
+
+|===
+|Option |Description
+
+|Batch size
+|for better performance the transform will group records together in a single transaction
+
+|Use CREATE instead of MERGE
+|this bypasses any lookup and is faster.
+
+|Create indexes
+|creates unique field constraints for all Primary properties in the nodes to make sure performance stays good when dealing with merges and lookup of nodes for relationships. **NOTE:** Please consider only using this when doing prototyping and testing. It's better to put the index creation statements explicitly in a Cypher Script action to make sure you never forget it even when moving to a new database.
+
+|===

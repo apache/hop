@@ -1,0 +1,46 @@
+[[HopSearch]]
+= Hop Search
+
+== Description
+
+Hop Run is a command line tool which allows you to search in your projects.
+It's particularly useful if you're working on a remote server over a ssh connection and you need to find a certain value, setting, transform, action and so on.
+
+The search will match names, keys, values, descriptions and so on.
+
+== Options
+
+|===
+|Option |Description |Default value| Available for plugin
+
+|`-j` or `--project`
+|The name of the project you want to search in
+|None or the configured default project when none is specified
+|Projects
+
+|`-e` or `--environment`
+|The environment to search in
+|None or the configured default environment when none is specified
+|Projects
+
+|`-h` or `--help`
+|Print the help options
+|None
+|
+
+|`-i` or `--case-insensitive`
+|Perform a case insensitive search
+|false
+|
+
+|`-x` or `--regular-expression`
+|The specified search string is a (Java) https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression]
+|false
+|
+
+|`-l` or `--print-locations`
+|Print which locations are being looked at
+|false
+|
+
+|===

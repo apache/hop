@@ -1,0 +1,184 @@
+[[Internationalisation-Internationalisation]]
+= Hop internationalisation
+
+== Introduction
+
+Hop is already being used in many countries across the world where different languages are spoken.  As such "internationalisation" represents the support for multiple languages in our software.  Since it is such a long word it is typically abbreviated to i18n.
+
+== Translating changes source code
+
+The message bundles that contains the translations for the various parts of Hop are part of the source code.  If you want to start any i18n efforts we recommend that you set up your development environment first as described here:
+
+xref:setup-dev-environment.adoc[Setting up your development environment]
+
+== How is it configured?
+
+In the Hop configuration file ```hop-config.json``` there is an entry called ```LocaleDefault``` which points to the locale string that you want to use.
+Such a locale string is always in the format: language code, underscore and country.  For example, the default is en_US for English in the US.
+
+You can change the locale you want to use in the configuration file or in the Hop GUI under the Tools / options menu.
+
+== Translating strings
+
+=== In Java code
+
+Suppose we're working on a class in file ```src/main/java/org/apache/hop/p1/Foo.java```
+What we want to do is have an easy way to get our hands on a translated String.
+The easiest way to do this is with the standard BaseMessages class.
+For example, you can see the following pop up all over the place in the Apache Hop source code:
+
+[source]
+----
+org.apache.hop.i18n.BaseMessages.getString(PKG, "Foo.MyMessage");
+----
+
+If references a PKG variable typically defined at the top of the class like this:
+
+[source]
+----
+private static final Class<?> PKG = Foo.class; // For Translator
+----
+
+By doing this we know the location of the message bundles that will be used for translations.
+In this case the message bundles will be looked for in
+
+[source]
+----
+src/main/resources/org/apache/hop/p1/messages/
+----
+
+For the default locale ```en_US``` it will point to a file called messages_en_US.properties in that folder:
+
+[source]
+----
+src/main/resources/org/apache/hop/p1/messages/messages_en_US.properties
+----
+
+In that file we can place an entry:
+
+[source]
+----
+Foo.MyMessage = My own personal message
+----
+
+=== In annotations
+
+Many plugin and GUI annotations support i18n as well. Unfortunately it is not possible to use the method explained above to resolve keys into strings.  Because of this we use the following format:
+
+[source]
+----
+i18n:package:key
+----
+
+For example, the main File menu in the Hop GUI is defined with an annotation:
+
+[source]
+----
+@GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE,
+      label = "i18n::HopGui.Menu.File",
+      parentId = ID_MAIN_MENU)
+----
+
+With the ```i18n:``` prefix the Hop GUI registry knows that it can translate this using the given package and key.
+If there is no package defined it simply means: use the package from the current class.
+In our example it is ```org.apache.hop.ui.hopgui``` which means that we can find the message bundles for this class in ```ui/src/main/resources/org/apache/hop/ui/hopgui/messages/``` and for locale ```en_US``` in :
+
+[source]
+----
+ui/src/main/resources/org/apache/hop/ui/hopgui/messages/messages_en_US.properties
+----
+
+In there we can find the English translation:
+
+[source]
+-----
+...
+HopGui.Menu.File=&File
+....
+-----
+
+== Translator concerns
+
+If you think that it's quite a bit of a pain to figure out the keys, locations, locale and so on: we agree!
+To make i18n easy and translating fun we created a tool called Hop Translator.
+Translator allows you to provide strings for the keys that you use in your source code.  It will create the message bundles in the right location, in the right format (in UTF-8) and with the right Apache license header.
+
+To run translator simply build the code and then:
+
+[source]
+-----
+cd assemblies/client/target/
+unzip -q hop-*.zip
+cd hop
+sh hop-translator.sh translator.xml ../../../../
+-----
+
+In other words, run Translator and point it to the location of the source code you want to analyze.
+
+=== Do not be too smart
+
+Translator uses a simple Java code scanner to look for patterns like
+
+* PKG
+* BaseMessages.getString
+* "i18:
+
+So please give Translator a chance to pick up the i18n keys as well as the package in which they're being used.  If you think that it would be "better" to use things like clever prefixes and so on please remember that all you're doing is making sure your keys can't be found by Translator and as such are hard to translate.
+
+As much as possible, define the PKG variable to the same class as the one you're working in.  This will prevent message bundles from becoming too large and perhaps difficult to merge later on.
+
+== Using Translator
+
+To use Translator you need 2 things: the Hop source code and a recent build of Hop.
+With the latter you can start Translator like this:
+
+[source]
+----
+sh hop-translator.sh translator.xml /path/to/hop/source/code
+----
+
+After a few seconds of code-scanning you'll see the following interface:
+
+image::hop-translator-after-start.png[Hop Translator main window after start]
+
+The default locale ```en_US``` will be selected by default.
+
+=== Translating keys
+
+As an example, here is how we can translate the Hop GUI menu to Dutch:
+
+* Select the hopgui package:  ```org.apache.hop.ui.hopgui````
+* Select locale ```nl_NL``` at the very top left
+* Select any of the missing ```HopGui.Menu...``` keys
+
+In the following screenshot we selected ```HopGui.Menu.Edit.Cut```:
+
+image::hop-translator-translating-a-key.png[Hop Translator main window after selecting a package and the nl_NL locale]
+
+Now we can type in the translation for "Cut selected to clipboard" and hit the Apply button.
+Finally, when we're done with all keys and packages we can use the "Save" button to make sure our efforts are not for nought:
+
+image::hop-translator-save-files-dialog.png[Hop Translator: the save files dialog]
+
+Once the files are saved you re-build Hop and test them by using the translated keys.  Finally, don't forget to commit and push changes as described here:  xref:setup-dev-environment.adoc[Setting up your development environment]
+
+Please reference a JIRA case and see if there aren't any already for the locale you're covering.
+
+=== Highlighting codes
+
+As you can see in the screenshot above many packages for nl_NL are highlighted.  That is because there are a lot of non-translated keys in those packages:
+
+* light red: the message bundle is missing
+* the darkest gray: over 50 keys are not translated
+* dark gray: over 25 keys are not translated
+* gray: over 10 keys are not translated
+* light gray: over 5 keys are not translated
+* the lightest gray: at least one key is not translated
+
+=== Adding a new locale
+
+If you want to translate a new locale, simply add it to the translator.xml file available in the root of your Hop build.
+
+

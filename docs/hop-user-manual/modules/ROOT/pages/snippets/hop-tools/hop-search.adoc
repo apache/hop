@@ -1,0 +1,1 @@
+Hop Search is a command line tool to search all metadata available in a specific project or environment.

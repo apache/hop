@@ -1,0 +1,5 @@
+[[Technology]]
+
+= Technology
+
+This section of the documentation contains technology-stack specific information.  The goal is to inform you about how Apache Hop offers support for the technology in question.  It also provides starting points for you if you want to learn more about the technology.

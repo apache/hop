@@ -1,0 +1,21 @@
+[[Concepts]]
+:imagesdir: ../assets/images
+
+= Concepts
+
+include::snippets/hop-tools/hop-tools.adoc[]
+
+include::snippets/hop-concepts/item-types.adoc[]
+
+include::snippets/hop-concepts/hop-projects-environments.adoc[]
+
+== Metadata
+
+include::snippets/hop-concepts/metadata.adoc[]
+
+== Various
+The following items are an alphabetically ordered list of concepts that are used throughout Hop and will be mentioned at various locations in the Hop tools and documentation.
+
+
+Lazy Loading::
+include::snippets/hop-concepts/lazy-loading.adoc[]

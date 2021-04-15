@@ -1,0 +1,49 @@
+:openvar: ${
+:closevar: }
+
+You can specify an environment or a project when executing a pipeline or a workflow.
+By doing so you are automatically configuring metadata, variables without too much fuss.
+
+The easiest example is shown by executing the "complex" pipeline from the Apache Beam examples:
+
+[source,bash]
+----
+$ sh hop-run.sh --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
+2021/02/01 16:52:15 - HopRun - Enabling project 'samples'
+2021/02/01 16:52:25 - HopRun - Relative path filename specified: config/projects/samples/beam/pipelines/complex.hpl
+2021/02/01 16:52:26 - General - Created Apache Beam pipeline with name 'complex'
+2021/02/01 16:52:27 - General - Handled transform (INPUT) : Customer data
+2021/02/01 16:52:27 - General - Handled transform (INPUT) : State data
+2021/02/01 16:52:27 - General - Handled Group By (STEP) : countPerState, gets data from 1 previous transform(s)
+2021/02/01 16:52:27 - General - Handled transform (STEP) : uppercase state, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled Merge Join (STEP) : Merge join
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Lookup count per state, gets data from 1 previous transform(s), targets=0, infos=1
+2021/02/01 16:52:27 - General - Handled transform (STEP) : name<n, gets data from 1 previous transform(s), targets=2, infos=0
+2021/02/01 16:52:27 - General - Transform Label: N-Z reading from previous transform targeting this one using : name<n - TARGET - Label: N-Z
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Label: N-Z, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform Label: A-M reading from previous transform targeting this one using : name<n - TARGET - Label: A-M
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Label: A-M, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Switch / case, gets data from 2 previous transform(s), targets=4, infos=0
+2021/02/01 16:52:27 - General - Transform CA reading from previous transform targeting this one using : Switch / case - TARGET - CA
+2021/02/01 16:52:27 - General - Handled transform (STEP) : CA, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform NY reading from previous transform targeting this one using : Switch / case - TARGET - NY
+2021/02/01 16:52:27 - General - Handled transform (STEP) : NY, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform FL reading from previous transform targeting this one using : Switch / case - TARGET - FL
+2021/02/01 16:52:27 - General - Handled transform (STEP) : FL, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Transform Default reading from previous transform targeting this one using : Switch / case - TARGET - Default
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Default, gets data from 1 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (STEP) : Collect, gets data from 4 previous transform(s), targets=0, infos=0
+2021/02/01 16:52:27 - General - Handled transform (OUTPUT) : complex, gets data from Collect
+2021/02/01 16:52:27 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Direct'
+2021/02/01 16:52:34 - General - Beam pipeline execution has finished.
+----
+
+To execute an Apache Beam pipeline a lot of information and metadata is needed.  Let's dive into a few fun information tidbits:
+
+* By referencing the ```samples``` project Hop knows where the project is located (```config/projects/samples```)
+* Since we know the location of the project, we can specify pipelines and workflows with a relative path
+* The project knows where its metadata is stored (```config/projects/samples/metadata```) so it knows where to find the ```Direct``` pipeline run configuration (```config/projects/samples/metadata/pipeline-run-configuration/Direct.json```)
+* This run configuration defines its own pipeline engine specific variables, in this case the output folder : ```DATA_OUTPUT={openvar}PROJECT_HOME{closevar}/beam/output/```
+* The output of the samples is as such written to ```config/projects/samples/beam/output```
+
+To reference an environment you can execute using ```-e``` or ```--environment```.  The only difference is that you'll have a number of extra environment variables set while executing.

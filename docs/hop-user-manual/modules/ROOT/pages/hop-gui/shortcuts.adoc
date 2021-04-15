@@ -1,0 +1,64 @@
+[[Shortcuts]]
+:imagesdir: ../assets/images
+= Hop Shortcuts
+
+The table below lists the main shortcuts in Hop. Using them will save you a lot of time while working with Hop.
+
+NOTE: If you are a Mac user, please be aware that the Mac keys must be used. Most of the times you can replace ctrl with cmd.
+
+== General Shortcuts
+
+[width="85%", cols="25%, 75%", options="header"]
+|===
+|Shortcut|Action
+|Ctr + n |Create a new work item
+|Ctrl + o |Open a work item
+|Ctr + s |Save a work item
+|Ctrl + Shift + F5|Open the Metadata Exlporer Menu
+|Ctrl + w |Close a work item
+|Ctrl + q |Quit Hop
+|Ctrl + z |Undo last change
+|Ctrl + Shift + z |Redo last change
+|Ctrl + a |Select all items in work item
+|ESC|Unselect all items in work item
+|Ctrl + f |Search the Hop Gui for something
+|Ctrl + c |Copy an object
+|Ctrl + v |Paste an object
+|Ctrl + x |Cut an object
+|DEL|Delete an object
+|Alt + <-|Navigate to the previous file
+|Alt + ->|Navigate to the next file
+|F8|Execute work item
+|===
+
+== Pipeline and Workflow Shortcuts
+
+[width="85%", cols="30%, 70%", options="header"]
+|===
+|Shortcut|Action
+|Ctrl + HOME|Align all items to the specified grid side
+|Ctrl + <-|Align all items on the canvas with the left-most selected in the selection.
+|Ctrl + ->|Align all items on the canvas with the right-most selected in the selection.
+|Ctrl + &uarr;|Align all items on the canvas with the top-most selected in the selection.
+|Ctrl + &darr;|Align all items on the canvas with the bottom-most selected in the selection.
+|Alt + ->|Distribute the selected items evenly between the left-most and right-most item in your selection.
+|Alt + &uarr;|Distribute the selected items evenly between the up-most and down-most item in your selection.
+|Ctrl + =|Zoom In on your canvas
+|Ctrl + -|Zoom out on your canvas
+|Ctrl + 0|Reset the zoom percentage to 100%
+|===
+
+
+== Perspective Shortcuts
+[width="85%", cols="30%, 70%", options="header"]
+|===
+|Shortcut|Action
+|CTRL + Shift + &uarr; | Switch one perspective up
+|CTRL + Shift + &darr; |Switch one perspective down
+|CTRL + Shift + d |Open the Data Orchestration Perspective
+|CTRL + Shift + m |Open the Metadata Perspective
+|CTRL + Shift + e |Open the File Explorer Perspective
+|CTRL + f |Open the Search Perspective
+|none|Open the Plugin Perspective
+|none|Open the Neo4j Perspective
+|===

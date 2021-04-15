@@ -1,0 +1,100 @@
+[[Variables]]
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+
+= Variables
+
+== What is a Hop variable?
+
+You don't want to hardcode your solutions. It's simply bad form to hardcode host names, user names, passwords, directories and so on.
+Variables allow your solutions to adapt to a changing environment.  If for example the database server is different when developing than it is when running in production, you set it as a variable.
+
+== How do I use a variable?
+
+In the Hop user interface all places where you can enter a variable have a '$' symbol to the right of the input field:
+
+image::variable-indicator.png[The variable indicator]
+
+You can specify a variable by referencing it like this:
+
+[source]
+${VARIABLE_NAME}
+
+*TIP* _You can see a list of defined variables by using CTRL-SPACE (CMD-SPACE on OSX) in the input field. This helper will insert a selected variable into the input field._
+
+Please note that you don't *have* to specify a variable in these places and that you can combine the variable with other information like:
+
+[source]
+${ENVIRONMENT_HOME}/input/source-file.txt
+
+== How can I define variables?
+
+Variables can be defined in all the places where it makes sense.
+
+== Locality
+
+Variables are local to the place where they are defined.  This means that setting them in a certain place means that it's going to be inherited from that place on.  This also means that's important to know where variables can be set and used and the hierarchy behind it.
+
+== Hierarchy
+
+.Variables Hierarchy
+[width="90%", cols="2*", options="header"]
+|===
+|Place|Inheritance
+|System properties|Inherited by the JVM and all other places in Hop
+|Environment|Inherited by run configurations
+|Run Configurations|Pipeline run configurations are inherited by the environment
+|Pipeline|Inherited by the pipeline run configuration
+|Workflow|Inherited by the workflow run configuration
+|Metadata objects|Inherited by the place where it is loaded
+|===
+
+=== System properties
+
+All system properties defined in the Hop configuration file 'config.json' are available as variables as well as all Java system properties.
+You can define new system properties in the Hop GUI using the system properties editor:
+
+image::system-properties-menu.png[The system properties menu in Hop GUI]
+
+You can also edit the config.json file manually:
+
+[source,json]
+{
+  "systemProperties" : {
+    "MY_SYSTEM_PROPERTY" : "SomeValue"
+  }
+}
+
+You can also use the hop-config command line tool to define system properties:
+
+[source,bash]
+sh hop-config.sh -s MY_SYSTEM_PROPERTY=SomeValue
+
+System properties get set in Java Virtual Machine that Hop is running. This means that you should limit yourself to only those variables which are really system specific.
+
+=== Environment Variables
+
+As you can read in the documentation regarding environments you can set variables there as well.
+This helps you configure folders and other things which are environment specific.
+
+You can set those in the Environment settings dialog or using the command line:
+
+[source,bash]
+sh hop-config.sh -e MyEnvironment -em -ev VARIABLE1=value1
+
+=== Run Configurations
+
+You can specify variables here to make a pipeline or workflow run in an engine agnostic way.
+As an example you can have the same pipeline run on Hadoop with Spark and specify an input directory using hdfs:// and on Google DataFlow using gs://
+
+=== Workflow
+
+You can define variables in a workflow either with the "Set Variables", "JavaScript" actions or by defining parameters.  Parameters are variables which have a description and can have a default value.
+
+=== Pipelines
+
+You can define variables in a pipeline either with the "Set Variables", "JavaScript" transforms or by defining parameters.  Parameters are variables which have a description and can have a default value.
+
+*IMPORTANT* Since in pipelines all transforms run in parallel you should never try to set and use the same variable in the same pipeline.
+

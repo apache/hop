@@ -1,0 +1,1 @@
+Hop Server is a web service interface to manage and run workflows and pipelines.

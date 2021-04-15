@@ -1,0 +1,88 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/ftp/src/main/doc/ftp.adoc
+= Get a file with FTP
+
+== Description
+
+Use the Get a File with FTP workflow action to retrieve one or more files from an FTP server. This workflow action does not "crawl" systems. It will not, for example, access a remote directory and go to other directories to find files that match a wildcard. This workflow retrieves files from one directory exclusively.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|FTP server name/IP address|The name of the server or the IP address.
+|Server Port|Port number of the FTP server.
+|Username|The user name associated with FTP server account.
+|Password|The password associated the FTP server account.
+|Proxy host|Proxy server host name.
+|Proxy port|Proxy server port number.
+|Proxy username|Proxy server account user name.
+|Proxy password|Proxy server account password.
+|Binary mode|Enable if files must be transferred in binary mode.
+|Timeout|The FTP server timeout in seconds.
+|Use Active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open. The default is Passive mode.
+|Control Encoding|Encoding matters when retrieving file names that contain special characters. For Western Europe and the USA, ISO-8859-1 usually suffices. Select encoding that is valid for your server. 
+|===
+
+
+=== Files
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Remote directory|The remote directory on FTP server from which files are taken.
+|Wildcard (regular expression)|Regular expression when you want to select multiple files. For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, ending with a number and .txt
+|Remove files after retrieval|Remove the files on the FTP server, but only after all selected files have been successfully transferred.
+|Move to Folder|Moves files to specified folder.
+|Create Folder|Creates folder that will contain files.
+|Target Directory|The directory where you want to place the retrieved files.
+|Include date in filename|Adds the system date to the filename (_20101231).
+|Include time in filename|Adds the system time to the filename (_235959).
+|Specify date time format|Enable to provide your own date/time format; the default is yyyyMMdd'_'HHmmss
+|Date time format|Select date time format.
+|Add date before extension|Adds date to the file name before the extension.
+|Don't overwrite files|Enable to skip, rename, or fail if a file with an identical name already exists in the target directory.
+|If file exists|Action to take if a file with an identical name already exists in the target directory.
+|Add filenames to result|Enable to add the file name(s) read to the result of this workflow.
+|===
+
+=== Advanced
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Success on|Sets conditions of success.
+|Limit files|Sets number of files associated with a condition of success.
+|===
+
+=== Socks Proxy
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Host|Socks Proxy host name.
+|Port|Socks Proxy port number.
+|Username|User name associated with the Socks Proxy account.
+|Password|Password associated with the Socks Proxy account.
+|===

@@ -1,0 +1,2 @@
+A Hop Environment are instances of projects that hold the actual runtime configurations and other metadata objects for a project. +
+Example: the 'dev' environment for the 'Sales' project specifies to read from host '10.0.0.1' for the 'customers' database connection

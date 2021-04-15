@@ -1,0 +1,39 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/mapping/src/main/doc/simple-mapping.adoc
+= = Simple Mapping
+
+== Description
+
+A Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".  In the "Simple Mapping" transform you can specify one xref:mapping-input.adoc[Mapping Input] transform to pass data to and one xref:mapping-output.adoc[Mapping Output] transform to retrieve rows of data from.
+
+== Options
+
+The options are fairly self-explanatory:
+
+* Transform name: a unique name in your pipeline
+* Pipeline: The name of the mapping (sub-) pipeline to embed.  This pipeline is executed separately and is considered a separate entity. It is always executed with a standard local Hop pipeline run configuration since that is currently the only one capable of streaming data into and out of transforms.
+* Parameters tab: specify the parameters you want to pass to the mapping pipeline
+* Input tab: specify which fields to pass to the xref:mapping-input.adoc[Mapping Input] transform in the mapping.  You can map (hence the name) field names.
+* Output tab: specify how to rename output fields retrieved from the xref:mapping-output.adoc[Mapping Output] transform.
+
+== Sample
+
+In the samples project you can find a small example of the Simple Mapping transform called `mapping-use.hpl'.
+

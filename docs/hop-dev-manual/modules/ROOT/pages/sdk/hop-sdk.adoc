@@ -1,0 +1,122 @@
+= The Hop SDK
+
+== Initializing
+
+First, we need to initialize the Hop API.
+This means we load configuration details, search for and load plugins and so on.
+
+You can do this with:
+
+[source,java]
+----
+HopEnvironment.init();
+----
+
+== Hop Metadata Providers
+
+Shared metadata in Hop is handled by a HopMetadataProvider.
+When using the Hop GUI you store it in a project in the ```metadata/``` folder.
+In that case you can point to such a folder with class ```JsonMetadataProvider```.
+Note that you can serialize such a metadata collection into a single JSON string using ```SerializableMetadataProvider```.
+This can be used to send metadata to remote servers and locations.
+
+When you have a provider you can ask it to give you a serializer with which you can add and retrieve all sorts of metadata objects.
+
+== Variables
+
+If you want to work with variables in your pipelines and workflows it makes sense to create a top level IVariables object.
+The easiest way to do this is with:
+
+[source,java]
+----
+IVariables variables = Variables.getADefaultVariableSpace();
+----
+
+This method also takes into account variables which are configured in hop-config.json (if that file can be found);
+
+== Pipeline metadata
+
+=== Loading from a file
+
+You can get the pipeline metadata using:
+
+[source,java]
+----
+PipelineMeta pipelineMeta = new PipelineMeta(
+  "path-to-your-filename.hpl",   // The filename
+  metadataProvider,             // See above
+  true,                        // set internal variables
+  variables                   // see above
+);
+----
+
+=== Loading from an input stream
+
+[source,java]
+----
+PipelineMeta pipelineMeta = new PipelineMeta(
+  inputStream,         // The stream to load from
+  metadataProvider,   // See above
+  true,              // set internal variables
+  variables         // see above
+);
+----
+
+=== Construct pipeline metadata with the Hop API
+
+Obviously you can start with an empty pipeline and add the transforms, hops you like:
+
+[source,java]
+----
+PipelineMeta pipelineMeta = new PipelineMeta();
+
+// Generate 1M empty rows
+//
+RowGeneratorMeta rowGeneratorMeta = new RowGeneratorMeta();
+rowGeneratorMeta.setRowLimit("1000000");
+
+TransformMeta rowGenerator = new TransformMeta("1M", rowGeneratorMeta);
+rowGenerator.setLocation(50, 50);
+pipelineMeta.addTransform(rowGenerator);
+
+// Just a dummy placeholder for testing
+//
+DummyMeta dummyMeta = new DummyMeta();
+TransformMeta dummy = new TransformMeta("Output", dummyMeta);
+dummy.setLocation(250, 50);
+pipelineMeta.addTransform(dummy);
+
+// Add a hop between both
+//
+PipelineHopMeta generatorDummyHop = new PipelineHopMeta(rowGenerator, dummy);
+pipelineMeta.addPipelineHop(generatorDummyHop);
+
+----
+
+== Pipeline execution
+
+The way a pipeline is executed depends on the run configuration you specify.
+To make it easy to get the engine we created a factory for you:
+
+[source,java]
+----
+IPipelineEngine pipelineEngine = PipelineEngineFactory.createPipelineEngine(
+  variables,           // see above
+  "local",            // The name of the run configuration defined in the metadata
+  metadataProvider,  // The metadata provider to resolve the run configuration details
+  pipelineMeta      // The pipeline metadata
+);
+
+// We can now simply execute this engine...
+//
+pipelineEngine.execute();
+
+// This execution runs in the background but we can wait for it to finish:
+//
+pipelineEngine.waitUnitlFinished();
+
+// When it's done we can evalute the results:
+//
+Result result = pipelineEngine.getResult();
+
+----

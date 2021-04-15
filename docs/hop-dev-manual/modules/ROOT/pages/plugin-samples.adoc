@@ -1,0 +1,41 @@
+[[PluginSamples-PluginSamples]]
+= Plugin samples
+
+== Introduction
+
+This document will explain how a developer can add samples to the plugins in the source code so that they will end up in the ```samples``` project in the Hop client distribution assembly.
+
+== The Samples project
+
+The ```samples``` project in the Hop distribution is located in the config/projects/samples folder.
+Its parent is the ```default``` project.  This means that it's not needed to add any metadata objects (like run configurations) to the ```samples``` projects that are already present in the ```default``` project.
+
+== Plugin samples
+
+If a plugin places a ```samples/``` folder under the ```src/main/``` folder its content will be picked up and copied over the ```samples``` project folder.
+The content will end up exactly in the same folder structure.
+A few examples:
+
+
+|===
+|Source |Target
+
+|```plugins/transforms/addsequence/src/main/samples/transforms/Add Sequence - Add a unique ID.hpl```
+|```config/projects/samples/transforms/Add Sequence - Add a unique ID.hpl```
+
+|```plugins/engines/beam/src/main/samples/metadata/pipeline-run-configuration/Direct.json```
+|```config/projects/samples/metadata/pipeline-run-configuration/Direct.json```
+
+|===
+
+As you can see it's easy to add extra metadata simply by putting it in the ```metadata/``` folder under your samples/ folder in the plugin.  The same goes for test data ```datasets``` and so on.
+
+== Standard project content
+
+If you have metadata objects, sample input files data sets or files that you might want to make available for all plugins, please add them to the following place in the source code:
+
+[source]
+assemblies/static/src/main/resources/config/projects/samples
+
+
+

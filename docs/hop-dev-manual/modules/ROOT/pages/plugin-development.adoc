@@ -1,0 +1,93 @@
+[[PluginDevelopment-PluginDevelopment]]
+= Hop Plugin Development
+
+This page explains how to develop new plugins with references to make development easy.
+
+== Plugin Registry
+
+Hop keeps a central registry of all the available Hop plugins.  They are organized per plugin type (see below).
+The registry also keeps track of the class loaders that were created and used for the various plugins to avoid duplication.
+You can get a hold of this plugin registry at any place using
+
+[source]
+PluginRegistry.getInstance()
+
+
+== Plugin types
+
+Plugins allow you to extend Hop functionality in over 20 different areas.
+Each of these plugin types are represented by a class which implements ```IPluginType<T extends Annotation>```
+For your convenience you can extend a class called ```BasePluginType<T extends Annotation>```.
+The responsibility of these classes is to register plugins of the given type in the Hop Plugin Registry.
+It looks for these plugins in various ways:
+
+1. It reads an XML file if the plugin classes to load are in the classpath.  This technique is used for the core plugins and a number of GUI plugins.
+You can find them in ```core/src/resources```, ```engine/src/resources``` and ```ui/src/resources```.  The location of the file is defined using the ```getXmlPluginFile()``` method.
+
+2. It scans the ```plugins/``` subfolders and scans the jar files on the lookout for classes that have the annotation and interface specified in the plugin type.  It then loads these classes and adds them to the plugin registry.
+
+== Plugins
+
+You can use the plugin registry to search for plugins using an ID, a class name. You can list all plugins and types.
+Plugins contain a lot of information and implement the ```IPlugin``` interface.
+Here are a few of the main fields:
+
+|===
+|Field |Type|Optional| Description
+
+|ids|String[]|Mandatory|The unique ID of the plugin within its type.
+A plugin can have more than 1 ID to make it possible to merge multiple plugins into one and still remain backward compatible.
+
+|name|String|Optional|The name of the plugin as shown in the user interface
+
+|description|String|Optional|The description of the plugin as shown in the user interface
+
+|category|String|Optional|used to organize certain types of plugins in the UI, for example transforms and actions
+
+|imageFile|String|Optional|The path to the SVG file representing the icon of this plugin.
+
+|documentationUrl|String|Optional|The URL of the documentation for the plugin
+
+|keywords|String[]|Optional|The keywords which represent this plugin to make it easier to find it in the UI
+
+|nativePlugin|boolean|false|Indicates if the plugin can be found in the classpath (using XML or API) or in a plugin classpath
+
+|===
+
+Aside from this list you can find the main class, the libraries in the plugin classpath and so on.
+The information in the IPlugin objects is copied from the plugin annotations on the plugin classes by the PluginType class.
+
+
+== Where are the Hop plugins?
+
+In Hop all optional plugins are in the https://github.com/apache/incubator-hop/tree/master/plugins[hop/plugins] folder which contains the plugin categories:
+
+- database: relational database plugins
+- actions: workflow actions
+- engines: pipeline and workflow engines
+- transforms: pipeline transforms
+- vfs: Virtual Files System plugins
+- misc: miscellaneous plugins. Pick this category only when other plugin types don't fit.
+
+=== Actions
+
+== Steps to add new plugin
+
+=== Create skeleton
+
+Once you identified the category, create the plugin as a new maven sub module by carefully mentioning parent in your plugin pom file and adding new module in the parent project. This ensures adding the new plugin into maven build cycle.
+
+You can duplicate the reference plugin mentioned above as a starting point.
+When duplicating take time to modify the documentation and remove irrelevant to get the skeleton.
+
+THOUGHT: Can we create maven archetype? Contribution welcome.
+
+=== Add to assemblies
+
+To add the plugins into final artifacts, you need to add it to hop/assemblies/plugins directory under right category as a maven sub module by carefully mentioning parent in your plugin pom file and adding new module in the parent project. This ensures adding the new plugin into maven build cycle.
+
+Define src/assembly/assembly.xml with necessary dependent jars required for the plugin to function.
+Review the jars which end up going into the plugin zip.
+If any jar which is already present in hop/lib directory, exclude it.
+This is done to keep the target hop artifact size as small as possible.
+

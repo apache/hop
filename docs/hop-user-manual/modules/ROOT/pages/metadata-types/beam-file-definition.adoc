@@ -1,0 +1,40 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Beam File Definition
+
+== Description
+
+image:icons/folder.svg[]
+
+Describes a file layout in a Beam pipeline
+
+The Beam File Definition specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
+
+== Related Plugins
+
+Transforms:
+
+* xref:pipeline/transforms/beaminput.adoc[Beam Input]
+* xref:pipeline/transforms/beamoutput.adoc[Beam Output]
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this Beam file definition
+|Description|The description to be used for this Beam file definition
+|Field Separator|separator used between fields in the file definition
+|Enclosure|field enclosure used for fields in the file definition
+|Field Definitions|List of field name, type, format, length and precision. Describes the file layout for this field definition.
+|===
+
+
+== Samples
+
+* beam/pipelines/complex.hpl
+* beam/pipelines/generate-synthetic-data.hpl
+* beam/pipelines/input-process-output.hpl
+* beam/pipelines/switch-case.hpl
+* beam/pipelines/unbounded-synthetic-data.hpl

@@ -1,0 +1,1 @@
+A Hop links Actions in a Workflow or Transforms in a Pipeline. In Workflows, Hops operate based on the exit status of previous Actions, Hops in Pipelines pass data between Transforms.

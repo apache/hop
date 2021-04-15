@@ -1,0 +1,36 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:page-alternativeEditUrl:  https://github.com/apache/incubator-hop/edit/master/plugins/actions/addresultfilenames/src/main/doc/addresultfilenames.adoc
+= Add filenames to result
+
+== Description
+
+This workflow action allows you to add a set of files or folders to the result list of the workflow action. That list of filenames can then be used in the various workflow actions all around.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Include subfolders|Include subfolders of the selected folders 
+Copy previous results to?|Passes the results of the previous action to the arguments of this action. 
+|Clear result filenames?|This option clears the list of result files (from previous workflow actions) before creating a new list.
+|File/Folder|Specify the list of files or folders with wildcards (regular expressions) in this grid. You can add a different source/destination on each line.
+|===

@@ -1,0 +1,1 @@
+An Action is one operation performed in a Workflow. Actions are executed sequentially by default, with parallel execution as a configuration option. An Action returns a true or false exit code, which can be used (or ignored) in the Workflow’s execution.

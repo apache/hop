@@ -1,0 +1,66 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/combinationlookup/src/main/doc/combinationlookup.adoc
+= Combination lookup/update
+
+== Description
+
+The Combination Lookup-Update transform allows you to store information in a junk-dimension table, and can possibly also be used to maintain Kimball pure Type 1 dimensions.
+
+This transform will...
+
+1. Look up combination of business key field1... fieldn from the input stream in a dimension table
+2. If this combination of business key fields exists, return its technical key (surrogate id);
+3. If this combination of business key doesn't exist yet, insert a row with the new key fields and return its (new) technical key
+4. Put all input fields on the output stream including the returned technical key, but remove all business key fields if "remove lookup fields" is true.
+
+This transform creates/maintains a technical key out of data with business keys. After passing through this transform all of the remaining data changes for the dimension table can be made as updates, as either a row for the business key already existed or was created.
+
+This transform will maintain the key information only. You must update the non-key information in the dimension table, e.g. by putting an update transform (based on technical key) after the combination update/lookup transform.
+
+Apache Hop (Incubating) will store the information in a table where the primary key is the combination of the business key fields in the table. Because this process can be slow if you have a large number of fields, a "hash code" field is supported that is representing all fields in the dimension. This can speed up lookup performance dramatically while limiting the fields to index to one field only.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Connection|Name of the database connection on which the dimension table resides.
+|Target schema|This allows you to specify a schema name.
+|Target table|Name of the dimension table.
+|Commit size
+|Define the commit size, e.g. setting this to 10 will generate a commit every 10 inserts or updates.
+|Cache size in rows |This is the cache size in number of rows that will be held in memory to speed up lookups by reducing the number of round trips to the database.
+
+A cache size of 0 caches as many rows as possible and until your JVM runs out of memory. Use this option wisely with dimensions that can't grown too large.
+A cache size of -1 means that caching is disabled.
+|Key fields|Specify the names of the keys in the stream and in the dimension table. This will enable the transform to do the lookup.
+|Technical key field|This indicates the primary key of the dimension. It is also referred to as Surrogate Key.
+|Creation of technical key a|Specify howthe technical key is generated, options which are not available for your connection will be grayed out:
+
+* Use table maximum + 1: A new technical key will be created from the maximum key in the table. Note that the new maximum is always cached, so that the maximum does not need to be calculated for each new row.
+* Use sequence: Specify the sequence name if you want to use a database sequence on the table connection to generate the technical key (typical for Oracle e.g.).
+* Use auto increment field: Use an auto increment field in the database table to generate the technical key (supported e.g. by DB2).
+|Remove lookup fields?|Enable this option if you want to remove all the lookup fields from the input stream in the output. The only extra field added is then the technical key.
+|Use hashcode|This option allows you to generate a hash code, representing all values in the key fields in a numerical form (a signed 64 bit integer). This hash code has to be stored in the table.
+|Date of last update field|When required, specify the date of last update field (timestamp) from the source system to be copied to the data warehouse. For example, when you have an address without a primary key. The field will not be part of the lookup fields (nor be part in the hash code calculation). The value is written once only because any change results in a new record being written.
+|Get Fields button|Fills in all the available fields on the input stream, except for the keys you specified.
+|SQL button|Generates the SQL to build the dimension and allows you to execute this SQL. 
+|===

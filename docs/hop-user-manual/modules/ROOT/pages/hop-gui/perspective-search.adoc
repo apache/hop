@@ -1,0 +1,14 @@
+:imagesdir: ../assets/images
+
+== Search Perspective
+
+Icon: image:icons/search.svg[width="24px"]
+
+Description::
+The Search perspective allows you to search through all metadata in your Hop projects. This not only includes workflows and actions, pipelines and transforms, but any other metadata type known to Hop.
+
+The search options are the location (all objects in Hop Gui or only the current project), and whether the search string is case sensitive (default: case insensitive) or the search string is a regular expression (default: false).
+
+The result table shows the type, name, filename, location, matching text and description. Use the 'Open' button at the bottom of the perspective to jump directly to the selected metadata object (e.g. open a transform in a pipeline).
+
+TIP: The xref:hop-tools/hop-search.adoc[hop-search] tool provides the same functionality as the Search Perspective through the command line instead of in a GUI.

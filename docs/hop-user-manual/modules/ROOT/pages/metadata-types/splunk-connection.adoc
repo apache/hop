@@ -1,0 +1,31 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Splunk Connection
+
+== Description
+
+image:icons/splunk.svg[]
+
+Describes a Splunk connection.
+
+
+== Related Plugins
+
+* xref:pipeline/transforms/splunkinput.adoc[Splunk Input]
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Connection name|the name to use for this splunk connection
+|Hostname or IP address|
+|Port|
+|Username|
+|Password|
+|===
+
+== Samples
+
+None

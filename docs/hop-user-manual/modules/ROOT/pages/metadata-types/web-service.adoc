@@ -1,0 +1,32 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Web Service
+
+== Description
+
+image:icons/server.svg[]
+
+Hop has a simple way of exposing data through a servlet.
+
+== Related Plugins
+
+None/All
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name of the web service.  This is the name that is passed into the webService URL.
+|Enabled|Enables or disabled the web service
+|Filename on the server|This is the filename on the server.  Make sure that the pipeline you want to execute is available on the server.
+|Output transform|The name of the transform from which this service will take the output row(s).
+|Output field|The output field from which this service will take data from, convert it to a String and output it
+|Content type|The content type which will get reported by the webService servlet
+|List status on server|Enable this option if you want the executions of the web service pipeline to be listed in the status of the server.
+|===
+
+== Samples
+
+None

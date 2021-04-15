@@ -1,0 +1,43 @@
+[[Plugins]]
+= Plugins
+
+Hop is built around an eco-system of plugins, this gives the end users and infrastructure team the ability to create a custom version of HOP tailored to the project or company needs.
+
+The plugins are located in the following location `Instalation Directory/plugins`
+
+The current plugin structure looks like this (with the amount of changes happening in Hop, new plugins may have appeared in your latest nightly build).
+
+This plugin organization is mainly technical, there is no 1 on 1 mapping between the plugins you'll find in the plugins directory and what you'll see in Hop Gui. For Example, the neo4j plugins category contains plugins for actions, transforms, metadata types, the Neo4j perspective etc.
+
+* xref:workflow/actions.adoc[Action Plugins]
+* xref:database/databases.adoc[Database Plugins]
+* Engines: the xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Apache Spark], xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Apache Flink] and xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Google Dataflow] run configurations are plugins that run through https://beam.apache.org[Apache Beam]
+* Miscellaneous Plugins
+** Debug
+** xref:hop-gui/hop-gui-git.adoc[Git]
+** Import
+** xref:password/passwords.adoc[Passwords]
+** xref:projects/index.adoc[Projects]
+** Reflection
+** Testing
+* Tech
+** Azure: a collection of plugins for Azure, including xref:vfs/azure-blob-storage-vfs.adoc[VFS Blob Storage], xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Hubs Listener] and xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Hubs Writer]
+** Cassandra: xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection], xref:pipeline/transforms/cassandra-input.adoc[Cassandra Input] and xref:pipeline/transforms/cassandra-output.adoc[Cassandra Output]
+** Google:
+*** VFS: xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/google-drive-vfs.adoc[Google Drive]
+*** Transforms: xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets Input], xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets Output], Google Analytics
+** Neo4j: a collection of Neo4j plugins
+* xref:pipeline/transforms.adoc[Transform Plugins]
+* Value Types
+** JSON
+* VFS
+** xref:vfs/aws-s3-vfs.adoc[AWS S3]
+** xref:vfs/azure-blob-storage-vfs.adoc[Azure Blob Storage],
+** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/google-drive-vfs.adoc[Google Drive]
+
+
+Each type is explained in their own section.
+
+
+// tag::website-links[]
+// end::website-links[]

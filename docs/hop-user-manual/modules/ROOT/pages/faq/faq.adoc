@@ -1,0 +1,6 @@
+[[Faq]]
+= Frequently Asked Questions
+
+This page contains some of the frequently asked question
+
+== Questions

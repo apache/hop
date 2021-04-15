@@ -1,0 +1,87 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/googleanalytics/src/main/doc/googleanalytics.adoc
+
+= Google Analytics
+
+== Description
+
+The Google Analytics transform allows you to access your Google Analytics data to generate reports or to populate your data warehouse. It uses the https://developers.google.com/analytics/devguides/reporting/core/v3/[Google Analytics 3.0 API].
+
+The https://ga-dev-tools.appspot.com/query-explorer/[Google Analytics Query Explorer] provides a dedicated website to developing and testing queries with the Google Analytics API, independently of a PDI transformation.
+
+== Prerequisites
+
+. You must have a Google Analytics account, and be an owner of the Analytics account that will be used.
+. The Google Analytics step requires an API key. The method that we support involves generating a private key, creating a service account, and adding the service account's email as a user on your Google Analytics account.  Here is how to do this.
+.. Go to http://console.developers.google.com and sign in with your credentials.
+.. In the Projects page, click Create Project, then when the New Project dialog appears, provide a project name and click Create.
+.. In the dashboard select Enable and Manage APIs.
+.. Search for Analytics API.
+.. Select Analytics API from the search results, then click the Enable API button.
+.. In the left menu pane, click Credentials, then click the Add Credentials button, and select Service Account.
+.. When prompted for a key type, select the P12 option, and click Create.  Before the P12 file is downloaded you will be prompted to open or save the file.  Save the file in a safe location.  Saving the file is important because you can not download it again.  You will also need to reference the path to this file when you fill out the Google Analytics step in Hop Gui.
+.. Copy the Service Account's Email Address (<random characters>@developer.gserviceaccount.com). You will paste it in another field later in these instructions.
+.. Go to http://google.com/analytics and sign in with your credentials.
+.. Click  the Admin menu option, then click User Management.
+.. In the Add permissions for field, enter the Service Account's email address you copied previously.  Make sure the user has, at minimum, the Read and Analyze permission.
+
+== Options
+
+=== Google Analytics Connection Settings
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Application Name |Enter an application name such as "PDI" or leave the default.
+|Get tableId from profile |Select the tableId from your profile.
+|Key file |The path to the P12 private key associated with your OAuth Service account.
+|OAuth Service Email |Your Google Developer Service Account's Email Address (e.g. "<random characters@developer.gserviceaccount.com>").
+|Specify tableId directly |Check this option if you want to specify the tableId directly without getting the tableId from the profile.
+|===
+
+=== Query Definition
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Dimensions |Specifies the dimension fields for which you want to query.  The Google Analytics API documentation provides you with a list of valid inputs and metrics that can be combined.
+|End Date |Specifies the end date associated with the query. The date must be entered in the following format: YYYY-MM-DD.
+|Filters |Specifies the filter (described in the Google Analytics API documentation).  Here is an example: 'ga:country==Algeria'.
+|Metrics |Specifies the metrics fields you want returned.  At least one metric must be provided.
+|Sort |Specifies a field on which to sort.  Here is an example: 'ga:city'.
+|Specify a segment for the query |Allows you to specify a segment for the query.  A segment is analogous to a database "view."
+|Start Date |Specifies the start date associated with the query.  The date must be entered in the following format: YYYY-MM-DD.
+|Use custom segment |Check this option, when you want to specify a custom segment.  A segment is analogous to a database "view."
+|Use predefined segment |Select from the predefined segments. A segment is analogous to a database "view."
+|===
+
+=== Fields
+
+Click Get Fields to retrieve a list of possible fields based on the query you defined.
+Click Preview to preview data based on the defined query.
+
+== Metadata Injection Support
+
+All fields of this step support metadata injection. You can use this step with ETL Metadata Injection to pass metadata to your transformation at runtime.
+
+== References
+
+* Google Analytics http://ga-dev-tools.appspot.com/explorer/[Query Explorer]: This tool lets you play with the Core Reporting API by building queries to get data from your Google Analytics profiles. You can use these queries in the step.
+* Reference guides for Google Analytics:, https://developers.google.com/analytics/devguides/reporting/core/dimsmets[Dimensions & Metrics].

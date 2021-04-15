@@ -1,0 +1,10 @@
+[source,shell script]
+----
+      -aza, --azure-account=<account>
+                            The account to use for the Azure VFS
+      -azi, --azure-block-increment=<blockIncrement>
+                            The block increment size for new files on Azure,
+                              multiples of 512 only.
+      -azk, --azure-key=<key>
+                            The key to use for the Azure VFS
+----

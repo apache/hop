@@ -1,0 +1,1 @@
+Hop Translator is a gui tool that allows non-technical users to translate Hop in their native language.

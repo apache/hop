@@ -1,0 +1,57 @@
+[[GettingStarted-GettingStarted]]
+= Getting Started
+
+Welcome to the Hop project! The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*!
+
+When it comes down to it the codebase is fairly simple in structure.
+
+Let's go over the main modules in the source code:
+
+== Core
+
+Like the name suggests this module contains the essentials to bootstrap Hop. It has the following types of things on board:
+
+- Tools: *hop-encrypt*
+- The plugin registry which keeps track of all the plugins: *PluginRegistry*
+- Core data types: *IValueMeta, ValueMetaString, ...*
+- Rows of data: *IRowMeta, RowMeta*
+- Logging: *HopLogStore, ILogChannel,...*
+- Generic relational database handling: *Database, IDatabaseMeta, ...*
+- Internationalization a.k.a. i18n to translate stuff: *BaseMessages*
+- Password obfuscation and encryption: *Encr*
+- Other utility classes like: *Const*
+- Plugin types: *LoggingPluginType, ValueMetaPluginType, DatabasePluginType, ExtensionPointPluginType, TwoWayPasswordEncoderPluginType*
+- Bootstrap everything in core with : *HopClientEnvironment.init()*
+
+== Engine
+
+This module contains the actual framework to handle pipelines and workflows.
+
+- Tools: *hop-server, hop-run*
+- Pipelines : *IPipelineMeta, Pipeline, IPipelineEngine, ...*
+- Workflows : *IWorkflowMeta, Workflow, ...*
+- Web server: *HopServer, StartPipelineServlet, ...*
+- Auditing: *AuditManager, AuditEvent, ...*
+- Other stuff worth mentioning: partitioning, lineage, ...
+- Plugin types: *RowDistributionPluginType, TransformPluginType, TransformDialogFragmentType, PartitionerPluginType, JobEntryPluginType,JobEntryDialogFragmentType, LogTablePluginType, LifecyclePluginType, HopLifecyclePluginType, HopServerPluginType, CompressionPluginType, AuthenticationProviderPluginType, AuthenticationConsumerPluginType, PipelineEnginePluginType*
+- Bootstrap everything in engine with : *HopEnvironment.init()*
+
+== UI
+
+This module obviously contains everything related to the Hop GUI
+
+- Tools: *hop-gui, hop-translate*
+- Hop GUI: *HopGui, HopDataOrchestrationPerspective, HopPipelineFileType, ...*
+- Translator, a tool to help you translate Hop itself: *Translator*
+- The rest is mostly a collection of re-usable dialogs and widgets
+
+== Metadata
+
+This module contains the core metadata serialization API for every shared object in Hop
+
+== Plugins
+
+The plugins module contains all the functionality in Hop which is not absolutely strictly essential.  This means that you will find a lot of transforms and actions in this module.
+You can use this collection as a series of examples on how to build plugins for Hop.
+
+

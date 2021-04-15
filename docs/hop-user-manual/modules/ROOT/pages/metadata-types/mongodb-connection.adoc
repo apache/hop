@@ -1,0 +1,50 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= MongoDB Connection
+
+== Description
+
+image:icons/MongoDB_Leaf_FullColor_RGB.svg[width="24px"]
+
+Describes a MongoDB connection.
+
+The MongoDB connection, specified on a project level, can be reused across multiple (instances of) a transform or other plugin types.
+
+== Related Plugins
+
+* xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
+* xref:pipeline/transforms/mongodboutput.adoc[MongoDB Output]
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|MongoDB Connection name||The name to use for this connection
+|Hostname|localhost|cluster hostname
+|Port|27017|the port for the Cassandra cluster
+|Database name||
+|Authentication database||
+|Username||
+|Password||
+|Authentication mechanism|PLAIN|SCRAM_SHA1, MONGODB_CR or PLAIN
+|User Kerberos|false|
+|Connection timeout (ms)||
+|Socket timeout (ms)||
+|Read preference|PRIMARY|PRIMARY, PRIMARY_PREFERRED, SECONDARY, SECONDARY_PREFERRED or NEAREST
+|Use all replica set members?|false|
+|Specify the read preference tag sets||
+|Use an SSL socket factory?|false|
+|Write concern||
+|Replication timeout (ms)||
+|Journaled?|true|
+|===
+
+== Samples (Integration Tests)
+
+./integration-tests/mongo/tests/mongo-update/mongo-insert-in-collection.hpl
+./integration-tests/mongo/tests/mongo-update/mongo-update-validation.hpl
+./integration-tests/mongo/tests/mongo-update/mongo-update-collection.hpl
+./integration-tests/mongo/tests/mongo-insert/mongo-insert-validation.hpl
+./integration-tests/mongo/tests/mongo-insert/mongo-insert-in-collection.hpl

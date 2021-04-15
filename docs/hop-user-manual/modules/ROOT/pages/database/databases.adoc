@@ -1,0 +1,29 @@
+[[database-plugins]]
+:imagesdir: ../../assets/images
+= Database Plugins
+
+Creating a database connection in HOP is done using one of the many database types available, or you can create a generic connection.
+To create a database connection go to file -> New and select Database connection.
+
+The connection is saved in a central location and can then be used by all pipelines and workflows.
+
+If the license allowed it a jdbc driver is included in the distribution. The documentation of the database type shows you whether the driver is included and if it isn't included will guide you to the location on where to download it.
+
+The `HOP_SHARED_JDBC_FOLDER` variable can be set before starting Hop to point at a centralized location of your required jdbc drivers. This can be set as an environment variable or be added to the Hop start script as an exported variable.
+
+== Generic connection
+HOP can connect to any database that has a jdbc driver available, the list of supplied databases contain some database specific configuration and a list of reserved keywords.
+
+When a specific database type is not yet available for the database you want to use, you can use the generic connection. To use a generic connection you have to copy your jdbc driver to the `Installation directory/lib` folder. 
+
+image::generic_connection.png[Generic Connection Dialog]
+
+Every connection needs a connection name.
+
+In the Driver Class field you specify your driver class, for example if you use PostgreSQL the class is `org.postgresql.Driver`.
+
+Then there is a field to specify the username and password.
+
+
+// tag::website-links[]
+// end::website-links[]

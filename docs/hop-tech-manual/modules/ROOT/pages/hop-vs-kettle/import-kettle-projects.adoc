@@ -1,0 +1,71 @@
+[[ImportKettleToHop]]
+:imagesdir: ../assets/images
+:page-pagination:
+:page-pagination-no-next:
+
+= Import Kettle (PDI) Projects in Apache Hop (Incubating)
+
+As stated in the https://hop.apache.org/docs/qa/[Q&A], Apache Hop (Incubating) used Kettle (aka Pentaho Data Integration or PDI) as a starting point in late 2019. A lot has happened in the meantime on both Apache Hop (Incubating) and Pentaho Data Integration.
+
+Compatibility with Kettle/PDI never was a goal for Apache Hop (Incubating), but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop (Incubating) community provides a way to import Kettle/PDI code into Hop and convert the imported code the the Hop ways of working.
+
+== Imported Items
+
+* jobs: convert to Workflows (kjb to hwf), job entries to actions
+* transformations: convert to Pipelines (ktr to hpl), steps to transforms
+* kettle.properties: import to project variables
+* shared.xml: extract relational database connections to Hop relational database connection metadata objects
+* jdbc.properties: extract JNDI (simple-jndi) relational database connections to Hop relational database connection metadata objects
+* connections in jobs and transformations are extracted and converted to Hop relational database connection metadata objects
+* import jobs, transformations and other files into a Hop project (selected or bootstrapped in specified folder)
+* repository references are extracted and converted to file references
+
+== Known limitations
+
+* no connection cleanup: only 1 copy of database connections with the same name but different configurations is kept.
+* no metastore import
+
+== Usage
+
+To import your Kettle/PDI projects in Hop, select `File -> Import from Kettle/PDI` or press `CTRL-i`.
+
+image:hop-import/menu-import.png[File --> Import from Kettle/PDI]
+
+Add you import sources and target in the pop-up dialog you'll be presented with:
+
+image:hop-import/import-dialog.png[Import Dialog]
+
+The options in this dialog are:
+
+[options="header", width=90%]
+|===
+|Option|Description|Optional
+|Import From|The folder to import Kettle/PDI jobs and transformations from|No
+|Import in existing project|check to import into an existing project, uncheck to import into a folder|No
+|Import in project|Dropdown list of available projects to import the Kettle/PDI project into|Conditional
+|Import to folder|Path to import the Kettle/PDI project to. All imported items will be imported into a Hop project in this folder.|Conditional
+|Path to kettle.properties|Path to a kettle.properties file. All properties in this file will be imported as variables in the Hop project.|Yes
+|Path to shared.xml|Path to a shared.xml file. All database connections in this file will be imported as Hop relational database connection metadata objects in the specified Hop project or folder.|Yes
+|Path to jdbc.properties|Path to a jdbc.properties file. All Kettle/PDI JNDI database connections in this file will be imported as Hop (generic) relational database connection metadata objects in the specified Hop project or folder.|Yes
+|===
+
+After entering your import details, click the 'Import' button.
+
+After a couple of seconds (even when importing large projects), you'll be presented with a migration summary:
+
+image:hop-import/import-report.png[Import Report]
+
+The migration summary shows:
+
+* number of jobs
+* number of transformations
+* number of other files
+* number of variables
+* number of database connections
+
+NOTE: Only migrated items will be shown. Items that were not available in the specified folders or files for this import will not be shown.
+
+When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connnections.csv` file will be created in the project folder. This file contains a list of all jobs and transformations, with the connections they use.
+
+
+

@@ -1,0 +1,22 @@
+[[GettingStarted]]
+:imagesdir: ../../assets/images
+:page-pagination:
+:page-pagination-no-back:
+
+= Getting Started
+
+This guide walks you through the Hop basics.
+
+We'll focus on the core knowledge you need to move around in Hop, without going in detail. At the end of this guide, there will be links to dive deeper into various Hop topics.
+
+This is what we'll cover:
+
+* xref:getting-started/hop-what-is-hop.adoc[What is Hop?]
+* xref:getting-started/hop-concepts.adoc[Concepts]
+* xref:getting-started/hop-download-install.adoc[Download & Install]
+* xref:getting-started/hop-tools.adoc[Tools]
+* xref:getting-started/hop-gui.adoc[Hop Gui overview]
+* xref:getting-started/hop-gui-pipelines.adoc[Pipelines]
+* xref:getting-started/hop-gui-workflows.adoc[Workflows]
+* xref:getting-started/hop-next-steps.adoc[Next Steps]
+

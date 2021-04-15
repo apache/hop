@@ -1,0 +1,34 @@
+:imagesdir: ../../assets/images/
+:page-pagination:
+:page-pagination-no-next:
+
+= Workflow Run Config
+
+== Description
+
+image:icons/workflow_run_config.svg[]
+
+Describes how to run a workflow
+
+Workflows can be executed either locally or remotely. Check xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations] for more details.
+
+
+== Related Plugins
+
+None/All actions
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Name|the name to use for this workflow run configuration
+|Description|the description to use for this workflow run configuration
+|Workflow engine type|Hop local workflow engine or Hop remote workflow engine
+|Safe mode|(default: false) In safe mode, Hop performs a number of data type and other validation before starting the workflow execution.
+|===
+
+== Samples
+
+Your Hop installation comes with a default 'local' workflow run configuration.
+

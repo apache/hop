@@ -1,0 +1,39 @@
+[[HopProjects]]
+:imagesdir: ../../../assets/images
+:documentationPath: /projects/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/projects/src/main/doc/projects.adoc
+:page-pagination:
+:page-pagination-no-back:
+:openvar: ${
+:closevar: }
+= Projects & Environments
+
+== Concepts and Architecture
+
+=== Projects
+
+Most developers typically work on multiple projects and modules simultenaously. For example, while one project matures and is in user acceptance testing, development work on a new project has already started.
+
+Different sets of workflows and pipelines require management for at least development, acceptance and production environments. Every project and each environment comes with its own set of variables and configurations for databases, file paths, ..
+
+Hop wants to make it easy for Hop developers to use one or more projects alongside each other.
+
+A project is the collection of all the files you need in your data orchestration solution. This typically includes metadata, pipelines, workflows, reference files, documentation and so on. To match standard development best practices you would check all these files into a version control system like git. Projects can inherit metadata and variables from a parent project. Projects in Hop Gui will remember opened files, zoom levels and other UI settings.
+
+=== Environments
+
+What is typically not included in the set of project files are the metadata configurations and variable values required to make the project run correctly in a given environment.
+
+For example on a development laptop you might want to set a variable `{openvar}DB_HOSTNAME{closevar}` to `localhost`, on a production server this value might point to the production database server. This is where Hop environments come in.
+
+Environment is short for Project Lifecycle Environment. It describes the phase of a project in its lifecycle moving from Development to Test to Acceptance to Production. It can also describe a project in a continuous integration environment and so on. As such the following attributes define an environment:
+
+* Its name
+* The name of the project
+* The phase
+* The configuration files you want to use to define the environment specific variables
+
+Just like projects, environments are defined in one or a number of configuration files.
+
+TIP: store your environment configuration files outside of the project folder. You may even want to check them in to a separate version control repository.
