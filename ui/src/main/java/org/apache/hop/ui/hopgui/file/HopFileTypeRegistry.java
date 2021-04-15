@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.i18n.BaseMessages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,9 @@ import java.util.List;
  * This class contains all the available Hop File types
  */
 public class HopFileTypeRegistry {
+
+  private static final Class<?> PKG = HopFileTypeRegistry.class;
+
   private static HopFileTypeRegistry hopFileTypeRegistry;
 
   private List<IHopFileType> hopFileTypes;
@@ -112,7 +116,7 @@ public class HopFileTypeRegistry {
       // Add an entry for all the types
       //
       //TODO: Add Translation
-      filterNames.add( 0, "All Hop file types" );
+      filterNames.add( 0, BaseMessages.getString(PKG, "HopFileTypeRegistry.FileTypes.All.Label"));
     }
     return filterNames.toArray( new String[ 0 ] );
   }
