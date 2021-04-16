@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/tree/master/plugins/tech/azure/src/main/doc/azure-event-hubs-listener.adoc
+
 
 = Azure Event Hubs Listener
 

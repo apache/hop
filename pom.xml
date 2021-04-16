@@ -855,9 +855,6 @@
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>
 
-                        <!-- TEMP Docs exclusion -->
-                        <exclude>docs/**</exclude>
-
                     </excludes>
                 </configuration>
             </plugin>

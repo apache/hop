@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/ftpdelete/src/main/doc/ftpdelete.adoc
+
 = FTP delete
 
 == Description

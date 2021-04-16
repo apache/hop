@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:page-alternativeEditUrl:  https://github.com/apache/incubator-hop/edit/master/plugins/actions/pgpencryptfiles/src/main/doc/pgpencryptfiles.adoc
+
 = Encrypt files with PGP
 
 == Description
