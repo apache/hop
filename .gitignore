@@ -30,3 +30,9 @@ Relational Database Connection/
 integration-tests/surefire-reports
 integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
 **/*.json.old
+
+docs/content
+docs/resources
+docs/node_modules
+docs/.pnp
+docs/.pnp.js

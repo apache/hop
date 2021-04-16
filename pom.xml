@@ -855,6 +855,14 @@
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>
 
+                        <!-- Documentation Exclusions-->
+                        <exclude>docs/content/**</exclude>
+                        <exclude>docs/resources/**</exclude>
+                        <exclude>docs/node_modules/**</exclude>
+                        <exclude>docs/.pnp/**</exclude>
+                        <exclude>docs/.pnp.js</exclude>
+                        <exclude>docs/yarn.lock</exclude>
+
                     </excludes>
                 </configuration>
             </plugin>
