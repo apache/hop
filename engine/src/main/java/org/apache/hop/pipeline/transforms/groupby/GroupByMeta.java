@@ -97,6 +97,7 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
 
   public static final int TYPE_GROUP_CONCAT_STRING = 16;
 
+
   public static final int TYPE_GROUP_COUNT_DISTINCT = 17;
 
   public static final int TYPE_GROUP_COUNT_ANY = 18;
@@ -104,6 +105,8 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   public static final int TYPE_GROUP_STANDARD_DEVIATION_SAMPLE = 19;
 
   public static final int TYPE_GROUP_PERCENTILE_NEAREST_RANK = 20;
+
+  public static final int TYPE_GROUP_CONCAT_STRING_CRLF = 21;
 
   public static final String[]
       typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
@@ -127,7 +130,8 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     "COUNT_DISTINCT",
     "COUNT_ANY",
     "STD_DEV_SAMPLE",
-    "PERCENTILE_NEAREST_RANK"
+    "PERCENTILE_NEAREST_RANK",
+    "CONCAT_STRING_CRLF"
   };
 
   public static final String[] typeGroupLongDesc = {
@@ -151,7 +155,9 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_DISTINCT"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION_SAMPLE"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK")
+    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK"),
+          BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF")
+
   };
 
   /** All rows need to pass, adding an extra row at the end of each group/block. */
@@ -435,6 +441,7 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
             valueType = IValueMeta.TYPE_NUMBER;
             break;
           case TYPE_GROUP_CONCAT_STRING:
+          case TYPE_GROUP_CONCAT_STRING_CRLF:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:
