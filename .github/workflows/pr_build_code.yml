@@ -17,11 +17,14 @@
 #
 ---
 
-name: Hop PR Build
+name: Hop PR Build (Code)
 
-on: 
+on:
+  push:
   pull_request:
     branches: ['master']
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   build:
@@ -36,9 +39,12 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: |
+            ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-m2-
+            ${{ runner.os }}-
       - name: RAT Check
         run: mvn clean apache-rat:check
       - name: Build with Maven
