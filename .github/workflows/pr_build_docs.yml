@@ -17,7 +17,7 @@
 #
 ---
 
-name: Hop PR Build
+name: Hop PR Build (Documentation)
 
 on: 
   pull_request:
