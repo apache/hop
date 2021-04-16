@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../../../assets/images
 :documentationPath: /projects/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/misc/projects/src/main/doc/projects.adoc
+
 :page-pagination:
 :page-pagination-no-back:
 :openvar: ${

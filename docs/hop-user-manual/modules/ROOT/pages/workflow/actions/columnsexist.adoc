@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/workflow/actions/columnsexist/src/main/doc/columnsexist.adoc
+
 = Columns exist in a table
 
 == Description

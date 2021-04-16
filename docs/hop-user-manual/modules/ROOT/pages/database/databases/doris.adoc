@@ -17,7 +17,7 @@ under the License.
 [[database-plugins-mariadb]]
 :documentationPath: /database/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/doros/src/main/doc/doris.adoc
+
 = Apache Doris
 
 Doris is compatible with MySQL so you can use the MySQL or MariaDB JDBC drivers.
