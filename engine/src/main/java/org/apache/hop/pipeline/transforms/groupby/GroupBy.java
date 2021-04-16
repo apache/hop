@@ -551,6 +551,17 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           }
 
           break;
+
+        case GroupByMeta.TYPE_GROUP_CONCAT_STRING_CRLF:
+          if ( !( subj == null ) ) {
+            StringBuilder sb = (StringBuilder) value;
+            if ( sb.length() > 0 ) {
+              sb.append( System.lineSeparator() );
+            }
+            sb.append( subjMeta.getString( subj ) );
+          }
+
+          break;
         default:
           break;
       }
@@ -625,6 +636,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           v = new StringBuilder();
           break;
         case GroupByMeta.TYPE_GROUP_CONCAT_STRING:
+        case GroupByMeta.TYPE_GROUP_CONCAT_STRING_CRLF:
           vMeta = new ValueMetaString( fieldName );
           v = new StringBuilder();
           break;
