@@ -38,8 +38,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData> implements ITransform<RowsFromResultMeta, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator
 
-  public RowsFromResultData data;
-
   public RowsFromResult( TransformMeta transformMeta, RowsFromResultMeta meta, RowsFromResultData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
