@@ -11,6 +11,7 @@
 * xref:hop-gui/index.adoc[Hop Gui]
 ** xref:hop-gui/file-dialog.adoc[File Dialog]
 ** xref:hop-gui/perspectives.adoc[Perspectives]
+** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
 * xref:projects/index.adoc[Projects]
 ** xref:projects/projects-environments.adoc[Projects & Environments]
