@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -478,6 +479,16 @@ public class ProjectDialog extends Dialog {
             if (StringUtils.isEmpty(projectName)) {
                 throw new HopException("Please give your new project a name");
             }
+
+            // Check if project name is unique otherwise force the user to change it!
+            ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
+            List<String> prjs = prjsCfg.listProjectConfigNames();
+            for (String prj : prjs) {
+                if (projectName.equals(prj)) {
+                    throw new HopException("Project '" + projectName + "' already exists. Project name must be unique!");
+               }
+            }
+
             if (StringUtils.isNotEmpty(originalName)) {
                 if (!projectName.equals(originalName)) {
                     wName.setText(originalName);
