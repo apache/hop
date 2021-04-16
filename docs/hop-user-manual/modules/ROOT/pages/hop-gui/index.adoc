@@ -10,4 +10,5 @@ Covered here are
 
 * xref:hop-gui/file-dialog.adoc[File Dialog]: the versatile Hop file browser and chooser dialog.
 * xref:hop-gui/perspectives.adoc[Perspectives]: the various perspectives in the Hop Gui
+* xref:hop-gui/hop-gui-git.adoc[Working with git]: Manage files in the git version control system
 * xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.
