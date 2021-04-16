@@ -19,7 +19,8 @@
 
 name: Hop PR Build (Documentation)
 
-on: 
+on:
+  push:
   pull_request:
     branches: ['master']
     paths:
