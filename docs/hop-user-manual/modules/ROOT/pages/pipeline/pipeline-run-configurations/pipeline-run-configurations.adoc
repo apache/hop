@@ -48,12 +48,12 @@ The main tab contains the name, description and the dropdown list for the availa
 |Engine type a|
 The available engine types are:
 
-* *Beam DataFlow pipeline engine*: this configuration runs pipelines on Google DataFlow over Apache Beam
-* *Beam Direct pipeline engine*: this configuration runs pipelines on the direct Beam runner (mainly for testing purposes)
-* *Beam Flink pipeline engine*: this configuration runs pipelines on Apache Flink over Apache Beam
-* *Beam Spark pipeline engine*: this configuration runs pipelines on Apache Spark over Apache Beam
-* *Local pipeline engine*: this configuration runs pipelines locally in the native Hop engine
-* *Remote pipeline engine*: this configuration runs pipelines in the native Hop engine on a remote machine
+* *xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam DataFlow pipeline engine]*: this configuration runs pipelines on Google DataFlow over Apache Beam
+* *xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]*: this configuration runs pipelines on the direct Beam runner (mainly for testing purposes)
+* *xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]*: this configuration runs pipelines on Apache Flink over Apache Beam
+* *xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]*: this configuration runs pipelines on Apache Spark over Apache Beam
+* *xref:pipeline/pipeline-run-configurations/native-local.adoc[Hop local pipeline engine]*: this configuration runs pipelines locally in the native Hop engine
+* *xref:pipeline/pipeline-run-configurations/native-remote.adoc[Hop remote pipeline engine]*: this configuration runs pipelines in the native Hop engine on a remote machine
 |===
 
 TIP: Check the link:https://beam.apache.org/documentation/runners/capability-matrix/[Beam Capability Matrix] to help you decide which Beam engine works best for your pipeline.
@@ -70,5 +70,4 @@ This tab allows Hop developers to specify a set of variables to be used in the r
 |Description|A description for the variable. The description is optional but recommended.
 |===
 
-== Runners
 
