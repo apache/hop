@@ -22,7 +22,6 @@ under the License.
 
 The local runner runs on the local Hop engine.
 
-image::run-configuration/local-engine.png[Hop Local Engine, 65% , align="left"]
 
 === Options
 

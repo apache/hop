@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+* xref:getting-started/index.adoc[Getting Started 1]
 * xref:getting-started/index.adoc[Getting Started]
 ** xref:getting-started/hop-what-is-hop.adoc[What is Hop]
 ** xref:getting-started/hop-concepts.adoc[Hop Concepts]
@@ -374,6 +375,9 @@ under the License.
 * xref:technology/technology.adoc[Technology]
 ** xref:technology/neo4j/neo4j-info.adoc[Neo4j]
 ** xref:technology/google/google-info.adoc[Google]
+* xref:hop-server/index.adoc[Hop Server]
+** xref:hop-server/rest-api.adoc[REST api]
+** xref:hop-server/web-service.adoc[Web Service]
 * xref:hop-tools/index.adoc[Hop Tools]
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
 ** xref:hop-tools/hop-search.adoc[hop-search]

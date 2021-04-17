@@ -176,34 +176,3 @@ The header bar for workflows and pipelines is almost identical (from left to rig
 |Remove pipeline/workflow from list|
 |===
 
-== Hop Server Web Services Overview
-
-Hop Server has a rich set of web services that can be used to query and manage the server's status, or to manage pipeline and workflow execution details.
-
-=== addExport
-
-name::
-addExport
-
-description::
-Upload a resources export file. Add a zipped pipeline or workflow to the body payload as a binary file.
-
-endPoint::
-`hop/addExport`
-
-parameters::
-* type: `pipeline` or `workflow`
-* load: -
-
-result::
-A zip file with the export is created on the server's file system.
-[source, xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<webresult>
-    <result>OK</result>
-    <message>file:///tmp/export_70eb8ef1-9721-4cf5-afa3-940cd0f771d9.zip</message>
-    <id/>
-</webresult>
-----
-

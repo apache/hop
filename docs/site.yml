@@ -24,14 +24,14 @@ site:
 
 content:
   sources:
-  - url: ..
+  - url: ../
     branches: 
       - HEAD
     start_path: /docs/hop-user-manual/
-  - url: ..
+  - url: ../
     branches: HEAD
     start_path: /docs/hop-tech-manual/
-  - url: ..
+  - url: ../
     branches: HEAD
     start_path: /docs/hop-dev-manual/
     

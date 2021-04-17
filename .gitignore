@@ -32,6 +32,7 @@ integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
 **/*.json.old
 
 docs/content
+docs/public
 docs/resources
 docs/node_modules
 docs/.pnp
