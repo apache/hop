@@ -8,11 +8,16 @@
     "build": "run-s build:*",
     "preview": "run-s preview:*",
     "preview:antora": "antora site.yml",
-    "preview:hugo": "hugo server -D"
+    "preview:hugo": "hugo server -D",
+    "check:xref": "antora --generator @antora/xref-validator site.yml",
+    "check:links": "link-checker --disable-external --mkdocs --allow-hash-href public",
+    "check:html": "html-validate 'public/*/**/*.html' 'public/!(google)*.html'",
+    "checks": "run-s check:*"
   },
   "devDependencies": {
     "@antora/cli": "2.3",
     "@antora/site-generator-default": "~2.3",
+    "@antora/xref-validator": "gitlab:antora/xref-validator",
     "gulp": "^4.0.2",
     "gulp-htmlmin": "~5.0",
     "html-validate": "~1.13",

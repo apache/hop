@@ -19,43 +19,53 @@ under the License.
 
 = Hop Server
 
-Hop Server is a lightweight, Jetty-based server for https://hop.apache.org/manual/latest/hop-gui/run-configurations/pipeline/remote-pipeline-engine.html[remote execution] of workflows and pipelines.
+Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote.adoc[Remote Native] run configuration. Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
 
-Except for remote execution, Hop Server can also be accessed directly through a number of REST services.
+== Starting and Stopping Hop Server
 
-== Start Hop Server
+=== General Use
 
 Hop Server is available as a script in your Hop installation directory.
 
 Run Hop Server without any parameters to display its usage options. On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
 
-The output you'll get is similar to what is in the screenshot below.
-
-image::hop-server/hop-server-options.png[Hop Server - Options, align="left"]
-
-Hop Server takes a hostname or ip address and port number as unnamed arguments. All other arguments are named.
-Alternatively, the options can be provided in a configuration XML file.
-*TODO*: document XML configuration file structure.
-
-[source,shell]
-hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
-
+[source,bash]
+Usage: hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
 or
+Usage: Hop Server <Configuration File>
+Starts or stops the hopServer server.
+     -h,--help               This help text
+     -p,--password <arg>     The administrator password.  Required only if
+                             stopping the Hop Server server.
+     -s,--stop               Stop the running hopServer server.  This is only
+                             allowed when using the hostname/port form of the
+                             command.
+     -u,--userName <arg>     The administrator user name.  Required only if
+                             stopping the Hop Server server.
+Example: hop-server.sh 127.0.0.1 8080
+Example: hop-server.sh 192.168.1.221 8081
+Example: hop-server.sh /foo/bar/hop-server-config.xml
+Example: hop-server.sh http://www.example.com/hop-server-config.xml
+Example: hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
 
-[source,shell]
-hop-server <Configuration File>
-
-The Hop Server options are listed in detail in the table below:
+The available Hop Server options are:
 
 [width="90%", options="header"]
 |===
 |Short|Extended|Description
 |h|help|This help text
-|p|password|The administrator password.  Required only if stopping the Hop Server server.
-|s|stop|Stop the running hopServer server.  This is only allowed when using the hostname/port form of the command.
-|u|username|The administrator user name.  Required only if stopping the Hop Server server.
+|p|password|The administrator password. Required only if stopping the Hop Server server.
+|s|stop|Stop the running hopServer server. This is only allowed when using the hostname/port form of the command.
+|u|username|The administrator user name. Required only if stopping the Hop Server server.
 |===
 
+
+=== Start Hop Server with command line parameters
+
+Hop Server can be started with hostname or ip address and port number as unnamed arguments:
+
+[source,shell]
+hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
 
 Example startup commands are:
 
@@ -65,16 +75,76 @@ hop-server.sh 127.0.0.1 8080
 [source,shell]
 hop-server.sh 192.168.1.221 8081
 
+
+=== Start Hop Server with a configuration file
+
+Specify the xml configuration file as the only argument:
+
+[source,shell]
+hop-server <Configuration File>
+
+The syntax of this configuration file is fairly simple:
+
+[source,xml]
+----
+<hop-server-config>
+
+  <hop-server>
+    <name>server-8181</name>
+    <hostname>localhost</hostname>
+    <port>8181</port>
+  </hop-server>
+
+  <!-- Join the web server thread and wait until it's finished.
+       The default is true
+  -->
+  <joining>true</joining>
+
+  <!-- The maximum number of log lines kept in memory by the server.
+       The default is 0 which means: keep all lines
+   -->
+  <max_log_lines>0</max_log_lines>
+
+  <!-- The time (in minutes) it takes for a log line to be cleaned up in memory.
+       The default is 0 which means: never clean up log lines
+  -->
+  <max_log_timeout_minutes>1440</max_log_timeout_minutes>
+
+  <!-- The time (in minutes) it takes for a pipeline or workflow execution to be removed from the server status.
+       The default is 0 which means: never clean executions
+  -->
+  <object_timeout_minutes>1440</object_timeout_minutes>
+
+  <!-- The folder to read metadata objects from so that web services and database connections for sequences can be found.
+       The default is that no metadata is configured: remotely executed pipelines and workflows will have their own metadata.
+  -->
+  <metadata_folder></metadata_folder>
+
+</hop-server-config>
+----
+
+Example startup commands with a configuration file are:
+
 [source,shell]
 hop-server.sh /foo/bar/hop-server-config.xml
+
+Or with a remote configuration file:
 
 [source,shell]
 hop-server.sh http://www.example.com/hop-server-config.xml
 
+=== Stopping Hop Server
+
+In a testing setup where Hop Server was started from a terminal, the process can be terminated through `CTRL-C`.
+
+In headless environments, the same hop-server command used to start the server can be used to stop it:
+
 [source,shell]
 hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
 
-Starting a Hop Server on the local machine on port 8081 will only take 1 or 2 seconds.
+== Verify startup
+
+Starting a Hop Server on the local machine e.g. on port 8081 will only take 1 or 2 seconds.
 
 The console output will look similar to what is listed below:
 
@@ -84,20 +154,25 @@ The console output will look similar to what is listed below:
 
 == Connect to the Hop Server UI
 
-To connect to the previously started server, point your browser to http://localhost:8081.
+To connect to the previously started server, point your browser to `http://localhost:8081`.
 
 You'll be prompted for your username and password. The default is `cluster` for both the username and password. The defaults obviously should be changed in any environment that goes beyond a simple local developer setup.
 
-Click 'Show status' to move beyond the initial screen.
+TIP: on startup, the pipeline and workflow lists shown below will be empty. Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote.adoc[Hop Remote pipeline engine] run configuration or through the <<Hop Server Web Services Overview, REST api>>. When pipelines or workflows are executed on the server, you'll be able to follow the logging output either from the terminal or a log file (e.g. piped from the startup command).
 
-image::hop-server/hop-server-index.png[Hop Server - Index, align="left"]
+image:hop-server/hop-server-status.png[Hop Server Status, width="65%", link=hop-server/hop-server-status.png]
 
-Since no workflows or pipelines have been executed on this server yet, the workflow and pipelines lists will be empty.
+For each of the options in the pipeline and workflow dialogs described below, select a pipeline and workflow from the list and select the desired option.
 
-image::hop-server/hop-server-no-tasks.png[Hop Server - No Tasks, align="left"]
+The header bar for workflows and pipelines is almost identical (from left to right).
 
-TODO: explain UI for workflows, pipelines
 
-== Hop Server Web Services Overview
+[width="90%", options="header"]
+|===
+|Run|
+|Stop the running pipeline/workflow|
+|Cleanup pipeline|Cleanup a pipeline: close remote sockets etc
+|View pipeline/workflow details|
+|Remove pipeline/workflow from list|
+|===
 
-TODO: explain Hop Server web services.

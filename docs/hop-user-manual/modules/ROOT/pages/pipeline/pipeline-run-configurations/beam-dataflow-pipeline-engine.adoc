@@ -31,8 +31,6 @@ The Cloud Dataflow Runner and service are suitable for large scale continuous jo
 
 Check the https://cloud.google.com/dataflow/docs/guides/specifying-exec-params[Google DataFlow docs] and https://beam.apache.org/documentation/runners/dataflow/[Apache Beam DataFlow runner docs] for more information.
 
-image::run-configuration/beam-dataflow.png[Beam Dataflow Engine, 65% , align="left"]
-
 === Options
 
 [width="90%", options="header"]

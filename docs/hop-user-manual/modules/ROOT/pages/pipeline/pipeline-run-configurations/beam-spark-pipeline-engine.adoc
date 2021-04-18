@@ -30,7 +30,6 @@ The Spark Runner executes Beam pipelines on top of Apache Spark, providing:
 * Built-in metrics reporting using Spark’s metrics system, which reports Beam Aggregators as well.
 * Native support for Beam side-inputs via spark’s Broadcast variables
 
-image::run-configuration/beam-spark.png[Beam Spark Engine, 65% , align="left"]
 
 Check the https://beam.apache.org/documentation/runners/spark/[Apache Beam Spark runner docs] for more information.
 

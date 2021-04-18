@@ -21,6 +21,6 @@ languageCode = "en-us"
 title = "Hop"
 relativeURLs = true
 disablePathToLower = true
-staticDir = ["static", "documentation"]
+staticDir = ["content","static"]
 disableKinds = ["taxonomyTerm"]
 enableRobotsTXT = true

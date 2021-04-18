@@ -31,8 +31,6 @@ The Flink Runner and Flink are suitable for large scale, continuous jobs, and pr
 * Custom memory management for efficient and robust switching between in-memory and out-of-core data processing algorithms
 * Integration with YARN and other components of the Apache Hadoop ecosystem
 
-image::run-configuration/beam-flink.png[Beam Flink Engine, 65% , align="left"]
-
 Check the https://beam.apache.org/documentation/runners/flink/[Apache Beam Flink runner docs] for more information.
 
 === Options

@@ -1,0 +1,658 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopServerRestApi]]
+:imagesdir: ../assets/images
+
+= Hop Server Web Services Overview
+
+Hop Server has a rich set of web services that can be used to query and manage the server's status, or to manage pipeline and workflow execution details.
+
+TIP: when specified, the id for a workflow or pipeline represents one execution of a workflow or pipeline on the server.
+
+== addExport
+
+name::
+addExport
+
+description::
+Upload a resources export file. Add a zipped pipeline or workflow to the body payload as a binary file.
+
+endPoint::
+GET `hop/addExport`
+
+parameters::
+* type: `pipeline` or `workflow`
+* load: -
+
+example request::
+`http://localhost:8081/hop/addExport/?type=workflow` with zipped workflow as payload
+
+result::
+A zip file with the export is created on the server's file system.
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>OK</result>
+    <message>file:///tmp/export_70eb8ef1-9721-4cf5-afa3-940cd0f771d9.zip</message>
+    <id/>
+</webresult>
+----
+
+== addPipeline
+
+name::
+addPipeline
+
+description::
+Add a pipeline for execution
+
+endPoint::
+GET `hop/addPipeline`
+
+parameters::
+* xml
+Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
+
+example request::
+`http://localhost:8081/hop/addPipeline/xml=Y` with XML payload
+
+result::
+
+
+== addWorkflow
+
+name::
+addWorkflow
+
+description::
+Add a workflow for execution
+
+endPoint::
+GET `hop/addWorkflow`
+
+parameters::
+* xml
+Request body should contain xml containing workflow_configuration (pipeline and workflow_execution_configuration wrapped in pipeline_configuration tag).
+
+example request::
+`http://localhost:8081/hop/addWorkflow/xml=Y` with XML payload
+
+result::
+
+== getPipelineImage
+
+name::
+getPipelineImage
+
+description::
+Generate a SVG image of a pipeline
+
+endPoint::
+GET `hop/pipelineImage`
+
+parameters::
+* name: name of the pipeline to generate the image for
+* id: id of the pipeline to generate the image for
+
+example request::
+GET `http://localhost:8081/hop/pipelineImage/?name=remote-pipeline&id=c1451bfb-b867-4c76-b123-c29d2b05da17`
+
+result::
+an SVG image of the pipeline graph
+
+== getPipelineStatus
+
+name::
+getPipelineStatus
+
+description::
+Get the status of a pipeline
+
+endPoint::
+GET `hop/pipelineStatus`
+
+parameters::
+* name: name of the pipeline to get the status for
+* id: id of the pipeline to get the status for
+
+example request::
+GET `http://localhost:8081/hop/pipelineStatus/?name=<NAME>>&id=<ID>`
+
+result::
+an HTML response with the execution status, transform details and canvas preview for this pipeline
+
+== Status
+
+name::
+status
+
+description::
+Get the status of the server
+
+parameters::
+none
+
+example request::
+GET `http://localhost:8081/hop/status`
+
+result::
+an HTML page with an overview of the pipelines and workflows on the server, their execution details and the server's configuration details.
+
+== getWorkflowImage
+
+name::
+getWorkflowImage
+
+description::
+Generate an SVG image of a workflow
+
+endPoint::
+GET `hop/workflowImage`
+
+parameters::
+* name: name of the workflow to generate the image for
+* id: id of the workflow to generate the image for
+
+example request::
+GET `http://localhost:8081/hop/workflowImage/?name=<NAME>>&id=<ID>`
+
+result::
+an SVG image of the workflow graph
+
+
+== getWorkflowStatus
+
+name::
+getWorkflowStatus
+
+description::
+Get the status of a workflow
+
+endPoint::
+GET `hop/workflowStatus`
+
+parameters::
+* name: name of the workflow to get the status for
+* id: id of the workflow to get the status for
+
+example request::
+GET `http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>`
+
+result::
+an HTML response with the execution status, action details and canvas preview for this workflow
+
+
+== pausePipeline
+
+name::
+pausePipeline
+
+description::
+Pause or continue a pipeline
+
+endPoint::
+GET `/hop/pausePipeline`
+
+parameters::
+* name: name of the pipeline to pause or restart
+* id: id of the pipeline to pause or restart
+
+example request::
+GET `http://localhost:8081/hop/pausePipeline/?name=<NAME>&id=<ID>`
+
+result::
+HTML page with the request status, e.g.
+
+[source, html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Pause pipeline</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/pipelineStatus?name=<NAME>&id=<ID>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Pipeline [tmp] : pause requested.</H1>
+	<a href="/hop/pipelineStatus?name=<NAME>&id=<ID>">Back to the pipeline status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+
+
+== Prepare Execution
+
+name::
+prepareExec
+
+description::
+Prepare the execution of a pipeline
+
+endPoint::
+GET `/hop/prepareExec`
+
+parameters::
+* xml: use xml, default Y
+* name: the name of the pipeline to prepare execution for
+* id: the id of the pipeline to prepare execution for
+
+example request::
+GET `http://localhost:8081/hop/prepareExec/?xml=Y&name=<NAME>&id=<ID>`
+
+result::
+
+Example result:
+
+[source,html]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>OK</result>
+    <message/>
+    <id/>
+</webresult>
+----
+
+
+//=== Register Package
+//
+//name::
+//registerPackage
+//
+//description::
+//Upload a resources export file
+//
+//endPoint::
+//GET `/hop/registerPackage`
+//
+//parameters::
+//* load
+//* type
+//
+//example request::
+//-
+//
+//result::
+//-
+
+
+== Register Pipeline
+
+name::
+registerPipeline
+
+description::
+Register a pipeline for execution
+
+endPoint::
+GET `hop/registerPipeline`
+
+parameters::
+* xml
+Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
+
+example request::
+`http://localhost:8081/hop/registerPipeline/xml=Y` with XML payload
+
+result::
+
+
+== Register Workflow
+
+name::
+registerWorkflow
+
+description::
+Register a workflow on the server
+
+endPoint::
+GET `/hop/registerWorkflow`
+
+parameters::
+* xml:
+
+example request::
+-
+
+result::
+-
+
+== Remove Pipeline
+
+name::
+removePipeline
+
+description::
+Remove a pipeline from the server
+
+endPoint::
+GET `/hop/removePipeline`
+
+parameters::
+- name: the name of the pipeline to remove
+- id: the id of the pipeline to remove
+
+example request::
+GET `http://localhost:8081/hop/removePipeline/?name=<NAME>&id=<ID>`
+
+result::
+
+Example result:
+
+[source, html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>The pipeline was removed</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H3>The pipeline with name [<NAME>] and hopServer object id <ID> was removed from Hop
+		Server.</H3>
+	<a href="/hop/status">Back to the status page</a><br>
+	<p>
+</BODY>
+----
+
+
+== Remove Workflow
+
+name::
+removeWorkflow
+
+description::
+Remove a workflow from the server
+
+endPoint::
+GET `/hop/removeWorkflow`
+
+parameters::
+* name: the name of the workflow to remove
+* id: the id of the workflow to remove
+
+example request::
+GET `http://localhost:8081/hop/removeWorkflow/?name=<NAME>&id=<ID>`
+
+result::
+
+Example result:
+
+[source, html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>The workflow was removed</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H3>The workflow with name [<NAME>] and hopServer object id <ID> was removed from Hop
+		Server.</H3>
+	<a href="/hop/status">Back to the status page</a><br>
+	<p>
+</BODY>
+----
+
+== Sniff Transform
+
+name::
+sniffTransform
+
+description::
+Sniff test a pipeline transform
+
+endPoint::
+GET `/hop/sniffTransform`
+
+parameters::
+* xml: use XML (default: Y)
+* name: name of the pipeline to sniff
+* id: id of the pipeline to sniff
+* transform: name of the transform to sniff
+* type: (input/output) sniff input or output
+
+example request::
+GET `http://localhost:8081/hop/sniffTransform/?xml=Y&name=<NAME>&id=<ID>&transform=<TRANSFORMNAME>&type=output`
+
+result::
+
+Example result (empty):
+
+[source,xml]
+<row-buffer>
+<row-meta/>
+</row-buffer>
+
+
+== Start Pipeline Execution
+
+name::
+startExec
+
+description::
+Start the execution of a pipeline
+
+endPoint::
+GET `/hop/startExec`
+
+parameters::
+* name: the name of the pipeline to start
+
+example request::
+GET `http://localhost:8081/hop/startExec?name=<NAME>`
+
+result::
+
+Example result:
+
+[source,html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Start of pipeline</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/pipelineStatus?name=<NAME>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Pipeline [<NAME>] was started.</H1>
+	<a href="/hop/pipelineStatus?name=<NAME>&id=8bea27db-de97-4bd0-a210-d9bba3aacac2">Back to the status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+
+
+== Start Pipeline
+
+name::
+startPipeline
+
+description::
+Prepare and start the execution of a pipeline
+
+endPoint::
+GET `/hop/startPipeline`
+
+parameters::
+* name: the name of the pipeline to start
+
+example request::
+GET `http://localhost:8081/hop/startPipeline?name=<NAME>`
+
+result::
+
+Example result:
+
+[source,html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Start of pipeline</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/pipelineStatus?name=<NAME>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Pipeline [<NAME>] was started.</H1>
+	<a href="/hop/pipelineStatus?name=<NAME>&id=8bea27db-de97-4bd0-a210-d9bba3aacac2">Back to the status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+
+
+== Start Workflow
+
+name::
+startWorkflow
+
+description::
+Prepare and start the execution of a workflow
+
+endPoint::
+GET `/hop/startPipeline`
+
+parameters::
+* name: the name of the workflow to start
+
+example request::
+GET `http://localhost:8081/hop/startWorkflow?name=<NAME>`
+
+result::
+
+Example result:
+
+[source,html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Start of workflow</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/startWorkflow?name=<NAME>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Workflow [<NAME>] was started.</H1>
+	<a href="/hop/workflowStatus?name=<NAME>&id=8bea27db-de97-4bd0-a210-d9bba3aacac2">Back to the status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+
+== Stop Pipeline
+
+name::
+stopPipeline
+
+description::
+Stop a pipeline
+
+endPoint::
+GET `/hop/stopPipeline`
+
+parameters::
+* name: the name of the pipeline to stop
+* id: the id of the pipeline to stop
+
+example request::
+GET `http://localhost:8081/hop/stopPipeline?name=<NAME>&id=<ID>`
+
+result::
+
+Example Result:
+
+[source,html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Stop pipeline</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/pipelineStatus?name=<NAME>>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Pipeline [<NAME>] stop requested.</H1>
+	<a href="/hop/pipelineStatus?name=<NAME>&id=<ID>">Back to the pipeline status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+
+== Stop Workflow
+
+name::
+stopWorkflow
+
+description::
+Stop a workflow
+
+endPoint::
+GET `/hop/stopWorkflow`
+
+parameters::
+* name: the name of the workflow to stop
+* id: the id of the workflow to stop
+
+example request::
+GET `http://localhost:8081/hop/stopWorkflow?name=<NAME>&id=<ID>`
+
+
+result::
+
+Example Result:
+
+[source,html]
+----
+<HTML>
+
+<HEAD>
+	<TITLE>Stop workflow</TITLE>
+	<META http-equiv="Refresh" content="2;url=/hop/workflowStatus?name=<NAME>>">
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD>
+
+<BODY>
+	<H1>Workflow [<NAME>] stop requested.</H1>
+	<a href="/hop/workflowStatus?name=<NAME>&id=<ID>">Back to the pipeline status page</a>
+	<p>
+		<p>
+</BODY>
+
+</HTML>
+----
+

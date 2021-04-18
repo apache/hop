@@ -31,8 +31,6 @@ The Direct Runner executes pipelines on your machine and is designed to validate
 
 Using the Direct Runner for testing and development helps ensure that pipelines are robust across different Beam runners. In addition, debugging failed runs can be a non-trivial task when a pipeline executes on a remote cluster. Instead, it is often faster and simpler to perform local unit testing on your pipeline code. Unit testing your pipeline locally also allows you to use your preferred local debugging tools.
 
-image::run-configuration/beam-direct.png[Beam Direct Engine, 65% , align="left"]
-
 === Options
 
 [width="90%", options="header"]

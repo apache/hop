@@ -18,13 +18,17 @@ under the License.
 :imagesdir: ../assets/images
 = Remote Pipeline Engine
 
-== Remote
+== Hop Remote pipeline engine
 
-The remote runner runs on a remote Hop Server, or a cluster thereof.
+The remote run configuration runs pipelines on a remote Hop Server.
 
-image::run-configuration/remote-engine.png[Hop Remote Engine, 65% , align="left"]
+This run configuration requires little configuration, but has two prerequisites:
+
+. a running xref:hop-server/index.adoc[Hop Server]
+. a xref:metadata-types/hop-server.adoc[Hop Server metadata definition] in your project, pointing to your running Hop Server.
 
 === Options
+
 
 [width="90%", options="header"]
 |===
@@ -34,3 +38,5 @@ image::run-configuration/remote-engine.png[Hop Remote Engine, 65% , align="left"
 |Server poll delay (ms)|The delay in milliseconds between periodic polls to the remote server.|-
 |Server poll interval (ms)|The interval in milliseconds between periodic polls to the remote server.|-
 |===
+
+TIP: the run configuration you specify is the run configuration that will be used on the server. Even though you're creating a remote runtime configuration, you probably want to use a local run configuration _on the server_.
