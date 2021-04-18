@@ -21,6 +21,8 @@ name: Hop PR Build (Code)
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: ['master']
     paths-ignore:
