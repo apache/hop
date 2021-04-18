@@ -14,7 +14,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-* xref:getting-started/index.adoc[Getting Started 1]
 * xref:getting-started/index.adoc[Getting Started]
 ** xref:getting-started/hop-what-is-hop.adoc[What is Hop]
 ** xref:getting-started/hop-concepts.adoc[Hop Concepts]
