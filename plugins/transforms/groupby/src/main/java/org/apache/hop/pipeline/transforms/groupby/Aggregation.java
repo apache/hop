@@ -22,34 +22,34 @@ import org.apache.hop.core.injection.Injection;
 
 public class Aggregation implements Cloneable {
 
-  @Injection( name = "AGG_FIELD", group = "AGGREGATIONS" )
+  @Injection(name = "AGG_FIELD", group = "AGGREGATIONS")
   private String field;
 
-  @Injection( name = "AGG_SUBJECT", group = "AGGREGATIONS" )
+  @Injection(name = "AGG_SUBJECT", group = "AGGREGATIONS")
   private String subject;
 
   private int type;
 
-  @Injection( name = "AGG_VALUE", group = "AGGREGATIONS" )
+  @Injection(name = "AGG_VALUE", group = "AGGREGATIONS")
   private String value;
 
-  public Aggregation() {
-  }
+  public Aggregation() {}
 
-  public Aggregation( String field, String subject, int type, String value ) {
+  public Aggregation(String field, String subject, int type, String value) {
     this.field = field;
     this.subject = subject;
     this.type = type;
     this.value = value;
   }
 
-  @Override public Aggregation clone() {
+  @Override
+  public Aggregation clone() {
     return new Aggregation(field, subject, type, value);
   }
 
-  @Injection( name = "AGG_TYPE", group = "AGGREGATIONS" )
+  @Injection(name = "AGG_TYPE", group = "AGGREGATIONS")
   public void setType(String typeCode) {
-    this.type = GroupByMeta.getType( typeCode );
+    this.type = GroupByMeta.getType(typeCode);
   }
 
   /**
@@ -61,10 +61,8 @@ public class Aggregation implements Cloneable {
     return field;
   }
 
-  /**
-   * @param field The field to set
-   */
-  public void setField( String field ) {
+  /** @param field The field to set */
+  public void setField(String field) {
     this.field = field;
   }
 
@@ -77,10 +75,8 @@ public class Aggregation implements Cloneable {
     return subject;
   }
 
-  /**
-   * @param subject The subject to set
-   */
-  public void setSubject( String subject ) {
+  /** @param subject The subject to set */
+  public void setSubject(String subject) {
     this.subject = subject;
   }
 
@@ -93,10 +89,8 @@ public class Aggregation implements Cloneable {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( int type ) {
+  /** @param type The type to set */
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -109,10 +103,8 @@ public class Aggregation implements Cloneable {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 }
