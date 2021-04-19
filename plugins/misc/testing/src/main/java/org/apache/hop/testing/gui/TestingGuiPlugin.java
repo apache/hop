@@ -98,6 +98,15 @@ import java.util.Map;
 public class TestingGuiPlugin {
   protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
+  public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
+      "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TESTS_CREATE =
+      "HopGuiPipelineGraph-ToolBar-20020-unit-tests-create";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TEST_DETACH =
+      "HopGuiPipelineGraph-ToolBar-20030-unit-test-detach";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE =
+      "HopGuiPipelineGraph-ToolBar-20050-unit-tests-delete";
+
   public static final String ID_TOOLBAR_UNIT_TESTS_LABEL =
       "HopGuiPipelineGraph-ToolBar-20000-unit-tests-label";
   public static final String ID_TOOLBAR_UNIT_TESTS_COMBO =
@@ -147,8 +156,7 @@ public class TestingGuiPlugin {
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Name",
-      tooltip =
-          "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Tooltip",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Tooltip",
       image = "set-input-dataset.svg",
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
@@ -174,7 +182,8 @@ public class TestingGuiPlugin {
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Header"),
-                  BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Message"));
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Message"));
       String setName = esd.open();
       if (setName != null) {
         DataSet dataSet = setSerializer.load(setName);
@@ -187,8 +196,12 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Message"), e);
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Message"),
+          e);
     }
   }
 
@@ -320,9 +333,13 @@ public class TestingGuiPlugin {
 
       context.getPipelineGraph().updateGui();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Message"),
+          e);
     }
   }
 
@@ -337,8 +354,10 @@ public class TestingGuiPlugin {
     // Show a warning
     //
     MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-    box.setMessage(BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Message"));
-    box.setText(BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Header"));
+    box.setMessage(
+        BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Message"));
+    box.setText(
+        BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Header"));
     box.open();
 
     return true;
@@ -350,8 +369,7 @@ public class TestingGuiPlugin {
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Name",
-      tooltip =
-          "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Tooltip",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Tooltip",
       image = "set-golden-dataset.svg",
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
@@ -383,8 +401,9 @@ public class TestingGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
-                  BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Header"),
-                  BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Message"));
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Header"),
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Message"));
       String setName = esd.open();
       if (setName != null) {
         DataSet dataSet = setSerializer.load(setName);
@@ -397,8 +416,12 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Message"), e);
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Message"),
+          e);
     }
   }
 
@@ -525,9 +548,13 @@ public class TestingGuiPlugin {
 
       saveUnitTest(variables, hopGui.getMetadataProvider(), currentUnitTest, pipelineMeta);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Message"),
+          e);
     }
     pipelineMeta.setChanged();
     context.getPipelineGraph().updateGui();
@@ -583,16 +610,24 @@ public class TestingGuiPlugin {
         //
         MessageBox box =
             new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
-        box.setText(BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Header"));
+        box.setText(
+            BaseMessages.getString(
+                PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Header"));
         box.setMessage(
-            BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Message"
-                , dataSet.getName(), transformMeta.getName())
+            BaseMessages.getString(
+                    PKG,
+                    "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Message",
+                    dataSet.getName(),
+                    transformMeta.getName())
                 + Const.CR
-                + BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer1")
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer1")
                 + Const.CR
-                + BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer2")
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer2")
                 + Const.CR
-                + BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer3")
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer3")
                 + Const.CR);
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
@@ -607,8 +642,11 @@ public class TestingGuiPlugin {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Message"),
+          e);
     }
   }
 
@@ -636,8 +674,12 @@ public class TestingGuiPlugin {
 
     if (pipelineMeta.hasChanged()) {
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Header"));
-      box.setMessage(BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Message"));
+      box.setText(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Message"));
       box.open();
       return;
     }
@@ -653,8 +695,8 @@ public class TestingGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
-                  BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item1"),
-                  BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item2"));
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item1"),
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item2"));
       String setName = esd.open();
       if (setName == null) {
         return;
@@ -701,8 +743,11 @@ public class TestingGuiPlugin {
       context.getPipelineGraph().start();
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Message"),
+          e);
     }
   }
 
@@ -719,7 +764,7 @@ public class TestingGuiPlugin {
   /** Clear the current unit test from the active pipeline... */
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20030-unit-test-detach",
+      id = ID_TOOLBAR_ITEM_UNIT_TEST_DETACH,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Detach.Tooltip",
       image = "Test_tube_icon_detach.svg")
   public void detachUnitTest() {
@@ -751,14 +796,17 @@ public class TestingGuiPlugin {
       //
       pipelineGraph.updateGui();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Message"),
+          e);
     }
   }
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit",
+      id = ID_TOOLBAR_ITEM_UNIT_TEST_EDIT,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Edit.Tooltip",
       image = "Test_tube_icon_edit.svg",
       separator = true)
@@ -782,7 +830,7 @@ public class TestingGuiPlugin {
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20020-unit-tests-create",
+      id = ID_TOOLBAR_ITEM_UNIT_TESTS_CREATE,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Create.Tooltip",
       image = "Test_tube_icon_create.svg",
       separator = true)
@@ -806,7 +854,7 @@ public class TestingGuiPlugin {
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20050-unit-tests-delete",
+      id = ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Delete.Tooltip",
       image = "Test_tube_icon_delete.svg",
       separator = true)
@@ -835,8 +883,14 @@ public class TestingGuiPlugin {
       }
 
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-      box.setMessage(BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Message", pipelineUnitTest.getName()));
-      box.setText(BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Message",
+              pipelineUnitTest.getName()));
+      box.setText(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Header"));
       int answer = box.open();
       if ((answer & SWT.YES) == 0) {
         return;
@@ -852,8 +906,11 @@ public class TestingGuiPlugin {
 
       refreshUnitTestsList();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Message"),
+          e);
     }
   }
 
@@ -911,9 +968,11 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Header")
-              , BaseMessages.getString(PKG
-              , "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Message", unitTestName), e);
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Message", unitTestName),
+          e);
     }
   }
 
@@ -950,15 +1009,19 @@ public class TestingGuiPlugin {
    * @return
    * @throws Exception
    */
-  public List<String> getUnitTestsList(ILogChannel log, IHopMetadataProvider metadataProvider, String instanceId)
-      throws Exception {
+  public List<String> getUnitTestsList(
+      ILogChannel log, IHopMetadataProvider metadataProvider, String instanceId) throws Exception {
 
     // Grab the relevant variables
     //
-    Object guiPluginObject = GuiRegistry.getInstance().findGuiPluginObject( HopGui.getInstance().getId(), HopGuiPipelineGraph.class.getName(), instanceId );
-    if (guiPluginObject==null) {
+    Object guiPluginObject =
+        GuiRegistry.getInstance()
+            .findGuiPluginObject(
+                HopGui.getInstance().getId(), HopGuiPipelineGraph.class.getName(), instanceId);
+    if (guiPluginObject == null) {
       return Collections.emptyList();
-    } if (!(guiPluginObject instanceof HopGuiPipelineGraph)) {
+    }
+    if (!(guiPluginObject instanceof HopGuiPipelineGraph)) {
       return Collections.emptyList();
     }
 
@@ -1015,8 +1078,9 @@ public class TestingGuiPlugin {
       if (testName != null) {
         PipelineUnitTest unitTest = testSerializer.load(testName);
         if (unitTest == null) {
-          throw new HopException(BaseMessages.getString(PKG
-                  , "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Exception", testName));
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Exception", testName));
         }
 
         selectUnitTest(pipelineMeta, unitTest);
@@ -1026,11 +1090,13 @@ public class TestingGuiPlugin {
         hopGui.getActiveFileTypeHandler().updateGui();
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG
-              , "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Header")
-              , BaseMessages.getString(PKG
-              , "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Message"),
+          e);
     }
   }
 
@@ -1161,9 +1227,11 @@ public class TestingGuiPlugin {
       new ErrorDialog(
           hopGui.getShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.TweakUnitTestTransform.Error.Header"),
-              BaseMessages.getString(PKG, "TestingGuiPlugin.TweakUnitTestTransform.Error.Message"
-                      , transformMeta.getName()
-                      , tweak.name()),
+          BaseMessages.getString(
+              PKG,
+              "TestingGuiPlugin.TweakUnitTestTransform.Error.Message",
+              transformMeta.getName(),
+              tweak.name()),
           exception);
     }
   }
@@ -1207,9 +1275,11 @@ public class TestingGuiPlugin {
       }
       return null;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Message"),
+          e);
       return null;
     }
   }
@@ -1243,9 +1313,10 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell()
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Header")
-              , BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Message"), e);
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Message"),
+          e);
     }
   }
 
@@ -1268,7 +1339,7 @@ public class TestingGuiPlugin {
   }
 
   public static List<PipelineUnitTest> findPipelineUnitTest(
-    IVariables variables, PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider ) {
+      IVariables variables, PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider) {
     List<PipelineUnitTest> tests = new ArrayList<>();
 
     try {
