@@ -74,8 +74,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
-import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
-import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -1417,7 +1415,6 @@ public class PipelineMeta extends AbstractMeta
   public IRowMeta getTransformFields(
       IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
       throws HopTransformException {
-    setMetaStoreOnMappingTransforms();
     return getTransformFields(variables, transformMeta, null, monitor);
   }
 
@@ -1533,7 +1530,8 @@ public class PipelineMeta extends AbstractMeta
    * @return A row containing the fields (w/ origin) entering the transform
    * @throws HopTransformException the hop transform exception
    */
-  public IRowMeta getPrevTransformFields(IVariables variables, String transformName) throws HopTransformException {
+  public IRowMeta getPrevTransformFields(IVariables variables, String transformName)
+      throws HopTransformException {
     return getPrevTransformFields(variables, findTransform(transformName));
   }
 
@@ -1703,14 +1701,13 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    setMetaStoreOnMappingTransforms();
-
     // Go get the fields...
     //
     IRowMeta before = row.clone();
     IRowMeta[] clonedInfo = cloneRowMetaInterfaces(infoRowMeta);
     if (!isSomethingDifferentInRow(before, row)) {
-      iTransformMeta.getFields(before, name, clonedInfo, nextTransform, variables, metadataProvider);
+      iTransformMeta.getFields(
+          before, name, clonedInfo, nextTransform, variables, metadataProvider);
       // pass the clone object to prevent from spoiling data by other transforms
       row = before;
     }
@@ -1773,24 +1770,6 @@ public class PipelineMeta extends AbstractMeta
       return true;
     }
     return !one.equals(two);
-  }
-
-  /**
-   * Set the MetaStore on the Mapping transform. That way the mapping transform can determine the
-   * output fields for metadata referencing mappings... This is the exception to the rule so we
-   * don't pass this through the getFields() method. TODO: figure out a way to make this more
-   * generic.
-   */
-  private void setMetaStoreOnMappingTransforms() {
-
-    for (TransformMeta transform : transforms) {
-      if (transform.getTransform() instanceof WorkflowExecutorMeta) {
-        ((WorkflowExecutorMeta) transform.getTransform()).setMetadataProvider(metadataProvider);
-      }
-      if (transform.getTransform() instanceof PipelineExecutorMeta) {
-        ((PipelineExecutorMeta) transform.getTransform()).setMetadataProvider(metadataProvider);
-      }
-    }
   }
 
   /**
@@ -1990,7 +1969,8 @@ public class PipelineMeta extends AbstractMeta
    * @param metadataProvider the metadata store to reference (or null if there is none)
    * @param setInternalVariables true if you want to set the internal variables based on this
    *     pipeline information
-   * @param parentVariableSpace the parent variable variables to use during PipelineMeta construction
+   * @param parentVariableSpace the parent variable variables to use during PipelineMeta
+   *     construction
    * @throws HopXmlException if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the
    *     exception in that case)
@@ -2292,7 +2272,7 @@ public class PipelineMeta extends AbstractMeta
         throw new HopXmlException(e);
       } finally {
         ExtensionPointHandler.callExtensionPoint(
-            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this );
+            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this);
       }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!
@@ -3013,7 +2993,8 @@ public class PipelineMeta extends AbstractMeta
    * @param monitor a progress monitor listener to be updated as the pipeline is analyzed
    * @throws HopTransformException if any errors occur during analysis
    */
-  public void analyseImpact(IVariables variables, List<DatabaseImpact> impact, IProgressMonitor monitor)
+  public void analyseImpact(
+      IVariables variables, List<DatabaseImpact> impact, IProgressMonitor monitor)
       throws HopTransformException {
     if (monitor != null) {
       monitor.beginTask(
@@ -3041,8 +3022,8 @@ public class PipelineMeta extends AbstractMeta
         infoRowMeta = iTransformMeta.getTableFields(variables);
       }
 
-      iTransformMeta.analyseImpact( variables,
-          impact, this, transformMeta, prev, null, null, infoRowMeta, metadataProvider);
+      iTransformMeta.analyseImpact(
+          variables, impact, this, transformMeta, prev, null, null, infoRowMeta, metadataProvider);
 
       if (monitor != null) {
         monitor.worked(1);
@@ -3179,8 +3160,10 @@ public class PipelineMeta extends AbstractMeta
       }
 
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(), variables,
-        HopExtensionPoint.BeforeCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
+          getLogChannel(),
+          variables,
+          HopExtensionPoint.BeforeCheckTransforms.id,
+          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
 
       boolean stop_checking = false;
 
@@ -3254,15 +3237,19 @@ public class PipelineMeta extends AbstractMeta
 
           // Check transform specific info...
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(), variables,
-            HopExtensionPoint.BeforeCheckTransform.id, new CheckTransformsExtension(
-                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
+              getLogChannel(),
+              variables,
+              HopExtensionPoint.BeforeCheckTransform.id,
+              new CheckTransformsExtension(
+                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
               remarks, this, prev, input, output, info, variables, metadataProvider);
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(), variables,
-            HopExtensionPoint.AfterCheckTransform.id, new CheckTransformsExtension(
-                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
+              getLogChannel(),
+              variables,
+              HopExtensionPoint.AfterCheckTransform.id,
+              new CheckTransformsExtension(
+                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
 
           // See if illegal characters etc. were used in field-names...
           if (prev != null) {
@@ -3395,8 +3382,10 @@ public class PipelineMeta extends AbstractMeta
         monitor.worked(1);
       }
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(), variables,
-        HopExtensionPoint.AfterCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
+          getLogChannel(),
+          variables,
+          HopExtensionPoint.AfterCheckTransforms.id,
+          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
     } catch (Exception e) {
       log.logError(Const.getStackTracker(e));
       throw new RuntimeException(e);
@@ -3645,7 +3634,8 @@ public class PipelineMeta extends AbstractMeta
    * @param monitor the monitor
    * @throws HopRowException in case we detect a row mixing violation
    */
-  public void checkRowMixingStatically(IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
+  public void checkRowMixingStatically(
+      IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
       throws HopRowException {
     List<TransformMeta> prevTransforms = findPreviousTransforms(transformMeta);
     int nrPrevious = prevTransforms.size();
@@ -3656,7 +3646,8 @@ public class PipelineMeta extends AbstractMeta
         TransformMeta previousTransform = prevTransforms.get(i);
         try {
           IRowMeta row =
-              getTransformFields(variables, previousTransform, monitor); // Throws HopTransformException
+              getTransformFields(
+                  variables, previousTransform, monitor); // Throws HopTransformException
           if (referenceRow == null) {
             referenceRow = row;
           } else if (!transformMeta.getTransform().excludeFromRowLayoutVerification()) {
@@ -3833,7 +3824,8 @@ public class PipelineMeta extends AbstractMeta
   public List<ResourceReference> getResourceDependencies(IVariables variables) {
     return transforms.stream()
         .flatMap(
-            (TransformMeta transformMeta) -> transformMeta.getResourceDependencies(variables).stream())
+            (TransformMeta transformMeta) ->
+                transformMeta.getResourceDependencies(variables).stream())
         .collect(Collectors.toList());
   }
 
@@ -3865,8 +3857,7 @@ public class PipelineMeta extends AbstractMeta
       String fullname;
       String extension = "ktr";
       if (StringUtils.isNotEmpty(getFilename())) {
-        FileObject fileObject =
-            HopVfs.getFileObject(variables.resolve(getFilename()));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(getFilename()));
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();

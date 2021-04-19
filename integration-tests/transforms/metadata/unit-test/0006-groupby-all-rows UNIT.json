@@ -1,0 +1,137 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "average",
+          "data_set_field": "average"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "countDistinct",
+          "data_set_field": "countDistinct"
+        },
+        {
+          "transform_field": "cumAvg",
+          "data_set_field": "cumAvg"
+        },
+        {
+          "transform_field": "cumSum",
+          "data_set_field": "cumSum"
+        },
+        {
+          "transform_field": "firstNonNull",
+          "data_set_field": "firstNonNull"
+        },
+        {
+          "transform_field": "firstValue",
+          "data_set_field": "firstValue"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "lastNonNull",
+          "data_set_field": "lastNonNull"
+        },
+        {
+          "transform_field": "lastValue",
+          "data_set_field": "lastValue"
+        },
+        {
+          "transform_field": "linenr",
+          "data_set_field": "linenr"
+        },
+        {
+          "transform_field": "max",
+          "data_set_field": "max"
+        },
+        {
+          "transform_field": "median",
+          "data_set_field": "median"
+        },
+        {
+          "transform_field": "min",
+          "data_set_field": "min"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "nrRows",
+          "data_set_field": "nrRows"
+        },
+        {
+          "transform_field": "percentile90",
+          "data_set_field": "percentile90"
+        },
+        {
+          "transform_field": "percentile90NearestRank",
+          "data_set_field": "percentile90NearestRank"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "stdDev",
+          "data_set_field": "stdDev"
+        },
+        {
+          "transform_field": "stdDevSample",
+          "data_set_field": "stdDevSample"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "zip"
+        }
+      ],
+      "field_order": [
+        "id",
+        "linenr"
+      ],
+      "transform_name": "Output",
+      "data_set_name": "golden-groupby-all-rows"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-groupby-all-rows UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0006-groupby-all-rows.hpl",
+  "test_type": "UNIT_TEST"
+}

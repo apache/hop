@@ -19,6 +19,7 @@
 <dependencies>
   <folder>../../transforms/constant</folder>
   <folder>../../transforms/filterrows</folder>
+  <folder>../../transforms/groupby</folder>
   <folder>../../transforms/memgroupby</folder>
   <folder>../../transforms/mergejoin</folder>
   <folder>../../transforms/sort</folder>

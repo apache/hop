@@ -283,7 +283,8 @@ public class KafkaConsumerInputMeta
         rowMeta.addValueMeta(v);
       } catch (Exception e) {
         throw new HopTransformException(
-            BaseMessages.getString(PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field.getOutputName()),
+            BaseMessages.getString(
+                PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field.getOutputName()),
             e);
       }
     }

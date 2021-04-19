@@ -1,0 +1,2 @@
+count,countDistinct,min,max,average,median,percentile90,firstNonNull,lastNonNull,firstValue,lastValue,stdDev,nrRows,percentile90NearestRank,stdDevSample
+" 100"," 0000000078",anr-firstname,zwd-firstname," 50",50.500,90.900," 13520"," 16120",oem-city,boc-city,28.866,100,90.000,29.011

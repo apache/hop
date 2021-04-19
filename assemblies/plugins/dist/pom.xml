@@ -1430,6 +1430,19 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-groupby</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-http</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
@@ -1769,6 +1782,19 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-numberrange</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-pipelineexecutor</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
       <exclusions>
@@ -2249,6 +2275,19 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-tableinput</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-tableoutput</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
@@ -2367,6 +2406,19 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-workflowexecutor</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
       <exclusions>

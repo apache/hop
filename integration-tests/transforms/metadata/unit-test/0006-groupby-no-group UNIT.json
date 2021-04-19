@@ -1,0 +1,84 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "average",
+          "data_set_field": "average"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "countDistinct",
+          "data_set_field": "countDistinct"
+        },
+        {
+          "transform_field": "firstNonNull",
+          "data_set_field": "firstNonNull"
+        },
+        {
+          "transform_field": "firstValue",
+          "data_set_field": "firstValue"
+        },
+        {
+          "transform_field": "lastNonNull",
+          "data_set_field": "lastNonNull"
+        },
+        {
+          "transform_field": "lastValue",
+          "data_set_field": "lastValue"
+        },
+        {
+          "transform_field": "max",
+          "data_set_field": "max"
+        },
+        {
+          "transform_field": "median",
+          "data_set_field": "median"
+        },
+        {
+          "transform_field": "min",
+          "data_set_field": "min"
+        },
+        {
+          "transform_field": "nrRows",
+          "data_set_field": "nrRows"
+        },
+        {
+          "transform_field": "percentile90",
+          "data_set_field": "percentile90"
+        },
+        {
+          "transform_field": "percentile90NearestRank",
+          "data_set_field": "percentile90NearestRank"
+        },
+        {
+          "transform_field": "stdDev",
+          "data_set_field": "stdDev"
+        },
+        {
+          "transform_field": "stdDevSample",
+          "data_set_field": "stdDevSample"
+        }
+      ],
+      "field_order": [
+        "count"
+      ],
+      "transform_name": "Output",
+      "data_set_name": "golden-groupby-no-group"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-groupby-no-group UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-groupby-no-group.hpl",
+  "test_type": "UNIT_TEST"
+}
