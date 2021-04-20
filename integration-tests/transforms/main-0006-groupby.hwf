@@ -42,6 +42,9 @@
         <test_name>
           <name>0006-groupby-no-group UNIT</name>
         </test_name>
+        <test_name>
+          <name>0006-groupby-all-rows UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>304</xloc>

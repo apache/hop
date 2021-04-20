@@ -1,0 +1,72 @@
+package org.apache.hop.workflow.actions.pipeline;
+
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPoint;
+import org.apache.hop.core.extension.IExtensionPoint;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+
+import java.util.List;
+
+@ExtensionPoint(
+    id = "HopGuiWorkflowHplFilenamePastedExtensionPoint",
+    extensionPointId = "HopGuiWorkflowClipboardFilePaste",
+    description =
+        "Handle pasting of a pipeline filename on a workflow.  This code turns it into a pipeline action.")
+public class HopGuiWorkflowHplFilenamePastedExtensionPoint
+    implements IExtensionPoint<HopGuiWorkflowClipboardExtension> {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiWorkflowClipboardExtension wce)
+      throws HopException {
+
+    HopGuiWorkflowClipboardDelegate clipboardDelegate = wce.workflowGraph.workflowClipboardDelegate;
+    WorkflowMeta workflowMeta = wce.workflowMeta;
+    HopGui hopGui = wce.workflowGraph.getHopGui();
+
+    // Pipeline?
+    //
+    HopPipelineFileType pipelineFileType = new HopPipelineFileType();
+    if (wce.filename.endsWith(pipelineFileType.getDefaultFileExtension())) {
+
+      // Add a new Pipeline action...
+      //
+      String name = clipboardDelegate.getUniqueName(workflowMeta, wce.file.getName());
+
+      ActionPipeline actionPipeline = new ActionPipeline(name);
+      actionPipeline.setFileName(wce.filename);
+
+      // Pick the first run configuration available...
+      //
+      List<String> names =
+          hopGui
+              .getMetadataProvider()
+              .getSerializer(PipelineRunConfiguration.class)
+              .listObjectNames();
+      if (!names.isEmpty()) {
+        actionPipeline.setRunConfiguration(names.get(0));
+      }
+
+      ActionMeta actionMeta = new ActionMeta(actionPipeline);
+      actionMeta.setLocation(new Point(wce.location));
+      workflowMeta.addAction(actionMeta);
+
+      hopGui.undoDelegate.addUndoNew(
+          workflowMeta,
+          new ActionMeta[] {actionMeta},
+          new int[] {workflowMeta.indexOfAction(actionMeta)});
+
+      // Shift the location for the next action
+      //
+      clipboardDelegate.shiftLocation(wce.location);
+    }
+  }
+}

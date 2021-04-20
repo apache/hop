@@ -30,9 +30,7 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.UnitTestUtil;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -45,15 +43,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
     description = "i18n::RunPipelineTests.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "Test_tube_icon.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/runpipelinetests.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/workflow/actions/runpipelinetests.html")
 public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
   public static final String TEST_NAMES = "test_names";
   public static final String TEST_NAME = "test_name";
 
-   private List<String> testNames;
+  private List<String> testNames;
 
-  public RunPipelineTests( String name, String description) {
+  public RunPipelineTests(String name, String description) {
     super(name, description);
     testNames = new ArrayList<>();
   }
@@ -73,7 +72,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
         getMetadataProvider().getSerializer(PipelineUnitTest.class);
 
-    AtomicBoolean success=new AtomicBoolean(true);
+    AtomicBoolean success = new AtomicBoolean(true);
 
     for (String testName : testNames) {
 
@@ -123,22 +122,20 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
     if (success.get()) {
       prevResult.setNrErrors(0);
-      prevResult.setResult( true );
+      prevResult.setResult(true);
     } else {
       prevResult.setNrErrors(prevResult.getNrErrors() + 1);
-      prevResult.setResult( false );
+      prevResult.setResult(false);
     }
 
     return prevResult;
   }
-
 
   @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
     xml.append(super.getXml());
-
 
     xml.append(XmlHandler.openTag(TEST_NAMES));
     for (String testName : testNames) {
@@ -168,15 +165,15 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   @Override
   public String[] getReferencedObjectDescriptions() {
     String[] descriptions = new String[testNames.size()];
-    for (int i=0;i<descriptions.length;i++) {
-      descriptions[i] = "Pipeline of unit test : "+testNames.get(i);
+    for (int i = 0; i < descriptions.length; i++) {
+      descriptions[i] = "Pipeline of unit test : " + testNames.get(i);
     }
     return descriptions;
   }
 
   public boolean[] isReferencedObjectEnabled() {
     boolean[] enabled = new boolean[testNames.size()];
-    for (int i=0;i<enabled.length;i++) {
+    for (int i = 0; i < enabled.length; i++) {
       enabled[i] = true;
     }
     return enabled;
@@ -186,10 +183,11 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
 
-    IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
-    String testName = testNames.get( index );
-    PipelineUnitTest test = testSerializer.load( testName );
-    return UnitTestUtil.loadTestPipeline( test, metadataProvider, variables );
+    IHopMetadataSerializer<PipelineUnitTest> testSerializer =
+        metadataProvider.getSerializer(PipelineUnitTest.class);
+    String testName = testNames.get(index);
+    PipelineUnitTest test = testSerializer.load(testName);
+    return UnitTestUtil.loadTestPipeline(test, metadataProvider, variables);
   }
 
   @Override
