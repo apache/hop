@@ -35,7 +35,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineProfileFactory;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -157,7 +156,7 @@ public class DatabaseExplorerDialog extends Dialog {
     this.databases = databases;
     this.justLook = look;
     this.splitSchemaAndTable = splitSchemaAndTable;
-    this.loggingObject = new LoggingObject( "Database Explorer" );
+    this.loggingObject = new LoggingObject("Database Explorer");
 
     selectedSchema = null;
     selectedTable = null;
@@ -503,7 +502,8 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   private boolean getData() {
-    GetDatabaseInfoProgressDialog gdipd = new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
+    GetDatabaseInfoProgressDialog gdipd =
+        new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
     DatabaseMetaInformation dmi = gdipd.open();
     if (dmi != null) {
       // Clear the tree top entry
@@ -623,7 +623,8 @@ public class DatabaseExplorerDialog extends Dialog {
         if (ti != null) {
           wTree.setSelection(new TreeItem[] {ti});
           wTree.showSelection();
-          refreshButtons(dbMeta.getQuotedSchemaTableCombination(variables, selectedSchema, selectedTable));
+          refreshButtons(
+              dbMeta.getQuotedSchemaTableCombination(variables, selectedSchema, selectedTable));
         }
 
         selectedTable = null;
@@ -734,18 +735,6 @@ public class DatabaseExplorerDialog extends Dialog {
             }
           });
 
-      new MenuItem(mTree, SWT.SEPARATOR);
-
-      MenuItem miProfile = new MenuItem(mTree, SWT.PUSH);
-      miProfile.setText(
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ProfileTable", table));
-      miProfile.addSelectionListener(
-          new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-              profileTable(table);
-            }
-          });
-
       wTree.setMenu(mTree);
     } else {
       wTree.setMenu(null);
@@ -785,7 +774,8 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void showTable(String tableName) {
     String sql = dbMeta.getSqlQueryFields(tableName);
-    GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
+    GetQueryFieldsProgressDialog pd =
+        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
     IRowMeta result = pd.open();
     if (result != null) {
       TransformFieldsDialog sfd =
@@ -795,7 +785,8 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showCount(String tableName) {
-    GetTableSizeProgressDialog pd = new GetTableSizeProgressDialog(shell, variables, dbMeta, tableName);
+    GetTableSizeProgressDialog pd =
+        new GetTableSizeProgressDialog(shell, variables, dbMeta, tableName);
     Long size = pd.open();
     if (size != null) {
       MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
@@ -808,12 +799,12 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getDDL(String tableName) {
-    Database db = new Database(loggingObject, variables, dbMeta );
+    Database db = new Database(loggingObject, variables, dbMeta);
     try {
       db.connect();
       IRowMeta r = db.getTableFields(tableName);
       String sql = db.getCreateTableStatement(tableName, r, null, false, null, true);
-      SqlEditor se = new SqlEditor( shell, SWT.NONE, variables, dbMeta, dbcache, sql);
+      SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
       se.open();
     } catch (HopDatabaseException dbe) {
       new ErrorDialog(
@@ -828,7 +819,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void getDDLForOther(String tableName) {
     if (databases != null) {
-      Database database = new Database(loggingObject, variables, dbMeta );
+      Database database = new Database(loggingObject, variables, dbMeta);
       try {
         database.connect();
 
@@ -856,9 +847,10 @@ public class DatabaseExplorerDialog extends Dialog {
         String target = enterSelectionDialog.open();
         if (target != null) {
           DatabaseMeta targetDatabaseMeta = DatabaseMeta.findDatabase(databaseMetaList, target);
-          Database targetDatabase = new Database(loggingObject, variables, targetDatabaseMeta );
+          Database targetDatabase = new Database(loggingObject, variables, targetDatabaseMeta);
 
-          String sql = targetDatabase.getCreateTableStatement(tableName, rowMeta, null, false, null, true);
+          String sql =
+              targetDatabase.getCreateTableStatement(tableName, rowMeta, null, false, null, true);
           SqlEditor sqlEditor = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
           sqlEditor.open();
         }
@@ -886,69 +878,10 @@ public class DatabaseExplorerDialog extends Dialog {
     sqlEditor.open();
   }
 
-  /**
-   * Fire off a pipeline that data profiles the specified table...<br>
-   *
-   * @param tableName
-   */
-  public void profileTable(String tableName) {
-    try {
-      PipelineProfileFactory profileFactory = new PipelineProfileFactory(variables, dbMeta, tableName);
-      PipelineMeta pipelineMeta = profileFactory.generatePipeline(new LoggingObject(tableName));
-      PipelinePreviewProgressDialog progressDialog =
-          new PipelinePreviewProgressDialog(
-              shell,
-              variables,
-              pipelineMeta,
-              new String[] {
-                PipelineProfileFactory.RESULT_TRANSFORM_NAME,
-              },
-              new int[] {
-                25000,
-              });
-      progressDialog.open();
-
-      if (!progressDialog.isCancelled()) {
-        Pipeline pipeline = progressDialog.getPipeline();
-        String loggingText = progressDialog.getLoggingText();
-
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
-
-        PreviewRowsDialog prd =
-            new PreviewRowsDialog(
-                shell,
-                variables,
-                SWT.NONE,
-                PipelineProfileFactory.RESULT_TRANSFORM_NAME,
-                progressDialog.getPreviewRowsMeta(PipelineProfileFactory.RESULT_TRANSFORM_NAME),
-                progressDialog.getPreviewRows(PipelineProfileFactory.RESULT_TRANSFORM_NAME),
-                loggingText);
-        prd.open();
-      }
-
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.UnexpectedProfilingError.Title"),
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.UnexpectedProfilingError.Message"),
-          e);
-    }
-  }
-
   public void getTruncate(String activeSchemaTable) {
     SqlEditor sql =
         new SqlEditor(
-          shell, SWT.NONE, variables, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable);
+            shell, SWT.NONE, variables, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable);
     sql.open();
   }
 

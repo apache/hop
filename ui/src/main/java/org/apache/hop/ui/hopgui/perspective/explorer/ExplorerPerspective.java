@@ -61,6 +61,7 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -85,6 +86,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -98,7 +100,7 @@ import java.util.Map;
 @GuiPlugin(description = "i18n::ExplorerPerspective.GuiPlugin.Description")
 public class ExplorerPerspective implements IHopPerspective {
 
-  public static final Class<?> PKG = ExplorerPerspective.class; //i18n
+  public static final Class<?> PKG = ExplorerPerspective.class; // i18n
 
   public static final String GUI_TOOLBAR_CREATED_CALLBACK_ID =
       "ExplorerPerspective-Toolbar-Created";
@@ -183,8 +185,8 @@ public class ExplorerPerspective implements IHopPerspective {
     return "explorer-perspective";
   }
 
-  @GuiKeyboardShortcut( control = true, shift = true, key = 'e')
-  @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'e')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'e')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'e')
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -201,7 +203,7 @@ public class ExplorerPerspective implements IHopPerspective {
       HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
     } else {
       ExplorerFile activeFile = getActiveFile();
-      boolean changed = activeFile!=null ? activeFile.isChanged() : false;
+      boolean changed = activeFile != null && activeFile.isChanged();
       HopGui.getInstance().handleFileCapabilities(explorerFileType, changed, false, false);
     }
   }
@@ -213,7 +215,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
-    return Arrays.asList(explorerFileType);
+    return Collections.singletonList(explorerFileType);
   }
 
   @Override
@@ -237,9 +239,9 @@ public class ExplorerPerspective implements IHopPerspective {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(new int[] {20, 80});
+    sash.setWeights(20, 80);
 
-    HopGuiKeyHandler.getInstance().addParentObjectToHandle( this );
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
   private void loadFileTypes() {
@@ -327,9 +329,10 @@ public class ExplorerPerspective implements IHopPerspective {
       rootName = ext.rootName;
     } catch (Exception e) {
       new ErrorDialog(
-          getShell(), BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Header")
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Message")
-              , e);
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RootFolder.Message"),
+          e);
     }
 
     if (!StringUtils.equals(oldRootFolder, rootFolder)
@@ -408,13 +411,23 @@ public class ExplorerPerspective implements IHopPerspective {
     try {
       TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(item, 0));
       if (tif != null && tif.fileType != null) {
-        tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
-        updateGui();
+        if (tif.fileType instanceof FolderFileType) {
+          // Expand the folder
+          //
+          boolean expanded = !item.getExpanded();
+          item.setExpanded(expanded);
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expanded);
+        } else {
+          tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
+          updateGui();
+        }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header")
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"),
+          e);
     }
   }
 
@@ -423,10 +436,14 @@ public class ExplorerPerspective implements IHopPerspective {
       TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(item, 0));
       if (tif != null && tif.fileType != null) {
 
-        MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-        box.setText( BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header") );
-        box.setMessage( BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message")
-                + Const.CR + Const.CR + tif.path );
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText(
+            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message")
+                + Const.CR
+                + Const.CR
+                + tif.path);
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
           FileObject fileObject = HopVfs.getFileObject(tif.path);
@@ -438,9 +455,11 @@ public class ExplorerPerspective implements IHopPerspective {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header")
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"),
+          e);
     }
   }
 
@@ -455,7 +474,7 @@ public class ExplorerPerspective implements IHopPerspective {
             onTabClose(event);
           }
         });
-    tabFolder.addListener(SWT.Selection, event -> handleTabSelectionEvent(event));
+    tabFolder.addListener(SWT.Selection, this::handleTabSelectionEvent);
     props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
@@ -484,7 +503,7 @@ public class ExplorerPerspective implements IHopPerspective {
   /**
    * Also select the corresponding file in the left hand tree...
    *
-   * @param event
+   * @param event The selection event
    */
   private void handleTabSelectionEvent(Event event) {
     if (event.item instanceof CTabItem) {
@@ -611,7 +630,8 @@ public class ExplorerPerspective implements IHopPerspective {
         tabFolder.setSelection(item);
         tabFolder.showItem(item);
 
-        HopGui.getInstance().handleFileCapabilities(explorerFileType, file.isChanged(), false, false);
+        HopGui.getInstance()
+            .handleFileCapabilities(explorerFileType, file.isChanged(), false, false);
       }
     }
   }
@@ -748,9 +768,11 @@ public class ExplorerPerspective implements IHopPerspective {
         TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell()
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header")
-              , BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"), e);
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          e);
     }
     ExplorerPerspective.getInstance().updateSelection();
   }
@@ -837,7 +859,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
   public void updateSelection() {
 
-    String objectKey = null;
+    String objectKey;
     TreeItemFolder tif = null;
 
     if (tree.getSelectionCount() > 0) {
@@ -926,14 +948,12 @@ public class ExplorerPerspective implements IHopPerspective {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @Override
   public List<ISearchable> getSearchables() {
-    List<ISearchable> searchables = new ArrayList<>();
-    return searchables;
+    return new ArrayList<>();
   }
 
   public void updateGui() {
@@ -943,7 +963,10 @@ public class ExplorerPerspective implements IHopPerspective {
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     hopGui
         .getDisplay()
-        .asyncExec(() -> hopGui.handleFileCapabilities(activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+        .asyncExec(
+            () ->
+                hopGui.handleFileCapabilities(
+                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
   }
 
   /**

@@ -20,13 +20,23 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.IEngineMeta;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -34,7 +44,13 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -55,10 +71,10 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -70,7 +86,13 @@ import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContex
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowNoteContext;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.*;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowActionDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
@@ -78,7 +100,12 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.*;
+import org.apache.hop.workflow.ActionResult;
+import org.apache.hop.workflow.IActionListener;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -90,17 +117,43 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles the display of Workflows in HopGui, in a graphical form.
@@ -1003,21 +1056,31 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         String message = null;
         switch (fSingleClickType) {
           case Workflow:
-            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
+            message =
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
             contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
             break;
           case Action:
-            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header", fSingleClickAction.getName());
+            message =
+                BaseMessages.getString(
+                    PKG,
+                    "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header",
+                    fSingleClickAction.getName());
             contextHandler =
                 new HopGuiWorkflowActionContext(workflowMeta, fSingleClickAction, this, real);
             break;
           case Note:
-            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
+            message =
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
             contextHandler =
                 new HopGuiWorkflowNoteContext(workflowMeta, fSingleClickNote, this, real);
             break;
           case Hop:
-            message = BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
+            message =
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
             contextHandler =
                 new HopGuiWorkflowHopContext(workflowMeta, fSingleClickHop, this, real);
             break;
@@ -1853,7 +1916,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-workflow-paste",
+      id = "workflow-graph-workflow-clipboard-paste",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.PasteFromClipboard.Text",
@@ -2522,8 +2585,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGui.getPerspectiveManager().findFileTypeHandler(referencedMeta);
       fileTypeHandler.openFile(hopGui, referencedMeta.getFilename(), hopGui.getVariables());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Header")
-              , BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Message"), e);
+      new ErrorDialog(
+          hopShell(),
+          BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Header"),
+          BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.FileNotLoaded.Message"),
+          e);
     }
   }
 
@@ -2562,8 +2628,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
     } catch (Exception ex) {
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header")
-              , BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"), ex);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header"),
+          BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"),
+          ex);
     }
   }
 
@@ -2614,12 +2683,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       List<ActionMeta> activeActions = new ArrayList<>();
       if (workflow != null) {
-        if (workflow.getActiveActionWorkflows().size() > 0) {
-          activeActions.addAll(workflow.getActiveActionWorkflows().keySet());
-        }
-        if (workflow.getActiveActionPipeline().size() > 0) {
-          activeActions.addAll(workflow.getActiveActionPipeline().keySet());
-        }
+        activeActions.addAll(workflow.getActiveActions());
       }
       workflowPainter.setActiveActions(activeActions);
 
@@ -2635,8 +2699,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   BasePropertyHandler.getProperty("WorkflowCanvas_image"),
                   getClass().getClassLoader());
           gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
-          gc.setBackground( IGc.EColor.BACKGROUND );
-          gc.drawText( BaseMessages.getString(PKG, "PipelineGraph.NewWorkflowBackgroundMessage"), 260, 220 );
+          gc.setBackground(IGc.EColor.BACKGROUND);
+          gc.drawText(
+              BaseMessages.getString(PKG, "PipelineGraph.NewWorkflowBackgroundMessage"), 260, 220);
         }
       } catch (HopException e) {
         throw new HopException("Error drawing workflow", e);
@@ -3373,7 +3438,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
      */
 
   public void close() {
-    perspective.remove( this );
+    perspective.remove(this);
   }
 
   @Override
@@ -3385,9 +3450,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-        messageDialog.setText(BaseMessages.getString(PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Header"));
+        messageDialog.setText(
+            BaseMessages.getString(PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Header"));
         messageDialog.setMessage(
-                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Message", buildTabName()));
+            BaseMessages.getString(
+                PKG, "HopGuiWorkflowGraph.SaveFile.Dialog.Message", buildTabName()));
         int answer = messageDialog.open();
         if ((answer & SWT.YES) != 0) {
           if (StringUtils.isEmpty(this.getFilename())) {

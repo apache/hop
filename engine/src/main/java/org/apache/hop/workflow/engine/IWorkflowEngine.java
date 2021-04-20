@@ -35,16 +35,16 @@ import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
-import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILoggingObject, INamedParameters {
+public interface IWorkflowEngine<T extends WorkflowMeta>
+    extends IVariables, ILoggingObject, INamedParameters {
 
   String getWorkflowName();
 
@@ -52,7 +52,7 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   Result getResult();
 
-  void setResult( Result result );
+  void setResult(Result result);
 
   void stopExecution();
 
@@ -62,45 +62,43 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   boolean isFinished();
 
-  void setFinished( boolean b );
+  void setFinished(boolean b);
 
   boolean isStopped();
 
-  void setStopped( boolean b );
+  void setStopped(boolean b);
 
-  void setLogLevel( LogLevel logLevel );
+  void setLogLevel(LogLevel logLevel);
 
   Date getExecutionStartDate();
 
   Date getExecutionEndDate();
 
-  void addWorkflowStartedListener( IExecutionStartedListener<IWorkflowEngine<T>> finishedListener );
+  void addWorkflowStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> finishedListener);
 
   List<IExecutionFinishedListener<IWorkflowEngine<T>>> getWorkflowFinishedListeners();
 
-  void addWorkflowFinishedListener( IExecutionFinishedListener<IWorkflowEngine<T>> finishedListener );
+  void addWorkflowFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> finishedListener);
 
   List<IExecutionStartedListener<IWorkflowEngine<T>>> getWorkflowStartedListeners();
 
   boolean isInteractive();
 
-  void setInteractive( boolean interactive );
+  void setInteractive(boolean interactive);
 
-  Map<ActionMeta, ActionPipeline> getActiveActionPipeline();
-
-  Map<ActionMeta, ActionWorkflow> getActiveActionWorkflows();
+  Set<ActionMeta> getActiveActions();
 
   Map<String, Object> getExtensionDataMap();
 
-  void addActionListener( IActionListener<T> refreshJobEntryListener );
+  void addActionListener(IActionListener<T> refreshJobEntryListener);
 
   List<IActionListener> getActionListeners();
 
-  void setStartActionMeta( ActionMeta actionMeta );
+  void setStartActionMeta(ActionMeta actionMeta);
 
   T getWorkflowMeta();
 
-  void setWorkflowMeta( T workflowMeta );
+  void setWorkflowMeta(T workflowMeta);
 
   WorkflowTracker getWorkflowTracker();
 
@@ -108,33 +106,33 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   ILogChannel getLogChannel();
 
-  void setWorkflowRunConfiguration( WorkflowRunConfiguration workflowRunConfiguration );
+  void setWorkflowRunConfiguration(WorkflowRunConfiguration workflowRunConfiguration);
 
   IWorkflowEngineRunConfiguration createDefaultWorkflowEngineRunConfiguration();
 
-  void setParentWorkflow( IWorkflowEngine<WorkflowMeta> workflow );
+  void setParentWorkflow(IWorkflowEngine<WorkflowMeta> workflow);
 
   IWorkflowEngine<WorkflowMeta> getParentWorkflow();
 
-  void setParentPipeline( IPipelineEngine<PipelineMeta> pipeline );
+  void setParentPipeline(IPipelineEngine<PipelineMeta> pipeline);
 
   IPipelineEngine<PipelineMeta> getParentPipeline();
 
   void setInternalHopVariables();
 
-  void setSourceRows( List<RowMetaAndData> sourceRows );
+  void setSourceRows(List<RowMetaAndData> sourceRows);
 
   void fireWorkflowFinishListeners() throws HopException;
 
   void fireWorkflowStartedListeners() throws HopException;
 
-  void setContainerId( String toString );
+  void setContainerId(String toString);
 
   String getContainerId();
 
   String getStatusDescription();
 
-  void setMetadataProvider( IHopMetadataProvider metadataProvider );
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 
   IHopMetadataProvider getMetadataProvider();
 }

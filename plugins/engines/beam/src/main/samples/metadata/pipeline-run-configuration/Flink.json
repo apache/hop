@@ -30,7 +30,6 @@
       "flinkLatencyTrackingInterval": ""
     }
   },
-  "name": "Flink",
   "configurationVariables": [
     {
       "name": "DATA_INPUT",
@@ -48,5 +47,6 @@
       "value": "${PROJECT_HOME}/beam/output"
     }
   ],
+  "name": "Flink",
   "description": ""
 }

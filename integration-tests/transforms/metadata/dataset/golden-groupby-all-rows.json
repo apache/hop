@@ -1,0 +1,232 @@
+{
+  "base_filename": "golden-groupby-all-rows.csv",
+  "name": "golden-groupby-all-rows",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "firstname"
+    },
+    {
+      "field_comment": "",
+      "field_length": 30,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "zip"
+    },
+    {
+      "field_comment": "",
+      "field_length": 8,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "city"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy/MM/dd",
+      "field_name": "birthdate"
+    },
+    {
+      "field_comment": "",
+      "field_length": 11,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "street"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "housenr"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "stateCode"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "count"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " 0000000000;-0000000000",
+      "field_name": "countDistinct"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "min"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "max"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "average"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "median"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "percentile90"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "firstNonNull"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "lastNonNull"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "firstValue"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "lastValue"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "stdDev"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "nrRows"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "percentile90NearestRank"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "stdDevSample"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "cumSum"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "0.000;-0.000",
+      "field_name": "cumAvg"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "linenr"
+    }
+  ],
+  "folder_name": ""
+}

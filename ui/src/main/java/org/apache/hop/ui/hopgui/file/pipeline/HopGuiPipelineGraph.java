@@ -21,15 +21,25 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.IEngineMeta;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -37,7 +47,16 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,7 +69,11 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
-import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.DatabaseImpact;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
@@ -60,27 +83,37 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.IRowDistribution;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.RowDistributionPluginType;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -91,18 +124,21 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.*;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineHopDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
-import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.DefaultToolTip;
@@ -112,19 +148,55 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -501,7 +573,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
     }
-    canvas.addKeyListener( this );
+    canvas.addKeyListener(this);
 
     setBackground(GuiResource.getInstance().getColorBackground());
 
@@ -3222,8 +3294,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   BasePropertyHandler.getProperty("PipelineCanvas_image"),
                   getClass().getClassLoader());
           gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
-          gc.setBackground( IGc.EColor.BACKGROUND );
-          gc.drawText(BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"), 260, 220 );
+          gc.setBackground(IGc.EColor.BACKGROUND);
+          gc.drawText(
+              BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"), 260, 220);
         }
 
       } catch (Exception e) {
@@ -3719,7 +3792,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public void close() {
-    perspective.remove( this );
+    perspective.remove(this);
   }
 
   @Override
@@ -3732,7 +3805,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.SaveFile.Dialog.Header"));
-        messageDialog.setMessage(BaseMessages.getString(PKG, "PipelineGraph.SaveFile.Dialog.Message", buildTabName()));
+        messageDialog.setMessage(
+            BaseMessages.getString(PKG, "PipelineGraph.SaveFile.Dialog.Message", buildTabName()));
         int answer = messageDialog.open();
         if ((answer & SWT.YES) != 0) {
           if (StringUtils.isEmpty(this.getFilename())) {
@@ -5133,48 +5207,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void copyTransformToClipboard(HopGuiPipelineTransformContext context) {
     pipelineClipboardDelegate.copySelected(
         pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList());
-  }
-
-  @GuiContextAction(
-      id = "pipeline-graph-transform-10300-copy-pipeline-action",
-      parentId = HopGuiPipelineContext.CONTEXT_ID,
-      type = GuiActionType.Modify,
-      name = "Copy as pipeline action",
-      tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
-      image = "ui/images/copy.svg",
-      category = "Basic",
-      categoryOrder = "1")
-  public void copyAsActionToClipboard(HopGuiPipelineContext context) {
-
-    ActionPipeline actionPipeline = new ActionPipeline(pipelineMeta.getName());
-
-    HopGuiFileOpenedExtension ext =
-        new HopGuiFileOpenedExtension(null, variables, pipelineMeta.getFilename());
-
-    // See if there are any plugins interested in manipulating the filename...
-    //
-    try {
-      ExtensionPointHandler.callExtensionPoint(
-          LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
-    } catch (Exception xe) {
-      LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
-    }
-
-    actionPipeline.setFileName(ext.filename);
-    ActionMeta actionMeta = new ActionMeta(actionPipeline);
-
-    StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
-    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
-        .append(Const.CR);
-    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
-        .append(Const.CR);
-    xml.append(actionMeta.getXml());
-    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
-        .append(Const.CR);
-    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
-        .append(Const.CR);
-
-    pipelineClipboardDelegate.toClipboard(xml.toString());
   }
 
   @Override

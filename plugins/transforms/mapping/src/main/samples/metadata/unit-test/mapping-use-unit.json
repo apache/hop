@@ -1,0 +1,99 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "first",
+          "data_set_field": "first"
+        },
+        {
+          "transform_field": "last",
+          "data_set_field": "last"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "resultName",
+          "data_set_field": "resultName"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Results",
+      "data_set_name": "mapping-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "firstName",
+          "data_set_field": "first"
+        },
+        {
+          "transform_field": "lastName",
+          "data_set_field": "last"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "resultName"
+        }
+      ],
+      "field_order": [
+        "first",
+        "last"
+      ],
+      "transform_name": "Mapping Output",
+      "data_set_name": "mapping-golden"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "first",
+          "data_set_field": "first"
+        },
+        {
+          "transform_field": "last",
+          "data_set_field": "last"
+        }
+      ],
+      "field_order": [
+        "first",
+        "last"
+      ],
+      "transform_name": "Data grid",
+      "data_set_name": "mapping-input"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "firstName",
+          "data_set_field": "first"
+        },
+        {
+          "transform_field": "lastName",
+          "data_set_field": "last"
+        }
+      ],
+      "field_order": [
+        "first",
+        "last"
+      ],
+      "transform_name": "Mapping Input",
+      "data_set_name": "mapping-input"
+    }
+  ],
+  "name": "mapping-use-unit",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./mapping/sub-mapping.hpl",
+  "test_type": "UNIT_TEST"
+}

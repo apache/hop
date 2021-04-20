@@ -38,9 +38,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Document;
@@ -168,12 +166,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     int repetitionNr = 0;
     while (repeat && !parentWorkflow.isStopped()) {
       repetitionNr++;
-      executionResult = executeTransformationOrWorkflow(
-        realFilename,
-        nr,
-        executionResult,
-        repetitionNr
-      );
+      executionResult =
+          executeTransformationOrWorkflow(realFilename, nr, executionResult, repetitionNr);
       Result result = executionResult.result;
       if (!result.getResult() || result.getNrErrors() > 0 || result.isStopped()) {
         log.logError(
@@ -237,10 +231,10 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       throws HopException {
     PipelineMeta pipelineMeta = loadPipeline(realFilename, getMetadataProvider(), this);
     IPipelineEngine<PipelineMeta> pipeline =
-        PipelineEngineFactory.createPipelineEngine( this,
-            runConfigurationName, getMetadataProvider(), pipelineMeta);
+        PipelineEngineFactory.createPipelineEngine(
+            this, runConfigurationName, getMetadataProvider(), pipelineMeta);
     pipeline.setParentWorkflow(getParentWorkflow());
-    pipeline.setParent( this );
+    pipeline.setParent(this);
     if (keepingValues && previousResult != null) {
       pipeline.copyFrom(previousResult.variables);
     } else {
@@ -248,7 +242,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
       // Also copy the parameters over...
       //
-      pipeline.copyParametersFromDefinitions( pipelineMeta);
+      pipeline.copyParametersFromDefinitions(pipelineMeta);
     }
     pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
     pipeline.setVariables(getVariablesMap(pipeline, previousResult));
@@ -326,7 +320,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   private Map<String, String> getVariablesMap(
-    INamedParameters namedParams, ExecutionResult previousResult) {
+      INamedParameters namedParams, ExecutionResult previousResult) {
     String[] params = namedParams.listParameters();
     Map<String, String> variablesMap = new HashMap<>();
 
@@ -350,13 +344,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       throws HopException {
 
     WorkflowMeta workflowMeta = loadWorkflow(realFilename, getMetadataProvider(), this);
-    IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine(
-      this,
-      runConfigurationName,
-      getMetadataProvider(),
-      workflowMeta,
-      this
-    );
+    IWorkflowEngine<WorkflowMeta> workflow =
+        WorkflowEngineFactory.createWorkflowEngine(
+            this, runConfigurationName, getMetadataProvider(), workflowMeta, this);
     workflow.setParentWorkflow(getParentWorkflow());
     workflow.setParentVariables(this);
     if (keepingValues && previousResult != null) {
@@ -373,7 +363,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     workflow.setVariables(getVariablesMap(workflow, previousResult));
 
     // TODO: check this!
-    INamedParameters previousParams = previousResult == null ? null : (INamedParameters) previousResult.variables;
+    INamedParameters previousParams =
+        previousResult == null ? null : (INamedParameters) previousResult.variables;
     IVariables previousVars = previousResult == null ? null : (IVariables) previousResult.variables;
     updateParameters(workflow, previousVars, getParentWorkflow(), previousParams);
 
@@ -420,9 +411,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   private void updateParameters(
-    INamedParameters subParams, IVariables subVars, INamedParameters... params) {
+      INamedParameters subParams, IVariables subVars, INamedParameters... params) {
     // Inherit
-    for ( INamedParameters param : params) {
+    for (INamedParameters param : params) {
       if (param != null) {
         // TODO : Merge
         // subParams.mergeParametersWith(param, true);
@@ -521,7 +512,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public void loadXml( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables )
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     super.loadXml(actionNode);
 
@@ -556,7 +547,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   public String[] getReferencedObjectDescriptions() {
     String referenceDescription;
     if (StringUtils.isEmpty(filename)) {
-      referenceDescription="";
+      referenceDescription = "";
     } else if (filename.toLowerCase().endsWith(".hpl")) {
       referenceDescription = "The repeating pipeline";
     } else if (filename.toLowerCase().endsWith(".hwf")) {
@@ -630,7 +621,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     WorkflowMeta workflowMeta = new WorkflowMeta(variables, realFilename, metadataProvider);
     return workflowMeta;
   }
-
 
   @Override
   public boolean isEvaluation() {

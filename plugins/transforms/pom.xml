@@ -18,15 +18,15 @@
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-transforms</artifactId>
   <version>0.99-SNAPSHOT</version>
-    <modules>
-    </modules>
-    <packaging>pom</packaging>
+  <modules>
+  </modules>
+  <packaging>pom</packaging>
 
   <name>Hop Plugins Transforms</name>
 
@@ -53,7 +53,7 @@
         </property>
       </activation>
       <modules>
-       <module>addsequence</module>
+        <module>addsequence</module>
       </modules>
     </profile>
 
@@ -118,6 +118,7 @@
         <module>getsubfolders</module>
         <module>gettablenames</module>
         <module>getvariable</module>
+        <module>groupby</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
@@ -145,6 +146,7 @@
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
+        <module>pipelineexecutor</module>
         <module>pgbulkloader</module>
         <module>pgp</module>
         <module>processfiles</module>
@@ -181,6 +183,7 @@
         <module>systemdata</module>
         <module>tablecompare</module>
         <module>tableexists</module>
+        <module>tableinput</module>
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
@@ -191,6 +194,7 @@
         <module>valuemapper</module>
         <module>webserviceavailable</module>
         <module>webservices</module>
+        <module>workflowexecutor</module>
         <module>writetolog</module>
         <module>xml</module>
         <module>yamlinput</module>
