@@ -42,5 +42,8 @@ ui:
 urls:
   redirect_facility: disabled
 
+runtime: 
+  fetch: true 
+
 output:
   dir: ./content

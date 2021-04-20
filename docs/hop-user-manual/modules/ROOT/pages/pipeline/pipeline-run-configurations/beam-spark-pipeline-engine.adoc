@@ -35,7 +35,7 @@ Check the https://beam.apache.org/documentation/runners/spark/[Apache Beam Spark
 
 === Options
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,3,1"]
 |===
 |Option|Description|Default
 |The Spark master|The url of the Spark Master. This is the equivalent of setting SparkConf#setMaster(String) and can either be local[x] to run local with x cores, spark://host:port to connect to a Spark Standalone cluster, mesos://host:port to connect to a Mesos cluster, or yarn to connect to a yarn cluster.|local[4]

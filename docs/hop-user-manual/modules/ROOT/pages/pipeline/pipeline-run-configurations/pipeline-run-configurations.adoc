@@ -32,7 +32,7 @@ All run configurations have a name, description and an engine type, each engine 
 
 Once created, run configurations are available from the 'Pipeline run configuration' list and are ready to use.
 
-image::run-configuration/configuration-selection.png[Hop Configuration Selection, 45% , align="left"]
+image:run-configuration/configuration-selection.png[Hop Configuration Selection, width=45%, align="left"]
 
 == Options
 
@@ -40,7 +40,7 @@ image::run-configuration/configuration-selection.png[Hop Configuration Selection
 
 The main tab contains the name, description and the dropdown list for the available engine types.
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,3"]
 |===
 |Option|Description
 |Name|The name you want to use for this pipeline run configuration.
@@ -52,8 +52,8 @@ The available engine types are:
 * *xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]*: this configuration runs pipelines on the direct Beam runner (mainly for testing purposes)
 * *xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]*: this configuration runs pipelines on Apache Flink over Apache Beam
 * *xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]*: this configuration runs pipelines on Apache Spark over Apache Beam
-* *xref:pipeline/pipeline-run-configurations/native-local.adoc[Hop local pipeline engine]*: this configuration runs pipelines locally in the native Hop engine
-* *xref:pipeline/pipeline-run-configurations/native-remote.adoc[Hop remote pipeline engine]*: this configuration runs pipelines in the native Hop engine on a remote machine
+* *xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Hop local pipeline engine]*: this configuration runs pipelines locally in the native Hop engine
+* *xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop remote pipeline engine]*: this configuration runs pipelines in the native Hop engine on a remote machine
 |===
 
 TIP: Check the link:https://beam.apache.org/documentation/runners/capability-matrix/[Beam Capability Matrix] to help you decide which Beam engine works best for your pipeline.
@@ -62,7 +62,7 @@ TIP: Check the link:https://beam.apache.org/documentation/runners/capability-mat
 
 This tab allows Hop developers to specify a set of variables to be used in the run configurations.
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,3"]
 |===
 |Option|Description
 |Variable name|A variable name.

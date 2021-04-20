@@ -32,19 +32,21 @@ All run configurations have a name, description and an engine type, each engine 
 
 Once created, run configurations are available from the 'Pipeline run configuration' list and are ready to use.
 
-image::hop-gui/workflow/workflow-run-configuration.png[Workflow Run configuration, 75%, align="left"]
+image:hop-gui/workflow/workflow-run-configuration.png[Workflow Run configuration, 65%, align="left"]
 
 == Options
 
 The tab contains the name, description and the dropdown list for the workflow engine types.
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,4"]
 |===
 |Option|Description
 |Name|The name you want to use for this workflow run configuration.
 |Description|A description you want to use for this workflow run configuration (optional).
-|Engine type a|
+|Engine type
+a|
 The available engine types are:
-*Local workflwo engine*: this configuration runs pipelines on your machine
-*Remote workflow engine*: this configuration runs workflows on a Hop Server using a defined Run Configuration.
+
+* Local workflwo engine*: this configuration runs pipelines on your machine
+* Remote workflow engine*: this configuration runs workflows on a Hop Server using a defined Run Configuration.
 |===

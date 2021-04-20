@@ -31,9 +31,23 @@ The Cloud Dataflow Runner and service are suitable for large scale continuous jo
 
 Check the https://cloud.google.com/dataflow/docs/guides/specifying-exec-params[Google DataFlow docs] and https://beam.apache.org/documentation/runners/dataflow/[Apache Beam DataFlow runner docs] for more information.
 
-=== Options
+== Google Dataflow Configuration
 
-[width="90%", options="header"]
+INFO: this configuration checklist was reprinted (copied) from the https://beam.apache.org/documentation/runners/dataflow/[Apache Beam documentation].
+
+To use the Google Cloud Dataflow runtime configuration, you must complete the setup in the _Before you begin_ section of the https://cloud.google.com/dataflow/docs/quickstarts[Cloud Dataflow quickstart] for your chosen language.
+
+* Select or create a Google Cloud Platform Console project.
+* Enable billing for your project.
+* Enable the required Google Cloud APIs: Cloud Dataflow, Compute Engine, Stackdriver Logging, Cloud Storage, Cloud Storage JSON, and Cloud Resource Manager. You may need to enable additional APIs (such as BigQuery, Cloud Pub/Sub, or Cloud Datastore) if you use them in your pipeline code.
+* Authenticate with Google Cloud Platform.
+* Install the Google Cloud SDK.
+* Create a Cloud Storage bucket.
+
+
+== Options
+
+[width="90%", options="header", cols="1, 3"]
 |===
 |Option|Description
 |Project ID|	The project ID for your Google Cloud Project. This is required if you want to run your pipeline using the Dataflow managed service.
@@ -69,7 +83,7 @@ Note: This option cannot be combined with workerRegion or zone.
 |XP plugin classes|List of extensions point plugins.
 |Streaming Hop transforms flush interval (ms)|The amount of time after which the internal buffer is sent completely over the network and emptied.
 |Hop streaming transforms buffer size|The internal buffer size to use.
-|Fat jar file location|Fat jar location.
+|Fat jar file location|Fat jar location. Generate a fat jar using `Tools -> Generate a Hop fat jar`. The generated fat jar file name will be copied to the clipboard.
 |===
 
 
