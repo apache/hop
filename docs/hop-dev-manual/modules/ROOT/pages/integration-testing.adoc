@@ -73,6 +73,8 @@ There are 2 ways the integration tests can be run oin your local system
 The entire test suite is available as a docker compose script to use this use following commands.
 This include all services available and needed for the tests.
 
+TIP: You need version 1.27.0 or higher of docker-compose
+
 . Clean build HOP
 +
 ----
@@ -85,9 +87,6 @@ mvn clean install
 ----
 docker-compose -f docker/integration-tests/docker-compose-ci.yaml up -d
 ----
-
-TIP: You need version 1.27.0 or higher of docker-compose
-
 +
 . Check the running container
 +
