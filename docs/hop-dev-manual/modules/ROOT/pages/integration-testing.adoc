@@ -85,6 +85,9 @@ mvn clean install
 ----
 docker-compose -f docker/integration-tests/docker-compose-ci.yaml up -d
 ----
+
+TIP: You need version 1.27.0 or higher of docker-compose
+
 +
 . Check the running container
 +
