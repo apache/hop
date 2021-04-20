@@ -1,7 +1,7 @@
 {
   "variableValues": [],
   "database_replacements": [],
-  "autoOpening": false,
+  "autoOpening": true,
   "basePath": "",
   "golden_data_sets": [
     {

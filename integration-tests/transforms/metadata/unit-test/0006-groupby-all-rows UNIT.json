@@ -1,7 +1,7 @@
 {
   "variableValues": [],
   "database_replacements": [],
-  "autoOpening": false,
+  "autoOpening": true,
   "basePath": "",
   "golden_data_sets": [
     {
@@ -132,6 +132,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0006-groupby-all-rows.hpl",
+  "pipeline_filename": "./0006-groupby-all-rows.hpl",
   "test_type": "UNIT_TEST"
 }

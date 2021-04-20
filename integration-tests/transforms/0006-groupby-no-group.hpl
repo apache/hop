@@ -180,6 +180,23 @@ when comparing data.</note>
     </GUI>
   </transform>
   <transform>
+    <name>Output</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>files/customers-100.txt</name>
     <type>CSVInput</type>
     <description/>
@@ -318,23 +335,6 @@ when comparing data.</note>
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Output</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>640</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
