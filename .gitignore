@@ -30,6 +30,7 @@ Relational Database Connection/
 integration-tests/surefire-reports
 integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
 **/*.json.old
+yarn-error.log
 
 docs/content
 docs/public

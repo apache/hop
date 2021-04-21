@@ -21,6 +21,13 @@ languageCode = "en-us"
 title = "Hop"
 relativeURLs = true
 disablePathToLower = true
-staticDir = ["content","static"]
+staticDir = ["static","content"]
 disableKinds = ["taxonomyTerm"]
 enableRobotsTXT = true
+
+[module]
+
+  [[module.mounts]]
+    source = "content/_/data"
+    target = "data"
+

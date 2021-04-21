@@ -20,12 +20,12 @@ under the License.
 
 == Local
 
-The local runner runs on the local Hop engine.
+The local runner runs on the local Hop engine. This is the runtime configuration you'll use when testing pipelines on your local machine while developing.
 
 
 === Options
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,3"]
 |===
 |Option|Description|Default
 |Row set size|The row set buffer size.|10.000

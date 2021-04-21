@@ -33,7 +33,7 @@ Using the Direct Runner for testing and development helps ensure that pipelines 
 
 === Options
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="1,3"]
 |===
 |Option|Description
 |Number of workers|The Number of threads or subprocesses is used to configure parallelism. From 2.22.0, direct_num_workers = 0 is supported. When direct_num_workers is set to 0, it will set the number of threads/subprocess to the number of cores of the machine where the pipeline is running.
