@@ -31,6 +31,8 @@ Please see the https://doris.apache.org[Apache Doris website] for more informati
 |Version Included | None
 |Hop Dependencies | None
 |Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/[Documentation Link]
-|JDBC Url | jdbc:mysql://hostname:33060/databaseName
+|JDBC Url | jdbc:mysql://hostname:9030/databaseName
 |===
+
+The port of JDBC Url is same as the query port of Frontend in Doris.
 
