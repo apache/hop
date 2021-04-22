@@ -44,6 +44,7 @@ under the License.
 *** xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark]
 *** xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local]
 *** xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Native Remote]
+** xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Tests]
 ** xref:pipeline/metadata-injection.adoc[Metadata Injection]
 ** xref:pipeline/partitioning.adoc[Partitioning]
 ** xref:pipeline/transforms.adoc[Transforms]
