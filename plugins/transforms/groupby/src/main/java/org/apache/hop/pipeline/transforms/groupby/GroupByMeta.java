@@ -52,8 +52,8 @@ import java.util.List;
 @Transform(
     id = "GroupBy",
     image = "groupby.svg",
-    name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.GroupBy",
-    description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.GroupBy",
+    name = "i18n::GroupBy.Name",
+    description = "i18n::GroupBy.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "")

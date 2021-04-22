@@ -52,8 +52,8 @@ import java.util.List;
 @Transform(
     id = "MongoDbInput",
     image = "mongodb-input.svg",
-    name = "MongoDB input",
-    description = "Reads from a Mongo DB collection",
+    name = "i18n::MongoDbInput.Name",
+    description = "i18n::MongoDbInput.Description",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodbinput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
