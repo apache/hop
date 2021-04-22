@@ -29,6 +29,7 @@ under the License.
 ** xref:hop-gui/perspectives.adoc[Perspectives]
 ** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
+** xref:hop-gui/hop-web.adoc[Hop Web (Experimental)]
 * xref:projects/index.adoc[Projects]
 ** xref:projects/projects-environments.adoc[Projects & Environments]
 ** xref:projects/metadata.adoc[Metadata]
