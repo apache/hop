@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.ui.pipeline.transforms.tableinput;
+package org.apache.hop.pipeline.transforms.tableinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
