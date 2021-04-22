@@ -75,9 +75,8 @@ import java.util.Map;
 @Transform(
     id = "WorkflowExecutor",
     image = "ui/images/workflowexecutor.svg",
-    name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.WorkflowExecutor",
-    description =
-        "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.WorkflowExecutor",
+    name = "i18n::WorkflowExecutor.Name",
+    description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "")
 public class WorkflowExecutorMeta extends BaseTransformMeta

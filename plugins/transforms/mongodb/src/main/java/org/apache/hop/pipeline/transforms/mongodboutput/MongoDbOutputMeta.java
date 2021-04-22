@@ -48,8 +48,8 @@ import java.util.List;
 @Transform(
     id = "MongoDbOutput",
     image = "mongodb-output.svg",
-    name = "MongoDB output",
-    description = "Writes to a Mongo DB collection",
+        name = "i18n::MongoDbOutput.Name",
+        description = "i18n::MongoDbOutput.Description",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodboutput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(

@@ -62,8 +62,8 @@ import java.util.List;
 @Transform(
     id = "TableInput",
     image = "tableinput.svg",
-    name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.TableInput",
-    description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.TableInput",
+    name = "i18n::TableInput.Name",
+    description = "i18n::TableInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "input, sql")
 @InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
