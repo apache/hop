@@ -37,8 +37,7 @@ Hop unit tests can speed up development in a number of cases:
 
 Hop uses the following concepts (metadata objects) to work with pipeline unit tests:
 
-* Data Set group : A grouping of data sets, links to a database where the data sets are stored.
-* Data set : A set of rows with a certain layout stored in a database table. When used as input we call it an input data set. When used to validate a transform's output we call it a _golden_ data set.
+* Data set : A set of rows with a certain layout, stored in a CSV data set. When used as input we call it an input data set. When used to validate a transform's output we call it a _golden_ data set.
 * Unit test tweak: the ability to remove or bypass a transform during a test
 * Unit test: The combination of input data sets, golden data sets, tweaks and a pipeline.
 
