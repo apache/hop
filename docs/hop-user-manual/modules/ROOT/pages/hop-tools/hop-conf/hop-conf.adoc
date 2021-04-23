@@ -187,13 +187,20 @@ The available options are listed below:
 |-pt|--project-department=<projectDepartment>|The department
 |-pu|--project-unit-tests-base=<projectUnitTestsBasePath>|The unit tests base folder (relative to home)
 |-px|--project-enforce-execution=<projectEnforceExecutionInHome>|Validate before execution that a workflow or pipeline islocated in the project home folder or a sub-folder (true/false)
-|-sv|--set-variable=<setVariable>|Set a variable, use format VAR=Value
+|-sv
+| --set-variable=<setVariable>
+a| Set a variable, use format VAR=Value
+
+TIP: `-sv` can be used to unset a variable by specifying a variable without a value, e.g. `-sv=myvar=`
+
 |-cfg|--config-file=<configFile>|Specify the configuration JSON file to manage
 |-cfd|--config-file-describe-variables=<configDescribeVariables>[,<configDescribeVariables>...]|A list of variable=description combinations separated by a comma
 |-cfv|--config-file-set-variables=<configSetVariables> ,<configSetVariables>...]|A list of variable=value combinations separated by a comma
 |-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
 |===
+
+
 
 == Project Usage and Configuration
 
