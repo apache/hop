@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
         description = "Subscribe to data from a Pub/Sub topic",
         image = "beam-gcp-pubsub-subscribe.svg",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamsubscriber.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamgcpsubscriber.html"
 )
 public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMeta<BeamSubscribe, BeamSubscribeData> {
 

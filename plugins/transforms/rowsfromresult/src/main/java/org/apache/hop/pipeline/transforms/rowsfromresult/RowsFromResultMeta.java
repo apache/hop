@@ -53,7 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.RowsFromResult",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/rowsfromresult.html")
+        "https://hop.apache.org/manual/latest/plugins/transforms/getrowsfromresult.html")
 public class RowsFromResultMeta extends BaseTransformMeta
     implements ITransformMeta<RowsFromResult, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator

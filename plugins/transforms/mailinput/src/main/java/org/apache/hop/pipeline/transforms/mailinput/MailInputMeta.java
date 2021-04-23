@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.MailInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.MailInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mailinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/emailinput.html")
 public class MailInputMeta extends BaseTransformMeta
     implements ITransformMeta<MailInput, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
