@@ -59,7 +59,7 @@ import java.util.Map;
     name = "i18n::GetXMLData.name",
     description = "i18n::GetXMLData.description",
     categoryDescription = "i18n::GetXMLData.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getxmldata.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getdatafromxml.html")
 public class GetXmlDataMeta extends BaseTransformMeta
     implements ITransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator

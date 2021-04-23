@@ -51,7 +51,7 @@ import java.util.List;
     description = "i18n::GoogleSheetsInput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/google-sheets-input.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsinput.html")
 @InjectionSupported(
     localizationPrefix = "GoogleSheetsInput.injection.",
     groups = {"SHEET", "INPUT_FIELDS"})

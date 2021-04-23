@@ -45,7 +45,7 @@ import java.util.Objects;
         description = "i18n::BaseTransform.TypeTooltipDesc.DropboxOutput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
         documentationUrl =
-                "https://hop.apache.org/manual/latest/plugins/transforms/dropboxoutput.html"
+                "https://hop.apache.org/manual/latest/pipeline/transforms/dropboxoutput.html"
 )
 public class DropboxOutputMeta extends BaseTransformMeta implements ITransformMeta<DropboxOutput, DropboxOutputData> {
 

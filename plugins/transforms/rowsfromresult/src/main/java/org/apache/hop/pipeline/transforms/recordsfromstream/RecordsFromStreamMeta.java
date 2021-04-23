@@ -27,5 +27,5 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
     description = "i18n::RecordsFromStream.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/recordsfromstream.html")
+        "https://hop.apache.org/manual/latest/plugins/transforms/getrecordsfromstream.html")
 public class RecordsFromStreamMeta extends RowsFromResultMeta {}
