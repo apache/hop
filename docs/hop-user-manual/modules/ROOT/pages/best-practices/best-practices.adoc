@@ -77,7 +77,7 @@ xref:variables.adoc[Variables] provide an easy way to avoid hard-coding all sort
 
 == Logging
 
-Take some time to capture the logging of your workflows and pipelines.  Any time you run anything you want to have a trace of it.  Things tend to go wrong when you least expect it and at that point you like being able to see what happened.  See xref:logging/logging-basics.adoc[Logging Basics], xref:logging/logging-reflection.adoc[Logging Reflection] or consider logging to a xref:technology/neo4j/neo4j-info.adoc[Neo4j] graph database.  This last one allows you to browse the logging results in the Neo4j perspective.
+Take some time to capture the logging of your workflows and pipelines.  Any time you run anything you want to have a trace of it.  Things tend to go wrong when you least expect it and at that point you like being able to see what happened.  See xref:logging/logging-basics.adoc[Logging Basics], xref:logging/logging-reflection.adoc[Logging Reflection] or consider logging to a xref:technology/neo4j/index.adoc[Neo4j] graph database.  This last one allows you to browse the logging results in the Neo4j perspective.
 
 == Mappings
 
