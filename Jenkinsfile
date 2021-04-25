@@ -82,10 +82,8 @@ pipeline {
         }
         stage('Get POM Version') {
             when {
-                not {
-                    changeset 'docs/**'
+                  changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
                 }
-            }
             steps{
                 script {
                     env.POM_VERSION = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
@@ -95,10 +93,8 @@ pipeline {
         }
         stage('Test & Build') {
             when {
-                not {
-                    changeset 'docs/**'
+                 changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
                 }
-            }
             steps {
                 echo 'Test & Build'
 
@@ -117,11 +113,8 @@ pipeline {
         }
         stage('Unzip Apache Hop'){
             when {
-                branch 'master'
-                not {
-                    changeset 'docs/**'
+                  changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
                 }
-            }
             steps{
                 sh "unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
                 sh "unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
@@ -131,9 +124,7 @@ pipeline {
         stage('Build Hop Docker Image') {
             when {
                 branch 'master'
-                not {
-                    changeset 'docs/**'
-                }
+                changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
             }
             steps {
                 echo 'Building Hop Docker Image'
@@ -149,9 +140,7 @@ pipeline {
         stage('Build Hop Web Docker Image') {
             when {
                 branch 'master'
-                not {
-                    changeset 'docs/**'
-                }
+                changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
             }
             steps {
                 echo 'Building Hop Web Docker Image'
@@ -168,9 +157,7 @@ pipeline {
         stage('Deploy'){
             when {
                 branch 'master'
-                not {
-                    changeset 'docs/**'
-                }
+                changeset pattern: "^(?!docs).*$" , comparator: "REGEXP"
             }
             steps{
                 echo 'Deploying'
