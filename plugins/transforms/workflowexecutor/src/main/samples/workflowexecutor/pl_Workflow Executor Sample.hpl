@@ -24,21 +24,21 @@
   <order>
     <hop>
       <from>pass parameters</from>
-      <to>wf_get_list_of_transformations</to>
+      <to>wf_get_list_of_pipelines</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>wf_get_list_of_transformations</from>
+      <from>wf_get_list_of_pipelines</from>
       <to>Result files</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>wf_get_list_of_transformations</from>
+      <from>wf_get_list_of_pipelines</from>
       <to>Result rows</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>wf_get_list_of_transformations</from>
+      <from>wf_get_list_of_pipelines</from>
       <to>Results</to>
       <enabled>Y</enabled>
     </hop>
@@ -136,7 +136,7 @@
     </GUI>
   </transform>
   <transform>
-    <name>wf_get_list_of_transformations</name>
+    <name>wf_get_list_of_pipelines</name>
     <type>WorkflowExecutor</type>
     <description/>
     <distribute>Y</distribute>
