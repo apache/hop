@@ -1,0 +1,47 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+= Salesforce Delete
+
+The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service. You can delete a batch of records by indicating a starting point (Fieldname id) and the amount of records (Batch Size) to delete.
+
+You can also use the following other transforms to modify your Salesforce database:
+
+* xref:pipeline/transforms/salesforceinput.adoc[Salesforce Input]: Reads records directly from your Salesforce database.
+* xref:pipeline/transforms/salesforceinsert.adoc[Salesforce Insert]: Inserts records directly into your Salesforce database.
+* xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
+* xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]: Updates existing records and inserts new records into your Salesforce database.
+
+== General
+
+Enter the following information in the transform name field:
+
+* Transform name: Specifies the unique name of the Salesforce Delete transform on the canvas. You can customize the name or leave it as the default.
+
+include::salesforce-connection.adoc[]
+
+include::salesforce-settings.adoc[]
+
+[options="noheader", width="90%"]
+|===
+|Fieldname id a| Select the name of the field containing the Salesforce ID of the first record in the set of records (batch) you want to delete. +
+
+NOTE: This list is populated with field names received from the previous transform in a pipeline. For example, you can use the Salesforce Input transform to get field names.
+
+|===

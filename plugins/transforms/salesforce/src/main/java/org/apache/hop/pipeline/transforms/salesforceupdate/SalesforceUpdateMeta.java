@@ -43,7 +43,7 @@ import java.util.List;
     description = "i18n::SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFUD.svg",
-    documentationUrl = "Products/Salesforce_Update" )
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforceupdate.html" )
 public class SalesforceUpdateMeta extends SalesforceTransformMeta<SalesforceUpdate,SalesforceUpdateData> {
   private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 

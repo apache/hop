@@ -46,7 +46,7 @@ import java.util.List;
   description = "i18n::SalesforceInsert.TypeTooltipDesc.SalesforceInsert",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
   image = "FFO.svg",
-  documentationUrl = "Products/Salesforce_Insert" )
+  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforceinsert.html" )
 public class SalesforceInsertMeta extends SalesforceTransformMeta<SalesforceInsert, SalesforceInsertData> {
   private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 

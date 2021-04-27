@@ -53,7 +53,7 @@ import java.util.List;
   description = "i18n::SalesforceInput.TypeTooltipDesc.SalesforceInput",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
   image = "SFI.svg",
-  documentationUrl = "Products/Salesforce_Input" )
+  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforceinput.html" )
 @InjectionSupported( localizationPrefix = "SalesforceInputMeta.Injection.", groups = { "FIELDS" } )
 public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput, SalesforceInputData> {
   public static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

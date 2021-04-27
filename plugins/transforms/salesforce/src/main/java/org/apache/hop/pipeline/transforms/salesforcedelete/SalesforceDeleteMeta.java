@@ -43,7 +43,7 @@ import java.util.List;
   description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
   image = "SFD.svg",
-  documentationUrl = "Products/Salesforce_Delete" )
+  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforcedelete.html" )
 public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
   private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
