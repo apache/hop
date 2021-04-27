@@ -1,0 +1,137 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+= Salesforce Input
+
+The Salesforce Input transform reads data directly from Salesforce using the Salesforce Web Service.
+
+You can also use the following transforms for various ways to modify your Salesforce database:
+
+* xref:pipeline/transforms/salesforceinsert.adoc[Salesforce Insert]: Inserts records directly into your Salesforce database
+* xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
+* xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]: Updates existing records and inserts new records into your Salesforce database.
+* xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]: Deletes records directly from your Salesforce database.
+
+== General
+
+Enter the following information in the transform name field:
+
+* Transform name: Specifies the unique name of the Salesforce Input transform on the canvas. You can customize the name or leave it as the default.
+
+== Options
+
+include::salesforce-connection.adoc[]
+
+== Settings
+
+In this panel, you can set the module to query from as well as the query conditions.
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Specify query|Select this check box to manually execute a query based on your own SOQL statements.
+|Module a| Select the module (table) from which you want to retrieve data. +
+
+NOTE: This list will be populated upon successfully authenticating to Salesforce using the Test Connection button.
+
+|Query Condition a| Enter any query filters you want to apply. Variables are allowed. For example, 'fieldname=myvalue AND fieldname2=myvalue2'. +
+
+NOTE: You do not need to include WHERE in your condition statement.
+
+|===
+
+== Content Tab
+
+The content tab allows you to optionally include additional descriptive fields in the result set.
+
+=== Advanced
+
+Use these options to further refine the data returned from the queries specified in the Settings tab. For example, you may want to only query deleted records within a specified date range. The Advanced panel includes the following fields:
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Retrieve|Select which records you want to retrieve to further define your pool of data. You can select All, Updated, or Deleted.
+|Query all records|Select the check box to query all the records you are retrieving. Clear the check box to use the date fields (below) to define a range of records to query.
+|Start date|Specify the starting date for retrieving the records in the date range. The format is 'yyyy-MM-dd HH:mm:ss'.
+|End date|Specify the end date for retrieving the records in the date range. The format is 'yyyy-MM-dd HH:mm:ss'.
+|===
+
+=== Additional Fields
+
+This panel includes the following fields:
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Include URL in output? & URL fieldname|Select this check box, then enter the URL used to retrieve the data.
+|Include Module in output? & Module fieldname|Select this check box, then enter the name of the module from which the data was retrieved.
+|Include SQL in output? & SQL fieldname|Select this check box, then enter the SQL used to generate the result set.
+|Include timestamp in output? & Timestamp fieldname|Select this check box, then enter the timestamp for when the record was retrieved.
+|Include Rownum in output? & Rownum fieldname| Select this check box, then enter the row number for each record retrieved.
+|Include deletion date in output? & Deletion date fieldname a| Select this check box, then enter the deletion date for when the record was removed. +
+
+NOTE: This set of fields is only enabled when the Advanced> Retrieve option is set to ‘Deleted’.
+
+|===
+
+
+=== Other fields
+
+Enter information for the remaining fields on the Content tab.
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Time out |Specify the timeout interval in milliseconds before the transform times out.
+|Use compression|Select to compress (.gzip) the data when connecting between Hop and Salesforce.
+|Limit a| Specify the maximum number of records to retrieve. +
+
+NOTE: When you set the limit to '0', there is no limit on the number of records that can be retrieved.
+
+|===
+
+
+== Fields tab
+
+The fields tab displays the fields that are read from the Salesforce module selected on the Settings tab. You will need to go to the Fields tab and press the Get Fields button to populate the fields returned before you can preview the rows returned.
+
+The following are the properties display in the Fields tab:
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Name|The name of the input field.
+|Field|The name of the field that contains the record.
+|IsIdLookup?|Specify if the field will be used as a fieldname ID (links to an External ID) when accessing the database to perform other calls, such as delete, insert, update, and upsert. Select ‘Y’(es) or ‘N’(o).
+|Type|The data type of the field.
+|Format|An optional mask for converting the format of the original field.
+|Length a| The length of the field depends on the following field types:
+
+* Number: Total number of significant figures in a number
+* String: Total length of string
+* Date: Length of printed output of the string (for example, four is a length for a year)
+
+|Precision|Number of floating point digits for number-type fields.
+|Currency |Symbol used to represent currencies ($5,000.00 or €5.000,00 for example).
+|Decimal|A decimal point can be a "." or "," (5,000.00 or 5.000,00 for example).
+|Group |A grouping can be a "," or "." (5,000.00 or 5.000,00 for example).
+|Trim type|The trimming method to apply to a string. Trimming only works when no field length is specified.
+|Repeat|If the corresponding value in this row is empty, repeat the one from the last time it was not empty. Select ‘Y’(es) or ‘N’(o).
+|===
