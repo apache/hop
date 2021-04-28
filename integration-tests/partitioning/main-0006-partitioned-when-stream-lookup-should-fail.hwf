@@ -32,7 +32,6 @@
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>128</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -67,7 +66,6 @@
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>336</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -99,7 +97,6 @@ for (var i = 0 ; i&lt;expectedValues.length ; i++) {
 
 ok;</script>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>576</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -111,7 +108,6 @@ ok;</script>
       <attributes/>
       <message>This pipeline should fail</message>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>576</xloc>
       <yloc>176</yloc>
       <attributes_hac/>
@@ -146,7 +142,6 @@ ok;</script>
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>816</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -163,7 +158,7 @@ var txt = previous_result.getLogText();
 var ok = true;
 
 var expectedValues = [ 
-   "The source transform to read from [lookup] can't be executed in multiple (3) copies.  Insert a Dummy transform to resolve this situation",
+   "Insert a Dummy transform to resolve this situation",
    "ERROR",
  ];
 
@@ -178,7 +173,6 @@ for (var i = 0 ; i&lt;expectedValues.length ; i++) {
 
 ok;</script>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>1056</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -190,7 +184,6 @@ ok;</script>
       <attributes/>
       <message>This pipeline should fail</message>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>1056</xloc>
       <yloc>176</yloc>
       <attributes_hac/>
@@ -200,8 +193,6 @@ ok;</script>
     <hop>
       <from>START</from>
       <to>0006-partitioned-when-stream-lookup-should-fail.hpl</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
@@ -209,8 +200,6 @@ ok;</script>
     <hop>
       <from>0006-partitioned-when-stream-lookup-should-fail.hpl</from>
       <to>Check pipeline log</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>
@@ -218,8 +207,6 @@ ok;</script>
     <hop>
       <from>0006-partitioned-when-stream-lookup-should-fail.hpl</from>
       <to>Fail</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -227,8 +214,6 @@ ok;</script>
     <hop>
       <from>0006-partitioned-when-stream-lookup-should-fail2.hpl</from>
       <to>Check pipeline log 2</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>
@@ -236,8 +221,6 @@ ok;</script>
     <hop>
       <from>Check pipeline log</from>
       <to>0006-partitioned-when-stream-lookup-should-fail2.hpl</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -245,8 +228,6 @@ ok;</script>
     <hop>
       <from>0006-partitioned-when-stream-lookup-should-fail2.hpl</from>
       <to>Fail 2</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
