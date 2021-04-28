@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,6 @@ package org.apache.hop.workflow.engines.remote;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.parameters.INamedParameterDefinitions;
-import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.NamedParameters;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -36,8 +31,12 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,8 +44,10 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.remote.RemotePipelineEngine;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.IDelegationListener;
@@ -59,9 +60,9 @@ import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
+import org.apache.hop.www.HopServerWorkflowStatus;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
-import org.apache.hop.www.HopServerWorkflowStatus;
 import org.apache.hop.www.WebResult;
 
 import java.util.ArrayList;
@@ -73,7 +74,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @WorkflowEnginePlugin(
     id = "Remote",
@@ -93,6 +93,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected WorkflowMeta workflowMeta;
   protected String pluginId;
   protected WorkflowRunConfiguration workflowRunConfiguration;
+  protected RemoteWorkflowRunConfiguration remoteWorkflowRunConfiguration;
   protected Result previousResult;
   protected Result result;
   protected IHopMetadataProvider metadataProvider;
@@ -218,7 +219,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         throw new HopException(
             "The remote workflow engine expects a remote workflow configuration");
       }
-      RemoteWorkflowRunConfiguration remoteWorkflowRunConfiguration =
+      remoteWorkflowRunConfiguration =
           (RemoteWorkflowRunConfiguration) workflowRunConfiguration.getEngineRunConfiguration();
 
       String hopServerName = remoteWorkflowRunConfiguration.getHopServerName();
@@ -314,7 +315,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         logChannel.logBasic(
             workflowStatus
                 .getLoggingString()); // TODO implement detailed logging and add option to log at
-                                      // all
+        // all
       }
       finished = workflowStatus.isFinished();
       stopped = workflowStatus.isStopped();
@@ -369,22 +370,16 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
-      // Inject certain internal variables to make it more intuitive.
-      //
-      for (String var : Const.INTERNAL_PIPELINE_VARIABLES) {
-        executionConfiguration.getVariablesMap().put(var, getVariable(var));
-      }
-      for (String var : Const.INTERNAL_WORKFLOW_VARIABLES) {
-        executionConfiguration.getVariablesMap().put(var, getVariable(var));
-      }
-      // Overwrite with all the other variables we know off
+      // Add current variables to the configuration
       //
       for (String var : getVariableNames()) {
-        executionConfiguration.getVariablesMap().put(var, getVariable(var));
+        if (RemotePipelineEngine.isVariablePassedToRemoteServer(var)) {
+          executionConfiguration.getVariablesMap().put(var, getVariable(var));
+        }
       }
 
-      if (executionConfiguration.isPassingExport()) {
-        // First export the workflow... hopServer.getVariable("MASTER_HOST")
+      if (remoteWorkflowRunConfiguration.isExportingResources()) {
+        // First export the workflow...
         //
         FileObject tempFile =
             HopVfs.createTempFile("workflowExport", ".zip", System.getProperty("java.io.tmpdir"));
@@ -395,8 +390,11 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
                 workflowMeta,
                 this,
                 metadataProvider,
-                executionConfiguration.getXml(),
-                CONFIGURATION_IN_EXPORT_FILENAME);
+                executionConfiguration,
+                CONFIGURATION_IN_EXPORT_FILENAME,
+                remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
+                remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
+                executionConfiguration.getVariablesMap());
 
         // Send the zip file over to the hop server...
         String result =
@@ -437,7 +435,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         throw new HopException(
             "There was an error starting the workflow on the remote server: "
                 + Const.CR
-                + webResult.getMessage());
+                + webResult.getMessage().replace('\t', '\n'));
       }
     } catch (HopException ke) {
       throw ke;
