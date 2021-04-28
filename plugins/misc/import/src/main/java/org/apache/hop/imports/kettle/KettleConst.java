@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ public class KettleConst {
                   "step_performance_capturing_size_limit",
                   "transform_performance_capturing_size_limit"
                 },
-                { "target_step_name", "target_transform_name"},
+                {"target_step_name", "target_transform_name"},
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
                 // jobs
                 {"job", "workflow"},
@@ -52,9 +52,9 @@ public class KettleConst {
                 {"target_step", "target_transform"},
                 {"step1", "transform1"},
                 {"step2", "transform2"},
-                {"accept_stepname","accept_transform_name"},
-                {"steps","transforms"},
-                {"default_target_step","default_target_transform"},
+                {"accept_stepname", "accept_transform_name"},
+                {"steps", "transforms"},
+                {"default_target_step", "default_target_transform"},
                 {"input_step", "input_transform"},
                 {"output_step", "output_transform"},
                 // UDJC
@@ -103,18 +103,20 @@ public class KettleConst {
               new Object[][] {
                 {"JOB", "WORKFLOW"},
                 {"TRANS", "PIPELINE"},
-                {"PARENT_JOB","PARENT_WORKFLOW"},
-                {"GP_JOB","GP_WORKFLOW"},
-                {"ROOT_JOB","ROOT_WORKFLOW"},
-                {"BlockingStep","BlockingTransform"},
+                {"PARENT_JOB", "PARENT_WORKFLOW"},
+                {"GP_JOB", "GP_WORKFLOW"},
+                {"ROOT_JOB", "ROOT_WORKFLOW"},
+                {"BlockingStep", "BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
                 {"StepMetastructure", "TransformMetaStructure"},
                 {"Pentaho local", "local"},
                 {"JobExecutor", "WorkflowExecutor"},
-                {"execution_result_target_step","execution_result_target_transform"},
+                {"execution_result_target_step", "execution_result_target_transform"},
                 {"TransExecutor", "PipelineExecutor"},
-                {"Mapping", "SimpleMapping"}
+                {"Mapping", "SimpleMapping"},
+                // Text File Input deprecated
+                {"TextFileInput", "TextFileInput2"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 

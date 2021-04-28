@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -3855,7 +3855,7 @@ public class PipelineMeta extends AbstractMeta
       String baseName;
       String originalPath;
       String fullname;
-      String extension = "ktr";
+      String extension = "hpl";
       if (StringUtils.isNotEmpty(getFilename())) {
         FileObject fileObject = HopVfs.getFileObject(variables.resolve(getFilename()));
         originalPath = fileObject.getParent().getURL().toString();
@@ -3870,7 +3870,11 @@ public class PipelineMeta extends AbstractMeta
           // If we do this once, it will be plenty :-)
           //
           PipelineMeta pipelineMeta = (PipelineMeta) this.realClone(false);
-          // pipelineMeta.copyVariablesFrom(variables);
+
+          // Set an appropriate name
+          //
+          pipelineMeta.setNameSynchronizedWithFilename(false);
+          pipelineMeta.setName(getName());
 
           // Add used resources, modify pipelineMeta accordingly
           // Go through the list of transforms, etc.
@@ -3889,17 +3893,6 @@ public class PipelineMeta extends AbstractMeta
           // inside of the pipeline.
           //
           pipelineMeta.setFilename(exportFileName);
-
-          // Set a number of parameters for all the data files referenced so far...
-          //
-          Map<String, String> directoryMap = iResourceNaming.getDirectoryMap();
-          if (directoryMap != null) {
-            for (String directory : directoryMap.keySet()) {
-              String parameterName = directoryMap.get(directory);
-              pipelineMeta.addParameterDefinition(
-                  parameterName, directory, "Data file path discovered during export");
-            }
-          }
 
           // At the end, add ourselves to the map...
           //

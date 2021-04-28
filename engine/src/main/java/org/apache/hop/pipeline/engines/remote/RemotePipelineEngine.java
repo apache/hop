@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.engines.remote;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -102,6 +103,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected PipelineMeta subject;
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;
+  protected RemotePipelineRunConfiguration remotePipelineRunConfiguration;
   protected boolean preparing;
   protected boolean readyToStart;
   protected boolean running;
@@ -192,7 +194,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         throw new HopException(
             "The remote pipeline engine expects a remote pipeline configuration");
       }
-      RemotePipelineRunConfiguration remotePipelineRunConfiguration =
+      remotePipelineRunConfiguration =
           (RemotePipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
       String hopServerName = remotePipelineRunConfiguration.getHopServerName();
@@ -275,16 +277,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     //
     Map<String, String> vars = new HashMap<>();
 
-    for (String var : Const.INTERNAL_PIPELINE_VARIABLES) {
-      vars.put(var, getVariable(var));
-    }
-    for (String var : Const.INTERNAL_WORKFLOW_VARIABLES) {
-      vars.put(var, getVariable(var));
-    }
     // Overwrite with all the other variables we know off
     //
     for (String var : getVariableNames()) {
-      vars.put(var, getVariable(var));
+      if (isVariablePassedToRemoteServer(var)) {
+        vars.put(var, getVariable(var));
+      }
     }
 
     executionConfiguration.getVariablesMap().putAll(vars);
@@ -311,8 +309,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                 pipelineMeta,
                 this,
                 metadataProvider,
-                clonedConfiguration.getXml(),
-                CONFIGURATION_IN_EXPORT_FILENAME);
+                clonedConfiguration,
+                CONFIGURATION_IN_EXPORT_FILENAME,
+                remotePipelineRunConfiguration.getNamedResourcesSourceFolder(),
+                remotePipelineRunConfiguration.getNamedResourcesTargetFolder(),
+                executionConfiguration.getVariablesMap());
 
         // Send the zip file over to the hop server...
         //
@@ -383,7 +384,62 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
-  private String cleanupMessage( String message ) {
+  public static boolean isVariablePassedToRemoteServer(String var) {
+    if (StringUtils.isEmpty(var)) {
+      return false;
+    }
+    // JRE/JVM stuff
+    if (var.startsWith("java.")
+        || var.startsWith("file.")
+        || var.startsWith("awt.")
+        || var.startsWith("line.")
+        || var.startsWith("org.eclipse.")
+        || var.startsWith("sun.")
+        || var.startsWith("user.")
+        || var.startsWith("os.")
+        || var.startsWith("path.separator")
+        || var.startsWith("javax.")) {
+      return false;
+    }
+    // Internal variables get resolved automatically
+    if (Const.indexOfString(var, Const.INTERNAL_WORKFLOW_VARIABLES) >= 0) {
+      return false;
+    }
+    if (Const.indexOfString(var, Const.INTERNAL_PIPELINE_VARIABLES) >= 0) {
+      return false;
+    }
+    // These are used at startup and shouldn't have an effect at runtime.
+    // e.g. to be configured on the server
+    //
+    if (HopVariablesList.getInstance().getVariablesSet().contains(var)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_CONFIG_FOLDER)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_AUDIT_FOLDER)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_PLATFORM_OS)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_PLATFORM_RUNTIME)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_SHARED_JDBC_FOLDER)) {
+      return false;
+    }
+    if (var.equals(Const.HOP_SIMPLE_STACK_TRACES)) {
+      return false;
+    }
+    if (var.equals("LOG_PATH")) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private String cleanupMessage(String message) {
     return message.replace("\t", Const.CR);
   }
 
