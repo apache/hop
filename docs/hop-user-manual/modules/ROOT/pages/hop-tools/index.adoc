@@ -21,9 +21,9 @@ Even though Hop developers will spend the majority of their time in Hop Gui, Hop
 This page provides an overview of the tools that are available in the platform.
 
 * xref:hop-tools/hop-conf/hop-conf.adoc[Hop Conf]
-* Hop Encrypt
-* Hop Gui
-* Hop Run
+* xref:hop-tools/hop-encrypt.adoc[Hop Encrypt]
+* xref:hop-gui/[Hop Gui]
+* xref:hop-run/index.adoc[Hop Run]
 * xref:hop-tools/hop-search.adoc[Hop Search]
-* Hop Server
-* Hop Translator
+* xref:hop-server/index.adoc[Hop Server]
+* https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Hop Translator]
