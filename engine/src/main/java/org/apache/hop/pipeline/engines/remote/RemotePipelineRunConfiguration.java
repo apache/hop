@@ -92,9 +92,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
       label =
-          "i18n:org.apache.hop.ui.workflow.config:PipelineRunConfigurationDialog.NamedResourceSourceFolder.Label",
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceSourceFolder.Label",
       toolTip =
-          "i18n:org.apache.hop.ui.workflow.config:PipelineRunConfigurationDialog.NamedResourceSourceFolder.ToolTip")
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceSourceFolder.ToolTip")
   @HopMetadataProperty(key = "resources_source_folder")
   protected String namedResourcesSourceFolder;
 
@@ -103,9 +103,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
       label =
-          "i18n:org.apache.hop.ui.workflow.config:PipelineRunConfigurationDialog.NamedResourceTargetFolder.Label",
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceTargetFolder.Label",
       toolTip =
-          "i18n:org.apache.hop.ui.workflow.config:PipelineRunConfigurationDialog.NamedResourceTargetFolder.ToolTip")
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceTargetFolder.ToolTip")
   @HopMetadataProperty(key = "resources_target_folder")
   protected String namedResourcesTargetFolder;
 

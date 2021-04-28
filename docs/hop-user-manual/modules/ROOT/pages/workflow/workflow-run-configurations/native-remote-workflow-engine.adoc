@@ -14,13 +14,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-[[RemotePipelineEngine]]
+[[RemoteWorkflowEngine]]
 :imagesdir: ../assets/images
-= Remote Pipeline Engine
+= Remote Workflow Engine
 
-== Hop Remote pipeline engine
+== Hop Remote workflow engine
 
-The remote run configuration runs pipelines on a remote Hop Server.
+The remote run configuration runs workflows on a remote Hop Server.
 
 This run configuration requires little configuration, but has two prerequisites:
 
@@ -34,11 +34,12 @@ This run configuration requires little configuration, but has two prerequisites:
 |Option|Description
 
 |Hop server
-|The remote Hop server to run this pipeline on.
+|The remote Hop server to run your workflow on.
 
 |Run Configuration
 |The configuration to use on the remote Hop Server.
-In a lot of configurations, this will be a local (locally on the server) runtime configuration, but could be any other runtime configuration, e.g. a Spark runtime configuration that is started from a Spark cluster edge node
+In most configurations, this will be a local (locally on the server) runtime configuration.
+In rare cases you might want to run on yet another server using another remote workflow configuration.
 
 |Server poll delay (ms)
 |The delay in milliseconds between periodic polls to the remote server.
@@ -49,7 +50,7 @@ If you don't specify a value this defaults to 1000ms (1 second)
 If you don't specify a value this defaults to 2000ms (2 seconds)
 
 |Export linked resources to server?
-|Enable this option if you want to not only send the current pipeline to the server but also the referenced workflows and pipelines.
+|Enable this option if you want to not only send the current workflow to the server but also other referenced workflows and pipelines.
 See below for detailed information
 
 |Named resources reference source folder
@@ -64,13 +65,13 @@ See below for detailed information.
 
 === Export linked resources to server
 
-This option sends not just the parent pipeline to the server but also all other referenced pipelines and workflows.
-For example if you have mapping pipelines or workflows referenced they will be sent to the server as well.
-All the used pipelines and workflows together with the XML presentation of the pipeline execution configuration will be sent over to the server in the form of a ZIP archive.
-The server receives this archive and without unzipping runs the pipeline.
+This option sends not just the parent workflow to the server but also all other referenced pipelines and workflows.
+For example if you have pipelines or workflows referenced in actions they will be sent to the server as well.
+All the used pipelines and workflows together with the XML presentation of the workflow execution configuration will be sent over to the server in the form of a ZIP archive.
+The server receives this archive and without unzipping runs the workflow.
 To make this function correctly, Hop changes the references as well as references to filenames.
-For example `${PROJECT_HOME}/mapping.hpl` will be changed to `${Internal.Entry.Current.Folder}/mapping.hpl`.
-This means that it will try to use a relative path to the parent file.
+For example `${PROJECT_HOME}/update-dimensions.hwf` will be changed to `${Internal.Entry.Current.Folder}/update-dimensions.hwf`.
+As you can see Hop will try to use a relative path to the parent file.
 
 If you have are using data files then those file names will be renamed as well.
 For example, you might be reading a file called `${PROJECT_HOME}/files/bigfile.csv` in a `CSV File Input` transform.
