@@ -18,5 +18,11 @@ under the License.
 
 = Samples
 
-Coming soon.
+Hop comes with a set of samples for workflows, pipelines, actions, transforms and other metadata objects.
+
+This `samples` project is included in your Hop installation in the `config/projects/samples` folder. You can open individual sample workflows or pipelines, or add a xref:projects/index.adoc[Hop project], pointing the project's home directory to the `samples` folder.
+
+The samples project is work in progress. More samples will gradually be added until feature completeness.
+
+The project's folder structure may change over time, but is intended to be self-explanatory: you'll find sample workflows and pipelines along with samples that have been organized in folder by action or transform name. For example, the 'workflowexecutor' folder contains a workflow and pipeline that show how to use the workflow executor transform (to execute workflows) in a pipeline.
 

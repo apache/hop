@@ -391,7 +391,6 @@ under the License.
 //::=END AUTO GENERATED LINKS
 ** xref:plugins/external-plugins.adoc[External Plugins]
 * xref:samples/samples.adoc[Samples]
-** xref:samples/dummy-sample.adoc[Dummy Sample]
 * xref:technology/technology.adoc[Technology]
 ** xref:technology/azure/index.adoc[Azure]
 ** xref:technology/cassandra/index.adoc[Cassandra]
@@ -402,4 +401,5 @@ under the License.
 ** xref:hop-server/web-service.adoc[Web Service]
 * xref:hop-tools/index.adoc[Hop Tools]
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
+** xref:hop-tools/hop-encrypt.adoc[hop-encrypt]
 ** xref:hop-tools/hop-search.adoc[hop-search]
