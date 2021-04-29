@@ -8,120 +8,37 @@
     height="42px"
     viewBox="0 0 42 42"
     enable-background="new 0 0 42 42"
-    xml:space="preserve"
->
-  <g><ellipse
-       fill="#3F6380"
-       cx="20.375"
-       cy="19.542"
-       rx="13.041"
-       ry="13.124"
-        />
-    <ellipse
-        fill="#1DB24B"
-        stroke="#FFFFFF"
-        stroke-width="0.5"
-        stroke-miterlimit="10"
-        cx="27.458"
-        cy="16.333"
-        rx="7.208"
-        ry="7.167"
-    />
-    <ellipse
-        fill="#1DB24B"
-        stroke="#FFFFFF"
-        stroke-width="0.5"
-        stroke-miterlimit="10"
-        cx="18.042"
-        cy="30.582"
-        rx="5.875"
-        ry="5.834"
-    />
-    <ellipse
-        fill="#1DB24B"
-        stroke="#FFFFFF"
-        stroke-width="0.5"
-        stroke-miterlimit="10"
-        cx="13.092"
-        cy="9.583"
-        rx="4.075"
-        ry="4"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="18.99"
-        cy="8.667"
-        rx="1.052"
-        ry="1.083"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="21.705"
-        cy="9.583"
-        rx="1.052"
-        ry="1.083"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="11.928"
-        cy="15.229"
-        rx="1.052"
-        ry="1.083"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="12.115"
-        cy="18.062"
-        rx="1.052"
-        ry="1.083"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="12.761"
-        cy="21.105"
-        rx="1.052"
-        ry="1.083"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="14.22"
-        cy="23.834"
-        rx="1.052"
-        ry="1.082"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="27.199"
-        cy="25.334"
-        rx="1.053"
-        ry="1.082"
-    />
-    <ellipse
-        fill="#FFFFFF"
-        cx="25.304"
-        cy="27.584"
-        rx="1.052"
-        ry="1.082"
-    /></g>
+    xml:space="preserve">
+<path
+    d="m 29.439031,10.018441 c -6.517532,0 -10.891303,3.794707 -10.891303,11.156187 v 5.248524 a 4.9281901,4.9281901 0 0 1 2.125281,-0.505142 4.8604275,4.8604275 0 0 1 2.131442,0.492822 v -5.260845 c 0,-4.774184 2.636582,-7.225957 6.65306,-7.225957 4.016472,0 6.616094,2.451773 6.616094,7.225957 v 11.470365 h 4.244401 V 21.149987 c 0.01235,-7.404606 -4.36145,-11.131546 -10.878975,-11.131546 z"
+    style="stroke-width:0.61602378"/>
+  <path
+      style="fill:#018bff;stroke-width:0.61602378"
+      d="m 20.4882,27.267105 a 3.5975788,3.5975788 0 0 0 -2.180722,0.739226 l -3.99183,-2.728984 a 3.6961425,3.6961425 0 0 0 0.135521,-0.979476 3.62838,3.62838 0 1 0 -3.634538,3.585258 3.579098,3.579098 0 0 0 2.180722,-0.739225 l 3.979511,2.747463 a 3.62838,3.62838 0 0 0 0,1.965112 l -3.991832,2.72899 a 3.579098,3.579098 0 0 0 -2.168401,-0.73923 3.6345401,3.6345401 0 1 0 3.628379,3.628378 3.6961425,3.6961425 0 0 0 -0.129362,-0.967156 l 3.99183,-2.728984 a 3.5975788,3.5975788 0 0 0 2.180722,0.739225 3.6345401,3.6345401 0 0 0 0,-7.250597 z"
+  />
   <g
-      style="fill:#000000;fill-opacity:1"
-      transform="matrix(1.4651144,0,0,1.4651144,1.6924848,-1.0729779)"><rect
-       x="4.2020001"
-       y="10.417"
-       width="7.4809999"
-       height="1.2359999"
-       style="fill:#000000;fill-opacity:1" />
+      style="fill:#018bff;fill-opacity:1;stroke:#018bff;stroke-width:0.04436514;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+      transform="matrix(1.4175392,0,0,1.4175392,-0.97170832,-2.3250353)"
+  ><rect
+     x="4.2020001"
+     y="10.417"
+     width="7.4809999"
+     height="1.2359999"
+     style="fill:#018bff;fill-opacity:1;stroke:#018bff;stroke-width:0.04436514;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+     />
     <rect
         x="10.448"
         y="4.171"
         width="1.235"
         height="7.4819999"
-        style="fill:#000000;fill-opacity:1"/>
+        style="fill:#018bff;fill-opacity:1;stroke:#018bff;stroke-width:0.04436514;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+    />
     <rect
         x="1.095"
         y="6.3940001"
         transform="matrix(-0.707,-0.7072,0.7072,-0.707,7.0628,16.9487)"
         width="11.894"
         height="1.234"
-        style="fill:#000000;fill-opacity:1"/></g>
+        style="fill:#018bff;fill-opacity:1;stroke:#018bff;stroke-width:0.04436556;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+    /></g>
 </svg>

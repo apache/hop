@@ -9,8 +9,7 @@
     height="42px"
     viewBox="0 0 42 42"
     enable-background="new 0 0 42 42"
-    xml:space="preserve"
->
+    xml:space="preserve">
 <g>
 	<path fill="none" d="M32.333,11.86H9.101v2.614h23.232V11.86z M30.998,13.737h-2.369v-1.199h2.369V13.737z"/>
   <polygon fill="#0E3A5A" points="36.76,33.147 36.76,36.229 31.535,31.004 30.191,32.348 35.418,37.574 32.271,37.575
