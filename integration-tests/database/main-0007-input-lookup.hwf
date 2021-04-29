@@ -27,7 +27,7 @@
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>64</xloc>
-      <yloc>48</yloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -56,7 +56,7 @@
       </parameters>
       <parallel>N</parallel>
       <xloc>352</xloc>
-      <yloc>48</yloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -85,7 +85,7 @@
       </parameters>
       <parallel>N</parallel>
       <xloc>640</xloc>
-      <yloc>48</yloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -96,7 +96,7 @@
       <message/>
       <parallel>N</parallel>
       <xloc>640</xloc>
-      <yloc>160</yloc>
+      <yloc>176</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -125,7 +125,7 @@
       </parameters>
       <parallel>N</parallel>
       <xloc>928</xloc>
-      <yloc>48</yloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
   </actions>
