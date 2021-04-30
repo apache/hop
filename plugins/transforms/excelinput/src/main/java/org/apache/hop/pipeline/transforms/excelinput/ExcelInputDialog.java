@@ -981,14 +981,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         SpreadSheetType type = SpreadSheetType.getStpreadSheetTypeByDescription( wSpreadSheetType.getText() );
         switch ( type ) {
           case SAX_POI:
-            extentions = new String[] { "*.xlsx;*.XLSX", "*" };
+            extentions = new String[] { "*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*" };
             break;
           case ODS:
             extentions = new String[] { "*.ods;*.ODS;", "*" };
             break;
           case POI:
           default:
-            extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX", "*" };
+            extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*" };
             break;
         }
 
