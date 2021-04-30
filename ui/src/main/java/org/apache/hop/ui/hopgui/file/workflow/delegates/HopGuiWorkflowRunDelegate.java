@@ -88,7 +88,7 @@ public class HopGuiWorkflowRunDelegate {
 
     if ( !workflowMeta.isShowDialog() || dialog.open() ) {
 
-      workflowGraph.workflowLogDelegate.addJobLog();
+      workflowGraph.workflowLogDelegate.addWorkflowLog();
 
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, workflowGraph.getVariables(), HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id, executionConfiguration );
 

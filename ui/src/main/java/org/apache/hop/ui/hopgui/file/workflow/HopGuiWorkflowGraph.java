@@ -3411,7 +3411,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       tabItemSelection = extraViewTabFolder.getSelection();
     }
 
-    workflowLogDelegate.addJobLog();
+    workflowLogDelegate.addWorkflowLog();
     workflowGridDelegate.addWorkflowGrid();
 
     if (tabItemSelection != null) {

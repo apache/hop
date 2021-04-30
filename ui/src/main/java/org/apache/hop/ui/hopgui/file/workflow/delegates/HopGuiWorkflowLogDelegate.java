@@ -75,7 +75,7 @@ public class HopGuiWorkflowLogDelegate {
     this.workflowGraph = workflowGraph;
   }
 
-  public void addJobLog() {
+  public void addWorkflowLog() {
     // First, see if we need to add the extra view...
     //
     if (workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed()) {
@@ -106,7 +106,7 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    jobLogText = new Text(jobLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    jobLogText = new Text(jobLogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     hopGui.getProps().setLook(jobLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
@@ -154,7 +154,7 @@ public class HopGuiWorkflowLogDelegate {
   private void addToolBar() {
     toolbar =
         new ToolBar(
-            jobLogComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL);
+            jobLogComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -253,7 +253,7 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   /** @return the workflow log tab */
-  public CTabItem getJobLogTab() {
+  public CTabItem getWorkflowLogTab() {
     return jobLogTab;
   }
 
