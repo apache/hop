@@ -94,7 +94,7 @@
         </connection>
       </connections>
       <parallel>N</parallel>
-      <xloc>268</xloc>
+      <xloc>192</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -113,6 +113,22 @@
       </fields>
       <parallel>N</parallel>
       <xloc>1084</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>SQL</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/script1.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>336</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -140,15 +156,22 @@
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Check DB connections</from>
-      <to>Table exists</to>
+      <from>Columns exist in a table</from>
+      <to>Truncate tables</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Columns exist in a table</from>
-      <to>Truncate tables</to>
+      <from>Check DB connections</from>
+      <to>SQL</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>SQL</from>
+      <to>Table exists</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

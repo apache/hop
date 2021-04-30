@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow>
-  <name>main-0007-input-lookup</name>
+  <name>main-0009-database-join</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -27,105 +27,7 @@
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>64</xloc>
-      <yloc>64</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0007-database-lookup.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0007-database-lookup.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>352</xloc>
-      <yloc>64</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0007-database-lookup-should-fail.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0007-database-lookup-should-fail.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>640</xloc>
-      <yloc>64</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort workflow</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <message/>
-      <parallel>N</parallel>
-      <xloc>640</xloc>
-      <yloc>176</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0007-database-lookup-empty-result.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0007-database-lookup-empty-result.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>928</xloc>
-      <yloc>64</yloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -140,33 +42,99 @@
       <sendOneStatement>F</sendOneStatement>
       <connection>unit-test-db</connection>
       <parallel>N</parallel>
-      <xloc>176</xloc>
-      <yloc>64</yloc>
+      <xloc>208</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009-database-join-normal</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0009-database-join-normal.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009-database-join-outer</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0009-database-join-outer.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>624</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009-database-join-parameter</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0009-database-join-parameter.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
-    <hop>
-      <from>0007-database-lookup.hpl</from>
-      <to>0007-database-lookup-should-fail.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0007-database-lookup-should-fail.hpl</from>
-      <to>Abort workflow</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0007-database-lookup-should-fail.hpl</from>
-      <to>0007-database-lookup-empty-result.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
     <hop>
       <from>Start</from>
       <to>SQL</to>
@@ -176,7 +144,21 @@
     </hop>
     <hop>
       <from>SQL</from>
-      <to>0007-database-lookup.hpl</to>
+      <to>0009-database-join-normal</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-database-join-normal</from>
+      <to>0009-database-join-outer</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-database-join-outer</from>
+      <to>0009-database-join-parameter</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

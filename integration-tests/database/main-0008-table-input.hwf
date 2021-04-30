@@ -55,7 +55,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>240</xloc>
+      <xloc>400</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -84,7 +84,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>448</xloc>
+      <xloc>608</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -113,19 +113,28 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>704</xloc>
+      <xloc>864</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>SQL</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/script2.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
-    <hop>
-      <from>Start</from>
-      <to>0008-table-input.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
     <hop>
       <from>0008-table-input.hpl</from>
       <to>0008-table-input-with-parameter.hpl</to>
@@ -136,6 +145,20 @@
     <hop>
       <from>0008-table-input-with-parameter.hpl</from>
       <to>0008-table-input-with-variable.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>SQL</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>SQL</from>
+      <to>0008-table-input.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
