@@ -104,7 +104,7 @@ for d in "${CURRENT_DIR}"/../*/ ; do
         #
         # TODO: add hpl support when result is returned correctly
         #
-        find $d -name 'main*.hwf' | while read f ; do
+        find $d -name 'main*.hwf' | sort | while read f ; do
 
             #cleanup temp files
             rm -f /tmp/test_output

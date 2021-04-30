@@ -15,6 +15,8 @@ specific language governing permissions and limitations
 under the License.
 */
 
+DROP TABLE IF EXISTS public.testtable;
+
 CREATE TABLE public.testtable (
 	"key" varchar NULL,
 	value varchar NULL

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>0006-update</name>
+    <name>0006-insert-update-update</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -24,7 +24,7 @@
   <order>
     <hop>
       <from>Data grid</from>
-      <to>Update</to>
+      <to>Insert / update</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -92,8 +92,8 @@
     </GUI>
   </transform>
   <transform>
-    <name>Update</name>
-    <type>Update</type>
+    <name>Insert / update</name>
+    <type>InsertUpdate</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -103,11 +103,8 @@
       <schema_name/>
     </partitioning>
     <connection>unit-test-db</connection>
-    <skip_lookup>N</skip_lookup>
     <commit>100</commit>
-    <use_batch>N</use_batch>
-    <error_ignored>N</error_ignored>
-    <ignore_flag_field/>
+    <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>public</schema>
       <table>testtable</table>
@@ -118,13 +115,19 @@
         <name2/>
       </key>
       <value>
+        <name>key</name>
+        <rename>key</rename>
+        <update>N</update>
+      </value>
+      <value>
         <name>value</name>
         <rename>value</rename>
+        <update>Y</update>
       </value>
     </lookup>
     <attributes/>
     <GUI>
-      <xloc>384</xloc>
+      <xloc>440</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
