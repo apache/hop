@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.0//EN" "report.dtd">
+<report name="Integration Test Coverage">
+    <package name="Plugins">
+        <class name="Transform">
+            <method name="Abort" desc="Abort Running Pipeline" line="0">
+                <counter type="METHOD" missed="0" covered="1"/>
+            </method>
+        </class>
+    </package>
+
+</report>
