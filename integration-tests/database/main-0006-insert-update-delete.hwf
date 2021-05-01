@@ -55,7 +55,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>400</xloc>
+      <xloc>256</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -75,7 +75,7 @@
       <add_rows_result>N</add_rows_result>
       <clear_result_rows>Y</clear_result_rows>
       <parallel>N</parallel>
-      <xloc>1088</xloc>
+      <xloc>880</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -104,7 +104,7 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>1252</xloc>
+      <xloc>1008</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -125,7 +125,7 @@ where value = 'aa'</custom_sql>
       <add_rows_result>N</add_rows_result>
       <clear_result_rows>Y</clear_result_rows>
       <parallel>N</parallel>
-      <xloc>1648</xloc>
+      <xloc>1328</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -154,7 +154,7 @@ where value = 'aa'</custom_sql>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>658</xloc>
+      <xloc>464</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -183,7 +183,7 @@ where value = 'aa'</custom_sql>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>912</xloc>
+      <xloc>720</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -199,7 +199,7 @@ where value = 'aa'</custom_sql>
       <sendOneStatement>F</sendOneStatement>
       <connection>unit-test-db</connection>
       <parallel>N</parallel>
-      <xloc>262</xloc>
+      <xloc>160</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -228,7 +228,57 @@ where value = 'aa'</custom_sql>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>1450</xloc>
+      <xloc>1168</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0006-delete</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0006-delete.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>1440</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check deleted</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>unit-test-db</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>0</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>select * from public.testtable
+where key = '10'</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1568</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -286,6 +336,20 @@ where value = 'aa'</custom_sql>
     <hop>
       <from>0006-insert-update-update</from>
       <to>check new value</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check new value</from>
+      <to>0006-delete</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0006-delete</from>
+      <to>check deleted</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
