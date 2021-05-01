@@ -113,7 +113,7 @@ pipeline {
     }
     post {
         always {
-            publishCoverage adapters: [jacocoAdapter('integration-tests/jacoco/jacoco.xml')]
+            publishCoverage adapters: [jacoco('integration-tests/jacoco/jacoco.xml')]
             cleanWs()
             emailext(
                 subject: '${DEFAULT_SUBJECT}',
