@@ -374,6 +374,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         }
         wPath.setText(filename);
       }
+      if (filename != null) {
+        replaceNameWithBaseFilename(filename);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           shell,
