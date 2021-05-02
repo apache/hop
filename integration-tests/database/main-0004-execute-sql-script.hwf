@@ -46,6 +46,46 @@
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>send as single statement</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>drop table if exists t;
+drop table if exists tt;
+
+select 1 as a, 2 as b into t;
+select 3 as aa, 4 as bb into tt;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/script1.sql</sqlfilename>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>368</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Multiple statements</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>drop table if exists t;
+drop table if exists tt;
+
+select 1 as a, 2 as b into t;
+select 3 as aa, 4 as bb into tt;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/script1.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -54,6 +94,20 @@
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>SQL</from>
+      <to>send as single statement</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>send as single statement</from>
+      <to>Multiple statements</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

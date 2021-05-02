@@ -1494,7 +1494,7 @@ public class Database implements IVariables, ILoggingObject {
 
         if (!Const.onlySpaces(stat)) {
           String sql = Const.trim(stat);
-          if (sql.toUpperCase().startsWith("SELECT")) {
+          if (sql.toUpperCase().startsWith("SELECT") && !sql.toUpperCase().matches("(?is)^(select\\s.*\\sinto\\s).*")) {
             // A Query
             if (log.isDetailed()) {
               log.logDetailed("launch SELECT statement: " + Const.CR + sql);
