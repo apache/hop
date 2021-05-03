@@ -59,7 +59,7 @@ Note: Only integer values for B are supported. If you need non-integer calculati
 |Month of date A|Calculate number the month of date A.
 |Day of year of date|A Calculate the day of year (1-365).
 |Day of month of date A|Calculate the day of month (1-31).
-|Day of week of date A|Calculate the day of week (1-7).
+|Day of week of date A|Calculate the day of week (1-7). 1 is Sunday, 2 is Monday, etc.
 |Week of year of date A|Calculate the week of year (1-54).
 |ISO8601 Week of year of date A|Calculate the week of the year ISO8601 style (1-53).
 |ISO8601 Year of date A|Calculate the year ISO8601 style.
