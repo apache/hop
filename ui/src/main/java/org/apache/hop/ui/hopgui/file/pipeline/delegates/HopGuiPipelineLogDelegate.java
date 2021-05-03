@@ -110,7 +110,7 @@ public class HopGuiPipelineLogDelegate {
     toolbar.setLayoutData(fd);
 
     pipelineLogText =
-        new Text(pipelineLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        new Text(pipelineLogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     hopGui.getProps().setLook(pipelineLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
@@ -159,8 +159,7 @@ public class HopGuiPipelineLogDelegate {
   private void addToolBar() {
     toolbar =
         new ToolBar(
-            pipelineLogComposite,
-            SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL);
+            pipelineLogComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
