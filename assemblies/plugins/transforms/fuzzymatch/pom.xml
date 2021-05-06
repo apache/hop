@@ -42,5 +42,10 @@
             <artifactId>hop-transform-fuzzymatch</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.wcohen</groupId>
+            <artifactId>com.wcohen.secondstring</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 </project>
