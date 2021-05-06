@@ -1,0 +1,72 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "match",
+          "data_set_field": "match"
+        },
+        {
+          "transform_field": "measure value",
+          "data_set_field": "measure value"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "zip"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Output",
+      "data_set_name": "golden-fuzzymatch"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-fuzzymatch UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0007-fuzzymatch.hpl",
+  "test_type": "UNIT_TEST"
+}
