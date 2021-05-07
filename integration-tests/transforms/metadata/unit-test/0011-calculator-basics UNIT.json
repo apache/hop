@@ -1,0 +1,126 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "constInt",
+          "data_set_field": "constInt"
+        },
+        {
+          "transform_field": "constStr",
+          "data_set_field": "constStr"
+        },
+        {
+          "transform_field": "intA",
+          "data_set_field": "intA"
+        },
+        {
+          "transform_field": "intA*A",
+          "data_set_field": "intA*A"
+        },
+        {
+          "transform_field": "intAPlusB",
+          "data_set_field": "intAPlusB"
+        },
+        {
+          "transform_field": "intATimesB",
+          "data_set_field": "intATimesB"
+        },
+        {
+          "transform_field": "intB",
+          "data_set_field": "intB"
+        },
+        {
+          "transform_field": "intC",
+          "data_set_field": "intC"
+        },
+        {
+          "transform_field": "intCDivA",
+          "data_set_field": "intCDivA"
+        },
+        {
+          "transform_field": "intCMinusB",
+          "data_set_field": "intCMinusB"
+        },
+        {
+          "transform_field": "intPctAofB",
+          "data_set_field": "intPctAofB"
+        },
+        {
+          "transform_field": "intSqrt(a)",
+          "data_set_field": "intSqrt(a)"
+        },
+        {
+          "transform_field": "numA",
+          "data_set_field": "numA"
+        },
+        {
+          "transform_field": "numA*A",
+          "data_set_field": "numA*A"
+        },
+        {
+          "transform_field": "numADivB",
+          "data_set_field": "numADivB"
+        },
+        {
+          "transform_field": "numAPlusB",
+          "data_set_field": "numAPlusB"
+        },
+        {
+          "transform_field": "numATimesB",
+          "data_set_field": "numATimesB"
+        },
+        {
+          "transform_field": "numB",
+          "data_set_field": "numB"
+        },
+        {
+          "transform_field": "numC",
+          "data_set_field": "numC"
+        },
+        {
+          "transform_field": "numCMinusB",
+          "data_set_field": "numCMinusB"
+        },
+        {
+          "transform_field": "numPctAofB",
+          "data_set_field": "numPctAofB"
+        },
+        {
+          "transform_field": "numSqrt(a)",
+          "data_set_field": "numSqrt(a)"
+        },
+        {
+          "transform_field": "strA",
+          "data_set_field": "strA"
+        },
+        {
+          "transform_field": "strAPlusB",
+          "data_set_field": "strAPlusB"
+        },
+        {
+          "transform_field": "strB",
+          "data_set_field": "strB"
+        }
+      ],
+      "field_order": [
+        "intA",
+        "intB",
+        "intC"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-calculator-basics"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-calculator-basics UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0011-calculator-basics.hpl",
+  "test_type": "UNIT_TEST"
+}

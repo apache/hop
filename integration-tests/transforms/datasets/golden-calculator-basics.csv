@@ -1,0 +1,2 @@
+intA,intB,intC,numA,numB,numC,strA,strB,constStr,constInt,intAPlusB,numAPlusB,strAPlusB,intCMinusB,numCMinusB,intATimesB,numATimesB,intCDivA,numADivB,intA*A,numA*A,intSqrt(a),numSqrt(a),intPctAofB,numPctAofB
+100,200,300,123.456,987.654,99.999,aaa,bbb,static,1,300,1111.11,aaa - bbb,100,-887.655,20000,121931.812224,3.0,0.1249992406,10000,15241.383936,10,11.1110755555,50,12.4999240625
