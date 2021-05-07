@@ -63,10 +63,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0007-fuzzymatch UNIT",
+  "name": "0012-fuzzymatch UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0007-fuzzymatch.hpl",
+  "pipeline_filename": "./0012-fuzzymatch.hpl",
   "test_type": "UNIT_TEST"
 }

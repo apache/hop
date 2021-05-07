@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow>
-  <name>main-0007-fuzzymatch</name>
+  <name>main-0012-fuzzymatch</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -37,7 +37,7 @@
       <attributes/>
       <test_names>
         <test_name>
-          <name>0007-fuzzymatch UNIT</name>
+          <name>0012-fuzzymatch UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
