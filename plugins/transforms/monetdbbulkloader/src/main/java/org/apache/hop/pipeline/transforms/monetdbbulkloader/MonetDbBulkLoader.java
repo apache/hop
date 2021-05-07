@@ -436,12 +436,9 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
           .append(data.quote)
           .append("' NULL AS '" + nullRep + "';");
       String cmd = cmdBuff.toString();
-      if (log.isDetailed()) {
-        logDetailed(cmd);
-      }
 
       // See if we need to execute extra SQL statements...
-      //
+
       String sql = dm.getConnectSql();
 
       // only execute if the SQL is not empty, null and is not just a bunch of
@@ -450,7 +447,10 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         String[] sqlStatements = sql.split(";");
         for (String statement : sqlStatements) {
           data.out.write('s');
-          data.out.write(statement);
+          data.out.write(resolve(statement));
+          if (log.isDetailed()) {
+            logDetailed(resolve(statement));
+          }
           data.out.write(';');
           data.out.newLine();
         }
@@ -458,6 +458,9 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         data.out.write('s');
       }
 
+      if (log.isDetailed()) {
+        logDetailed(cmd);
+      }
       data.out.write(cmdBuff.toString());
       data.out.newLine();
 
