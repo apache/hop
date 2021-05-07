@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -36,6 +37,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -56,107 +58,19 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
 
   private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 
-  /** by which transforms to display? */
-  private String[] transformName;
-
-  private String[] transformCopyNr;
+  @HopMetadataProperty(groupKey = "transforms", key = "transform")
+  private List<BlockingTransform> blockingTransforms;
 
   public BlockUntilTransformsFinishMeta() {
-    super(); // allocate BaseTransformMeta
+    blockingTransforms = new ArrayList<>();
   }
 
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public Object clone() {
-    BlockUntilTransformsFinishMeta retval = (BlockUntilTransformsFinishMeta) super.clone();
-
-    int nrFields = transformName.length;
-
-    retval.allocate(nrFields);
-    System.arraycopy(transformName, 0, retval.transformName, 0, nrFields);
-    System.arraycopy(transformCopyNr, 0, retval.transformCopyNr, 0, nrFields);
-    return retval;
-  }
-
-  public void allocate(int nrFields) {
-    transformName = new String[nrFields];
-    transformCopyNr = new String[nrFields];
-  }
-
-  /** @return Returns the transformName. */
-  public String[] getTransformName() {
-    return transformName;
-  }
-
-  /** @return Returns the transformCopyNr. */
-  public String[] getTransformCopyNr() {
-    return transformCopyNr;
-  }
-
-  /** @param transformName The transformName to set. */
-  public void setTransformName(String[] transformName) {
-    this.transformName = transformName;
-  }
-
-  /** @param transformCopyNr The transformCopyNr to set. */
-  public void setTransformCopyNr(String[] transformCopyNr) {
-    this.transformCopyNr = transformCopyNr;
-  }
-
-  public void getFields(
-      IRowMeta r,
-      String name,
-      IRowMeta[] info,
-      TransformMeta nextTransform,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {}
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node transforms = XmlHandler.getSubNode(transformNode, "transforms");
-      int nrTransforms = XmlHandler.countNodes(transforms, "transform");
-
-      allocate(nrTransforms);
-
-      for (int i = 0; i < nrTransforms; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(transforms, "transform", i);
-        transformName[i] = XmlHandler.getTagValue(fnode, "name");
-        transformCopyNr[i] = XmlHandler.getTagValue(fnode, "CopyNr");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
+  public BlockUntilTransformsFinishMeta clone() {
+    BlockUntilTransformsFinishMeta meta = new BlockUntilTransformsFinishMeta();
+    for (BlockingTransform blockingTransform : blockingTransforms) {
+      meta.blockingTransforms.add(new BlockingTransform(blockingTransform));
     }
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <transforms>" + Const.CR);
-    for (int i = 0; i < transformName.length; i++) {
-      retval.append("      <transform>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", transformName[i]));
-      retval.append("        " + XmlHandler.addTagValue("CopyNr", transformCopyNr[i]));
-
-      retval.append("        </transform>" + Const.CR);
-    }
-    retval.append("      </transforms>" + Const.CR);
-
-    return retval.toString();
-  }
-
-  public void setDefault() {
-    int nrTransforms = 0;
-
-    allocate(nrTransforms);
-
-    for (int i = 0; i < nrTransforms; i++) {
-      transformName[i] = "transform" + i;
-      transformCopyNr[i] = "CopyNr" + i;
-    }
+    return meta;
   }
 
   public void check(
@@ -179,7 +93,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.NotReceivingFields"),
               transformMeta);
     } else {
-      if (transformName.length > 0) {
+      if (blockingTransforms.size() > 0) {
         cr =
             new CheckResult(
                 CheckResult.TYPE_RESULT_OK,
@@ -234,5 +148,19 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     return new PipelineType[] {
       PipelineType.Normal,
     };
+  }
+
+  /**
+   * Gets blockingTransforms
+   *
+   * @return value of blockingTransforms
+   */
+  public List<BlockingTransform> getBlockingTransforms() {
+    return blockingTransforms;
+  }
+
+  /** @param blockingTransforms The blockingTransforms to set */
+  public void setBlockingTransforms(List<BlockingTransform> blockingTransforms) {
+    this.blockingTransforms = blockingTransforms;
   }
 }

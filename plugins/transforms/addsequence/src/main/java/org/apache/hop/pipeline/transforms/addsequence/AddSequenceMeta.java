@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,20 +26,18 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -60,17 +58,34 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
 
-  private String valuename;
+  @HopMetadataProperty(key = "valuename")
+  private String valueName;
 
-  private boolean useDatabase;
+  @HopMetadataProperty(key = "use_database")
+  private boolean databaseUsed;
+
+  @HopMetadataProperty(key = "connection", storeWithName = true)
   private DatabaseMeta databaseMeta;
+
+  @HopMetadataProperty(key = "schema")
   private String schemaName;
+
+  @HopMetadataProperty(key = "seqname")
   private String sequenceName;
 
-  private boolean useCounter;
+  @HopMetadataProperty(key = "use_counter")
+  private boolean counterUsed;
+
+  @HopMetadataProperty(key = "counter_name")
   private String counterName;
+
+  @HopMetadataProperty(key = "start_at")
   private String startAt;
+
+  @HopMetadataProperty(key = "increment_by")
   private String incrementBy;
+
+  @HopMetadataProperty(key = "max_value")
   private String maxValue;
 
   /** @return Returns the connection. */
@@ -140,32 +155,32 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   /** @return Returns the useCounter. */
   public boolean isCounterUsed() {
-    return useCounter;
+    return counterUsed;
   }
 
-  /** @param useCounter The useCounter to set. */
-  public void setUseCounter(boolean useCounter) {
-    this.useCounter = useCounter;
+  /** @param counterUsed The useCounter to set. */
+  public void setCounterUsed(boolean counterUsed) {
+    this.counterUsed = counterUsed;
   }
 
   /** @return Returns the useDatabase. */
   public boolean isDatabaseUsed() {
-    return useDatabase;
+    return databaseUsed;
   }
 
-  /** @param useDatabase The useDatabase to set. */
-  public void setUseDatabase(boolean useDatabase) {
-    this.useDatabase = useDatabase;
+  /** @param databaseUsed The useDatabase to set. */
+  public void setDatabaseUsed(boolean databaseUsed) {
+    this.databaseUsed = databaseUsed;
   }
 
   /** @return Returns the valuename. */
-  public String getValuename() {
-    return valuename;
+  public String getValueName() {
+    return valueName;
   }
 
-  /** @param valuename The valuename to set. */
-  public void setValuename(String valuename) {
-    this.valuename = valuename;
+  /** @param valueName The valuename to set. */
+  public void setValueName(String valueName) {
+    this.valueName = valueName;
   }
 
   @Override
@@ -175,42 +190,15 @@ public class AddSequenceMeta extends BaseTransformMeta
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      valuename = XmlHandler.getTagValue(transformNode, "valuename");
-
-      useDatabase = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_database"));
-      String conn = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, conn);
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      sequenceName = XmlHandler.getTagValue(transformNode, "seqname");
-
-      useCounter = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_counter"));
-      counterName = XmlHandler.getTagValue(transformNode, "counter_name");
-      startAt = XmlHandler.getTagValue(transformNode, "start_at");
-      incrementBy = XmlHandler.getTagValue(transformNode, "increment_by");
-      maxValue = XmlHandler.getTagValue(transformNode, "max_value");
-
-      // TODO startAt = Const.toLong(XmlHandler.getTagValue(transformNode, "start_at"), 1);
-      // incrementBy = Const.toLong(XmlHandler.getTagValue(transformNode, "increment_by"), 1);
-      // maxValue = Const.toLong(XmlHandler.getTagValue(transformNode, "max_value"), 999999999L);
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "AddSequenceMeta.Exception.ErrorLoadingTransformMeta"), e);
-    }
-  }
-
-  @Override
   public void setDefault() {
-    valuename = "valuename";
+    valueName = "valuename";
 
-    useDatabase = false;
+    databaseUsed = false;
     schemaName = "";
     sequenceName = "SEQ_";
     databaseMeta = null;
 
-    useCounter = true;
+    counterUsed = true;
     counterName = null;
     startAt = "1";
     incrementBy = "1";
@@ -226,33 +214,10 @@ public class AddSequenceMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    IValueMeta v = new ValueMetaInteger(valuename);
+    IValueMeta v = new ValueMetaInteger(valueName);
     // v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin(name);
     row.addValueMeta(v);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("      ").append(XmlHandler.addTagValue("valuename", valuename));
-    retval.append("      ").append(XmlHandler.addTagValue("use_database", useDatabase));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("      ").append(XmlHandler.addTagValue("seqname", sequenceName));
-
-    retval.append("      ").append(XmlHandler.addTagValue("use_counter", useCounter));
-    retval.append("      ").append(XmlHandler.addTagValue("counter_name", counterName));
-    retval.append("      ").append(XmlHandler.addTagValue("start_at", startAt));
-    retval.append("      ").append(XmlHandler.addTagValue("increment_by", incrementBy));
-    retval.append("      ").append(XmlHandler.addTagValue("max_value", maxValue));
-
-    return retval.toString();
   }
 
   @Override
@@ -267,8 +232,8 @@ public class AddSequenceMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (useDatabase) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+    if (databaseUsed) {
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
         if (db.checkSequenceExists(
@@ -329,10 +294,10 @@ public class AddSequenceMeta extends BaseTransformMeta
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
-    if (useDatabase) {
+    if (databaseUsed) {
       // Otherwise, don't bother!
       if (databaseMeta != null) {
-        Database db = new Database(loggingObject, variables, databaseMeta );
+        Database db = new Database(loggingObject, variables, databaseMeta);
         try {
           db.connect();
           if (!db.checkSequenceExists(schemaName, sequenceName)) {

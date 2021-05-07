@@ -333,7 +333,7 @@ public class WorkflowMeta extends AbstractMeta
    *
    * @see org.apache.hop.core.xml.IXml#getXml()
    */
-  public String getXml() {
+  public String getXml() throws HopException {
 
     StringBuilder xml = new StringBuilder(500);
 

@@ -13,7 +13,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
@@ -63,7 +62,6 @@
         <include>com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:jar</include>
         <include>com.googlecode.concurrent-trees:concurrent-trees:jar</include>
         <include>com.googlecode.json-simple:json-simple:jar</include>
-        <include>com.google.guava:guava:jar</include>
         <include>com.lmax:disruptor:jar</include>
         <include>com.ning:compress-lzf:jar</include>
         <include>com.thinkaurelius.thrift:thrift-server:jar</include>

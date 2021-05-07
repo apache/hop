@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-append"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-append UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0008-append.hpl",
+  "test_type": "UNIT_TEST"
+}

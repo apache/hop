@@ -1,0 +1,98 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "datA",
+          "data_set_field": "datA"
+        },
+        {
+          "transform_field": "datB",
+          "data_set_field": "datB"
+        },
+        {
+          "transform_field": "datC",
+          "data_set_field": "datC"
+        },
+        {
+          "transform_field": "dateAMinusBInDays",
+          "data_set_field": "dateAMinusBInDays"
+        },
+        {
+          "transform_field": "dateAPlusBDays",
+          "data_set_field": "dateAPlusBDays"
+        },
+        {
+          "transform_field": "dayOfMonthOfDateA",
+          "data_set_field": "dayOfMonthOfDateA"
+        },
+        {
+          "transform_field": "dayOfWeekOfDateA",
+          "data_set_field": "dayOfWeekOfDateA"
+        },
+        {
+          "transform_field": "dayOfYearOfDateA",
+          "data_set_field": "dayOfYearOfDateA"
+        },
+        {
+          "transform_field": "intA",
+          "data_set_field": "intA"
+        },
+        {
+          "transform_field": "intB",
+          "data_set_field": "intB"
+        },
+        {
+          "transform_field": "intC",
+          "data_set_field": "intC"
+        },
+        {
+          "transform_field": "iso8601WeekOfYearOfDateA",
+          "data_set_field": "iso8601WeekOfYearOfDateA"
+        },
+        {
+          "transform_field": "iso8601YearOfDateA",
+          "data_set_field": "iso8601YearOfDateA"
+        },
+        {
+          "transform_field": "monthOfDateA",
+          "data_set_field": "monthOfDateA"
+        },
+        {
+          "transform_field": "quartOfDateA",
+          "data_set_field": "quartOfDateA"
+        },
+        {
+          "transform_field": "removeTimeFromDateA",
+          "data_set_field": "removeTimeFromDateA"
+        },
+        {
+          "transform_field": "weekOfYearOfDateA",
+          "data_set_field": "weekOfYearOfDateA"
+        },
+        {
+          "transform_field": "yearOfDateA",
+          "data_set_field": "yearOfDateA"
+        }
+      ],
+      "field_order": [
+        "intA",
+        "intB",
+        "intC"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-calculator-dates"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-calculator-dates UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0011-calculator-dates.hpl",
+  "test_type": "UNIT_TEST"
+}
