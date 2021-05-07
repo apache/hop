@@ -2243,7 +2243,9 @@ public class TableView extends Composite {
             int newPosition = position + string.length();
             edit(rowNr, colNr);
             ((TextVar) text).setSelection(newPosition);
-            ((TextVar) text).showSelection();
+            if (!EnvironmentUtils.getInstance().isWeb()) {
+              ((TextVar) text).showSelection();
+            }
             setColumnWidthBasedOnTextField(colNr, useVariables);
           };
 
@@ -2361,9 +2363,13 @@ public class TableView extends Composite {
         Text widget = (Text) text;
         int idx = widget.getCaretPosition();
         widget.selectAll();
-        widget.showSelection();
+        if (!EnvironmentUtils.getInstance().isWeb()){
+            widget.showSelection();
+        }
         widget.setSelection(0);
-        widget.showSelection();
+        if (!EnvironmentUtils.getInstance().isWeb()){
+            widget.showSelection();
+        }
         widget.setSelection(idx);
       }
     }

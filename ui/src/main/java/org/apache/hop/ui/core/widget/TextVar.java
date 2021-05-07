@@ -23,6 +23,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
@@ -299,7 +300,9 @@ public class TextVar extends Composite {
   }
 
   public void showSelection() {
-    wText.showSelection();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      wText.showSelection();
+    }
   }
 
   public void setVariables(IVariables vars) {
