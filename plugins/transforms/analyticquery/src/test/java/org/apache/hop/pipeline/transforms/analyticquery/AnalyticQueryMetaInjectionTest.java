@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
  */
 
 package org.apache.hop.pipeline.transforms.analyticquery;
-
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -29,15 +28,18 @@ public class AnalyticQueryMetaInjectionTest extends BaseMetadataInjectionTest<An
 
   @Before
   public void setup() throws Exception {
-    setup( new AnalyticQueryMeta() );
+    setup(new AnalyticQueryMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "GROUP_FIELDS", () -> meta.getGroupField()[ 0 ] );
-    check( "OUTPUT.AGGREGATE_FIELD", () -> meta.getAggregateField()[ 0 ] );
-    check( "OUTPUT.SUBJECT_FIELD", () -> meta.getSubjectField()[ 0 ] );
-    check( "OUTPUT.AGGREGATE_TYPE", () -> meta.getAggregateType()[ 0 ] );
-    check( "OUTPUT.VALUE_FIELD", () -> meta.getValueField()[ 0 ] );
+    check("GROUP_FIELDS", () -> meta.getGroupFields().get(0).getFieldName());
+    check("OUTPUT.AGGREGATE_FIELD", () -> meta.getQueryFields().get(0).getAggregateField());
+    check("OUTPUT.SUBJECT_FIELD", () -> meta.getQueryFields().get(0).getSubjectField());
+    check(
+        "OUTPUT.AGGREGATE_TYPE",
+        () -> meta.getQueryFields().get(0).getAggregateType(),
+        QueryField.AggregateType.class);
+    check("OUTPUT.VALUE_FIELD", () -> meta.getQueryFields().get(0).getValueField());
   }
 }

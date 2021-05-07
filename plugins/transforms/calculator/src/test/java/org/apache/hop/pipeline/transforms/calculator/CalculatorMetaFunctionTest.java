@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,34 +32,13 @@ public class CalculatorMetaFunctionTest {
   public void testEquals() {
     CalculatorMetaFunction meta1 = new CalculatorMetaFunction();
     CalculatorMetaFunction meta2 = (CalculatorMetaFunction) meta1.clone();
-    assertNotSame( meta1, meta2 );
+    assertNotSame(meta1, meta2);
 
-    assertFalse( meta1.equals( null ) );
-    assertFalse( meta1.equals( new Object() ) );
-    assertTrue( meta1.equals( meta2 ) );
+    assertFalse(meta1.equals(null));
+    assertFalse(meta1.equals(new Object()));
+    assertTrue(meta1.equals(meta2));
 
-    meta2.setCalcType( CalculatorMetaFunction.CALC_ADD_DAYS );
-    assertFalse( meta1.equals( meta2 ) );
-  }
-
-  @Test
-  public void testGetCalcFunctionLongDesc() {
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( Integer.MIN_VALUE ) );
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( Integer.MAX_VALUE ) );
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( CalculatorMetaFunction.calcLongDesc.length ) );
-  }
-
-  @Test
-  public void testGetCalcFunctionDefaultResultType() {
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MIN_VALUE ) );
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MAX_VALUE ) );
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( -1 ) );
-    assertEquals( IValueMeta.TYPE_STRING,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_CONSTANT ) );
-    assertEquals( IValueMeta.TYPE_NUMBER,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_ADD ) );
+    meta2.setCalcType(CalculatorMetaFunction.CalculationType.ADD_DAYS);
+    assertFalse(meta1.equals(meta2));
   }
 }

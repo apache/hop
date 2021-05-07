@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -46,6 +47,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,23 +69,25 @@ import java.util.regex.Pattern;
 public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAddResultFilenames.class; // For Translator
 
-  public boolean argFromPrevious;
+  @HopMetadataProperty(key = "arg_from_previous")
+  private boolean argFromPrevious;
 
-  public boolean deleteallbefore;
+  @HopMetadataProperty(key = "delete_all_before")
+  private boolean deleteAllBefore;
 
-  public boolean includeSubfolders;
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubFolders;
 
-  public String[] arguments;
-
-  public String[] filemasks;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<Argument> arguments;
 
   public ActionAddResultFilenames(String n) {
     super(n, "");
+    arguments = new ArrayList<>();
     argFromPrevious = false;
-    deleteallbefore = false;
-    arguments = null;
+    deleteAllBefore = false;
 
-    includeSubfolders = false;
+    includeSubFolders = false;
   }
 
   public ActionAddResultFilenames() {
@@ -95,67 +99,14 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return je;
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
-    retval.append("      ").append(XmlHandler.addTagValue("delete_all_before", deleteallbefore));
-
-    retval.append("      <fields>").append(Const.CR);
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      deleteallbefore =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "delete_all_before"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      arguments = new String[nrFields];
-      filemasks = new String[nrFields];
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        arguments[i] = XmlHandler.getTagValue(fnode, "name");
-        filemasks[i] = XmlHandler.getTagValue(fnode, "filemask");
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionAddResultFilenames.UnableToLoadFromXml"), xe);
-    }
-  }
-
   public Result execute(Result result, int nr) throws HopException {
     List<RowMetaAndData> rows = result.getRows();
-    RowMetaAndData resultRow = null;
+    RowMetaAndData resultRow;
 
     int nrErrFiles = 0;
     result.setResult(true);
 
-    if (deleteallbefore) {
+    if (deleteAllBefore) {
       // clear result filenames
       int size = result.getResultFiles().size();
       if (isBasic()) {
@@ -203,15 +154,18 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       }
     } else if (arguments != null) {
 
-      for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
-
+      for (int i = 0; i < arguments.size() && !parentWorkflow.isStopped(); i++) {
+        Argument argument = arguments.get(i);
         // ok we can process this file/folder
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionAddResultFilenames.ProcessingArg", arguments[i], filemasks[i]));
+                  PKG,
+                  "ActionAddResultFilenames.ProcessingArg",
+                  argument.getArgument(),
+                  argument.getMask()));
         }
-        if (!processFile(arguments[i], filemasks[i], parentWorkflow, result)) {
+        if (!processFile(argument.getArgument(), argument.getMask(), parentWorkflow, result)) {
           nrErrFiles++;
         }
       }
@@ -327,7 +281,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
           String shortFilename = info.getFile().getName().getBaseName();
 
           if (info.getFile().getParent().equals(info.getBaseFolder())
-              || (!info.getFile().getParent().equals(info.getBaseFolder()) && includeSubfolders)) {
+              || (!info.getFile().getParent().equals(info.getBaseFolder()) && includeSubFolders)) {
             if ((info.getFile().getType() == FileType.FILE && fileWildcard == null)
                 || (info.getFile().getType() == FileType.FILE
                     && fileWildcard != null
@@ -374,8 +328,8 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return getIt;
   }
 
-  public void setIncludeSubfolders(boolean includeSubfolders) {
-    this.includeSubfolders = includeSubfolders;
+  public void setIncludeSubFolders(boolean includeSubFolders) {
+    this.includeSubFolders = includeSubFolders;
   }
 
   public void setArgumentsPrevious(boolean argFromPrevious) {
@@ -383,31 +337,11 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
   }
 
   public void setDeleteAllBefore(boolean deleteallbefore) {
-    this.deleteallbefore = deleteallbefore;
+    this.deleteAllBefore = deleteallbefore;
   }
 
   public boolean isEvaluation() {
     return true;
-  }
-
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
-
-  public boolean deleteAllBefore() {
-    return deleteallbefore;
-  }
-
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  public String[] getFilemasks() {
-    return filemasks;
-  }
-
-  public boolean isIncludeSubfolders() {
-    return includeSubfolders;
   }
 
   public void check(
@@ -432,8 +366,54 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (int i = 0; i < arguments.length; i++) {
+    for (int i = 0; i < arguments.size(); i++) {
       ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
     }
+  }
+
+  /**
+   * Gets argFromPrevious
+   *
+   * @return value of argFromPrevious
+   */
+  public boolean isArgFromPrevious() {
+    return argFromPrevious;
+  }
+
+  /** @param argFromPrevious The argFromPrevious to set */
+  public void setArgFromPrevious(boolean argFromPrevious) {
+    this.argFromPrevious = argFromPrevious;
+  }
+
+  /**
+   * Gets deleteAllBefore
+   *
+   * @return value of deleteAllBefore
+   */
+  public boolean isDeleteAllBefore() {
+    return deleteAllBefore;
+  }
+
+  /**
+   * Gets includeSubFolders
+   *
+   * @return value of includeSubFolders
+   */
+  public boolean isIncludeSubFolders() {
+    return includeSubFolders;
+  }
+
+  /**
+   * Gets arguments
+   *
+   * @return value of arguments
+   */
+  public List<Argument> getArguments() {
+    return arguments;
+  }
+
+  /** @param arguments The arguments to set */
+  public void setArguments(List<Argument> arguments) {
+    this.arguments = arguments;
   }
 }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,17 @@ import org.junit.ClassRule;
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionAddResultFilenamesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
+public class WorkflowActionAddResultFilenamesLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<ActionAddResultFilenames> getActionClass() {
+  @Override
+  protected Class<ActionAddResultFilenames> getActionClass() {
     return ActionAddResultFilenames.class;
   }
 
-  @Override protected List<String> listCommonAttributes() {
-    return Arrays.asList( "argFromPrevious", "includeSubfolders", "deleteallbefore" );
+  @Override
+  protected List<String> listCommonAttributes() {
+    return Arrays.asList("argFromPrevious", "includeSubFolders", "deleteAllBefore");
   }
 }

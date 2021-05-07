@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionAbortLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
+public class WorkflowActionAbortLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,16 +35,16 @@ public class WorkflowActionAbortLoadSaveTest extends WorkflowActionLoadSaveTestS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Collections.singletonList( "message" );
+    return Collections.singletonList("messageAbort");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
-    return Collections.singletonMap( "message", "getMessageAbort" );
+    return Collections.singletonMap("messageAbort", "getMessageAbort");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
-    return Collections.singletonMap( "message", "setMessageAbort" );
+    return Collections.singletonMap("messageAbort", "setMessageAbort");
   }
 }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,80 +17,161 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AnalyticQueryMetaTest {
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
-
   @Test
-  public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList( "groupField", "aggregateField", "subjectField",
-      "aggregateType", "valueField" );
+  public void testXmlRoundTrip() throws Exception {
+    String xml =
+        "<group>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<name>X</name>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "</group>"
+            + Const.CR
+            + "<fields>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLead1</aggregate>"
+            + Const.CR
+            + "<type>LEAD</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>1</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLead2</aggregate>"
+            + Const.CR
+            + "<type>LEAD</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>2</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLead3</aggregate>"
+            + Const.CR
+            + "<type>LEAD</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>2</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLead4</aggregate>"
+            + Const.CR
+            + "<type>LEAD</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>4</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLag1</aggregate>"
+            + Const.CR
+            + "<type>LAG</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>1</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLag2</aggregate>"
+            + Const.CR
+            + "<type>LAG</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>2</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLag3</aggregate>"
+            + Const.CR
+            + "<type>LAG</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>3</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "<field>"
+            + Const.CR
+            + "<aggregate>yLag4</aggregate>"
+            + Const.CR
+            + "<type>LAG</type>"
+            + Const.CR
+            + "<subject>Y</subject>"
+            + Const.CR
+            + "<valuefield>4</valuefield>"
+            + Const.CR
+            + "</field>"
+            + Const.CR
+            + "</fields>"
+            + Const.CR;
 
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + xml
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
-    Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<>();
-    fieldValidators.put( "aggregateField", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldValidators.put( "subjectField", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldValidators.put( "aggregateType", new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator( AnalyticQueryMeta.typeGroupCode.length ), 50 ) );
-    fieldValidators.put( "valueField", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 50 ) );
+    AnalyticQueryMeta meta = new AnalyticQueryMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG),
+        AnalyticQueryMeta.class,
+        meta,
+        null);
+    Assert.assertEquals(1, meta.getGroupFields().size());
+    Assert.assertEquals(8, meta.getQueryFields().size());
+    String xml2 = XmlMetadataUtil.serializeObjectToXml(meta);
+    Assert.assertEquals(xml, xml2);
 
-    LoadSaveTester loadSaveTester =
-      new LoadSaveTester( AnalyticQueryMeta.class, attributes, getterMap, setterMap, fieldValidators, typeValidators );
-    loadSaveTester.testSerialization();
-  }
+    AnalyticQueryMeta meta2 = new AnalyticQueryMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG),
+        AnalyticQueryMeta.class,
+        meta2,
+        null);
 
-
-  @Test
-  public void testPDI16559() throws Exception {
-    TransformMockHelper<AnalyticQueryMeta, AnalyticQueryData> mockHelper =
-      new TransformMockHelper<>( "analyticQuery", AnalyticQueryMeta.class, AnalyticQueryData.class );
-
-    AnalyticQueryMeta analyticQuery = new AnalyticQueryMeta();
-    analyticQuery.setGroupField( new String[] { "group1", "group2" } );
-    analyticQuery.setSubjectField( new String[] { "field1", "field2", "field3", "field4", "field5" } );
-    analyticQuery.setAggregateField( new String[] { "subj1", "subj2", "subj3" } );
-    analyticQuery.setAggregateType( new int[] { 0, 1, 2, 3 } );
-    analyticQuery.setValueField( new int[] { 0, 4, 8 } );
-
-    try {
-      String badXml = analyticQuery.getXml();
-      Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
-    } catch ( Exception expected ) {
-      // Do Nothing
+    // Compare meta and meta2 to see if all serialization survived correctly...
+    //
+    Assert.assertEquals(1, meta2.getGroupFields().size());
+    Assert.assertEquals(8, meta2.getQueryFields().size());
+    for (int i = 0; i < meta.getGroupFields().size(); i++) {
+      Assert.assertEquals(meta.getGroupFields().get(i), meta2.getGroupFields().get(i));
     }
-    analyticQuery.afterInjectionSynchronization();
-    //run without a exception
-    String ktrXml = analyticQuery.getXml();
-
-    int targetSz = analyticQuery.getSubjectField().length;
-
-    Assert.assertEquals( targetSz, analyticQuery.getAggregateField().length );
-    Assert.assertEquals( targetSz, analyticQuery.getAggregateType().length );
-    Assert.assertEquals( targetSz, analyticQuery.getValueField().length );
-
+    for (int i = 0; i < meta.getQueryFields().size(); i++) {
+      Assert.assertEquals(meta.getQueryFields().get(i), meta2.getQueryFields().get(i));
+    }
   }
 }

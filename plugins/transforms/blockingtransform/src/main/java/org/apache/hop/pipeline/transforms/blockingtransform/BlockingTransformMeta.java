@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -53,25 +54,36 @@ public class BlockingTransformMeta extends BaseTransformMeta
   private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
   /** Directory to store the temp files */
-  private String directory;
+  @HopMetadataProperty private String directory;
 
   /** Temp files prefix... */
-  private String prefix;
+  @HopMetadataProperty private String prefix;
 
   /** The cache size: number of rows to keep in memory */
+  @HopMetadataProperty(key = "cache_size")
   private int cacheSize;
 
   /**
    * Compress files: if set to true, temporary files are compressed, thus reducing I/O at the cost
    * of slightly higher CPU usage
    */
+  @HopMetadataProperty(key = "compress")
   private boolean compressFiles;
 
   /** Pass all rows, or only the last one. Only the last row was the original behaviour. */
+  @HopMetadataProperty(key = "pass_all_rows")
   private boolean passAllRows;
 
   /** Cache size: how many rows do we keep in memory */
   public static final int CACHE_SIZE = 5000;
+
+  public BlockingTransformMeta() {
+    passAllRows = false;
+    directory = "${java.io.tmpdir}";
+    prefix = "block";
+    cacheSize = CACHE_SIZE;
+    compressFiles = true;
+  }
 
   @Override
   public void check(
@@ -174,40 +186,6 @@ public class BlockingTransformMeta extends BaseTransformMeta
     return new BlockingTransformData();
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  private void readData(Node transformNode) {
-    passAllRows = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "pass_all_rows"));
-    directory = XmlHandler.getTagValue(transformNode, "directory");
-    prefix = XmlHandler.getTagValue(transformNode, "prefix");
-    cacheSize = Const.toInt(XmlHandler.getTagValue(transformNode, "cache_size"), CACHE_SIZE);
-    compressFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "compress"));
-  }
-
-  public void setDefault() {
-    passAllRows = false;
-    directory = "%%java.io.tmpdir%%";
-    prefix = "block";
-    cacheSize = CACHE_SIZE;
-    compressFiles = true;
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("      ").append(XmlHandler.addTagValue("pass_all_rows", passAllRows));
-    retval.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    retval.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    retval.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
-    retval.append("      ").append(XmlHandler.addTagValue("compress", compressFiles));
-
-    return retval.toString();
-  }
-
   /** @return Returns the cacheSize. */
   public int getCacheSize() {
     return cacheSize;
@@ -229,12 +207,12 @@ public class BlockingTransformMeta extends BaseTransformMeta
   }
 
   /** @return Returns whether temporary files should be compressed */
-  public boolean getCompress() {
+  public boolean isCompressFiles() {
     return compressFiles;
   }
 
   /** @param compressFiles Whether to compress temporary files created during sorting */
-  public void setCompress(boolean compressFiles) {
+  public void setCompressFiles(boolean compressFiles) {
     this.compressFiles = compressFiles;
   }
 

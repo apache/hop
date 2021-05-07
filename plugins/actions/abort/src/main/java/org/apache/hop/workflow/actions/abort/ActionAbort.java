@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,16 +20,14 @@ package org.apache.hop.workflow.actions.abort;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -49,11 +47,11 @@ import java.util.List;
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAbort.class; // For Translator
 
-  private String message;
+  @HopMetadataProperty private String messageAbort;
 
   public ActionAbort(String name, String description) {
     super(name, description);
-    message = null;
+    messageAbort = null;
   }
 
   public ActionAbort() {
@@ -61,34 +59,12 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionAbort(ActionAbort other) {
-    this("", "");
-    this.message = other.message;
+    this(other.getName(), other.getDescription());
+    this.messageAbort = other.messageAbort;
   }
 
   public Object clone() {
     return new ActionAbort(this);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(super.getXml());
-    retval.append(XmlHandler.addTagValue("message", message));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      message = XmlHandler.getTagValue(entrynode, "message");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionAbort.UnableToLoadFromXml.Label"), e);
-    }
   }
 
   /**
@@ -146,7 +122,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
    * @param message
    */
   public void setMessageAbort(String message) {
-    this.message = message;
+    this.messageAbort = message;
   }
 
   /**
@@ -155,7 +131,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
    * @return the message
    */
   public String getMessageAbort() {
-    return message;
+    return messageAbort;
   }
 
   @Override
