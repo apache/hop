@@ -93,6 +93,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0011-calculator-dates.hpl",
+  "pipeline_filename": "./0011-calculator-dates.hpl",
   "test_type": "UNIT_TEST"
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>0007-fuzzymatch</name>
+    <name>0012-fuzzymatch</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -38,6 +38,44 @@
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>name</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>jwcdf-name</item>
+      </line>
+      <line>
+        <item>rdjin-name</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>303</xloc>
+      <yloc>162</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Fuzzy match</name>
     <type>FuzzyMatch</type>
@@ -225,44 +263,6 @@
     <GUI>
       <xloc>112</xloc>
       <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Data grid</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>name</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
-    <data>
-      <line>
-        <item>jwcdf-name</item>
-      </line>
-      <line>
-        <item>rdjin-name</item>
-      </line>
-    </data>
-    <attributes/>
-    <GUI>
-      <xloc>303</xloc>
-      <yloc>162</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
