@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -459,6 +460,16 @@ public class ContextDialog extends Dialog {
       wCanvas.addListener(SWT.MouseMove, event -> onMouseMove(event));
     }
 
+    // OS Specific listeners...
+    //
+    if (OsHelper.isMac()) {
+      wCanvas.addListener(SWT.MouseVerticalWheel, event -> {
+        org.eclipse.swt.graphics.Point origin = wScrolledComposite.getOrigin();
+        origin.y -= event.count;
+        wScrolledComposite.setOrigin(origin);
+      });
+    }
+   
     // Layout all the widgets in the shell.
     //
     shell.layout();
