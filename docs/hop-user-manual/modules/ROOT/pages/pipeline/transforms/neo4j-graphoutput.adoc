@@ -34,12 +34,14 @@ The Graph Output transform aims to allow input fields to be mapped automatically
 
 |===
 |Option |Description
-
-|Model
-|the model to map fields to
-
-
-|Mapping
-|Here you define the mappings
-
+|transform name|the name for this transform in the pipeline
+|Neo4j connection|the Neo4j connection to write the graph to
+|Graph model|the xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j graph model] to use
+|Batch size (rows)|batch size to use for writing data to Neo4j
+|Create indexes?|create Neo4j indexes before running this transform
+|Return graph data?|return graph data returned by Neo4j
+|Graph output field name|the name of the field to write the graph data to (if `Return graph data?` is enabled)
+|Validate against model?|validate the data against the model
+|Allow out of order updates?|If out of order updates are allowed, this transform generates unwind statements. Otherwise, standard batch updates are used.
+|Mappings|Map fields in the pipeline to fields in the Neo4j graph
 |===

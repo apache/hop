@@ -18,3 +18,19 @@ under the License.
 :language: en_US
 
 = Neo4j Get Logging Info
+
+This transform queries the Neo4j logging graph and retrieves logging information.
+
+This transform uses the `NEO4J_LOGGING_CONNECTION`. Check the xref:hop-gui/perspective-neo4j.adoc[Neo4j perspective] for more details.
+
+== Options
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Transform name|the name for this transform in your pipeline
+|startOfPipelineDelta|Start of the date range for the given pipeline
+|endOfPipelineDelta|End of the data range for the given pipeline
+|startOfWorkflowDelta|Start of the date range for the given workflow
+|endOfWorkflowDelta|End of the date range for the given workflow
+|===
