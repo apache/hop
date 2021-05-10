@@ -18,3 +18,63 @@ under the License.
 :language: en_US
 
 = Neo4j Import
+
+This transform runs an import command using the provided CSV files.
+
+Check the https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-import/[neo4j-admin-import] docs for full details.
+
+[options="header", width="90%"]
+|===
+|Option|Default|Header
+|Transform name||the name to use for this transform in the pipeline
+|Filename field||the field to get the file name to import from
+|Fiel type field||the field to get the file type to import from
+|Database filename|neo4j|the Neo4j database to import to
+|neo4j-admin command path|neo4j-admin|the (full) path to the `neo4j-admin` command
+|Base folder (below import/ folder)||the folder to read the import files from
+|Verbose output||Enable verbose output.
+|High IO|true|Ignore environment-based heuristics, and specify whether the target storage subsystem can support parallel IO with high throughput.
+
+Typically this is true for SSDs, large raid arrays and network-attached storage.
+
+|Cache on heap?|false|Determines whether or not to allow allocating memory for the cache on heap.
+
+If false, then caches will still be allocated off-heap, but the additional free memory inside the JVM will not be allocated for the caches.
+
+Use this to have better control over the heap memory.
+
+|Ignore Empty Strings|false|Determines whether or not empty string fields, such as "", from input source are ignored (treated as null).
+|Ignore extra columns?|false|If unspecified columns should be ignored during the import.
+|Legacy style quoting?|false|Determines whether or not backslash-escaped quote e.g. \" is interpreted as inner quote.
+|Fields can have multi-line data?|false|Determines whether or not fields from input source can span multiple lines, i.e. contain newline characters.
+
+Setting `--multiline-fields=true` can severely degrade performance of the importer. Therefore, use it with care, especially with large imports.
+
+
+|Normalize types?|false|Determines whether or not to normalize property types to Cypher types, e.g. int becomes long and float becomes double.
+|Skip logging bad entries during import?||Determines whether or not to skip logging bad entries detected during import.
+|Skip bad relationships?|false|Determines whether or not to skip importing relationships that refer to missing node IDs, i.e. either start or end node ID/group referring to node that was not specified by the node input data.
+
+Skipped relationships will be logged, containing at most the number of entities specified by `--bad-tolerance`, unless otherwise specified by the `--skip-bad-entries-logging` option.
+|Skip duplicate nodes?|false|Determines whether or not to skip importing nodes that have the same ID/group.
+
+In the event of multiple nodes within the same group having the same ID, the first encountered will be imported, whereas consecutive such nodes will be skipped.
+
+Skipped nodes will be logged, containing at most the number of entities specified by `--bad-tolerance`, unless otherwise specified by the `--skip-bad-entries-logging` option.
+|Trim strings?|false|Determines whether or not strings should be trimmed for whitespaces.
+|Bad tolerance|1000|Number of bad entries before the import is considered failed.
+
+This tolerance threshold is about relationships referring to missing nodes. Format errors in input data are still treated as errors.
+|Max memory|false|Maximum memory that neo4j-admin can use for various data structures and caching to improve performance.
+
+Values can be plain numbers such as 10000000, or 20G for 20 gigabyte. It can also be specified as a percentage of the available memory, for example 70%.
+|Read buffer size|4M|Size of each buffer for reading input data.
+
+It has to at least be large enough to hold the biggest single value in the input data. Value can be a plain number or byte units string, e.g. 128k, 1m.
+|Processors|90%|Max number of processors used by the importer.
+
+Defaults to the number of available processors reported by the JVM. There is a certain amount of minimum threads needed, so for that reason there is no lower bound for this value.
+
+For optimal performance, this value shouldn’t be greater than the number of available processors.
+
+|===

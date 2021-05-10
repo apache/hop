@@ -32,4 +32,4 @@ include::perspective-search.adoc[]
 
 include::perspective-plugin.adoc[]
 
-include::perspective-neo4.adoc[]
+include::perspective-neo4j.adoc[]
