@@ -403,3 +403,4 @@ under the License.
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
 ** xref:hop-tools/hop-encrypt.adoc[hop-encrypt]
 ** xref:hop-tools/hop-search.adoc[hop-search]
+* xref:best-practices/index.adoc[Best Practices]
