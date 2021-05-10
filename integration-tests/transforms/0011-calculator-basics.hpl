@@ -46,289 +46,189 @@
     </partitioning>
     <failIfNoFile>Y</failIfNoFile>
     <calculation>
-      <field_name>constStr</field_name>
       <calc_type>CONSTANT</calc_type>
       <field_a>static</field_a>
-      <field_b/>
-      <field_c/>
-      <value_type>String</value_type>
+      <field_name>constStr</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
-      <field_name>constInt</field_name>
       <calc_type>CONSTANT</calc_type>
       <field_a>1</field_a>
-      <field_b/>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>constInt</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>ConstSep</field_name>
       <calc_type>CONSTANT</calc_type>
       <field_a> - </field_a>
-      <field_b/>
-      <field_c/>
-      <value_type>String</value_type>
+      <field_name>ConstSep</field_name>
+      <remove>Y</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>Y</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
-      <field_name>intAPlusB</field_name>
       <calc_type>ADD</calc_type>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intAPlusB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numAPlusB</field_name>
       <calc_type>ADD</calc_type>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numAPlusB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>strAPlusBTmp</field_name>
       <calc_type>ADD</calc_type>
       <field_a>strA</field_a>
       <field_b>ConstSep</field_b>
-      <field_c/>
-      <value_type>String</value_type>
+      <field_name>strAPlusBTmp</field_name>
+      <remove>Y</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>Y</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
-      <field_name>strAPlusB</field_name>
       <calc_type>ADD</calc_type>
       <field_a>strAPlusBTmp</field_a>
       <field_b>strB</field_b>
-      <field_c/>
-      <value_type>String</value_type>
+      <field_name>strAPlusB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
-      <field_name>intCMinusB</field_name>
       <calc_type>SUBTRACT</calc_type>
       <field_a>intC</field_a>
       <field_b>intB</field_b>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intCMinusB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numCMinusB</field_name>
       <calc_type>SUBTRACT</calc_type>
       <field_a>numC</field_a>
       <field_b>numB</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numCMinusB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>intATimesB</field_name>
       <calc_type>MULTIPLY</calc_type>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intATimesB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numATimesB</field_name>
       <calc_type>MULTIPLY</calc_type>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numATimesB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>intCDivA</field_name>
       <calc_type>DIVIDE</calc_type>
       <field_a>intC</field_a>
       <field_b>intA</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>intCDivA</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>numADivB</field_name>
       <calc_type>DIVIDE</calc_type>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numADivB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>intA*A</field_name>
       <calc_type>SQUARE</calc_type>
       <field_a>intA</field_a>
       <field_b>intA</field_b>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intA*A</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numA*A</field_name>
       <calc_type>SQUARE</calc_type>
       <field_a>numA</field_a>
       <field_b>numA</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numA*A</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>intSqrt(a)</field_name>
       <calc_type>SQUARE_ROOT</calc_type>
       <field_a>intA</field_a>
-      <field_b/>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intSqrt(a)</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numSqrt(a)</field_name>
       <calc_type>SQUARE_ROOT</calc_type>
       <field_a>numA</field_a>
-      <field_b/>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numSqrt(a)</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <calculation>
-      <field_name>intPctAofB</field_name>
       <calc_type>PERCENT_1</calc_type>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
-      <field_c/>
-      <value_type>Integer</value_type>
+      <field_name>intPctAofB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Integer</value_type>
     </calculation>
     <calculation>
-      <field_name>numPctAofB</field_name>
       <calc_type>PERCENT_1</calc_type>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
-      <field_c/>
-      <value_type>Number</value_type>
+      <field_name>numPctAofB</field_name>
+      <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-      <decimal_symbol/>
-      <grouping_symbol/>
-      <currency_symbol/>
+      <value_type>Number</value_type>
     </calculation>
     <attributes/>
     <GUI>

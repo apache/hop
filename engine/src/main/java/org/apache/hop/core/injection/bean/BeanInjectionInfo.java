@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,16 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.util.ReflectionUtil;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,72 +40,289 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Storage for bean annotations info for Metadata Injection and Load/Save.
- */
+/** Storage for bean annotations info for Metadata Injection and Load/Save. */
 public class BeanInjectionInfo<Meta extends ITransformMeta> {
-  private static ILogChannel LOG = HopLogStore.getLogChannelFactory().create( BeanInjectionInfo.class );
+  private static ILogChannel LOG =
+      HopLogStore.getLogChannelFactory().create(BeanInjectionInfo.class);
 
   protected final Class<Meta> clazz;
   private final InjectionSupported clazzAnnotation;
   private Map<String, Property> properties = new HashMap<>();
   private List<Group> groupsList = new ArrayList<>();
-  /**
-   * Used only for fast group search during initialize.
-   */
+
+  /** Used only for fast group search during initialize. */
   private Map<String, Group> groupsMap = new HashMap<>();
+
   private Set<String> hideProperties = new HashSet<>();
 
-  public  static <Meta extends ITransformMeta> boolean isInjectionSupported( Class<Meta> clazz ) {
-    InjectionSupported annotation = clazz.getAnnotation( InjectionSupported.class );
-    return annotation != null;
+  public static <Meta extends ITransformMeta> boolean isInjectionSupported(Class<Meta> clazz) {
+    InjectionSupported annotation = clazz.getAnnotation(InjectionSupported.class);
+    if (annotation != null) {
+      return true;
+    }
+
+    // See if there are any Hop metadata properties we can use...
+    //
+    for (Field field : ReflectionUtil.findAllFields(clazz)) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property != null) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  public BeanInjectionInfo( Class<Meta> clazz ) {
+  public BeanInjectionInfo(Class<Meta> clazz) {
     if (LOG.isDebug()) {
-      LOG.logDebug( "Collect bean injection info for " + clazz );
+      LOG.logDebug("Collect bean injection info for " + clazz);
     }
     try {
       this.clazz = clazz;
-      clazzAnnotation = clazz.getAnnotation( InjectionSupported.class );
-      if ( clazzAnnotation == null ) {
-        throw new RuntimeException( "Injection not supported in " + clazz );
+      clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
+      if (!isInjectionSupported(clazz)) {
+        throw new RuntimeException("Injection not supported in " + clazz);
       }
 
-      Map<String, Type> parameterTypesMap = new HashMap<>(  );
-      TypeVariable<? extends Class<?>>[] typeParameters = clazz.getTypeParameters();
-      for (TypeVariable<? extends Class<?>> typeParameter : typeParameters) {
-        String parameterTypeName = typeParameter.getName();
-        Type parameterType = typeParameter.getBounds()[0];
-        parameterTypesMap.put(parameterTypeName, parameterType);
-      }
-
-      Group gr0 = new Group( "" );
-      groupsList.add( gr0 );
-      groupsMap.put( gr0.getName(), gr0 );
-      for ( String group : clazzAnnotation.groups() ) {
-        Group gr = new Group( group );
-        groupsList.add( gr );
-        groupsMap.put( gr.getName(), gr );
-      }
-      for ( String p : clazzAnnotation.hide() ) {
-        hideProperties.add( p );
-      }
-
-      BeanLevelInfo root = new BeanLevelInfo();
-      root.leafClass = clazz;
-      if (parameterTypesMap.isEmpty()) {
-        root.init( this );
+      if (clazzAnnotation == null) {
+        extractMetadataProperties(clazz);
       } else {
-        root.init( this, parameterTypesMap );
+        extractInjectionInfo(clazz);
       }
-      properties = Collections.unmodifiableMap( properties );
-      groupsList = Collections.unmodifiableList( groupsList );
-      groupsMap = null;
-    } catch ( Throwable ex ) {
-      LOG.logError( "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex );
+    } catch (Throwable ex) {
+      LOG.logError(
+          "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex);
       throw ex;
     }
+  }
+
+  private void extractMetadataProperties(Class<Meta> clazz) {
+    Map<Field, HopMetadataProperty> propertyFields = new HashMap<>();
+    for (Field field : ReflectionUtil.findAllFields(clazz)) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property != null) {
+        propertyFields.put(field, property);
+      }
+    }
+
+    if (propertyFields.isEmpty()) {
+      throw new RuntimeException("Injection not supported in " + clazz);
+    }
+
+    // The root Bean Level Info
+    //
+    BeanLevelInfo classLevelInfo = new BeanLevelInfo();
+    classLevelInfo.leafClass = clazz;
+
+    // Add an empty group...
+    //
+    Group gr0 = new Group("", "");
+    groupsList.add(gr0);
+    groupsMap.put(gr0.getKey(), gr0);
+
+    for (Field field : propertyFields.keySet()) {
+      Class<?> fieldType = field.getType();
+
+      HopMetadataProperty property = propertyFields.get(field);
+
+      String injectionKey = calculateInjectionKey(field, property);
+      String injectionKeyDescription = calculateInjectionKeyDescription(property);
+      String injectionGroupKey = calculateInjectionGroupKey(property);
+      String injectionGroupDescription = calculateInjectionGroupDescription(property);
+
+      // Class Bean Level Info...
+      //
+      BeanLevelInfo fieldLevelInfo =
+          getLevelInfo(clazz, classLevelInfo, field, fieldType, property, injectionKey);
+
+      Group group = null;
+      if (StringUtils.isNotEmpty(injectionGroupKey)) {
+        group = new Group(injectionGroupKey, injectionGroupDescription);
+
+        groupsList.add(group);
+        groupsMap.put(injectionGroupKey, group);
+      }
+
+      if (StringUtils.isNotEmpty(injectionGroupKey)) {
+        // Find child properties of the field class...
+        // If not a POJO we simply have the one property
+        //
+
+        // If it's a List: get that type...
+        //
+        if (fieldType.equals(java.util.List.class)) {
+          ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+          // Take the generic class to pick the child properties from.
+          //
+          fieldType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+          fieldLevelInfo.dim = BeanLevelInfo.DIMENSION.LIST;
+          fieldLevelInfo.leafClass = fieldType; // Not List but the listed type
+        }
+
+        for (Field childField : ReflectionUtil.findAllFields(fieldType)) {
+          Class<?> childFieldType = childField.getType();
+          HopMetadataProperty childProperty = childField.getAnnotation(HopMetadataProperty.class);
+          if (childProperty != null) {
+            String childInjectionKey = calculateInjectionKey(childField, childProperty);
+            String childInjectionKeyDescription = calculateInjectionKeyDescription(childProperty);
+
+            // Child bean level info...
+            //
+            BeanLevelInfo childLevelInfo =
+                getLevelInfo(
+                    fieldType,
+                    fieldLevelInfo,
+                    childField,
+                    childFieldType,
+                    childProperty,
+                    childInjectionKey);
+
+            List<BeanLevelInfo> path =
+                Arrays.asList(classLevelInfo, fieldLevelInfo, childLevelInfo);
+            Property p =
+                new Property(
+                    childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path);
+            group.properties.add(p);
+            properties.put(childInjectionKey, p);
+          }
+        }
+      } else {
+        // Normal property: add it to the root group
+        //
+        Property p =
+            new Property(
+                injectionKey,
+                injectionKeyDescription,
+                "",
+                Arrays.asList(classLevelInfo, fieldLevelInfo));
+        gr0.properties.add(p);
+        properties.put(injectionKey, p);
+      }
+    }
+    properties = Collections.unmodifiableMap(properties);
+    groupsList = Collections.unmodifiableList(groupsList);
+  }
+
+  private BeanLevelInfo getLevelInfo(
+      Class<?> parentClass,
+      BeanLevelInfo parent,
+      Field field,
+      Class<?> fieldType,
+      HopMetadataProperty property,
+      String injectionKey) {
+    BeanLevelInfo fieldLevelInfo = new BeanLevelInfo();
+    fieldLevelInfo.parent = parent;
+    fieldLevelInfo.leafClass = fieldType;
+    try {
+      fieldLevelInfo.converter = property.injectionConverter().newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to instantiate injection metadata converter class "
+              + property.injectionConverter().getName(),
+          e);
+    }
+    fieldLevelInfo.nameKey = injectionKey;
+    fieldLevelInfo.field = field;
+    if (field != null) {
+      fieldLevelInfo.field.setAccessible(true);
+    }
+    fieldLevelInfo.dim = BeanLevelInfo.DIMENSION.NONE;
+    boolean isBoolean = Boolean.class.equals(fieldType) || boolean.class.equals(fieldType);
+    try {
+      fieldLevelInfo.getter =
+          parentClass.getMethod(ReflectionUtil.getGetterMethodName(field.getName(), isBoolean));
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to find getter for field "
+              + field.getName()
+              + " in class "
+              + parentClass.getName(),
+          e);
+    }
+    try {
+      fieldLevelInfo.setter =
+          parentClass.getMethod(ReflectionUtil.getSetterMethodName(field.getName()), fieldType);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to find setter for field "
+              + field.getName()
+              + " in class "
+              + parentClass.getName(),
+          e);
+    }
+    return fieldLevelInfo;
+  }
+
+  private String calculateInjectionGroupDescription(HopMetadataProperty property) {
+    String injectionGroupDescription = property.injectionGroupDescription();
+    if (StringUtils.isEmpty(injectionGroupDescription)) {
+      injectionGroupDescription = "";
+    }
+    return injectionGroupDescription;
+  }
+
+  private String calculateInjectionGroupKey(HopMetadataProperty property) {
+    String injectionGroupKey = property.injectionGroupKey();
+    if (StringUtils.isEmpty(injectionGroupKey)) {
+      injectionGroupKey = property.groupKey();
+    }
+    return injectionGroupKey;
+  }
+
+  private String calculateInjectionKeyDescription(HopMetadataProperty property) {
+    String injectionKeyDescription = property.injectionKeyDescription();
+    if (StringUtils.isEmpty(injectionKeyDescription)) {
+      injectionKeyDescription = "";
+    }
+    return injectionKeyDescription;
+  }
+
+  private String calculateInjectionKey(Field field, HopMetadataProperty property) {
+    String injectionKey = property.injectionKey();
+    if (StringUtils.isEmpty(injectionKey)) {
+      injectionKey = property.key();
+    }
+    if (StringUtils.isEmpty(injectionKey)) {
+      injectionKey = field.getName();
+    }
+    return injectionKey;
+  }
+
+  private void extractInjectionInfo(Class<Meta> clazz) {
+    Map<String, Type> parameterTypesMap = new HashMap<>();
+    TypeVariable<? extends Class<?>>[] typeParameters = clazz.getTypeParameters();
+    for (TypeVariable<? extends Class<?>> typeParameter : typeParameters) {
+      String parameterTypeName = typeParameter.getName();
+      Type parameterType = typeParameter.getBounds()[0];
+      parameterTypesMap.put(parameterTypeName, parameterType);
+    }
+
+    // Add an empty group
+    //
+    Group gr0 = new Group("", "");
+    groupsList.add(gr0);
+    groupsMap.put(gr0.getKey(), gr0);
+
+    for (String group : clazzAnnotation.groups()) {
+      String groupDescription = clazzAnnotation.localizationPrefix() + group;
+      Group gr = new Group(group, groupDescription);
+      groupsList.add(gr);
+      groupsMap.put(gr.getKey(), gr);
+    }
+    for (String p : clazzAnnotation.hide()) {
+      hideProperties.add(p);
+    }
+
+    BeanLevelInfo root = new BeanLevelInfo();
+    root.leafClass = clazz;
+    if (parameterTypesMap.isEmpty()) {
+      root.init(this);
+    } else {
+      root.init(this, parameterTypesMap);
+    }
+    properties = Collections.unmodifiableMap(properties);
+    groupsList = Collections.unmodifiableList(groupsList);
+    groupsMap = null;
   }
 
   public String getLocalizationPrefix() {
@@ -115,106 +337,130 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
     return groupsList;
   }
 
-  protected void addInjectionProperty( Injection metaInj, BeanLevelInfo leaf ) {
-    if ( StringUtils.isBlank( metaInj.name() ) ) {
-      throw new RuntimeException( "Property name shouldn't be blank in the " + clazz );
+  protected void addInjectionProperty(Injection metaInj, BeanLevelInfo leaf) {
+    if (StringUtils.isBlank(metaInj.name())) {
+      throw new RuntimeException("Property name shouldn't be blank in the " + clazz);
     }
 
-    String propertyName = calcPropertyName( metaInj, leaf );
-    if ( properties.containsKey( propertyName ) ) {
-      throw new RuntimeException( "Property '" + propertyName + "' already defined for " + clazz );
+    String propertyName = calcPropertyName(metaInj, leaf);
+    if (properties.containsKey(propertyName)) {
+      throw new RuntimeException("Property '" + propertyName + "' already defined for " + clazz);
     }
 
-    // probably hided
-    if ( hideProperties.contains( propertyName ) ) {
+    // probably hidden
+    if (hideProperties.contains(propertyName)) {
       return;
     }
 
-    Property prop = new Property( propertyName, metaInj.group(), leaf.createCallStack() );
-    properties.put( prop.name, prop );
-    Group gr = groupsMap.get( metaInj.group() );
-    if ( gr == null ) {
-      throw new RuntimeException( "Group '" + metaInj.group() + "' for property '" + metaInj.name() + "' is not defined " + clazz );
+    String injectionKeyDescription = clazzAnnotation.localizationPrefix() + propertyName;
+
+    Property prop =
+        new Property(
+            propertyName, injectionKeyDescription, metaInj.group(), leaf.createCallStack());
+    properties.put(prop.key, prop);
+    Group gr = groupsMap.get(metaInj.group());
+    if (gr == null) {
+      throw new RuntimeException(
+          "Group '"
+              + metaInj.group()
+              + "' for property '"
+              + metaInj.name()
+              + "' is not defined "
+              + clazz);
     }
-    gr.groupProperties.add( prop );
+    gr.properties.add(prop);
   }
 
-  public String getDescription( String name ) {
-    String description = BaseMessages.getString( clazz, clazzAnnotation.localizationPrefix() + name );
-    if ( description != null && description.startsWith( "!" ) && description.endsWith( "!" ) ) {
+  public String getDescription(String description) {
+    if (StringUtils.isEmpty(description)) {
+      return "";
+    }
+    String translated = BaseMessages.getString(clazz, description);
+    if (translated != null && translated.startsWith("!") && translated.endsWith("!")) {
       Class<?> baseClass = clazz.getSuperclass();
-      while ( baseClass != null ) {
-        InjectionSupported baseAnnotation = (InjectionSupported) baseClass.getAnnotation( InjectionSupported.class );
-        if ( baseAnnotation != null ) {
-          description = BaseMessages.getString( baseClass, baseAnnotation.localizationPrefix() + name );
-          if ( description != null && !description.startsWith( "!" ) && !description.endsWith( "!" ) ) {
-            return description;
+      while (baseClass != null) {
+        InjectionSupported baseAnnotation = baseClass.getAnnotation(InjectionSupported.class);
+        if (baseAnnotation != null) {
+          translated = BaseMessages.getString(baseClass, description);
+          if (translated != null && !translated.startsWith("!") && !translated.endsWith("!")) {
+            return translated;
           }
         }
         baseClass = baseClass.getSuperclass();
       }
     }
-    return description;
+    return translated;
   }
 
-  private String calcPropertyName( Injection metaInj, BeanLevelInfo leaf ) {
+  private String calcPropertyName(Injection metaInj, BeanLevelInfo leaf) {
     String name = metaInj.name();
-    while ( leaf != null ) {
-      if ( StringUtils.isNotBlank( leaf.prefix ) ) {
-        name = leaf.prefix + '.' + name;
+    while (leaf != null) {
+      if (StringUtils.isNotBlank(leaf.nameKey)) {
+        name = leaf.nameKey;
       }
       leaf = leaf.parent;
     }
-    if ( !name.equals( metaInj.name() ) && !metaInj.group().isEmpty() ) {
+    if (!name.equals(metaInj.name()) && !metaInj.group().isEmpty()) {
       // group exist with prefix
-      throw new RuntimeException( "Group shouldn't be declared with prefix in " + clazz );
+      throw new RuntimeException("Group shouldn't be declared with prefix in " + clazz);
     }
     return name;
   }
 
   public class Property {
-    private final String name;
-    private final String groupName;
+    private final String key;
+    private final String description;
+    private final String groupKey;
     protected final List<BeanLevelInfo> path;
     public final int pathArraysCount;
 
-    public Property( String name, String groupName, List<BeanLevelInfo> path ) {
-      this.name = name;
-      this.groupName = groupName;
+    public Property(String key, String description, String groupKey, List<BeanLevelInfo> path) {
+      this.key = key;
+      this.description = description;
+      this.groupKey = groupKey;
       this.path = path;
       int ac = 0;
-      for ( BeanLevelInfo level : path ) {
-        if ( level.dim != BeanLevelInfo.DIMENSION.NONE ) {
+      for (BeanLevelInfo level : path) {
+        if (level.dim != BeanLevelInfo.DIMENSION.NONE) {
           ac++;
         }
       }
       pathArraysCount = ac;
     }
 
-    public String getName() {
-      return name;
+    public String getKey() {
+      return key;
     }
 
-    public String getGroupName() {
-      return groupName;
-    }
-
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
     public String getDescription() {
-      return BeanInjectionInfo.this.getDescription( name );
+      return description;
+    }
+
+    public String getGroupKey() {
+      return groupKey;
+    }
+
+    public String getTranslatedDescription() {
+      return BeanInjectionInfo.this.getDescription(description);
     }
 
     public Class<?> getPropertyClass() {
-      return path.get( path.size() - 1 ).leafClass;
+      return path.get(path.size() - 1).leafClass;
     }
 
-    public boolean hasMatch( String filterString ) {
+    public boolean hasMatch(String filterString) {
       if (StringUtils.isEmpty(filterString)) {
         return true;
       }
-      if (getName().toUpperCase().contains( filterString.toUpperCase() )) {
+      if (getKey().toUpperCase().contains(filterString.toUpperCase())) {
         return true;
       }
-      if (getDescription().toUpperCase().contains( filterString.toUpperCase() )) {
+      if (getTranslatedDescription().toUpperCase().contains(filterString.toUpperCase())) {
         return true;
       }
       return false;
@@ -222,36 +468,47 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
   }
 
   public class Group {
-    private final String name;
-    protected final List<Property> groupProperties = new ArrayList<>();
+    private final String key;
+    private final String description;
+    protected final List<Property> properties = new ArrayList<>();
 
-    public Group( String name ) {
-      this.name = name;
+    public Group(String key, String description) {
+      this.key = key;
+      this.description = description;
     }
 
-    public String getName() {
-      return name;
+    public String getKey() {
+      return key;
     }
 
-    public List<Property> getGroupProperties() {
-      return Collections.unmodifiableList( groupProperties );
-    }
-
+    /**
+     * Gets groupDescription
+     *
+     * @return value of groupDescription
+     */
     public String getDescription() {
-      return BeanInjectionInfo.this.getDescription( name );
+      return description;
+    }
+
+    public List<Property> getProperties() {
+      return Collections.unmodifiableList(properties);
+    }
+
+    public String getTranslatedDescription() {
+      return BeanInjectionInfo.this.getDescription(description);
     }
 
     public boolean hasMatchingProperty(String filterString) {
       // Empty string always matches
-      if (StringUtils.isEmpty( filterString )) {
+      if (StringUtils.isEmpty(filterString)) {
         return true;
       }
       // The group name also matches
       //
-      if (name.toUpperCase().contains( filterString.toUpperCase() )) {
+      if (key.toUpperCase().contains(filterString.toUpperCase())) {
         return true;
       }
-      for (Property property : groupProperties) {
+      for (Property property : properties) {
         if (property.hasMatch(filterString)) {
           return true;
         }

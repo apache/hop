@@ -56,11 +56,15 @@ public class CalculatorMeta extends BaseTransformMeta
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
   /** The calculations to be performed */
-  @HopMetadataProperty(key = "calculation")
+  @HopMetadataProperty(
+      key = "calculation",
+      injectionGroupKey = "Calculations",
+      injectionGroupDescription = "CalculatorMeta.Injection.Calculations")
   private List<CalculatorMetaFunction> functions;
 
   /** Raise an error if file does not exist */
-  @HopMetadataProperty private boolean failIfNoFile;
+  @HopMetadataProperty(injectionKeyDescription = "CalculatorMeta.Injection.FailIfNoFile")
+  private boolean failIfNoFile;
 
   public CalculatorMeta() {
     this.failIfNoFile = true;
