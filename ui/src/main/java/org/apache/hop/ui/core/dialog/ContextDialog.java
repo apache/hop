@@ -44,13 +44,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -65,6 +58,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
@@ -131,7 +125,6 @@ public class ContextDialog extends Dialog {
 
   private Color highlightColor;
 
-  private int heightOffSet = 0;
   private int totalContentHeight = 0;
   private int previousTotalContentHeight = 0;
   private Font headerFont;
@@ -309,7 +302,7 @@ public class ContextDialog extends Dialog {
 
     shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setText(getText());
-    shell.setMinimumSize(new org.eclipse.swt.graphics.Point(200, 180));
+    shell.setMinimumSize(200, 180);
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setLayout(new FormLayout());
 
@@ -354,29 +347,13 @@ public class ContextDialog extends Dialog {
       items.add(new Item(action, image));
     }
 
-    // Create a toolbar at the top of the main composite...
-    //
-    toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.registerGuiPluginObject(this);
-    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
-    FormData layoutData = new FormData();
-    layoutData.left = new FormAttachment(0, 0);
-    layoutData.top = new FormAttachment(0, 0);
-    layoutData.right = new FormAttachment(100, 0);
-    toolBar.setLayoutData(layoutData);
-    toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
-    
-    recallToolbarSettings();
-
     // Add a search bar at the top...
     //
     Composite searchComposite = new Composite(shell, SWT.NONE);
-    searchComposite.setLayout(new GridLayout(2, false));
+    searchComposite.setLayout(new GridLayout(3, false));
     props.setLook(searchComposite);
     FormData fdlSearchComposite = new FormData();
-    fdlSearchComposite.top = new FormAttachment(toolBar, 0);
+    fdlSearchComposite.top = new FormAttachment(0, 0);
     fdlSearchComposite.left = new FormAttachment(0, 0);
     fdlSearchComposite.right = new FormAttachment(100, 0);
     searchComposite.setLayoutData(fdlSearchComposite);
@@ -385,9 +362,20 @@ public class ContextDialog extends Dialog {
     wlSearch.setText(BaseMessages.getString(PKG, "ContextDialog.Search.Label.Text"));
     props.setLook(wlSearch);
 
-    wSearch = new Text(searchComposite, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH);
+    wSearch = new Text(searchComposite, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearch.setLayoutData(new GridData(GridData.FILL_BOTH));
 
+    // Create a toolbar at the right of the search bar...
+    //
+    toolBar = new ToolBar(searchComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolBar.pack();
+    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    
+    recallToolbarSettings();
+    
     // Add a description label at the bottom...
     //
     wlTooltip = new Label(shell, SWT.LEFT);
@@ -397,12 +385,13 @@ public class ContextDialog extends Dialog {
     fdlTooltip.top =
         new FormAttachment(100, -Const.FORM_MARGIN - (int) (props.getZoomFactor() * 50));
     fdlTooltip.bottom = new FormAttachment(100, -Const.FORM_MARGIN);
-    wlTooltip.setLayoutData(fdlTooltip);
-
+    wlTooltip.setLayoutData(fdlTooltip);   
+    
+    
     // The rest of the dialog is used to draw the actions...
     //
     wScrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL);
-    wCanvas = new Canvas(wScrolledComposite, SWT.NO_BACKGROUND);
+    wCanvas = new Canvas(wScrolledComposite, SWT.NO_BACKGROUND | SWT.DOUBLE_BUFFERED);
     wScrolledComposite.setContent(wCanvas);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
@@ -410,7 +399,8 @@ public class ContextDialog extends Dialog {
     fdCanvas.top = new FormAttachment(searchComposite, 0);
     fdCanvas.bottom = new FormAttachment(wlTooltip, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
-
+    wScrolledComposite.setExpandHorizontal(true);
+    
     itemsFont = wCanvas.getFont();
 
     int fontHeight = wCanvas.getFont().getFontData()[0].getHeight() + 1;
@@ -438,109 +428,48 @@ public class ContextDialog extends Dialog {
 
     // Add all the listeners
     //
-    shell.addListener(SWT.Resize, event -> updateVerticalBar());
-    shell.addListener(SWT.Deactivate, event -> onFocusLost());
-    shell.addListener(SWT.Close, event -> storeDialogSettings());
-
-    wSearch.addModifyListener(event -> onModifySearch());
-
-    KeyAdapter keyAdapter =
-        new KeyAdapter() {
-          @Override
-          public void keyPressed(KeyEvent event) {
-            onKeyPressed(event);
-          }
-        };
-    wSearch.addKeyListener(keyAdapter);
-
-    wSearch.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            // Pressed enter
-            //
-            if (selectedItem != null) {
-              selectedAction = selectedItem.getAction();
-            }
-            dispose();
-          }
-        });
-
-    wCanvas.addPaintListener(event -> onPaint(event));
-    wCanvas.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDown(MouseEvent event) {
-
-            AreaOwner<OwnerType, Object> areaOwner =
-                AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
-            if (areaOwner == null) {
-              return;
-            }
-            switch (areaOwner.getParent()) {
-              case CATEGORY:
-                // Clicked on a category header: expand or unfold
-                //
-                CategoryAndOrder categoryAndOrder = (CategoryAndOrder) areaOwner.getOwner();
-                categoryAndOrder.flipCollapsed();
-                wCanvas.redraw();
-                break;
-              case ITEM:
-                // See which item we clicked on...
-                //
-                Item item = (Item) areaOwner.getOwner();
-                if (item != null) {
-                  selectedAction = item.getAction();
-
-                  shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
-                  ctrlClicked =
-                      (event.stateMask & SWT.CONTROL) != 0
-                          || (Const.isOSX() && (event.stateMask & SWT.COMMAND) != 0);
-
-                  dispose();
-                }
-              default:
-                break;
-            }
-          }
-        });
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      wCanvas.addMouseMoveListener(
-          (MouseEvent event) -> {
-            // Do we mouse over an action?
-            //
-            Item item = findItem(event.x, event.y);
-            if (item != null) {
-              selectItem(item, false);
-            }
-          });
-    }
-    wCanvas.addKeyListener(keyAdapter);
-
+    
     // If the shell is re-sized we need to recalculate things...
     //
-    shell.addListener(
-        SWT.Resize,
-        e -> {
-          shell.layout(true, true);
-          totalContentHeight = 0;
-          previousTotalContentHeight = 0;
-          wCanvas.redraw();
-          updateVerticalBar();
-        });
+    shell.addListener(SWT.Resize, event -> onResize(event));
+    shell.addListener(SWT.Deactivate, event -> onFocusLost());
+    shell.addListener(SWT.Close, event -> storeDialogSettings());
+    
+    wSearch.addListener(SWT.KeyDown, event -> onKeyPressed(event));
+    wSearch.addListener(SWT.Modify, event -> onModifySearch());
+    wSearch.addListener(SWT.DefaultSelection, event -> {
+
+      // Ignore this event
+      //
+      if (event.detail == SWT.ICON_SEARCH || event.detail == SWT.ICON_CANCEL) {
+        return;
+      }
+      
+      // Pressed enter
+      //
+      if (selectedItem != null) {
+        selectedAction = selectedItem.getAction();
+      }
+      dispose();
+    });
+
+    wCanvas.addListener(SWT.KeyDown, event -> onKeyPressed(event));
+    wCanvas.addListener(SWT.Paint, event -> onPaint(event));    
+    wCanvas.addListener(SWT.MouseDown, event -> onMouseDown(event));    
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      wCanvas.addListener(SWT.MouseMove, event -> onMouseMove(event));
+    }
 
     // OS Specific listeners...
     //
-    if (OsHelper.isWindows()) {
-      wScrolledComposite
-          .getVerticalBar()
-          .addListener(
-              SWT.Selection,
-              e -> {
-                wCanvas.redraw();
-              });
+    if (OsHelper.isMac()) {
+      wCanvas.addListener(SWT.MouseVerticalWheel, event -> {
+        org.eclipse.swt.graphics.Point origin = wScrolledComposite.getOrigin();
+        origin.y -= event.count;
+        wScrolledComposite.setOrigin(origin);
+      });
     }
-
+   
     // Layout all the widgets in the shell.
     //
     shell.layout();
@@ -711,36 +640,65 @@ public class ContextDialog extends Dialog {
     return (Button) checkboxItem.getControl();
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_CLEAR_SEARCH,
-      toolTip = "i18n::ContextDialog.GuiAction.ClearSearchFilter.Tooltip",
-      image = "ui/images/clear-text.svg",
-      separator = true)
-  public void clearSearchFilter() {
-    wSearch.setText("");
+  private void onMouseMove(Event event) {
+    // Do we mouse over an action?
+    //
+    Item item = findItem(event.x, event.y);
+    if (item != null) {
+      selectItem(item, false);
+    }
   }
+  
+  private void onMouseDown(Event event) {
+    AreaOwner<OwnerType, Object> areaOwner =
+        AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
+    if (areaOwner == null) {
+      return;
+    }
+    switch (areaOwner.getParent()) {
+      case CATEGORY:
+        // Clicked on a category header: expand or unfold
+        //
+        CategoryAndOrder categoryAndOrder = (CategoryAndOrder) areaOwner.getOwner();
+        categoryAndOrder.flipCollapsed();
+        wCanvas.redraw();
+        break;
+      case ITEM:
+        // See which item we clicked on...
+        //
+        Item item = (Item) areaOwner.getOwner();
+        if (item != null) {
+          selectedAction = item.getAction();
 
+          shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
+          ctrlClicked =
+              (event.stateMask & SWT.CONTROL) != 0
+                  || (Const.isOSX() && (event.stateMask & SWT.COMMAND) != 0);
+
+          dispose();
+        }
+      default:
+        break;
+    }
+  }
+  
+  private void onResize(Event event) {  
+   // wCanvas.redraw();
+    updateVerticalBar();   
+  }
+  
   /**
    * This is where all the actions are drawn
    *
    * @param event
    */
-  private void onPaint(PaintEvent event) {
+  private void onPaint(Event event) {
 
-    // Do double buffering to prevent flickering on Windows
-    //
-    boolean needsDoubleBuffering =
-        Const.isWindows() && "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
-
-    Image image = null;
     GC gc = event.gc;
 
-    if (needsDoubleBuffering) {
-      image = new Image(shell.getDisplay(), event.width, event.height);
-      gc = new GC(image);
-    }
-
+    org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
+    org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();  
+    
     boolean useCategories;
 
     Button categoriesCheckBox = getCategoriesCheckBox();
@@ -756,7 +714,7 @@ public class ContextDialog extends Dialog {
     //
     gc.setForeground(GuiResource.getInstance().getColorBlack());
     gc.setBackground(GuiResource.getInstance().getColorBackground());
-    gc.fillRectangle(0, 0, event.width, event.height);
+    gc.fillRectangle(0, 0, canvas.width, canvas.height);
 
     // For text and lines...
     //
@@ -767,38 +725,14 @@ public class ContextDialog extends Dialog {
     //
     areaOwners = new ArrayList<>();
 
-    // The size of the canvas right now?
-    //
-    org.eclipse.swt.graphics.Rectangle scrolledCompositeBounds = wScrolledComposite.getBounds();
-
-    // Did we draw before?
-    // If so we might have a maximum height and a scrollbar selection
-    //
-    if (totalContentHeight > 0) {
-      ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-
-      if (totalContentHeight > scrolledCompositeBounds.height) {
-        heightOffSet =
-            (int)
-                Math.floor(
-                    (float) totalContentHeight
-                        * verticalBar.getSelection()
-                        / (100 - verticalBar.getThumb()));
-      } else {
-        heightOffSet = 0;
-      }
-
-      // System.out.println("Bar="+verticalBar.getSelection()+"%  thumb="+verticalBar.getThumb()+"%
-      // offset="+heightOffSet+"  total="+totalContentHeight);
-    }
-
     // Draw all actions
     // Loop over the categories, if any...
     //
     int height = 0; // should always be about the same
     int categoryNr = 0;
     int x = margin;
-    int y = margin - heightOffSet;
+    int y = margin;
+    
 
     firstShownItem = null;
 
@@ -833,15 +767,15 @@ public class ContextDialog extends Dialog {
               new AreaOwner<>(
                   AreaOwner.AreaType.CUSTOM,
                   x,
-                  y + heightOffSet,
+                  y,
                   categoryExtent.x,
                   categoryExtent.y,
-                  new Point(0, heightOffSet),
+                  new Point(0, 0),
                   OwnerType.CATEGORY,
                   categoryAndOrder));
           y += categoryExtent.y + yMargin;
           gc.setLineWidth(1);
-          gc.drawLine(margin, y - yMargin, scrolledCompositeBounds.width - xMargin, y - yMargin);
+          gc.drawLine(margin, y - yMargin, area.width - xMargin, y - yMargin);
         }
 
         gc.setForeground(GuiResource.getInstance().getColorBlack());
@@ -866,7 +800,7 @@ public class ContextDialog extends Dialog {
             int width = Math.max(nameExtent.x, imageBounds.width);
             height = nameExtent.y + margin + imageBounds.height;
 
-            if (x + width + xMargin > scrolledCompositeBounds.width) {
+            if (x + width + xMargin > area.width) {
               x = margin;
               y += height + yMargin;
             }
@@ -885,7 +819,7 @@ public class ContextDialog extends Dialog {
 
             // So we draw the icon in the centre of the name text...
             //
-            gc.drawImage(item.image, x + nameExtent.x / 2 - imageBounds.width / 2, y);
+            gc.drawImage(item.getImage(), x + nameExtent.x / 2 - imageBounds.width / 2, y);
 
             // Then we draw the text underneath
             //
@@ -899,13 +833,13 @@ public class ContextDialog extends Dialog {
             // The drawn area is the complete rectangle
             //
             AreaOwner<OwnerType, Object> areaOwner =
-                new AreaOwner(
+                new AreaOwner<>(
                     AreaOwner.AreaType.CUSTOM,
                     x,
-                    y + heightOffSet,
+                    y,
                     width,
                     height,
-                    new Point(0, heightOffSet),
+                    new Point(0, 0),
                     OwnerType.ITEM,
                     item);
             areaOwners.add(areaOwner);
@@ -914,7 +848,7 @@ public class ContextDialog extends Dialog {
             // Now we advance x and y to where we want to draw the next one...
             //
             x += width + xMargin;
-            if (x > scrolledCompositeBounds.width) {
+            if (x > area.width) {
               x = margin;
               y += height + yMargin;
             }
@@ -937,20 +871,11 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    totalContentHeight = y + heightOffSet;
+    totalContentHeight = Math.max(area.height, y);
 
     if (previousTotalContentHeight != totalContentHeight) {
       previousTotalContentHeight = totalContentHeight;
-      wCanvas.setSize(wScrolledComposite.getClientArea().width, totalContentHeight);
-      updateVerticalBar();
-    }
-
-    if (needsDoubleBuffering) {
-      // Draw the image onto the canvas and get rid of the resources
-      //
-      event.gc.drawImage(image, 0, 0);
-      gc.dispose();
-      image.dispose();
+      wCanvas.setSize(area.width, totalContentHeight);
     }
   }
 
@@ -984,6 +909,7 @@ public class ContextDialog extends Dialog {
     if (selectedItem == null) {
       wlTooltip.setText("");
     } else {
+           
       this.selectedItem = selectedItem;
       wlTooltip.setText(Const.NVL(selectedItem.getAction().getTooltip(), ""));
       selectedItem.setSelected(true);
@@ -991,17 +917,21 @@ public class ContextDialog extends Dialog {
       // See if we need to show the selected item.
       //
       if (scroll && totalContentHeight > 0) {
-        org.eclipse.swt.graphics.Rectangle scrolledCompositeBounds = wScrolledComposite.getBounds();
-        Rectangle area = selectedItem.getAreaOwner().getArea();
+        Rectangle itemArea = selectedItem.getAreaOwner().getArea();
+       // System.out.println("selectItem " +itemArea);
+        org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
+
         ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-        if (area.y + area.height + 2 * yMargin > scrolledCompositeBounds.height) {
-          verticalBar.setSelection(
-              Math.min(
-                  verticalBar.getSelection() + verticalBar.getPageIncrement(),
-                  100 - verticalBar.getThumb()));
-        } else if (area.y < 0) {
-          verticalBar.setSelection(
-              Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
+        // Scroll down
+        // 
+        while (itemArea.y + itemArea.height + 2 * yMargin > verticalBar.getSelection()+clientArea.height) {
+          wScrolledComposite.setOrigin(0,Math.min(verticalBar.getSelection() + verticalBar.getPageIncrement(),verticalBar.getMaximum() - verticalBar.getThumb()));
+        }
+
+        // Scroll up
+        // 
+        while (itemArea.y < verticalBar.getSelection()) {
+          wScrolledComposite.setOrigin(0,Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));          
         }
       }
     }
@@ -1047,6 +977,7 @@ public class ContextDialog extends Dialog {
     else if (!filteredItems.contains(selectedItem)) {
       selectItem(filteredItems.get(0), false);
     }
+    
     // Update vertical bar
     //
     this.updateVerticalBar();
@@ -1056,7 +987,6 @@ public class ContextDialog extends Dialog {
 
   private void onFocusLost() {
     focusLost = true;
-
     dispose();
   }
 
@@ -1065,7 +995,7 @@ public class ContextDialog extends Dialog {
     this.filter(text);
   }
 
-  private synchronized void onKeyPressed(KeyEvent event) {
+  private synchronized void onKeyPressed(Event event) {
 
     if (filteredItems.isEmpty()) {
       return;
@@ -1074,10 +1004,10 @@ public class ContextDialog extends Dialog {
       return;
     }
 
+    
     // Which item area are we currently using as a base...
     //
     org.apache.hop.core.gui.Rectangle area = null;
-    ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
 
     if (selectedItem == null) {
       // Select the first shown item
@@ -1092,16 +1022,16 @@ public class ContextDialog extends Dialog {
 
     switch (event.keyCode) {
       case SWT.ARROW_DOWN:
-        // Find the next item down...
-        //
         selectItemDown(area);
         break;
       case SWT.ARROW_UP:
         selectItemUp(area);
         break;
       case SWT.PAGE_UP:
+        selectItemPageUp(area); 
         break;
       case SWT.PAGE_DOWN:
+        selectItemPageDown(area);
         break;
       case SWT.ARROW_LEFT:
         selectItemLeft(area);
@@ -1110,15 +1040,9 @@ public class ContextDialog extends Dialog {
         selectItemRight(area);
         break;
       case SWT.HOME:
-        verticalBar.setSelection(0);
         selectItem(firstShownItem, true);
         break;
       case SWT.END:
-        Rectangle lastArea = lastShownItem.getAreaOwner().getArea();
-        int bottomY = lastArea.y + lastArea.height + yMargin;
-        int percentage =
-            (int) ((100 - verticalBar.getThumb()) * ((double) bottomY / totalContentHeight));
-        verticalBar.setSelection(percentage - verticalBar.getThumb() / 2);
         selectItem(lastShownItem, true);
         break;
     }
@@ -1201,14 +1125,18 @@ public class ContextDialog extends Dialog {
     selectClosest(area, topAreas);
   }
 
+  /**
+   * Find an area owner directly to the bottom of the area
+   *
+   * @param area
+   */
   private void selectItemDown(Rectangle area) {
     List<AreaOwner> bottomAreas = new ArrayList<>();
     for (AreaOwner areaOwner : areaOwners) {
       if (areaOwner.getOwner() instanceof Item) {
         // Only keep the items to the left
         //
-        Rectangle r = areaOwner.getArea();
-        if (r.y > area.y + area.height) {
+        if (areaOwner.getArea().y > area.y + area.height) {
           bottomAreas.add(areaOwner);
         }
       }
@@ -1216,40 +1144,64 @@ public class ContextDialog extends Dialog {
     selectClosest(area, bottomAreas);
   }
 
+  private void selectItemPageUp(Rectangle area) {
+   ScrollBar verticalBar = wScrolledComposite.getVerticalBar();  
+    List<AreaOwner> topAreas = new ArrayList<>();
+    for (AreaOwner areaOwner : areaOwners) {
+      if (areaOwner.getOwner() instanceof Item) {
+        // Only keep the items to the left
+        //
+        if (areaOwner.getArea().y < area.y-verticalBar.getPageIncrement()) {
+          topAreas.add(areaOwner);
+        }
+      }
+    }    
+    if ( topAreas.isEmpty() ) topAreas.add(firstShownItem.getAreaOwner());
+    
+    selectClosest(area, topAreas);
+  }
+
+  private void selectItemPageDown(Rectangle area) {
+    ScrollBar verticalBar = wScrolledComposite.getVerticalBar();  
+    List<AreaOwner> bottomAreas = new ArrayList<>();
+    for (AreaOwner areaOwner : areaOwners) {
+      if (areaOwner.getOwner() instanceof Item) {
+        // Only keep the items to the left
+        //
+        Rectangle r = areaOwner.getArea();
+        if (r.y > area.y + area.height + verticalBar.getPageIncrement()) {
+          bottomAreas.add(areaOwner);
+        }
+      }
+    }
+    
+    if ( bottomAreas.isEmpty() ) bottomAreas.add(lastShownItem.getAreaOwner());
+    
+    selectClosest(area, bottomAreas);
+  }
+  
+  
   private void updateVerticalBar() {
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-    org.eclipse.swt.graphics.Rectangle scrolledCompositeBounds = wScrolledComposite.getBounds();
+    org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-    if (totalContentHeight < scrolledCompositeBounds.height) {
+    if (totalContentHeight < clientArea.height) {
       verticalBar.setEnabled(false);
       verticalBar.setVisible(false);
     } else {
       verticalBar.setEnabled(true);
       verticalBar.setVisible(true);
 
+      org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
+      
       verticalBar.setMinimum(0);
-      verticalBar.setMaximum(100);
+      verticalBar.setMaximum(bounds.height);
 
       // How much can we show in percentage?
       // That's the size of the thumb
-      //
-      int percentage = (int) ((double) 100 * scrolledCompositeBounds.height / totalContentHeight);
-      verticalBar.setThumb(percentage);
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        verticalBar.setPageIncrement(percentage / 2);
-        verticalBar.setIncrement(percentage / 10);
-      }
+      //      
+      verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
 
-      // Set the selection as well...
-      //
-      int selection =
-          Math.max(
-              0,
-              (int)
-                  ((double) 100
-                      * (heightOffSet - scrolledCompositeBounds.height)
-                      / totalContentHeight));
-      verticalBar.setSelection(selection);
     }
   }
 
