@@ -58,13 +58,20 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
 
-  @HopMetadataProperty(key = "valuename")
+  @HopMetadataProperty(
+      key = "valuename",
+      injectionKeyDescription = "AddSequenceDialog.Valuename.Label")
   private String valueName;
 
-  @HopMetadataProperty(key = "use_database")
+  @HopMetadataProperty(
+      key = "use_database",
+      injectionKeyDescription = "AddSequenceDialog.UseDatabase.Label")
   private boolean databaseUsed;
 
-  @HopMetadataProperty(key = "connection", storeWithName = true)
+  @HopMetadataProperty(
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "AddSequenceMeta.Injection.Connection")
   private DatabaseMeta databaseMeta;
 
   @HopMetadataProperty(key = "schema")

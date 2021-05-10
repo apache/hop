@@ -23,13 +23,13 @@
   </notepads>
   <order>
     <hop>
-      <from>Sample data</from>
-      <to>ETL metadata injection</to>
+      <from>Calculator Metadata</from>
+      <to>0001-calculator-child.hpl</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>ETL metadata injection</name>
+    <name>0001-calculator-child.hpl</name>
     <type>MetaInject</type>
     <description/>
     <distribute>Y</distribute>
@@ -51,36 +51,36 @@
         <target_transform_name>Calculator</target_transform_name>
         <target_attribute_key>field_b</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>Sample data</source_transform>
+        <source_transform>Calculator Metadata</source_transform>
         <source_field>FieldB</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>Calculator</target_transform_name>
-        <target_attribute_key>field_a</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>Sample data</source_transform>
-        <source_field>FieldA</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>Calculator</target_transform_name>
-        <target_attribute_key>value_type</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>Sample data</source_transform>
-        <source_field>Type</source_field>
       </mapping>
       <mapping>
         <target_transform_name>Calculator</target_transform_name>
         <target_attribute_key>field_name</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>Sample data</source_transform>
+        <source_transform>Calculator Metadata</source_transform>
         <source_field>FieldName</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Calculator</target_transform_name>
+        <target_attribute_key>field_a</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>Calculator Metadata</source_transform>
+        <source_field>FieldA</source_field>
       </mapping>
       <mapping>
         <target_transform_name>Calculator</target_transform_name>
         <target_attribute_key>calc_type</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>Sample data</source_transform>
+        <source_transform>Calculator Metadata</source_transform>
         <source_field>Calculation</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Calculator</target_transform_name>
+        <target_attribute_key>value_type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>Calculator Metadata</source_transform>
+        <source_field>Type</source_field>
       </mapping>
     </mappings>
     <attributes/>
@@ -90,7 +90,7 @@
     </GUI>
   </transform>
   <transform>
-    <name>Sample data</name>
+    <name>Calculator Metadata</name>
     <type>DataGrid</type>
     <description/>
     <distribute>Y</distribute>

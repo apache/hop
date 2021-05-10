@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -67,7 +68,7 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
   public static final RowMetaAndData buildRow(
       RowGeneratorMeta meta, List<ICheckResult> remarks, String origin) throws HopPluginException {
     IRowMeta rowMeta = new RowMeta();
-    Object[] rowData = RowDataUtil.allocateRowData(meta.getFieldName().length + 2);
+    Object[] rowData = RowDataUtil.allocateRowData(meta.getFields().size() + 2);
     int index = 0;
 
     if (meta.isNeverEnding()) {
@@ -82,27 +83,27 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
       }
     }
 
-    for (int i = 0; i < meta.getFieldName().length; i++) {
-      int valtype = ValueMetaFactory.getIdForValueMeta(meta.getFieldType()[i]);
-      if (meta.getFieldName()[i] != null) {
+    for (GeneratorField field : meta.getFields()) {
+      int typeString = ValueMetaFactory.getIdForValueMeta(field.getType());
+      if (StringUtils.isNotEmpty(field.getType())) {
         IValueMeta valueMeta =
-            ValueMetaFactory.createValueMeta(meta.getFieldName()[i], valtype); // build a
+            ValueMetaFactory.createValueMeta(field.getName(), typeString); // build a
         // value!
-        valueMeta.setLength(meta.getFieldLength()[i]);
-        valueMeta.setPrecision(meta.getFieldPrecision()[i]);
-        valueMeta.setConversionMask(meta.getFieldFormat()[i]);
-        valueMeta.setCurrencySymbol(meta.getCurrency()[i]);
-        valueMeta.setGroupingSymbol(meta.getGroup()[i]);
-        valueMeta.setDecimalSymbol(meta.getDecimal()[i]);
+        valueMeta.setLength(field.getLength());
+        valueMeta.setPrecision(field.getPrecision());
+        valueMeta.setConversionMask(field.getFormat());
+        valueMeta.setCurrencySymbol(field.getCurrency());
+        valueMeta.setGroupingSymbol(field.getGroup());
+        valueMeta.setDecimalSymbol(field.getDecimal());
         valueMeta.setOrigin(origin);
 
         IValueMeta stringMeta = ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
 
-        if (meta.isSetEmptyString() != null && meta.isSetEmptyString()[i]) {
+        if (field.isSetEmptyString()) {
           // Set empty string
           rowData[index] = StringUtil.EMPTY_STRING;
         } else {
-          String stringValue = meta.getValue()[i];
+          String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
           if (Utils.isEmpty(stringValue)) {
@@ -273,9 +274,9 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
 
       if (super.init()) {
         // Determine the number of rows to generate...
-        data.rowLimit = Const.toLong( resolve(meta.getRowLimit()), -1L);
+        data.rowLimit = Const.toLong(resolve(meta.getRowLimit()), -1L);
         data.rowsWritten = 0L;
-        data.delay = Const.toLong( resolve(meta.getIntervalInMs()), -1L);
+        data.delay = Const.toLong(resolve(meta.getIntervalInMs()), -1L);
 
         if (data.rowLimit < 0L) { // Unable to parse
           logError(BaseMessages.getString(PKG, "RowGenerator.Wrong.RowLimit.Number"));
