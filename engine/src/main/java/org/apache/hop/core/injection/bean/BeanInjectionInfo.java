@@ -395,8 +395,8 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
   private String calcPropertyName(Injection metaInj, BeanLevelInfo leaf) {
     String name = metaInj.name();
     while (leaf != null) {
-      if (StringUtils.isNotBlank(leaf.nameKey)) {
-        name = leaf.nameKey;
+      if (StringUtils.isNotEmpty(leaf.nameKey)) {
+        name = leaf.nameKey + "." + name;
       }
       leaf = leaf.parent;
     }

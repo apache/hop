@@ -247,7 +247,11 @@ class BeanLevelInfo<Meta extends ITransformMeta> {
     if (StringUtils.isEmpty(prefix)) {
       return name;
     } else {
-      return prefix + "." + name;
+      if (StringUtils.isEmpty(name)) {
+        return prefix;
+      } else {
+        return prefix + "." + name;
+      }
     }
   }
 
