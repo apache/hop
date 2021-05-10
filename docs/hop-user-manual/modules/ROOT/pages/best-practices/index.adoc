@@ -31,7 +31,7 @@ So please consider the advice given on this page as tips or free advice to be ta
 
 When looking at a pipeline or workflow it's so much easier to see what's going on if you give meaningful names to the transforms and workflows.
 
-image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name]
+image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name, width="65%"]
 
 For input and output files, why not use the filename you're using?
 
