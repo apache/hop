@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -77,7 +77,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
   private final RowGeneratorMeta input;
 
   public RowGeneratorDialog(
-    Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (RowGeneratorMeta) in;
   }
@@ -241,7 +241,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlFields.setLayoutData(fdlFields);
     lastControl = wlFields;
 
-    final int FieldsRows = input.getFieldName().length;
+    final int nrFields = input.getFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -296,7 +296,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            nrFields,
             lsMod,
             props);
 
@@ -377,36 +377,35 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wRowTimeField.setText(Const.NVL(input.getRowTimeField(), ""));
     wLastTimeField.setText(Const.NVL(input.getLastTimeField(), ""));
 
-    for (int i = 0; i < input.getFieldName().length; i++) {
-      if (input.getFieldName()[i] != null) {
-        TableItem item = wFields.table.getItem(i);
-        int col = 1;
-        item.setText(col++, input.getFieldName()[i]);
+    for (int i = 0; i < input.getFields().size(); i++) {
+      GeneratorField field = input.getFields().get(i);
+      TableItem item = wFields.table.getItem(i);
+      int col = 1;
+      item.setText(col++, Const.NVL(field.getName(), ""));
 
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ("" + input.getFieldLength()[i]);
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ("" + input.getFieldPrecision()[i]);
+      String type = field.getType();
+      String format = field.getFormat();
+      String length = field.getLength() < 0 ? "" : ("" + field.getLength());
+      String prec = field.getPrecision() < 0 ? "" : ("" + field.getPrecision());
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
-        String def = input.getValue()[i];
+      String curr = field.getCurrency();
+      String group = field.getGroup();
+      String decim = field.getDecimal();
+      String def = field.getValue();
 
-        item.setText(col++, Const.NVL(type, ""));
-        item.setText(col++, Const.NVL(format, ""));
-        item.setText(col++, Const.NVL(length, ""));
-        item.setText(col++, Const.NVL(prec, ""));
-        item.setText(col++, Const.NVL(curr, ""));
-        item.setText(col++, Const.NVL(decim, ""));
-        item.setText(col++, Const.NVL(group, ""));
-        item.setText(col++, Const.NVL(def, ""));
-        item.setText(
-            col++,
-            input.isSetEmptyString()[i]
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
-      }
+      item.setText(col++, Const.NVL(type, ""));
+      item.setText(col++, Const.NVL(format, ""));
+      item.setText(col++, Const.NVL(length, ""));
+      item.setText(col++, Const.NVL(prec, ""));
+      item.setText(col++, Const.NVL(curr, ""));
+      item.setText(col++, Const.NVL(decim, ""));
+      item.setText(col++, Const.NVL(group, ""));
+      item.setText(col++, Const.NVL(def, ""));
+      item.setText(
+          col++,
+          field.isSetEmptyString()
+              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              : BaseMessages.getString(PKG, "System.Combo.No"));
     }
 
     wFields.setRowNums();
@@ -450,29 +449,22 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     meta.setRowTimeField(wRowTimeField.getText());
     meta.setLastTimeField(wLastTimeField.getText());
 
-    int nrFields = wFields.nrNonEmpty();
-
-    meta.allocate(nrFields);
+    meta.getFields().clear();
 
     // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-
-      meta.getFieldName()[i] = item.getText(1);
-
-      meta.getFieldFormat()[i] = item.getText(3);
-      String slength = item.getText(4);
-      String sprec = item.getText(5);
-      meta.getCurrency()[i] = item.getText(6);
-      meta.getDecimal()[i] = item.getText(7);
-      meta.getGroup()[i] = item.getText(8);
-      meta.isSetEmptyString()[i] =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10));
-
-      meta.getValue()[i] = meta.isSetEmptyString()[i] ? "" : item.getText(9);
-      meta.getFieldType()[i] = meta.isSetEmptyString()[i] ? "String" : item.getText(2);
-      meta.getFieldLength()[i] = Const.toInt(slength, -1);
-      meta.getFieldPrecision()[i] = Const.toInt(sprec, -1);
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      GeneratorField field = new GeneratorField();
+      field.setName(item.getText(1));
+      field.setFormat(item.getText(3));
+      field.setLength(Const.toInt(item.getText(4), -1));
+      field.setPrecision(Const.toInt(item.getText(5), -1));
+      field.setCurrency(item.getText(6));
+      field.setDecimal(item.getText(7));
+      field.setGroup(item.getText(8));
+      field.setValue(field.isSetEmptyString() ? "" : item.getText(9));
+      field.setSetEmptyString(
+          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10)));
+      field.setType(field.isSetEmptyString() ? "String" : item.getText(2));
     }
 
     // Performs checks...
@@ -503,7 +495,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-          pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
@@ -515,7 +507,11 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     if (previewSize > 0) {
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-              shell, variables, previewMeta, new String[] {wTransformName.getText()}, new int[] {previewSize});
+              shell,
+              variables,
+              previewMeta,
+              new String[] {wTransformName.getText()},
+              new int[] {previewSize});
       progressDialog.open();
 
       Pipeline pipeline = progressDialog.getPipeline();

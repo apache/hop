@@ -56,17 +56,24 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   /** Threshold to abort. */
-  @HopMetadataProperty(key = "row_threshold")
+  @HopMetadataProperty(
+      key = "row_threshold",
+      injectionKeyDescription = "AbortDialog.Options.RowThreshold.Label")
   private String rowThreshold;
 
   /** Message to put in log when aborting. */
-  @HopMetadataProperty private String message;
+  @HopMetadataProperty(injectionKeyDescription = "AbortDialog.Logging.AbortMessage.Tooltip")
+  private String message;
 
   /** Always log rows. */
-  @HopMetadataProperty(key = "always_log_rows")
+  @HopMetadataProperty(
+      key = "always_log_rows",
+      injectionKeyDescription = "AbortDialog.Logging.AlwaysLogRows.Label")
   private boolean alwaysLogRows;
 
-  @HopMetadataProperty(key = "abort_option")
+  @HopMetadataProperty(
+      key = "abort_option",
+      injectionKeyDescription = "AbortMeta.Injection.AbortOption")
   private AbortOption abortOption;
 
   @Override

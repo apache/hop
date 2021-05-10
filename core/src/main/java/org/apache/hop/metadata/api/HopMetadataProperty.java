@@ -17,6 +17,9 @@
 
 package org.apache.hop.metadata.api;
 
+import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
+import org.apache.hop.core.injection.InjectionTypeConverter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -52,4 +55,36 @@ public @interface HopMetadataProperty {
 
   /** @return The default value to return for a non-existing boolean value */
   boolean defaultBoolean() default false;
+
+  /**
+   * @return The metadata key for this property. Don't specify any key if you want this to be the
+   *     same as key();
+   */
+  String injectionKey() default "";
+
+  /** @return The metadata description for this property. (i18n) */
+  String injectionKeyDescription() default "";
+
+  /**
+   * @return The metadata group key to which this property belongs. Don't specify any key if you
+   *     want this to be the same as key();
+   */
+  String injectionGroupKey() default "";
+
+  /** @return A description of the metadata group key to which this property belongs. (i18n) */
+  String injectionGroupDescription() default "";
+
+  /**
+   * A description of the field. Right now this is used only for metadata injection purposes
+   *
+   * @return The description of the property
+   */
+  String description() default "";
+
+  /**
+   * @return The class to instantiate to convert metadata properly for this property (dates,
+   *     numbers, ...)
+   */
+  Class<? extends InjectionTypeConverter> injectionConverter() default
+      DefaultInjectionTypeConverter.class;
 }

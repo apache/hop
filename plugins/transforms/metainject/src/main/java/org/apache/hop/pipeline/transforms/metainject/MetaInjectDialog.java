@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -581,24 +581,20 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
     props.setLook(treeTb);
 
-    ToolItem wExpandAll = new ToolItem( treeTb, SWT.PUSH );
+    ToolItem wExpandAll = new ToolItem(treeTb, SWT.PUSH);
     wExpandAll.setImage(GuiResource.getInstance().getImageExpandAll());
     wExpandAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ExpandAll"));
 
-    wExpandAll.addListener(
-        SWT.Selection,
-        e -> setExpandedState(true) );
+    wExpandAll.addListener(SWT.Selection, e -> setExpandedState(true));
 
-    ToolItem wCollapseAll = new ToolItem( treeTb, SWT.PUSH );
+    ToolItem wCollapseAll = new ToolItem(treeTb, SWT.PUSH);
     wCollapseAll.setImage(GuiResource.getInstance().getImageCollapseAll());
     wCollapseAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.CollapseAll"));
-    wCollapseAll.addListener(
-        SWT.Selection,
-        e -> setExpandedState(false) );
+    wCollapseAll.addListener(SWT.Selection, e -> setExpandedState(false));
 
-    ToolItem wFilter = new ToolItem( treeTb, SWT.SEPARATOR );
+    ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
     props.setLook(wSearchText);
     wSearchText.setToolTipText(
@@ -607,7 +603,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wFilter.setWidth((int) (120 * props.getZoomFactor()));
 
     // The search bar
-    ToolItem wSearch = new ToolItem( treeTb, SWT.PUSH );
+    ToolItem wSearch = new ToolItem(treeTb, SWT.PUSH);
     wSearch.setImage(GuiResource.getInstance().getImageSearch());
     wSearch.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.refresh.Label"));
@@ -869,7 +865,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     setActive();
     refreshTree();
-    setExpandedState( true );
+    setExpandedState(true);
 
     wTabFolder.setSelection(0);
 
@@ -887,7 +883,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       filterString = wSearchText.getText().toUpperCase();
     }
     refreshTree();
-    setExpandedState( true );
+    setExpandedState(true);
   }
 
   private void refreshTree() {
@@ -916,7 +912,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         //
         ITransformMeta metaInterface = transformMeta.getTransform();
         if (BeanInjectionInfo.isInjectionSupported(metaInterface.getClass())) {
-          processNewMDIDescription(transformMeta, transformItem, metaInterface);
+          processMDIDescription(transformMeta, transformItem, metaInterface);
         }
       }
 
@@ -934,7 +930,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
-  private void processNewMDIDescription(
+  private void processMDIDescription(
       TransformMeta transformMeta, TreeItem transformItem, ITransformMeta metaInterface) {
     BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(metaInterface.getClass());
 
@@ -944,30 +940,30 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       if (!gr.hasMatchingProperty(filterString)) {
         continue;
       }
-      boolean rootGroup = StringUtils.isEmpty(gr.getName());
+      boolean rootGroup = StringUtils.isEmpty(gr.getKey());
 
       TreeItem groupItem;
       if (!rootGroup) {
         groupItem = new TreeItem(transformItem, SWT.NONE);
-        groupItem.setText(gr.getName());
-        groupItem.setText(1, gr.getDescription());
+        groupItem.setText(gr.getKey());
+        groupItem.setText(1, gr.getTranslatedDescription());
         groupItem.setExpanded(true);
       } else {
         groupItem = null;
       }
 
-      List<BeanInjectionInfo.Property> propertyList = gr.getGroupProperties();
+      List<BeanInjectionInfo.Property> propertyList = gr.getProperties();
       for (BeanInjectionInfo.Property property : propertyList) {
         if (!property.hasMatch(filterString)) {
           continue;
         }
 
         TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
-        treeItem.setText(property.getName());
-        treeItem.setText(1, property.getDescription());
+        treeItem.setText(property.getKey());
+        treeItem.setText(1, property.getTranslatedDescription());
 
         TargetTransformAttribute target =
-            new TargetTransformAttribute(transformMeta.getName(), property.getName(), !rootGroup);
+            new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
         treeItemTargetMap.put(treeItem, target);
 
         SourceTransformField source = targetSourceMapping.get(target);
@@ -1157,18 +1153,18 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(iTransformMeta.getClass());
         List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
         for (BeanInjectionInfo.Group group : groupsList) {
-          boolean detail = StringUtils.isNotEmpty(group.getName());
-          List<BeanInjectionInfo.Property> propertyList = group.getGroupProperties();
+          boolean detail = StringUtils.isNotEmpty(group.getKey());
+          List<BeanInjectionInfo.Property> propertyList = group.getProperties();
           for (BeanInjectionInfo.Property property : propertyList) {
-            mappingTargets.add(new MappingTarget(transformMeta, property.getName(), detail));
-            String groupName = group.getName();
+            mappingTargets.add(new MappingTarget(transformMeta, property.getKey(), detail));
+            String groupName = group.getKey();
             String targetString = transformMeta.getName() + " | ";
             if (StringUtils.isNotEmpty(groupName)) {
               targetString += groupName + " - ";
             }
-            targetString += property.getName();
+            targetString += property.getKey();
             targetString += " : ";
-            targetString += property.getDescription();
+            targetString += property.getTranslatedDescription();
             targetStrings.add(targetString);
           }
         }

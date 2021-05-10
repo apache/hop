@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
@@ -1386,44 +1387,44 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         if (genMeta == null) {
           genMeta = new RowGeneratorMeta();
           genMeta.setRowLimit("10");
-          genMeta.allocate(rowMeta.size());
           // CHECKSTYLE:Indentation:OFF
           for (int i = 0; i < rowMeta.size(); i++) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
             if (valueMeta.isStorageBinaryString()) {
               valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
             }
-            genMeta.getFieldName()[i] = valueMeta.getName();
-            genMeta.getFieldType()[i] = valueMeta.getTypeDesc();
-            genMeta.getFieldLength()[i] = valueMeta.getLength();
-            genMeta.getFieldPrecision()[i] = valueMeta.getPrecision();
-            genMeta.getCurrency()[i] = valueMeta.getCurrencySymbol();
-            genMeta.getDecimal()[i] = valueMeta.getDecimalSymbol();
-            genMeta.getGroup()[i] = valueMeta.getGroupingSymbol();
+            GeneratorField field = new GeneratorField();
+            field.setName(valueMeta.getName());
+            field.setType(valueMeta.getTypeDesc());
+            field.setLength(valueMeta.getLength());
+            field.setPrecision(valueMeta.getPrecision());
+            field.setCurrency(valueMeta.getCurrencySymbol());
+            field.setDecimal(valueMeta.getDecimalSymbol());
+            field.setGroup(valueMeta.getGroupingSymbol());
 
             String string = null;
             switch (valueMeta.getType()) {
               case IValueMeta.TYPE_DATE:
-                genMeta.getFieldFormat()[i] = "yyyy/MM/dd HH:mm:ss";
-                valueMeta.setConversionMask(genMeta.getFieldFormat()[i]);
+                field.setFormat("yyyy/MM/dd HH:mm:ss");
+                valueMeta.setConversionMask(field.getFormat());
                 string = valueMeta.getString(new Date());
                 break;
               case IValueMeta.TYPE_STRING:
                 string = "test value test value";
                 break;
               case IValueMeta.TYPE_INTEGER:
-                genMeta.getFieldFormat()[i] = "#";
-                valueMeta.setConversionMask(genMeta.getFieldFormat()[i]);
+                field.setFormat("#");
+                valueMeta.setConversionMask(field.getFormat());
                 string = valueMeta.getString(Long.valueOf(0L));
                 break;
               case IValueMeta.TYPE_NUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask(genMeta.getFieldFormat()[i]);
+                field.setFormat("#.#");
+                valueMeta.setConversionMask(field.getFormat());
                 string = valueMeta.getString(Double.valueOf(0.0D));
                 break;
               case IValueMeta.TYPE_BIGNUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask(genMeta.getFieldFormat()[i]);
+                field.setFormat("#.#");
+                valueMeta.setConversionMask(field.getFormat());
                 string = valueMeta.getString(BigDecimal.ZERO);
                 break;
               case IValueMeta.TYPE_BOOLEAN:
@@ -1440,7 +1441,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
                 break;
             }
 
-            genMeta.getValue()[i] = string;
+            field.setValue(string);
+            genMeta.getFields().add(field);
           }
         }
         TransformMeta genTransform =
