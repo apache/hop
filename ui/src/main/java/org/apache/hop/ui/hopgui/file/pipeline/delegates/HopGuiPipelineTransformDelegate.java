@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
@@ -166,6 +167,16 @@ public class HopGuiPipelineTransformDelegate {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
         transformMeta.getTransform().resetTransformIoMeta();
+
+        // For backward compatibility: set the subjects to the names of the transforms
+        // This prevents UI data loss.
+        //
+        for (IStream infoStream :
+            transformMeta.getTransform().getTransformIOMeta().getInfoStreams()) {
+          if (infoStream.getTransformMeta() != null) {
+            infoStream.setSubject(infoStream.getTransformMeta().getName());
+          }
+        }
 
         // Re-search the metadata
         //
