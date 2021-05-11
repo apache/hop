@@ -643,7 +643,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     String hostname = resolve(Const.NVL(dm.getHostname(), ""));
     String portnum = resolve(Const.NVL(dm.getPort(), ""));
     String user = resolve(Const.NVL(dm.getUsername(), ""));
-    String password = resolve(Const.NVL(dm.getPassword(), ""));
+    String password = Utils.resolvePassword(variables, Const.NVL(dm.getPassword(), ""));
     String db = resolve(Const.NVL(dm.getDatabaseName(), ""));
 
     executeSql(query, hostname, Integer.parseInt(portnum), user, password, db);
