@@ -26,9 +26,7 @@ Getting and starting Hop couldn't be easier:
 
 == Download
 
-Download Hop from the http://hop.apache.org/download/[downloads page], where you can choose between a Hop release or a nightly build (Current Development Builds).
-
-TIP: Development builds go through rigorous testing before a build is considered successful. Even though they are considered stable, you shouldn't run the latest nightly build in production without proper testing.
+Download Hop from the http://hop.apache.org/download/[downloads page].
 
 == Prerequisites
 
