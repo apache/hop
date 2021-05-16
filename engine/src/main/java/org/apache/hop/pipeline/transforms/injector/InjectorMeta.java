@@ -56,7 +56,8 @@ import java.util.List;
     name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Injector",
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline",
-    keywords = "")
+    keywords = "",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/injector.html")
 public class InjectorMeta extends BaseTransformMeta
     implements ITransformMeta<Injector, InjectorData> {
 
