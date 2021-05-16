@@ -218,7 +218,7 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
   @Override
   protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/injector.html");
+    plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/pipeline/transforms/injector.html");
     return super.createHelpButton(shell, transformMeta, plugin);
   }
 
