@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.ReflectionUtil;
@@ -79,6 +80,10 @@ public class XmlMetadataUtil {
         //
         boolean isPassword = property.password();
 
+        // Store enums with their code?
+        //
+        boolean storeWithCode = property.storeWithCode();
+
         // Get the value of the field...
         //
         Object value = ReflectionUtil.getFieldValue(object, field.getName(), isBoolean);
@@ -88,7 +93,7 @@ public class XmlMetadataUtil {
           if (property.storeWithName()) {
             xml += XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName());
           } else {
-            xml += serializeObjectToXml(value, groupKey, tag, isPassword);
+            xml += serializeObjectToXml(value, groupKey, tag, isPassword, storeWithCode);
           }
         }
       }
@@ -98,7 +103,8 @@ public class XmlMetadataUtil {
   }
 
   private static String serializeObjectToXml(
-      Object value, String groupKey, String tag, boolean password) throws HopException {
+      Object value, String groupKey, String tag, boolean password, boolean storeWithCode)
+      throws HopException {
 
     String xml = "";
 
@@ -122,7 +128,11 @@ public class XmlMetadataUtil {
       } else if (value instanceof Date) {
         xml += XmlHandler.addTagValue(tag, (Date) value);
       } else if (value.getClass().isEnum()) {
-        xml += XmlHandler.addTagValue(tag, ((Enum) value).name());
+        if (storeWithCode) {
+          xml += XmlHandler.addTagValue(tag, ((IEnumHasCode) value).getCode());
+        } else {
+          xml += XmlHandler.addTagValue(tag, ((Enum) value).name());
+        }
       } else if (value instanceof java.util.List) {
 
         // Serialize a list of values
@@ -137,7 +147,7 @@ public class XmlMetadataUtil {
         //
         List listItems = (List) value;
         for (Object listItem : listItems) {
-          xml += serializeObjectToXml(listItem, groupKey, tag, password);
+          xml += serializeObjectToXml(listItem, groupKey, tag, password, storeWithCode);
         }
 
         if (StringUtils.isNotEmpty(groupKey)) {
@@ -213,6 +223,7 @@ public class XmlMetadataUtil {
         boolean defaultBoolean = property.defaultBoolean();
         boolean storeWithName = property.storeWithName();
         boolean password = property.password();
+        boolean storeWithCode = property.storeWithCode();
 
         Node tagNode = XmlHandler.getSubNode(node, tag);
         Node groupNode;
@@ -231,7 +242,8 @@ public class XmlMetadataUtil {
                 defaultBoolean,
                 storeWithName,
                 metadataProvider,
-                password);
+                password,
+                storeWithCode);
 
         try {
           ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
@@ -259,7 +271,8 @@ public class XmlMetadataUtil {
       boolean defaultBoolean,
       boolean storeWithName,
       IHopMetadataProvider metadataProvider,
-      boolean password)
+      boolean password,
+      boolean storeWithCode)
       throws HopXmlException {
 
     String elementString = XmlHandler.getNodeValue(elementNode);
@@ -315,7 +328,21 @@ public class XmlMetadataUtil {
     } else if (fieldType.isEnum()) {
       final Class<? extends Enum> enumerationClass = (Class<? extends Enum>) field.getType();
       if (StringUtils.isNotEmpty(elementString)) {
-        return Enum.valueOf(enumerationClass, elementString);
+        if (storeWithCode) {
+          try {
+            IEnumHasCode[] values = (IEnumHasCode[]) enumerationClass.getEnumConstants();
+            for (IEnumHasCode value : values) {
+              if (value.getCode().equals(elementString)) {
+                return value;
+              }
+            }
+          } catch (Exception e) {
+            throw new HopXmlException(
+                "Unable to get values() of enumeration to look up code value " + elementString, e);
+          }
+        } else {
+          return Enum.valueOf(enumerationClass, elementString);
+        }
       }
     } else if (fieldType.equals(java.util.List.class)) {
       // So if we have a List<Field> as per the unit test example
@@ -332,7 +359,16 @@ public class XmlMetadataUtil {
         try {
           Object newItem =
               deSerializeFromXml(
-                  listClass, null, itemNode, null, null, false, false, metadataProvider, password);
+                  listClass,
+                  null,
+                  itemNode,
+                  null,
+                  null,
+                  false,
+                  false,
+                  metadataProvider,
+                  password,
+                  storeWithCode);
 
           // Add it to the list
           //

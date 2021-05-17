@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -116,15 +116,15 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
 
       if (data.one != null) {
         // Find the key indexes:
-        data.keyNrs1 = new int[meta.getKeyFields1().length];
+        data.keyNrs1 = new int[meta.getKeyFields1().size()];
         for (int i = 0; i < data.keyNrs1.length; i++) {
-          data.keyNrs1[i] = data.oneMeta.indexOfValue(meta.getKeyFields1()[i]);
+          data.keyNrs1[i] = data.oneMeta.indexOfValue(meta.getKeyFields1().get(i));
           if (data.keyNrs1[i] < 0) {
             String message =
                 BaseMessages.getString(
                     PKG,
                     "MergeJoin.Exception.UnableToFindFieldInReferenceStream",
-                    meta.getKeyFields1()[i]);
+                    meta.getKeyFields1().get(i));
             logError(message);
             throw new HopTransformException(message);
           }
@@ -133,15 +133,15 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
 
       if (data.two != null) {
         // Find the key indexes:
-        data.keyNrs2 = new int[meta.getKeyFields2().length];
+        data.keyNrs2 = new int[meta.getKeyFields2().size()];
         for (int i = 0; i < data.keyNrs2.length; i++) {
-          data.keyNrs2[i] = data.twoMeta.indexOfValue(meta.getKeyFields2()[i]);
+          data.keyNrs2[i] = data.twoMeta.indexOfValue(meta.getKeyFields2().get(i));
           if (data.keyNrs2[i] < 0) {
             String message =
                 BaseMessages.getString(
                     PKG,
                     "MergeJoin.Exception.UnableToFindFieldInReferenceStream",
-                    meta.getKeyFields2()[i]);
+                    meta.getKeyFields2().get(i));
             logError(message);
             throw new HopTransformException(message);
           }
@@ -462,9 +462,9 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
   protected boolean isInputLayoutValid(IRowMeta row1, IRowMeta row2) {
     if (row1 != null && row2 != null) {
       // Compare the key types
-      String[] keyFields1 = meta.getKeyFields1();
+      LeftKey[] keyFields1 = meta.getKeyFields1().toArray(new LeftKey[0]);
       int nrKeyFields1 = keyFields1.length;
-      String[] keyFields2 = meta.getKeyFields2();
+      RightKey[] keyFields2 = meta.getKeyFields2().toArray(new RightKey[0]);
       int nrKeyFields2 = keyFields2.length;
 
       if (nrKeyFields1 != nrKeyFields2) {
@@ -473,11 +473,11 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
       }
 
       for (int i = 0; i < nrKeyFields1; i++) {
-        IValueMeta v1 = row1.searchValueMeta(keyFields1[i]);
+        IValueMeta v1 = row1.searchValueMeta(keyFields1[i].getKey());
         if (v1 == null) {
           return false;
         }
-        IValueMeta v2 = row2.searchValueMeta(keyFields2[i]);
+        IValueMeta v2 = row2.searchValueMeta(keyFields2[i].getKey());
         if (v2 == null) {
           return false;
         }

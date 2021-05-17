@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,19 +18,15 @@
 package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -45,11 +41,10 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@InjectionSupported(localizationPrefix = "MergeJoin.Injection.")
 @Transform(
     id = "MergeJoin",
     image = "mergejoin.svg",
@@ -65,52 +60,41 @@ public class MergeJoinMeta extends BaseTransformMeta
   public static final boolean[] one_optionals = {false, false, true, true};
   public static final boolean[] two_optionals = {false, true, false, true};
 
-  @Injection(name = "JOIN_TYPE")
+  @HopMetadataProperty(
+      key = "join_type",
+      injectionKey = "JOIN_TYPE",
+      injectionKeyDescription = "MergeJoin.Injection.JOIN_TYPE")
   private String joinType;
 
-  @Injection(name = "KEY_FIELD1")
-  private String[] keyFields1;
+  @HopMetadataProperty(
+      key = "transform1",
+      injectionKey = "LEFT_TRANSFORM",
+      injectionKeyDescription = "MergeJoin.Injection.LEFT_TRANSFORM")
+  private String leftTransformName;
 
-  @Injection(name = "KEY_FIELD2")
-  private String[] keyFields2;
+  @HopMetadataProperty(
+      key = "transform2",
+      injectionKey = "RIGHT_TRANSFORM",
+      injectionKeyDescription = "MergeJoin.Injection.RIGHT_TRANSFORM")
+  private String rightTransformName;
 
-  /**
-   * The supported join types are INNER, LEFT OUTER, RIGHT OUTER and FULL OUTER
-   *
-   * @return The type of join
-   */
-  public String getJoinType() {
-    return joinType;
-  }
+  @HopMetadataProperty(
+      groupKey = "keys_1",
+      key = "key",
+      injectionGroupKey = "KEY_FIELDS1",
+      injectionGroupDescription = "MergeJoin.Injection.KEY_FIELDS1",
+      injectionKey = "KEY_FIELD1",
+      injectionKeyDescription = "MergeJoin.Injection.KEY_FIELD1")
+  private List<String> keyFields1;
 
-  /**
-   * Sets the type of join
-   *
-   * @param joinType The type of join, e.g. INNER/FULL OUTER
-   */
-  public void setJoinType(String joinType) {
-    this.joinType = joinType;
-  }
-
-  /** @return Returns the keyFields1. */
-  public String[] getKeyFields1() {
-    return keyFields1;
-  }
-
-  /** @param keyFields1 The keyFields1 to set. */
-  public void setKeyFields1(String[] keyFields1) {
-    this.keyFields1 = keyFields1;
-  }
-
-  /** @return Returns the keyFields2. */
-  public String[] getKeyFields2() {
-    return keyFields2;
-  }
-
-  /** @param keyFields2 The keyFields2 to set. */
-  public void setKeyFields2(String[] keyFields2) {
-    this.keyFields2 = keyFields2;
-  }
+  @HopMetadataProperty(
+      groupKey = "keys_2",
+      key = "key",
+      injectionGroupKey = "KEY_FIELDS2",
+      injectionGroupDescription = "MergeJoin.Injection.KEY_FIELDS2",
+      injectionKey = "KEY_FIELD2",
+      injectionKeyDescription = "MergeJoin.Injection.KEY_FIELD2")
+  private List<String> keyFields2;
 
   public boolean excludeFromRowLayoutVerification() {
     return true;
@@ -127,105 +111,29 @@ public class MergeJoinMeta extends BaseTransformMeta
   }
 
   public MergeJoinMeta() {
-    super(); // allocate BaseTransformMeta
+    keyFields1 = new ArrayList<>();
+    keyFields2 = new ArrayList<>();
   }
 
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
+  public MergeJoinMeta clone() {
+    MergeJoinMeta meta = new MergeJoinMeta();
 
-  public void allocate(int nrKeys1, int nrKeys2) {
-    keyFields1 = new String[nrKeys1];
-    keyFields2 = new String[nrKeys2];
-  }
+    meta.leftTransformName = this.leftTransformName;
+    meta.rightTransformName = this.rightTransformName;
+    meta.joinType = this.joinType;
+    meta.keyFields1.addAll(this.keyFields1);
+    meta.keyFields2.addAll(this.keyFields2);
 
-  public Object clone() {
-    MergeJoinMeta retval = (MergeJoinMeta) super.clone();
-    int nrKeys1 = keyFields1.length;
-    int nrKeys2 = keyFields2.length;
-    retval.allocate(nrKeys1, nrKeys2);
-    System.arraycopy(keyFields1, 0, retval.keyFields1, 0, nrKeys1);
-    System.arraycopy(keyFields2, 0, retval.keyFields2, 0, nrKeys2);
-
-    ITransformIOMeta transformIOMeta = new TransformIOMeta(true, true, false, false, false, false);
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-
-    for (IStream infoStream : infoStreams) {
-      transformIOMeta.addStream(new Stream(infoStream));
-    }
-    retval.setTransformIOMeta(transformIOMeta);
-
-    return retval;
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-
-    retval.append(XmlHandler.addTagValue("join_type", getJoinType()));
-    retval.append(XmlHandler.addTagValue("transform1", infoStreams.get(0).getTransformName()));
-    retval.append(XmlHandler.addTagValue("transform2", infoStreams.get(1).getTransformName()));
-
-    retval.append("    <keys_1>" + Const.CR);
-    for (int i = 0; i < keyFields1.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue("key", keyFields1[i]));
-    }
-    retval.append("    </keys_1>" + Const.CR);
-
-    retval.append("    <keys_2>" + Const.CR);
-    for (int i = 0; i < keyFields2.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue("key", keyFields2[i]));
-    }
-    retval.append("    </keys_2>" + Const.CR);
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      Node keysNode1 = XmlHandler.getSubNode(transformNode, "keys_1");
-      Node keysNode2 = XmlHandler.getSubNode(transformNode, "keys_2");
-
-      int nrKeys1 = XmlHandler.countNodes(keysNode1, "key");
-      int nrKeys2 = XmlHandler.countNodes(keysNode2, "key");
-
-      allocate(nrKeys1, nrKeys2);
-
-      for (int i = 0; i < nrKeys1; i++) {
-        Node keynode = XmlHandler.getSubNodeByNr(keysNode1, "key", i);
-        keyFields1[i] = XmlHandler.getNodeValue(keynode);
-      }
-
-      for (int i = 0; i < nrKeys2; i++) {
-        Node keynode = XmlHandler.getSubNodeByNr(keysNode2, "key", i);
-        keyFields2[i] = XmlHandler.getNodeValue(keynode);
-      }
-
-      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      infoStreams.get(0).setSubject(XmlHandler.getTagValue(transformNode, "transform1"));
-      infoStreams.get(1).setSubject(XmlHandler.getTagValue(transformNode, "transform2"));
-      joinType = XmlHandler.getTagValue(transformNode, "join_type");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "MergeJoinMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
-  }
-
-  public void setDefault() {
-    joinType = joinTypes[0];
-    allocate(0, 0);
+    return meta;
   }
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
-    }
+    infoStreams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
+    infoStreams
+        .get(1)
+        .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
   }
 
   public void check(
@@ -329,5 +237,75 @@ public class MergeJoinMeta extends BaseTransformMeta
     return new PipelineType[] {
       PipelineType.Normal,
     };
+  }
+
+  /**
+   * Gets joinType
+   *
+   * @return value of joinType
+   */
+  public String getJoinType() {
+    return joinType;
+  }
+
+  /** @param joinType The joinType to set */
+  public void setJoinType(String joinType) {
+    this.joinType = joinType;
+  }
+
+  /**
+   * Gets leftTransformName
+   *
+   * @return value of leftTransformName
+   */
+  public String getLeftTransformName() {
+    return leftTransformName;
+  }
+
+  /** @param leftTransformName The leftTransformName to set */
+  public void setLeftTransformName(String leftTransformName) {
+    this.leftTransformName = leftTransformName;
+  }
+
+  /**
+   * Gets rightTransformName
+   *
+   * @return value of rightTransformName
+   */
+  public String getRightTransformName() {
+    return rightTransformName;
+  }
+
+  /** @param rightTransformName The rightTransformName to set */
+  public void setRightTransformName(String rightTransformName) {
+    this.rightTransformName = rightTransformName;
+  }
+
+  /**
+   * Gets keyFields1
+   *
+   * @return value of keyFields1
+   */
+  public List<String> getKeyFields1() {
+    return keyFields1;
+  }
+
+  /** @param keyFields1 The keyFields1 to set */
+  public void setKeyFields1(List<String> keyFields1) {
+    this.keyFields1 = keyFields1;
+  }
+
+  /**
+   * Gets keyFields2
+   *
+   * @return value of keyFields2
+   */
+  public List<String> getKeyFields2() {
+    return keyFields2;
+  }
+
+  /** @param keyFields2 The keyFields2 to set */
+  public void setKeyFields2(List<String> keyFields2) {
+    this.keyFields2 = keyFields2;
   }
 }
