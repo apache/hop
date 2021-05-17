@@ -270,7 +270,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
       throws HopTransformException;
 
   /**
-   * Standard method to return an SqlStatement object with SQL statements that the transform needs
+   * Standard method to return an SqlStatement object with Sql statements that the transform needs
    * in order to work correctly. This can mean "create table", "create index" statements but also
    * "alter table ... add/drop/modify" statements.
    *
@@ -280,7 +280,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param prev Row containing meta-data for the input fields (no data)
    * @param metadataProvider the MetaStore to use to load additional external data or metadata
    *     impacting the output fields
-   * @return The SQL Statements for this transform. If nothing has to be done, the
+   * @return The Sql Statements for this transform. If nothing has to be done, the
    *     SqlStatement.getSql() == null. @see SqlStatement
    */
   SqlStatement getSqlStatements(

@@ -244,7 +244,7 @@ public class BaseTransformMeta implements Cloneable {
       throws HopTransformException {}
 
   /**
-   * Standard method to return an SqlStatement object with SQL statements that the transform needs
+   * Standard method to return an SqlStatement object with Sql statements that the transform needs
    * in order to work correctly. This can mean "create table", "create index" statements but also
    * "alter table ... add/drop/modify" statements.
    *
@@ -254,7 +254,7 @@ public class BaseTransformMeta implements Cloneable {
    * @param prev Row containing meta-data for the input fields (no data)
    * @param metadataProvider the MetaStore to use to load additional external data or metadata
    *     impacting the output fields
-   * @return The SQL Statements for this transform. If nothing has to be done, the
+   * @return The Sql Statements for this transform. If nothing has to be done, the
    *     SqlStatement.getSql() == null. @see SqlStatement
    */
   public SqlStatement getSqlStatements(
@@ -264,7 +264,7 @@ public class BaseTransformMeta implements Cloneable {
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    // default: this doesn't require any SQL statements to be executed!
+    // default: this doesn't require any Sql statements to be executed!
     return new SqlStatement(transformMeta.getName(), null, null);
   }
 

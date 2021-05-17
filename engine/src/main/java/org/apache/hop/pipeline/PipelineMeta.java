@@ -3056,23 +3056,23 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
+   * Builds a list of all the Sql statements that this pipeline needs in order to work properly.
    *
    * @param variables the variables to resolve variable expressions with
    * @return An ArrayList of SqlStatement objects.
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public List<SqlStatement> getSqlStatements(IVariables variables) throws HopTransformException {
     return getSqlStatements(variables, null);
   }
 
   /**
-   * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
+   * Builds a list of all the Sql statements that this pipeline needs in order to work properly.
    *
    * @param variables the variables to resolve variable expressions with
-   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
+   * @param monitor a progress monitor listener to be updated as the Sql statements are generated
    * @return An ArrayList of SqlStatement objects.
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public List<SqlStatement> getSqlStatements(IVariables variables, IProgressMonitor monitor)
       throws HopTransformException {
@@ -3113,10 +3113,10 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get the SQL statements (needed to run this pipeline) as a single String.
+   * Get the Sql statements (needed to run this pipeline) as a single String.
    *
-   * @return the SQL statements needed to run this pipeline
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @return the Sql statements needed to run this pipeline
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public String getSqlStatementsString(IVariables variables) throws HopTransformException {
     String sql = "";
@@ -3136,7 +3136,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param remarks The remarks list to add to.
    * @param only_selected true to check only the selected transforms, false for all transforms
-   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
+   * @param monitor a progress monitor listener to be updated as the Sql statements are generated
    */
   public void checkTransforms(
       List<ICheckResult> remarks,

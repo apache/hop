@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /** Storage for one transform on the bean deep level. */
-class BeanLevelInfo<Meta extends ITransformMeta> {
+public class BeanLevelInfo<Meta extends Object> {
   enum DIMENSION {
     NONE,
     ARRAY,
