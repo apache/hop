@@ -1029,47 +1029,16 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wFilename.addModifyListener( e -> wFilename.setToolTipText( "" ) );
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = "";
-            dialog.setFilterPath( fpath );
-          }
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
-        } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-
-          if ( PropertyInputMeta.getFileTypeByDesc( wFileType.getText() ) == PropertyInputMeta.FILE_TYPE_PROPERTY ) {
-            dialog.setFilterExtensions( new String[] { "*.properties;*.PROPERTIES", "*" } );
-            dialog.setFilterNames( new String[] {
-              BaseMessages.getString( PKG, "PropertyInputDialog.FileType.PropertiesFiles" ),
-              BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-          } else {
-            dialog.setFilterExtensions( new String[] { "*.ini;*.INI", "*" } );
-            dialog.setFilterNames( new String[] {
-              BaseMessages.getString( PKG, "PropertyInputDialog.FileType.INIFiles" ),
-              BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-          }
-
-          if ( wFilename.getText() != null ) {
-            String fname = "";
-            dialog.setFileName( fname );
-          }
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
-        }
-      }
-    } );
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
+              (PropertyInputMeta.getFileTypeByDesc( wFileType.getText() ) == PropertyInputMeta.FILE_TYPE_PROPERTY) ?
+                new String[] { "*.properties;*.PROPERTIES", "*" }  : new String[] { "*.ini;*.INI", "*" } ,
+              (PropertyInputMeta.getFileTypeByDesc( wFileType.getText() ) == PropertyInputMeta.FILE_TYPE_PROPERTY) ?
+                new String[] { BaseMessages.getString( PKG, "PropertyInputDialog.FileType.PropertiesFiles" ),
+                    BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } :
+                new String[] { BaseMessages.getString( PKG, "PropertyInputDialog.FileType.INIFiles" ),
+                    BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+            true )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
