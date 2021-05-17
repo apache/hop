@@ -581,6 +581,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
     props.setLook(treeTb);
 
+    ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
+    wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL );
+    props.setLook(wSearchText);
+    wSearchText.setToolTipText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
+    wFilter.setControl(wSearchText);
+    wFilter.setWidth((int) (150 * props.getZoomFactor()));
+
     ToolItem wExpandAll = new ToolItem(treeTb, SWT.PUSH);
     wExpandAll.setImage(GuiResource.getInstance().getImageExpandAll());
     wExpandAll.setToolTipText(
@@ -593,22 +601,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wCollapseAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.CollapseAll"));
     wCollapseAll.addListener(SWT.Selection, e -> setExpandedState(false));
-
-    ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
-    wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
-    props.setLook(wSearchText);
-    wSearchText.setToolTipText(
-        BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
-    wFilter.setControl(wSearchText);
-    wFilter.setWidth((int) (120 * props.getZoomFactor()));
-
-    // The search bar
-    ToolItem wSearch = new ToolItem(treeTb, SWT.PUSH);
-    wSearch.setImage(GuiResource.getInstance().getImageSearch());
-    wSearch.setToolTipText(
-        BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.refresh.Label"));
-    wSearch.addListener(SWT.Selection, e -> updateTransformationFilter());
-
+    
+    
     FormData fd = new FormData();
     fd.right = new FormAttachment(100);
     fd.top = new FormAttachment(0, 0);
@@ -648,11 +642,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "MetaInjectDialog.Column.TargetDescription"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
               BaseMessages.getString(PKG, "MetaInjectDialog.Column.SourceTransform"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               false,
@@ -668,7 +657,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     for (ColumnInfo columnInfo : colinf) {
       TreeColumn treeColumn = new TreeColumn(wTree, columnInfo.getAlignment());
       treeColumn.setText(columnInfo.getName());
-      treeColumn.setWidth((int) (200 * props.getZoomFactor()));
+      treeColumn.setWidth((int) (300 * props.getZoomFactor()));
     }
 
     wTree.addListener(SWT.MouseDown, this::treeClicked);
@@ -750,17 +739,17 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
             SourceTransformField newSource = fieldMap.get(selectedTransformField);
             if (newSource == null) {
               newSource = new SourceTransformField(null, selectedTransformField);
-              item.setText(2, CONST_VALUE);
-              item.setText(3, selectedTransformField);
+              item.setText(1, CONST_VALUE);
+              item.setText(2, selectedTransformField);
             } else {
-              item.setText(2, newSource.getTransformName());
-              item.setText(3, newSource.getField());
+              item.setText(1, newSource.getTransformName());
+              item.setText(2, newSource.getField());
             }
             targetSourceMapping.put(target, newSource);
           } else {
             if (selectSourceFieldDialog.isNoneClicked()) {
+              item.setText(1, "");
               item.setText(2, "");
-              item.setText(3, "");
               targetSourceMapping.remove(target);
             }
           }
@@ -907,7 +896,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         TreeItem transformItem = new TreeItem(wTree, SWT.NONE);
         transformItem.setText(transformMeta.getName());
         transformItem.setExpanded(true);
-
+       
+        
+        Image image = GuiResource.getInstance()
+        .getImagesTransforms()
+        .get(transformMeta.getPluginId())
+        .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
+        transformItem.setImage(image);
+        
         // For each transform, add the keys
         //
         ITransformMeta metaInterface = transformMeta.getTransform();
@@ -945,8 +941,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       TreeItem groupItem;
       if (!rootGroup) {
         groupItem = new TreeItem(transformItem, SWT.NONE);
-        groupItem.setText(gr.getKey());
-        groupItem.setText(1, gr.getTranslatedDescription());
+        groupItem.setText(Const.NVL(gr.getTranslatedDescription(),gr.getKey()));
         groupItem.setExpanded(true);
       } else {
         groupItem = null;
@@ -959,9 +954,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         }
 
         TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
-        treeItem.setText(property.getKey());
-        treeItem.setText(1, property.getTranslatedDescription());
-
+        treeItem.setText(Const.NVL(property.getTranslatedDescription(),property.getKey()));        
+        
         TargetTransformAttribute target =
             new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
         treeItemTargetMap.put(treeItem, target);
@@ -969,10 +963,10 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         SourceTransformField source = targetSourceMapping.get(target);
         if (source != null) {
           treeItem.setText(
-              2,
+              1,
               Const.NVL(
                   source.getTransformName() == null ? CONST_VALUE : source.getTransformName(), ""));
-          treeItem.setText(3, Const.NVL(source.getField(), ""));
+          treeItem.setText(2, Const.NVL(source.getField(), ""));
         }
       }
     }
