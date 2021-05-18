@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -85,9 +85,11 @@ public class ContextDialog extends Dialog {
   public static final String TOOLBAR_ITEM_EXPAND_ALL = "ContextDialog-Toolbar-10020-ExpandAll";
   public static final String TOOLBAR_ITEM_ENABLE_CATEGORIES =
       "ContextDialog-Toolbar-10030-EnableCategories";
+  public static final String TOOLBAR_ITEM_FIXED_WIDTH = "ContextDialog-Toolbar-10040-FixedWidth";
   public static final String TOOLBAR_ITEM_CLEAR_SEARCH = "ContextDialog-Toolbar-10040-ClearSearch";
 
   public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialogShowCategories";
+  public static final String AUDIT_TYPE_TOOLBAR_FIXED_WIDTH = "ContextDialogFixedWidth";
   public static final String AUDIT_TYPE_CONTEXT_DIALOG = "ContextDialog";
   public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
@@ -230,6 +232,23 @@ public class ContextDialog extends Dialog {
       this.selected = false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Item item = (Item) o;
+      return Objects.equals(action, item.action);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(action);
+    }
+
     public GuiAction getAction() {
       return action;
     }
@@ -362,7 +381,10 @@ public class ContextDialog extends Dialog {
     wlSearch.setText(BaseMessages.getString(PKG, "ContextDialog.Search.Label.Text"));
     props.setLook(wlSearch);
 
-    wSearch = new Text(searchComposite, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+    wSearch =
+        new Text(
+            searchComposite,
+            SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearch.setLayoutData(new GridData(GridData.FILL_BOTH));
 
     // Create a toolbar at the right of the search bar...
@@ -373,9 +395,9 @@ public class ContextDialog extends Dialog {
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     toolBar.pack();
     props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
-    
+
     recallToolbarSettings();
-    
+
     // Add a description label at the bottom...
     //
     wlTooltip = new Label(shell, SWT.LEFT);
@@ -385,9 +407,8 @@ public class ContextDialog extends Dialog {
     fdlTooltip.top =
         new FormAttachment(100, -Const.FORM_MARGIN - (int) (props.getZoomFactor() * 50));
     fdlTooltip.bottom = new FormAttachment(100, -Const.FORM_MARGIN);
-    wlTooltip.setLayoutData(fdlTooltip);   
-    
-    
+    wlTooltip.setLayoutData(fdlTooltip);
+
     // The rest of the dialog is used to draw the actions...
     //
     wScrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL);
@@ -400,7 +421,7 @@ public class ContextDialog extends Dialog {
     fdCanvas.bottom = new FormAttachment(wlTooltip, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
     wScrolledComposite.setExpandHorizontal(true);
-    
+
     itemsFont = wCanvas.getFont();
 
     int fontHeight = wCanvas.getFont().getFontData()[0].getHeight() + 1;
@@ -428,34 +449,36 @@ public class ContextDialog extends Dialog {
 
     // Add all the listeners
     //
-    
+
     // If the shell is re-sized we need to recalculate things...
     //
     shell.addListener(SWT.Resize, event -> onResize(event));
     shell.addListener(SWT.Deactivate, event -> onFocusLost());
     shell.addListener(SWT.Close, event -> storeDialogSettings());
-    
+
     wSearch.addListener(SWT.KeyDown, event -> onKeyPressed(event));
     wSearch.addListener(SWT.Modify, event -> onModifySearch());
-    wSearch.addListener(SWT.DefaultSelection, event -> {
+    wSearch.addListener(
+        SWT.DefaultSelection,
+        event -> {
 
-      // Ignore this event
-      //
-      if (event.detail == SWT.ICON_SEARCH || event.detail == SWT.ICON_CANCEL) {
-        return;
-      }
-      
-      // Pressed enter
-      //
-      if (selectedItem != null) {
-        selectedAction = selectedItem.getAction();
-      }
-      dispose();
-    });
+          // Ignore this event
+          //
+          if (event.detail == SWT.ICON_SEARCH || event.detail == SWT.ICON_CANCEL) {
+            return;
+          }
+
+          // Pressed enter
+          //
+          if (selectedItem != null) {
+            selectedAction = selectedItem.getAction();
+          }
+          dispose();
+        });
 
     wCanvas.addListener(SWT.KeyDown, event -> onKeyPressed(event));
-    wCanvas.addListener(SWT.Paint, event -> onPaint(event));    
-    wCanvas.addListener(SWT.MouseDown, event -> onMouseDown(event));    
+    wCanvas.addListener(SWT.Paint, event -> onPaint(event));
+    wCanvas.addListener(SWT.MouseDown, event -> onMouseDown(event));
     if (!EnvironmentUtils.getInstance().isWeb()) {
       wCanvas.addListener(SWT.MouseMove, event -> onMouseMove(event));
     }
@@ -463,13 +486,15 @@ public class ContextDialog extends Dialog {
     // OS Specific listeners...
     //
     if (OsHelper.isMac()) {
-      wCanvas.addListener(SWT.MouseVerticalWheel, event -> {
-        org.eclipse.swt.graphics.Point origin = wScrolledComposite.getOrigin();
-        origin.y -= event.count;
-        wScrolledComposite.setOrigin(origin);
-      });
+      wCanvas.addListener(
+          SWT.MouseVerticalWheel,
+          event -> {
+            org.eclipse.swt.graphics.Point origin = wScrolledComposite.getOrigin();
+            origin.y -= event.count;
+            wScrolledComposite.setOrigin(origin);
+          });
     }
-   
+
     // Layout all the widgets in the shell.
     //
     shell.layout();
@@ -522,6 +547,12 @@ public class ContextDialog extends Dialog {
       categoriesCheckBox.setSelection("Y".equalsIgnoreCase(Const.NVL(strUseCategories, "Y")));
     }
 
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    if (fixedWidthCheckBox != null) {
+      String strUseFixedWidth = HopConfig.getGuiProperty(AUDIT_TYPE_TOOLBAR_FIXED_WIDTH);
+      fixedWidthCheckBox.setSelection("Y".equalsIgnoreCase(Const.NVL(strUseFixedWidth, "Y")));
+    }
+
     AuditState auditState =
         AuditManager.retrieveState(
             LogChannel.UI,
@@ -550,16 +581,24 @@ public class ContextDialog extends Dialog {
 
     Button categoriesCheckBox = getCategoriesCheckBox();
     if (categoriesCheckBox != null) {
-
       HopConfig.setGuiProperty(
           AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES, categoriesCheckBox.getSelection() ? "Y" : "N");
-      try {
-        HopConfig.getInstance().saveToFile();
-      } catch (Exception e) {
-        new ErrorDialog(shell
-                , BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Header")
-                , BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"), e);
-      }
+    }
+
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    if (fixedWidthCheckBox != null) {
+      HopConfig.setGuiProperty(
+          AUDIT_TYPE_TOOLBAR_FIXED_WIDTH, fixedWidthCheckBox.getSelection() ? "Y" : "N");
+    }
+
+    try {
+      HopConfig.getInstance().saveToFile();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"),
+          e);
     }
 
     // Store the category states: expanded or not
@@ -624,16 +663,35 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ENABLE_CATEGORIES,
-      label = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
-      toolTip = "Enable/Disable categories",
+      label = "i18n::ContextDialog.GuiAction.ShowCategories.Label",
+      toolTip = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableCategories() {
     wCanvas.redraw();
     wSearch.setFocus();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_FIXED_WIDTH,
+      label = "i18n::ContextDialog.GuiAction.FixedWidth.Label",
+      toolTip = "i18n::ContextDialog.GuiAction.FixedWidth.Tooltip",
+      type = GuiToolbarElementType.CHECKBOX)
+  public void enableDisableFixedWidth() {
+    wCanvas.redraw();
+    wSearch.setFocus();
+  }
+
   private Button getCategoriesCheckBox() {
     ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (checkboxItem == null) {
+      return null;
+    }
+    return (Button) checkboxItem.getControl();
+  }
+
+  private Button getFixedWidthCheckBox() {
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
     if (checkboxItem == null) {
       return null;
     }
@@ -648,7 +706,7 @@ public class ContextDialog extends Dialog {
       selectItem(item, false);
     }
   }
-  
+
   private void onMouseDown(Event event) {
     AreaOwner<OwnerType, Object> areaOwner =
         AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
@@ -681,12 +739,12 @@ public class ContextDialog extends Dialog {
         break;
     }
   }
-  
-  private void onResize(Event event) {  
-   // wCanvas.redraw();
-    updateVerticalBar();   
+
+  private void onResize(Event event) {
+    // wCanvas.redraw();
+    updateVerticalBar();
   }
-  
+
   /**
    * This is where all the actions are drawn
    *
@@ -697,10 +755,9 @@ public class ContextDialog extends Dialog {
     GC gc = event.gc;
 
     org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
-    org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();  
-    
-    boolean useCategories;
+    org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();
 
+    boolean useCategories;
     Button categoriesCheckBox = getCategoriesCheckBox();
     if (categoriesCheckBox == null) {
       useCategories = true;
@@ -708,6 +765,15 @@ public class ContextDialog extends Dialog {
       useCategories = categoriesCheckBox.getSelection();
     }
     useCategories &= !categories.isEmpty();
+
+    boolean useFixedWidth;
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    if (fixedWidthCheckBox == null) {
+      useFixedWidth = false;
+    } else {
+      useFixedWidth = fixedWidthCheckBox.getSelection();
+    }
+
     updateToolbar();
 
     // Fill everything with white...
@@ -732,7 +798,6 @@ public class ContextDialog extends Dialog {
     int categoryNr = 0;
     int x = margin;
     int y = margin;
-    
 
     firstShownItem = null;
 
@@ -783,22 +848,44 @@ public class ContextDialog extends Dialog {
 
         if (categoryAndOrder == null || !categoryAndOrder.isCollapsed()) {
 
+          Map<GuiAction, ActionDetails> detailsMap = new HashMap<>();
+
+          // Calculate sizes...
+          //
+          for (Item item : itemsToPaint) {
+            ActionDetails details = new ActionDetails();
+            details.name = Const.NVL(item.action.getName(), item.action.getId());
+            details.imageBounds = item.image.getBounds();
+            details.nameExtent = gc.textExtent(details.name);
+            details.width = Math.max(details.nameExtent.x, details.imageBounds.width);
+            details.height = details.nameExtent.y + margin + details.imageBounds.height;
+            detailsMap.put(item.action, details);
+          }
+
+          // If we have a fixed width, simply unify the width
+          //
+          if (useFixedWidth) {
+            int maxWidth = 0;
+            for (ActionDetails details : detailsMap.values()) {
+              maxWidth = Math.max(maxWidth, details.width);
+            }
+            for (ActionDetails details : detailsMap.values()) {
+              details.width = maxWidth;
+            }
+          }
+
           // Paint the action items
           //
           for (Item item : itemsToPaint) {
+            ActionDetails details = detailsMap.get(item.action);
 
             lastShownItem = item;
             if (firstShownItem == null) {
               firstShownItem = item;
             }
 
-            String name = Const.NVL(item.action.getName(), item.action.getId());
-
-            org.eclipse.swt.graphics.Rectangle imageBounds = item.image.getBounds();
-            org.eclipse.swt.graphics.Point nameExtent = gc.textExtent(name);
-
-            int width = Math.max(nameExtent.x, imageBounds.width);
-            height = nameExtent.y + margin + imageBounds.height;
+            int width = details.width;
+            height = details.height;
 
             if (x + width + xMargin > area.width) {
               x = margin;
@@ -817,13 +904,15 @@ public class ContextDialog extends Dialog {
                   margin);
             }
 
-            // So we draw the icon in the centre of the name text...
+            // So we draw the icon in the centre of the width...
             //
-            gc.drawImage(item.getImage(), x + nameExtent.x / 2 - imageBounds.width / 2, y);
+            int imageMargin = (width - details.imageBounds.width) / 2;
+            gc.drawImage(item.getImage(), x + imageMargin, y);
 
             // Then we draw the text underneath
             //
-            gc.drawText(name, x, y + imageBounds.height + margin);
+            int textMargin = (width - details.nameExtent.x) / 2;
+            gc.drawText(details.name, x + textMargin, y + details.imageBounds.height + margin);
 
             // Reset the background color
             //
@@ -909,7 +998,7 @@ public class ContextDialog extends Dialog {
     if (selectedItem == null) {
       wlTooltip.setText("");
     } else {
-           
+
       this.selectedItem = selectedItem;
       wlTooltip.setText(Const.NVL(selectedItem.getAction().getTooltip(), ""));
       selectedItem.setSelected(true);
@@ -918,20 +1007,26 @@ public class ContextDialog extends Dialog {
       //
       if (scroll && totalContentHeight > 0) {
         Rectangle itemArea = selectedItem.getAreaOwner().getArea();
-       // System.out.println("selectItem " +itemArea);
+        // System.out.println("selectItem " +itemArea);
         org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
         ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
         // Scroll down
-        // 
-        while (itemArea.y + itemArea.height + 2 * yMargin > verticalBar.getSelection()+clientArea.height) {
-          wScrolledComposite.setOrigin(0,Math.min(verticalBar.getSelection() + verticalBar.getPageIncrement(),verticalBar.getMaximum() - verticalBar.getThumb()));
+        //
+        while (itemArea.y + itemArea.height + 2 * yMargin
+            > verticalBar.getSelection() + clientArea.height) {
+          wScrolledComposite.setOrigin(
+              0,
+              Math.min(
+                  verticalBar.getSelection() + verticalBar.getPageIncrement(),
+                  verticalBar.getMaximum() - verticalBar.getThumb()));
         }
 
         // Scroll up
-        // 
+        //
         while (itemArea.y < verticalBar.getSelection()) {
-          wScrolledComposite.setOrigin(0,Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));          
+          wScrolledComposite.setOrigin(
+              0, Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
         }
       }
     }
@@ -977,7 +1072,7 @@ public class ContextDialog extends Dialog {
     else if (!filteredItems.contains(selectedItem)) {
       selectItem(filteredItems.get(0), false);
     }
-    
+
     // Update vertical bar
     //
     this.updateVerticalBar();
@@ -1004,7 +1099,6 @@ public class ContextDialog extends Dialog {
       return;
     }
 
-    
     // Which item area are we currently using as a base...
     //
     org.apache.hop.core.gui.Rectangle area = null;
@@ -1028,7 +1122,7 @@ public class ContextDialog extends Dialog {
         selectItemUp(area);
         break;
       case SWT.PAGE_UP:
-        selectItemPageUp(area); 
+        selectItemPageUp(area);
         break;
       case SWT.PAGE_DOWN:
         selectItemPageDown(area);
@@ -1145,24 +1239,24 @@ public class ContextDialog extends Dialog {
   }
 
   private void selectItemPageUp(Rectangle area) {
-   ScrollBar verticalBar = wScrolledComposite.getVerticalBar();  
+    ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
     List<AreaOwner> topAreas = new ArrayList<>();
     for (AreaOwner areaOwner : areaOwners) {
       if (areaOwner.getOwner() instanceof Item) {
         // Only keep the items to the left
         //
-        if (areaOwner.getArea().y < area.y-verticalBar.getPageIncrement()) {
+        if (areaOwner.getArea().y < area.y - verticalBar.getPageIncrement()) {
           topAreas.add(areaOwner);
         }
       }
-    }    
-    if ( topAreas.isEmpty() ) topAreas.add(firstShownItem.getAreaOwner());
-    
+    }
+    if (topAreas.isEmpty()) topAreas.add(firstShownItem.getAreaOwner());
+
     selectClosest(area, topAreas);
   }
 
   private void selectItemPageDown(Rectangle area) {
-    ScrollBar verticalBar = wScrolledComposite.getVerticalBar();  
+    ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
     List<AreaOwner> bottomAreas = new ArrayList<>();
     for (AreaOwner areaOwner : areaOwners) {
       if (areaOwner.getOwner() instanceof Item) {
@@ -1174,13 +1268,12 @@ public class ContextDialog extends Dialog {
         }
       }
     }
-    
-    if ( bottomAreas.isEmpty() ) bottomAreas.add(lastShownItem.getAreaOwner());
-    
+
+    if (bottomAreas.isEmpty()) bottomAreas.add(lastShownItem.getAreaOwner());
+
     selectClosest(area, bottomAreas);
   }
-  
-  
+
   private void updateVerticalBar() {
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
     org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
@@ -1193,15 +1286,14 @@ public class ContextDialog extends Dialog {
       verticalBar.setVisible(true);
 
       org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
-      
+
       verticalBar.setMinimum(0);
       verticalBar.setMaximum(bounds.height);
 
       // How much can we show in percentage?
       // That's the size of the thumb
-      //      
+      //
       verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
-
     }
   }
 
