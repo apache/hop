@@ -1,0 +1,41 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "value_1",
+          "data_set_field": "value_1"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "id2"
+      ],
+      "transform_name": "Verify Inner",
+      "data_set_name": "golden-merge-join-double-fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0014-merge-join-double-fields UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0014-merge-join-double-fields.hpl",
+  "test_type": "UNIT_TEST"
+}
