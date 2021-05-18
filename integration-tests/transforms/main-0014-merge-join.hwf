@@ -39,6 +39,9 @@
         <test_name>
           <name>0014-merge-join UNIT</name>
         </test_name>
+        <test_name>
+          <name>0014-merge-join-double-fields UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>240</xloc>

@@ -20,8 +20,8 @@ package org.apache.hop.core.injection.bean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.util.ReflectionUtil;
@@ -41,18 +41,46 @@ import java.util.Set;
 
 /** Storage for bean annotations info for Metadata Injection and Load/Save. */
 public class BeanInjectionInfo<Meta extends Object> {
-  private static ILogChannel LOG =
-      HopLogStore.getLogChannelFactory().create(BeanInjectionInfo.class);
+  private static ILogChannel log;
 
   protected final Class<Meta> clazz;
-  private final InjectionSupported clazzAnnotation;
-  private Map<String, Property> properties = new HashMap<>();
-  private List<Group> groupsList = new ArrayList<>();
+  protected final InjectionSupported clazzAnnotation;
+  protected Map<String, Property> properties;
+  protected List<Group> groupsList;
 
   /** Used only for fast group search during initialize. */
-  private Map<String, Group> groupsMap = new HashMap<>();
+  protected Map<String, Group> groupsMap;
 
-  private Set<String> hideProperties = new HashSet<>();
+  protected Set<String> hideProperties;
+
+  public BeanInjectionInfo(Class<Meta> clazz) {
+    properties = new HashMap<>();
+    groupsList = new ArrayList<>();
+    groupsMap = new HashMap<>();
+    hideProperties = new HashSet<>();
+    log = LogChannel.GENERAL;
+
+    if (log.isDebug()) {
+      log.logDebug("Collect bean injection info for " + clazz);
+    }
+    try {
+      this.clazz = clazz;
+      clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
+      if (!isInjectionSupported(clazz)) {
+        throw new RuntimeException("Injection not supported in " + clazz);
+      }
+
+      if (clazzAnnotation == null) {
+        extractMetadataProperties(clazz);
+      } else {
+        extractInjectionInfo(clazz);
+      }
+    } catch (Throwable ex) {
+      log.logError(
+          "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex);
+      throw ex;
+    }
+  }
 
   public static <Meta extends Object> boolean isInjectionSupported(Class<Meta> clazz) {
     InjectionSupported annotation = clazz.getAnnotation(InjectionSupported.class);
@@ -72,29 +100,6 @@ public class BeanInjectionInfo<Meta extends Object> {
     return false;
   }
 
-  public BeanInjectionInfo(Class<Meta> clazz) {
-    if (LOG.isDebug()) {
-      LOG.logDebug("Collect bean injection info for " + clazz);
-    }
-    try {
-      this.clazz = clazz;
-      clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
-      if (!isInjectionSupported(clazz)) {
-        throw new RuntimeException("Injection not supported in " + clazz);
-      }
-
-      if (clazzAnnotation == null) {
-        extractMetadataProperties(clazz);
-      } else {
-        extractInjectionInfo(clazz);
-      }
-    } catch (Throwable ex) {
-      LOG.logError(
-          "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex);
-      throw ex;
-    }
-  }
-
   private void extractMetadataProperties(Class<Meta> clazz) {
     Map<Field, HopMetadataProperty> propertyFields = new HashMap<>();
     for (Field field : ReflectionUtil.findAllFields(clazz)) {
@@ -110,7 +115,7 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     // The root Bean Level Info
     //
-    BeanLevelInfo classLevelInfo = new BeanLevelInfo();
+    BeanLevelInfo<Meta> classLevelInfo = new BeanLevelInfo<>();
     classLevelInfo.leafClass = clazz;
 
     // Add an empty group...
@@ -167,6 +172,7 @@ public class BeanInjectionInfo<Meta extends Object> {
           //
           BeanLevelInfo childLevelInfo =
               getLevelInfo(fieldType, fieldLevelInfo, null, fieldType, property, injectionKey);
+          childLevelInfo.stringList = true;
 
           List<BeanLevelInfo> path = Arrays.asList(classLevelInfo, fieldLevelInfo, childLevelInfo);
           Property p = new Property(injectionKey, injectionKeyDescription, injectionGroupKey, path);

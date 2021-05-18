@@ -21,9 +21,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
@@ -45,6 +47,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 public class MergeJoinMetaTest {
@@ -182,20 +185,59 @@ public class MergeJoinMetaTest {
     // scalars should be cloned using super.clone() - makes sure they're calling super.clone()
     meta.setJoinType("INNER");
     MergeJoinMeta aClone = (MergeJoinMeta) meta.clone();
-    assertFalse(aClone == meta); // Not same object returned by clone
-    assertTrue(meta.getKeyFields1().equals(aClone.getKeyFields1()));
-    assertTrue(meta.getKeyFields2().equals(aClone.getKeyFields2()));
+    assertNotSame(aClone, meta); // Not same object returned by clone
+    assertEquals(meta.getKeyFields1(), aClone.getKeyFields1());
+    assertEquals(meta.getKeyFields2(), aClone.getKeyFields2());
     assertEquals(meta.getJoinType(), aClone.getJoinType());
 
     assertNotNull(aClone.getTransformIOMeta());
-    assertFalse(meta.getTransformIOMeta() == aClone.getTransformIOMeta());
+    assertNotSame(meta.getTransformIOMeta(), aClone.getTransformIOMeta());
     List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
     List<IStream> cloneInfoStreams = aClone.getTransformIOMeta().getInfoStreams();
-    assertFalse(infoStreams == cloneInfoStreams);
+    assertNotSame(infoStreams, cloneInfoStreams);
     int streamSize = infoStreams.size();
-    assertTrue(streamSize == cloneInfoStreams.size());
+    assertEquals(streamSize, cloneInfoStreams.size());
     for (int i = 0; i < streamSize; i++) {
-      assertFalse(infoStreams.get(i) == cloneInfoStreams.get(i));
+      assertNotSame(infoStreams.get(i), cloneInfoStreams.get(i));
     }
+  }
+
+  @Test
+  public void testXmlRoundTrip() throws Exception {
+    MergeJoinMeta meta = new MergeJoinMeta();
+    meta.setKeyFields1(Arrays.asList("id1"));
+    meta.setKeyFields2(Arrays.asList("id2"));
+    meta.setLeftTransformName("Left");
+    meta.setRightTransformName("Right");
+    meta.setJoinType("INNER");
+
+    MergeJoinMeta meta2 = new MergeJoinMeta();
+    meta2.loadXml(XmlHandler.wrapLoadXmlString(meta.getXml()), null);
+
+    assertEquals(meta.getKeyFields1().size(), meta2.getKeyFields1().size());
+    assertEquals(meta.getKeyFields2().size(), meta2.getKeyFields2().size());
+    assertEquals(meta.getJoinType(), meta2.getJoinType());
+    assertEquals(meta.getLeftTransformName(), meta2.getLeftTransformName());
+    assertEquals(meta.getRightTransformName(), meta2.getRightTransformName());
+  }
+
+  @Test
+  public void testGetFields() throws Exception {
+    MergeJoinMeta meta = new MergeJoinMeta();
+    meta.setKeyFields1(Arrays.asList("id1"));
+    meta.setKeyFields2(Arrays.asList("id2"));
+    meta.setLeftTransformName("Left");
+    meta.setRightTransformName("Right");
+    meta.setJoinType("INNER");
+
+    IRowMeta rowMeta = new RowMeta();
+    IRowMeta[] infos = {
+      new RowMetaBuilder().addInteger("id1").addString("value").build(),
+      new RowMetaBuilder().addInteger("id2").addString("value").build(),
+    };
+
+    meta.getFields(rowMeta, "name", infos, null, null, null);
+
+    assertEquals(4, rowMeta.size());
   }
 }

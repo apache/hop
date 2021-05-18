@@ -54,20 +54,15 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/analyticquery.html")
-@InjectionSupported(
-    localizationPrefix = "AnalyticQuery.Injection.",
-    groups = {"group", "fields"})
 public class AnalyticQueryMeta extends BaseTransformMeta
     implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 
   /** Fields to partition by ie, CUSTOMER, PRODUCT */
-  @InjectionDeep
-  @HopMetadataProperty(groupKey = "group", key = "field")
+  @HopMetadataProperty(groupKey = "group", key = "field", injectionGroupKey = "group")
   private List<GroupField> groupFields;
 
-  @InjectionDeep
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<QueryField> queryFields;
 

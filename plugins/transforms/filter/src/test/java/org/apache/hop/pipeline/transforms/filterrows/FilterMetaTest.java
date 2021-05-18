@@ -21,59 +21,48 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ConditionLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.w3c.dom.Node;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class FilterMetaTest {
-  LoadSaveTester loadSaveTester;
-  Class<FilterMeta> testMetaClass = FilterMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Before
-  public void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init(false);
-    List<String> attributes = Arrays.asList("condition", "send_true_to", "send_false_to");
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("condition", new StringLoadSaveValidator());
-    attrValidatorMap.put("trueTransformName", new StringLoadSaveValidator());
-    attrValidatorMap.put("falseTransformName", new StringLoadSaveValidator());
-
-    getterMap.put("send_true_to", "getTrueTransformName");
-    setterMap.put("send_true_to", "setTrueTransformName");
-    getterMap.put("send_false_to", "getFalseTransformName");
-    setterMap.put("send_false_to", "setFalseTransformName");
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
-  }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  public void testXmlRoundTrip() throws Exception {
+    FilterMeta meta1 = new FilterMeta();
+    meta1.setCondition("A>100");
+    meta1.setTrueTransformName("true");
+    meta1.setFalseTransformName("false");
+
+    String xml1 = meta1.getXml();
+
+    FilterMeta meta2 = new FilterMeta();
+    meta2.loadXml(XmlHandler.wrapLoadXmlString(xml1), null);
+
+    assertEquals(meta1.getCondition(), meta2.getCondition());
+    assertEquals(meta1.getTrueTransformName(), meta2.getTrueTransformName());
+    assertEquals(meta1.getFalseTransformName(), meta2.getFalseTransformName());
+
+    assertEquals(meta1.getXml(), meta2.getXml());
   }
 
   @Test
@@ -83,7 +72,7 @@ public class FilterMetaTest {
     filterMeta.setTrueTransformName("true");
     filterMeta.setFalseTransformName("false");
 
-    FilterMeta clone = (FilterMeta) filterMeta.clone();
+    FilterMeta clone = filterMeta.clone();
     assertEquals("A>100", clone.getCondition());
     assertEquals("true", clone.getTrueTransformName());
     assertEquals("false", clone.getFalseTransformName());

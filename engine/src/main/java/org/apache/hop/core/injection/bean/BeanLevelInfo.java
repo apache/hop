@@ -38,10 +38,10 @@ import java.util.TreeMap;
 
 /** Storage for one transform on the bean deep level. */
 public class BeanLevelInfo<Meta extends Object> {
-  enum DIMENSION {
+  public enum DIMENSION {
     NONE,
     ARRAY,
-    LIST
+    LIST,
   };
 
   /** Parent transform or null for root. */
@@ -61,6 +61,9 @@ public class BeanLevelInfo<Meta extends Object> {
   public boolean convertEmpty;
   /** Name on the path : prefix + key usually. */
   public String nameKey;
+
+  /** Flag for the metadata property system with support for simplified List<String> fields */
+  public boolean stringList = false;
 
   public void init(BeanInjectionInfo info) {
     introspect(info, leafClass, new TreeMap<>());

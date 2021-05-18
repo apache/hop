@@ -88,7 +88,7 @@ public class KafkaProducerOutput
     ProducerRecord<Object, Object> producerRecord;
     // allow for null keys
     if (data.keyFieldIndex < 0
-        || r[data.keyFieldIndex] == null
+        || getInputRowMeta().isNull(r, data.keyFieldIndex)
         || StringUtils.isEmpty(r[data.keyFieldIndex].toString())) {
       producerRecord = new ProducerRecord<>(resolve(meta.getTopic()), r[data.messageFieldIndex]);
     } else {

@@ -76,6 +76,10 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
       injectionKeyDescription = "AbortMeta.Injection.AbortOption")
   private AbortOption abortOption;
 
+  public AbortMeta() {
+    abortOption = AbortOption.ABORT;
+  }
+
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

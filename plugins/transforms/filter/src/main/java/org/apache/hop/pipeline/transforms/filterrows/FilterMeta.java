@@ -77,8 +77,8 @@ public class FilterMeta extends BaseTransformMeta implements ITransformMeta<Filt
 
   public FilterMeta clone() {
     FilterMeta meta = new FilterMeta();
-    meta.falseTransformName = falseTransformName;
     meta.trueTransformName = trueTransformName;
+    meta.falseTransformName = falseTransformName;
     meta.condition = condition;
     return meta;
   }

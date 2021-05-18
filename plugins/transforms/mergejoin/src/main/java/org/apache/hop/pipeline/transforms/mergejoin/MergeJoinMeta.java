@@ -183,7 +183,6 @@ public class MergeJoinMeta extends BaseTransformMeta
         vmi.setOrigin(name);
       }
     }
-    return;
   }
 
   public ITransform getTransform(

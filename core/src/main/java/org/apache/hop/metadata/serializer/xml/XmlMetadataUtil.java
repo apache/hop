@@ -246,7 +246,12 @@ public class XmlMetadataUtil {
                 storeWithCode);
 
         try {
-          ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
+          // Only set a value if we have something to set.
+          // Empty strings and such will still go through but not null values for int/long/...
+          //
+          if (value != null) {
+            ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
+          }
         } catch (HopException e) {
           throw new HopXmlException(
               "Unable to set value "
@@ -377,7 +382,8 @@ public class XmlMetadataUtil {
           throw new HopXmlException(
               "Unable to instantiate a new instance of class "
                   + listClass.getName()
-                  + ": make sure there is an empty public constructor available to allow XML de-serialization");
+                  + ": make sure there is an empty public constructor available to allow XML de-serialization",
+              e);
         }
       }
 

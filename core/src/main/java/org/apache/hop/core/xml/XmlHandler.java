@@ -1181,6 +1181,12 @@ public class XmlHandler {
     }
     return sw.toString();
   }
+
+  public static Node wrapLoadXmlString(String xml) throws HopXmlException {
+    String tag = "wrap";
+    String newXml = openTag(tag) + xml + closeTag(tag);
+    return loadXmlString(newXml, tag);
+  }
 }
 
 /**

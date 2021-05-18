@@ -410,7 +410,7 @@ public class BeamPipelineMetaUtil {
   }
 
   public static final PipelineMeta generateMergeJoinPipelineMeta(
-      String transname,
+      String pipelineName,
       String inputTransformName,
       String outputTransformName,
       IHopMetadataProvider metadataProvider)
@@ -424,7 +424,7 @@ public class BeamPipelineMetaUtil {
     serializer.save(statePopulationFileDefinition);
 
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName(transname);
+    pipelineMeta.setName(pipelineName);
     pipelineMeta.setMetadataProvider(metadataProvider);
 
     // Add the left io transform
@@ -474,6 +474,7 @@ public class BeamPipelineMetaUtil {
     pipelineMeta.addPipelineHop(
         new PipelineHopMeta(mergeJoinTransformMeta, beamOutputTransformMeta));
 
+    mergeJoin.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
     return pipelineMeta;
   }
 

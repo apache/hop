@@ -81,7 +81,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
-      IRowMeta rowMeta,
+      IRowMeta dontUseThisOne,
       List<TransformMeta> previousTransforms,
       PCollection<HopRow> input)
       throws HopException {
@@ -152,7 +152,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
             transformMeta.getName());
     PCollection<KV<HopRow, HopRow>> leftKVPCollection = leftPCollection.apply(ParDo.of(leftKVFn));
 
-    // Create key-value pairs (KV) for the left collections
+    // Create key-value pairs (KV) for the right collections
     //
     List<String> rightK = new ArrayList<>(Arrays.asList(rightKeys));
     IRowMeta rightKRowMeta = new RowMeta();
@@ -212,9 +212,9 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     // This is the output of the transform, we'll try to mimic this
     //
     final IRowMeta outputRowMeta = leftVRowMeta.clone();
-    outputRowMeta.addRowMeta(leftKRowMeta);
-    outputRowMeta.addRowMeta(rightKRowMeta);
-    outputRowMeta.addRowMeta(rightVRowMeta);
+    outputRowMeta.addRowMeta(leftKRowMeta.clone());
+    outputRowMeta.addRowMeta(rightKRowMeta.clone());
+    outputRowMeta.addRowMeta(rightVRowMeta.clone());
 
     // Now we need to collapse the results where we have a Key-Value pair of
     // The key (left or right depending but the same row metadata (leftKRowMeta == rightKRowMeta)

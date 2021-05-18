@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
@@ -48,9 +49,16 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   private transient Counter errorCounter;
 
   // Log and count parse errors.
-  private static final Logger LOG = LoggerFactory.getLogger( HopToStringFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger(HopToStringFn.class);
 
-  public HopToStringFn( String counterName, String outputLocation, String separator, String enclosure, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public HopToStringFn(
+      String counterName,
+      String outputLocation,
+      String separator,
+      String enclosure,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.counterName = counterName;
     this.outputLocation = outputLocation;
     this.separator = separator;
@@ -63,25 +71,25 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
-      outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, counterName );
-      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
+      readCounter = Metrics.counter(Pipeline.METRIC_NAME_READ, counterName);
+      outputCounter = Metrics.counter(Pipeline.METRIC_NAME_OUTPUT, counterName);
+      errorCounter = Metrics.counter(Pipeline.METRIC_NAME_ERROR, counterName);
 
       // Initialize Hop Beam
       //
-      BeamHop.init( transformPluginClasses, xpPluginClasses );
-      rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
-      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
-    } catch ( Exception e ) {
+      Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName).inc();
+    } catch (Exception e) {
       errorCounter.inc();
-      LOG.info( "Parse error on setup of Hop data to string lines : " + e.getMessage() );
-      throw new RuntimeException( "Error on setup of converting Hop data to string lines", e );
+      LOG.info("Parse error on setup of Hop data to string lines : " + e.getMessage());
+      throw new RuntimeException("Error on setup of converting Hop data to string lines", e);
     }
   }
 
   @ProcessElement
-  public void processElement( ProcessContext processContext ) {
+  public void processElement(ProcessContext processContext) {
 
     try {
 
@@ -93,40 +101,51 @@ public class HopToStringFn extends DoFn<HopRow, String> {
       //
       StringBuffer line = new StringBuffer();
 
-      for ( int i = 0; i < rowMeta.size(); i++ ) {
+      for (int i = 0; i < rowMeta.size(); i++) {
 
-        if ( i > 0 ) {
-          line.append( separator );
+        if (i > 0) {
+          line.append(separator);
         }
 
-        String valueString = rowMeta.getString( inputRow.getRow(), i );
+        try {
+          String valueString = rowMeta.getString(inputRow.getRow(), i);
 
-        if ( valueString != null ) {
-          boolean enclose = false;
-          if ( StringUtils.isNotEmpty( enclosure ) ) {
-            enclose = valueString.contains( enclosure );
+          if (valueString != null) {
+            boolean enclose = false;
+            if (StringUtils.isNotEmpty(enclosure)) {
+              enclose = valueString.contains(enclosure);
+            }
+            if (enclose) {
+              line.append(enclosure);
+            }
+            line.append(valueString);
+            if (enclose) {
+              line.append(enclosure);
+            }
           }
-          if ( enclose ) {
-            line.append( enclosure );
-          }
-          line.append( valueString );
-          if ( enclose ) {
-            line.append( enclosure );
-          }
+        } catch (Exception e) {
+          throw new HopException(
+              "Error getting String from field "
+                  + rowMeta.getValueMeta(i)
+                  + " on index "
+                  + i
+                  + " in input: "
+                  + rowMeta.toString()
+                  + ", native value found: "
+                  + inputRow.getRow()[i],
+              e);
         }
       }
 
       // Pass the row to the process context
       //
-      processContext.output( line.toString() );
+      processContext.output(line.toString());
       outputCounter.inc();
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       errorCounter.inc();
-      LOG.info( "Parse error on " + processContext.element() + ", " + e.getMessage() );
-      throw new RuntimeException( "Error converting Hop data to string lines", e );
+      LOG.info("Parse error on " + processContext.element() + ", " + e.getMessage());
+      throw new RuntimeException("Error converting Hop data to string lines", e);
     }
   }
-
-
 }

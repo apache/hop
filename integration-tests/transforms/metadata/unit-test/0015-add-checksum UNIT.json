@@ -47,10 +47,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "00015-add-checksum UNIT",
+  "name": "0015-add-checksum UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/00015-add-checksum.hpl",
+  "pipeline_filename": "./0015-add-checksum.hpl",
   "test_type": "UNIT_TEST"
 }

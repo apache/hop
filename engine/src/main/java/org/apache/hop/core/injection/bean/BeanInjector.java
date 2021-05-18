@@ -250,7 +250,7 @@ public class BeanInjector<Meta extends Object> {
               //
               if (i + 1 < prop.path.size()
                   && String.class.equals(prop.path.get(i + 1).leafClass)
-                  && prop.path.get(i + 1).getter == null) {
+                  && prop.path.get(i + 1).stringList) {
                 // Set the string...
                 //
                 next = data.getString(dataName, null);
@@ -345,7 +345,9 @@ public class BeanInjector<Meta extends Object> {
               break;
           }
         } else {
-          throw new HopException("No field or setter defined for " + root.getClass());
+          if (!s.stringList) {
+            throw new HopException("No field or setter defined for " + s.leafClass);
+          }
         }
       }
     }
