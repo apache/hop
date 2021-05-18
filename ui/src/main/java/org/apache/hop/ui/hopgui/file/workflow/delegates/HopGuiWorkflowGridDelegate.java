@@ -78,7 +78,7 @@ public class HopGuiWorkflowGridDelegate {
 
     // First, see if we need to add the extra view...
     //
-    if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
+    if ( workflowGraph.extraViewTabFolder == null || workflowGraph.extraViewTabFolder.isDisposed() ) {
       workflowGraph.addExtraView();
     } else {
       if ( workflowGridTab != null && !workflowGridTab.isDisposed() ) {

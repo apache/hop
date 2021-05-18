@@ -138,7 +138,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -260,10 +259,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected NotePadMeta ni = null;
 
-  // private Text filenameLabel;
   private SashForm sashForm;
-
-  public Composite extraViewComposite;
 
   public CTabFolder extraViewTabFolder;
 
@@ -283,9 +279,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private Composite mainComposite;
 
-  private Label closeButton;
-
-  private Label minMaxButton;
+  private ToolItem closeItem;
+  private ToolItem minMaxItem;
 
   private CheckBoxToolTip helpTip;
 
@@ -3263,59 +3258,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
-    extraViewComposite = new Composite(sashForm, SWT.NONE);
-    FormLayout extraCompositeFormLayout = new FormLayout();
-    extraCompositeFormLayout.marginWidth = 2;
-    extraCompositeFormLayout.marginHeight = 2;
-    extraViewComposite.setLayout(extraCompositeFormLayout);
-
-    // Put a close and max button to the upper right corner...
-    //
-    closeButton = new Label(extraViewComposite, SWT.NONE);
-    closeButton.setImage(GuiResource.getInstance().getImageClosePanel());
-    closeButton.setToolTipText(
-        BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
-    FormData fdClose = new FormData();
-    fdClose.right = new FormAttachment(100, 0);
-    fdClose.top = new FormAttachment(0, 0);
-    closeButton.setLayoutData(fdClose);
-    closeButton.addMouseListener(
-        new MouseAdapter() {
-          public void mouseDown(MouseEvent e) {
-            disposeExtraView();
-          }
-        });
-
-    minMaxButton = new Label(extraViewComposite, SWT.NONE);
-    minMaxButton.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    minMaxButton.setToolTipText(
-        BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
-    FormData fdMinMax = new FormData();
-    fdMinMax.right = new FormAttachment(closeButton, -props.getMargin());
-    fdMinMax.top = new FormAttachment(0, 0);
-    minMaxButton.setLayoutData(fdMinMax);
-    minMaxButton.addMouseListener(
-        new MouseAdapter() {
-          public void mouseDown(MouseEvent e) {
-            minMaxExtraView();
-          }
-        });
-
-    // Add a label at the top: Results
-    //
-    Label wResultsLabel = new Label(extraViewComposite, SWT.LEFT);
-    wResultsLabel.setFont(GuiResource.getInstance().getFontMediumBold());
-    wResultsLabel.setBackground(GuiResource.getInstance().getColorWhite());
-    wResultsLabel.setText(BaseMessages.getString(PKG, "WorkflowLog.ResultsPanel.NameLabel"));
-    FormData fdResultsLabel = new FormData();
-    fdResultsLabel.left = new FormAttachment(0, 0);
-    fdResultsLabel.right = new FormAttachment(100, 0);
-    fdResultsLabel.top = new FormAttachment(0, 0);
-    wResultsLabel.setLayoutData(fdResultsLabel);
 
     // Add a tab folder ...
     //
-    extraViewTabFolder = new CTabFolder(extraViewComposite, SWT.MULTI);
+    extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
     hopGui.getProps().setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
 
     extraViewTabFolder.addMouseListener(
@@ -3324,7 +3270,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           @Override
           public void mouseDoubleClick(MouseEvent arg0) {
             if (sashForm.getMaximizedControl() == null) {
-              sashForm.setMaximizedControl(extraViewComposite);
+              sashForm.setMaximizedControl(extraViewTabFolder);
             } else {
               sashForm.setMaximizedControl(null);
             }
@@ -3334,10 +3280,29 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(wResultsLabel, props.getMargin());
-    fdTabFolder.bottom = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, 0);       
     extraViewTabFolder.setLayoutData(fdTabFolder);
 
+    // Create toolbar for close and min/max to the upper right corner...
+    //
+    ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
+    extraViewTabFolder.setTopRight( extraViewToolBar, SWT.RIGHT );
+    props.setLook(extraViewToolBar);
+
+    minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
+    minMaxItem.setToolTipText(BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
+    minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
+    
+    closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
+    closeItem.setToolTipText(BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
+    closeItem.addListener(SWT.Selection, e -> disposeExtraView());
+        
+    int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
+    
     sashForm.setWeights(
         new int[] {
           60, 40,
@@ -3352,7 +3317,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private void disposeExtraView() {
-    extraViewComposite.dispose();
+    extraViewTabFolder.dispose();
     sashForm.layout();
     sashForm.setWeights(
         new int[] {
@@ -3372,21 +3337,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Minimize
       //
       sashForm.setMaximizedControl(null);
-      minMaxButton.setImage(GuiResource.getInstance().getImageMaximizePanel());
-      minMaxButton.setToolTipText(
+      minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
+      minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     } else {
       // Maximize
       //
-      sashForm.setMaximizedControl(extraViewComposite);
-      minMaxButton.setImage(GuiResource.getInstance().getImageMinimizePanel());
-      minMaxButton.setToolTipText(
+      sashForm.setMaximizedControl(extraViewTabFolder);
+      minMaxItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
+      minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MinButton.Tooltip"));
     }
   }
 
   public boolean isExecutionResultsPaneVisible() {
-    return extraViewComposite != null && !extraViewComposite.isDisposed();
+    return extraViewTabFolder != null && !extraViewTabFolder.isDisposed();
   }
 
   @GuiToolbarElement(

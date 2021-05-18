@@ -114,7 +114,7 @@ public class HopGuiPipelineGridDelegate {
 
     // First, see if we need to add the extra view...
     //
-    if (pipelineGraph.extraViewComposite == null || pipelineGraph.extraViewComposite.isDisposed()) {
+    if (pipelineGraph.extraViewTabFolder == null || pipelineGraph.extraViewTabFolder.isDisposed()) {
       pipelineGraph.addExtraView();
     } else {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
