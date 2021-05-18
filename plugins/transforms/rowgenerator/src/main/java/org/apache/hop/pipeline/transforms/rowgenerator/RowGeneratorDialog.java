@@ -465,6 +465,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       field.setSetEmptyString(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10)));
       field.setType(field.isSetEmptyString() ? "String" : item.getText(2));
+
+      meta.getFields().add(field);
     }
 
     // Performs checks...
