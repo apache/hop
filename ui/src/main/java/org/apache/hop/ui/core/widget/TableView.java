@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -44,7 +44,6 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
@@ -73,6 +72,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -138,7 +138,7 @@ public class TableView extends Composite {
   private final PropsUi props;
 
   private Control text;
-  private CCombo cCombo;
+  private Combo combo;
   private ComboVar comboVar;
   private Button button;
 
@@ -659,8 +659,8 @@ public class TableView extends Composite {
           }
 
           /**
-           * This is a workaround for an SWT bug. Calling a context menu should be
-           * ignored in SWT org.eclipse.swt.widgets.Control#gtk_event_after
+           * This is a workaround for an SWT bug. Calling a context menu should be ignored in SWT
+           * org.eclipse.swt.widgets.Control#gtk_event_after
            *
            * @return true if it is wrong event
            */
@@ -686,7 +686,7 @@ public class TableView extends Composite {
                 if (usingVariables) {
                   row.setText(colNr, comboVar.getText());
                 } else {
-                  row.setText(colNr, cCombo.getText());
+                  row.setText(colNr, combo.getText());
                 }
               } catch (Exception exc) {
                 // Eat widget disposed error
@@ -713,7 +713,7 @@ public class TableView extends Composite {
           if (usingVariables) {
             row.setText(colNr, comboVar.getText());
           } else {
-            row.setText(colNr, cCombo.getText());
+            row.setText(colNr, combo.getText());
           }
 
           String[] afterEdit = getItemText(row);
@@ -1298,11 +1298,11 @@ public class TableView extends Composite {
       if (activeTableItem != null) {
         activeTableItem.setText(activeTableColumn, beforeEdit[activeTableColumn - 1]);
       }
-      ColumnInfo columnInfo = columns[activeTableColumn-1];
+      ColumnInfo columnInfo = columns[activeTableColumn - 1];
       if (columnInfo.isUsingVariables()) {
-        comboVar.setVisible( false );
+        comboVar.setVisible(false);
       } else {
-        cCombo.setVisible( false );
+        combo.setVisible(false);
       }
       table.setFocus();
       e.doit = false;
@@ -1588,13 +1588,13 @@ public class TableView extends Composite {
     if (usingVariables) {
       textData = comboVar.getText();
     } else {
-      textData = cCombo.getText();
+      textData = combo.getText();
     }
     row.setText(colNr, textData);
     if (usingVariables) {
       comboVar.setVisible(false);
     } else {
-      cCombo.setVisible(false);
+      combo.setVisible(false);
     }
 
     String[] afterEdit = getItemText(row);
@@ -2363,12 +2363,12 @@ public class TableView extends Composite {
         Text widget = (Text) text;
         int idx = widget.getCaretPosition();
         widget.selectAll();
-        if (!EnvironmentUtils.getInstance().isWeb()){
-            widget.showSelection();
+        if (!EnvironmentUtils.getInstance().isWeb()) {
+          widget.showSelection();
         }
         widget.setSelection(0);
-        if (!EnvironmentUtils.getInstance().isWeb()){
-            widget.showSelection();
+        if (!EnvironmentUtils.getInstance().isWeb()) {
+          widget.showSelection();
         }
         widget.setSelection(idx);
       }
@@ -2472,35 +2472,35 @@ public class TableView extends Composite {
       comboVar.setFocus();
       comboVar.layout();
     } else {
-      safelyDisposeControl(cCombo);
+      safelyDisposeControl(combo);
 
-      cCombo = new CCombo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
-      props.setLook(cCombo, Props.WIDGET_STYLE_TABLE);
-      cCombo.addTraverseListener(lsTraverse);
-      cCombo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
-      cCombo.addModifyListener(lsModCombo);
-      cCombo.addFocusListener(lsFocusCombo);
+      combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
+      props.setLook(combo, Props.WIDGET_STYLE_TABLE);
+      combo.addTraverseListener(lsTraverse);
+      combo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+      combo.addModifyListener(lsModCombo);
+      combo.addFocusListener(lsFocusCombo);
 
-      cCombo.setItems(opt);
-      cCombo.setVisibleItemCount(opt.length);
-      cCombo.setText(item.getText(colNr));
+      combo.setItems(opt);
+      combo.setVisibleItemCount(opt.length);
+      combo.setText(item.getText(colNr));
       if (lsMod != null) {
-        cCombo.addModifyListener(lsMod);
+        combo.addModifyListener(lsMod);
       }
-      cCombo.addModifyListener(lsUndo);
-      cCombo.setToolTipText(columnInfo.getToolTip() == null ? "" : columnInfo.getToolTip());
-      cCombo.setVisible(true);
-      cCombo.addKeyListener(lsKeyCombo);
+      combo.addModifyListener(lsUndo);
+      combo.setToolTipText(columnInfo.getToolTip() == null ? "" : columnInfo.getToolTip());
+      combo.setVisible(true);
+      combo.addKeyListener(lsKeyCombo);
       if (columnInfo.getSelectionAdapter() != null) {
-        cCombo.addSelectionListener(columns[colNr - 1].getSelectionAdapter());
+        combo.addSelectionListener(columns[colNr - 1].getSelectionAdapter());
       }
       editor.horizontalAlignment = SWT.LEFT;
       editor.layout();
 
       // Open the text editor in the correct column of the selected row.
-      editor.setEditor(cCombo, item, colNr);
-      cCombo.setFocus();
-      cCombo.layout();
+      editor.setEditor(combo, item, colNr);
+      combo.setFocus();
+      combo.layout();
     }
   }
 
@@ -3144,9 +3144,9 @@ public class TableView extends Composite {
       comboVar.dispose();
       comboVar = null;
     }
-    if (cCombo != null && !cCombo.isDisposed()) {
-      cCombo.dispose();
-      cCombo = null;
+    if (combo != null && !combo.isDisposed()) {
+      combo.dispose();
+      combo = null;
     }
   }
 
@@ -3329,7 +3329,7 @@ public class TableView extends Composite {
   public void dispose() {
     safelyDisposeControl(text);
     safelyDisposeControl(comboVar);
-    safelyDisposeControl(cCombo);
+    safelyDisposeControl(combo);
     super.dispose();
   }
 
