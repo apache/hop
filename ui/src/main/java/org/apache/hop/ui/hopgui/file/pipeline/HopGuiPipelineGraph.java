@@ -1149,8 +1149,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-1000-view-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "View output",
-      tooltip = "Views output of a transform in a running or finished local pipeline",
+      name = "i18n::HopGuiPipelineGraph.ViewOutput.GuiAction.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.ViewOutput.GuiAction.Tooltip",
       image = "ui/images/database.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -1175,8 +1175,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       synchronized (rowBuffer.getBuffer()) {
         if (!rowBuffer.isEmpty()) {
           try {
-            String title = "Output of " + dataTransformMeta.getName();
-            String message = "output rows of transform " + dataTransformMeta.getName();
+            String title = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", dataTransformMeta.getName());
+            String message = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", dataTransformMeta.getName());
             String prefix = "";
 
             if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
@@ -1195,13 +1195,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       case None:
                         break;
                       case First:
-                        prefix = "First ";
+                        prefix = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
                         break;
                       case Last:
-                        prefix = "Last (REVERSE ORDER!) ";
+                        prefix = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
                         break;
                       case Random:
-                        prefix += "Random ";
+                        prefix += BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");;
                         break;
                       default:
                         break;
@@ -1277,22 +1277,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         String message = null;
         switch (fSingleClickType) {
           case Pipeline:
-            message = "Select the action to execute or the transform to create:";
+            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
             contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
             break;
           case Transform:
-            message =
-                "Select the action to take on transform '" + fSingleClickTransform.getName() + "':";
+            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Transform.Header", fSingleClickTransform.getName());
             contextHandler =
                 new HopGuiPipelineTransformContext(pipelineMeta, fSingleClickTransform, this, real);
             break;
           case Note:
-            message = "Select the note action to take:";
+            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
             contextHandler =
                 new HopGuiPipelineNoteContext(pipelineMeta, fSingleClickNote, this, real);
             break;
           case Hop:
-            message = "Select the hop action to take:";
+            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
             contextHandler =
                 new HopGuiPipelineHopContext(pipelineMeta, fSingleClickHop, this, real);
             break;
@@ -1850,9 +1849,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_LEVEL,
       label = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Zoom",
-      toolTip = "Zoom in our out",
-      // TODO: i18n does not work on dropdown
-      // toolTip = "i18n::HopGui.Toolbar.Zoom.ToolTip",
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomInOut.Tooltip",
       type = GuiToolbarElementType.COMBO,
       alignRight = true,
       comboValuesMethod = "getZoomLevels")
@@ -2173,8 +2170,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10100-transform-detach",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Detach transform",
-      tooltip = "Remove hops to and from this action",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.DetachTransform.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.DetachTransform.Tooltip",
       image = "ui/images/HOP_delete.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2208,9 +2205,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10700-partitioning",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Set partitioning",
-      tooltip =
-          "Specify how rows of data need to be grouped into partitions allowing parallel execution where similar rows need to end up on the same transform copy",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.Partitioning.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.Partitioning.Tooltip",
       image = "ui/images/partition_schema.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -2222,8 +2218,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10800-error-handling",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Error handling",
-      tooltip = "Specify how error handling is behaving for this transform",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.ErrorHandling.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.ErrorHandling.Tooltip",
       image = "ui/images/error.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -2240,8 +2236,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10000-edit",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit",
-      tooltip = "Edit the transform properties",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Tooltip",
       image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2258,8 +2254,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10800-edit-description",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit description",
-      tooltip = "Modify the transform description",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Tooltip",
       image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2271,8 +2267,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10600-rows-distrubute",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Distribute rows",
-      tooltip = "Make the transform distribute rows to next transforms",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.DistributeRows.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.DistributeRows.Tooltip",
       image = "ui/images/distribute.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -2286,8 +2282,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10650-rows-copy",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Copy rows",
-      tooltip = "Make the transform copy rows to all next transforms",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.CopyRows.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.CopyRows.Tooltip",
       image = "ui/images/copy-rows.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -2322,8 +2318,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         new EnterSelectionDialog(
             hopShell(),
             choices.toArray(new String[choices.size()]),
-            "Select distribution method",
-            "Please select the row distribution method:");
+            BaseMessages.getString(PKG, "HopGuiPipelineGraph.DistributionMethodDialog.Header"),
+                BaseMessages.getString(PKG, "HopGuiPipelineGraph.DistributionMethodDialog.Text"));
     if (dialog.open() != null) {
       IPlugin plugin = plugins.get(dialog.getSelectionNr());
       try {
@@ -2341,8 +2337,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10100-copies",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Specify copies",
-      tooltip = "Set the number of transform copies to use during execution",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.SpecifyCopies.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.SpecifyCopies.Tooltip",
       image = "ui/images/exponent.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -2385,8 +2381,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10900-delete",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete",
-      tooltip = "Delete the selected transform from the pipeline",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.DeleteTransform.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.DeleteTransform.Tooltip",
       image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2398,8 +2394,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10200-fields-before",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Show input fields",
-      tooltip = "Show all the input fields entering this transform",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.Transform.ShowInputFields.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.Transform.ShowInputFields.Tooltip",
       image = "ui/images/input.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2412,8 +2408,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10300-fields-after",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Show output fields",
-      tooltip = "Show all the output fields resulting from this transform",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.Transform.ShowOutputFields.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.Transform.ShowOutputFields.Tooltip",
       image = "ui/images/output.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2435,8 +2431,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-hop-10010-hop-enable",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Enable hop",
-      tooltip = "Enable the hop",
+      name = "i18n::HopGuiPipelineGraph.HopAction.EnableHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.EnableHop.Tooltip",
       image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2468,8 +2464,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-hop-10010-hop-disable",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Disable hop",
-      tooltip = "Disable the hop",
+      name = "i18n::HopGuiPipelineGraph.HopAction.DisableHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.DisableHop.Tooltip",
       image = "ui/images/HOP_disable.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2494,8 +2490,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-hop-10020-hop-delete",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete hop",
-      tooltip = "Delete the hop between 2 actions",
+      name = "i18n::HopGuiPipelineGraph.HopAction.DeleteHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.DeleteHop.Tooltip",
       image = "ui/images/HOP_delete.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2562,8 +2558,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-hop-10060-hop-enable-downstream",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Enable downstream hops",
-      tooltip = "Enable all disabled downstream hops",
+      name = "i18n::HopGuiPipelineGraph.HopAction.EnableDownstreamHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.EnableDownstreamHop.Tooltip",
       image = "ui/images/HOP_enable_downstream.svg",
       category = "Bulk",
       categoryOrder = "2")
@@ -2575,8 +2571,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-hop-10070-hop-disable-downstream",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Disable downstream hops",
-      tooltip = "Disable all enabled downstream hops",
+      name = "i18n::HopGuiPipelineGraph.HopAction.DisableDownstreamHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.DisableDownstreamHop.Tooltip",
       image = "ui/images/HOP_disable_downstream.svg",
       category = "Bulk",
       categoryOrder = "2")
@@ -2635,8 +2631,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-10-edit-note",
       parentId = HopGuiPipelineNoteContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit",
-      tooltip = "Edit the note",
+      name = "i18n::HopGuiPipelineGraph.NoteAction.EditNote.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.NoteAction.EditNote.Tooltip",
       image = "ui/images/edit.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2649,8 +2645,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-20-delete-note",
       parentId = HopGuiPipelineNoteContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Delete",
-      tooltip = "Delete the note",
+      name = "i18n::HopGuiPipelineGraph.NoteAction.DeleteNote.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.NoteAction.DeleteNote.Tooltip",
       image = "ui/images/delete.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2669,8 +2665,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10100-create-note",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "Create a note",
-      tooltip = "Create a new note",
+      name = "i18n::HopGuiPipelineGraph.NoteAction.CreateNote.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.NoteAction.CreateNote.Tooltip",
       image = "ui/images/note-add.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -2712,8 +2708,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-edit-pipeline",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit pipeline",
-      tooltip = "Edit pipeline properties",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.EditPipeline.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.EditPipeline.Tooltip",
       image = "ui/images/pipeline.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -3380,8 +3376,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10050-create-hop",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "Create hop",
-      tooltip = "Create a new hop between 2 transforms",
+      name = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Tooltip",
       image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -3552,8 +3548,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10100-preview-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Preview output",
-      tooltip = "Execute the pipeline and see the output of the transform",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.Preview.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.Preview.Tooltip",
       image = "ui/images/preview.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -3597,9 +3593,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10150-debug-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Debug output",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Name",
       tooltip =
-          "Execute the pipeline and debug output of the transform. Pause the pipeline when the condition is met.",
+          "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Tooltip",
       image = "ui/images/debug.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -4768,8 +4764,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-12000-sniff-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Sniff output",
-      tooltip = "Take a look at 50 rows coming out of the selected transform",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.SniffOutput.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.SniffOutput.Tooltip",
       image = "ui/images/preview.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -5186,8 +5182,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10200-past-from-clipboard",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Paste from the clipboard",
-      tooltip = "Paste transforms, notes or a whole pipeline from the clipboard",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.PasteFromClipboard.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.PasteFromClipboard.Tooltip",
       image = "ui/images/paste.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -5199,8 +5195,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Custom,
-      name = "Copy to clipboard",
-      tooltip = "Copy the XML representation of this transform to the clipboard",
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.CopyToClipboard.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.CopyToClipboard.Tooltip",
       image = "ui/images/copy.svg",
       category = "Basic",
       categoryOrder = "1")
