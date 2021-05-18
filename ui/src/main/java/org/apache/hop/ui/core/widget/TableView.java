@@ -162,6 +162,8 @@ public class TableView extends Composite {
   private int lastRowCount;
   private boolean fieldChanged;
 
+  private boolean undoEnabled;
+
   private ModifyListener lsMod;
   private final ModifyListener lsUndo;
   private ModifyListener lsContent;
@@ -172,8 +174,8 @@ public class TableView extends Composite {
   private ArrayList<ChangeAction> undo;
   private int undoPosition;
   private String[] beforeEdit;
-  private final MenuItem miEditUndo;
-  private final MenuItem miEditRedo;
+  private MenuItem miEditUndo;
+  private MenuItem miEditRedo;
 
   private static final String CLIPBOARD_DELIMITER = "\t";
 
@@ -254,6 +256,32 @@ public class TableView extends Composite {
       PropsUi pr,
       final boolean addIndexColumn,
       Listener listener) {
+    this(
+        variables,
+        parent,
+        style,
+        columnInfo,
+        nrRows,
+        readOnly,
+        lsm,
+        pr,
+        addIndexColumn,
+        listener,
+        true);
+  }
+
+  public TableView(
+      IVariables variables,
+      Composite parent,
+      int style,
+      ColumnInfo[] columnInfo,
+      int nrRows,
+      boolean readOnly,
+      ModifyListener lsm,
+      PropsUi pr,
+      final boolean addIndexColumn,
+      Listener listener,
+      boolean undoEnabled) {
     super(parent, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP);
     this.parent = parent;
     this.columns = columnInfo;
@@ -263,6 +291,7 @@ public class TableView extends Composite {
     this.variables = variables;
     this.addIndexColumn = addIndexColumn;
     this.lsFocusInTabItem = listener;
+    this.undoEnabled = undoEnabled;
 
     sortField = 0;
     sortFieldLast = -1;
@@ -424,10 +453,12 @@ public class TableView extends Composite {
     miCopyToAll.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.CopyFieldToAllRows")));
-    new MenuItem(mRow, SWT.SEPARATOR);
-    miEditUndo = new MenuItem(mRow, SWT.NONE);
-    miEditRedo = new MenuItem(mRow, SWT.NONE);
-    setUndoMenu();
+    if (undoEnabled) {
+      new MenuItem(mRow, SWT.SEPARATOR);
+      miEditUndo = new MenuItem(mRow, SWT.NONE);
+      miEditRedo = new MenuItem(mRow, SWT.NONE);
+      setUndoMenu();
+    }
 
     if (readonly) {
       miRowInsBef.setEnabled(false);
@@ -554,20 +585,24 @@ public class TableView extends Composite {
             setFilter();
           }
         };
-    SelectionAdapter lsEditUndo =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            undoAction();
-          }
-        };
-    SelectionAdapter lsEditRedo =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            redoAction();
-          }
-        };
+    if (undoEnabled) {
+      SelectionAdapter lsEditUndo =
+          new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+              undoAction();
+            }
+          };
+      miEditUndo.addSelectionListener(lsEditUndo);
+      SelectionAdapter lsEditRedo =
+          new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+              redoAction();
+            }
+          };
+      miEditRedo.addSelectionListener(lsEditRedo);
+    }
 
     miRowInsBef.addSelectionListener(lsRowInsBef);
     miRowInsAft.addSelectionListener(lsRowInsAft);
@@ -585,8 +620,6 @@ public class TableView extends Composite {
     miDelAll.addSelectionListener(lsDelAll);
     miKeep.addSelectionListener(lsKeep);
     miFilter.addSelectionListener(lsFilter);
-    miEditUndo.addSelectionListener(lsEditUndo);
-    miEditRedo.addSelectionListener(lsEditRedo);
 
     table.setMenu(mRow);
 
@@ -1013,18 +1046,20 @@ public class TableView extends Composite {
               return;
             }
 
-            // CTRL-Y --> redo action
-            if (e.keyCode == 'y' && ctrl) {
-              e.doit = false;
-              redoAction();
-              return;
-            }
+            if (undoEnabled) {
+              // CTRL-Y --> redo action
+              if (e.keyCode == 'y' && ctrl) {
+                e.doit = false;
+                redoAction();
+                return;
+              }
 
-            // CTRL-Z --> undo action
-            if (e.keyCode == 'z' && ctrl) {
-              e.doit = false;
-              undoAction();
-              return;
+              // CTRL-Z --> undo action
+              if (e.keyCode == 'z' && ctrl) {
+                e.doit = false;
+                undoAction();
+                return;
+              }
             }
 
             // Return: edit the first field in the row.
@@ -3030,6 +3065,10 @@ public class TableView extends Composite {
   }
 
   private void setUndoMenu() {
+    if (!undoEnabled) {
+      return;
+    }
+
     ChangeAction prev = viewPreviousUndo();
     ChangeAction next = viewNextUndo();
 
@@ -3429,5 +3468,19 @@ public class TableView extends Composite {
 
   public boolean hasIndexColumn() {
     return this.addIndexColumn;
+  }
+
+  /**
+   * Gets undoEnabled
+   *
+   * @return value of undoEnabled
+   */
+  public boolean isUndoEnabled() {
+    return undoEnabled;
+  }
+
+  /** @param undoEnabled The undoEnabled to set */
+  public void setUndoEnabled(boolean undoEnabled) {
+    this.undoEnabled = undoEnabled;
   }
 }
