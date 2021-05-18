@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.workflowexecutor;
@@ -783,41 +782,41 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         };
     executionResultColumns[1].setUsingVariables(true);
 
-    TableView wExectionResults =
+    TableView wExecutionResults =
         new TableView(
             variables,
             wInputComposite,
             SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
             executionResultColumns,
             14,
-            false,
+            true,
             lsMod,
             props,
             false);
-    props.setLook(wExectionResults);
+    props.setLook(wExecutionResults);
     FormData fdExecutionResults = new FormData();
     fdExecutionResults.left = new FormAttachment(0);
     fdExecutionResults.right = new FormAttachment(100);
     fdExecutionResults.top = new FormAttachment(wExecutionResultTarget, 10);
     fdExecutionResults.bottom = new FormAttachment(100);
-    wExectionResults.setLayoutData(fdExecutionResults);
-    wExectionResults.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 50, 50));
+    wExecutionResults.setLayoutData(fdExecutionResults);
+    wExecutionResults.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 50, 50));
 
     int index = 0;
-    tiExecutionTimeField = wExectionResults.table.getItem(index++);
-    tiExecutionResultField = wExectionResults.table.getItem(index++);
-    tiExecutionNrErrorsField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesReadField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesWrittenField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesInputField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesOutputField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesRejectedField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesUpdatedField = wExectionResults.table.getItem(index++);
-    tiExecutionLinesDeletedField = wExectionResults.table.getItem(index++);
-    tiExecutionFilesRetrievedField = wExectionResults.table.getItem(index++);
-    tiExecutionExitStatusField = wExectionResults.table.getItem(index++);
-    tiExecutionLogTextField = wExectionResults.table.getItem(index++);
-    tiExecutionLogChannelIdField = wExectionResults.table.getItem(index++);
+    tiExecutionTimeField = wExecutionResults.table.getItem(index++);
+    tiExecutionResultField = wExecutionResults.table.getItem(index++);
+    tiExecutionNrErrorsField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesReadField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesWrittenField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesInputField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesOutputField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesRejectedField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesUpdatedField = wExecutionResults.table.getItem(index++);
+    tiExecutionLinesDeletedField = wExecutionResults.table.getItem(index++);
+    tiExecutionFilesRetrievedField = wExecutionResults.table.getItem(index++);
+    tiExecutionExitStatusField = wExecutionResults.table.getItem(index++);
+    tiExecutionLogTextField = wExecutionResults.table.getItem(index++);
+    tiExecutionLogChannelIdField = wExecutionResults.table.getItem(index++);
 
     tiExecutionTimeField.setText(
         FIELD_DESCRIPTION,
