@@ -153,20 +153,11 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd = new FormData();
-    fd.right = new FormAttachment(50, -10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wOk.setLayoutData(fd);
-
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fd = new FormData();
-    fd.left = new FormAttachment(50, 10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wCancel.setLayoutData(fd);
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
@@ -522,6 +513,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdbSqlTable.right = new FormAttachment(100, 0);
     fdbSqlTable.top = new FormAttachment(wAddRowsToResult, margin);
     wbSqlTable.setLayoutData(fdbSqlTable);
+    wbSqlTable.addListener(SWT.Selection, e -> getSql());
 
     wSql =
         new StyledTextComp(
@@ -584,13 +576,6 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-    Listener lsbSqlTable = e -> getSql();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
     SelectionAdapter lsDef =
         new SelectionAdapter() {
           public void widgetDefaultSelected(SelectionEvent e) {
@@ -598,7 +583,6 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
           }
         };
 
-    wbSqlTable.addListener(SWT.Selection, lsbSqlTable);
     wName.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
