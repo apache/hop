@@ -326,10 +326,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private List<AreaOwner> areaOwners;
 
-  // private Text filenameLabel;
   private SashForm sashForm;
-
-  public Composite extraViewComposite;
 
   public CTabFolder extraViewTabFolder;
 
@@ -3914,7 +3911,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
    */
   public boolean isExecutionResultsPaneVisible() {
-    return extraViewComposite != null && !extraViewComposite.isDisposed();
+    return extraViewTabFolder != null && !extraViewTabFolder.isDisposed();
   }
 
   @GuiToolbarElement(
@@ -3942,7 +3939,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private void disposeExtraView() {
 
-    extraViewComposite.dispose();
+    extraViewTabFolder.dispose();
     sashForm.layout();
     sashForm.setWeights(
         new int[] {
@@ -3962,15 +3959,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Minimize
       //
       sashForm.setMaximizedControl(null);
-      minMaxButton.setImage(GuiResource.getInstance().getImageMaximizePanel());
-      minMaxButton.setToolTipText(
+      minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
+      minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     } else {
       // Maximize
       //
-      sashForm.setMaximizedControl(extraViewComposite);
-      minMaxButton.setImage(GuiResource.getInstance().getImageMinimizePanel());
-      minMaxButton.setToolTipText(
+      sashForm.setMaximizedControl(extraViewTabFolder);
+      minMaxItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
+      minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MinButton.Tooltip"));
     }
   }
@@ -3985,69 +3982,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.toolBar = toolBar;
   }
 
-  private Label closeButton;
+  private ToolItem closeItem;
 
-  private Label minMaxButton;
+  private ToolItem minMaxItem;
 
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
     PropsUi props = PropsUi.getInstance();
 
-    extraViewComposite = new Composite(sashForm, SWT.NONE);
-    FormLayout extraCompositeFormLayout = new FormLayout();
-    extraCompositeFormLayout.marginWidth = 2;
-    extraCompositeFormLayout.marginHeight = 2;
-    extraViewComposite.setLayout(extraCompositeFormLayout);
-
-    // Put a close and max button to the upper right corner...
-    //
-    closeButton = new Label(extraViewComposite, SWT.NONE);
-    closeButton.setImage(GuiResource.getInstance().getImageClosePanel());
-    closeButton.setToolTipText(
-        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
-    FormData fdClose = new FormData();
-    fdClose.right = new FormAttachment(100, 0);
-    fdClose.top = new FormAttachment(0, 0);
-    closeButton.setLayoutData(fdClose);
-    closeButton.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDown(MouseEvent e) {
-            disposeExtraView();
-          }
-        });
-
-    minMaxButton = new Label(extraViewComposite, SWT.NONE);
-    minMaxButton.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    minMaxButton.setToolTipText(
-        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
-    FormData fdMinMax = new FormData();
-    fdMinMax.right = new FormAttachment(closeButton, -props.getMargin());
-    fdMinMax.top = new FormAttachment(0, 0);
-    minMaxButton.setLayoutData(fdMinMax);
-    minMaxButton.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDown(MouseEvent e) {
-            minMaxExtraView();
-          }
-        });
-
-    // Add a label at the top: Results
-    //
-    Label wResultsLabel = new Label(extraViewComposite, SWT.LEFT);
-    wResultsLabel.setFont(GuiResource.getInstance().getFontLarge());
-    wResultsLabel.setBackground(GuiResource.getInstance().getColorWhite());
-    wResultsLabel.setText(BaseMessages.getString(PKG, "PipelineLog.ResultsPanel.NameLabel"));
-    FormData fdResultsLabel = new FormData();
-    fdResultsLabel.left = new FormAttachment(0, 0);
-    fdResultsLabel.right = new FormAttachment(minMaxButton, -props.getMargin());
-    fdResultsLabel.top = new FormAttachment(0, 0);
-    wResultsLabel.setLayoutData(fdResultsLabel);
-
     // Add a tab folder ...
     //
-    extraViewTabFolder = new CTabFolder(extraViewComposite, SWT.MULTI);
+    extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
     hopGui.getProps().setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
 
     extraViewTabFolder.addMouseListener(
@@ -4056,7 +4001,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           @Override
           public void mouseDoubleClick(MouseEvent arg0) {
             if (sashForm.getMaximizedControl() == null) {
-              sashForm.setMaximizedControl(extraViewComposite);
+              sashForm.setMaximizedControl(extraViewTabFolder);
             } else {
               sashForm.setMaximizedControl(null);
             }
@@ -4066,10 +4011,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(wResultsLabel, props.getMargin());
+    fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.bottom = new FormAttachment(100, 0);
     extraViewTabFolder.setLayoutData(fdTabFolder);
 
+    // Create toolbar for close and min/max to the upper right corner...
+    //
+    ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
+    extraViewTabFolder.setTopRight( extraViewToolBar, SWT.RIGHT );
+    props.setLook(extraViewToolBar);
+
+    minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
+    minMaxItem.setToolTipText(BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
+    minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
+    
+    closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
+    closeItem.setToolTipText(BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
+    closeItem.addListener(SWT.Selection, e -> disposeExtraView());
+        
+    int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));    
+    
     sashForm.setWeights(
         new int[] {
           60, 40,
