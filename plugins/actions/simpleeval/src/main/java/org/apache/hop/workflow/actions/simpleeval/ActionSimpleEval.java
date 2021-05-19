@@ -57,8 +57,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public static final String[] valueTypeDesc =
       new String[] {
-        BaseMessages.getString(PKG, "JobSimpleEval.EvalPreviousField.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.EvalVariable.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label"),
       };
   public static final String[] valueTypeCode = new String[] {"field", "variable"};
   public static final int VALUE_TYPE_FIELD = 0;
@@ -67,17 +67,17 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public static final String[] successConditionDesc =
       new String[] {
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenEqual.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenDifferent.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenContains.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenNotContains.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenStartWith.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenNotStartWith.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenEndWith.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenNotEndWith.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenRegExp.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenInList.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenNotInList.Label")
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenContains.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotContains.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenStartWith.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotStartWith.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEndWith.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotEndWith.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenRegExp.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label")
       };
   public static final String[] successConditionCode =
       new String[] {
@@ -110,10 +110,10 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public static final String[] fieldTypeDesc =
       new String[] {
-        BaseMessages.getString(PKG, "JobSimpleEval.FieldTypeString.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.FieldTypeNumber.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.FieldTypeDateTime.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.FieldTypeBoolean.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeString.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeNumber.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeDateTime.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeBoolean.Label"),
       };
   public static final String[] fieldTypeCode =
       new String[] {"string", "number", "datetime", "boolean"};
@@ -126,15 +126,15 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public static final String[] successNumberConditionDesc =
       new String[] {
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenEqual.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenDifferent.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenSmallThan.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenSmallOrEqualThan.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenGreaterThan.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenGreaterOrEqualThan.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessBetween.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenInList.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenNotInList.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallThan.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallOrEqualThan.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterThan.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterOrEqualThan.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessBetween.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"),
       };
   public static final String[] successNumberConditionCode =
       new String[] {
@@ -162,8 +162,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public static final String[] successBooleanConditionDesc =
       new String[] {
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenTrue.Label"),
-        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenFalse.Label")
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenTrue.Label"),
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenFalse.Label")
       };
   public static final String[] successBooleanConditionCode = new String[] {"true", "false"};
   public static final int SUCCESS_BOOLEAN_CONDITION_TRUE = 0;
@@ -482,7 +482,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     if (isDetailed()) {
-      logDetailed(BaseMessages.getString(PKG, "JobSimpleEval.Log.ValueToevaluate", sourcevalue));
+      logDetailed(BaseMessages.getString(PKG, "ActionSimpleEval.Log.ValueToevaluate", sourcevalue));
     }
 
     boolean success = false;
@@ -500,7 +500,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (sourcevalue.equals(realCompareValue));
             if (valuetype == VALUE_TYPE_VARIABLE && !success) {
@@ -517,7 +517,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (!sourcevalue.equals(realCompareValue));
             break;
@@ -525,7 +525,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (sourcevalue.contains(realCompareValue));
             break;
@@ -533,7 +533,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (!sourcevalue.contains(realCompareValue));
             break;
@@ -541,7 +541,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (sourcevalue.startsWith(realCompareValue));
             break;
@@ -549,7 +549,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (!sourcevalue.startsWith(realCompareValue));
             break;
@@ -557,7 +557,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (sourcevalue.endsWith(realCompareValue));
             break;
@@ -565,7 +565,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (!sourcevalue.endsWith(realCompareValue));
             break;
@@ -573,7 +573,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (Pattern.compile(realCompareValue).matcher(sourcevalue).matches());
             break;
@@ -581,7 +581,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             realCompareValue = Const.NVL(realCompareValue, "");
             String[] parts = realCompareValue.split(",");
@@ -593,7 +593,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             realCompareValue = Const.NVL(realCompareValue, "");
             parts = realCompareValue.split(",");
@@ -623,7 +623,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               valuecompare = Double.parseDouble(realCompareValue);
@@ -642,7 +642,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               valuecompare = Double.parseDouble(realCompareValue);
@@ -661,7 +661,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               valuecompare = Double.parseDouble(realCompareValue);
@@ -680,7 +680,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               valuecompare = Double.parseDouble(realCompareValue);
@@ -713,7 +713,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               valuecompare = Double.parseDouble(realCompareValue);
@@ -732,7 +732,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValues", realMinValue, realMaxValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValues", realMinValue, realMaxValue));
             }
             double valuemin;
             try {
@@ -771,7 +771,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             String[] parts = realCompareValue.split(",");
 
@@ -792,7 +792,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             realCompareValue = Const.NVL(realCompareValue, "");
             parts = realCompareValue.split(",");
@@ -836,7 +836,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -850,7 +850,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -864,7 +864,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -878,7 +878,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -892,7 +892,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -906,7 +906,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             try {
               datecompare = convertToDate(realCompareValue, realMask, df);
@@ -920,7 +920,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValues", realMinValue, realMaxValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValues", realMinValue, realMaxValue));
             }
             Date datemin;
             try {
@@ -953,7 +953,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             String[] parts = realCompareValue.split(",");
 
@@ -971,7 +971,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
-                      PKG, "JobSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
+                      PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             realCompareValue = Const.NVL(realCompareValue, "");
             parts = realCompareValue.split(",");

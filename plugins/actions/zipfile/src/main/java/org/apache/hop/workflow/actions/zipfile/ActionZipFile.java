@@ -279,8 +279,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         if ( fileObject.exists() ) {
           Fileexists = true;
           if ( log.isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "JobZipFiles.Zip_FileExists1.Label" )
-              + localrealZipfilename + BaseMessages.getString( PKG, "JobZipFiles.Zip_FileExists2.Label" ) );
+            logDebug( BaseMessages.getString( PKG, "ActionZipFile.Zip_FileExists1.Label" )
+              + localrealZipfilename + BaseMessages.getString( PKG, "ActionZipFile.Zip_FileExists2.Label" ) );
           }
         }
         // Let's see if we need to create parent folder of destination zip filename
@@ -304,7 +304,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         } else if ( afterZip == 2 && realMovetodirectory == null ) {
           // After Zip, Move files..User must give a destination Folder
           resultat = false;
-          logError( BaseMessages.getString( PKG, "JobZipFiles.AfterZip_No_DestinationFolder_Defined.Label" ) );
+          logError( BaseMessages.getString( PKG, "ActionZipFile.AfterZip_No_DestinationFolder_Defined.Label" ) );
         } else {
           // After Zip, Move files..User must give a destination Folder
 
@@ -349,10 +349,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
           if ( fileList.length == 0 ) {
             resultat = false;
-            logError( BaseMessages.getString( PKG, "JobZipFiles.Log.FolderIsEmpty", localSourceFilename ) );
+            logError( BaseMessages.getString( PKG, "ActionZipFile.Log.FolderIsEmpty", localSourceFilename ) );
           } else if ( !checkContainsFile( localSourceFilename, fileList, isSourceDirectory ) ) {
             resultat = false;
-            logError( BaseMessages.getString( PKG, "JobZipFiles.Log.NoFilesInFolder", localSourceFilename ) );
+            logError( BaseMessages.getString( PKG, "ActionZipFile.Log.NoFilesInFolder", localSourceFilename ) );
           } else {
             if ( ifZipFileExists == 0 && Fileexists ) {
               // the zip file exists and user want to create new one with unique name
@@ -366,8 +366,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
               localrealZipfilename += "_" + StringUtil.getFormattedDateTimeNow( true ) + ".zip";
               if ( log.isDebug() ) {
-                logDebug( BaseMessages.getString( PKG, "JobZipFiles.Zip_FileNameChange1.Label" )
-                  + localrealZipfilename + BaseMessages.getString( PKG, "JobZipFiles.Zip_FileNameChange1.Label" ) );
+                logDebug( BaseMessages.getString( PKG, "ActionZipFile.Zip_FileNameChange1.Label" )
+                  + localrealZipfilename + BaseMessages.getString( PKG, "ActionZipFile.Zip_FileNameChange1.Label" ) );
               }
             } else if ( ifZipFileExists == 1 && Fileexists ) {
               // the zip file exists and user want to append
@@ -381,22 +381,22 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               renameOk = fileZip.renameTo( tempFile );
 
               if ( !renameOk ) {
-                logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Rename_Temp1.Label" )
+                logError( BaseMessages.getString( PKG, "ActionZipFile.Cant_Rename_Temp1.Label" )
                   + fileZip.getAbsolutePath()
-                  + BaseMessages.getString( PKG, "JobZipFiles.Cant_Rename_Temp2.Label" )
+                  + BaseMessages.getString( PKG, "ActionZipFile.Cant_Rename_Temp2.Label" )
                   + tempFile.getAbsolutePath()
-                  + BaseMessages.getString( PKG, "JobZipFiles.Cant_Rename_Temp3.Label" ) );
+                  + BaseMessages.getString( PKG, "ActionZipFile.Cant_Rename_Temp3.Label" ) );
               }
               if ( log.isDebug() ) {
-                logDebug( BaseMessages.getString( PKG, "JobZipFiles.Zip_FileAppend1.Label" )
-                  + localrealZipfilename + BaseMessages.getString( PKG, "JobZipFiles.Zip_FileAppend2.Label" ) );
+                logDebug( BaseMessages.getString( PKG, "ActionZipFile.Zip_FileAppend1.Label" )
+                  + localrealZipfilename + BaseMessages.getString( PKG, "ActionZipFile.Zip_FileAppend2.Label" ) );
               }
             }
 
             if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "JobZipFiles.Files_Found1.Label" )
-                + fileList.length + BaseMessages.getString( PKG, "JobZipFiles.Files_Found2.Label" )
-                + localSourceFilename + BaseMessages.getString( PKG, "JobZipFiles.Files_Found3.Label" ) );
+              logDetailed( BaseMessages.getString( PKG, "ActionZipFile.Files_Found1.Label" )
+                + fileList.length + BaseMessages.getString( PKG, "ActionZipFile.Files_Found2.Label" )
+                + localSourceFilename + BaseMessages.getString( PKG, "ActionZipFile.Files_Found3.Label" ) );
             }
 
             // Prepare Zip File
@@ -496,9 +496,9 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               if ( getIt && !getItexclude && !isTargetDirectory && !fileSet.contains( targetFilename ) ) {
                 // We can add the file to the Zip Archive
                 if ( log.isDebug() ) {
-                  logDebug( BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip1.Label" )
-                    + fileList[ i ] + BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip2.Label" )
-                    + localSourceFilename + BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip3.Label" ) );
+                  logDebug( BaseMessages.getString( PKG, "ActionZipFile.Add_FilesToZip1.Label" )
+                    + fileList[ i ] + BaseMessages.getString( PKG, "ActionZipFile.Add_FilesToZip2.Label" )
+                    + localSourceFilename + BaseMessages.getString( PKG, "ActionZipFile.Add_FilesToZip3.Label" ) );
                 }
 
                 // Associate a file input stream for the current file
@@ -544,7 +544,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             dest.close();
 
             if ( log.isBasic() ) {
-              logBasic( BaseMessages.getString( PKG, "JobZipFiles.Log.TotalZippedFiles", "" + zippedFiles.length ) );
+              logBasic( BaseMessages.getString( PKG, "ActionZipFile.Log.TotalZippedFiles", "" + zippedFiles.length ) );
             }
             // Delete Temp File
             if ( tempFile != null ) {
@@ -568,16 +568,16 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     boolean deleted = fileObjectd.delete();
                     if ( !deleted ) {
                       resultat = false;
-                      logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Delete_File1.Label" )
+                      logError( BaseMessages.getString( PKG, "ActionZipFile.Cant_Delete_File1.Label" )
                         + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[ i ]
-                        + BaseMessages.getString( PKG, "JobZipFiles.Cant_Delete_File2.Label" ) );
+                        + BaseMessages.getString( PKG, "ActionZipFile.Cant_Delete_File2.Label" ) );
 
                     }
                     // File deleted
                     if ( log.isDebug() ) {
-                      logDebug( BaseMessages.getString( PKG, "JobZipFiles.File_Deleted1.Label" )
+                      logDebug( BaseMessages.getString( PKG, "ActionZipFile.File_Deleted1.Label" )
                         + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[ i ]
-                        + BaseMessages.getString( PKG, "JobZipFiles.File_Deleted2.Label" ) );
+                        + BaseMessages.getString( PKG, "ActionZipFile.File_Deleted2.Label" ) );
                     }
                   } else if ( afterZip == 2 ) {
                     // Move File
@@ -588,8 +588,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                           + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName() );
                       fileObjectd.moveTo( fileObjectm );
                     } catch ( IOException e ) {
-                      logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File1.Label" )
-                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File2.Label" )
+                      logError( BaseMessages.getString( PKG, "ActionZipFile.Cant_Move_File1.Label" )
+                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "ActionZipFile.Cant_Move_File2.Label" )
                         + e.getMessage() );
                       resultat = false;
                     } finally {
@@ -605,8 +605,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     }
                     // File moved
                     if ( log.isDebug() ) {
-                      logDebug( BaseMessages.getString( PKG, "JobZipFiles.File_Moved1.Label" )
-                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "JobZipFiles.File_Moved2.Label" ) );
+                      logDebug( BaseMessages.getString( PKG, "ActionZipFile.File_Moved1.Label" )
+                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "ActionZipFile.File_Moved2.Label" ) );
                     }
                   }
                 }
@@ -624,8 +624,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           }
         }
       } catch ( Exception e ) {
-        logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_CreateZipFile1.Label" )
-          + localrealZipfilename + BaseMessages.getString( PKG, "JobZipFiles.Cant_CreateZipFile2.Label" ), e );
+        logError( BaseMessages.getString( PKG, "ActionZipFile.Cant_CreateZipFile1.Label" )
+          + localrealZipfilename + BaseMessages.getString( PKG, "ActionZipFile.Cant_CreateZipFile2.Label" ), e );
         resultat = false;
       } finally {
         if ( fileObject != null ) {
@@ -658,10 +658,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     } else {
       resultat = false;
       if ( localrealZipfilename == null ) {
-        logError( BaseMessages.getString( PKG, "JobZipFiles.No_ZipFile_Defined.Label" ) );
+        logError( BaseMessages.getString( PKG, "ActionZipFile.No_ZipFile_Defined.Label" ) );
       }
       if ( !orginExist ) {
-        logError( BaseMessages.getString( PKG, "JobZipFiles.No_FolderCible_Defined.Label", localSourceFilename ) );
+        logError( BaseMessages.getString( PKG, "ActionZipFile.No_FolderCible_Defined.Label", localSourceFilename ) );
       }
     }
     // return a verifier
@@ -762,7 +762,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     if ( afterZip == 2 ) {
       if ( Utils.isEmpty( realMovetodirectory ) ) {
         SanityControlOK = false;
-        logError( BaseMessages.getString( PKG, "JobZipFiles.AfterZip_No_DestinationFolder_Defined.Label" ) );
+        logError( BaseMessages.getString( PKG, "ActionZipFile.AfterZip_No_DestinationFolder_Defined.Label" ) );
       } else {
         FileObject moveToDirectory = null;
         try {
@@ -771,33 +771,33 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             if ( moveToDirectory.getType() == FileType.FOLDER ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages
-                  .getString( PKG, "JobZipFiles.Log.MoveToFolderExist", realMovetodirectory ) );
+                  .getString( PKG, "ActionZipFile.Log.MoveToFolderExist", realMovetodirectory ) );
               }
             } else {
               SanityControlOK = false;
-              logError( BaseMessages.getString( PKG, "JobZipFiles.Log.MoveToFolderNotFolder", realMovetodirectory ) );
+              logError( BaseMessages.getString( PKG, "ActionZipFile.Log.MoveToFolderNotFolder", realMovetodirectory ) );
             }
           } else {
             if ( log.isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobZipFiles.Log.MoveToFolderNotNotExist", realMovetodirectory ) );
+                PKG, "ActionZipFile.Log.MoveToFolderNotNotExist", realMovetodirectory ) );
             }
             if ( createMoveToDirectory ) {
               moveToDirectory.createFolder();
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString(
-                  PKG, "JobZipFiles.Log.MoveToFolderCreaterd", realMovetodirectory ) );
+                  PKG, "ActionZipFile.Log.MoveToFolderCreaterd", realMovetodirectory ) );
               }
             } else {
               SanityControlOK = false;
               logError( BaseMessages.getString(
-                PKG, "JobZipFiles.Log.MoveToFolderNotNotExist", realMovetodirectory ) );
+                PKG, "ActionZipFile.Log.MoveToFolderNotNotExist", realMovetodirectory ) );
             }
           }
         } catch ( Exception e ) {
           SanityControlOK = false;
           logError( BaseMessages
-            .getString( PKG, "JobZipFiles.ErrorGettingMoveToFolder.Label", realMovetodirectory ), e );
+            .getString( PKG, "ActionZipFile.ErrorGettingMoveToFolder.Label", realMovetodirectory ), e );
         } finally {
           if ( moveToDirectory != null ) {
             realMovetodirectory = HopVfs.getFilename( moveToDirectory );
@@ -820,7 +820,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
     if ( isFromPrevious ) {
       if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobZipFiles.ArgFromPrevious.Found", ( rows != null ? rows
+        logDetailed( BaseMessages.getString( PKG, "ActionZipFile.ArgFromPrevious.Found", ( rows != null ? rows
           .size() : 0 )
           + "" ) );
       }
