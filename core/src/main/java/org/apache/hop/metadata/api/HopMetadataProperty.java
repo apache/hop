@@ -50,6 +50,14 @@ public @interface HopMetadataProperty {
    */
   boolean storeWithName() default false;
 
+  /**
+   * For enums: store and retrieve this value not with the name of the enum but with a "code"
+   * property. Make sure your enum implements EnumHasCode and has method getCode() to recognize it.
+   *
+   * @return True if you want to store the value of an enum by its code instead its name.
+   */
+  boolean storeWithCode() default false;
+
   /** @return The group key. In case this is a list use this key to encapsulate the list/array. */
   String groupKey() default "";
 

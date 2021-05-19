@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,6 +54,7 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
@@ -70,8 +71,10 @@ import java.util.List;
 
 public class PipelineTestBase {
 
-  public static final String INPUT_CUSTOMERS_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/customers-100.txt";
-  public static final String INPUT_STATES_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/state-data.txt";
+  public static final String INPUT_CUSTOMERS_FILE =
+      System.getProperty("java.io.tmpdir") + "/customers/io/customers-100.txt";
+  public static final String INPUT_STATES_FILE =
+      System.getProperty("java.io.tmpdir") + "/customers/io/state-data.txt";
 
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
@@ -81,50 +84,64 @@ public class PipelineTestBase {
 
     variables = Variables.getADefaultVariableSpace();
 
-    List<String> beamTransforms = Arrays.asList(
-      BeamBQInputMeta.class.getName(),
-      BeamBQOutputMeta.class.getName(),
-      BeamInputMeta.class.getName(),
-      BeamOutputMeta.class.getName(),
-      BeamConsumeMeta.class.getName(),
-      BeamProduceMeta.class.getName(),
-      BeamSubscribeMeta.class.getName(),
-      BeamPublishMeta.class.getName(),
-      BeamTimestampMeta.class.getName(),
-      BeamWindowMeta.class.getName(),
+    List<String> beamTransforms =
+        Arrays.asList(
+            BeamBQInputMeta.class.getName(),
+            BeamBQOutputMeta.class.getName(),
+            BeamInputMeta.class.getName(),
+            BeamOutputMeta.class.getName(),
+            BeamConsumeMeta.class.getName(),
+            BeamProduceMeta.class.getName(),
+            BeamSubscribeMeta.class.getName(),
+            BeamPublishMeta.class.getName(),
+            BeamTimestampMeta.class.getName(),
+            BeamWindowMeta.class.getName(),
+            ConstantMeta.class.getName(),
+            FilterRowsMeta.class.getName(),
+            MemoryGroupByMeta.class.getName(),
+            MergeJoinMeta.class.getName(),
+            StreamLookupMeta.class.getName(),
+            SwitchCaseMeta.class.getName());
 
-      ConstantMeta.class.getName(),
-      FilterRowsMeta.class.getName(),
-      MemoryGroupByMeta.class.getName(),
-      MergeJoinMeta.class.getName(),
-      StreamLookupMeta.class.getName(),
-      SwitchCaseMeta.class.getName()
-    );
+    BeamHop.init(beamTransforms, new ArrayList<>());
 
-    BeamHop.init( beamTransforms, new ArrayList<>() );
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            BeamDirectPipelineEngine.class.getName(),
+            PipelineEnginePluginType.class,
+            PipelineEnginePlugin.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            BeamFlinkPipelineEngine.class.getName(),
+            PipelineEnginePluginType.class,
+            PipelineEnginePlugin.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            BeamSparkPipelineEngine.class.getName(),
+            PipelineEnginePluginType.class,
+            PipelineEnginePlugin.class);
 
-    PluginRegistry.getInstance().registerPluginClass( BeamDirectPipelineEngine.class.getName(), PipelineEnginePluginType.class, PipelineEnginePlugin.class );
-    PluginRegistry.getInstance().registerPluginClass( BeamFlinkPipelineEngine.class.getName(), PipelineEnginePluginType.class, PipelineEnginePlugin.class );
-    PluginRegistry.getInstance().registerPluginClass( BeamSparkPipelineEngine.class.getName(), PipelineEnginePluginType.class, PipelineEnginePlugin.class );
-
-    PluginRegistry.getInstance().registerPluginClass( FileDefinition.class.getName(), MetadataPluginType.class, HopMetadata.class );
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            FileDefinition.class.getName(), MetadataPluginType.class, HopMetadata.class);
 
     metadataProvider = new MemoryMetadataProvider();
 
-    File inputFolder = new File( "/tmp/customers/io" );
+    File inputFolder = new File("/tmp/customers/io");
     inputFolder.mkdirs();
-    File outputFolder = new File( "/tmp/customers/output" );
+    File outputFolder = new File("/tmp/customers/output");
     outputFolder.mkdirs();
-    File tmpFolder = new File( "/tmp/customers/tmp" );
+    File tmpFolder = new File("/tmp/customers/tmp");
     tmpFolder.mkdirs();
 
-    FileUtils.copyFile( new File( "src/test/resources/customers/customers-100.txt" ), new File( INPUT_CUSTOMERS_FILE ));
-    FileUtils.copyFile( new File( "src/test/resources/customers/state-data.txt" ), new File( INPUT_STATES_FILE ));
+    FileUtils.copyFile(
+        new File("src/test/resources/customers/customers-100.txt"), new File(INPUT_CUSTOMERS_FILE));
+    FileUtils.copyFile(
+        new File("src/test/resources/customers/state-data.txt"), new File(INPUT_STATES_FILE));
   }
 
-
   @Ignore
-  public void createRunPipeline( IVariables variables, PipelineMeta pipelineMeta ) throws Exception {
+  public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
 
     /*
     FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".hpl" );
@@ -134,14 +151,16 @@ public class PipelineTestBase {
 
     PipelineOptions pipelineOptions = PipelineOptionsFactory.create();
 
-    pipelineOptions.setJobName( pipelineMeta.getName() );
-    pipelineOptions.setUserAgent( BeamConst.STRING_HOP_BEAM );
+    pipelineOptions.setJobName(pipelineMeta.getName());
+    pipelineOptions.setUserAgent(BeamConst.STRING_HOP_BEAM);
 
     BeamDirectPipelineRunConfiguration beamRunConfig = new BeamDirectPipelineRunConfiguration();
-    beamRunConfig.setTempLocation( System.getProperty( "java.io.tmpdir" ) );
+    beamRunConfig.setTempLocation(System.getProperty("java.io.tmpdir"));
 
     // No extra plugins to load : null option
-    HopPipelineMetaToBeamPipelineConverter converter = new HopPipelineMetaToBeamPipelineConverter( variables, pipelineMeta, metadataProvider, beamRunConfig );
+    HopPipelineMetaToBeamPipelineConverter converter =
+        new HopPipelineMetaToBeamPipelineConverter(
+            variables, pipelineMeta, metadataProvider, beamRunConfig);
     Pipeline pipeline = converter.createPipeline();
 
     PipelineResult pipelineResult = pipeline.run();
@@ -149,9 +168,9 @@ public class PipelineTestBase {
 
     MetricResults metricResults = pipelineResult.metrics();
 
-    MetricQueryResults allResults = metricResults.queryMetrics( MetricsFilter.builder().build() );
-    for ( MetricResult<Long> result : allResults.getCounters() ) {
-      System.out.println( "Name: " + result.getName() + " Attempted: " + result.getAttempted() );
+    MetricQueryResults allResults = metricResults.queryMetrics(MetricsFilter.builder().build());
+    for (MetricResult<Long> result : allResults.getCounters()) {
+      System.out.println("Name: " + result.getName() + " Attempted: " + result.getAttempted());
     }
   }
 }

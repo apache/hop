@@ -24,8 +24,8 @@ import java.util.Objects;
 
 public class GroupField {
 
-  @Injection(group = "group", name = "GROUP_FIELDS")
-  @HopMetadataProperty(key = "name")
+  // @Injection(group = "group", name = "GROUP_FIELDS")
+  @HopMetadataProperty(key = "name", injectionKey = "GROUP_FIELDS")
   private String fieldName;
 
   public GroupField() {}

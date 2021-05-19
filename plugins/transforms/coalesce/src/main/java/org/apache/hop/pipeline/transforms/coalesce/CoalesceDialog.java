@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,7 +75,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.Title"));
-    shell.setMinimumSize(500,300);
+    shell.setMinimumSize(500, 300);
     setShellImage(shell, input);
     props.setLook(shell);
 
@@ -93,11 +93,11 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    
+
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    
+
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Transform name line
@@ -106,36 +106,36 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     wlTransformName.setLayoutData(new FormDataBuilder().left().top().result());
     props.setLook(wlTransformName);
-    
+
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.addListener(SWT.DefaultSelection, e -> ok());
-    wTransformName.setLayoutData(new FormDataBuilder().left().top(wlTransformName,margin).right(100, 0).result());
+    wTransformName.setLayoutData(
+        new FormDataBuilder().left().top(wlTransformName, margin).right(100, 0).result());
     props.setLook(wTransformName);
-    
+
     // Treat empty strings as nulls
     //
     wEmptyStrings = new Button(shell, SWT.CHECK);
     wEmptyStrings.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.EmptyStringsAsNulls"));
-    wEmptyStrings.setLayoutData(new FormDataBuilder().left().top(wTransformName, margin*2).result());
+    wEmptyStrings.setLayoutData(
+        new FormDataBuilder().left().top(wTransformName, margin * 2).result());
     wEmptyStrings.addListener(SWT.Selection, e -> input.setChanged());
     props.setLook(wEmptyStrings);
-    
-    
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CoalesceDialog.Fields.Label"));
-    wlFields.setLayoutData(new FormDataBuilder().left().top(wEmptyStrings, margin*2).result());
+    wlFields.setLayoutData(new FormDataBuilder().left().top(wEmptyStrings, margin * 2).result());
     props.setLook(wlFields);
-    
+
     SelectionAdapter pathSelection =
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
 
             EnterOrderedListDialog dialog = new EnterOrderedListDialog(shell, SWT.OPEN, fieldNames);
 
-            String fields =
-                wFields.getActiveTableItem().getText(wFields.getActiveTableColumn());
+            String fields = wFields.getActiveTableItem().getText(wFields.getActiveTableColumn());
 
             String[] elements = fields.split("\\s*,\\s*");
 
@@ -187,18 +187,23 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
         BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.InputFields.Tooltip"));
     columns[3].setUsingVariables(true);
     columns[3].setTextVarButtonSelectionListener(pathSelection);
-    
+
     this.wFields =
         new TableView(
             this.getVariables(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE,
             columns,
-            input.getCoalesces().size(),
+            input.getOperations().size(),
             e -> input.setChanged(),
             props);
     this.wFields.setLayoutData(
-        new FormDataBuilder().left().right(100, 0).top(wlFields, Const.MARGIN).bottom(wOk, margin*2).result());
+        new FormDataBuilder()
+            .left()
+            .right(100, 0)
+            .top(wlFields, Const.MARGIN)
+            .bottom(wOk, margin * 2)
+            .result());
 
     this.wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(3, 20, 10, 5, 52));
 
@@ -256,10 +261,10 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     wEmptyStrings.setSelection(input.isTreatEmptyStringsAsNulls());
 
-    List<Coalesce> coalesces = input.getCoalesces();
+    List<CoalesceOperation> coalesces = input.getOperations();
     for (int i = 0; i < coalesces.size(); i++) {
 
-      Coalesce coalesce = coalesces.get(i);
+      CoalesceOperation coalesce = coalesces.get(i);
       TableItem item = wFields.getTable().getItem(i);
       item.setText(1, StringUtils.stripToEmpty(coalesce.getName()));
       item.setText(2, ValueMetaBase.getTypeDesc(coalesce.getType()));
@@ -291,12 +296,12 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     int count = wFields.nrNonEmpty();
 
-    List<Coalesce> coalesces = new ArrayList<>(count);
+    List<CoalesceOperation> coalesces = new ArrayList<>(count);
 
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
 
-      Coalesce coalesce = new Coalesce();
+      CoalesceOperation coalesce = new CoalesceOperation();
       coalesce.setName(item.getText(1));
 
       String typeValueText = item.getText(2);
@@ -309,7 +314,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
       coalesces.add(coalesce);
     }
 
-    input.setCoalesces(coalesces);
+    input.setOperations(coalesces);
 
     dispose();
   }

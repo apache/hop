@@ -1,0 +1,122 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+:openvar: {
+:closevar: }
+= Filter
+
+== Description
+
+The Filter transform allows you to filter rows based on a condition expression.
+
+== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|transform name|Optionally, you can change the name of this transform to fit your needs.
+|Send 'true' data to transform|The rows for which the condition specified is true are sent to this transform
+|Send 'false' data to transform|The rows for which the condition specified are false are sent to this transform
+|The Condition|You can specify in a condition to filter with.
+See below for examples and syntax
+|===
+
+== Expressions
+
+=== Operators and Functions
+
+Here is a list of operators and functions you can use to construct conditions expressions:
+
+" IN ", " IS NOT NULL", " IS NULL", " LIKE", "CONTAINS "
+
+|===
+|Expression |Description |Examples
+
+|`<>`
+|Is not equal to.
+|`price <> 0`
+
+`"country name" <> 'Belgium'`
+
+|`>=` or `\=>`
+|Larger or equal
+|
+
+|`\<=` or `=<`
+|Smaller or equal
+|
+
+|`<`
+|Smaller
+|
+
+|`>`
+|Larger
+|
+
+|`=`
+|Equals
+|
+
+|`REGEX`
+|Matches regular expression.
+|`name REGEX('^[A-Z]*$')`
+
+|`IN`
+|See if the value is in a list of values.
+|`code IN ( 'A', 'B', 'C')`
+
+|`IS NOT NULL`
+|See if a value is not null.
+|`name IS NOT NULL`
+
+|`IS NULL`
+|See if a value is null.
+|`"Lookup result" IS NULL`
+
+|`LIKE`
+|See if a value is like an expression.
+|`product LIKE 'A%'` : matches all products starting with A
+
+`code LIKE 'A?'` : matches all codes with 2 characters A1, AA, ...
+
+|`CONTAINS`
+|See if a string contains a certain value.
+|`name contains 'Mrs'`
+
+|`DATE_TO_STR(<string>, <format mask>)`
+|Converts a String value to a Hop Date.
+Example:
+|`DATE_TO_STR( dateString, 'yyyy/MM/dd' )`
+
+
+|`(` and `)` branckets
+| You can use brackets to group together conditions to prioritize them.
+| `( code='A' OR code='B') AND region='EAST'`
+
+|===
+
+=== Quoting
+
+Fields with spaces and/or special characters in their names can be surrounded with double quotes.
+For example:
+
+`"Field with space" = 'abcd'`
+
+As you can see, String literals are surrounded by single quotes `'`

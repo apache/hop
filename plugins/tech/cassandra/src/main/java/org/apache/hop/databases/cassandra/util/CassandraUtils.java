@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.apache.hop.databases.cassandra.util;
 
@@ -542,7 +541,7 @@ public class CassandraUtils {
 
   protected static String escapeSingleQuotes(String source) {
 
-    // escaped by doubling (as in SQL)
+    // escaped by doubling (as in Sql)
     return source.replace("'", "''");
   }
 

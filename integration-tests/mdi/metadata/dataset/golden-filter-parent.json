@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-filter-parent.csv",
+  "name": "golden-filter-parent",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id"
+    }
+  ],
+  "folder_name": ""
+}

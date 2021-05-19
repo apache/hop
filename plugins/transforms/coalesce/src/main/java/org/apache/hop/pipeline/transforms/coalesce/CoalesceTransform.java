@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,8 +83,8 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
       data.outputRowMeta = getInputRowMeta().clone();
       // use meta.getFields() to change it, so it reflects the output row
       // structure
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
-      
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
       checkInputFieldsExist(meta);
     }
 
@@ -107,7 +107,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // Calculates the coalesce value for each extra output field and also
     // converts its value to reflect the Value Type option,
     // or in case it was None to reflect on the default data type logic.
-    for (Coalesce coalesce : meta.getCoalesces()) {
+    for (CoalesceOperation coalesce : meta.getOperations()) {
 
       int inputIndex = getFirstNonNullValueIndex(meta, inputRowMeta, row, coalesce);
 
@@ -155,7 +155,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
   private void checkInputFieldsExist(final CoalesceMeta meta) throws HopException {
     IRowMeta prev = getInputRowMeta();
 
-    for (Coalesce coalesce : meta.getCoalesces()) {
+    for (CoalesceOperation coalesce : meta.getOperations()) {
       List<String> missingFields = new ArrayList<>();
 
       for (String field : coalesce.getInputFields()) {
@@ -180,7 +180,10 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
 
   /** The actual coalesce logic, returns the index of the first non null value */
   private int getFirstNonNullValueIndex(
-      final CoalesceMeta meta, final IRowMeta inputRowMeta, Object[] row, Coalesce coalesce) {
+      final CoalesceMeta meta,
+      final IRowMeta inputRowMeta,
+      Object[] row,
+      CoalesceOperation coalesce) {
 
     for (String field : coalesce.getInputFields()) {
 

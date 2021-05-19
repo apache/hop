@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
@@ -67,31 +66,26 @@ public class QueryField {
     public String getDescription() {
       return description;
     }
-
-    /** @param description The description to set */
-    public void setDescription(String description) {
-      this.description = description;
-    }
   }
 
   /** Name of OUTPUT fieldname "MYNEWLEADFUNCTION" */
-  @Injection(group = "fields", name = "OUTPUT.AGGREGATE_FIELD")
-  @HopMetadataProperty(key = "aggregate")
+  // @Injection(group = "fields", name = "OUTPUT.AGGREGATE_FIELD")
+  @HopMetadataProperty(key = "aggregate", injectionKey = "OUTPUT.AGGREGATE_FIELD")
   private String aggregateField;
 
   /** Name of the input fieldname it operates on "ORDERTOTAL" */
-  @Injection(group = "fields", name = "OUTPUT.SUBJECT_FIELD")
-  @HopMetadataProperty(key = "subject")
+  // @Injection(group = "fields", name = "OUTPUT.SUBJECT_FIELD")
+  @HopMetadataProperty(key = "subject", injectionKey = "OUTPUT.SUBJECT_FIELD")
   private String subjectField;
 
   /** Aggregate type (LEAD/LAG, etc) */
-  @Injection(group = "fields", name = "OUTPUT.AGGREGATE_TYPE")
-  @HopMetadataProperty(key = "type")
+  // @Injection(group = "fields", name = "OUTPUT.AGGREGATE_TYPE")
+  @HopMetadataProperty(key = "type", injectionKey = "OUTPUT.AGGREGATE_TYPE")
   private AggregateType aggregateType;
 
   /** Offset "N" of how many rows to go forward/back */
-  @Injection(group = "fields", name = "OUTPUT.VALUE_FIELD")
-  @HopMetadataProperty(key = "valuefield")
+  // @Injection(group = "fields", name = "OUTPUT.VALUE_FIELD")
+  @HopMetadataProperty(key = "valuefield", injectionKey = "OUTPUT.VALUE_FIELD")
   private int valueField;
 
   public QueryField() {

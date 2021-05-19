@@ -20,12 +20,11 @@ package org.apache.hop.core.injection.bean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.util.ReflectionUtil;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -41,21 +40,49 @@ import java.util.Map;
 import java.util.Set;
 
 /** Storage for bean annotations info for Metadata Injection and Load/Save. */
-public class BeanInjectionInfo<Meta extends ITransformMeta> {
-  private static ILogChannel LOG =
-      HopLogStore.getLogChannelFactory().create(BeanInjectionInfo.class);
+public class BeanInjectionInfo<Meta extends Object> {
+  private static ILogChannel log;
 
   protected final Class<Meta> clazz;
-  private final InjectionSupported clazzAnnotation;
-  private Map<String, Property> properties = new HashMap<>();
-  private List<Group> groupsList = new ArrayList<>();
+  protected final InjectionSupported clazzAnnotation;
+  protected Map<String, Property> properties;
+  protected List<Group> groupsList;
 
   /** Used only for fast group search during initialize. */
-  private Map<String, Group> groupsMap = new HashMap<>();
+  protected Map<String, Group> groupsMap;
 
-  private Set<String> hideProperties = new HashSet<>();
+  protected Set<String> hideProperties;
 
-  public static <Meta extends ITransformMeta> boolean isInjectionSupported(Class<Meta> clazz) {
+  public BeanInjectionInfo(Class<Meta> clazz) {
+    properties = new HashMap<>();
+    groupsList = new ArrayList<>();
+    groupsMap = new HashMap<>();
+    hideProperties = new HashSet<>();
+    log = LogChannel.GENERAL;
+
+    if (log.isDebug()) {
+      log.logDebug("Collect bean injection info for " + clazz);
+    }
+    try {
+      this.clazz = clazz;
+      clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
+      if (!isInjectionSupported(clazz)) {
+        throw new RuntimeException("Injection not supported in " + clazz);
+      }
+
+      if (clazzAnnotation == null) {
+        extractMetadataProperties(clazz);
+      } else {
+        extractInjectionInfo(clazz);
+      }
+    } catch (Throwable ex) {
+      log.logError(
+          "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex);
+      throw ex;
+    }
+  }
+
+  public static <Meta extends Object> boolean isInjectionSupported(Class<Meta> clazz) {
     InjectionSupported annotation = clazz.getAnnotation(InjectionSupported.class);
     if (annotation != null) {
       return true;
@@ -73,29 +100,6 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
     return false;
   }
 
-  public BeanInjectionInfo(Class<Meta> clazz) {
-    if (LOG.isDebug()) {
-      LOG.logDebug("Collect bean injection info for " + clazz);
-    }
-    try {
-      this.clazz = clazz;
-      clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
-      if (!isInjectionSupported(clazz)) {
-        throw new RuntimeException("Injection not supported in " + clazz);
-      }
-
-      if (clazzAnnotation == null) {
-        extractMetadataProperties(clazz);
-      } else {
-        extractInjectionInfo(clazz);
-      }
-    } catch (Throwable ex) {
-      LOG.logError(
-          "Error bean injection info collection for " + clazz + ": " + ex.getMessage(), ex);
-      throw ex;
-    }
-  }
-
   private void extractMetadataProperties(Class<Meta> clazz) {
     Map<Field, HopMetadataProperty> propertyFields = new HashMap<>();
     for (Field field : ReflectionUtil.findAllFields(clazz)) {
@@ -111,7 +115,7 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
 
     // The root Bean Level Info
     //
-    BeanLevelInfo classLevelInfo = new BeanLevelInfo();
+    BeanLevelInfo<Meta> classLevelInfo = new BeanLevelInfo<>();
     classLevelInfo.leafClass = clazz;
 
     // Add an empty group...
@@ -159,31 +163,48 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
           fieldLevelInfo.leafClass = fieldType; // Not List but the listed type
         }
 
-        for (Field childField : ReflectionUtil.findAllFields(fieldType)) {
-          Class<?> childFieldType = childField.getType();
-          HopMetadataProperty childProperty = childField.getAnnotation(HopMetadataProperty.class);
-          if (childProperty != null) {
-            String childInjectionKey = calculateInjectionKey(childField, childProperty);
-            String childInjectionKeyDescription = calculateInjectionKeyDescription(childProperty);
+        // Special case: List<String>
+        //
+        if (String.class.equals(fieldType)) {
+          fieldLevelInfo.leafClass = field.getType();
 
-            // Child bean level info...
-            //
-            BeanLevelInfo childLevelInfo =
-                getLevelInfo(
-                    fieldType,
-                    fieldLevelInfo,
-                    childField,
-                    childFieldType,
-                    childProperty,
-                    childInjectionKey);
+          // Child bean level info...
+          //
+          BeanLevelInfo childLevelInfo =
+              getLevelInfo(fieldType, fieldLevelInfo, null, fieldType, property, injectionKey);
+          childLevelInfo.stringList = true;
 
-            List<BeanLevelInfo> path =
-                Arrays.asList(classLevelInfo, fieldLevelInfo, childLevelInfo);
-            Property p =
-                new Property(
-                    childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path);
-            group.properties.add(p);
-            properties.put(childInjectionKey, p);
+          List<BeanLevelInfo> path = Arrays.asList(classLevelInfo, fieldLevelInfo, childLevelInfo);
+          Property p = new Property(injectionKey, injectionKeyDescription, injectionGroupKey, path);
+          group.properties.add(p);
+          properties.put(injectionKey, p);
+        } else {
+          for (Field childField : ReflectionUtil.findAllFields(fieldType)) {
+            Class<?> childFieldType = childField.getType();
+            HopMetadataProperty childProperty = childField.getAnnotation(HopMetadataProperty.class);
+            if (childProperty != null) {
+              String childInjectionKey = calculateInjectionKey(childField, childProperty);
+              String childInjectionKeyDescription = calculateInjectionKeyDescription(childProperty);
+
+              // Child bean level info...
+              //
+              BeanLevelInfo childLevelInfo =
+                  getLevelInfo(
+                      fieldType,
+                      fieldLevelInfo,
+                      childField,
+                      childFieldType,
+                      childProperty,
+                      childInjectionKey);
+
+              List<BeanLevelInfo> path =
+                  Arrays.asList(classLevelInfo, fieldLevelInfo, childLevelInfo);
+              Property p =
+                  new Property(
+                      childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path);
+              group.properties.add(p);
+              properties.put(childInjectionKey, p);
+            }
           }
         }
       } else {
@@ -213,13 +234,15 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
     BeanLevelInfo fieldLevelInfo = new BeanLevelInfo();
     fieldLevelInfo.parent = parent;
     fieldLevelInfo.leafClass = fieldType;
-    try {
-      fieldLevelInfo.converter = property.injectionConverter().newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Unable to instantiate injection metadata converter class "
-              + property.injectionConverter().getName(),
-          e);
+    if (property != null) {
+      try {
+        fieldLevelInfo.converter = property.injectionConverter().newInstance();
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Unable to instantiate injection metadata converter class "
+                + property.injectionConverter().getName(),
+            e);
+      }
     }
     fieldLevelInfo.nameKey = injectionKey;
     fieldLevelInfo.field = field;
@@ -228,27 +251,29 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
     }
     fieldLevelInfo.dim = BeanLevelInfo.DIMENSION.NONE;
     boolean isBoolean = Boolean.class.equals(fieldType) || boolean.class.equals(fieldType);
-    try {
-      fieldLevelInfo.getter =
-          parentClass.getMethod(ReflectionUtil.getGetterMethodName(field.getName(), isBoolean));
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Unable to find getter for field "
-              + field.getName()
-              + " in class "
-              + parentClass.getName(),
-          e);
-    }
-    try {
-      fieldLevelInfo.setter =
-          parentClass.getMethod(ReflectionUtil.getSetterMethodName(field.getName()), fieldType);
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Unable to find setter for field "
-              + field.getName()
-              + " in class "
-              + parentClass.getName(),
-          e);
+    if (field != null) {
+      try {
+        fieldLevelInfo.getter =
+            parentClass.getMethod(ReflectionUtil.getGetterMethodName(field.getName(), isBoolean));
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Unable to find getter for field "
+                + field.getName()
+                + " in class "
+                + parentClass.getName(),
+            e);
+      }
+      try {
+        fieldLevelInfo.setter =
+            parentClass.getMethod(ReflectionUtil.getSetterMethodName(field.getName()), fieldType);
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Unable to find setter for field "
+                + field.getName()
+                + " in class "
+                + parentClass.getName(),
+            e);
+      }
     }
     return fieldLevelInfo;
   }
@@ -464,6 +489,15 @@ public class BeanInjectionInfo<Meta extends ITransformMeta> {
         return true;
       }
       return false;
+    }
+
+    /**
+     * Gets path
+     *
+     * @return value of path
+     */
+    public List<BeanLevelInfo> getPath() {
+      return path;
     }
   }
 

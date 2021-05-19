@@ -1,0 +1,56 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "addler32",
+          "data_set_field": "addler32"
+        },
+        {
+          "transform_field": "crc32",
+          "data_set_field": "crc32"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "md5",
+          "data_set_field": "md5"
+        },
+        {
+          "transform_field": "mod",
+          "data_set_field": "mod"
+        },
+        {
+          "transform_field": "sha1",
+          "data_set_field": "sha1"
+        },
+        {
+          "transform_field": "sha256",
+          "data_set_field": "sha256"
+        },
+        {
+          "transform_field": "sha384",
+          "data_set_field": "sha384"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "sha512",
+      "data_set_name": "golden-add-checksum"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0015-add-checksum UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0015-add-checksum.hpl",
+  "test_type": "UNIT_TEST"
+}

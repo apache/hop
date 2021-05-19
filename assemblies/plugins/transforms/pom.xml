@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -76,6 +75,7 @@
     <module>fileexists</module>
     <module>filelocked</module>
     <module>filemetadata</module>
+    <module>filter</module>
     <module>filterrows</module>
     <module>flattener</module>
     <module>fuzzymatch</module>
