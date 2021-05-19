@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.filterrows;
+package org.apache.hop.pipeline.transforms.filter;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;

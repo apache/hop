@@ -154,7 +154,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
 
       String realFilename = resolve( getFilename() );
       if ( Utils.isEmpty( realFilename ) ) {
-        logError( BaseMessages.getString( PKG, "JobPGPVerify.FilenameMissing" ) );
+        logError( BaseMessages.getString( PKG, "ActionPGPVerify.FilenameMissing" ) );
         return result;
       }
       file = HopVfs.getFileObject( realFilename );
@@ -165,7 +165,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         String signature = resolve( getDetachedfilename() );
 
         if ( Utils.isEmpty( signature ) ) {
-          logError( BaseMessages.getString( PKG, "JobPGPVerify.DetachedSignatureMissing" ) );
+          logError( BaseMessages.getString( PKG, "ActionPGPVerify.DetachedSignatureMissing" ) );
           return result;
         }
         detachedSignature = HopVfs.getFileObject( signature );
@@ -179,7 +179,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       result.setResult( true );
 
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobPGPVerify.Error" ), e );
+      logError( BaseMessages.getString( PKG, "ActionPGPVerify.Error" ), e );
     } finally {
       try {
         if ( file != null ) {

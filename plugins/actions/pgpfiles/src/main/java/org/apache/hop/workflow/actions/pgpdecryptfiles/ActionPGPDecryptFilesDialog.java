@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -177,8 +176,6 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -1358,19 +1355,15 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
+        shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
     SelectionAdapter lsDef =
         new SelectionAdapter() {
           public void widgetDefaultSelected(SelectionEvent e) {
