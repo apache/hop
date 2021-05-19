@@ -37,6 +37,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/mdi/0009-coalesce-parent.hpl",
+  "pipeline_filename": "./0009-coalesce-parent.hpl",
   "test_type": "UNIT_TEST"
 }

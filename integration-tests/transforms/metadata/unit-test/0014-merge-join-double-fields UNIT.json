@@ -36,6 +36,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0014-merge-join-double-fields.hpl",
+  "pipeline_filename": "./0014-merge-join-double-fields.hpl",
   "test_type": "UNIT_TEST"
 }

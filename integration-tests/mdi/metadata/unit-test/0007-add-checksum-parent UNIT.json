@@ -35,6 +35,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/mdi/0007-add-checksum-parent.hpl",
+  "pipeline_filename": "./0007-add-checksum-parent.hpl",
   "test_type": "UNIT_TEST"
 }

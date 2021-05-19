@@ -39,6 +39,45 @@
     </hop>
   </order>
   <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>One or more tests are failing</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Only errors</name>
+    <type>Filter</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <condition>ExecutionNrErrors > 0</condition>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>get main workflows</name>
     <type>GetFileNames</type>
     <description/>
@@ -120,45 +159,6 @@
     <attributes/>
     <GUI>
       <xloc>272</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Only errors</name>
-    <type>Filter</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <condition>ExecutionNrErrors > 0</condition>
-    <attributes/>
-    <GUI>
-      <xloc>432</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Abort</name>
-    <type>Abort</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <abort_option>ABORT_WITH_ERROR</abort_option>
-    <always_log_rows>Y</always_log_rows>
-    <message>One or more tests are failing</message>
-    <row_threshold>0</row_threshold>
-    <attributes/>
-    <GUI>
-      <xloc>560</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
