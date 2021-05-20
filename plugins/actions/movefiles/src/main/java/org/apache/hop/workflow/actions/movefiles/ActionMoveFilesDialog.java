@@ -63,7 +63,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
   private static final Class<?> PKG = ActionMoveFiles.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobMoveFiles.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionMoveFiles.Filetype.All")};
 
   private Text wName;
 
@@ -166,19 +166,16 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     this.action = (ActionMoveFiles) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobMoveFiles.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionMoveFiles.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -188,7 +185,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobMoveFiles.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -205,7 +202,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobMoveFiles.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -229,7 +226,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobMoveFiles.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -246,7 +243,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "JobMoveFiles.Settings.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -255,7 +252,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.IncludeSubfolders.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
@@ -265,7 +262,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.IncludeSubfolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
     fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
@@ -281,7 +278,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Copy empty folders
     wlMoveEmptyFolders = new Label(wSettings, SWT.RIGHT);
-    wlMoveEmptyFolders.setText(BaseMessages.getString(PKG, "JobMoveFiles.MoveEmptyFolders.Label"));
+    wlMoveEmptyFolders.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.MoveEmptyFolders.Label"));
     props.setLook(wlMoveEmptyFolders);
     FormData fdlMoveEmptyFolders = new FormData();
     fdlMoveEmptyFolders.left = new FormAttachment(0, 0);
@@ -291,7 +289,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wMoveEmptyFolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wMoveEmptyFolders);
     wMoveEmptyFolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.MoveEmptyFolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.MoveEmptyFolders.Tooltip"));
     FormData fdMoveEmptyFolders = new FormData();
     fdMoveEmptyFolders.left = new FormAttachment(middle, 0);
     fdMoveEmptyFolders.top = new FormAttachment(wlMoveEmptyFolders, 0, SWT.CENTER);
@@ -306,7 +304,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Simulate?
     Label wlSimulate = new Label(wSettings, SWT.RIGHT);
-    wlSimulate.setText(BaseMessages.getString(PKG, "JobMoveFiles.Simulate.Label"));
+    wlSimulate.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Simulate.Label"));
     props.setLook(wlSimulate);
     FormData fdlSimulate = new FormData();
     fdlSimulate.left = new FormAttachment(0, 0);
@@ -315,7 +313,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlSimulate.setLayoutData(fdlSimulate);
     wSimulate = new Button(wSettings, SWT.CHECK);
     props.setLook(wSimulate);
-    wSimulate.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.Simulate.Tooltip"));
+    wSimulate.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.Simulate.Tooltip"));
     FormData fdSimulate = new FormData();
     fdSimulate.left = new FormAttachment(middle, 0);
     fdSimulate.top = new FormAttachment(wlSimulate, 0, SWT.CENTER);
@@ -330,7 +328,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // previous
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobMoveFiles.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -340,7 +338,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wPrevious = new Button(wSettings, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.Previous.Tooltip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -365,7 +363,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // SourceFileFolder line
     wlSourceFileFolder = new Label(wGeneralComp, SWT.RIGHT);
-    wlSourceFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.SourceFileFolder.Label"));
+    wlSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.SourceFileFolder.Label"));
     props.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
@@ -376,7 +375,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceDirectory);
-    wbSourceDirectory.setText(BaseMessages.getString(PKG, "JobMoveFiles.BrowseFolders.Label"));
+    wbSourceDirectory.setText(BaseMessages.getString(PKG, "ActionMoveFiles.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin);
@@ -387,7 +386,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceFileFolder);
-    wbSourceFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.BrowseFiles.Label"));
+    wbSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionMoveFiles.BrowseFiles.Label"));
     FormData fdbSourceFileFolder = new FormData();
     fdbSourceFileFolder.right = new FormAttachment(wbSourceDirectory, -margin);
     fdbSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -396,7 +395,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Browse Destination file add button ...
     wbaSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaSourceFileFolder);
-    wbaSourceFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.FilenameAdd.Button"));
+    wbaSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionMoveFiles.FilenameAdd.Button"));
     FormData fdbaSourceFileFolder = new FormData();
     fdbaSourceFileFolder.right = new FormAttachment(wbSourceFileFolder, -margin);
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -404,7 +403,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     wSourceFileFolder = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SourceFileFolder.Tooltip"));
 
     props.setLook(wSourceFileFolder);
     wSourceFileFolder.addModifyListener(lsMod);
@@ -427,7 +426,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Destination
     wlDestinationFileFolder = new Label(wGeneralComp, SWT.RIGHT);
     wlDestinationFileFolder.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationFileFolder.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationFileFolder.Label"));
     props.setLook(wlDestinationFileFolder);
     FormData fdlDestinationFileFolder = new FormData();
     fdlDestinationFileFolder.left = new FormAttachment(0, 0);
@@ -438,7 +437,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Browse Destination folders button ...
     wbDestinationDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbDestinationDirectory);
-    wbDestinationDirectory.setText(BaseMessages.getString(PKG, "JobMoveFiles.BrowseFolders.Label"));
+    wbDestinationDirectory.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.BrowseFolders.Label"));
     FormData fdbDestinationDirectory = new FormData();
     fdbDestinationDirectory.right = new FormAttachment(100, 0);
     fdbDestinationDirectory.top = new FormAttachment(wSourceFileFolder, margin);
@@ -450,7 +450,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Browse Destination file browse button ...
     wbDestinationFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbDestinationFileFolder);
-    wbDestinationFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.BrowseFiles.Label"));
+    wbDestinationFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.BrowseFiles.Label"));
     FormData fdbDestinationFileFolder = new FormData();
     fdbDestinationFileFolder.right = new FormAttachment(wbDestinationDirectory, -margin);
     fdbDestinationFileFolder.top = new FormAttachment(wSourceFileFolder, margin);
@@ -459,7 +460,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDestinationFileFolder =
         new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDestinationFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationFileFolder.Tooltip"));
     props.setLook(wDestinationFileFolder);
     wDestinationFileFolder.addModifyListener(lsMod);
     FormData fdDestinationFileFolder = new FormData();
@@ -476,7 +477,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "JobMoveFiles.Wildcard.Label"));
+    wlWildcard.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Wildcard.Label"));
     props.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
@@ -485,7 +486,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlWildcard.setLayoutData(fdlWildcard);
 
     wWildcard = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wWildcard.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.Wildcard.Tooltip"));
+    wWildcard.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.Wildcard.Tooltip"));
     props.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
@@ -495,7 +496,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wWildcard.setLayoutData(fdWildcard);
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobMoveFiles.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -506,9 +507,10 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Buttons to the right of the screen...
     wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdSourceFileFolder);
-    wbdSourceFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.FilenameDelete.Button"));
+    wbdSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.FilenameDelete.Button"));
     wbdSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.FilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.FilenameDelete.Tooltip"));
     FormData fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment(100, 0);
     fdbdSourceFileFolder.top = new FormAttachment(wlFields, margin);
@@ -516,9 +518,9 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeSourceFileFolder);
-    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "JobMoveFiles.FilenameEdit.Button"));
+    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionMoveFiles.FilenameEdit.Button"));
     wbeSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.FilenameEdit.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.FilenameEdit.Tooltip"));
     FormData fdbeSourceFileFolder = new FormData();
     fdbeSourceFileFolder.right = new FormAttachment(100, 0);
     fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
@@ -534,27 +536,27 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobMoveFiles.Fields.SourceFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobMoveFiles.Fields.DestinationFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.DestinationFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobMoveFiles.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(
-        BaseMessages.getString(PKG, "JobMoveFiles.Fields.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Tooltip"));
     colinf[1].setUsingVariables(true);
     colinf[1].setToolTip(
-        BaseMessages.getString(PKG, "JobMoveFiles.Fields.DestinationFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Fields.DestinationFileFolder.Tooltip"));
     colinf[2].setUsingVariables(true);
-    colinf[2].setToolTip(BaseMessages.getString(PKG, "JobMoveFiles.Fields.Wildcard.Tooltip"));
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Tooltip"));
 
     wFields =
         new TableView(
@@ -643,7 +645,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     CTabItem wDestinationFileTab = new CTabItem(wTabFolder, SWT.NONE);
     wDestinationFileTab.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationFileTab.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationFileTab.Label"));
 
     FormLayout DestcontentLayout = new FormLayout();
     DestcontentLayout.marginWidth = 3;
@@ -661,7 +663,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     Group wDestinationFile = new Group(wDestinationFileComp, SWT.SHADOW_NONE);
     props.setLook(wDestinationFile);
     wDestinationFile.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.GroupDestinationFile.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.GroupDestinationFile.Label"));
 
     FormLayout groupLayoutFile = new FormLayout();
     groupLayoutFile.marginWidth = 10;
@@ -671,7 +673,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Create destination folder/parent folder
     Label wlCreateDestinationFolder = new Label(wDestinationFile, SWT.RIGHT);
     wlCreateDestinationFolder.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.CreateDestinationFolder.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.CreateDestinationFolder.Label"));
     props.setLook(wlCreateDestinationFolder);
     FormData fdlCreateDestinationFolder = new FormData();
     fdlCreateDestinationFolder.left = new FormAttachment(0, 0);
@@ -681,7 +683,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateDestinationFolder = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wCreateDestinationFolder);
     wCreateDestinationFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.CreateDestinationFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.CreateDestinationFolder.Tooltip"));
     FormData fdCreateDestinationFolder = new FormData();
     fdCreateDestinationFolder.left = new FormAttachment(middle, 0);
     fdCreateDestinationFolder.top = new FormAttachment(wlCreateDestinationFolder, 0, SWT.CENTER);
@@ -697,7 +699,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Destination is a file?
     Label wlDestinationIsAFile = new Label(wDestinationFile, SWT.RIGHT);
     wlDestinationIsAFile.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationIsAFile.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationIsAFile.Label"));
     props.setLook(wlDestinationIsAFile);
     FormData fdlDestinationIsAFile = new FormData();
     fdlDestinationIsAFile.left = new FormAttachment(0, 0);
@@ -707,7 +709,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDestinationIsAFile = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wDestinationIsAFile);
     wDestinationIsAFile.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationIsAFile.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationIsAFile.Tooltip"));
     FormData fdDestinationIsAFile = new FormData();
     fdDestinationIsAFile.left = new FormAttachment(middle, 0);
     fdDestinationIsAFile.top = new FormAttachment(wlDestinationIsAFile, 0, SWT.CENTER);
@@ -724,7 +726,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Do not keep folder structure?
     wlDoNotKeepFolderStructure = new Label(wDestinationFile, SWT.RIGHT);
     wlDoNotKeepFolderStructure.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DoNotKeepFolderStructure.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DoNotKeepFolderStructure.Label"));
     props.setLook(wlDoNotKeepFolderStructure);
     FormData fdlDoNotKeepFolderStructure = new FormData();
     fdlDoNotKeepFolderStructure.left = new FormAttachment(0, 0);
@@ -734,7 +736,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDoNotKeepFolderStructure = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DoNotKeepFolderStructure.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DoNotKeepFolderStructure.Tooltip"));
     FormData fdDoNotKeepFolderStructure = new FormData();
     fdDoNotKeepFolderStructure.left = new FormAttachment(middle, 0);
     fdDoNotKeepFolderStructure.top = new FormAttachment(wlDoNotKeepFolderStructure, 0, SWT.CENTER);
@@ -749,7 +751,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Create multi-part file?
     wlAddDate = new Label(wDestinationFile, SWT.RIGHT);
-    wlAddDate.setText(BaseMessages.getString(PKG, "JobMoveFiles.AddDate.Label"));
+    wlAddDate.setText(BaseMessages.getString(PKG, "ActionMoveFiles.AddDate.Label"));
     props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
@@ -758,7 +760,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wAddDate);
-    wAddDate.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.AddDate.Tooltip"));
+    wAddDate.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.AddDate.Tooltip"));
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment(middle, 0);
     fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
@@ -773,7 +775,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
         });
     // Create multi-part file?
     wlAddTime = new Label(wDestinationFile, SWT.RIGHT);
-    wlAddTime.setText(BaseMessages.getString(PKG, "JobMoveFiles.AddTime.Label"));
+    wlAddTime.setText(BaseMessages.getString(PKG, "ActionMoveFiles.AddTime.Label"));
     props.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
@@ -782,7 +784,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wAddTime);
-    wAddTime.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.AddTime.Tooltip"));
+    wAddTime.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.AddTime.Tooltip"));
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment(middle, 0);
     fdAddTime.top = new FormAttachment(wlAddTime, 0, SWT.CENTER);
@@ -798,7 +800,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Specify date time format?
     Label wlSpecifyFormat = new Label(wDestinationFile, SWT.RIGHT);
-    wlSpecifyFormat.setText(BaseMessages.getString(PKG, "JobMoveFiles.SpecifyFormat.Label"));
+    wlSpecifyFormat.setText(BaseMessages.getString(PKG, "ActionMoveFiles.SpecifyFormat.Label"));
     props.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
@@ -808,7 +810,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyFormat = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wSpecifyFormat);
     wSpecifyFormat.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.SpecifyFormat.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
     fdSpecifyFormat.left = new FormAttachment(middle, 0);
     fdSpecifyFormat.top = new FormAttachment(wlSpecifyFormat, 0, SWT.CENTER);
@@ -825,7 +827,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // DateTimeFormat
     wlDateTimeFormat = new Label(wDestinationFile, SWT.RIGHT);
-    wlDateTimeFormat.setText(BaseMessages.getString(PKG, "JobMoveFiles.DateTimeFormat.Label"));
+    wlDateTimeFormat.setText(BaseMessages.getString(PKG, "ActionMoveFiles.DateTimeFormat.Label"));
     props.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
@@ -850,7 +852,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Add Date before extension?
     wlAddDateBeforeExtension = new Label(wDestinationFile, SWT.RIGHT);
     wlAddDateBeforeExtension.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.AddDateBeforeExtension.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddDateBeforeExtension.Label"));
     props.setLook(wlAddDateBeforeExtension);
     FormData fdlAddDateBeforeExtension = new FormData();
     fdlAddDateBeforeExtension.left = new FormAttachment(0, 0);
@@ -860,7 +862,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddDateBeforeExtension = new Button(wDestinationFile, SWT.CHECK);
     props.setLook(wAddDateBeforeExtension);
     wAddDateBeforeExtension.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.AddDateBeforeExtension.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddDateBeforeExtension.Tooltip"));
     FormData fdAddDateBeforeExtension = new FormData();
     fdAddDateBeforeExtension.left = new FormAttachment(middle, 0);
     fdAddDateBeforeExtension.top = new FormAttachment(wlAddDateBeforeExtension, 0, SWT.CENTER);
@@ -875,7 +877,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // If File Exists
     Label wlIfFileExists = new Label(wDestinationFile, SWT.RIGHT);
-    wlIfFileExists.setText(BaseMessages.getString(PKG, "JobMoveFiles.IfFileExists.Label"));
+    wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionMoveFiles.IfFileExists.Label"));
     props.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
@@ -884,15 +886,16 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlIfFileExists.setLayoutData(fdlIfFileExists);
 
     wIfFileExists = new CCombo(wDestinationFile, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wIfFileExists.add(BaseMessages.getString(PKG, "JobMoveFiles.Do_Nothing_IfFileExists.Label"));
+    wIfFileExists.add(BaseMessages.getString(PKG, "ActionMoveFiles.Do_Nothing_IfFileExists.Label"));
     wIfFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Overwrite_File_IfFileExists.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "JobMoveFiles.Unique_Name_IfFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Overwrite_File_IfFileExists.Label"));
     wIfFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Delete_Source_File_IfFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Unique_Name_IfFileExists.Label"));
     wIfFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Move_To_Folder_IfFileExists.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "JobMoveFiles.Fail_IfFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Delete_Source_File_IfFileExists.Label"));
+    wIfFileExists.add(
+        BaseMessages.getString(PKG, "ActionMoveFiles.Move_To_Folder_IfFileExists.Label"));
+    wIfFileExists.add(BaseMessages.getString(PKG, "ActionMoveFiles.Fail_IfFileExists.Label"));
     wIfFileExists.select(0); // +1: starts at -1
     props.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
@@ -928,7 +931,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     Group wMoveToGroup = new Group(wDestinationFileComp, SWT.SHADOW_NONE);
     props.setLook(wMoveToGroup);
-    wMoveToGroup.setText(BaseMessages.getString(PKG, "JobMoveFiles.GroupMoveToGroup.Label"));
+    wMoveToGroup.setText(BaseMessages.getString(PKG, "ActionMoveFiles.GroupMoveToGroup.Label"));
 
     FormLayout MovetoLayoutFile = new FormLayout();
     MovetoLayoutFile.marginWidth = 10;
@@ -938,7 +941,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // DestinationFolder line
     wlDestinationFolder = new Label(wMoveToGroup, SWT.RIGHT);
     wlDestinationFolder.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.DestinationFolder.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.DestinationFolder.Label"));
     props.setLook(wlDestinationFolder);
     FormData fdlDestinationFolder = new FormData();
     fdlDestinationFolder.left = new FormAttachment(0, 0);
@@ -973,7 +976,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Create destination folder/parent folder
     wlCreateMoveToFolder = new Label(wMoveToGroup, SWT.RIGHT);
     wlCreateMoveToFolder.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.CreateMoveToFolder.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.CreateMoveToFolder.Label"));
     props.setLook(wlCreateMoveToFolder);
     FormData fdlCreateMoveToFolder = new FormData();
     fdlCreateMoveToFolder.left = new FormAttachment(0, 0);
@@ -983,7 +986,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateMoveToFolder = new Button(wMoveToGroup, SWT.CHECK);
     props.setLook(wCreateMoveToFolder);
     wCreateMoveToFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.CreateMoveToFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.CreateMoveToFolder.Tooltip"));
     FormData fdCreateMoveToFolder = new FormData();
     fdCreateMoveToFolder.left = new FormAttachment(middle, 0);
     fdCreateMoveToFolder.top = new FormAttachment(wlCreateMoveToFolder, 0, SWT.CENTER);
@@ -998,7 +1001,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Create multi-part file?
     wlAddMovedDate = new Label(wMoveToGroup, SWT.RIGHT);
-    wlAddMovedDate.setText(BaseMessages.getString(PKG, "JobMoveFiles.AddMovedDate.Label"));
+    wlAddMovedDate.setText(BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedDate.Label"));
     props.setLook(wlAddMovedDate);
     FormData fdlAddMovedDate = new FormData();
     fdlAddMovedDate.left = new FormAttachment(0, 0);
@@ -1007,7 +1010,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlAddMovedDate.setLayoutData(fdlAddMovedDate);
     wAddMovedDate = new Button(wMoveToGroup, SWT.CHECK);
     props.setLook(wAddMovedDate);
-    wAddMovedDate.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.AddMovedDate.Tooltip"));
+    wAddMovedDate.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedDate.Tooltip"));
     FormData fdAddMovedDate = new FormData();
     fdAddMovedDate.left = new FormAttachment(middle, 0);
     fdAddMovedDate.top = new FormAttachment(wlAddMovedDate, 0, SWT.CENTER);
@@ -1022,7 +1026,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
         });
     // Create multi-part file?
     wlAddMovedTime = new Label(wMoveToGroup, SWT.RIGHT);
-    wlAddMovedTime.setText(BaseMessages.getString(PKG, "JobMoveFiles.AddMovedTime.Label"));
+    wlAddMovedTime.setText(BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedTime.Label"));
     props.setLook(wlAddMovedTime);
     FormData fdlAddMovedTime = new FormData();
     fdlAddMovedTime.left = new FormAttachment(0, 0);
@@ -1031,7 +1035,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlAddMovedTime.setLayoutData(fdlAddMovedTime);
     wAddMovedTime = new Button(wMoveToGroup, SWT.CHECK);
     props.setLook(wAddMovedTime);
-    wAddMovedTime.setToolTipText(BaseMessages.getString(PKG, "JobMoveFiles.AddMovedTime.Tooltip"));
+    wAddMovedTime.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedTime.Tooltip"));
     FormData fdAddMovedTime = new FormData();
     fdAddMovedTime.left = new FormAttachment(middle, 0);
     fdAddMovedTime.top = new FormAttachment(wlAddMovedTime, 0, SWT.CENTER);
@@ -1048,7 +1053,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Specify date time format?
     wlSpecifyMoveFormat = new Label(wMoveToGroup, SWT.RIGHT);
     wlSpecifyMoveFormat.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.SpecifyMoveFormat.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SpecifyMoveFormat.Label"));
     props.setLook(wlSpecifyMoveFormat);
     FormData fdlSpecifyMoveFormat = new FormData();
     fdlSpecifyMoveFormat.left = new FormAttachment(0, 0);
@@ -1058,7 +1063,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyMoveFormat = new Button(wMoveToGroup, SWT.CHECK);
     props.setLook(wSpecifyMoveFormat);
     wSpecifyMoveFormat.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.SpecifyMoveFormat.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SpecifyMoveFormat.Tooltip"));
     FormData fdSpecifyMoveFormat = new FormData();
     fdSpecifyMoveFormat.left = new FormAttachment(middle, 0);
     fdSpecifyMoveFormat.top = new FormAttachment(wlSpecifyMoveFormat, 0, SWT.CENTER);
@@ -1076,7 +1081,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Moved DateTimeFormat
     wlMovedDateTimeFormat = new Label(wMoveToGroup, SWT.RIGHT);
     wlMovedDateTimeFormat.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.MovedDateTimeFormat.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.MovedDateTimeFormat.Label"));
     props.setLook(wlMovedDateTimeFormat);
     FormData fdlMovedDateTimeFormat = new FormData();
     fdlMovedDateTimeFormat.left = new FormAttachment(0, 0);
@@ -1100,7 +1105,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Add Date before extension?
     wlAddMovedDateBeforeExtension = new Label(wMoveToGroup, SWT.RIGHT);
     wlAddMovedDateBeforeExtension.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.AddMovedDateBeforeExtension.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedDateBeforeExtension.Label"));
     props.setLook(wlAddMovedDateBeforeExtension);
     FormData fdlAddMovedDateBeforeExtension = new FormData();
     fdlAddMovedDateBeforeExtension.left = new FormAttachment(0, 0);
@@ -1110,7 +1115,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedDateBeforeExtension = new Button(wMoveToGroup, SWT.CHECK);
     props.setLook(wAddMovedDateBeforeExtension);
     wAddMovedDateBeforeExtension.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.AddMovedDateBeforeExtension.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddMovedDateBeforeExtension.Tooltip"));
     FormData fdAddMovedDateBeforeExtension = new FormData();
     fdAddMovedDateBeforeExtension.left = new FormAttachment(middle, 0);
     fdAddMovedDateBeforeExtension.top =
@@ -1127,7 +1132,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // If moved File Exists
     wlIfMovedFileExists = new Label(wMoveToGroup, SWT.RIGHT);
     wlIfMovedFileExists.setText(
-        BaseMessages.getString(PKG, "JobMoveFiles.IfMovedFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.IfMovedFileExists.Label"));
     props.setLook(wlIfMovedFileExists);
     FormData fdlIfMovedFileExists = new FormData();
     fdlIfMovedFileExists.left = new FormAttachment(0, 0);
@@ -1136,13 +1141,13 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlIfMovedFileExists.setLayoutData(fdlIfMovedFileExists);
     wIfMovedFileExists = new CCombo(wMoveToGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfMovedFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Do_Nothing_IfMovedFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Do_Nothing_IfMovedFileExists.Label"));
     wIfMovedFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Overwrite_Filename_IffMovedFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Overwrite_Filename_IffMovedFileExists.Label"));
     wIfMovedFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.UniqueName_IfMovedFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.UniqueName_IfMovedFileExists.Label"));
     wIfMovedFileExists.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.Fail_IfMovedFileExists.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.Fail_IfMovedFileExists.Label"));
     wIfMovedFileExists.select(0); // +1: starts at -1
     props.setLook(wIfMovedFileExists);
     FormData fdIfMovedFileExists = new FormData();
@@ -1180,7 +1185,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobMoveFiles.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Tab.Advanced.Label"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
@@ -1196,7 +1201,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wSuccessOn);
-    wSuccessOn.setText(BaseMessages.getString(PKG, "JobMoveFiles.SuccessOn.Group.Label"));
+    wSuccessOn.setText(BaseMessages.getString(PKG, "ActionMoveFiles.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
     successongroupLayout.marginWidth = 10;
@@ -1206,7 +1211,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Success Condition
     Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
-    wlSuccessCondition.setText(BaseMessages.getString(PKG, "JobMoveFiles.SuccessCondition.Label"));
+    wlSuccessCondition.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.SuccessCondition.Label"));
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
@@ -1215,10 +1221,10 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.SuccessWhenAllWorksFine.Label"));
-    wSuccessCondition.add(BaseMessages.getString(PKG, "JobMoveFiles.SuccessWhenAtLeat.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SuccessWhenAllWorksFine.Label"));
+    wSuccessCondition.add(BaseMessages.getString(PKG, "ActionMoveFiles.SuccessWhenAtLeat.Label"));
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobMoveFiles.SuccessWhenErrorsLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.SuccessWhenErrorsLessThan.Label"));
 
     wSuccessCondition.select(0); // +1: starts at -1
 
@@ -1237,7 +1243,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
-    wlNrErrorsLessThan.setText(BaseMessages.getString(PKG, "JobMoveFiles.NrErrorsLessThan.Label"));
+    wlNrErrorsLessThan.setText(
+        BaseMessages.getString(PKG, "ActionMoveFiles.NrErrorsLessThan.Label"));
     props.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
@@ -1250,7 +1257,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobMoveFiles.NrErrorsLessThan.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMoveFiles.NrErrorsLessThan.Tooltip"));
     props.setLook(wNrErrorsLessThan);
     wNrErrorsLessThan.addModifyListener(lsMod);
     FormData fdNrErrorsLessThan = new FormData();
@@ -1274,7 +1281,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobMoveFiles.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionMoveFiles.FileResult.Group.Label"));
 
     FormLayout fileresultgroupLayout = new FormLayout();
     fileresultgroupLayout.marginWidth = 10;
@@ -1284,7 +1291,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     // Add file to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
-    wlAddFileToResult.setText(BaseMessages.getString(PKG, "JobMoveFiles.AddFileToResult.Label"));
+    wlAddFileToResult.setText(BaseMessages.getString(PKG, "ActionMoveFiles.AddFileToResult.Label"));
     props.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
@@ -1294,7 +1301,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
     props.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobMoveFiles.AddFileToResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMoveFiles.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
     fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);

@@ -109,7 +109,6 @@ public class EnterNumberDialog extends Dialog {
 
   public int open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
     props.setLook(shell);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,7 +48,7 @@ public class DtdValidatorUtil {
 
   private ILogChannel log;
 
-  public DtdValidatorUtil(ILogChannel log ) {
+  public DtdValidatorUtil(ILogChannel log) {
     this.log = log;
     this.xmlfilename = null;
     this.xsdfilename = null;
@@ -57,7 +57,7 @@ public class DtdValidatorUtil {
     this.errorscount = 0;
   }
 
-  public void setXMLFilename( String xmlfilename ) {
+  public void setXMLFilename(String xmlfilename) {
     this.xmlfilename = xmlfilename;
   }
 
@@ -65,7 +65,7 @@ public class DtdValidatorUtil {
     return this.xmlfilename;
   }
 
-  public void setDTDFilename( String xsdfilename ) {
+  public void setDTDFilename(String xsdfilename) {
     this.xsdfilename = xsdfilename;
   }
 
@@ -73,7 +73,7 @@ public class DtdValidatorUtil {
     return this.xsdfilename;
   }
 
-  public void setInternDTD( boolean value ) {
+  public void setInternDTD(boolean value) {
     this.interndtd = value;
   }
 
@@ -81,7 +81,7 @@ public class DtdValidatorUtil {
     return this.interndtd;
   }
 
-  private void setErrorMessage( String value ) {
+  private void setErrorMessage(String value) {
     this.errormessage = value;
   }
 
@@ -93,7 +93,7 @@ public class DtdValidatorUtil {
     return this.errorscount;
   }
 
-  private void setNrErrors( int value ) {
+  private void setNrErrors(int value) {
     this.errorscount = value;
   }
 
@@ -104,136 +104,156 @@ public class DtdValidatorUtil {
     FileObject xmlFileObject = null;
     FileObject dtdFileObject = null;
 
-
     try {
-      if ( xmlfilename != null && ( ( getDTDFilename() != null && !isInternDTD() ) || ( isInternDTD() ) ) ) {
-        xmlFileObject = HopVfs.getFileObject( getXMLFilename() );
+      if (xmlfilename != null
+          && ((getDTDFilename() != null && !isInternDTD()) || (isInternDTD()))) {
+        xmlFileObject = HopVfs.getFileObject(getXMLFilename());
 
-        if ( xmlFileObject.exists() ) {
+        if (xmlFileObject.exists()) {
 
-          URL xmlFile = new File( HopVfs.getFilename( xmlFileObject ) ).toURI().toURL();
-          StringBuffer xmlStringbuffer = new StringBuffer( "" );
+          URL xmlFile = new File(HopVfs.getFilename(xmlFileObject)).toURI().toURL();
+          StringBuffer xmlStringbuffer = new StringBuffer("");
 
-          try ( InputStreamReader is = new InputStreamReader( xmlFile.openStream() );
-                BufferedReader xmlBufferedReader = new BufferedReader( is ) ) {
-            char[] buffertXML = new char[ 1024 ];
+          try (InputStreamReader is = new InputStreamReader(xmlFile.openStream());
+              BufferedReader xmlBufferedReader = new BufferedReader(is)) {
+            char[] buffertXML = new char[1024];
             int lenXML;
-            while ( ( lenXML = xmlBufferedReader.read( buffertXML ) ) != -1 ) {
-              xmlStringbuffer.append( buffertXML, 0, lenXML );
+            while ((lenXML = xmlBufferedReader.read(buffertXML)) != -1) {
+              xmlStringbuffer.append(buffertXML, 0, lenXML);
             }
           }
 
           // Prepare parsing ...
-          DocumentBuilderFactory docBuilderFactory = XmlParserFactoryProducer.createSecureDocBuilderFactory();
+          DocumentBuilderFactory docBuilderFactory =
+              XmlParserFactoryProducer.createSecureDocBuilderFactory();
           DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 
           // Let's try to get XML document encoding
 
-          docBuilderFactory.setValidating( false );
-          ByteArrayInputStream ba = new ByteArrayInputStream( xmlStringbuffer.toString().getBytes( "UTF-8" ) );
-          Document xmlDocDTD = docBuilder.parse( ba );
-          if ( ba != null ) {
+          docBuilderFactory.setValidating(false);
+          ByteArrayInputStream ba =
+              new ByteArrayInputStream(xmlStringbuffer.toString().getBytes("UTF-8"));
+          Document xmlDocDTD = docBuilder.parse(ba);
+          if (ba != null) {
             ba.close();
           }
 
           String encoding;
-          if ( xmlDocDTD.getXmlEncoding() == null ) {
+          if (xmlDocDTD.getXmlEncoding() == null) {
             encoding = "UTF-8";
           } else {
             encoding = xmlDocDTD.getXmlEncoding();
           }
 
-          int xmlStartDTD = xmlStringbuffer.indexOf( "<!DOCTYPE" );
+          int xmlStartDTD = xmlStringbuffer.indexOf("<!DOCTYPE");
 
-          if ( isInternDTD() ) {
+          if (isInternDTD()) {
             // DTD find in the XML document
-            if ( xmlStartDTD != -1 ) {
-              log.logBasic( BaseMessages.getString(
-                PKG, "JobEntryDTDValidator.ERRORDTDFound.Label", getXMLFilename() ) );
+            if (xmlStartDTD != -1) {
+              log.logBasic(
+                  BaseMessages.getString(
+                      PKG, "ActionDTDValidator.ERRORDTDFound.Label", getXMLFilename()));
             } else {
-              setErrorMessage( BaseMessages.getString(
-                PKG, "JobEntryDTDValidator.ERRORDTDNotFound.Label", getXMLFilename() ) );
+              setErrorMessage(
+                  BaseMessages.getString(
+                      PKG, "ActionDTDValidator.ERRORDTDNotFound.Label", getXMLFilename()));
             }
 
           } else {
             // DTD in external document
             // If we find an intern declaration, we remove it
-            dtdFileObject = HopVfs.getFileObject( getDTDFilename() );
+            dtdFileObject = HopVfs.getFileObject(getDTDFilename());
 
-            if ( dtdFileObject.exists() ) {
-              if ( xmlStartDTD != -1 ) {
-                int EndDTD = xmlStringbuffer.indexOf( ">", xmlStartDTD );
+            if (dtdFileObject.exists()) {
+              if (xmlStartDTD != -1) {
+                int EndDTD = xmlStringbuffer.indexOf(">", xmlStartDTD);
                 // String DocTypeDTD = xmlStringbuffer.substring(xmlStartDTD, EndDTD + 1);
-                xmlStringbuffer.replace( xmlStartDTD, EndDTD + 1, "" );
+                xmlStringbuffer.replace(xmlStartDTD, EndDTD + 1, "");
               }
 
               String xmlRootnodeDTD = xmlDocDTD.getDocumentElement().getNodeName();
 
               String RefDTD =
-                "<?xml version='"
-                  + xmlDocDTD.getXmlVersion() + "' encoding='" + encoding + "'?>\n<!DOCTYPE " + xmlRootnodeDTD
-                  + " SYSTEM '" + HopVfs.getFilename( dtdFileObject ) + "'>\n";
+                  "<?xml version='"
+                      + xmlDocDTD.getXmlVersion()
+                      + "' encoding='"
+                      + encoding
+                      + "'?>\n<!DOCTYPE "
+                      + xmlRootnodeDTD
+                      + " SYSTEM '"
+                      + HopVfs.getFilename(dtdFileObject)
+                      + "'>\n";
 
-              int xmloffsetDTD = xmlStringbuffer.indexOf( "<" + xmlRootnodeDTD );
-              xmlStringbuffer.replace( 0, xmloffsetDTD, RefDTD );
+              int xmloffsetDTD = xmlStringbuffer.indexOf("<" + xmlRootnodeDTD);
+              xmlStringbuffer.replace(0, xmloffsetDTD, RefDTD);
             } else {
-              log
-                .logError(
-                  BaseMessages.getString( PKG, "JobEntryDTDValidator.ERRORDTDFileNotExists.Subject" ),
+              log.logError(
+                  BaseMessages.getString(PKG, "ActionDTDValidator.ERRORDTDFileNotExists.Subject"),
                   BaseMessages.getString(
-                    PKG, "JobEntryDTDValidator.ERRORDTDFileNotExists.Msg", getDTDFilename() ) );
+                      PKG, "ActionDTDValidator.ERRORDTDFileNotExists.Msg", getDTDFilename()));
             }
           }
 
-          if ( !( isInternDTD() && xmlStartDTD == -1 || ( !isInternDTD() && !dtdFileObject.exists() ) ) ) {
+          if (!(isInternDTD() && xmlStartDTD == -1
+              || (!isInternDTD() && !dtdFileObject.exists()))) {
 
             // Let's parse now ...
             MyErrorHandler error = new MyErrorHandler();
-            docBuilderFactory.setValidating( true );
+            docBuilderFactory.setValidating(true);
             docBuilder = docBuilderFactory.newDocumentBuilder();
-            docBuilder.setErrorHandler( error );
+            docBuilder.setErrorHandler(error);
 
-            ba = new ByteArrayInputStream( xmlStringbuffer.toString().getBytes( encoding ) );
-            xmlDocDTD = docBuilder.parse( ba );
+            ba = new ByteArrayInputStream(xmlStringbuffer.toString().getBytes(encoding));
+            xmlDocDTD = docBuilder.parse(ba);
 
-            if ( error.errorMessage == null ) {
+            if (error.errorMessage == null) {
               log.logBasic(
-                BaseMessages.getString( PKG, "JobEntryDTDValidator.DTDValidatorOK.Subject" ), BaseMessages
-                  .getString( PKG, "JobEntryDTDValidator.DTDValidatorOK.Label", getXMLFilename() ) );
+                  BaseMessages.getString(PKG, "ActionDTDValidator.DTDValidatorOK.Subject"),
+                  BaseMessages.getString(
+                      PKG, "ActionDTDValidator.DTDValidatorOK.Label", getXMLFilename()));
 
               // Everything is OK
               isValid = true;
             } else {
               // Invalid DTD
-              setNrErrors( error.nrErrors );
-              setErrorMessage( BaseMessages
-                .getString(
-                  PKG, "JobEntryDTDValidator.DTDValidatorKO", getXMLFilename(), error.nrErrors,
-                  error.errorMessage ) );
+              setNrErrors(error.nrErrors);
+              setErrorMessage(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionDTDValidator.DTDValidatorKO",
+                      getXMLFilename(),
+                      error.nrErrors,
+                      error.errorMessage));
             }
           }
 
         } else {
-          if ( !xmlFileObject.exists() ) {
-            setErrorMessage( BaseMessages.getString(
-              PKG, "JobEntryDTDValidator.FileDoesNotExist.Label", getXMLFilename() ) );
+          if (!xmlFileObject.exists()) {
+            setErrorMessage(
+                BaseMessages.getString(
+                    PKG, "ActionDTDValidator.FileDoesNotExist.Label", getXMLFilename()));
           }
         }
       } else {
-        setErrorMessage( BaseMessages.getString( PKG, "JobEntryDTDValidator.AllFilesNotNull.Label" ) );
+        setErrorMessage(BaseMessages.getString(PKG, "ActionDTDValidator.AllFilesNotNull.Label"));
       }
-    } catch ( Exception e ) {
-      setErrorMessage( BaseMessages.getString(
-        PKG, "JobEntryDTDValidator.ErrorDTDValidator.Label", getXMLFilename(), getDTDFilename(), e.getMessage() ) );
+    } catch (Exception e) {
+      setErrorMessage(
+          BaseMessages.getString(
+              PKG,
+              "ActionDTDValidator.ErrorDTDValidator.Label",
+              getXMLFilename(),
+              getDTDFilename(),
+              e.getMessage()));
     } finally {
       try {
-        if ( xmlFileObject != null ) {
+        if (xmlFileObject != null) {
           xmlFileObject.close();
         }
-        if ( dtdFileObject != null ) {
+        if (dtdFileObject != null) {
           dtdFileObject.close();
         }
-      } catch ( IOException e ) {
+      } catch (IOException e) {
         // Ignore close errors
       }
     }
@@ -245,28 +265,28 @@ public class DtdValidatorUtil {
     int error = -1;
     int nrErrors = 0;
 
-    public void warning( SAXParseException e ) throws SAXException {
+    public void warning(SAXParseException e) throws SAXException {
       error = 0;
-      allErrors( e );
+      allErrors(e);
     }
 
-    public void error( SAXParseException e ) throws SAXException {
+    public void error(SAXParseException e) throws SAXException {
       error = 1;
-      allErrors( e );
+      allErrors(e);
     }
 
-    public void fatalError( SAXParseException e ) throws SAXException {
+    public void fatalError(SAXParseException e) throws SAXException {
       error = 2;
-      allErrors( e );
+      allErrors(e);
     }
 
-    private void allErrors( SAXParseException e ) {
+    private void allErrors(SAXParseException e) {
       nrErrors++;
-      if ( errorMessage == null ) {
+      if (errorMessage == null) {
         errorMessage = "";
       }
       errorMessage += Const.CR + Const.CR + "Error Nr." + nrErrors + " (";
-      switch ( error ) {
+      switch (error) {
         case 0:
           errorMessage += "Warning";
           break;
@@ -280,12 +300,22 @@ public class DtdValidatorUtil {
           break;
       }
       errorMessage +=
-        ")"
-          + Const.CR + "              Public ID: " + e.getPublicId() + Const.CR + "              System ID: "
-          + e.getSystemId() + Const.CR + "              Line number: " + e.getLineNumber() + Const.CR
-          + "              Column number: " + e.getColumnNumber() + Const.CR + "              Message: "
-          + e.getMessage();
+          ")"
+              + Const.CR
+              + "              Public ID: "
+              + e.getPublicId()
+              + Const.CR
+              + "              System ID: "
+              + e.getSystemId()
+              + Const.CR
+              + "              Line number: "
+              + e.getLineNumber()
+              + Const.CR
+              + "              Column number: "
+              + e.getColumnNumber()
+              + Const.CR
+              + "              Message: "
+              + e.getMessage();
     }
   }
-
 }

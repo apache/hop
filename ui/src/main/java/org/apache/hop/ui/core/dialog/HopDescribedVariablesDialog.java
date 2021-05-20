@@ -79,7 +79,6 @@ public class HopDescribedVariablesDialog extends Dialog {
 
   public List<DescribedVariable> open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     shell.setText(BaseMessages.getString(PKG, "HopDescribedVariablesDialog.Title"));

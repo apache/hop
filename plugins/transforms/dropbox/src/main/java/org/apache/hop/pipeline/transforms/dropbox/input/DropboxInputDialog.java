@@ -32,10 +32,16 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 import java.util.List;
@@ -73,7 +79,6 @@ public class DropboxInputDialog extends BaseTransformDialog implements ITransfor
   public String open() {
     // Set up window
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     props.setLook(shell);
@@ -81,12 +86,7 @@ public class DropboxInputDialog extends BaseTransformDialog implements ITransfor
     int middle = props.getMiddlePct();
 
     // Listeners
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            meta.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> meta.setChanged();
     changed = meta.hasChanged();
 
     // 15 pixel margins
@@ -289,12 +289,7 @@ public class DropboxInputDialog extends BaseTransformDialog implements ITransfor
     scrolledComposite.setLayoutData(fdScrolledComposite);
     props.setLook(scrolledComposite);
 
-    Listener lsOK =
-        new Listener() {
-          public void handleEvent(Event e) {
-            ok();
-          }
-        };
+    Listener lsOK = e -> ok();
 
     wOK.addListener(SWT.Selection, lsOK);
     wCancel.addListener(SWT.Selection, e -> cancel());

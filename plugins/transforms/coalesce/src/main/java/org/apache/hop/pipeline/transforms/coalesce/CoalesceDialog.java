@@ -72,7 +72,6 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.Title"));
@@ -111,7 +110,6 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
     wTransformName.setLayoutData(
         new FormDataBuilder().left().top(wlTransformName, margin).right(100, 0).result());
     props.setLook(wTransformName);

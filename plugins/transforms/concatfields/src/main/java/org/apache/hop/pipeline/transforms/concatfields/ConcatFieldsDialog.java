@@ -101,7 +101,6 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -124,6 +123,16 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // These buttons go at the very bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -262,10 +271,12 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
+    wGet.addListener(SWT.Selection, e -> get());
 
     Button wMinWidth = new Button(wFieldsComp, SWT.PUSH);
     wMinWidth.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.MinWidth.Button"));
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "ConcatFieldsDialog.MinWidth.Tooltip"));
+    wMinWidth.addListener(SWT.Selection, e -> setMinimalWidth());
 
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
@@ -393,22 +404,8 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wEnclosure, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wTabFolder);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet.addListener(SWT.Selection, e -> get());
-    wMinWidth.addListener(SWT.Selection, e -> setMinimalWidth());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     // Whenever something changes, set the tooltip to the expanded version:
     wTargetFieldName.addModifyListener(

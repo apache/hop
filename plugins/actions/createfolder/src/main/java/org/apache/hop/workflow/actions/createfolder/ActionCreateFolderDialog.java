@@ -72,13 +72,12 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     super(parent, workflowMeta, variables);
     this.action = (ActionCreateFolder) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobCreateFolder.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionCreateFolder.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -92,14 +91,14 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobCreateFolder.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Foldername line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobCreateFolder.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -117,7 +116,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
 
     // Foldername line
     Label wlFoldername = new Label(shell, SWT.RIGHT);
-    wlFoldername.setText(BaseMessages.getString(PKG, "JobCreateFolder.Foldername.Label"));
+    wlFoldername.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Foldername.Label"));
     props.setLook(wlFoldername);
     FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment(0, 0);
@@ -150,7 +149,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFoldername, variables));
 
     Label wlAbortExists = new Label(shell, SWT.RIGHT);
-    wlAbortExists.setText(BaseMessages.getString(PKG, "JobCreateFolder.FailIfExists.Label"));
+    wlAbortExists.setText(BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Label"));
     props.setLook(wlAbortExists);
     FormData fdlAbortExists = new FormData();
     fdlAbortExists.left = new FormAttachment(0, 0);
@@ -160,7 +159,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wAbortExists = new Button(shell, SWT.CHECK);
     props.setLook(wAbortExists);
     wAbortExists.setToolTipText(
-        BaseMessages.getString(PKG, "JobCreateFolder.FailIfExists.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();
     fdAbortExists.left = new FormAttachment(middle, 0);
     fdAbortExists.top = new FormAttachment(wlAbortExists, 0, SWT.CENTER);

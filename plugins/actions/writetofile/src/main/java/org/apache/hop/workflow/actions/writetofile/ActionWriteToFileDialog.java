@@ -62,7 +62,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobWriteToFile.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionWriteToFile.Filetype.All")};
 
   private Text wName;
 
@@ -88,13 +88,12 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     super(parent, workflowMeta, variables);
     this.action = (ActionWriteToFile) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobWriteToFile.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionWriteToFile.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -108,7 +107,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobWriteToFile.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -125,7 +124,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobWriteToFile.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -147,7 +146,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     Group wFileGroup = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wFileGroup);
-    wFileGroup.setText(BaseMessages.getString(PKG, "JobWriteToFile.Group.File.Label"));
+    wFileGroup.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Group.File.Label"));
 
     FormLayout FileGroupLayout = new FormLayout();
     FileGroupLayout.marginWidth = 10;
@@ -156,7 +155,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     // Filename line
     Label wlFilename = new Label(wFileGroup, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobWriteToFile.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -193,7 +192,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     Label wlCreateParentFolder = new Label(wFileGroup, SWT.RIGHT);
     wlCreateParentFolder.setText(
-        BaseMessages.getString(PKG, "JobWriteToFile.CreateParentFolder.Label"));
+        BaseMessages.getString(PKG, "ActionWriteToFile.CreateParentFolder.Label"));
     props.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
@@ -203,7 +202,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wCreateParentFolder = new Button(wFileGroup, SWT.CHECK);
     props.setLook(wCreateParentFolder);
     wCreateParentFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobWriteToFile.CreateParentFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWriteToFile.CreateParentFolder.Tooltip"));
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(middle, 0);
     fdCreateParentFolder.top = new FormAttachment(wlCreateParentFolder, 0, SWT.CENTER);
@@ -217,7 +216,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
         });
 
     Label wlAppendFile = new Label(wFileGroup, SWT.RIGHT);
-    wlAppendFile.setText(BaseMessages.getString(PKG, "JobWriteToFile.AppendFile.Label"));
+    wlAppendFile.setText(BaseMessages.getString(PKG, "ActionWriteToFile.AppendFile.Label"));
     props.setLook(wlAppendFile);
     FormData fdlAppendFile = new FormData();
     fdlAppendFile.left = new FormAttachment(0, 0);
@@ -226,7 +225,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wlAppendFile.setLayoutData(fdlAppendFile);
     wAppendFile = new Button(wFileGroup, SWT.CHECK);
     props.setLook(wAppendFile);
-    wAppendFile.setToolTipText(BaseMessages.getString(PKG, "JobWriteToFile.AppendFile.Tooltip"));
+    wAppendFile.setToolTipText(BaseMessages.getString(PKG, "ActionWriteToFile.AppendFile.Tooltip"));
     FormData fdAppendFile = new FormData();
     fdAppendFile.left = new FormAttachment(middle, 0);
     fdAppendFile.top = new FormAttachment(wlAppendFile, 0, SWT.CENTER);
@@ -255,7 +254,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     Group wContentGroup = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wContentGroup);
-    wContentGroup.setText(BaseMessages.getString(PKG, "JobWriteToFile.Group.Content.Label"));
+    wContentGroup.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Group.Content.Label"));
 
     FormLayout ContentGroupLayout = new FormLayout();
     ContentGroupLayout.marginWidth = 10;
@@ -264,7 +263,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     // Encoding
     Label wlEncoding = new Label(wContentGroup, SWT.RIGHT);
-    wlEncoding.setText(BaseMessages.getString(PKG, "JobWriteToFile.Encoding.Label"));
+    wlEncoding.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Encoding.Label"));
     props.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, -margin);
@@ -290,7 +289,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
         });
 
     Label wlContent = new Label(wContentGroup, SWT.RIGHT);
-    wlContent.setText(BaseMessages.getString(PKG, "JobWriteToFile.Content.Label"));
+    wlContent.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Content.Label"));
     props.setLook(wlContent);
     FormData fdlContent = new FormData();
     fdlContent.left = new FormAttachment(0, 0);

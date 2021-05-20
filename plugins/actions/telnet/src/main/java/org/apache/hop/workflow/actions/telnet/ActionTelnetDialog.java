@@ -75,13 +75,12 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionTelnet) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobTelnet.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionTelnet.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -95,14 +94,14 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobTelnet.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionTelnet.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobTelnet.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionTelnet.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -120,7 +119,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
-    wlHostname.setText(BaseMessages.getString(PKG, "JobTelnet.Hostname.Label"));
+    wlHostname.setText(BaseMessages.getString(PKG, "ActionTelnet.Hostname.Label"));
     props.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, -margin);
@@ -142,7 +141,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
         e -> wHostname.setToolTipText(variables.resolve(wHostname.getText())));
 
     Label wlPort = new Label(shell, SWT.RIGHT);
-    wlPort.setText(BaseMessages.getString(PKG, "JobTelnet.Port.Label"));
+    wlPort.setText(BaseMessages.getString(PKG, "ActionTelnet.Port.Label"));
     props.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, -margin);
@@ -160,7 +159,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wPort.setLayoutData(fdPort);
 
     Label wlTimeOut = new Label(shell, SWT.RIGHT);
-    wlTimeOut.setText(BaseMessages.getString(PKG, "JobTelnet.TimeOut.Label"));
+    wlTimeOut.setText(BaseMessages.getString(PKG, "ActionTelnet.TimeOut.Label"));
     props.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, -margin);

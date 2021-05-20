@@ -39,20 +39,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -93,24 +86,13 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
-    ModifyListener lsTableMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent arg0) {
-            input.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> input.setChanged();
+    ModifyListener lsTableMod = arg0 -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -437,12 +419,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
 
     // Add listeners
 
-    Listener lsTest =
-        new Listener() {
-          public void handleEvent(Event e) {
-            test();
-          }
-        };
+    Listener lsTest = e -> test();
 
     wOk.addListener(SWT.Selection, e -> ok());
     wTest.addListener(SWT.Selection, lsTest);

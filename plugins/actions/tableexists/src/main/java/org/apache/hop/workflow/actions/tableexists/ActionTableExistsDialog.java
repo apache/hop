@@ -73,13 +73,12 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     super(parent, workflowMeta, variables);
     this.action = (ActionTableExists) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobTableExists.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionTableExists.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -93,14 +92,14 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobTableExists.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionTableExists.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobTableExists.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionTableExists.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -121,7 +120,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
     // Schema name line
     Label wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "JobTableExists.Schemaname.Label"));
+    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionTableExists.Schemaname.Label"));
     props.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
@@ -154,7 +153,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
     // Table name line
     Label wlTablename = new Label(shell, SWT.RIGHT);
-    wlTablename.setText(BaseMessages.getString(PKG, "JobTableExists.Tablename.Label"));
+    wlTablename.setText(BaseMessages.getString(PKG, "ActionTableExists.Tablename.Label"));
     props.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);

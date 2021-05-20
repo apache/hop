@@ -32,11 +32,16 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class FileLockedDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FileLockedMeta.class; // For Translator
@@ -59,7 +64,6 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -168,7 +172,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+    setButtonPositions(new Button[] {wOk, wCancel}, 2 * margin, wAddResult);
 
     // Add listeners
     wOk.addListener(SWT.Selection, e -> ok());

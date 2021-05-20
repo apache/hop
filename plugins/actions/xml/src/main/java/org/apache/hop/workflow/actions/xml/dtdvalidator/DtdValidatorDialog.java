@@ -48,14 +48,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES_XML =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryDTDValidator.Filetype.Xml"),
-        BaseMessages.getString(PKG, "JobEntryDTDValidator.Filetype.All")
+        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Xml"),
+        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
       };
 
   private static final String[] FILETYPES_DTD =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryDTDValidator.Filetype.Dtd"),
-        BaseMessages.getString(PKG, "JobEntryDTDValidator.Filetype.All")
+        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Dtd"),
+        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
       };
 
   private Text wName;
@@ -79,19 +79,16 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (DtdValidator) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobEntryDTDValidator.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionDTDValidator.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -101,14 +98,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobEntryDTDValidator.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobEntryDTDValidator.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -126,7 +123,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
     // XML Filename
     Label wlxmlFilename = new Label(shell, SWT.RIGHT);
-    wlxmlFilename.setText(BaseMessages.getString(PKG, "JobEntryDTDValidator.xmlFilename.Label"));
+    wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionDTDValidator.xmlFilename.Label"));
     props.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
@@ -172,7 +169,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     // DTD Intern ?
     // Intern DTD
     Label wlDTDIntern = new Label(shell, SWT.RIGHT);
-    wlDTDIntern.setText(BaseMessages.getString(PKG, "JobEntryDTDValidator.DTDIntern.Label"));
+    wlDTDIntern.setText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDIntern.Label"));
     props.setLook(wlDTDIntern);
     FormData fdlDTDIntern = new FormData();
     fdlDTDIntern.left = new FormAttachment(0, 0);
@@ -181,8 +178,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wlDTDIntern.setLayoutData(fdlDTDIntern);
     wDTDIntern = new Button(shell, SWT.CHECK);
     props.setLook(wDTDIntern);
-    wDTDIntern.setToolTipText(
-        BaseMessages.getString(PKG, "JobEntryDTDValidator.DTDIntern.Tooltip"));
+    wDTDIntern.setToolTipText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDIntern.Tooltip"));
     FormData fdDTDIntern = new FormData();
     fdDTDIntern.left = new FormAttachment(middle, 0);
     fdDTDIntern.top = new FormAttachment(wlDTDIntern, 0, SWT.CENTER);
@@ -198,7 +194,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
     // DTD Filename
     wldtdFilename = new Label(shell, SWT.RIGHT);
-    wldtdFilename.setText(BaseMessages.getString(PKG, "JobEntryDTDValidator.DTDFilename.Label"));
+    wldtdFilename.setText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDFilename.Label"));
     props.setLook(wldtdFilename);
     FormData fdldtdFilename = new FormData();
     fdldtdFilename.left = new FormAttachment(0, 0);

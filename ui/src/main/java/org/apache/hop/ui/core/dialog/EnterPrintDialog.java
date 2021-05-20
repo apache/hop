@@ -112,7 +112,6 @@ public class EnterPrintDialog extends Dialog {
 
   public int open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     retval = SWT.OK;
 

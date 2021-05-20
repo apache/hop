@@ -71,7 +71,6 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -90,15 +89,6 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
-
-    // THE BUTTONS at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -320,6 +310,15 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     fdResult.top = new FormAttachment(wStreamFieldName, margin * 2);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
+
+    // THE BUTTONS at the bottom
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, wResult);
 
     getData();
     PassphraseFromField();

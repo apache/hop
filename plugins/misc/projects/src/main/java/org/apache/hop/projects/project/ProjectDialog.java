@@ -106,7 +106,6 @@ public class ProjectDialog extends Dialog {
   public String open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
     shell.setImage(GuiResource.getInstance().getImageHopUi());

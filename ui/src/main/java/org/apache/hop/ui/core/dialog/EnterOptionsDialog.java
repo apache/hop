@@ -1242,11 +1242,6 @@ public class EnterOptionsDialog extends Dialog {
 
           pluginWidgetContentsList.add(new PluginWidgetContents(compositeWidgets, sourceData));
 
-          // Add a default selection listener to all the widgets...
-          //
-          compositeWidgets.getWidgetsMap().values().stream()
-              .forEach(control -> control.addListener(SWT.DefaultSelection, e -> ok()));
-
           wPluginsComp.pack();
 
           Rectangle bounds = wPluginsComp.getBounds();

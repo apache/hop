@@ -127,24 +127,16 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent arg0) {
-            input.setChanged();
-            moduleFields = null;
-          }
+        arg0 -> {
+          input.setChanged();
+          moduleFields = null;
         };
     SelectionAdapter lsSelection =
         new SelectionAdapter() {
@@ -594,15 +586,13 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
               // Dislay in red missing field names
               Display.getDefault()
                   .asyncExec(
-                      new Runnable() {
-                        public void run() {
-                          if (!wReturn.isDisposed()) {
-                            for (int i = 0; i < wReturn.table.getItemCount(); i++) {
-                              TableItem it = wReturn.table.getItem(i);
-                              if (!Utils.isEmpty(it.getText(2))) {
-                                if (!inputFields.containsKey(it.getText(2))) {
-                                  it.setBackground(GuiResource.getInstance().getColorRed());
-                                }
+                      () -> {
+                        if (!wReturn.isDisposed()) {
+                          for (int i = 0; i < wReturn.table.getItemCount(); i++) {
+                            TableItem it = wReturn.table.getItem(i);
+                            if (!Utils.isEmpty(it.getText(2))) {
+                              if (!inputFields.containsKey(it.getText(2))) {
+                                it.setBackground(GuiResource.getInstance().getColorRed());
                               }
                             }
                           }

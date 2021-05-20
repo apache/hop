@@ -55,15 +55,15 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES_XML =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryXSLT.Filetype.Xml"),
-        BaseMessages.getString(PKG, "JobEntryXSLT.Filetype.All")
+        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xml"),
+        BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
       };
 
   private static final String[] FILETYPES_XSL =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryXSLT.Filetype.Xsl"),
-        BaseMessages.getString(PKG, "JobEntryXSLT.Filetype.Xslt"),
-        BaseMessages.getString(PKG, "JobEntryXSLT.Filetype.All")
+        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xsl"),
+        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xslt"),
+        BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
       };
 
   private Text wName;
@@ -102,19 +102,16 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (Xslt) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobEntryXSLT.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionXSLT.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -124,7 +121,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionXSLT.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -141,7 +138,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionXSLT.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -165,7 +162,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionXSLT.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -181,7 +178,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // /
     Group wFiles = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wFiles);
-    wFiles.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Files.Group.Label"));
+    wFiles.setText(BaseMessages.getString(PKG, "ActionXSLT.Files.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -190,7 +187,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wFiles.setLayout(groupLayout);
 
     Label wlPrevious = new Label(wFiles, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionXSLT.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -199,7 +196,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wFiles, SWT.CHECK);
     props.setLook(wPrevious);
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobEntryXSLT.Previous.ToolTip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionXSLT.Previous.ToolTip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -215,7 +212,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // Filename 1 line
     wlxmlFilename = new Label(wFiles, SWT.RIGHT);
-    wlxmlFilename.setText(BaseMessages.getString(PKG, "JobEntryXSLT.xmlFilename.Label"));
+    wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.xmlFilename.Label"));
     props.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
@@ -260,7 +257,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // Filename 2 line
     wlxslFilename = new Label(wFiles, SWT.RIGHT);
-    wlxslFilename.setText(BaseMessages.getString(PKG, "JobEntryXSLT.xslFilename.Label"));
+    wlxslFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.xslFilename.Label"));
     props.setLook(wlxslFilename);
     FormData fdlxslFilename = new FormData();
     fdlxslFilename.left = new FormAttachment(0, 0);
@@ -333,7 +330,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // OutputFilename
     wlOutputFilename = new Label(wFiles, SWT.RIGHT);
-    wlOutputFilename.setText(BaseMessages.getString(PKG, "JobEntryXSLT.OutputFilename.Label"));
+    wlOutputFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.OutputFilename.Label"));
     props.setLook(wlOutputFilename);
     FormData fdlOutputFilename = new FormData();
     fdlOutputFilename.left = new FormAttachment(0, 0);
@@ -396,8 +393,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // /
     Group wFileResult = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(
-        BaseMessages.getString(PKG, "JobEntryXSLT.FileResult.Group.Settings.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionXSLT.FileResult.Group.Settings.Label"));
 
     FormLayout groupFilesResultLayout = new FormLayout();
     groupFilesResultLayout.marginWidth = 10;
@@ -407,7 +403,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // XSLTFactory
     Label wlXSLTFactory = new Label(wFileResult, SWT.RIGHT);
-    wlXSLTFactory.setText(BaseMessages.getString(PKG, "JobEntryXSLT.XSLTFactory.Label"));
+    wlXSLTFactory.setText(BaseMessages.getString(PKG, "ActionXSLT.XSLTFactory.Label"));
     props.setLook(wlXSLTFactory);
     FormData fdlXSLTFactory = new FormData();
     fdlXSLTFactory.left = new FormAttachment(0, 0);
@@ -428,7 +424,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // IF File Exists
     Label wlIfFileExists = new Label(wFileResult, SWT.RIGHT);
-    wlIfFileExists.setText(BaseMessages.getString(PKG, "JobEntryXSLT.IfFileExists.Label"));
+    wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionXSLT.IfFileExists.Label"));
     props.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
@@ -436,10 +432,9 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdlIfFileExists.top = new FormAttachment(wXSLTFactory, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wFileResult, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wIfFileExists.add(
-        BaseMessages.getString(PKG, "JobEntryXSLT.Create_NewFile_IfFileExists.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "JobEntryXSLT.Do_Nothing_IfFileExists.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "JobEntryXSLT.Fail_IfFileExists.Label"));
+    wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Create_NewFile_IfFileExists.Label"));
+    wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Do_Nothing_IfFileExists.Label"));
+    wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Fail_IfFileExists.Label"));
     wIfFileExists.select(1); // +1: starts at -1
 
     props.setLook(wIfFileExists);
@@ -457,7 +452,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // Add file to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
-    wlAddFileToResult.setText(BaseMessages.getString(PKG, "JobEntryXSLT.AddFileToResult.Label"));
+    wlAddFileToResult.setText(BaseMessages.getString(PKG, "ActionXSLT.AddFileToResult.Label"));
     props.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
@@ -467,7 +462,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
     props.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobEntryXSLT.AddFileToResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXSLT.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
     fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
@@ -509,7 +504,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobEntryXSLT.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionXSLT.Tab.Advanced.Label"));
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wAdvancedComp);

@@ -75,7 +75,6 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);

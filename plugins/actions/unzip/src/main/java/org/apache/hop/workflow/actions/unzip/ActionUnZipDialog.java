@@ -61,9 +61,9 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobUnZip.Filetype.Zip"),
-        BaseMessages.getString(PKG, "JobUnZip.Filetype.Jar"),
-        BaseMessages.getString(PKG, "JobUnZip.Filetype.All")
+        BaseMessages.getString(PKG, "ActionUnZip.Filetype.Zip"),
+        BaseMessages.getString(PKG, "ActionUnZip.Filetype.Jar"),
+        BaseMessages.getString(PKG, "ActionUnZip.Filetype.All")
       };
 
   private Text wName;
@@ -132,13 +132,12 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionUnZip) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobUnZip.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionUnZip.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -152,7 +151,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobUnZip.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionUnZip.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -169,7 +168,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // ZipFilename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobUnZip.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionUnZip.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -193,7 +192,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobUnZip.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionUnZip.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -209,7 +208,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // /
     Group wSource = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSource);
-    wSource.setText(BaseMessages.getString(PKG, "JobUnZip.Source.Group.Label"));
+    wSource.setText(BaseMessages.getString(PKG, "ActionUnZip.Source.Group.Label"));
 
     FormLayout groupSourceLayout = new FormLayout();
     groupSourceLayout.marginWidth = 10;
@@ -220,7 +219,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Args from previous
     // Get args from previous
     Label wlArgsPrevious = new Label(wSource, SWT.RIGHT);
-    wlArgsPrevious.setText(BaseMessages.getString(PKG, "JobUnZip.ArgsPrevious.Label"));
+    wlArgsPrevious.setText(BaseMessages.getString(PKG, "ActionUnZip.ArgsPrevious.Label"));
     props.setLook(wlArgsPrevious);
     FormData fdlArgsPrevious = new FormData();
     fdlArgsPrevious.left = new FormAttachment(0, 0);
@@ -229,7 +228,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlArgsPrevious.setLayoutData(fdlArgsPrevious);
     wArgsPrevious = new Button(wSource, SWT.CHECK);
     props.setLook(wArgsPrevious);
-    wArgsPrevious.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.ArgsPrevious.Tooltip"));
+    wArgsPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.ArgsPrevious.Tooltip"));
     FormData fdArgsPrevious = new FormData();
     fdArgsPrevious.left = new FormAttachment(middle, 0);
     fdArgsPrevious.top = new FormAttachment(wlArgsPrevious, 0, SWT.CENTER);
@@ -245,7 +244,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // ZipFilename line
     wlZipFilename = new Label(wSource, SWT.RIGHT);
-    wlZipFilename.setText(BaseMessages.getString(PKG, "JobUnZip.ZipFilename.Label"));
+    wlZipFilename.setText(BaseMessages.getString(PKG, "ActionUnZip.ZipFilename.Label"));
     props.setLook(wlZipFilename);
     FormData fdlZipFilename = new FormData();
     fdlZipFilename.left = new FormAttachment(0, 0);
@@ -256,7 +255,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wSource, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceDirectory);
-    wbSourceDirectory.setText(BaseMessages.getString(PKG, "JobUnZip.BrowseFolders.Label"));
+    wbSourceDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wlArgsPrevious, 2 * margin);
@@ -268,7 +267,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Browse files...
     wbZipFilename = new Button(wSource, SWT.PUSH | SWT.CENTER);
     props.setLook(wbZipFilename);
-    wbZipFilename.setText(BaseMessages.getString(PKG, "JobUnZip.BrowseFiles.Label"));
+    wbZipFilename.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFiles.Label"));
     FormData fdbZipFilename = new FormData();
     fdbZipFilename.right = new FormAttachment(wbSourceDirectory, -margin);
     fdbZipFilename.top = new FormAttachment(wlArgsPrevious, 2 * margin);
@@ -301,7 +300,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // WildcardSource line
     wlWildcardSource = new Label(wSource, SWT.RIGHT);
-    wlWildcardSource.setText(BaseMessages.getString(PKG, "JobUnZip.WildcardSource.Label"));
+    wlWildcardSource.setText(BaseMessages.getString(PKG, "ActionUnZip.WildcardSource.Label"));
     props.setLook(wlWildcardSource);
     FormData fdlWildcardSource = new FormData();
     fdlWildcardSource.left = new FormAttachment(0, 0);
@@ -313,7 +312,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wSource,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.WildcardSource.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.WildcardSource.Tooltip"));
     props.setLook(wWildcardSource);
     wWildcardSource.addModifyListener(lsMod);
     FormData fdWildcardSource = new FormData();
@@ -336,7 +335,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // /
     Group wUnzippedFiles = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wUnzippedFiles);
-    wUnzippedFiles.setText(BaseMessages.getString(PKG, "JobUnZip.UnzippedFiles.Group.Label"));
+    wUnzippedFiles.setText(BaseMessages.getString(PKG, "ActionUnZip.UnzippedFiles.Group.Label"));
 
     FormLayout groupLayoutUnzipped = new FormLayout();
     groupLayoutUnzipped.marginWidth = 10;
@@ -347,7 +346,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Use zipfile name as root directory
     // Use zipfile name as root directory
     Label wlRootZip = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlRootZip.setText(BaseMessages.getString(PKG, "JobUnZip.RootZip.Label"));
+    wlRootZip.setText(BaseMessages.getString(PKG, "ActionUnZip.RootZip.Label"));
     props.setLook(wlRootZip);
     FormData fdlRootZip = new FormData();
     fdlRootZip.left = new FormAttachment(0, 0);
@@ -356,7 +355,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlRootZip.setLayoutData(fdlRootZip);
     wRootZip = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wRootZip);
-    wRootZip.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.RootZip.Tooltip"));
+    wRootZip.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.RootZip.Tooltip"));
     FormData fdRootZip = new FormData();
     fdRootZip.left = new FormAttachment(middle, 0);
     fdRootZip.top = new FormAttachment(wlRootZip, 0, SWT.CENTER);
@@ -371,7 +370,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // TargetDirectory line
     Label wlTargetDirectory = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlTargetDirectory.setText(BaseMessages.getString(PKG, "JobUnZip.TargetDir.Label"));
+    wlTargetDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.TargetDir.Label"));
     props.setLook(wlTargetDirectory);
     FormData fdlTargetDirectory = new FormData();
     fdlTargetDirectory.left = new FormAttachment(0, 0);
@@ -382,7 +381,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Browse folders button ...
     Button wbTargetDirectory = new Button(wUnzippedFiles, SWT.PUSH | SWT.CENTER);
     props.setLook(wbTargetDirectory);
-    wbTargetDirectory.setText(BaseMessages.getString(PKG, "JobUnZip.BrowseFolders.Label"));
+    wbTargetDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
     FormData fdbTargetDirectory = new FormData();
     fdbTargetDirectory.right = new FormAttachment(100, 0);
     fdbTargetDirectory.top = new FormAttachment(wlRootZip, 2 * margin);
@@ -395,7 +394,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wUnzippedFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.TargetDir.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.TargetDir.Tooltip"));
     props.setLook(wTargetDirectory);
     wTargetDirectory.addModifyListener(lsMod);
     FormData fdTargetDirectory = new FormData();
@@ -406,7 +405,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // Create Folder
     Label wlCreateFolder = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlCreateFolder.setText(BaseMessages.getString(PKG, "JobUnZip.CreateFolder.Label"));
+    wlCreateFolder.setText(BaseMessages.getString(PKG, "ActionUnZip.CreateFolder.Label"));
     props.setLook(wlCreateFolder);
     FormData fdlCreateFolder = new FormData();
     fdlCreateFolder.left = new FormAttachment(0, 0);
@@ -414,7 +413,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlCreateFolder.right = new FormAttachment(middle, -margin);
     wlCreateFolder.setLayoutData(fdlCreateFolder);
     wCreateFolder = new Button(wUnzippedFiles, SWT.CHECK);
-    wCreateFolder.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.CreateFolder.Tooltip"));
+    wCreateFolder.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.CreateFolder.Tooltip"));
     props.setLook(wCreateFolder);
     FormData fdCreateFolder = new FormData();
     fdCreateFolder.left = new FormAttachment(middle, 0);
@@ -430,7 +429,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // Wildcard line
     Label wlWildcard = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "JobUnZip.Wildcard.Label"));
+    wlWildcard.setText(BaseMessages.getString(PKG, "ActionUnZip.Wildcard.Label"));
     props.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
@@ -442,7 +441,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wUnzippedFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.Wildcard.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.Wildcard.Tooltip"));
     props.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
@@ -453,7 +452,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // Wildcard to exclude
     Label wlWildcardExclude = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlWildcardExclude.setText(BaseMessages.getString(PKG, "JobUnZip.WildcardExclude.Label"));
+    wlWildcardExclude.setText(BaseMessages.getString(PKG, "ActionUnZip.WildcardExclude.Label"));
     props.setLook(wlWildcardExclude);
     FormData fdlWildcardExclude = new FormData();
     fdlWildcardExclude.left = new FormAttachment(0, 0);
@@ -465,7 +464,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wUnzippedFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.WildcardExclude.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.WildcardExclude.Tooltip"));
     props.setLook(wWildcardExclude);
     wWildcardExclude.addModifyListener(lsMod);
     FormData fdWildcardExclude = new FormData();
@@ -476,7 +475,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // Create multi-part file?
     wlAddDate = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlAddDate.setText(BaseMessages.getString(PKG, "JobUnZip.AddDate.Label"));
+    wlAddDate.setText(BaseMessages.getString(PKG, "ActionUnZip.AddDate.Label"));
     props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
@@ -485,7 +484,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wAddDate);
-    wAddDate.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.AddDate.Tooltip"));
+    wAddDate.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.AddDate.Tooltip"));
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment(middle, 0);
     fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
@@ -500,7 +499,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
         });
     // Create multi-part file?
     wlAddTime = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlAddTime.setText(BaseMessages.getString(PKG, "JobUnZip.AddTime.Label"));
+    wlAddTime.setText(BaseMessages.getString(PKG, "ActionUnZip.AddTime.Label"));
     props.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
@@ -509,7 +508,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wAddTime);
-    wAddTime.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.AddTime.Tooltip"));
+    wAddTime.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.AddTime.Tooltip"));
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment(middle, 0);
     fdAddTime.top = new FormAttachment(wlAddTime, 0, SWT.CENTER);
@@ -525,7 +524,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // Specify date time format?
     Label wlSpecifyFormat = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlSpecifyFormat.setText(BaseMessages.getString(PKG, "JobUnZip.SpecifyFormat.Label"));
+    wlSpecifyFormat.setText(BaseMessages.getString(PKG, "ActionUnZip.SpecifyFormat.Label"));
     props.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
@@ -534,7 +533,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wSpecifyFormat);
-    wSpecifyFormat.setToolTipText(BaseMessages.getString(PKG, "JobUnZip.SpecifyFormat.Tooltip"));
+    wSpecifyFormat.setToolTipText(BaseMessages.getString(PKG, "ActionUnZip.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
     fdSpecifyFormat.left = new FormAttachment(middle, 0);
     fdSpecifyFormat.top = new FormAttachment(wlSpecifyFormat, 0, SWT.CENTER);
@@ -553,7 +552,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // DateTimeFormat
     wlDateTimeFormat = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlDateTimeFormat.setText(BaseMessages.getString(PKG, "JobUnZip.DateTimeFormat.Label"));
+    wlDateTimeFormat.setText(BaseMessages.getString(PKG, "ActionUnZip.DateTimeFormat.Label"));
     props.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
@@ -575,7 +574,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     wlAddOriginalTimestamp = new Label(wUnzippedFiles, SWT.RIGHT);
     wlAddOriginalTimestamp.setText(
-        BaseMessages.getString(PKG, "JobUnZip.AddOriginalTimestamp.Label"));
+        BaseMessages.getString(PKG, "ActionUnZip.AddOriginalTimestamp.Label"));
     props.setLook(wlAddOriginalTimestamp);
     FormData fdlAddOriginalTimestamp = new FormData();
     fdlAddOriginalTimestamp.left = new FormAttachment(0, 0);
@@ -585,7 +584,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddOriginalTimestamp = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wAddOriginalTimestamp);
     wAddOriginalTimestamp.setToolTipText(
-        BaseMessages.getString(PKG, "JobUnZip.AddOriginalTimestamp.Tooltip"));
+        BaseMessages.getString(PKG, "ActionUnZip.AddOriginalTimestamp.Tooltip"));
     FormData fdAddOriginalTimestamp = new FormData();
     fdAddOriginalTimestamp.left = new FormAttachment(middle, 0);
     fdAddOriginalTimestamp.top = new FormAttachment(wlAddOriginalTimestamp, 0, SWT.CENTER);
@@ -601,7 +600,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Create multi-part file?
     Label wlSetModificationDateToOriginal = new Label(wUnzippedFiles, SWT.RIGHT);
     wlSetModificationDateToOriginal.setText(
-        BaseMessages.getString(PKG, "JobUnZip.SetModificationDateToOriginal.Label"));
+        BaseMessages.getString(PKG, "ActionUnZip.SetModificationDateToOriginal.Label"));
     props.setLook(wlSetModificationDateToOriginal);
     FormData fdlSetModificationDateToOriginal = new FormData();
     fdlSetModificationDateToOriginal.left = new FormAttachment(0, 0);
@@ -611,7 +610,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSetModificationDateToOriginal = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wSetModificationDateToOriginal);
     wSetModificationDateToOriginal.setToolTipText(
-        BaseMessages.getString(PKG, "JobUnZip.SetModificationDateToOriginal.Tooltip"));
+        BaseMessages.getString(PKG, "ActionUnZip.SetModificationDateToOriginal.Tooltip"));
     FormData fdSetModificationDateToOriginal = new FormData();
     fdSetModificationDateToOriginal.left = new FormAttachment(middle, 0);
     fdSetModificationDateToOriginal.top =
@@ -626,7 +625,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
         });
     // If File Exists
     Label wlIfFileExists = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlIfFileExists.setText(BaseMessages.getString(PKG, "JobUnZip.IfFileExists.Label"));
+    wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionUnZip.IfFileExists.Label"));
     props.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
@@ -651,7 +650,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // After Zipping
     Label wlAfterUnZip = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlAfterUnZip.setText(BaseMessages.getString(PKG, "JobUnZip.AfterUnZip.Label"));
+    wlAfterUnZip.setText(BaseMessages.getString(PKG, "ActionUnZip.AfterUnZip.Label"));
     props.setLook(wlAfterUnZip);
     FormData fdlAfterUnZip = new FormData();
     fdlAfterUnZip.left = new FormAttachment(0, 0);
@@ -659,9 +658,9 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlAfterUnZip.top = new FormAttachment(wIfFileExists, margin);
     wlAfterUnZip.setLayoutData(fdlAfterUnZip);
     wAfterUnZip = new CCombo(wUnzippedFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wAfterUnZip.add(BaseMessages.getString(PKG, "JobUnZip.Do_Nothing_AfterUnZip.Label"));
-    wAfterUnZip.add(BaseMessages.getString(PKG, "JobUnZip.Delete_Files_AfterUnZip.Label"));
-    wAfterUnZip.add(BaseMessages.getString(PKG, "JobUnZip.Move_Files_AfterUnZip.Label"));
+    wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Do_Nothing_AfterUnZip.Label"));
+    wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Delete_Files_AfterUnZip.Label"));
+    wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Move_Files_AfterUnZip.Label"));
 
     wAfterUnZip.select(0); // +1: starts at -1
 
@@ -681,7 +680,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     // moveTo Directory
     wlMovetoDirectory = new Label(wUnzippedFiles, SWT.RIGHT);
-    wlMovetoDirectory.setText(BaseMessages.getString(PKG, "JobUnZip.MovetoDirectory.Label"));
+    wlMovetoDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.MovetoDirectory.Label"));
     props.setLook(wlMovetoDirectory);
     FormData fdlMovetoDirectory = new FormData();
     fdlMovetoDirectory.left = new FormAttachment(0, 0);
@@ -693,13 +692,13 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wUnzippedFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.MovetoDirectory.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.MovetoDirectory.Tooltip"));
     props.setLook(wMovetoDirectory);
 
     // Browse folders button ...
     wbMovetoDirectory = new Button(wUnzippedFiles, SWT.PUSH | SWT.CENTER);
     props.setLook(wbMovetoDirectory);
-    wbMovetoDirectory.setText(BaseMessages.getString(PKG, "JobUnZip.BrowseFolders.Label"));
+    wbMovetoDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
     FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
     fdbMovetoDirectory.top = new FormAttachment(wAfterUnZip, margin);
@@ -717,7 +716,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // create move to folder
     wlCreateMoveToDirectory = new Label(wUnzippedFiles, SWT.RIGHT);
     wlCreateMoveToDirectory.setText(
-        BaseMessages.getString(PKG, "JobUnZip.createMoveToFolder.Label"));
+        BaseMessages.getString(PKG, "ActionUnZip.createMoveToFolder.Label"));
     props.setLook(wlCreateMoveToDirectory);
     FormData fdlcreateMoveToDirectory = new FormData();
     fdlcreateMoveToDirectory.left = new FormAttachment(0, 0);
@@ -727,7 +726,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wCreateMoveToDirectory = new Button(wUnzippedFiles, SWT.CHECK);
     props.setLook(wCreateMoveToDirectory);
     wCreateMoveToDirectory.setToolTipText(
-        BaseMessages.getString(PKG, "JobUnZip.createMoveToFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionUnZip.createMoveToFolder.Tooltip"));
     FormData fdCreateMoveToDirectory = new FormData();
     fdCreateMoveToDirectory.left = new FormAttachment(middle, 0);
     fdCreateMoveToDirectory.top = new FormAttachment(wlCreateMoveToDirectory, 0, SWT.CENTER);
@@ -768,7 +767,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobUnZip.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionUnZip.Tab.Advanced.Label"));
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wAdvancedComp);
@@ -784,7 +783,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobUnZip.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionUnZip.FileResult.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -795,7 +794,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Add file to result
     // Add File to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
-    wlAddFileToResult.setText(BaseMessages.getString(PKG, "JobUnZip.AddFileToResult.Label"));
+    wlAddFileToResult.setText(BaseMessages.getString(PKG, "ActionUnZip.AddFileToResult.Label"));
     props.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
@@ -805,7 +804,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
     props.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobUnZip.AddFileToResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionUnZip.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
     fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
@@ -833,7 +832,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wSuccessOn);
-    wSuccessOn.setText(BaseMessages.getString(PKG, "JobUnZip.SuccessOn.Group.Label"));
+    wSuccessOn.setText(BaseMessages.getString(PKG, "ActionUnZip.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
     successongroupLayout.marginWidth = 10;
@@ -844,7 +843,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Success Condition
     Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessCondition.setText(
-        BaseMessages.getString(PKG, "JobUnZip.SuccessCondition.Label") + " ");
+        BaseMessages.getString(PKG, "ActionUnZip.SuccessCondition.Label") + " ");
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
@@ -852,10 +851,10 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlSuccessCondition.top = new FormAttachment(wFileResult, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wSuccessCondition.add(BaseMessages.getString(PKG, "JobUnZip.SuccessWhenAllWorksFine.Label"));
-    wSuccessCondition.add(BaseMessages.getString(PKG, "JobUnZip.SuccessWhenAtLeat.Label"));
+    wSuccessCondition.add(BaseMessages.getString(PKG, "ActionUnZip.SuccessWhenAllWorksFine.Label"));
+    wSuccessCondition.add(BaseMessages.getString(PKG, "ActionUnZip.SuccessWhenAtLeat.Label"));
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobUnZip.SuccessWhenNrErrorsLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionUnZip.SuccessWhenNrErrorsLessThan.Label"));
     wSuccessCondition.select(0); // +1: starts at -1
 
     props.setLook(wSuccessCondition);
@@ -874,7 +873,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
     wlNrErrorsLessThan.setText(
-        BaseMessages.getString(PKG, "JobUnZip.NrBadFormedLessThan.Label") + " ");
+        BaseMessages.getString(PKG, "ActionUnZip.NrBadFormedLessThan.Label") + " ");
     props.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
@@ -887,7 +886,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobUnZip.NrBadFormedLessThan.Tooltip"));
+            BaseMessages.getString(PKG, "ActionUnZip.NrBadFormedLessThan.Tooltip"));
     props.setLook(wNrErrorsLessThan);
     wNrErrorsLessThan.addModifyListener(lsMod);
     FormData fdNrErrorsLessThan = new FormData();

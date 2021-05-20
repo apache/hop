@@ -68,7 +68,6 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);

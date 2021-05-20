@@ -87,7 +87,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
     changed = meta.hasChanged();
 
     lsMod = e -> meta.setChanged();
@@ -102,13 +101,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     formLayout.marginWidth = 15;
     formLayout.marginHeight = 15;
     shell.setLayout(formLayout);
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(

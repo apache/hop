@@ -116,8 +116,7 @@ public class EnterStringDialog extends Dialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
-    Control lastControl = null;
+    Control lastControl;
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL | SWT.SHEET);
     props.setLook(shell);

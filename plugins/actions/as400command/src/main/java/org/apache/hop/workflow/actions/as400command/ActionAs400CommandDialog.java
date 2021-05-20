@@ -83,7 +83,6 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
   @Override
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     shell.setMinimumSize(new Point(600, 400));

@@ -66,8 +66,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobXMLWellFormed.Filetype.Xml"),
-        BaseMessages.getString(PKG, "JobXMLWellFormed.Filetype.All")
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.Xml"),
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.All")
       };
 
   private Text wName;
@@ -110,19 +110,16 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     this.action = (XmlWellFormed) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobXMLWellFormed.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionXMLWellFormed.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -132,7 +129,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -149,7 +146,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -173,7 +170,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -190,7 +187,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Settings.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -199,7 +196,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.IncludeSubfolders.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
@@ -209,7 +206,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.IncludeSubfolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
     fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
@@ -224,7 +221,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     // previous
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -234,7 +231,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wPrevious = new Button(wSettings, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.isArgFromPrevious());
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobXMLWellFormed.Previous.Tooltip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -260,7 +257,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // SourceFileFolder line
     wlSourceFileFolder = new Label(wGeneralComp, SWT.RIGHT);
     wlSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.SourceFileFolder.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SourceFileFolder.Label"));
     props.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
@@ -271,7 +268,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceDirectory);
-    wbSourceDirectory.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.BrowseFolders.Label"));
+    wbSourceDirectory.setText(
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin);
@@ -299,7 +297,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceFileFolder);
-    wbSourceFileFolder.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.BrowseFiles.Label"));
+    wbSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.BrowseFiles.Label"));
     FormData fdbSourceFileFolder = new FormData();
     fdbSourceFileFolder.right = new FormAttachment(wbSourceDirectory, -margin);
     fdbSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -308,7 +307,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Browse Destination file add button ...
     wbaSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaSourceFileFolder);
-    wbaSourceFileFolder.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.FilenameAdd.Button"));
+    wbaSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.FilenameAdd.Button"));
     FormData fdbaSourceFileFolder = new FormData();
     fdbaSourceFileFolder.right = new FormAttachment(wbSourceFileFolder, -margin);
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -316,7 +316,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     wSourceFileFolder = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SourceFileFolder.Tooltip"));
 
     props.setLook(wSourceFileFolder);
     wSourceFileFolder.addModifyListener(lsMod);
@@ -348,7 +348,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Wildcard.Label"));
+    wlWildcard.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Wildcard.Label"));
     props.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
@@ -357,7 +357,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlWildcard.setLayoutData(fdlWildcard);
 
     wWildcard = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wWildcard.setToolTipText(BaseMessages.getString(PKG, "JobXMLWellFormed.Wildcard.Tooltip"));
+    wWildcard.setToolTipText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Wildcard.Tooltip"));
     props.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
@@ -367,7 +367,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wWildcard.setLayoutData(fdWildcard);
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -379,9 +379,9 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdSourceFileFolder);
     wbdSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.FilenameDelete.Button"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.FilenameDelete.Button"));
     wbdSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.FilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.FilenameDelete.Tooltip"));
     FormData fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment(100, 0);
     fdbdSourceFileFolder.top = new FormAttachment(wlFields, margin);
@@ -390,9 +390,9 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeSourceFileFolder);
     wbeSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.FilenameEdit.Button"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.FilenameEdit.Button"));
     wbeSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.FilenameEdit.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.FilenameEdit.Tooltip"));
     FormData fdbeSourceFileFolder = new FormData();
     fdbeSourceFileFolder.right = new FormAttachment(100, 0);
     fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
@@ -410,20 +410,21 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobXMLWellFormed.Fields.SourceFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.SourceFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobXMLWellFormed.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.Fields.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.SourceFileFolder.Tooltip"));
     colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "JobXMLWellFormed.Fields.Wildcard.Tooltip"));
+    colinf[1].setToolTip(
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.Wildcard.Tooltip"));
 
     wFields =
         new TableView(
@@ -507,7 +508,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Tab.Advanced.Label"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
@@ -523,7 +524,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wSuccessOn);
-    wSuccessOn.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.SuccessOn.Group.Label"));
+    wSuccessOn.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
     successongroupLayout.marginWidth = 10;
@@ -534,7 +535,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Success Condition
     Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessCondition.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.SuccessCondition.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SuccessCondition.Label"));
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
@@ -543,10 +544,11 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.SuccessWhenAllWorksFine.Label"));
-    wSuccessCondition.add(BaseMessages.getString(PKG, "JobXMLWellFormed.SuccessWhenAtLeat.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SuccessWhenAllWorksFine.Label"));
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.SuccessWhenBadFormedLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SuccessWhenAtLeat.Label"));
+    wSuccessCondition.add(
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.SuccessWhenBadFormedLessThan.Label"));
     wSuccessCondition.select(0); // +1: starts at -1
 
     props.setLook(wSuccessCondition);
@@ -565,7 +567,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
     wlNrErrorsLessThan.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.NrBadFormedLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.NrBadFormedLessThan.Label"));
     props.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
@@ -578,7 +580,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobXMLWellFormed.NrBadFormedLessThan.Tooltip"));
+            BaseMessages.getString(PKG, "ActionXMLWellFormed.NrBadFormedLessThan.Tooltip"));
     props.setLook(wNrErrorsLessThan);
     wNrErrorsLessThan.addModifyListener(lsMod);
     FormData fdNrErrorsLessThan = new FormData();
@@ -602,7 +604,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobXMLWellFormed.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.FileResult.Group.Label"));
 
     FormLayout fileresultgroupLayout = new FormLayout();
     fileresultgroupLayout.marginWidth = 10;
@@ -613,7 +615,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Add Filenames to result filenames?
     Label wlAddFilenameToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFilenameToResult.setText(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.AddFilenameToResult.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.AddFilenameToResult.Label"));
     props.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
@@ -622,11 +624,11 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new CCombo(wFileResult, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.AddAllFilenamesToResult.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.AddAllFilenamesToResult.Label"));
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.AddOnlyWellFormedFilenames.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.AddOnlyWellFormedFilenames.Label"));
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobXMLWellFormed.AddOnlyBadFormedFilenames.Label"));
+        BaseMessages.getString(PKG, "ActionXMLWellFormed.AddOnlyBadFormedFilenames.Label"));
     wAddFilenameToResult.select(0); // +1: starts at -1
 
     props.setLook(wAddFilenameToResult);

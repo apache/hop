@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -283,11 +283,11 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       LockFile locked = new LockFile(filename);
       if (locked.isLocked()) {
         oneFileLocked = true;
-        logError(BaseMessages.getString(PKG, "JobCheckFilesLocked.Log.FileLocked", filename));
+        logError(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Log.FileLocked", filename));
       } else {
         if (isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "JobCheckFilesLocked.Log.FileNotLocked", filename));
+              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Log.FileNotLocked", filename));
         }
       }
     }
@@ -350,7 +350,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
 
       } catch (Exception e) {
         logError(
-            BaseMessages.getString(PKG, "JobCheckFilesLocked.Error.Exception.ProcessError"),
+            BaseMessages.getString(PKG, "ActionCheckFilesLocked.Error.Exception.ProcessError"),
             BaseMessages.getString(
                 PKG,
                 "JobCheckFilesLocked.Error.Exception.Process",

@@ -177,7 +177,6 @@ public class EnterSelectionDialog extends Dialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(
@@ -386,7 +385,6 @@ public class EnterSelectionDialog extends Dialog {
 
   public String openRepoDialog() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(

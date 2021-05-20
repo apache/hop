@@ -133,7 +133,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     // store some convenient SWT variables
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);

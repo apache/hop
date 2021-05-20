@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,15 +46,13 @@ import java.util.List;
  * @author Samatar
  * @since 05-11-2003
  */
-
 @Action(
-  id = "TELNET",
-  name = "i18n::ActionTelnet.Name",
-  description = "i18n::ActionTelnet.Description",
-  image = "Telnet.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/telnet.html"
-)
+    id = "TELNET",
+    name = "i18n::ActionTelnet.Name",
+    description = "i18n::ActionTelnet.Description",
+    image = "Telnet.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator
 
@@ -65,15 +63,15 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   public static final int DEFAULT_TIME_OUT = 3000;
   public static final int DEFAULT_PORT = 23;
 
-  public ActionTelnet( String n ) {
-    super( n, "" );
+  public ActionTelnet(String n) {
+    super(n, "");
     hostname = null;
-    port = String.valueOf( DEFAULT_PORT );
-    timeout = String.valueOf( DEFAULT_TIME_OUT );
+    port = String.valueOf(DEFAULT_PORT);
+    timeout = String.valueOf(DEFAULT_TIME_OUT);
   }
 
   public ActionTelnet() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -82,25 +80,25 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 100 );
+    StringBuilder retval = new StringBuilder(100);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "hostname", hostname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("hostname", hostname));
+    retval.append("      ").append(XmlHandler.addTagValue("port", port));
+    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      hostname = XmlHandler.getTagValue( entrynode, "hostname" );
-      port = XmlHandler.getTagValue( entrynode, "port" );
-      timeout = XmlHandler.getTagValue( entrynode, "timeout" );
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( "Unable to load action of type 'Telnet' from XML node", xe );
+      super.loadXml(entrynode);
+      hostname = XmlHandler.getTagValue(entrynode, "hostname");
+      port = XmlHandler.getTagValue(entrynode, "port");
+      timeout = XmlHandler.getTagValue(entrynode, "timeout");
+    } catch (HopXmlException xe) {
+      throw new HopXmlException("Unable to load action of type 'Telnet' from XML node", xe);
     }
   }
 
@@ -109,14 +107,14 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealPort() {
-    return resolve( getPort() );
+    return resolve(getPort());
   }
 
-  public void setPort( String port ) {
+  public void setPort(String port) {
     this.port = port;
   }
 
-  public void setHostname( String hostname ) {
+  public void setHostname(String hostname) {
     this.hostname = hostname;
   }
 
@@ -125,7 +123,7 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealHostname() {
-    return resolve( getHostname() );
+    return resolve(getHostname());
   }
 
   public String getTimeOut() {
@@ -133,68 +131,78 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealTimeOut() {
-    return resolve( getTimeOut() );
+    return resolve(getTimeOut());
   }
 
-  public void setTimeOut( String timeout ) {
+  public void setTimeOut(String timeout) {
     this.timeout = timeout;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
 
     Result result = previousResult;
 
-    result.setNrErrors( 1 );
-    result.setResult( false );
+    result.setNrErrors(1);
+    result.setResult(false);
 
     String hostname = getRealHostname();
-    int port = Const.toInt( getRealPort(), DEFAULT_PORT );
-    int timeoutInt = Const.toInt( getRealTimeOut(), -1 );
+    int port = Const.toInt(getRealPort(), DEFAULT_PORT);
+    int timeoutInt = Const.toInt(getRealTimeOut(), -1);
 
-    if ( Utils.isEmpty( hostname ) ) {
+    if (Utils.isEmpty(hostname)) {
       // No Host was specified
-      logError( BaseMessages.getString( PKG, "JobTelnet.SpecifyHost.Label" ) );
+      logError(BaseMessages.getString(PKG, "ActionTelnet.SpecifyHost.Label"));
       return result;
     }
 
     try {
 
-      SocketUtil.connectToHost( hostname, port, timeoutInt );
+      SocketUtil.connectToHost(hostname, port, timeoutInt);
 
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "JobTelnet.OK.Label", hostname, port ) );
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ActionTelnet.OK.Label", hostname, port));
       }
 
-      result.setNrErrors( 0 );
-      result.setResult( true );
+      result.setNrErrors(0);
+      result.setResult(true);
 
-    } catch ( Exception ex ) {
-      logError( BaseMessages.getString( PKG, "JobTelnet.NOK.Label", hostname, String.valueOf( port ) ) );
-      logError( BaseMessages.getString( PKG, "JobTelnet.Error.Label" ) + ex.getMessage() );
+    } catch (Exception ex) {
+      logError(
+          BaseMessages.getString(PKG, "ActionTelnet.NOK.Label", hostname, String.valueOf(port)));
+      logError(BaseMessages.getString(PKG, "ActionTelnet.Error.Label") + ex.getMessage());
     }
 
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( hostname ) ) {
-      String realServername = resolve( hostname );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(hostname)) {
+      String realServername = resolve(hostname);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "hostname", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "hostname",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 }

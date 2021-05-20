@@ -116,7 +116,6 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);

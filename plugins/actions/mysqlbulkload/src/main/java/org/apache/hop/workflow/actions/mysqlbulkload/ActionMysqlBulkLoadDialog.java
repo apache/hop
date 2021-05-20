@@ -66,8 +66,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.Filetype.Text"),
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.Filetype.All")
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.Text"),
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.All")
       };
 
   private Text wName;
@@ -113,13 +113,12 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     super(parent, workflowMeta, variables);
     this.action = (ActionMysqlBulkLoad) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -133,7 +132,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -150,7 +149,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -172,7 +171,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Schema name line
     // Schema name
     Label wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Schemaname.Label"));
+    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Schemaname.Label"));
     props.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
@@ -182,7 +181,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSchemaname);
-    wSchemaname.setToolTipText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Schemaname.Tooltip"));
+    wSchemaname.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Schemaname.Tooltip"));
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
@@ -192,7 +192,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // Table name line
     Label wlTablename = new Label(shell, SWT.RIGHT);
-    wlTablename.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Tablename.Label"));
+    wlTablename.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Tablename.Label"));
     props.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
@@ -226,7 +226,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Filename line
     // File
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -269,7 +269,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Local
     //
     Label wlLocalInfile = new Label(shell, SWT.RIGHT);
-    wlLocalInfile.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.LocalInfile.Label"));
+    wlLocalInfile.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.LocalInfile.Label"));
     props.setLook(wlLocalInfile);
     FormData fdlLocalInfile = new FormData();
     fdlLocalInfile.left = new FormAttachment(0, 0);
@@ -279,7 +279,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wLocalInfile = new Button(shell, SWT.CHECK);
     props.setLook(wLocalInfile);
     wLocalInfile.setToolTipText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.LocalInfile.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.LocalInfile.Tooltip"));
     FormData fdLocalInfile = new FormData();
     fdLocalInfile.left = new FormAttachment(middle, 0);
     fdLocalInfile.top = new FormAttachment(wlLocalInfile, 0, SWT.CENTER);
@@ -295,7 +295,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Priority
     //
     Label wlPriorityValue = new Label(shell, SWT.RIGHT);
-    wlPriorityValue.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.ProrityValue.Label"));
+    wlPriorityValue.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ProrityValue.Label"));
     props.setLook(wlPriorityValue);
     FormData fdlPriorityValue = new FormData();
     fdlPriorityValue.left = new FormAttachment(0, 0);
@@ -303,9 +303,9 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
     wlPriorityValue.setLayoutData(fdlPriorityValue);
     wPriorityValue = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wPriorityValue.add(BaseMessages.getString(PKG, "JobMysqlBulkLoad.NorProrityValue.Label"));
-    wPriorityValue.add(BaseMessages.getString(PKG, "JobMysqlBulkLoad.LowProrityValue.Label"));
-    wPriorityValue.add(BaseMessages.getString(PKG, "JobMysqlBulkLoad.ConProrityValue.Label"));
+    wPriorityValue.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.NorProrityValue.Label"));
+    wPriorityValue.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.LowProrityValue.Label"));
+    wPriorityValue.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ConProrityValue.Label"));
     wPriorityValue.select(0); // +1: starts at -1
     props.setLook(wPriorityValue);
     FormData fdPriorityValue = new FormData();
@@ -317,7 +317,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Separator
     // Separator
     Label wlSeparator = new Label(shell, SWT.RIGHT);
-    wlSeparator.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Separator.Label"));
+    wlSeparator.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Separator.Label"));
     props.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
     fdlSeparator.left = new FormAttachment(0, 0);
@@ -337,7 +337,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // enclosed
     // Enclosed
     Label wlEnclosed = new Label(shell, SWT.RIGHT);
-    wlEnclosed.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Enclosed.Label"));
+    wlEnclosed.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Enclosed.Label"));
     props.setLook(wlEnclosed);
     FormData fdlEnclosed = new FormData();
     fdlEnclosed.left = new FormAttachment(0, 0);
@@ -357,7 +357,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // escaped
     // Escaped
     Label wlEscaped = new Label(shell, SWT.RIGHT);
-    wlEscaped.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Escaped.Label"));
+    wlEscaped.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Escaped.Label"));
     props.setLook(wlEscaped);
     FormData fdlEscaped = new FormData();
     fdlEscaped.left = new FormAttachment(0, 0);
@@ -367,7 +367,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wEscaped = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wEscaped);
-    wEscaped.setToolTipText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Escaped.Tooltip"));
+    wEscaped.setToolTipText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Escaped.Tooltip"));
     wEscaped.addModifyListener(lsMod);
     FormData fdEscaped = new FormData();
     fdEscaped.left = new FormAttachment(middle, 0);
@@ -378,7 +378,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Line started
     // Line starting
     Label wlLinestarted = new Label(shell, SWT.RIGHT);
-    wlLinestarted.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Linestarted.Label"));
+    wlLinestarted.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Linestarted.Label"));
     props.setLook(wlLinestarted);
     FormData fdlLinestarted = new FormData();
     fdlLinestarted.left = new FormAttachment(0, 0);
@@ -398,7 +398,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Line terminated
     // Line terminated
     Label wlLineterminated = new Label(shell, SWT.RIGHT);
-    wlLineterminated.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Lineterminated.Label"));
+    wlLineterminated.setText(
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Lineterminated.Label"));
     props.setLook(wlLineterminated);
     FormData fdlLineterminated = new FormData();
     fdlLineterminated.left = new FormAttachment(0, 0);
@@ -418,7 +419,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // List of columns to set for
     // List Columns
     Label wlListattribut = new Label(shell, SWT.RIGHT);
-    wlListattribut.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Listattribut.Label"));
+    wlListattribut.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Listattribut.Label"));
     props.setLook(wlListattribut);
     FormData fdlListattribut = new FormData();
     fdlListattribut.left = new FormAttachment(0, 0);
@@ -443,7 +444,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wListattribut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wListattribut);
     wListattribut.setToolTipText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.Listattribut.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Listattribut.Tooltip"));
     wListattribut.addModifyListener(lsMod);
     FormData fdListattribut = new FormData();
     fdListattribut.left = new FormAttachment(middle, 0);
@@ -454,7 +455,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Replace data
     // Replace
     Label wlReplaceData = new Label(shell, SWT.RIGHT);
-    wlReplaceData.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Replacedata.Label"));
+    wlReplaceData.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Replacedata.Label"));
     props.setLook(wlReplaceData);
     FormData fdlReplaceData = new FormData();
     fdlReplaceData.left = new FormAttachment(0, 0);
@@ -464,7 +465,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wReplaceData = new Button(shell, SWT.CHECK);
     props.setLook(wReplaceData);
     wReplaceData.setToolTipText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.Replacedata.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Replacedata.Tooltip"));
     FormData fdReplaceData = new FormData();
     fdReplaceData.left = new FormAttachment(middle, 0);
     fdReplaceData.top = new FormAttachment(wlReplaceData, 0, SWT.CENTER);
@@ -480,7 +481,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Nbr of lines to ignore
     // Ignore First lines
     Label wlIgnorelines = new Label(shell, SWT.RIGHT);
-    wlIgnorelines.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.Ignorelines.Label"));
+    wlIgnorelines.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Ignorelines.Label"));
     props.setLook(wlIgnorelines);
     FormData fdlIgnorelines = new FormData();
     fdlIgnorelines.left = new FormAttachment(0, 0);
@@ -503,7 +504,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // /
     Group wFileResult = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.FileResult.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -514,7 +515,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Add file to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFileToResult.setText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.AddFileToResult.Label"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.AddFileToResult.Label"));
     props.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
@@ -524,7 +525,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
     props.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.AddFileToResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
     fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
@@ -672,7 +673,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(
-            BaseMessages.getString(PKG, "JobMysqlBulkLoad.ConnectionError2.DialogMessage"));
+            BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ConnectionError2.DialogMessage"));
         mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
         mb.open();
       }
@@ -702,8 +703,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
               new EnterSelectionDialog(
                   shell,
                   available,
-                  BaseMessages.getString(PKG, "JobMysqlBulkLoad.SelectColumns.Title"),
-                  BaseMessages.getString(PKG, "JobMysqlBulkLoad.SelectColumns.Message"));
+                  BaseMessages.getString(PKG, "ActionMysqlBulkLoad.SelectColumns.Title"),
+                  BaseMessages.getString(PKG, "ActionMysqlBulkLoad.SelectColumns.Message"));
           dialog.setMulti(true);
           dialog.setAvoidQuickSearch();
           dialog.setSelectedNrs(idxSource);
@@ -722,7 +723,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
           new ErrorDialog(
               shell,
               BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-              BaseMessages.getString(PKG, "JobMysqlBulkLoad.ConnectionError2.DialogMessage"),
+              BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ConnectionError2.DialogMessage"),
               e);
         } finally {
           database.disconnect();

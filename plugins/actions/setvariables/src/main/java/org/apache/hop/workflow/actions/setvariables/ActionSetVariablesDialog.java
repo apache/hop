@@ -88,7 +88,6 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -234,7 +233,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     // ///////////////////////////////////////////////////////////
 
     Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "SetVariableDialog.Variables.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionSetVariables.Variables.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -249,15 +248,15 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     ColumnInfo[] colinf = {
       new ColumnInfo(
-          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableName"),
+          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableName"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(
-          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.Value"),
+          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.Value"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(
-          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableType"),
+          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableType"),
           ColumnInfo.COLUMN_TYPE_CCOMBO,
           ActionSetVariables.getVariableTypeDescriptions(),
           false),

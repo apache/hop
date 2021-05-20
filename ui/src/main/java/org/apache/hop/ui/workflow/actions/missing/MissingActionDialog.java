@@ -102,7 +102,6 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
     Shell parent = this.getParent();
     Display display = parent.getDisplay();
-    int margin = props.getMargin();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
 

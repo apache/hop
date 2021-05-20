@@ -147,9 +147,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    */
   public String open() {
     this.changed = this.meta.hasChanged();
-
     final Shell parent = getParent();
-    final Display display = parent.getDisplay();
 
     this.shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     this.props.setLook(this.shell);

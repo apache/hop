@@ -62,7 +62,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
   private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobDeleteFiles.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionDeleteFiles.Filetype.All")};
 
   private Shell shell;
 
@@ -97,13 +97,12 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     this.action = (ActionDeleteFiles) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobDeleteFiles.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionDeleteFiles.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -117,7 +116,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -134,7 +133,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -157,7 +156,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Settings.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -166,7 +165,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
-        BaseMessages.getString(PKG, "JobDeleteFiles.IncludeSubfolders.Label"));
+        BaseMessages.getString(PKG, "ActionDeleteFiles.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
@@ -176,7 +175,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobDeleteFiles.IncludeSubfolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDeleteFiles.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
     fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
@@ -190,7 +189,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
         });
 
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -200,7 +199,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wPrevious = new Button(wSettings, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.isArgFromPrevious());
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobDeleteFiles.Previous.Tooltip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionDeleteFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -225,7 +224,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -236,7 +235,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     // Browse Source folders button ...
     wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbDirectory);
-    wbDirectory.setText(BaseMessages.getString(PKG, "JobDeleteFiles.BrowseFolders.Label"));
+    wbDirectory.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
     fdbDirectory.right = new FormAttachment(100, -margin);
     fdbDirectory.top = new FormAttachment(wSettings, margin);
@@ -247,7 +246,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "JobDeleteFiles.BrowseFiles.Label"));
+    wbFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wSettings, margin);
@@ -256,7 +255,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "JobDeleteFiles.FilenameAdd.Button"));
+    wbaFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbFilename, -margin);
     fdbaFilename.top = new FormAttachment(wSettings, margin);
@@ -283,7 +282,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     // Filemask
     wlFilemask = new Label(shell, SWT.RIGHT);
-    wlFilemask.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Wildcard.Label"));
+    wlFilemask.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Wildcard.Label"));
     props.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
@@ -295,7 +294,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
             variables,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobDeleteFiles.Wildcard.Tooltip"));
+            BaseMessages.getString(PKG, "ActionDeleteFiles.Wildcard.Tooltip"));
     props.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
@@ -305,7 +304,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wFilemask.setLayoutData(fdFilemask);
 
     wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -316,9 +315,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     // Buttons to the right of the screen...
     wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "JobDeleteFiles.FilenameDelete.Button"));
+    wbdFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobDeleteFiles.FilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDeleteFiles.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
     fdbdFilename.top = new FormAttachment(wlFields, margin);
@@ -326,8 +325,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "JobDeleteFiles.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(BaseMessages.getString(PKG, "JobDeleteFiles.FilenameEdit.Tooltip"));
+    wbeFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFiles.FilenameEdit.Button"));
+    wbeFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDeleteFiles.FilenameEdit.Tooltip"));
     FormData fdbeFilename = new FormData();
     fdbeFilename.right = new FormAttachment(100, 0);
     fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
@@ -340,19 +340,19 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Argument.Label"),
+              BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Argument.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Column"));
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Column"));
     colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "JobDeleteFiles.Wildcard.Column"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionDeleteFiles.Wildcard.Column"));
 
     wFields =
         new TableView(

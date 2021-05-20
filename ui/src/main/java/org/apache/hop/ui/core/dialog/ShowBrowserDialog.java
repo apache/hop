@@ -66,7 +66,6 @@ public class ShowBrowserDialog extends Dialog {
 
   public void open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setImage(GuiResource.getInstance().getImageHopUi());

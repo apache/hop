@@ -54,12 +54,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -67,10 +64,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -126,26 +121,16 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent arg0) {
-            input.setChanged();
-            setModuleFieldCombo();
-          }
+        arg0 -> {
+          input.setChanged();
+          setModuleFieldCombo();
         };
     SelectionAdapter lsSelection =
         new SelectionAdapter() {
@@ -547,41 +532,35 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     //
 
     final Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
-              try {
-                IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                // Remember these fields...
-                for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
-                }
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+              }
 
-                setComboBoxes();
-                // Dislay in red missing field names
-                Display.getDefault()
-                    .asyncExec(
-                        new Runnable() {
-                          @Override
-                          public void run() {
-                            if (!wReturn.isDisposed()) {
-                              for (int i = 0; i < wReturn.table.getItemCount(); i++) {
-                                TableItem it = wReturn.table.getItem(i);
-                                if (!Utils.isEmpty(it.getText(2))) {
-                                  if (!inputFields.containsKey(it.getText(2))) {
-                                    it.setBackground(GuiResource.getInstance().getColorRed());
-                                  }
-                                }
+              setComboBoxes();
+              // Dislay in red missing field names
+              Display.getDefault()
+                  .asyncExec(
+                      () -> {
+                        if (!wReturn.isDisposed()) {
+                          for (int i = 0; i < wReturn.table.getItemCount(); i++) {
+                            TableItem it = wReturn.table.getItem(i);
+                            if (!Utils.isEmpty(it.getText(2))) {
+                              if (!inputFields.containsKey(it.getText(2))) {
+                                it.setBackground(GuiResource.getInstance().getColorRed());
                               }
                             }
                           }
-                        });
-              } catch (HopException e) {
-                logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-              }
+                        }
+                      });
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
         };
@@ -985,37 +964,34 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     Display display = shell.getDisplay();
     if (!(display == null || display.isDisposed())) {
       display.asyncExec(
-          new Runnable() {
-            @Override
-            public void run() {
-              // clear
-              for (int i = 0; i < tableFieldColumns.size(); i++) {
-                ColumnInfo colInfo = tableFieldColumns.get(i);
-                colInfo.setComboValues(new String[] {});
-              }
-              if (wModule.isDisposed()) {
-                return;
-              }
-              String selectedModule = variables.resolve(wModule.getText());
-              if (!Utils.isEmpty(selectedModule)) {
-                try {
-                  // loop through the objects and find build the list of fields
-                  String[] fieldsName = getFieldNames();
+          () -> {
+            // clear
+            for (int i = 0; i < tableFieldColumns.size(); i++) {
+              ColumnInfo colInfo = tableFieldColumns.get(i);
+              colInfo.setComboValues(new String[] {});
+            }
+            if (wModule.isDisposed()) {
+              return;
+            }
+            String selectedModule = variables.resolve(wModule.getText());
+            if (!Utils.isEmpty(selectedModule)) {
+              try {
+                // loop through the objects and find build the list of fields
+                String[] fieldsName = getFieldNames();
 
-                  if (fieldsName != null) {
-                    for (int i = 0; i < tableFieldColumns.size(); i++) {
-                      ColumnInfo colInfo = tableFieldColumns.get(i);
-                      colInfo.setComboValues(fieldsName);
-                    }
-                  }
-                } catch (Exception e) {
+                if (fieldsName != null) {
                   for (int i = 0; i < tableFieldColumns.size(); i++) {
                     ColumnInfo colInfo = tableFieldColumns.get(i);
-                    colInfo.setComboValues(new String[] {});
+                    colInfo.setComboValues(fieldsName);
                   }
-                  // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
                 }
+              } catch (Exception e) {
+                for (int i = 0; i < tableFieldColumns.size(); i++) {
+                  ColumnInfo colInfo = tableFieldColumns.get(i);
+                  colInfo.setComboValues(new String[] {});
+                }
+                // ignore any errors here. drop downs will not be
+                // filled, but no problem for the user
               }
             }
           });

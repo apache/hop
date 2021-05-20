@@ -84,7 +84,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   @Override
   public String open() {
     Shell parent = this.getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);

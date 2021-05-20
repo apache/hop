@@ -72,7 +72,6 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -84,7 +83,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -199,20 +197,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   public String open() {
-
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     setShellImage(shell, input);
 
-    lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -466,21 +457,18 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     //
 
     final Runnable runnable =
-        new Runnable() {
-          public void run() {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
-              try {
-                inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-                infoRowMeta = pipelineMeta.getPrevInfoFields(variables, transformMeta);
-                outputRowMeta =
-                    pipelineMeta.getThisTransformFields(
-                        variables, transformMeta, null, inputRowMeta.clone());
-                populateFieldsTree();
-              } catch (HopException e) {
-                log.logError(
-                    BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"), e);
-              }
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+              infoRowMeta = pipelineMeta.getPrevInfoFields(variables, transformMeta);
+              outputRowMeta =
+                  pipelineMeta.getThisTransformFields(
+                      variables, transformMeta, null, inputRowMeta.clone());
+              populateFieldsTree();
+            } catch (HopException e) {
+              log.logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"), e);
             }
           }
         };
@@ -1530,65 +1518,63 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     shell
         .getDisplay()
         .syncExec(
-            new Runnable() {
-              public void run() {
-                itemInput.removeAll();
-                itemInfo.removeAll();
-                itemOutput.removeAll();
+            () -> {
+              itemInput.removeAll();
+              itemInfo.removeAll();
+              itemOutput.removeAll();
 
-                if (inputRowMeta != null) {
-                  for (int i = 0; i < inputRowMeta.size(); i++) {
-                    IValueMeta v = inputRowMeta.getValueMeta(i);
-                    String itemName = v.getName();
-                    String itemData = FieldHelper.getAccessor(true, itemName);
-                    TreeItem itemField = new TreeItem(itemInput, SWT.NULL);
-                    itemField.setImage(guiResource.getImage(v));
-                    itemField.setText(itemName);
-                    itemField.setData(itemData);
-                    TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldGet.setText(
-                        String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
-                    itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
-                    TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldSet.setText("setValue()");
-                    itemFieldSet.setData(itemData + ".setValue(r, value);");
-                  }
+              if (inputRowMeta != null) {
+                for (int i = 0; i < inputRowMeta.size(); i++) {
+                  IValueMeta v = inputRowMeta.getValueMeta(i);
+                  String itemName = v.getName();
+                  String itemData = FieldHelper.getAccessor(true, itemName);
+                  TreeItem itemField = new TreeItem(itemInput, SWT.NULL);
+                  itemField.setImage(guiResource.getImage(v));
+                  itemField.setText(itemName);
+                  itemField.setData(itemData);
+                  TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldGet.setText(
+                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                  itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
+                  TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldSet.setText("setValue()");
+                  itemFieldSet.setData(itemData + ".setValue(r, value);");
                 }
-                if (infoRowMeta != null) {
-                  for (int i = 0; i < infoRowMeta.size(); i++) {
-                    IValueMeta v = infoRowMeta.getValueMeta(i);
-                    String itemName = v.getName();
-                    String itemData = FieldHelper.getAccessor(true, itemName);
-                    TreeItem itemField = new TreeItem(itemInfo, SWT.NULL);
-                    itemField.setImage(guiResource.getImage(v));
-                    itemField.setText(itemName);
-                    itemField.setData(itemData);
-                    TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldGet.setText(
-                        String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
-                    itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
-                    TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldSet.setText("setValue()");
-                    itemFieldSet.setData(itemData + ".setValue(r, value);");
-                  }
+              }
+              if (infoRowMeta != null) {
+                for (int i = 0; i < infoRowMeta.size(); i++) {
+                  IValueMeta v = infoRowMeta.getValueMeta(i);
+                  String itemName = v.getName();
+                  String itemData = FieldHelper.getAccessor(true, itemName);
+                  TreeItem itemField = new TreeItem(itemInfo, SWT.NULL);
+                  itemField.setImage(guiResource.getImage(v));
+                  itemField.setText(itemName);
+                  itemField.setData(itemData);
+                  TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldGet.setText(
+                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                  itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
+                  TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldSet.setText("setValue()");
+                  itemFieldSet.setData(itemData + ".setValue(r, value);");
                 }
-                if (outputRowMeta != null) {
-                  for (int i = 0; i < outputRowMeta.size(); i++) {
-                    IValueMeta v = outputRowMeta.getValueMeta(i);
-                    String itemName = v.getName();
-                    String itemData = FieldHelper.getAccessor(false, itemName);
-                    TreeItem itemField = new TreeItem(itemOutput, SWT.NULL);
-                    itemField.setImage(guiResource.getImage(v));
-                    itemField.setText(itemName);
-                    itemField.setData(itemData);
-                    TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldGet.setText(
-                        String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
-                    itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
-                    TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                    itemFieldSet.setText("setValue()");
-                    itemFieldSet.setData(itemData + ".setValue(r, value);");
-                  }
+              }
+              if (outputRowMeta != null) {
+                for (int i = 0; i < outputRowMeta.size(); i++) {
+                  IValueMeta v = outputRowMeta.getValueMeta(i);
+                  String itemName = v.getName();
+                  String itemData = FieldHelper.getAccessor(false, itemName);
+                  TreeItem itemField = new TreeItem(itemOutput, SWT.NULL);
+                  itemField.setImage(guiResource.getImage(v));
+                  itemField.setText(itemName);
+                  itemField.setData(itemData);
+                  TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldGet.setText(
+                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                  itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
+                  TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
+                  itemFieldSet.setText("setValue()");
+                  itemFieldSet.setData(itemData + ".setValue(r, value);");
                 }
               }
             });
@@ -1625,24 +1611,16 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem(cMenu, SWT.PUSH);
     addNewItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.AddNewTab"));
-    addNewItem.addListener(
-        SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            addCtab("", "", TabAddActions.ADD_BLANK);
-          }
-        });
+    addNewItem.addListener(SWT.Selection, e -> addCtab("", "", TabAddActions.ADD_BLANK));
 
     MenuItem copyItem = new MenuItem(cMenu, SWT.PUSH);
     copyItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.AddCopy"));
     copyItem.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            CTabItem item = folder.getSelection();
-            StyledTextComp st = (StyledTextComp) item.getControl();
-            addCtab(item.getText(), st.getText(), TabAddActions.ADD_COPY);
-          }
+        e -> {
+          CTabItem item = folder.getSelection();
+          StyledTextComp st = (StyledTextComp) item.getControl();
+          addCtab(item.getText(), st.getText(), TabAddActions.ADD_COPY);
         });
     new MenuItem(cMenu, SWT.SEPARATOR);
 
@@ -1651,22 +1629,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.SetTransformClass"));
     setActiveScriptItem.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            CTabItem item = folder.getSelection();
-            for (int i = 0; i < folder.getItemCount(); i++) {
-              if (folder.getItem(i).equals(item)) {
-                if (item.getImage().equals(imageActiveScript)) {
-                  strActiveScript = "";
-                }
-                item.setImage(imageActiveScript);
-                strActiveScript = item.getText();
-              } else if (folder.getItem(i).getImage().equals(imageActiveScript)) {
-                folder.getItem(i).setImage(imageInactiveScript);
+        e -> {
+          CTabItem item = folder.getSelection();
+          for (int i = 0; i < folder.getItemCount(); i++) {
+            if (folder.getItem(i).equals(item)) {
+              if (item.getImage().equals(imageActiveScript)) {
+                strActiveScript = "";
               }
+              item.setImage(imageActiveScript);
+              strActiveScript = item.getText();
+            } else if (folder.getItem(i).getImage().equals(imageActiveScript)) {
+              folder.getItem(i).setImage(imageInactiveScript);
             }
-            modifyTabTree(item, TabActions.SET_ACTIVE_ITEM);
           }
+          modifyTabTree(item, TabActions.SET_ACTIVE_ITEM);
         });
 
     new MenuItem(cMenu, SWT.SEPARATOR);
@@ -1675,15 +1651,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.RemoveClassType"));
     setRemoveScriptItem.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            CTabItem item = folder.getSelection();
-            input.setChanged(true);
-            if (item.getImage().equals(imageActiveScript)) {
-              strActiveScript = "";
-            }
-            item.setImage(imageInactiveScript);
+        e -> {
+          CTabItem item = folder.getSelection();
+          input.setChanged(true);
+          if (item.getImage().equals(imageActiveScript)) {
+            strActiveScript = "";
           }
+          item.setImage(imageInactiveScript);
         });
 
     folder.setMenu(cMenu);
@@ -1695,102 +1669,90 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     addDeleteItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Delete.Label"));
     addDeleteItem.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            if (wTree.getSelectionCount() <= 0) {
-              return;
-            }
+        e -> {
+          if (wTree.getSelectionCount() <= 0) {
+            return;
+          }
 
-            TreeItem tItem = wTree.getSelection()[0];
-            if (tItem != null) {
-              MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
-              messageBox.setText(
-                  BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.DeleteItem.Label"));
-              messageBox.setMessage(
-                  BaseMessages.getString(
-                      PKG, "UserDefinedJavaClassDialog.ConfirmDeleteItem.Label", tItem.getText()));
-              switch (messageBox.open()) {
-                case SWT.YES:
-                  modifyCTabItem(tItem, TabActions.DELETE_ITEM, "");
-                  tItem.dispose();
-                  input.setChanged();
-                  break;
-                default:
-                  break;
-              }
+          TreeItem tItem = wTree.getSelection()[0];
+          if (tItem != null) {
+            MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+            messageBox.setText(
+                BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.DeleteItem.Label"));
+            messageBox.setMessage(
+                BaseMessages.getString(
+                    PKG, "UserDefinedJavaClassDialog.ConfirmDeleteItem.Label", tItem.getText()));
+            switch (messageBox.open()) {
+              case SWT.YES:
+                modifyCTabItem(tItem, TabActions.DELETE_ITEM, "");
+                tItem.dispose();
+                input.setChanged();
+                break;
+              default:
+                break;
             }
           }
         });
 
     MenuItem renItem = new MenuItem(tMenu, SWT.PUSH);
     renItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Rename.Label"));
-    renItem.addListener(
-        SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            renameFunction(wTree.getSelection()[0]);
-          }
-        });
+    renItem.addListener(SWT.Selection, e -> renameFunction(wTree.getSelection()[0]));
 
     new MenuItem(tMenu, SWT.SEPARATOR);
     MenuItem helpItem = new MenuItem(tMenu, SWT.PUSH);
     helpItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Sample.Label"));
     helpItem.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event e) {
-            String snippitFullName = wTree.getSelection()[0].getText();
-            String sampleTabName =
-                snippitFullName.replace("Implement ", "").replace(' ', '_') + "_Sample";
+        e -> {
+          String snippitFullName = wTree.getSelection()[0].getText();
+          String sampleTabName =
+              snippitFullName.replace("Implement ", "").replace(' ', '_') + "_Sample";
 
-            if (getCTabPosition(sampleTabName) == -1) {
-              addCtab(
-                  sampleTabName,
-                  snippitsHelper.getSample(snippitFullName),
-                  TabAddActions.ADD_DEFAULT);
-            }
+          if (getCTabPosition(sampleTabName) == -1) {
+            addCtab(
+                sampleTabName,
+                snippitsHelper.getSample(snippitFullName),
+                TabAddActions.ADD_DEFAULT);
+          }
 
-            if (getCTabPosition(sampleTabName) != -1) {
-              setActiveCtab(sampleTabName);
-            }
+          if (getCTabPosition(sampleTabName) != -1) {
+            setActiveCtab(sampleTabName);
           }
         });
 
     wTree.addListener(
         SWT.MouseDown,
-        new Listener() {
-          public void handleEvent(Event e) {
-            if (wTree.getSelectionCount() <= 0) {
-              return;
-            }
+        e -> {
+          if (wTree.getSelectionCount() <= 0) {
+            return;
+          }
 
-            TreeItem tItem = wTree.getSelection()[0];
-            if (tItem != null) {
-              TreeItem pItem = tItem.getParentItem();
+          TreeItem tItem = wTree.getSelection()[0];
+          if (tItem != null) {
+            TreeItem pItem = tItem.getParentItem();
 
-              if (pItem != null && pItem.equals(wTreeClassesItem)) {
-                if (folder.getItemCount() > 1) {
-                  tMenu.getItem(0).setEnabled(true);
-                } else {
-                  tMenu.getItem(0).setEnabled(false);
-                }
-                tMenu.getItem(1).setEnabled(true);
-                tMenu.getItem(3).setEnabled(false);
-              } else if (tItem.equals(wTreeClassesItem)) {
-                tMenu.getItem(0).setEnabled(false);
-                tMenu.getItem(1).setEnabled(false);
-                tMenu.getItem(3).setEnabled(false);
-              } else if (pItem != null
-                  && pItem.getData() != null
-                  && pItem.getData().equals("Snippits Category")) {
-                tMenu.getItem(0).setEnabled(false);
-                tMenu.getItem(1).setEnabled(false);
-                tMenu.getItem(3).setEnabled(true);
+            if (pItem != null && pItem.equals(wTreeClassesItem)) {
+              if (folder.getItemCount() > 1) {
+                tMenu.getItem(0).setEnabled(true);
               } else {
                 tMenu.getItem(0).setEnabled(false);
-                tMenu.getItem(1).setEnabled(false);
-                tMenu.getItem(3).setEnabled(false);
               }
+              tMenu.getItem(1).setEnabled(true);
+              tMenu.getItem(3).setEnabled(false);
+            } else if (tItem.equals(wTreeClassesItem)) {
+              tMenu.getItem(0).setEnabled(false);
+              tMenu.getItem(1).setEnabled(false);
+              tMenu.getItem(3).setEnabled(false);
+            } else if (pItem != null
+                && pItem.getData() != null
+                && pItem.getData().equals("Snippits Category")) {
+              tMenu.getItem(0).setEnabled(false);
+              tMenu.getItem(1).setEnabled(false);
+              tMenu.getItem(3).setEnabled(true);
+            } else {
+              tMenu.getItem(0).setEnabled(false);
+              tMenu.getItem(1).setEnabled(false);
+              tMenu.getItem(3).setEnabled(false);
             }
           }
         });
@@ -1802,11 +1764,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     editor = new TreeEditor(wTree);
     wTree.addListener(
         SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event event) {
-            final TreeItem item = (TreeItem) event.item;
-            renameFunction(item);
-          }
+        event -> {
+          final TreeItem item = (TreeItem) event.item;
+          renameFunction(item);
         });
   }
 
@@ -1824,66 +1784,58 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         final int inset = isCarbon ? 0 : 1;
         composite.addListener(
             SWT.Resize,
-            new Listener() {
-              public void handleEvent(Event e) {
-                Rectangle rect = composite.getClientArea();
-                text.setBounds(
-                    rect.x + inset,
-                    rect.y + inset,
-                    rect.width - inset * 2,
-                    rect.height - inset * 2);
-              }
+            e -> {
+              Rectangle rect = composite.getClientArea();
+              text.setBounds(
+                  rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
             });
         Listener textListener =
-            new Listener() {
-              @SuppressWarnings("fallthrough")
-              public void handleEvent(final Event e) {
-                switch (e.type) {
-                  case SWT.FocusOut:
-                    if (text.getText().length() > 0) {
-                      // Check if the field_name Exists
-                      if (getCTabItemByName(text.getText()) == null) {
-                        modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
-                        item.setText(cleanClassName(text.getText()));
-                      }
+            e -> {
+              switch (e.type) {
+                case SWT.FocusOut:
+                  if (text.getText().length() > 0) {
+                    // Check if the field_name Exists
+                    if (getCTabItemByName(text.getText()) == null) {
+                      modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
+                      item.setText(cleanClassName(text.getText()));
                     }
-                    composite.dispose();
-                    break;
-                  case SWT.Verify:
-                    String newText = text.getText();
-                    String leftText = newText.substring(0, e.start);
-                    String rightText = newText.substring(e.end, newText.length());
-                    Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
-                    size = text.computeSize(size.x, SWT.DEFAULT);
-                    editor.horizontalAlignment = SWT.LEFT;
-                    Rectangle itemRect = item.getBounds(), rect = wTree.getClientArea();
-                    editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                    int left = itemRect.x, right = rect.x + rect.width;
-                    editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                    editor.minimumHeight = size.y + inset * 2;
-                    editor.layout();
-                    break;
-                  case SWT.Traverse:
-                    switch (e.detail) {
-                      case SWT.TRAVERSE_RETURN:
-                        if (text.getText().length() > 0) {
-                          // Check if the field_name Exists
-                          if (getCTabItemByName(text.getText()) == null) {
-                            modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
-                            item.setText(cleanClassName(text.getText()));
-                          }
+                  }
+                  composite.dispose();
+                  break;
+                case SWT.Verify:
+                  String newText = text.getText();
+                  String leftText = newText.substring(0, e.start);
+                  String rightText = newText.substring(e.end, newText.length());
+                  Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
+                  size = text.computeSize(size.x, SWT.DEFAULT);
+                  editor.horizontalAlignment = SWT.LEFT;
+                  Rectangle itemRect = item.getBounds(), rect = wTree.getClientArea();
+                  editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
+                  int left = itemRect.x, right = rect.x + rect.width;
+                  editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
+                  editor.minimumHeight = size.y + inset * 2;
+                  editor.layout();
+                  break;
+                case SWT.Traverse:
+                  switch (e.detail) {
+                    case SWT.TRAVERSE_RETURN:
+                      if (text.getText().length() > 0) {
+                        // Check if the field_name Exists
+                        if (getCTabItemByName(text.getText()) == null) {
+                          modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
+                          item.setText(cleanClassName(text.getText()));
                         }
-                      case SWT.TRAVERSE_ESCAPE:
-                        composite.dispose();
-                        e.doit = false;
-                        break;
-                      default:
-                        break;
-                    }
-                    break;
-                  default:
-                    break;
-                }
+                      }
+                    case SWT.TRAVERSE_ESCAPE:
+                      composite.dispose();
+                      e.doit = false;
+                      break;
+                    default:
+                      break;
+                  }
+                  break;
+                default:
+                  break;
               }
             };
         text.addListener(SWT.FocusOut, textListener);

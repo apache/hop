@@ -151,7 +151,6 @@ public class NotePadDialog extends Dialog {
 
   public NotePadMeta open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE);
     props.setLook(shell);

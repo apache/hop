@@ -145,7 +145,6 @@ public class WorkflowDialog extends Dialog {
 
   public WorkflowMeta open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL);

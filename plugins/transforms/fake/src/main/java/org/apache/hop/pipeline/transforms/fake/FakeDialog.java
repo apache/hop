@@ -66,7 +66,6 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -166,7 +165,6 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
 
     lsResize =
         event -> {

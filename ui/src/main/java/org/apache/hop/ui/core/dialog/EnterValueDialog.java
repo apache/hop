@@ -87,8 +87,6 @@ public class EnterValueDialog extends Dialog {
 
   public ValueMetaAndData open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
-
     shell =
         new Shell(
             parent,

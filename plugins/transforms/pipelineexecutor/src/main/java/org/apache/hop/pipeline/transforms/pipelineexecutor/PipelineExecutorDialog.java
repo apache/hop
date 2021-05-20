@@ -151,7 +151,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     props.setLook(shell);

@@ -95,7 +95,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   @Override
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -213,6 +212,15 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdTablename.right = new FormAttachment(wbTable, -margin);
     wTablename.setLayoutData(fdTablename);
 
+    Label wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wTablename, 3 * margin);
+    wlFields.setLayoutData(fdlFields);
+
     // Get columns button
     Button wbGetColumns = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbGetColumns);
@@ -221,7 +229,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionColumnsExist.GetColums.Tooltip"));
     FormData fdbGetColumns = new FormData();
     fdbGetColumns.right = new FormAttachment(100, 0);
-    fdbGetColumns.top = new FormAttachment(wTablename, 38);
+    fdbGetColumns.top = new FormAttachment(wlFields, margin);
     wbGetColumns.setLayoutData(fdbGetColumns);
 
     // Buttons to the right of the screen...
@@ -233,17 +241,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionColumnsExist.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
+    fdbdFilename.left = new FormAttachment(wbGetColumns, 0, SWT.LEFT);
     fdbdFilename.top = new FormAttachment(wbGetColumns, margin);
     wbdFilename.setLayoutData(fdbdFilename);
-
-    Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wTablename, 3 * margin);
-    wlFields.setLayoutData(fdlFields);
 
     int rows =
         action.getArguments() == null

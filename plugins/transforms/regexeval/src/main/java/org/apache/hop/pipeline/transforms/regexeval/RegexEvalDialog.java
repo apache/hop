@@ -75,7 +75,6 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -99,6 +98,16 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Buttons at the bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -284,6 +293,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdbTestRegExScript.right = new FormAttachment(100, -margin);
     fdbTestRegExScript.top = new FormAttachment(wTransformSettings, margin);
     wbTestRegExScript.setLayoutData(fdbTestRegExScript);
+    wbTestRegExScript.addListener(SWT.Selection, e -> testRegExScript());
 
     // Variable substitution?
     Label wlUseVar = new Label(wGeneralComp, SWT.NONE);
@@ -629,26 +639,12 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdSash.left = new FormAttachment(0, 0);
     fdSash.top = new FormAttachment(wTransformName, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, -50);
+    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
     wSash.setLayoutData(fdSash);
 
     wSash.setWeights(new int[] {60, 40});
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    Listener lsbTestRegExScript = e -> testRegExScript();
-    wbTestRegExScript.addListener(SWT.Selection, lsbTestRegExScript);
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     // Add listeners
-
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
 
     wTabFolder.setSelection(0);
 

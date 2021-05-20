@@ -65,8 +65,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILEFORMATS =
       new String[] {
-        BaseMessages.getString(PKG, "JobShell.Fileformat.Scripts"),
-        BaseMessages.getString(PKG, "JobShell.Fileformat.All")
+        BaseMessages.getString(PKG, "ActionShell.Fileformat.Scripts"),
+        BaseMessages.getString(PKG, "ActionShell.Fileformat.All")
       };
 
   private Text wName;
@@ -154,7 +154,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobShell.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionShell.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -171,7 +171,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobShell.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionShell.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -196,7 +196,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobShell.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionShell.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -208,7 +208,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Insert Script?
     Label wlInsertScript = new Label(wGeneralComp, SWT.RIGHT);
-    wlInsertScript.setText(BaseMessages.getString(PKG, "JobShell.InsertScript.Label"));
+    wlInsertScript.setText(BaseMessages.getString(PKG, "ActionShell.InsertScript.Label"));
     props.setLook(wlInsertScript);
     FormData fdlInsertScript = new FormData();
     fdlInsertScript.left = new FormAttachment(0, 0);
@@ -216,7 +216,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlInsertScript.right = new FormAttachment(middle, -margin);
     wlInsertScript.setLayoutData(fdlInsertScript);
     wInsertScript = new Button(wGeneralComp, SWT.CHECK);
-    wInsertScript.setToolTipText(BaseMessages.getString(PKG, "JobShell.InsertScript.Tooltip"));
+    wInsertScript.setToolTipText(BaseMessages.getString(PKG, "ActionShell.InsertScript.Tooltip"));
     props.setLook(wInsertScript);
     FormData fdInsertScript = new FormData();
     fdInsertScript.left = new FormAttachment(middle, 0);
@@ -235,7 +235,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     // Filename line
     // /////////////////////
     wlFilename = new Label(wGeneralComp, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobShell.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionShell.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -274,7 +274,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     // Working dir line
     // /////////////////////
     Label wlWorkDirectory = new Label(wGeneralComp, SWT.RIGHT);
-    wlWorkDirectory.setText(BaseMessages.getString(PKG, "JobShell.WorkingDirectory.Label"));
+    wlWorkDirectory.setText(BaseMessages.getString(PKG, "ActionShell.WorkingDirectory.Label"));
     props.setLook(wlWorkDirectory);
     FormData fdlWorkDirectory = new FormData();
     fdlWorkDirectory.left = new FormAttachment(0, 0);
@@ -296,7 +296,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     //
     Group wLogging = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wLogging);
-    wLogging.setText(BaseMessages.getString(PKG, "JobShell.LogSettings.Group.Label"));
+    wLogging.setText(BaseMessages.getString(PKG, "ActionShell.LogSettings.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -306,7 +306,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Set the logfile?
     Label wlSetLogfile = new Label(wLogging, SWT.RIGHT);
-    wlSetLogfile.setText(BaseMessages.getString(PKG, "JobShell.Specify.Logfile.Label"));
+    wlSetLogfile.setText(BaseMessages.getString(PKG, "ActionShell.Specify.Logfile.Label"));
     props.setLook(wlSetLogfile);
     FormData fdlSetLogfile = new FormData();
     fdlSetLogfile.left = new FormAttachment(0, 0);
@@ -330,7 +330,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         });
     // Append logfile?
     wlAppendLogfile = new Label(wLogging, SWT.RIGHT);
-    wlAppendLogfile.setText(BaseMessages.getString(PKG, "JobShell.Append.Logfile.Label"));
+    wlAppendLogfile.setText(BaseMessages.getString(PKG, "ActionShell.Append.Logfile.Label"));
     props.setLook(wlAppendLogfile);
     FormData fdlAppendLogfile = new FormData();
     fdlAppendLogfile.left = new FormAttachment(0, 0);
@@ -338,7 +338,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlAppendLogfile.right = new FormAttachment(middle, -margin);
     wlAppendLogfile.setLayoutData(fdlAppendLogfile);
     wAppendLogfile = new Button(wLogging, SWT.CHECK);
-    wAppendLogfile.setToolTipText(BaseMessages.getString(PKG, "JobShell.Append.Logfile.Tooltip"));
+    wAppendLogfile.setToolTipText(
+        BaseMessages.getString(PKG, "ActionShell.Append.Logfile.Tooltip"));
     props.setLook(wAppendLogfile);
     FormData fdAppendLogfile = new FormData();
     fdAppendLogfile.left = new FormAttachment(middle, 0);
@@ -352,7 +353,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Set the logfile path + base-name
     wlLogfile = new Label(wLogging, SWT.RIGHT);
-    wlLogfile.setText(BaseMessages.getString(PKG, "JobShell.NameOfLogfile.Label"));
+    wlLogfile.setText(BaseMessages.getString(PKG, "ActionShell.NameOfLogfile.Label"));
     props.setLook(wlLogfile);
     FormData fdlLogfile = new FormData();
     fdlLogfile.left = new FormAttachment(0, 0);
@@ -370,7 +371,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Set the logfile filename extention
     wlLogExt = new Label(wLogging, SWT.RIGHT);
-    wlLogExt.setText(BaseMessages.getString(PKG, "JobShell.LogfileExtension.Label"));
+    wlLogExt.setText(BaseMessages.getString(PKG, "ActionShell.LogfileExtension.Label"));
     props.setLook(wlLogExt);
     FormData fdlLogExt = new FormData();
     fdlLogExt.left = new FormAttachment(0, 0);
@@ -388,7 +389,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Add date to logfile name?
     wlAddDate = new Label(wLogging, SWT.RIGHT);
-    wlAddDate.setText(BaseMessages.getString(PKG, "JobShell.Logfile.IncludeDate.Label"));
+    wlAddDate.setText(BaseMessages.getString(PKG, "ActionShell.Logfile.IncludeDate.Label"));
     props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
@@ -412,7 +413,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     // Add time to logfile name?
     wlAddTime = new Label(wLogging, SWT.RIGHT);
-    wlAddTime.setText(BaseMessages.getString(PKG, "JobShell.Logfile.IncludeTime.Label"));
+    wlAddTime.setText(BaseMessages.getString(PKG, "ActionShell.Logfile.IncludeTime.Label"));
     props.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
@@ -435,7 +436,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         });
 
     wlLoglevel = new Label(wLogging, SWT.RIGHT);
-    wlLoglevel.setText(BaseMessages.getString(PKG, "JobShell.Loglevel.Label"));
+    wlLoglevel.setText(BaseMessages.getString(PKG, "ActionShell.Loglevel.Label"));
     props.setLook(wlLoglevel);
     FormData fdlLoglevel = new FormData();
     fdlLoglevel.left = new FormAttachment(0, 0);
@@ -462,7 +463,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////////////////////////////
 
     wlPrevious = new Label(wGeneralComp, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobShell.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionShell.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -472,7 +473,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wPrevious = new Button(wGeneralComp, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobShell.Previous.Tooltip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionShell.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -489,7 +490,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         });
 
     wlEveryRow = new Label(wGeneralComp, SWT.RIGHT);
-    wlEveryRow.setText(BaseMessages.getString(PKG, "JobShell.ExecForEveryInputRow.Label"));
+    wlEveryRow.setText(BaseMessages.getString(PKG, "ActionShell.ExecForEveryInputRow.Label"));
     props.setLook(wlEveryRow);
     FormData fdlEveryRow = new FormData();
     fdlEveryRow.left = new FormAttachment(0, 0);
@@ -499,7 +500,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wEveryRow = new Button(wGeneralComp, SWT.CHECK);
     props.setLook(wEveryRow);
     wEveryRow.setSelection(action.execPerRow);
-    wEveryRow.setToolTipText(BaseMessages.getString(PKG, "JobShell.ExecForEveryInputRow.Tooltip"));
+    wEveryRow.setToolTipText(
+        BaseMessages.getString(PKG, "ActionShell.ExecForEveryInputRow.Tooltip"));
     FormData fdEveryRow = new FormData();
     fdEveryRow.left = new FormAttachment(middle, 0);
     fdEveryRow.top = new FormAttachment(wlEveryRow, 0, SWT.CENTER);
@@ -514,7 +516,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         });
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobShell.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionShell.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -529,7 +531,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     ColumnInfo[] fieldColumns = new ColumnInfo[nrFieldsCols];
     fieldColumns[0] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "JobShell.Fields.Argument.Label"),
+            BaseMessages.getString(PKG, "ActionShell.Fields.Argument.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     fieldColumns[0].setUsingVariables(true);
@@ -574,7 +576,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////
 
     CTabItem wScriptTab = new CTabItem(wTabFolder, SWT.NONE);
-    wScriptTab.setText(BaseMessages.getString(PKG, "JobShell.Tab.Script.Label"));
+    wScriptTab.setText(BaseMessages.getString(PKG, "ActionShell.Tab.Script.Label"));
 
     FormLayout ScriptLayout = new FormLayout();
     ScriptLayout.marginWidth = 3;

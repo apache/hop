@@ -67,8 +67,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobDosToUnix.Filetype.Xml"),
-        BaseMessages.getString(PKG, "JobDosToUnix.Filetype.All")
+        BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.Xml"),
+        BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.All")
       };
 
   private Text wName;
@@ -111,14 +111,13 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     this.action = (ActionDosToUnix) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobDosToUnix.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionDosToUnix.Name.Default"));
     }
   }
 
   @Override
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -132,7 +131,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobDosToUnix.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -149,7 +148,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobDosToUnix.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -173,7 +172,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobDosToUnix.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -190,7 +189,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "JobDosToUnix.Settings.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -199,7 +198,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
-        BaseMessages.getString(PKG, "JobDosToUnix.IncludeSubfolders.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
@@ -209,7 +208,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.IncludeSubfolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
     fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
@@ -224,7 +223,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     // previous
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobDosToUnix.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
@@ -234,7 +233,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wPrevious = new Button(wSettings, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobDosToUnix.Previous.Tooltip"));
+    wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionDosToUnix.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
@@ -259,7 +258,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     // SourceFileFolder line
     wlSourceFileFolder = new Label(wGeneralComp, SWT.RIGHT);
-    wlSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.SourceFileFolder.Label"));
+    wlSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionDosToUnix.SourceFileFolder.Label"));
     props.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
@@ -270,7 +270,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceDirectory);
-    wbSourceDirectory.setText(BaseMessages.getString(PKG, "JobDosToUnix.BrowseFolders.Label"));
+    wbSourceDirectory.setText(BaseMessages.getString(PKG, "ActionDosToUnix.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin);
@@ -282,7 +282,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSourceFileFolder);
-    wbSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.BrowseFiles.Label"));
+    wbSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionDosToUnix.BrowseFiles.Label"));
     FormData fdbSourceFileFolder = new FormData();
     fdbSourceFileFolder.right = new FormAttachment(wbSourceDirectory, -margin);
     fdbSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -291,7 +291,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Browse Destination file add button ...
     wbaSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaSourceFileFolder);
-    wbaSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameAdd.Button"));
+    wbaSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionDosToUnix.FilenameAdd.Button"));
     FormData fdbaSourceFileFolder = new FormData();
     fdbaSourceFileFolder.right = new FormAttachment(wbSourceFileFolder, -margin);
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -299,7 +299,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     wSourceFileFolder = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.SourceFileFolder.Tooltip"));
 
     props.setLook(wSourceFileFolder);
     wSourceFileFolder.addModifyListener(lsMod);
@@ -326,7 +326,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "JobDosToUnix.Wildcard.Label"));
+    wlWildcard.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Wildcard.Label"));
     props.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
@@ -335,7 +335,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlWildcard.setLayoutData(fdlWildcard);
 
     wWildcard = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wWildcard.setToolTipText(BaseMessages.getString(PKG, "JobDosToUnix.Wildcard.Tooltip"));
+    wWildcard.setToolTipText(BaseMessages.getString(PKG, "ActionDosToUnix.Wildcard.Tooltip"));
     props.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
@@ -345,7 +345,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wWildcard.setLayoutData(fdWildcard);
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobDosToUnix.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -356,9 +356,10 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Buttons to the right of the screen...
     wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdSourceFileFolder);
-    wbdSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Button"));
+    wbdSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "ActionDosToUnix.FilenameDelete.Button"));
     wbdSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.FilenameDelete.Tooltip"));
     FormData fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment(100, 0);
     fdbdSourceFileFolder.top = new FormAttachment(wlFields, margin);
@@ -366,9 +367,9 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeSourceFileFolder);
-    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Button"));
+    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "ActionDosToUnix.FilenameEdit.Button"));
     wbeSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.FilenameEdit.Tooltip"));
     FormData fdbeSourceFileFolder = new FormData();
     fdbeSourceFileFolder.right = new FormAttachment(100, 0);
     fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
@@ -384,15 +385,15 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobDosToUnix.Fields.SourceFileFolder.Label"),
+              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.SourceFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobDosToUnix.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobDosToUnix.Fields.ConversionType.Label"),
+              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.ConversionType.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ActionDosToUnix.ConversionTypeDesc,
               false),
@@ -400,9 +401,9 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(
-        BaseMessages.getString(PKG, "JobDosToUnix.Fields.SourceFileFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.Fields.SourceFileFolder.Tooltip"));
     colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "JobDosToUnix.Fields.Wildcard.Tooltip"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionDosToUnix.Fields.Wildcard.Tooltip"));
 
     wFields =
         new TableView(
@@ -486,7 +487,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobDosToUnix.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionDosToUnix.Tab.Advanced.Label"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
@@ -502,7 +503,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wSuccessOn);
-    wSuccessOn.setText(BaseMessages.getString(PKG, "JobDosToUnix.SuccessOn.Group.Label"));
+    wSuccessOn.setText(BaseMessages.getString(PKG, "ActionDosToUnix.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
     successongroupLayout.marginWidth = 10;
@@ -512,7 +513,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     // Success Condition
     Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
-    wlSuccessCondition.setText(BaseMessages.getString(PKG, "JobDosToUnix.SuccessCondition.Label"));
+    wlSuccessCondition.setText(
+        BaseMessages.getString(PKG, "ActionDosToUnix.SuccessCondition.Label"));
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
@@ -521,10 +523,10 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobDosToUnix.SuccessWhenAllWorksFine.Label"));
-    wSuccessCondition.add(BaseMessages.getString(PKG, "JobDosToUnix.SuccessWhenAtLeat.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.SuccessWhenAllWorksFine.Label"));
+    wSuccessCondition.add(BaseMessages.getString(PKG, "ActionDosToUnix.SuccessWhenAtLeat.Label"));
     wSuccessCondition.add(
-        BaseMessages.getString(PKG, "JobDosToUnix.SuccessWhenBadFormedLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.SuccessWhenBadFormedLessThan.Label"));
     wSuccessCondition.select(0); // +1: starts at -1
 
     props.setLook(wSuccessCondition);
@@ -543,7 +545,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
     wlNrErrorsLessThan.setText(
-        BaseMessages.getString(PKG, "JobDosToUnix.NrErrorFilesCountLessThan.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.NrErrorFilesCountLessThan.Label"));
     props.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
@@ -556,7 +558,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobDosToUnix.NrErrorFilesCountLessThan.Tooltip"));
+            BaseMessages.getString(PKG, "ActionDosToUnix.NrErrorFilesCountLessThan.Tooltip"));
     props.setLook(wNrErrorsLessThan);
     wNrErrorsLessThan.addModifyListener(lsMod);
     FormData fdNrErrorsLessThan = new FormData();
@@ -580,7 +582,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobDosToUnix.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionDosToUnix.FileResult.Group.Label"));
 
     FormLayout fileresultgroupLayout = new FormLayout();
     fileresultgroupLayout.marginWidth = 10;
@@ -591,7 +593,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Add Filenames to result filenames?
     Label wlAddFilenameToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFilenameToResult.setText(
-        BaseMessages.getString(PKG, "JobDosToUnix.AddFilenameToResult.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.AddFilenameToResult.Label"));
     props.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
@@ -599,13 +601,14 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdlAddFilenameToResult.top = new FormAttachment(0, margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new CCombo(wFileResult, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wAddFilenameToResult.add(BaseMessages.getString(PKG, "JobDosToUnix.AddNoFilesToResult.Label"));
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobDosToUnix.AddAllFilenamesToResult.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.AddNoFilesToResult.Label"));
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobDosToUnix.AddOnlyProcessedFilenames.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.AddAllFilenamesToResult.Label"));
     wAddFilenameToResult.add(
-        BaseMessages.getString(PKG, "JobDosToUnix.AddOnlyErrorFilenames.Label"));
+        BaseMessages.getString(PKG, "ActionDosToUnix.AddOnlyProcessedFilenames.Label"));
+    wAddFilenameToResult.add(
+        BaseMessages.getString(PKG, "ActionDosToUnix.AddOnlyErrorFilenames.Label"));
     wAddFilenameToResult.select(0); // +1: starts at -1
 
     props.setLook(wAddFilenameToResult);

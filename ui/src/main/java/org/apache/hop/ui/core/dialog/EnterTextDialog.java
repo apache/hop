@@ -111,8 +111,6 @@ public class EnterTextDialog extends Dialog {
   }
 
   public String open() {
-    Display display = parent.getDisplay();
-
     modal |=
         Const.isLinux(); // On Linux, this dialog seems to behave strangely except when shown modal
 

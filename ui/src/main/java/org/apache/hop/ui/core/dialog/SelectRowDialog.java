@@ -86,7 +86,6 @@ public class SelectRowDialog extends Dialog {
 
   public RowMetaAndData open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     props.setLook(shell);

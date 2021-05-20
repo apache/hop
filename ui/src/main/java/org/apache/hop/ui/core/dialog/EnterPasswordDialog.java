@@ -89,7 +89,6 @@ public class EnterPasswordDialog extends Dialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(

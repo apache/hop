@@ -54,7 +54,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
   private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobWaitForFile.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionWaitForFile.Filetype.All")};
 
   private Text wName;
 
@@ -80,13 +80,12 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     super(parent, workflowMeta, variables);
     this.action = (ActionWaitForFile) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobWaitForFile.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionWaitForFile.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -100,14 +99,14 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobWaitForFile.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionWaitForFile.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobWaitForFile.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionWaitForFile.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -125,7 +124,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
 
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobWaitForFile.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionWaitForFile.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -162,7 +161,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
 
     // Maximum timeout
     Label wlMaximumTimeout = new Label(shell, SWT.RIGHT);
-    wlMaximumTimeout.setText(BaseMessages.getString(PKG, "JobWaitForFile.MaximumTimeout.Label"));
+    wlMaximumTimeout.setText(BaseMessages.getString(PKG, "ActionWaitForFile.MaximumTimeout.Label"));
     props.setLook(wlMaximumTimeout);
     FormData fdlMaximumTimeout = new FormData();
     fdlMaximumTimeout.left = new FormAttachment(0, 0);
@@ -172,7 +171,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wMaximumTimeout = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMaximumTimeout);
     wMaximumTimeout.setToolTipText(
-        BaseMessages.getString(PKG, "JobWaitForFile.MaximumTimeout.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.MaximumTimeout.Tooltip"));
     wMaximumTimeout.addModifyListener(lsMod);
     FormData fdMaximumTimeout = new FormData();
     fdMaximumTimeout.left = new FormAttachment(middle, 0);
@@ -182,7 +181,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
 
     // Cycle time
     Label wlCheckCycleTime = new Label(shell, SWT.RIGHT);
-    wlCheckCycleTime.setText(BaseMessages.getString(PKG, "JobWaitForFile.CheckCycleTime.Label"));
+    wlCheckCycleTime.setText(BaseMessages.getString(PKG, "ActionWaitForFile.CheckCycleTime.Label"));
     props.setLook(wlCheckCycleTime);
     FormData fdlCheckCycleTime = new FormData();
     fdlCheckCycleTime.left = new FormAttachment(0, 0);
@@ -192,7 +191,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wCheckCycleTime = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wCheckCycleTime);
     wCheckCycleTime.setToolTipText(
-        BaseMessages.getString(PKG, "JobWaitForFile.CheckCycleTime.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.CheckCycleTime.Tooltip"));
     wCheckCycleTime.addModifyListener(lsMod);
     FormData fdCheckCycleTime = new FormData();
     fdCheckCycleTime.left = new FormAttachment(middle, 0);
@@ -203,7 +202,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     // Success on timeout
     Label wlSuccessOnTimeout = new Label(shell, SWT.RIGHT);
     wlSuccessOnTimeout.setText(
-        BaseMessages.getString(PKG, "JobWaitForFile.SuccessOnTimeout.Label"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.SuccessOnTimeout.Label"));
     props.setLook(wlSuccessOnTimeout);
     FormData fdlSuccessOnTimeout = new FormData();
     fdlSuccessOnTimeout.left = new FormAttachment(0, 0);
@@ -213,7 +212,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wSuccessOnTimeout = new Button(shell, SWT.CHECK);
     props.setLook(wSuccessOnTimeout);
     wSuccessOnTimeout.setToolTipText(
-        BaseMessages.getString(PKG, "JobWaitForFile.SuccessOnTimeout.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.SuccessOnTimeout.Tooltip"));
     FormData fdSuccessOnTimeout = new FormData();
     fdSuccessOnTimeout.left = new FormAttachment(middle, 0);
     fdSuccessOnTimeout.top = new FormAttachment(wlSuccessOnTimeout, 0, SWT.CENTER);
@@ -228,7 +227,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
 
     // Check file size
     Label wlFileSizeCheck = new Label(shell, SWT.RIGHT);
-    wlFileSizeCheck.setText(BaseMessages.getString(PKG, "JobWaitForFile.FileSizeCheck.Label"));
+    wlFileSizeCheck.setText(BaseMessages.getString(PKG, "ActionWaitForFile.FileSizeCheck.Label"));
     props.setLook(wlFileSizeCheck);
     FormData fdlFileSizeCheck = new FormData();
     fdlFileSizeCheck.left = new FormAttachment(0, 0);
@@ -238,7 +237,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wFileSizeCheck = new Button(shell, SWT.CHECK);
     props.setLook(wFileSizeCheck);
     wFileSizeCheck.setToolTipText(
-        BaseMessages.getString(PKG, "JobWaitForFile.FileSizeCheck.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.FileSizeCheck.Tooltip"));
     FormData fdFileSizeCheck = new FormData();
     fdFileSizeCheck.left = new FormAttachment(middle, 0);
     fdFileSizeCheck.top = new FormAttachment(wlFileSizeCheck, 0, SWT.CENTER);
@@ -254,7 +253,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     // Add filename to result filenames
     Label wlAddFilenameResult = new Label(shell, SWT.RIGHT);
     wlAddFilenameResult.setText(
-        BaseMessages.getString(PKG, "JobWaitForFile.AddFilenameResult.Label"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.AddFilenameResult.Label"));
     props.setLook(wlAddFilenameResult);
     FormData fdlAddFilenameResult = new FormData();
     fdlAddFilenameResult.left = new FormAttachment(0, 0);
@@ -264,7 +263,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wAddFilenameResult = new Button(shell, SWT.CHECK);
     props.setLook(wAddFilenameResult);
     wAddFilenameResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobWaitForFile.AddFilenameResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionWaitForFile.AddFilenameResult.Tooltip"));
     FormData fdAddFilenameResult = new FormData();
     fdAddFilenameResult.left = new FormAttachment(middle, 0);
     fdAddFilenameResult.top = new FormAttachment(wlAddFilenameResult, 0, SWT.CENTER);

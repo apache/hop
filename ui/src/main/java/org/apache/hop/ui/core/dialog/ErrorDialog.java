@@ -113,7 +113,6 @@ public class ErrorDialog extends Dialog {
     }
     this.props = PropsUi.getInstance();
 
-    Display display = parent.getDisplay();
     final Font largeFont = GuiResource.getInstance().getFontBold();
     final Color gray = GuiResource.getInstance().getColorDemoGray();
 

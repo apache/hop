@@ -174,7 +174,6 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -384,7 +383,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wOutputField, margin);
+    fdlFilename.top = new FormAttachment(wOutputField, 2 * margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -395,7 +394,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wOutputField, margin);
+    fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
@@ -404,7 +403,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wbaFilename.setToolTipText(BaseMessages.getString(PKG, "GetXMLDataDialog.FilenameAdd.Tooltip"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbbFilename, -margin);
-    fdbaFilename.top = new FormAttachment(wOutputField, margin);
+    fdbaFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -413,7 +412,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbaFilename, -margin);
-    fdFilename.top = new FormAttachment(wOutputField, margin);
+    fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
@@ -429,8 +428,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
-    fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(100, 0);
+    fdFilemask.top = new FormAttachment(wlFilemask, 0, SWT.CENTER);
+    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
     wFilemask.setLayoutData(fdFilemask);
 
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
@@ -469,7 +468,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString(PKG, "GetXMLDataDialog.FilenameRemove.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wExcludeFilemask, 40);
+    fdbdFilename.top = new FormAttachment(wExcludeFilemask, margin);
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);

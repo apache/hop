@@ -48,14 +48,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES_XML =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryXSDValidator.Filetype.Xml"),
-        BaseMessages.getString(PKG, "JobEntryXSDValidator.Filetype.All")
+        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xml"),
+        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
       };
 
   private static final String[] FILETYPES_XSD =
       new String[] {
-        BaseMessages.getString(PKG, "JobEntryXSDValidator.Filetype.Xsd"),
-        BaseMessages.getString(PKG, "JobEntryXSDValidator.Filetype.All")
+        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xsd"),
+        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
       };
 
   private Text wName;
@@ -76,19 +76,16 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (XsdValidator) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobEntryXSDValidator.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionXSDValidator.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -98,14 +95,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobEntryXSDValidator.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionXSDValidator.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobEntryXSDValidator.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionXSDValidator.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -124,7 +121,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     // Enable/Disable external entity for XSD validation.
     Label wlAllowExternalEntities = new Label(shell, SWT.RIGHT);
     wlAllowExternalEntities.setText(
-        BaseMessages.getString(PKG, "JobEntryXSDValidator.AllowExternalEntities.Label"));
+        BaseMessages.getString(PKG, "ActionXSDValidator.AllowExternalEntities.Label"));
     props.setLook(wlAllowExternalEntities);
     FormData fdlAllowExternalEntities = new FormData();
     fdlAllowExternalEntities.left = new FormAttachment(0, 0);
@@ -147,7 +144,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     // Filename 1 line
     Label wlxmlFilename = new Label(shell, SWT.RIGHT);
-    wlxmlFilename.setText(BaseMessages.getString(PKG, "JobEntryXSDValidator.xmlFilename.Label"));
+    wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionXSDValidator.xmlFilename.Label"));
     props.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
@@ -192,7 +189,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     // Filename 2 line
     Label wlxsdFilename = new Label(shell, SWT.RIGHT);
-    wlxsdFilename.setText(BaseMessages.getString(PKG, "JobEntryXSDValidator.xsdFilename.Label"));
+    wlxsdFilename.setText(BaseMessages.getString(PKG, "ActionXSDValidator.xsdFilename.Label"));
     props.setLook(wlxsdFilename);
     FormData fdlxsdFilename = new FormData();
     fdlxsdFilename.left = new FormAttachment(0, 0);

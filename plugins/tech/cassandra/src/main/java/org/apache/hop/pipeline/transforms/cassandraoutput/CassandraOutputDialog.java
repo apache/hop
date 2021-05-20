@@ -113,7 +113,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   public String open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
@@ -593,31 +592,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    // If you hit enter in a text field: confirm and close
-    //
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
-
-    wConnection.addListener(SWT.DefaultSelection, e -> ok());
-
-    wTable.addListener(SWT.DefaultSelection, e -> ok());
-    wConsistency.addListener(SWT.DefaultSelection, e -> ok());
-    wBatchSize.addListener(SWT.DefaultSelection, e -> ok());
-    wBatchInsertTimeout.addListener(SWT.DefaultSelection, e -> ok());
-    wSubBatchSize.addListener(SWT.DefaultSelection, e -> ok());
-    wTtlValue.addListener(SWT.DefaultSelection, e -> ok());
-    wKeyField.addListener(SWT.DefaultSelection, e -> ok());
-
-    wWithClause.addListener(SWT.DefaultSelection, e -> ok());
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     wTabFolder.setSelection(0);
 

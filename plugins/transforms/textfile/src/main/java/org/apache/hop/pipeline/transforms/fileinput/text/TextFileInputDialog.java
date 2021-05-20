@@ -269,7 +269,6 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -589,7 +588,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         BaseMessages.getString(PKG, "TextFileInputDialog.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wExcludeFilemask, 40);
+    fdbdFilename.top = new FormAttachment(wExcludeFilemask, margin);
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);

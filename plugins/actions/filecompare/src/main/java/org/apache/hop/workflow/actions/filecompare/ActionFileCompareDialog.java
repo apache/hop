@@ -47,7 +47,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
   private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobFileCompare.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionFileCompare.Filetype.All")};
 
   private Text wName;
 
@@ -66,13 +66,12 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     super(parent, workflowMeta, variables);
     this.action = (ActionFileCompare) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobFileCompare.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionFileCompare.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -86,24 +85,14 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobFileCompare.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionFileCompare.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobFileCompare.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionFileCompare.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -121,7 +110,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
     // Filename 1 line
     Label wlFilename1 = new Label(shell, SWT.RIGHT);
-    wlFilename1.setText(BaseMessages.getString(PKG, "JobFileCompare.Filename1.Label"));
+    wlFilename1.setText(BaseMessages.getString(PKG, "ActionFileCompare.Filename1.Label"));
     props.setLook(wlFilename1);
     FormData fdlFilename1 = new FormData();
     fdlFilename1.left = new FormAttachment(0, 0);
@@ -156,7 +145,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
     // Filename 2 line
     Label wlFilename2 = new Label(shell, SWT.RIGHT);
-    wlFilename2.setText(BaseMessages.getString(PKG, "JobFileCompare.Filename2.Label"));
+    wlFilename2.setText(BaseMessages.getString(PKG, "ActionFileCompare.Filename2.Label"));
     props.setLook(wlFilename2);
     FormData fdlFilename2 = new FormData();
     fdlFilename2.left = new FormAttachment(0, 0);
@@ -192,7 +181,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     // Add filename to result filenames
     Label wlAddFilenameResult = new Label(shell, SWT.RIGHT);
     wlAddFilenameResult.setText(
-        BaseMessages.getString(PKG, "JobFileCompare.AddFilenameResult.Label"));
+        BaseMessages.getString(PKG, "ActionFileCompare.AddFilenameResult.Label"));
     props.setLook(wlAddFilenameResult);
     FormData fdlAddFilenameResult = new FormData();
     fdlAddFilenameResult.left = new FormAttachment(0, 0);
@@ -202,7 +191,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wAddFilenameResult = new Button(shell, SWT.CHECK);
     props.setLook(wAddFilenameResult);
     wAddFilenameResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobFileCompare.AddFilenameResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionFileCompare.AddFilenameResult.Tooltip"));
     FormData fdAddFilenameResult = new FormData();
     fdAddFilenameResult.left = new FormAttachment(middle, 0);
     fdAddFilenameResult.top = new FormAttachment(wlAddFilenameResult, 0, SWT.CENTER);
@@ -214,6 +203,17 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
             action.setChanged();
           }
         });
+
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, margin, wAddFilenameResult);
 
     getData();
 

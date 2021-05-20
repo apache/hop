@@ -80,13 +80,12 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionPing) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobPing.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionPing.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -100,24 +99,14 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobPing.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionPing.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobPing.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionPing.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -135,7 +124,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
-    wlHostname.setText(BaseMessages.getString(PKG, "JobPing.Hostname.Label"));
+    wlHostname.setText(BaseMessages.getString(PKG, "ActionPing.Hostname.Label"));
     props.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, 0);
@@ -157,7 +146,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
         e -> wHostname.setToolTipText(variables.resolve(wHostname.getText())));
 
     Label wlPingType = new Label(shell, SWT.RIGHT);
-    wlPingType.setText(BaseMessages.getString(PKG, "JobPing.PingType.Label"));
+    wlPingType.setText(BaseMessages.getString(PKG, "ActionPing.PingType.Label"));
     props.setLook(wlPingType);
     FormData fdlPingType = new FormData();
     fdlPingType.left = new FormAttachment(0, 0);
@@ -165,9 +154,9 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlPingType.top = new FormAttachment(wHostname, margin);
     wlPingType.setLayoutData(fdlPingType);
     wPingType = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wPingType.add(BaseMessages.getString(PKG, "JobPing.ClassicPing.Label"));
-    wPingType.add(BaseMessages.getString(PKG, "JobPing.SystemPing.Label"));
-    wPingType.add(BaseMessages.getString(PKG, "JobPing.BothPings.Label"));
+    wPingType.add(BaseMessages.getString(PKG, "ActionPing.ClassicPing.Label"));
+    wPingType.add(BaseMessages.getString(PKG, "ActionPing.SystemPing.Label"));
+    wPingType.add(BaseMessages.getString(PKG, "ActionPing.BothPings.Label"));
     wPingType.select(1); // +1: starts at -1
     props.setLook(wPingType);
     FormData fdPingType = new FormData();
@@ -185,7 +174,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     // Timeout
     wlTimeOut = new Label(shell, SWT.RIGHT);
-    wlTimeOut.setText(BaseMessages.getString(PKG, "JobPing.TimeOut.Label"));
+    wlTimeOut.setText(BaseMessages.getString(PKG, "ActionPing.TimeOut.Label"));
     props.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
@@ -194,7 +183,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wlTimeOut.setLayoutData(fdlTimeOut);
 
     wTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wlTimeOut.setToolTipText(BaseMessages.getString(PKG, "JobPing.TimeOut.Tooltip"));
+    wlTimeOut.setToolTipText(BaseMessages.getString(PKG, "ActionPing.TimeOut.Tooltip"));
     props.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
@@ -205,7 +194,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     // Nbr packets to send
     wlNbrPackets = new Label(shell, SWT.RIGHT);
-    wlNbrPackets.setText(BaseMessages.getString(PKG, "JobPing.NrPackets.Label"));
+    wlNbrPackets.setText(BaseMessages.getString(PKG, "ActionPing.NrPackets.Label"));
     props.setLook(wlNbrPackets);
     FormData fdlNbrPackets = new FormData();
     fdlNbrPackets.left = new FormAttachment(0, 0);
@@ -221,6 +210,17 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdNbrPackets.top = new FormAttachment(wTimeOut, margin);
     fdNbrPackets.right = new FormAttachment(100, 0);
     wNbrPackets.setLayoutData(fdNbrPackets);
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, margin, wNbrPackets);
 
     getData();
     setPingType();

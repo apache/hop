@@ -32,11 +32,15 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ClosureGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ClosureGeneratorDialog.class; // For Translator
@@ -62,7 +66,6 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -202,13 +205,12 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
     setButtonPositions(
         new Button[] {
           wOk, wCancel,
         },
-        margin,
-        null);
+        2 * margin,
+        wRootZero);
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());

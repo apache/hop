@@ -77,10 +77,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] IMAGES_FILE_TYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobMail.Filetype.Png"),
-        BaseMessages.getString(PKG, "JobMail.Filetype.Jpeg"),
-        BaseMessages.getString(PKG, "JobMail.Filetype.Gif"),
-        BaseMessages.getString(PKG, "JobMail.Filetype.All")
+        BaseMessages.getString(PKG, "ActionMail.Filetype.Png"),
+        BaseMessages.getString(PKG, "ActionMail.Filetype.Jpeg"),
+        BaseMessages.getString(PKG, "ActionMail.Filetype.Gif"),
+        BaseMessages.getString(PKG, "ActionMail.Filetype.All")
       };
 
   private LabelText wName;
@@ -169,13 +169,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     backupChanged = action.hasChanged();
@@ -186,7 +183,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobMail.Header"));
+    shell.setText(BaseMessages.getString(PKG, "ActionMail.Header"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -205,8 +202,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wName =
         new LabelText(
             shell,
-            BaseMessages.getString(PKG, "JobMail.NameOfEntry.Label"),
-            BaseMessages.getString(PKG, "JobMail.NameOfEntry.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.NameOfEntry.Label"),
+            BaseMessages.getString(PKG, "ActionMail.NameOfEntry.Tooltip"));
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, 0);
@@ -222,7 +219,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobMail.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionMail.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -239,7 +236,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     Group wDestinationGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wDestinationGroup);
     wDestinationGroup.setText(
-        BaseMessages.getString(PKG, "JobMail.Group.DestinationAddress.Label"));
+        BaseMessages.getString(PKG, "ActionMail.Group.DestinationAddress.Label"));
 
     FormLayout destinationgroupLayout = new FormLayout();
     destinationgroupLayout.marginWidth = 10;
@@ -251,8 +248,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wDestinationGroup,
-            BaseMessages.getString(PKG, "JobMail.DestinationAddress.Label"),
-            BaseMessages.getString(PKG, "JobMail.DestinationAddress.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddress.Label"),
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddress.Tooltip"));
     wDestination.addModifyListener(lsMod);
     FormData fdDestination = new FormData();
     fdDestination.left = new FormAttachment(0, 0);
@@ -265,8 +262,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wDestinationGroup,
-            BaseMessages.getString(PKG, "JobMail.DestinationAddressCc.Label"),
-            BaseMessages.getString(PKG, "JobMail.DestinationAddressCc.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddressCc.Label"),
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddressCc.Tooltip"));
     wDestinationCc.addModifyListener(lsMod);
     FormData fdDestinationCc = new FormData();
     fdDestinationCc.left = new FormAttachment(0, 0);
@@ -279,8 +276,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wDestinationGroup,
-            BaseMessages.getString(PKG, "JobMail.DestinationAddressBCc.Label"),
-            BaseMessages.getString(PKG, "JobMail.DestinationAddressBCc.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddressBCc.Label"),
+            BaseMessages.getString(PKG, "ActionMail.DestinationAddressBCc.Tooltip"));
     wDestinationBCc.addModifyListener(lsMod);
     FormData fdDestinationBCc = new FormData();
     fdDestinationBCc.left = new FormAttachment(0, 0);
@@ -304,7 +301,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     Group wReplyGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wReplyGroup);
-    wReplyGroup.setText(BaseMessages.getString(PKG, "JobMail.Group.Reply.Label"));
+    wReplyGroup.setText(BaseMessages.getString(PKG, "ActionMail.Group.Reply.Label"));
 
     FormLayout replygroupLayout = new FormLayout();
     replygroupLayout.marginWidth = 10;
@@ -316,8 +313,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wReplyGroup,
-            BaseMessages.getString(PKG, "JobMail.ReplyName.Label"),
-            BaseMessages.getString(PKG, "JobMail.ReplyName.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ReplyName.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ReplyName.Tooltip"));
     wReplyName.addModifyListener(lsMod);
     FormData fdReplyName = new FormData();
     fdReplyName.left = new FormAttachment(0, 0);
@@ -330,8 +327,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wReplyGroup,
-            BaseMessages.getString(PKG, "JobMail.ReplyAddress.Label"),
-            BaseMessages.getString(PKG, "JobMail.ReplyAddress.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ReplyAddress.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ReplyAddress.Tooltip"));
     wReply.addModifyListener(lsMod);
     FormData fdReply = new FormData();
     fdReply.left = new FormAttachment(0, 0);
@@ -354,8 +351,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wGeneralComp,
-            BaseMessages.getString(PKG, "JobMail.ReplyToAddress.Label"),
-            BaseMessages.getString(PKG, "JobMail.ReplyToAddress.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ReplyToAddress.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ReplyToAddress.Tooltip"));
     wReplyToAddress.addModifyListener(lsMod);
     FormData fdReplyToAddress = new FormData();
     fdReplyToAddress.left = new FormAttachment(0, 0);
@@ -368,8 +365,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wGeneralComp,
-            BaseMessages.getString(PKG, "JobMail.ContactPerson.Label"),
-            BaseMessages.getString(PKG, "JobMail.ContactPerson.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ContactPerson.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ContactPerson.Tooltip"));
     wPerson.addModifyListener(lsMod);
     FormData fdPerson = new FormData();
     fdPerson.left = new FormAttachment(0, 0);
@@ -382,8 +379,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wGeneralComp,
-            BaseMessages.getString(PKG, "JobMail.ContactPhone.Label"),
-            BaseMessages.getString(PKG, "JobMail.ContactPhone.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ContactPhone.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ContactPhone.Tooltip"));
     wPhone.addModifyListener(lsMod);
     FormData fdPhone = new FormData();
     fdPhone.left = new FormAttachment(0, 0);
@@ -411,7 +408,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////
 
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
-    wContentTab.setText(BaseMessages.getString(PKG, "JobMailDialog.Server.Label"));
+    wContentTab.setText(BaseMessages.getString(PKG, "ActionMailDialog.Server.Label"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
@@ -427,7 +424,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     Group wServerGroup = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wServerGroup);
-    wServerGroup.setText(BaseMessages.getString(PKG, "JobMail.Group.SMTPServer.Label"));
+    wServerGroup.setText(BaseMessages.getString(PKG, "ActionMail.Group.SMTPServer.Label"));
 
     FormLayout servergroupLayout = new FormLayout();
     servergroupLayout.marginWidth = 10;
@@ -439,8 +436,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerGroup,
-            BaseMessages.getString(PKG, "JobMail.SMTPServer.Label"),
-            BaseMessages.getString(PKG, "JobMail.SMTPServer.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.SMTPServer.Label"),
+            BaseMessages.getString(PKG, "ActionMail.SMTPServer.Tooltip"));
     wServer.addModifyListener(lsMod);
     FormData fdServer = new FormData();
     fdServer.left = new FormAttachment(0, 0);
@@ -453,8 +450,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerGroup,
-            BaseMessages.getString(PKG, "JobMail.Port.Label"),
-            BaseMessages.getString(PKG, "JobMail.Port.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.Port.Label"),
+            BaseMessages.getString(PKG, "ActionMail.Port.Tooltip"));
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment(0, 0);
@@ -479,7 +476,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     Group wAuthentificationGroup = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wAuthentificationGroup);
     wAuthentificationGroup.setText(
-        BaseMessages.getString(PKG, "JobMail.Group.Authentification.Label"));
+        BaseMessages.getString(PKG, "ActionMail.Group.Authentification.Label"));
 
     FormLayout authentificationgroupLayout = new FormLayout();
     authentificationgroupLayout.marginWidth = 10;
@@ -488,7 +485,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Authentication?
     Label wlUseAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlUseAuth.setText(BaseMessages.getString(PKG, "JobMail.UseAuthentication.Label"));
+    wlUseAuth.setText(BaseMessages.getString(PKG, "ActionMail.UseAuthentication.Label"));
     props.setLook(wlUseAuth);
     FormData fdlUseAuth = new FormData();
     fdlUseAuth.left = new FormAttachment(0, 0);
@@ -515,8 +512,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wAuthentificationGroup,
-            BaseMessages.getString(PKG, "JobMail.AuthenticationUser.Label"),
-            BaseMessages.getString(PKG, "JobMail.AuthenticationUser.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.AuthenticationUser.Label"),
+            BaseMessages.getString(PKG, "ActionMail.AuthenticationUser.Tooltip"));
     wAuthUser.addModifyListener(lsMod);
     FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(0, 0);
@@ -529,8 +526,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wAuthentificationGroup,
-            BaseMessages.getString(PKG, "JobMail.AuthenticationPassword.Label"),
-            BaseMessages.getString(PKG, "JobMail.AuthenticationPassword.Tooltip"),
+            BaseMessages.getString(PKG, "ActionMail.AuthenticationPassword.Label"),
+            BaseMessages.getString(PKG, "ActionMail.AuthenticationPassword.Tooltip"),
             true);
     wAuthPass.addModifyListener(lsMod);
     FormData fdAuthPass = new FormData();
@@ -541,7 +538,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Use secure authentication?
     wlUseSecAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlUseSecAuth.setText(BaseMessages.getString(PKG, "JobMail.UseSecAuthentication.Label"));
+    wlUseSecAuth.setText(BaseMessages.getString(PKG, "ActionMail.UseSecAuthentication.Label"));
     props.setLook(wlUseSecAuth);
     FormData fdlUseSecAuth = new FormData();
     fdlUseSecAuth.left = new FormAttachment(0, 0);
@@ -566,7 +563,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // SecureConnectionType
     wlSecureConnectionType = new Label(wAuthentificationGroup, SWT.RIGHT);
     wlSecureConnectionType.setText(
-        BaseMessages.getString(PKG, "JobMail.SecureConnectionType.Label"));
+        BaseMessages.getString(PKG, "ActionMail.SecureConnectionType.Label"));
     props.setLook(wlSecureConnectionType);
     FormData fdlSecureConnectionType = new FormData();
     fdlSecureConnectionType.left = new FormAttachment(0, 0);
@@ -624,7 +621,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////
 
     CTabItem wMessageTab = new CTabItem(wTabFolder, SWT.NONE);
-    wMessageTab.setText(BaseMessages.getString(PKG, "JobMail.Tab.Message.Label"));
+    wMessageTab.setText(BaseMessages.getString(PKG, "ActionMail.Tab.Message.Label"));
 
     FormLayout messageLayout = new FormLayout();
     messageLayout.marginWidth = 3;
@@ -641,7 +638,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     Group wMessageSettingsGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
     props.setLook(wMessageSettingsGroup);
     wMessageSettingsGroup.setText(
-        BaseMessages.getString(PKG, "JobMail.Group.MessageSettings.Label"));
+        BaseMessages.getString(PKG, "ActionMail.Group.MessageSettings.Label"));
 
     FormLayout messagesettingsgroupLayout = new FormLayout();
     messagesettingsgroupLayout.marginWidth = 10;
@@ -650,7 +647,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Add date to logfile name?
     Label wlAddDate = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlAddDate.setText(BaseMessages.getString(PKG, "JobMail.IncludeDate.Label"));
+    wlAddDate.setText(BaseMessages.getString(PKG, "ActionMail.IncludeDate.Label"));
     props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
@@ -673,7 +670,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Only send the comment in the mail body
     Label wlOnlyComment = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlOnlyComment.setText(BaseMessages.getString(PKG, "JobMail.OnlyCommentInBody.Label"));
+    wlOnlyComment.setText(BaseMessages.getString(PKG, "ActionMail.OnlyCommentInBody.Label"));
     props.setLook(wlOnlyComment);
     FormData fdlOnlyComment = new FormData();
     fdlOnlyComment.left = new FormAttachment(0, 0);
@@ -696,7 +693,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // HTML format ?
     Label wlUseHTML = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlUseHTML.setText(BaseMessages.getString(PKG, "JobMail.UseHTMLInBody.Label"));
+    wlUseHTML.setText(BaseMessages.getString(PKG, "ActionMail.UseHTMLInBody.Label"));
     props.setLook(wlUseHTML);
     FormData fdlUseHTML = new FormData();
     fdlUseHTML.left = new FormAttachment(0, 0);
@@ -720,7 +717,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Encoding
     wlEncoding = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlEncoding.setText(BaseMessages.getString(PKG, "JobMail.Encoding.Label"));
+    wlEncoding.setText(BaseMessages.getString(PKG, "ActionMail.Encoding.Label"));
     props.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
@@ -751,7 +748,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Use Priority ?
     Label wlUsePriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlUsePriority.setText(BaseMessages.getString(PKG, "JobMail.UsePriority.Label"));
+    wlUsePriority.setText(BaseMessages.getString(PKG, "ActionMail.UsePriority.Label"));
     props.setLook(wlUsePriority);
     FormData fdlPriority = new FormData();
     fdlPriority.left = new FormAttachment(0, 0);
@@ -759,7 +756,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlPriority.right = new FormAttachment(middle, -margin);
     wlUsePriority.setLayoutData(fdlPriority);
     wUsePriority = new Button(wMessageSettingsGroup, SWT.CHECK);
-    wUsePriority.setToolTipText(BaseMessages.getString(PKG, "JobMail.UsePriority.Tooltip"));
+    wUsePriority.setToolTipText(BaseMessages.getString(PKG, "ActionMail.UsePriority.Tooltip"));
     props.setLook(wUsePriority);
     FormData fdUsePriority = new FormData();
     fdUsePriority.left = new FormAttachment(middle, margin);
@@ -776,7 +773,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Priority
     wlPriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlPriority.setText(BaseMessages.getString(PKG, "JobMail.Priority.Label"));
+    wlPriority.setText(BaseMessages.getString(PKG, "ActionMail.Priority.Label"));
     props.setLook(wlPriority);
     fdlPriority = new FormData();
     fdlPriority.left = new FormAttachment(0, 0);
@@ -784,9 +781,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlPriority.top = new FormAttachment(wlUsePriority, 2 * margin);
     wlPriority.setLayoutData(fdlPriority);
     wPriority = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wPriority.add(BaseMessages.getString(PKG, "JobMail.Priority.Low.Label"));
-    wPriority.add(BaseMessages.getString(PKG, "JobMail.Priority.Normal.Label"));
-    wPriority.add(BaseMessages.getString(PKG, "JobMail.Priority.High.Label"));
+    wPriority.add(BaseMessages.getString(PKG, "ActionMail.Priority.Low.Label"));
+    wPriority.add(BaseMessages.getString(PKG, "ActionMail.Priority.Normal.Label"));
+    wPriority.add(BaseMessages.getString(PKG, "ActionMail.Priority.High.Label"));
     wPriority.select(1); // +1: starts at -1
     props.setLook(wPriority);
     FormData fdPriority = new FormData();
@@ -797,7 +794,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Importance
     wlImportance = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlImportance.setText(BaseMessages.getString(PKG, "JobMail.Importance.Label"));
+    wlImportance.setText(BaseMessages.getString(PKG, "ActionMail.Importance.Label"));
     props.setLook(wlImportance);
     FormData fdlImportance = new FormData();
     fdlImportance.left = new FormAttachment(0, 0);
@@ -805,9 +802,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlImportance.top = new FormAttachment(wPriority, margin);
     wlImportance.setLayoutData(fdlImportance);
     wImportance = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wImportance.add(BaseMessages.getString(PKG, "JobMail.Priority.Low.Label"));
-    wImportance.add(BaseMessages.getString(PKG, "JobMail.Priority.Normal.Label"));
-    wImportance.add(BaseMessages.getString(PKG, "JobMail.Priority.High.Label"));
+    wImportance.add(BaseMessages.getString(PKG, "ActionMail.Priority.Low.Label"));
+    wImportance.add(BaseMessages.getString(PKG, "ActionMail.Priority.Normal.Label"));
+    wImportance.add(BaseMessages.getString(PKG, "ActionMail.Priority.High.Label"));
 
     wImportance.select(1); // +1: starts at -1
 
@@ -820,7 +817,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Sensitivity
     wlSensitivity = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlSensitivity.setText(BaseMessages.getString(PKG, "JobMail.Sensitivity.Label"));
+    wlSensitivity.setText(BaseMessages.getString(PKG, "ActionMail.Sensitivity.Label"));
     props.setLook(wlSensitivity);
     FormData fdlSensitivity = new FormData();
     fdlSensitivity.left = new FormAttachment(0, 0);
@@ -828,10 +825,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlSensitivity.top = new FormAttachment(wImportance, margin);
     wlSensitivity.setLayoutData(fdlSensitivity);
     wSensitivity = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wSensitivity.add(BaseMessages.getString(PKG, "JobMail.Sensitivity.normal.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "JobMail.Sensitivity.personal.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "JobMail.Sensitivity.private.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "JobMail.Sensitivity.confidential.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "ActionMail.Sensitivity.normal.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "ActionMail.Sensitivity.personal.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "ActionMail.Sensitivity.private.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "ActionMail.Sensitivity.confidential.Label"));
     wSensitivity.select(0);
 
     props.setLook(wSensitivity);
@@ -857,7 +854,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     Group wMessageGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
     props.setLook(wMessageGroup);
-    wMessageGroup.setText(BaseMessages.getString(PKG, "JobMail.Group.Message.Label"));
+    wMessageGroup.setText(BaseMessages.getString(PKG, "ActionMail.Group.Message.Label"));
 
     FormLayout messagegroupLayout = new FormLayout();
     messagegroupLayout.marginWidth = 10;
@@ -869,8 +866,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wMessageGroup,
-            BaseMessages.getString(PKG, "JobMail.Subject.Label"),
-            BaseMessages.getString(PKG, "JobMail.Subject.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.Subject.Label"),
+            BaseMessages.getString(PKG, "ActionMail.Subject.Tooltip"));
     wSubject.addModifyListener(lsMod);
     FormData fdSubject = new FormData();
     fdSubject.left = new FormAttachment(0, 0);
@@ -880,7 +877,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Comment line
     Label wlComment = new Label(wMessageGroup, SWT.RIGHT);
-    wlComment.setText(BaseMessages.getString(PKG, "JobMail.Comment.Label"));
+    wlComment.setText(BaseMessages.getString(PKG, "ActionMail.Comment.Label"));
     props.setLook(wlComment);
     FormData fdlComment = new FormData();
     fdlComment.left = new FormAttachment(0, 0);
@@ -932,7 +929,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // ///////////////////////////////////
 
     CTabItem wAttachedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAttachedTab.setText(BaseMessages.getString(PKG, "JobMail.Tab.AttachedFiles.Label"));
+    wAttachedTab.setText(BaseMessages.getString(PKG, "ActionMail.Tab.AttachedFiles.Label"));
 
     FormLayout attachedLayout = new FormLayout();
     attachedLayout.marginWidth = 3;
@@ -948,7 +945,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     Group wResultFilesGroup = new Group(wAttachedComp, SWT.SHADOW_NONE);
     props.setLook(wResultFilesGroup);
-    wResultFilesGroup.setText(BaseMessages.getString(PKG, "JobMail.Group.AddPreviousFiles.Label"));
+    wResultFilesGroup.setText(
+        BaseMessages.getString(PKG, "ActionMail.Group.AddPreviousFiles.Label"));
 
     FormLayout resultfilesgroupLayout = new FormLayout();
     resultfilesgroupLayout.marginWidth = 10;
@@ -957,7 +955,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Include Files?
     Label wlIncludeFiles = new Label(wResultFilesGroup, SWT.RIGHT);
-    wlIncludeFiles.setText(BaseMessages.getString(PKG, "JobMail.AttachFiles.Label"));
+    wlIncludeFiles.setText(BaseMessages.getString(PKG, "ActionMail.AttachFiles.Label"));
     props.setLook(wlIncludeFiles);
     FormData fdlIncludeFiles = new FormData();
     fdlIncludeFiles.left = new FormAttachment(0, 0);
@@ -981,7 +979,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Include Files?
     wlTypes = new Label(wResultFilesGroup, SWT.RIGHT);
-    wlTypes.setText(BaseMessages.getString(PKG, "JobMail.SelectFileTypes.Label"));
+    wlTypes.setText(BaseMessages.getString(PKG, "ActionMail.SelectFileTypes.Label"));
     props.setLook(wlTypes);
     FormData fdlTypes = new FormData();
     fdlTypes.left = new FormAttachment(0, 0);
@@ -1003,7 +1001,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // Zip Files?
     wlZipFiles = new Label(wResultFilesGroup, SWT.RIGHT);
-    wlZipFiles.setText(BaseMessages.getString(PKG, "JobMail.ZipFiles.Label"));
+    wlZipFiles.setText(BaseMessages.getString(PKG, "ActionMail.ZipFiles.Label"));
     props.setLook(wlZipFiles);
     FormData fdlZipFiles = new FormData();
     fdlZipFiles.left = new FormAttachment(0, 0);
@@ -1030,8 +1028,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wResultFilesGroup,
-            BaseMessages.getString(PKG, "JobMail.ZipFilename.Label"),
-            BaseMessages.getString(PKG, "JobMail.ZipFilename.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ZipFilename.Label"),
+            BaseMessages.getString(PKG, "ActionMail.ZipFilename.Tooltip"));
     wZipFilename.addModifyListener(lsMod);
     FormData fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment(0, 0);
@@ -1056,7 +1054,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     Group wEmbeddedImagesGroup = new Group(wAttachedComp, SWT.SHADOW_NONE);
     props.setLook(wEmbeddedImagesGroup);
-    wEmbeddedImagesGroup.setText(BaseMessages.getString(PKG, "JobMail.Group.EmbeddedImages.Label"));
+    wEmbeddedImagesGroup.setText(
+        BaseMessages.getString(PKG, "ActionMail.Group.EmbeddedImages.Label"));
 
     FormLayout attachedimagesgroupLayout = new FormLayout();
     attachedimagesgroupLayout.marginWidth = 10;
@@ -1065,7 +1064,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // ImageFilename line
     wlImageFilename = new Label(wEmbeddedImagesGroup, SWT.RIGHT);
-    wlImageFilename.setText(BaseMessages.getString(PKG, "JobMail.ImageFilename.Label"));
+    wlImageFilename.setText(BaseMessages.getString(PKG, "ActionMail.ImageFilename.Label"));
     props.setLook(wlImageFilename);
     FormData fdlImageFilename = new FormData();
     fdlImageFilename.left = new FormAttachment(0, 0);
@@ -1075,7 +1074,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     wbImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
     props.setLook(wbImageFilename);
-    wbImageFilename.setText(BaseMessages.getString(PKG, "JobMail.BrowseFiles.Label"));
+    wbImageFilename.setText(BaseMessages.getString(PKG, "ActionMail.BrowseFiles.Label"));
     FormData fdbImageFilename = new FormData();
     fdbImageFilename.right = new FormAttachment(100, 0);
     fdbImageFilename.top = new FormAttachment(wResultFilesGroup, margin);
@@ -1084,7 +1083,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     wbaImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaImageFilename);
-    wbaImageFilename.setText(BaseMessages.getString(PKG, "JobMail.ImageFilenameAdd.Button"));
+    wbaImageFilename.setText(BaseMessages.getString(PKG, "ActionMail.ImageFilenameAdd.Button"));
     FormData fdbaImageFilename = new FormData();
     fdbaImageFilename.right = new FormAttachment(wbImageFilename, -margin);
     fdbaImageFilename.top = new FormAttachment(wResultFilesGroup, margin);
@@ -1123,7 +1122,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     // ContentID
     wlContentID = new Label(wEmbeddedImagesGroup, SWT.RIGHT);
-    wlContentID.setText(BaseMessages.getString(PKG, "JobMail.ContentID.Label"));
+    wlContentID.setText(BaseMessages.getString(PKG, "ActionMail.ContentID.Label"));
     props.setLook(wlContentID);
     FormData fdlContentID = new FormData();
     fdlContentID.left = new FormAttachment(0, 0);
@@ -1135,7 +1134,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
             variables,
             wEmbeddedImagesGroup,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobMail.ContentID.Tooltip"));
+            BaseMessages.getString(PKG, "ActionMail.ContentID.Tooltip"));
     props.setLook(wContentID);
     wContentID.addModifyListener(lsMod);
     FormData fdContentID = new FormData();
@@ -1145,7 +1144,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wContentID.setLayoutData(fdContentID);
 
     wlFields = new Label(wEmbeddedImagesGroup, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobMail.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionMail.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -1156,9 +1155,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // Buttons to the right of the screen...
     wbdImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdImageFilename);
-    wbdImageFilename.setText(BaseMessages.getString(PKG, "JobMail.ImageFilenameDelete.Button"));
+    wbdImageFilename.setText(BaseMessages.getString(PKG, "ActionMail.ImageFilenameDelete.Button"));
     wbdImageFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobMail.ImageFilenameDelete.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMail.ImageFilenameDelete.Tooltip"));
     FormData fdbdImageFilename = new FormData();
     fdbdImageFilename.right = new FormAttachment(100, 0);
     fdbdImageFilename.top = new FormAttachment(wlFields, margin);
@@ -1166,9 +1165,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     wbeImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeImageFilename);
-    wbeImageFilename.setText(BaseMessages.getString(PKG, "JobMail.ImageFilenameEdit.Button"));
+    wbeImageFilename.setText(BaseMessages.getString(PKG, "ActionMail.ImageFilenameEdit.Button"));
     wbeImageFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobMail.ImageFilenameEdit.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMail.ImageFilenameEdit.Tooltip"));
     FormData fdbeImageFilename = new FormData();
     fdbeImageFilename.right = new FormAttachment(100, 0);
     fdbeImageFilename.left = new FormAttachment(wbdImageFilename, 0, SWT.LEFT);
@@ -1184,19 +1183,19 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobMail.Fields.Image.Label"),
+              BaseMessages.getString(PKG, "ActionMail.Fields.Image.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobMail.Fields.ContentID.Label"),
+              BaseMessages.getString(PKG, "ActionMail.Fields.ContentID.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "JobMail.Fields.Image.Tooltip"));
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionMail.Fields.Image.Tooltip"));
     colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "JobMail.Fields.ContentID.Tooltip"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionMail.Fields.ContentID.Tooltip"));
 
     wFields =
         new TableView(

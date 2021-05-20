@@ -259,8 +259,7 @@ public class BaseTransformDialog extends Dialog {
 
   /** Dispose this dialog. */
   public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 

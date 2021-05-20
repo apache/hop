@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.tableinput;
+package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -157,7 +157,6 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   /** Open the dialog. */
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);

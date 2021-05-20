@@ -83,7 +83,6 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -101,17 +100,6 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wWildcardExclude);
 
     // Folder name line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -202,10 +190,20 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdWildcardExclude.top = new FormAttachment(wWildcard, margin);
     fdWildcardExclude.right = new FormAttachment(100, -margin);
     wWildcardExclude.setLayoutData(fdWildcardExclude);
-
     // Whenever something changes, set the tooltip to the expanded version:
     wWildcardExclude.addModifyListener(
         e -> wWildcardExclude.setToolTipText(variables.resolve(wWildcardExclude.getText())));
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, margin, wWildcardExclude);
 
     getData();
     CheckLimit();

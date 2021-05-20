@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,21 +44,19 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 
 /**
- * This defines a 'write to file' action. Its main use would be to create empty trigger files that can be used to
- * control the flow in ETL cycles.
+ * This defines a 'write to file' action. Its main use would be to create empty trigger files that
+ * can be used to control the flow in ETL cycles.
  *
  * @author Samatar Hassan
  * @since 28-01-2007
  */
-
 @Action(
-  id = "WRITE_TO_FILE",
-  name = "i18n::ActionWriteToFile.Name",
-  description = "i18n::ActionWriteToFile.Description",
-  image = "WriteToFile.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/writetofile.html"
-)
+    id = "WRITE_TO_FILE",
+    name = "i18n::ActionWriteToFile.Name",
+    description = "i18n::ActionWriteToFile.Description",
+    image = "WriteToFile.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/writetofile.html")
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
@@ -68,8 +66,8 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   private String content;
   private String encoding;
 
-  public ActionWriteToFile( String n ) {
-    super( n, "" );
+  public ActionWriteToFile(String n) {
+    super(n, "");
     filename = null;
     createParentFolder = false;
     appendFile = false;
@@ -78,7 +76,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   }
 
   public ActionWriteToFile() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -87,33 +85,36 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 100 );
+    StringBuilder retval = new StringBuilder(100);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "createParentFolder", createParentFolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "appendFile", appendFile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "content", content ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("createParentFolder", createParentFolder));
+    retval.append("      ").append(XmlHandler.addTagValue("appendFile", appendFile));
+    retval.append("      ").append(XmlHandler.addTagValue("content", content));
+    retval.append("      ").append(XmlHandler.addTagValue("encoding", encoding));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      filename = XmlHandler.getTagValue( entrynode, "filename" );
-      createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createParentFolder" ) );
-      appendFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "appendFile" ) );
-      content = XmlHandler.getTagValue( entrynode, "content" );
-      encoding = XmlHandler.getTagValue( entrynode, "encoding" );
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( "Unable to load action of type 'create file' from XML node", xe );
+      super.loadXml(entrynode);
+      filename = XmlHandler.getTagValue(entrynode, "filename");
+      createParentFolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createParentFolder"));
+      appendFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "appendFile"));
+      content = XmlHandler.getTagValue(entrynode, "content");
+      encoding = XmlHandler.getTagValue(entrynode, "encoding");
+    } catch (HopXmlException xe) {
+      throw new HopXmlException("Unable to load action of type 'create file' from XML node", xe);
     }
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -121,7 +122,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     return filename;
   }
 
-  public void setContent( String content ) {
+  public void setContent(String content) {
     this.content = content;
   }
 
@@ -129,7 +130,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     return content;
   }
 
-  public void setEncoding( String encoding ) {
+  public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
@@ -138,106 +139,123 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   }
 
   public String getRealFilename() {
-    return resolve( getFilename() );
+    return resolve(getFilename());
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
-    result.setNrErrors( 1 );
+    result.setResult(false);
+    result.setNrErrors(1);
 
     String realFilename = getRealFilename();
-    if ( !Utils.isEmpty( realFilename ) ) {
+    if (!Utils.isEmpty(realFilename)) {
 
-      String content = resolve( getContent() );
-      String encoding = resolve( getEncoding() );
+      String content = resolve(getContent());
+      String encoding = resolve(getEncoding());
 
       OutputStreamWriter osw = null;
       OutputStream os = null;
       try {
 
         // Create parent folder if needed
-        createParentFolder( realFilename );
+        createParentFolder(realFilename);
 
         // Create / open file for writing
-        os = HopVfs.getOutputStream( realFilename, isAppendFile() );
+        os = HopVfs.getOutputStream(realFilename, isAppendFile());
 
-        if ( Utils.isEmpty( encoding ) ) {
-          if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "JobWriteToFile.Log.WritingToFile", realFilename ) );
+        if (Utils.isEmpty(encoding)) {
+          if (isDebug()) {
+            logDebug(
+                BaseMessages.getString(PKG, "ActionWriteToFile.Log.WritingToFile", realFilename));
           }
-          osw = new OutputStreamWriter( os );
+          osw = new OutputStreamWriter(os);
         } else {
-          if ( isDebug() ) {
-            logDebug( BaseMessages.getString(
-              PKG, "JobWriteToFile.Log.WritingToFileWithEncoding", realFilename, encoding ) );
+          if (isDebug()) {
+            logDebug(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionWriteToFile.Log.WritingToFileWithEncoding",
+                    realFilename,
+                    encoding));
           }
-          osw = new OutputStreamWriter( os, encoding );
+          osw = new OutputStreamWriter(os, encoding);
         }
-        osw.write( content );
+        osw.write(content);
 
-        result.setResult( true );
-        result.setNrErrors( 0 );
+        result.setResult(true);
+        result.setNrErrors(0);
 
-      } catch ( Exception e ) {
-        logError( BaseMessages.getString( PKG, "JobWriteToFile.Error.WritingFile", realFilename, e.getMessage() ) );
+      } catch (Exception e) {
+        logError(
+            BaseMessages.getString(
+                PKG, "ActionWriteToFile.Error.WritingFile", realFilename, e.getMessage()));
       } finally {
-        if ( osw != null ) {
+        if (osw != null) {
           try {
             osw.flush();
             osw.close();
-          } catch ( Exception ex ) { /* Ignore */
+          } catch (Exception ex) {
+            /* Ignore */
           }
         }
-        if ( os != null ) {
+        if (os != null) {
           try {
             os.flush();
             os.close();
-          } catch ( Exception ex ) { /* Ignore */
+          } catch (Exception ex) {
+            /* Ignore */
           }
         }
       }
     } else {
-      logError( BaseMessages.getString( PKG, "JobWriteToFile.Error.MissinfgFile" ) );
+      logError(BaseMessages.getString(PKG, "ActionWriteToFile.Error.MissinfgFile"));
     }
 
     return result;
   }
 
-  private void createParentFolder( String realFilename ) throws HopException {
+  private void createParentFolder(String realFilename) throws HopException {
     FileObject parent = null;
     try {
-      parent = HopVfs.getFileObject( realFilename ).getParent();
-      if ( !parent.exists() ) {
-        if ( isCreateParentFolder() ) {
-          if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobWriteToFile.Log.ParentFoldetNotExist", parent
-              .getName().toString() ) );
+      parent = HopVfs.getFileObject(realFilename).getParent();
+      if (!parent.exists()) {
+        if (isCreateParentFolder()) {
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionWriteToFile.Log.ParentFoldetNotExist",
+                    parent.getName().toString()));
           }
           parent.createFolder();
-          if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobWriteToFile.Log.ParentFolderCreated", parent
-              .getName().toString() ) );
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ActionWriteToFile.Log.ParentFolderCreated", parent.getName().toString()));
           }
         } else {
-          throw new HopException( BaseMessages.getString(
-            PKG, "JobWriteToFile.Log.ParentFoldetNotExist", parent.getName().toString() ) );
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "ActionWriteToFile.Log.ParentFoldetNotExist", parent.getName().toString()));
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobWriteToFile.Error.CheckingParentFolder", realFilename ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionWriteToFile.Error.CheckingParentFolder", realFilename),
+          e);
     } finally {
-      if ( parent != null ) {
+      if (parent != null) {
         try {
           parent.close();
-        } catch ( Exception e ) { /* Ignore */
+        } catch (Exception e) {
+          /* Ignore */
         }
       }
     }
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -245,7 +263,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     return appendFile;
   }
 
-  public void setAppendFile( boolean appendFile ) {
+  public void setAppendFile(boolean appendFile) {
     this.appendFile = appendFile;
   }
 
@@ -253,25 +271,33 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     return createParentFolder;
   }
 
-  public void setCreateParentFolder( boolean createParentFolder ) {
+  public void setCreateParentFolder(boolean createParentFolder) {
     this.createParentFolder = createParentFolder;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( getFilename() ) ) {
-      String realFileName = resolve( getFilename() );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(getFilename())) {
+      String realFileName = resolve(getFilename());
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realFileName, ResourceType.FILE));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "filename", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "filename",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 }

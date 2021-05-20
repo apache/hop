@@ -50,9 +50,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobFilesExist.Filetype.Text"),
-        BaseMessages.getString(PKG, "JobFilesExist.Filetype.CSV"),
-        BaseMessages.getString(PKG, "JobFilesExist.Filetype.All")
+        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.Text"),
+        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.CSV"),
+        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.All")
       };
 
   private Text wName;
@@ -72,13 +72,12 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     super(parent, workflowMeta, variables);
     this.action = (ActionFilesExist) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobFilesExist.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionFilesExist.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -92,7 +91,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobFilesExist.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionFilesExist.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -109,7 +108,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobFilesExist.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionFilesExist.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -127,7 +126,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobFilesExist.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -138,7 +137,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Browse Source folders button ...
     Button wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbDirectory);
-    wbDirectory.setText(BaseMessages.getString(PKG, "JobFilesExist.BrowseFolders.Label"));
+    wbDirectory.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
     fdbDirectory.right = new FormAttachment(100, -margin);
     fdbDirectory.top = new FormAttachment(wName, margin);
@@ -149,7 +148,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "JobFilesExist.BrowseFiles.Label"));
+    wbFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wName, margin);
@@ -159,7 +158,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Add or change
     Button wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "JobFilesExist.FilenameAdd.Button"));
+    wbaFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbFilename, -margin);
     fdbaFilename.top = new FormAttachment(wName, margin);
@@ -184,7 +183,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
                 shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
 
     Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobFilesExist.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -196,8 +195,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Delete
     Button wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "JobFilesExist.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(BaseMessages.getString(PKG, "JobFilesExist.FilenameDelete.Tooltip"));
+    wbdFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Button"));
+    wbdFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
     fdbdFilename.top = new FormAttachment(wlFields, margin);
@@ -206,8 +206,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Edit
     Button wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "JobFilesExist.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(BaseMessages.getString(PKG, "JobFilesExist.FilenameEdit.Tooltip"));
+    wbeFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Button"));
+    wbeFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Tooltip"));
     FormData fdbeFilename = new FormData();
     fdbeFilename.right = new FormAttachment(100, 0);
     fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
@@ -224,13 +225,13 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobFilesExist.Fields.Argument.Label"),
+              BaseMessages.getString(PKG, "ActionFilesExist.Fields.Argument.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     columns[0].setUsingVariables(true);
-    columns[0].setToolTip(BaseMessages.getString(PKG, "JobFilesExist.Fields.Column"));
+    columns[0].setToolTip(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Column"));
 
     wFields =
         new TableView(

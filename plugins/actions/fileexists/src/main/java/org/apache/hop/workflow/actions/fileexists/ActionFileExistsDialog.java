@@ -51,9 +51,9 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobFileExists.Filetype.Text"),
-        BaseMessages.getString(PKG, "JobFileExists.Filetype.CSV"),
-        BaseMessages.getString(PKG, "JobFileExists.Filetype.All")
+        BaseMessages.getString(PKG, "ActionFileExists.Filetype.Text"),
+        BaseMessages.getString(PKG, "ActionFileExists.Filetype.CSV"),
+        BaseMessages.getString(PKG, "ActionFileExists.Filetype.All")
       };
 
   private Text wName;
@@ -71,13 +71,12 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     super(parent, workflowMeta, variables);
     this.action = (ActionFileExists) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobFileExists.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionFileExists.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -91,14 +90,14 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobFileExists.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionFileExists.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobFileExists.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionFileExists.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -116,7 +115,7 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobFileExists.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionFileExists.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
