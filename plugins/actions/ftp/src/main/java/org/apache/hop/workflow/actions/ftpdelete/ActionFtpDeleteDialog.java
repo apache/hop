@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -152,7 +152,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -523,6 +522,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     fdTest.top = new FormAttachment(wKeyFilePass, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
@@ -680,6 +680,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     fdbTestChangeFolderExists.right = new FormAttachment(100, 0);
     fdbTestChangeFolderExists.top = new FormAttachment(wGetPrevious, margin);
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
+    wbTestChangeFolderExists.addListener(SWT.Selection, e -> checkFtpFolder());
 
     wFtpDirectory =
         new TextVar(
@@ -939,37 +940,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add listeners
-    Listener lsTest = e -> test();
-    Listener lsCheckFolder = e -> checkFtpFolder();
-
-    wTest.addListener(SWT.Selection, lsTest);
-    wbTestChangeFolderExists.addListener(SWT.Selection, lsCheckFolder);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wServerName.addSelectionListener(lsDef);
-    wUserName.addSelectionListener(lsDef);
-    wPassword.addSelectionListener(lsDef);
-    wFtpDirectory.addSelectionListener(lsDef);
-    wFtpDirectory.addSelectionListener(lsDef);
-    wWildcard.addSelectionListener(lsDef);
-    wTimeout.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     activeSuccessCondition();
     activeUsePublicKey();
@@ -978,15 +948,9 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     activeCopyFromPrevious();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobFTPDeleteDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

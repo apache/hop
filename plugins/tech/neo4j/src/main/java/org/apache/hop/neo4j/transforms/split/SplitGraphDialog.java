@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.split;
@@ -26,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -77,7 +77,6 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -249,40 +248,10 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     wCancel.addListener(SWT.Selection, e -> cancel());
     wOk.addListener(SWT.Selection, e -> ok());
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wGraphField.addSelectionListener(lsDef);
-    wTypeField.addSelectionListener(lsDef);
-    wIdField.addSelectionListener(lsDef);
-    wPropertySetField.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
-    input.setChanged(changed);
 
-    shell.open();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    // Set the shell size, based upon previous time...
-    setSize();
-
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return transformName;
   }
 

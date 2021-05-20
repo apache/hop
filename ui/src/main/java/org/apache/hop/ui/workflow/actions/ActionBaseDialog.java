@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -122,8 +122,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected Listener lsOk, lsCancel;
 
   protected Shell shell;
-
-  protected SelectionAdapter lsDef;
 
   protected boolean backupChanged;
 
@@ -530,17 +528,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    // Add listeners
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wName.addSelectionListener(lsDef);
-    wPath.addSelectionListener(lsDef);
   }
 
   protected void selectLogFile(String[] filters) {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,20 +47,13 @@ public class ShowBrowserDialog extends Dialog {
   private String dialogTitle;
   private String content;
 
-  private Button wOk;
-  private FormData fdOk;
-  private Listener lsOk;
-
   private Browser wBrowser;
-  private FormData fdBrowser;
 
   private Shell shell;
   private PropsUi props;
 
   // private int prefWidth = -1;
   // private int prefHeight = -1;
-
-  private int buttonHeight = 30;
 
   public ShowBrowserDialog(Shell parent, String dialogTitle, String content) {
     super(parent, SWT.NONE);
@@ -73,7 +66,6 @@ public class ShowBrowserDialog extends Dialog {
 
   public void open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
@@ -92,51 +84,28 @@ public class ShowBrowserDialog extends Dialog {
     wBrowser = new Browser(shell, SWT.NONE);
     props.setLook(wBrowser);
 
-    fdBrowser = new FormData();
+    FormData fdBrowser = new FormData();
     fdBrowser.left = new FormAttachment(0, 0);
     fdBrowser.top = new FormAttachment(0, margin);
     fdBrowser.right = new FormAttachment(100, 0);
+    int buttonHeight = 30;
     fdBrowser.bottom = new FormAttachment(100, -buttonHeight);
     wBrowser.setLayoutData(fdBrowser);
 
     // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    fdOk = new FormData();
+    FormData fdOk = new FormData();
     fdOk.left = new FormAttachment(50, 0);
     fdOk.bottom = new FormAttachment(100, 0);
     wOk.setLayoutData(fdOk);
 
     // Add listeners
-    lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            ok();
-          }
-        });
-
-    /*
-     *
-     * //shell.pack(); if (prefWidth>0 && prefHeight>0) { shell.setSize(prefWidth, prefHeight); Rectangle r =
-     * shell.getClientArea(); int diffx = prefWidth - r.width; int diffy = prefHeight - r.height;
-     * shell.setSize(prefWidth+diffx, prefHeight+diffy); } else { shell.setSize(400, 400); }
-     */
+    wOk.addListener(SWT.Selection, e -> ok());
 
     getData();
 
-    BaseTransformDialog.setSize(shell, 800, 600, true);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> ok());
   }
 
   public void dispose() {

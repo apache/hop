@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,8 +50,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -73,7 +71,8 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
   private static final String[] YES_NO_COMBO =
       new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+        BaseMessages.getString(PKG, "System.Combo.No"),
+        BaseMessages.getString(PKG, "System.Combo.Yes")
       };
 
   private CTabFolder wTabFolder;
@@ -153,7 +152,6 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -254,7 +252,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     SelectionAdapter lsxmlstream =
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent arg0) {
-            ActiveXmlStreamField();
+            activateXmlStreamField();
             input.setChanged();
           }
         };
@@ -900,30 +898,16 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Add listeners
     wGet.addListener(SWT.Selection, e -> get());
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wLimit.addSelectionListener(lsDef);
-    wInclRownumField.addSelectionListener(lsDef);
-    wInclFilenameField.addSelectionListener(lsDef);
-
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
-                new String[] {
-                  wFilename.getText(),
-                  wFilemask.getText(),
-                  wExcludeFilemask.getText(),
-                  LoadFileInputMeta.RequiredFilesCode[0],
-                  LoadFileInputMeta.RequiredFilesCode[0]
-                });
+                wFilename.getText(),
+                wFilemask.getText(),
+                wExcludeFilemask.getText(),
+                LoadFileInputMeta.RequiredFilesCode[0],
+                LoadFileInputMeta.RequiredFilesCode[0]);
             wFilename.setText("");
             wFilemask.setText("");
             wExcludeFilemask.setText("");
@@ -1044,29 +1028,15 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
           }
         });
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     wTabFolder.setSelection(0);
 
-    // Set the shell size, based upon previous time...
-    setSize();
     getData(input);
-    ActiveXmlStreamField();
+    activateXmlStreamField();
     input.setChanged(changed);
     wFields.optWidth(true);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -1093,7 +1063,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     }
   }
 
-  private void ActiveXmlStreamField() {
+  private void activateXmlStreamField() {
     wlFilenameField.setEnabled(wFilenameInField.getSelection());
     wFilenameField.setEnabled(wFilenameInField.getSelection());
 
@@ -1431,7 +1401,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(

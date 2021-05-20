@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -38,8 +39,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -68,7 +67,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
   private boolean changed;
 
-  private Label wlsuccessWhenSet;
+  private Label wlSuccessWhenSet;
   private Button wSuccessWhenSet;
 
   private Label wlSuccessCondition;
@@ -106,7 +105,6 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -124,6 +122,16 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -321,21 +329,21 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessOn.setLayout(successongroupLayout);
 
     // Success when variable is not set?
-    wlsuccessWhenSet = new Label(wSuccessOn, SWT.RIGHT);
-    wlsuccessWhenSet.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSet.Label"));
-    props.setLook(wlsuccessWhenSet);
-    FormData fdlsuccessWhenSet = new FormData();
-    fdlsuccessWhenSet.left = new FormAttachment(0, 0);
-    fdlsuccessWhenSet.top = new FormAttachment(wVariableName, margin);
-    fdlsuccessWhenSet.right = new FormAttachment(middle, -margin);
-    wlsuccessWhenSet.setLayoutData(fdlsuccessWhenSet);
+    wlSuccessWhenSet = new Label(wSuccessOn, SWT.RIGHT);
+    wlSuccessWhenSet.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSet.Label"));
+    props.setLook(wlSuccessWhenSet);
+    FormData fdlSuccessWhenSet = new FormData();
+    fdlSuccessWhenSet.left = new FormAttachment(0, 0);
+    fdlSuccessWhenSet.top = new FormAttachment(wVariableName, margin);
+    fdlSuccessWhenSet.right = new FormAttachment(middle, -margin);
+    wlSuccessWhenSet.setLayoutData(fdlSuccessWhenSet);
     wSuccessWhenSet = new Button(wSuccessOn, SWT.CHECK);
     wSuccessWhenSet.setToolTipText(
         BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSet.Tooltip"));
     props.setLook(wSuccessWhenSet);
     FormData fdSuccessWhenSet = new FormData();
     fdSuccessWhenSet.left = new FormAttachment(middle, 0);
-    fdSuccessWhenSet.top = new FormAttachment(wVariableName, margin);
+    fdSuccessWhenSet.top = new FormAttachment(wlSuccessWhenSet, 0, SWT.CENTER);
     fdSuccessWhenSet.right = new FormAttachment(100, 0);
     wSuccessWhenSet.setLayoutData(fdSuccessWhenSet);
     wSuccessWhenSet.addSelectionListener(
@@ -348,12 +356,13 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Success Condition
     wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
-    wlSuccessCondition.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessCondition.Label"));
+    wlSuccessCondition.setText(
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessCondition.Label"));
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
     fdlSuccessCondition.right = new FormAttachment(middle, 0);
-    fdlSuccessCondition.top = new FormAttachment(wSuccessWhenSet, margin);
+    fdlSuccessCondition.top = new FormAttachment(wlSuccessWhenSet, 2 * margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
 
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -527,48 +536,16 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     refresh();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -623,7 +600,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wVariableName.setVisible(evaluateVariable);
     wlFieldName.setVisible(evaluatepreviousRowField);
     wFieldName.setVisible(evaluatepreviousRowField);
-    wlsuccessWhenSet.setVisible(evaluateVariable);
+    wlSuccessWhenSet.setVisible(evaluateVariable);
     wSuccessWhenSet.setVisible(evaluateVariable);
 
     boolean successWhenSet = wSuccessWhenSet.getSelection() && evaluateVariable;

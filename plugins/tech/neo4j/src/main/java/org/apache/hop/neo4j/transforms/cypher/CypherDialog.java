@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.cypher;
@@ -35,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -124,7 +124,6 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -433,15 +432,17 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     lastControl = wCypher;
 
     // Some buttons
-    wOk = new Button(wComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wPreview = new Button(wComposite, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wCancel = new Button(wComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
     // Position the buttons at the bottom of the dialog.
     //
+    wOk = new Button(wComposite, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wPreview = new Button(wComposite, SWT.PUSH);
+    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
+    wPreview.addListener(SWT.Selection, e -> preview());
+    wCancel = new Button(wComposite, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
     String[] fieldNames;
@@ -581,51 +582,11 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wScrolledComposite.setMinWidth(bounds.width);
     wScrolledComposite.setMinHeight(bounds.height);
 
-    // Add listeners
-    //
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview.addListener(SWT.Selection, e -> preview());
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wConnection.addSelectionListener(lsDef);
-    wTransformName.addSelectionListener(lsDef);
-    wBatchSize.addSelectionListener(lsDef);
-    wNrRetriesOnError.addSelectionListener(lsDef);
-    wReadOnly.addSelectionListener(lsDef);
-    wRetryOnDisconnect.addSelectionListener(lsDef);
-    wCypherFromField.addSelectionListener(lsDef);
-    wCypherField.addSelectionListener(lsDef);
-    wUnwind.addSelectionListener(lsDef);
-    wUnwindMap.addSelectionListener(lsDef);
-    wReturnGraphField.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
     input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -747,9 +708,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     this.getInfo(oneMeta);
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-          HopGui.getInstance().getMetadataProvider(),
-            oneMeta,
-            this.wTransformName.getText());
+            HopGui.getInstance().getMetadataProvider(), oneMeta, this.wTransformName.getText());
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             this.shell,

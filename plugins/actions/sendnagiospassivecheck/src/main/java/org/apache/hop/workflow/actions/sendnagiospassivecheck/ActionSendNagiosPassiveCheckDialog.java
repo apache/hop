@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -96,13 +97,12 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     super(parent, workflowMeta, variables);
     this.action = (ActionSendNagiosPassiveCheck) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -116,17 +116,27 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Action name line
     wName =
         new LabelText(
             shell,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Name.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Name.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Name.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Name.Tooltip"));
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, 0);
@@ -143,7 +153,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ServerSettings.General"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ServerSettings.General"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -159,7 +169,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wServerSettings);
     wServerSettings.setText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ServerSettings.Group.Label"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ServerSettings.Group.Label"));
 
     FormLayout ServerSettingsgroupLayout = new FormLayout();
     ServerSettingsgroupLayout.marginWidth = 10;
@@ -172,8 +182,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wServerSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Server.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Server.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Server.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Server.Tooltip"));
     props.setLook(wServerName);
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
@@ -187,8 +197,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wServerSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Port.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Port.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Port.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Port.Tooltip"));
     props.setLook(wPort);
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
@@ -202,7 +212,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wServerSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Password.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Password.Label"),
             BaseMessages.getString("JobSendNagiosPassiveCheck.Password.Tooltip"),
             true);
     props.setLook(wPassword);
@@ -218,8 +228,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wServerSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ConnectionTimeOut.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ConnectionTimeOut.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ConnectionTimeOut.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ConnectionTimeOut.Tooltip"));
     props.setLook(wConnectionTimeOut);
     wConnectionTimeOut.addModifyListener(lsMod);
     FormData fdwConnectionTimeOut = new FormData();
@@ -233,8 +243,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wServerSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ResponseTimeOut.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.ResponseTimeOut.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ResponseTimeOut.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ResponseTimeOut.Tooltip"));
     props.setLook(wResponseTimeOut);
     wResponseTimeOut.addModifyListener(lsMod);
     FormData fdResponseTimeOut = new FormData();
@@ -245,14 +255,15 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     // Test connection button
     Button wTest = new Button(wServerSettings, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.TestConnection.Label"));
+    wTest.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.TestConnection.Label"));
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.TestConnection.Tooltip"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.TestConnection.Tooltip"));
     fdTest.top = new FormAttachment(wResponseTimeOut, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
@@ -269,7 +280,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Group wSenderSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSenderSettings);
     wSenderSettings.setText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.SenderSettings.Group.Label"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderSettings.Group.Label"));
     FormLayout SenderSettingsgroupLayout = new FormLayout();
     SenderSettingsgroupLayout.marginWidth = 10;
     SenderSettingsgroupLayout.marginHeight = 10;
@@ -280,8 +291,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wSenderSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.SenderServerName.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.SenderServerName.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServerName.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServerName.Tooltip"));
     props.setLook(wSenderServerName);
     wSenderServerName.addModifyListener(lsMod);
     FormData fdSenderServerName = new FormData();
@@ -295,8 +306,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         new LabelTextVar(
             variables,
             wSenderSettings,
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.SenderServiceName.Label"),
-            BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.SenderServiceName.Tooltip"));
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServiceName.Label"),
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServiceName.Tooltip"));
     props.setLook(wSenderServiceName);
     wSenderServiceName.addModifyListener(lsMod);
     FormData fdSenderServiceName = new FormData();
@@ -308,7 +319,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // Encryption mode
     Label wlEncryptionMode = new Label(wSenderSettings, SWT.RIGHT);
     wlEncryptionMode.setText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.EncryptionMode.Label"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Label"));
     props.setLook(wlEncryptionMode);
     FormData fdlEncryptionMode = new FormData();
     fdlEncryptionMode.left = new FormAttachment(0, margin);
@@ -331,7 +342,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     // Level mode
     Label wlLevelMode = new Label(wSenderSettings, SWT.RIGHT);
-    wlLevelMode.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.LevelMode.Label"));
+    wlLevelMode.setText(
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.LevelMode.Label"));
     props.setLook(wlLevelMode);
     FormData fdlLevelMode = new FormData();
     fdlLevelMode.left = new FormAttachment(0, margin);
@@ -367,7 +379,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Group wMessageGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wMessageGroup);
     wMessageGroup.setText(
-        BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.MessageGroup.Group.Label"));
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.MessageGroup.Group.Label"));
     FormLayout MessageGroupgroupLayout = new FormLayout();
     MessageGroupgroupLayout.marginWidth = 10;
     MessageGroupgroupLayout.marginHeight = 10;
@@ -375,7 +387,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     // Message line
     Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);
-    wlMessage.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Message.Label"));
+    wlMessage.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Message.Label"));
     props.setLook(wlMessage);
     FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment(0, 0);
@@ -426,57 +438,15 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-    Listener lsTest = e -> test();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-    wTest.addListener(SWT.Selection, lsTest);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wServerName.addSelectionListener(lsDef);
-    wResponseTimeOut.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobSendNagiosPassiveCheckDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -498,19 +468,19 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     if (testOK) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       mb.setMessage(
-          BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Connected.OK", hostname)
+          BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Connected.OK", hostname)
               + Const.CR);
-      mb.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Connected.Title.Ok"));
+      mb.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Connected.Title.Ok"));
       mb.open();
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
-                  PKG, "JobSendNagiosPassiveCheck.Connected.NOK.ConnectionBad", hostname)
+                  PKG, "ActionSendNagiosPassiveCheck.Connected.NOK.ConnectionBad", hostname)
               + Const.CR
               + errMsg
               + Const.CR);
-      mb.setText(BaseMessages.getString(PKG, "JobSendNagiosPassiveCheck.Connected.Title.Bad"));
+      mb.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Connected.Title.Bad"));
       mb.open();
     }
   }

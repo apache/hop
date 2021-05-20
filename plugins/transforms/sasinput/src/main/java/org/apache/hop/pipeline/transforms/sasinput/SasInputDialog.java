@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,7 +80,6 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -243,35 +242,11 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     fdFields.right = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     input.setChanged(changed);
 
-    // Set the shell size, based upon previous time...
-    setSize();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return transformName;
   }
 
@@ -387,8 +362,8 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
             Column column = columns.get(c);
             ColumnFormat format = column.getFormat();
 
-            int length = format.getWidth()==0 ? -1 : format.getWidth();
-            int precision = format.getPrecision()==0 ? -1 : format.getWidth();
+            int length = format.getWidth() == 0 ? -1 : format.getWidth();
+            int precision = format.getPrecision() == 0 ? -1 : format.getWidth();
 
             TableItem item = new TableItem(wFields.table, SWT.NONE);
             int colNr = 1;
@@ -396,8 +371,8 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
             item.setText(colNr++, "");
             item.setText(colNr++, SasUtil.getHopDataTypeDesc(column.getType()));
             item.setText(colNr++, "");
-            item.setText(colNr++, length<0 ? "" : Integer.toString(length));
-            item.setText(colNr++, precision<0 ? "" : Integer.toString( precision ));
+            item.setText(colNr++, length < 0 ? "" : Integer.toString(length));
+            item.setText(colNr++, precision < 0 ? "" : Integer.toString(precision));
             item.setText(colNr++, "");
             item.setText(colNr++, "");
             item.setText(colNr++, "");

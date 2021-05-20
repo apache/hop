@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
@@ -92,7 +91,6 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -521,56 +519,10 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
     wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wNamespace.addSelectionListener(lsDef);
-    wEventHub.addSelectionListener(lsDef);
-    wSasKeyName.addSelectionListener(lsDef);
-    wSasKey.addSelectionListener(lsDef);
-    wBatchSize.addSelectionListener(lsDef);
-    wPrefetchSize.addSelectionListener(lsDef);
-    wConsumerGroup.addSelectionListener(lsDef);
-    wStorageConnectionString.addSelectionListener(lsDef);
-    wStorageContainerName.addSelectionListener(lsDef);
-
-    wOutputField.addSelectionListener(lsDef);
-    wPartitionIdField.addSelectionListener(lsDef);
-    wOffsetField.addSelectionListener(lsDef);
-    wSequenceNumberField.addSelectionListener(lsDef);
-    wHostField.addSelectionListener(lsDef);
-    wEnqueuedTimeField.addSelectionListener(lsDef);
-
-    wBatchPipeline.addSelectionListener(lsDef);
-    wBatchInput.addSelectionListener(lsDef);
-    wBatchOutput.addSelectionListener(lsDef);
-    wMaxWaitTime.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -74,13 +75,12 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionTelnet) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobTelnet.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionTelnet.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -94,14 +94,14 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobTelnet.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionTelnet.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobTelnet.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionTelnet.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -119,7 +119,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
-    wlHostname.setText(BaseMessages.getString(PKG, "JobTelnet.Hostname.Label"));
+    wlHostname.setText(BaseMessages.getString(PKG, "ActionTelnet.Hostname.Label"));
     props.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, -margin);
@@ -141,7 +141,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
         e -> wHostname.setToolTipText(variables.resolve(wHostname.getText())));
 
     Label wlPort = new Label(shell, SWT.RIGHT);
-    wlPort.setText(BaseMessages.getString(PKG, "JobTelnet.Port.Label"));
+    wlPort.setText(BaseMessages.getString(PKG, "ActionTelnet.Port.Label"));
     props.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, -margin);
@@ -159,7 +159,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wPort.setLayoutData(fdPort);
 
     Label wlTimeOut = new Label(shell, SWT.RIGHT);
-    wlTimeOut.setText(BaseMessages.getString(PKG, "JobTelnet.TimeOut.Label"));
+    wlTimeOut.setText(BaseMessages.getString(PKG, "ActionTelnet.TimeOut.Label"));
     props.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, -margin);
@@ -176,48 +176,20 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wTimeOut);
 
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wHostname.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobTelnetDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

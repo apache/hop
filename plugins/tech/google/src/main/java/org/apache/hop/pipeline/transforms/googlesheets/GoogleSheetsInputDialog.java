@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
@@ -85,7 +84,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   @Override
   public String open() {
     Shell parent = this.getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -98,7 +96,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText( BaseMessages.getString( PKG, "GoogleSheetsInput.transform.Name"));
+    shell.setText(BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -114,8 +112,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // transformName  - Label
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -141,7 +138,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
      * BEGIN Service Account Tab
      */
     CTabItem serviceAccountTab = new CTabItem(tabFolder, SWT.NONE);
-    serviceAccountTab.setText( BaseMessages.getString( PKG, "GoogleSheetsDialog.Tab.ServiceAccount" ));
+    serviceAccountTab.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.Tab.ServiceAccount"));
 
     Composite serviceAccountComposite = new Composite(tabFolder, SWT.NONE);
     props.setLook(serviceAccountComposite);
@@ -153,7 +150,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // privateKey json - Label
     Label wlPrivateKeyStore = new Label(serviceAccountComposite, SWT.RIGHT);
-    wlPrivateKeyStore.setText( BaseMessages.getString(PKG, "GoogleSheetsDialog.PrivateKeyStore"));
+    wlPrivateKeyStore.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.PrivateKeyStore"));
     props.setLook(wlPrivateKeyStore);
     FormData fdlPrivateKeyStore = new FormData();
     fdlPrivateKeyStore.top = new FormAttachment(0, margin);
@@ -164,7 +161,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // privateKey - Button
     Button wbPrivateKeyStore = new Button(serviceAccountComposite, SWT.PUSH | SWT.CENTER);
     props.setLook(wbPrivateKeyStore);
-    wbPrivateKeyStore.setText(BaseMessages.getString( "System.Button.Browse"));
+    wbPrivateKeyStore.setText(BaseMessages.getString("System.Button.Browse"));
     FormData fdbPrivateKeyStore = new FormData();
     fdbPrivateKeyStore.top = new FormAttachment(0, margin);
     fdbPrivateKeyStore.right = new FormAttachment(100, 0);
@@ -184,7 +181,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // test service - Button
     Button wbTestServiceAccount = new Button(serviceAccountComposite, SWT.PUSH | SWT.CENTER);
     props.setLook(wbTestServiceAccount);
-    wbTestServiceAccount.setText( BaseMessages.getString(PKG, "GoogleSheetsDialog.Button.TestConnection") );
+    wbTestServiceAccount.setText(
+        BaseMessages.getString(PKG, "GoogleSheetsDialog.Button.TestConnection"));
     FormData fdbTestServiceAccount = new FormData();
     fdbTestServiceAccount.top = new FormAttachment(wbPrivateKeyStore, margin);
     fdbTestServiceAccount.left = new FormAttachment(0, 0);
@@ -217,7 +215,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
      * BEGIN Spreadsheet Tab
      */
     CTabItem spreadsheetTab = new CTabItem(tabFolder, SWT.NONE);
-    spreadsheetTab.setText(BaseMessages.getString( PKG, "GoogleSheetsDialog.Tab.Spreadsheet" ));
+    spreadsheetTab.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.Tab.Spreadsheet"));
 
     Composite spreadsheetComposite = new Composite(tabFolder, SWT.NONE);
     props.setLook(spreadsheetComposite);
@@ -229,7 +227,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // spreadsheetKey - Label
     Label wlSpreadSheetKey = new Label(spreadsheetComposite, SWT.RIGHT);
-    wlSpreadSheetKey.setText(BaseMessages.getString( PKG, "GoogleSheetsDialog.SpreadsheetKey" ));
+    wlSpreadSheetKey.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.SpreadsheetKey"));
     props.setLook(wlSpreadSheetKey);
     FormData fdlSpreadSheetKey = new FormData();
     fdlSpreadSheetKey.top = new FormAttachment(0, margin);
@@ -239,7 +237,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // spreadsheetKey - Button
     Button wbSpreadSheetKey = new Button(spreadsheetComposite, SWT.PUSH | SWT.CENTER);
-    wbSpreadSheetKey.setText(BaseMessages.getString( "System.Button.Browse"));
+    wbSpreadSheetKey.setText(BaseMessages.getString("System.Button.Browse"));
     props.setLook(wbSpreadSheetKey);
     FormData fdbSpreadSheetKey = new FormData();
     fdbSpreadSheetKey.top = new FormAttachment(0, margin);
@@ -259,7 +257,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // worksheetId - Label
     Label wlWorksheetId = new Label(spreadsheetComposite, SWT.RIGHT);
-    wlWorksheetId.setText(BaseMessages.getString( PKG, "GoogleSheetsDialog.WorksheetId" ));
+    wlWorksheetId.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.WorksheetId"));
     props.setLook(wlWorksheetId);
     FormData fdlWorksheetId = new FormData();
     fdlWorksheetId.top = new FormAttachment(wbSpreadSheetKey, margin);
@@ -269,7 +267,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // worksheetId - Button
     Button wbWorksheetId = new Button(spreadsheetComposite, SWT.PUSH | SWT.CENTER);
-    wbWorksheetId.setText(BaseMessages.getString( "System.Button.Browse") );
+    wbWorksheetId.setText(BaseMessages.getString("System.Button.Browse"));
     props.setLook(wbWorksheetId);
     FormData fdbWorksheetId = new FormData();
     fdbWorksheetId.top = new FormAttachment(wbSpreadSheetKey, margin);
@@ -304,7 +302,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
      */
     // Nb Sample Fields - Label
     CTabItem fieldsTab = new CTabItem(tabFolder, SWT.NONE);
-    fieldsTab.setText(BaseMessages.getString( PKG, "GoogleSheetsDialog.Tab.Fields" ));
+    fieldsTab.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.Tab.Fields"));
 
     Composite fieldsComposite = new Composite(tabFolder, SWT.NONE);
     props.setLook(fieldsComposite);
@@ -315,7 +313,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     fieldsComposite.setLayout(fieldsLayout);
 
     Label wlSampleFieldsLabel = new Label(fieldsComposite, SWT.RIGHT);
-    wlSampleFieldsLabel.setText(BaseMessages.getString( PKG, "GoogleSheetsDialog.NrOfSampleLines" ));
+    wlSampleFieldsLabel.setText(BaseMessages.getString(PKG, "GoogleSheetsDialog.NrOfSampleLines"));
     props.setLook(wlSampleFieldsLabel);
     FormData fdlSampleFields = new FormData();
     fdlSampleFields.top = new FormAttachment(0, margin);
@@ -390,22 +388,12 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     tabFolder.setLayoutData(fdTabFolder);
 
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
-    wPrivateKeyStore.addListener(SWT.DefaultSelection, e -> ok());
-    wSpreadSheetKey.addListener(SWT.DefaultSelection, e -> ok());
-    wWorksheetId.addListener(SWT.DefaultSelection, e -> ok());
-
-    shell.addListener(SWT.Close, e->cancel());
-
     tabFolder.setSelection(0);
-    setSize();
     getData(meta);
     meta.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) display.sleep();
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

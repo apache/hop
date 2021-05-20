@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
@@ -28,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -84,7 +84,6 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
   public String open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
@@ -327,35 +326,9 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, wBufferSize);
 
-    // Close with OK when the user uses enter in these fields...
-    //
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
-    wYaml.addListener(SWT.DefaultSelection, e -> ok());
-    wDirectory.addListener(SWT.DefaultSelection, e -> ok());
-    wKeyspace.addListener(SWT.DefaultSelection, e -> ok());
-    wTable.addListener(SWT.DefaultSelection, e -> ok());
-    wKeyField.addListener(SWT.DefaultSelection, e -> ok());
-    wBufferSize.addListener(SWT.DefaultSelection, e -> ok());
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    setSize();
-
     getData();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }

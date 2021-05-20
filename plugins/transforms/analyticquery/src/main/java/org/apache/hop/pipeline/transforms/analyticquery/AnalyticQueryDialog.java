@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -79,7 +80,6 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements ITransfo
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -251,45 +251,15 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements ITransfo
     wAgg.setLayoutData(fdAgg);
 
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsGet = e -> get();
-    Listener lsGetAgg = e -> getAgg();
-    lsCancel = e -> cancel();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wGet.addListener(SWT.Selection, lsGet);
-    wGetAgg.addListener(SWT.Selection, lsGetAgg);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wOk.addListener(SWT.Selection, e -> ok());
+    wGet.addListener(SWT.Selection, e -> get());
+    wGetAgg.addListener(SWT.Selection, e -> getAgg());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
-    input.setChanged(backupChanged);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

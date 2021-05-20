@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,13 +72,12 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     super(parent, workflowMeta, variables);
     this.action = (ActionCreateFolder) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobCreateFolder.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionCreateFolder.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -92,14 +91,14 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobCreateFolder.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Foldername line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobCreateFolder.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -117,7 +116,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
 
     // Foldername line
     Label wlFoldername = new Label(shell, SWT.RIGHT);
-    wlFoldername.setText(BaseMessages.getString(PKG, "JobCreateFolder.Foldername.Label"));
+    wlFoldername.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Foldername.Label"));
     props.setLook(wlFoldername);
     FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment(0, 0);
@@ -150,7 +149,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFoldername, variables));
 
     Label wlAbortExists = new Label(shell, SWT.RIGHT);
-    wlAbortExists.setText(BaseMessages.getString(PKG, "JobCreateFolder.FailIfExists.Label"));
+    wlAbortExists.setText(BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Label"));
     props.setLook(wlAbortExists);
     FormData fdlAbortExists = new FormData();
     fdlAbortExists.left = new FormAttachment(0, 0);
@@ -160,10 +159,10 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wAbortExists = new Button(shell, SWT.CHECK);
     props.setLook(wAbortExists);
     wAbortExists.setToolTipText(
-        BaseMessages.getString(PKG, "JobCreateFolder.FailIfExists.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();
     fdAbortExists.left = new FormAttachment(middle, 0);
-    fdAbortExists.top = new FormAttachment(wFoldername, margin);
+    fdAbortExists.top = new FormAttachment(wlAbortExists, 0, SWT.CENTER);
     fdAbortExists.right = new FormAttachment(100, 0);
     wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener(
@@ -175,47 +174,17 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, margin, wAbortExists);
 
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFoldername.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

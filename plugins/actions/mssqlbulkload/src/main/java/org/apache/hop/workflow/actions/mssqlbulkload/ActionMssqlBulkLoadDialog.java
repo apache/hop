@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -73,9 +73,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.Filetype.Text"),
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.Filetype.Csv"),
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.Filetype.All")
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Text"),
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Csv"),
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.All")
       };
 
   private Text wName;
@@ -147,19 +147,16 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     super(parent, workflowMeta, variables);
     this.action = (ActionMssqlBulkLoad) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -169,10 +166,20 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -181,7 +188,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // START OF GENERAL TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -193,7 +200,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // Filename line
     Label wlName = new Label(wGeneralComp, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -215,7 +222,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wConnectionGroup);
     wConnectionGroup.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.ConnectionGroup.Group.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.ConnectionGroup.Group.Label"));
 
     FormLayout ConnectionGroupLayout = new FormLayout();
     ConnectionGroupLayout.marginWidth = 10;
@@ -229,7 +236,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Schema name line
     // Schema name
     Label wlSchemaname = new Label(wConnectionGroup, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Schemaname.Label"));
+    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Schemaname.Label"));
     props.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
@@ -239,7 +246,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wSchemaname = new TextVar(variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSchemaname);
-    wSchemaname.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Schemaname.Tooltip"));
+    wSchemaname.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Schemaname.Tooltip"));
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
@@ -249,7 +257,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // Table name line
     Label wlTablename = new Label(wConnectionGroup, SWT.RIGHT);
-    wlTablename.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tablename.Label"));
+    wlTablename.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tablename.Label"));
     props.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
@@ -273,7 +281,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wTablename = new TextVar(variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTablename);
-    wTablename.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tablename.Tooltip"));
+    wTablename.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tablename.Tooltip"));
     wTablename.addModifyListener(lsMod);
     FormData fdTablename = new FormData();
     fdTablename.left = new FormAttachment(middle, 0);
@@ -284,7 +292,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Truncate table
     // Truncate table
     Label wlTruncate = new Label(wConnectionGroup, SWT.RIGHT);
-    wlTruncate.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Truncate.Label"));
+    wlTruncate.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Truncate.Label"));
     props.setLook(wlTruncate);
     FormData fdlTruncate = new FormData();
     fdlTruncate.left = new FormAttachment(0, 0);
@@ -293,10 +301,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wlTruncate.setLayoutData(fdlTruncate);
     wTruncate = new Button(wConnectionGroup, SWT.CHECK);
     props.setLook(wTruncate);
-    wTruncate.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Truncate.Tooltip"));
+    wTruncate.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Truncate.Tooltip"));
     FormData fdTruncate = new FormData();
     fdTruncate.left = new FormAttachment(middle, 0);
-    fdTruncate.top = new FormAttachment(wTablename, margin);
+    fdTruncate.top = new FormAttachment(wlTruncate, 0, SWT.CENTER);
     fdTruncate.right = new FormAttachment(100, 0);
     wTruncate.setLayoutData(fdTruncate);
     wTruncate.addSelectionListener(
@@ -321,7 +329,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     Group wDataFileGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wDataFileGroup);
     wDataFileGroup.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.DataFileGroup.Group.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.DataFileGroup.Group.Label"));
 
     FormLayout DataFileGroupLayout = new FormLayout();
     DataFileGroupLayout.marginWidth = 10;
@@ -331,7 +339,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Filename line
     // File
     Label wlFilename = new Label(wDataFileGroup, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -349,7 +357,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wFilename = new TextVar(variables, wDataFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
-    wFilename.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Filename.Tooltip"));
+    wFilename.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filename.Tooltip"));
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -375,7 +383,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Data file type
     // Data file type
     Label wlDataFiletype = new Label(wDataFileGroup, SWT.RIGHT);
-    wlDataFiletype.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.DataFiletype.Label"));
+    wlDataFiletype.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.DataFiletype.Label"));
     props.setLook(wlDataFiletype);
     FormData fdlDataFiletype = new FormData();
     fdlDataFiletype.left = new FormAttachment(0, 0);
@@ -414,7 +422,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // FieldTerminator
     wlFieldTerminator = new Label(wGeneralComp, SWT.RIGHT);
     wlFieldTerminator.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.FieldTerminator.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FieldTerminator.Label"));
     props.setLook(wlFieldTerminator);
     FormData fdlFieldTerminator = new FormData();
     fdlFieldTerminator.left = new FormAttachment(0, 0);
@@ -425,7 +433,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFieldTerminator = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFieldTerminator);
     wFieldTerminator.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.FieldTerminator.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FieldTerminator.Tooltip"));
     wFieldTerminator.addModifyListener(lsMod);
     FormData fdFieldTerminator = new FormData();
     fdFieldTerminator.left = new FormAttachment(middle, 0);
@@ -436,7 +444,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Line terminated
     // Line terminated
     Label wlLineterminated = new Label(wGeneralComp, SWT.RIGHT);
-    wlLineterminated.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Lineterminated.Label"));
+    wlLineterminated.setText(
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Lineterminated.Label"));
     props.setLook(wlLineterminated);
     FormData fdlLineterminated = new FormData();
     fdlLineterminated.left = new FormAttachment(0, 0);
@@ -447,7 +456,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wLineterminated = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLineterminated);
     wLineterminated.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.Lineterminated.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Lineterminated.Tooltip"));
     wLineterminated.addModifyListener(lsMod);
     FormData fdLineterminated = new FormData();
     fdLineterminated.left = new FormAttachment(middle, 0);
@@ -475,7 +484,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdvancedTab.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tab.Advanced.Label"));
+    wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tab.Advanced.Label"));
 
     FormLayout AdvancedLayout = new FormLayout();
     AdvancedLayout.marginWidth = 3;
@@ -488,7 +497,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // CodePage
     // CodePage
     Label wlCodePage = new Label(wAdvancedComp, SWT.RIGHT);
-    wlCodePage.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.CodePage.Label"));
+    wlCodePage.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.CodePage.Label"));
     props.setLook(wlCodePage);
     FormData fdlCodePage = new FormData();
     fdlCodePage.left = new FormAttachment(0, 0);
@@ -499,7 +508,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wCodePage.add("ACP");
     wCodePage.add("OEM");
     wCodePage.add("RAW");
-    wCodePage.add(BaseMessages.getString(PKG, "JobMssqlBulkLoad.CodePage.Specific"));
+    wCodePage.add(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.CodePage.Specific"));
     wCodePage.select(0); // +1: starts at -1
 
     props.setLook(wCodePage);
@@ -518,7 +527,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Specific CodePage
     wlSpecificCodePage = new Label(wAdvancedComp, SWT.RIGHT);
     wlSpecificCodePage.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.SpecificCodePage.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.SpecificCodePage.Label"));
     props.setLook(wlSpecificCodePage);
     FormData fdlSpecificCodePage = new FormData();
     fdlSpecificCodePage.left = new FormAttachment(0, 0);
@@ -537,7 +546,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // FormatFilename line
     Label wlFormatFilename = new Label(wAdvancedComp, SWT.RIGHT);
-    wlFormatFilename.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.FormatFilename.Label"));
+    wlFormatFilename.setText(
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FormatFilename.Label"));
     props.setLook(wlFormatFilename);
     FormData fdlFormatFilename = new FormData();
     fdlFormatFilename.left = new FormAttachment(0, 0);
@@ -556,7 +566,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFormatFilename = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFormatFilename);
     wFormatFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.FormatFilename.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FormatFilename.Tooltip"));
     wFormatFilename.addModifyListener(lsMod);
     FormData fdFormatFilename = new FormData();
     fdFormatFilename.left = new FormAttachment(middle, 0);
@@ -580,9 +590,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
                 true));
 
     // Fire Triggers?
-    // Fire Triggers
+    //
     Label wlFireTriggers = new Label(wAdvancedComp, SWT.RIGHT);
-    wlFireTriggers.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.FireTriggers.Label"));
+    wlFireTriggers.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FireTriggers.Label"));
     props.setLook(wlFireTriggers);
     FormData fdlFireTriggers = new FormData();
     fdlFireTriggers.left = new FormAttachment(0, 0);
@@ -592,10 +602,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFireTriggers = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wFireTriggers);
     wFireTriggers.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.FireTriggers.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FireTriggers.Tooltip"));
     FormData fdFireTriggers = new FormData();
     fdFireTriggers.left = new FormAttachment(middle, 0);
-    fdFireTriggers.top = new FormAttachment(wFormatFilename, margin);
+    fdFireTriggers.top = new FormAttachment(wlFireTriggers, 0, SWT.CENTER);
     fdFireTriggers.right = new FormAttachment(100, 0);
     wFireTriggers.setLayoutData(fdFireTriggers);
     wFireTriggers.addSelectionListener(
@@ -609,20 +619,20 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Check Constaints
     Label wlCheckConstraints = new Label(wAdvancedComp, SWT.RIGHT);
     wlCheckConstraints.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.CheckConstraints.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.CheckConstraints.Label"));
     props.setLook(wlCheckConstraints);
     FormData fdlCheckConstraints = new FormData();
     fdlCheckConstraints.left = new FormAttachment(0, 0);
-    fdlCheckConstraints.top = new FormAttachment(wFireTriggers, margin);
+    fdlCheckConstraints.top = new FormAttachment(wlFireTriggers, 2 * margin);
     fdlCheckConstraints.right = new FormAttachment(middle, -margin);
     wlCheckConstraints.setLayoutData(fdlCheckConstraints);
     wCheckConstraints = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wCheckConstraints);
     wCheckConstraints.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.CheckConstraints.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.CheckConstraints.Tooltip"));
     FormData fdCheckConstraints = new FormData();
     fdCheckConstraints.left = new FormAttachment(middle, 0);
-    fdCheckConstraints.top = new FormAttachment(wFireTriggers, margin);
+    fdCheckConstraints.top = new FormAttachment(wlCheckConstraints, 0, SWT.CENTER);
     fdCheckConstraints.right = new FormAttachment(100, 0);
     wCheckConstraints.setLayoutData(fdCheckConstraints);
     wCheckConstraints.addSelectionListener(
@@ -635,19 +645,19 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Keep Nulls
     // Keep nulls
     Label wlKeepNulls = new Label(wAdvancedComp, SWT.RIGHT);
-    wlKeepNulls.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.KeepNulls.Label"));
+    wlKeepNulls.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.KeepNulls.Label"));
     props.setLook(wlKeepNulls);
     FormData fdlKeepNulls = new FormData();
     fdlKeepNulls.left = new FormAttachment(0, 0);
-    fdlKeepNulls.top = new FormAttachment(wCheckConstraints, margin);
+    fdlKeepNulls.top = new FormAttachment(wlCheckConstraints, 2 * margin);
     fdlKeepNulls.right = new FormAttachment(middle, -margin);
     wlKeepNulls.setLayoutData(fdlKeepNulls);
     wKeepNulls = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wKeepNulls);
-    wKeepNulls.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.KeepNulls.Tooltip"));
+    wKeepNulls.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.KeepNulls.Tooltip"));
     FormData fdKeepNulls = new FormData();
     fdKeepNulls.left = new FormAttachment(middle, 0);
-    fdKeepNulls.top = new FormAttachment(wCheckConstraints, margin);
+    fdKeepNulls.top = new FormAttachment(wlKeepNulls, 0, SWT.CENTER);
     fdKeepNulls.right = new FormAttachment(100, 0);
     wKeepNulls.setLayoutData(fdKeepNulls);
     wKeepNulls.addSelectionListener(
@@ -660,20 +670,20 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Keep Identity
     // Keep Identity?
     Label wlKeepIdentity = new Label(wAdvancedComp, SWT.RIGHT);
-    wlKeepIdentity.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.KeepIdentity.Label"));
+    wlKeepIdentity.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.KeepIdentity.Label"));
     props.setLook(wlKeepIdentity);
     FormData fdlKeepIdentity = new FormData();
     fdlKeepIdentity.left = new FormAttachment(0, 0);
-    fdlKeepIdentity.top = new FormAttachment(wKeepNulls, margin);
+    fdlKeepIdentity.top = new FormAttachment(wlKeepNulls, 2 * margin);
     fdlKeepIdentity.right = new FormAttachment(middle, -margin);
     wlKeepIdentity.setLayoutData(fdlKeepIdentity);
     wKeepIdentity = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wKeepIdentity);
     wKeepIdentity.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.KeepIdentity.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.KeepIdentity.Tooltip"));
     FormData fdKeepIdentity = new FormData();
     fdKeepIdentity.left = new FormAttachment(middle, 0);
-    fdKeepIdentity.top = new FormAttachment(wKeepNulls, margin);
+    fdKeepIdentity.top = new FormAttachment(wlKeepIdentity, 0, SWT.CENTER);
     fdKeepIdentity.right = new FormAttachment(100, 0);
     wKeepIdentity.setLayoutData(fdKeepIdentity);
     wKeepIdentity.addSelectionListener(
@@ -684,21 +694,21 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
         });
 
     // TABBLOCK
-    // Tablock
+    //
     Label wlTablock = new Label(wAdvancedComp, SWT.RIGHT);
-    wlTablock.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tablock.Label"));
+    wlTablock.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tablock.Label"));
     props.setLook(wlTablock);
     FormData fdlTablock = new FormData();
     fdlTablock.left = new FormAttachment(0, 0);
-    fdlTablock.top = new FormAttachment(wKeepIdentity, margin);
+    fdlTablock.top = new FormAttachment(wlKeepIdentity, 2 * margin);
     fdlTablock.right = new FormAttachment(middle, -margin);
     wlTablock.setLayoutData(fdlTablock);
     wTablock = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wTablock);
-    wTablock.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.Tablock.Tooltip"));
+    wTablock.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tablock.Tooltip"));
     FormData fdTablock = new FormData();
     fdTablock.left = new FormAttachment(middle, 0);
-    fdTablock.top = new FormAttachment(wKeepIdentity, margin);
+    fdTablock.top = new FormAttachment(wlTablock, 0, SWT.CENTER);
     fdTablock.right = new FormAttachment(100, 0);
     wTablock.setLayoutData(fdTablock);
     wTablock.addSelectionListener(
@@ -711,28 +721,28 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Start file
     // start file at line
     Label wlStartFile = new Label(wAdvancedComp, SWT.RIGHT);
-    wlStartFile.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.StartFile.Label"));
+    wlStartFile.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.StartFile.Label"));
     props.setLook(wlStartFile);
     FormData fdlStartFile = new FormData();
     fdlStartFile.left = new FormAttachment(0, 0);
     fdlStartFile.right = new FormAttachment(middle, 0);
-    fdlStartFile.top = new FormAttachment(wTablock, margin);
+    fdlStartFile.top = new FormAttachment(wlTablock, 2 * margin);
     wlStartFile.setLayoutData(fdlStartFile);
 
     wStartFile = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wStartFile);
-    wStartFile.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.StartFile.Tooltip"));
+    wStartFile.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.StartFile.Tooltip"));
     wStartFile.addModifyListener(lsMod);
     FormData fdStartFile = new FormData();
     fdStartFile.left = new FormAttachment(middle, 0);
-    fdStartFile.top = new FormAttachment(wTablock, margin);
+    fdStartFile.top = new FormAttachment(wlTablock, 2 * margin);
     fdStartFile.right = new FormAttachment(100, 0);
     wStartFile.setLayoutData(fdStartFile);
 
     // End file
     // End file line
     Label wlEndFile = new Label(wAdvancedComp, SWT.RIGHT);
-    wlEndFile.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.EndFile.Label"));
+    wlEndFile.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.EndFile.Label"));
     props.setLook(wlEndFile);
     FormData fdlEndFile = new FormData();
     fdlEndFile.left = new FormAttachment(0, 0);
@@ -742,7 +752,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wEndFile = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wEndFile);
-    wEndFile.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.EndFile.Tooltip"));
+    wEndFile.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.EndFile.Tooltip"));
     wEndFile.addModifyListener(lsMod);
     FormData fdEndFile = new FormData();
     fdEndFile.left = new FormAttachment(middle, 0);
@@ -753,7 +763,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Specifies how the data in the data file is sorted
     // List Columns
     Label wlOrderBy = new Label(wAdvancedComp, SWT.RIGHT);
-    wlOrderBy.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.OrderBy.Label"));
+    wlOrderBy.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.OrderBy.Label"));
     props.setLook(wlOrderBy);
     FormData fdlOrderBy = new FormData();
     fdlOrderBy.left = new FormAttachment(0, 0);
@@ -777,7 +787,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wOrderBy = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOrderBy);
-    wOrderBy.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.OrderBy.Tooltip"));
+    wOrderBy.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.OrderBy.Tooltip"));
     wOrderBy.addModifyListener(lsMod);
     FormData fdOrderBy = new FormData();
     fdOrderBy.left = new FormAttachment(middle, 0);
@@ -788,7 +798,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Order Direction
     // Order Direction
     Label wlOrderDirection = new Label(wAdvancedComp, SWT.RIGHT);
-    wlOrderDirection.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.OrderDirection.Label"));
+    wlOrderDirection.setText(
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.OrderDirection.Label"));
     props.setLook(wlOrderDirection);
     FormData fdlOrderDirection = new FormData();
     fdlOrderDirection.left = new FormAttachment(0, 0);
@@ -796,8 +807,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlOrderDirection.top = new FormAttachment(wOrderBy, margin);
     wlOrderDirection.setLayoutData(fdlOrderDirection);
     wOrderDirection = new CCombo(wAdvancedComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wOrderDirection.add(BaseMessages.getString(PKG, "JobMysqlBulkLoad.OrderDirectionAsc.Label"));
-    wOrderDirection.add(BaseMessages.getString(PKG, "JobMysqlBulkLoad.OrderDirectionDesc.Label"));
+    wOrderDirection.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.OrderDirectionAsc.Label"));
+    wOrderDirection.add(
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.OrderDirectionDesc.Label"));
     wOrderDirection.select(0); // +1: starts at -1
 
     props.setLook(wOrderDirection);
@@ -809,7 +821,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // ErrorFilename line
     Label wlErrorFilename = new Label(wAdvancedComp, SWT.RIGHT);
-    wlErrorFilename.setText(BaseMessages.getString(PKG, "JobMysqlBulkLoad.ErrorFilename.Label"));
+    wlErrorFilename.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ErrorFilename.Label"));
     props.setLook(wlErrorFilename);
     FormData fdlErrorFilename = new FormData();
     fdlErrorFilename.left = new FormAttachment(0, 0);
@@ -829,7 +841,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     props.setLook(wErrorFilename);
     wErrorFilename.addModifyListener(lsMod);
     wErrorFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobMysqlBulkLoad.ErrorFilename.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.ErrorFilename.Tooltip"));
     FormData fdErrorFilename = new FormData();
     fdErrorFilename.left = new FormAttachment(middle, 0);
     fdErrorFilename.top = new FormAttachment(wOrderDirection, margin);
@@ -845,7 +857,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Add Date time
     // Add Datetime
     Label wlAddDateTime = new Label(wAdvancedComp, SWT.RIGHT);
-    wlAddDateTime.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.AddDateTime.Label"));
+    wlAddDateTime.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.AddDateTime.Label"));
     props.setLook(wlAddDateTime);
     FormData fdlAddDateTime = new FormData();
     fdlAddDateTime.left = new FormAttachment(0, 0);
@@ -855,10 +867,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddDateTime = new Button(wAdvancedComp, SWT.CHECK);
     props.setLook(wAddDateTime);
     wAddDateTime.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.AddDateTime.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.AddDateTime.Tooltip"));
     FormData fdAddDateTime = new FormData();
     fdAddDateTime.left = new FormAttachment(middle, 0);
-    fdAddDateTime.top = new FormAttachment(wErrorFilename, margin);
+    fdAddDateTime.top = new FormAttachment(wlAddDateTime, 0, SWT.CENTER);
     fdAddDateTime.right = new FormAttachment(100, 0);
     wAddDateTime.setLayoutData(fdAddDateTime);
     wAddDateTime.addSelectionListener(
@@ -871,28 +883,29 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Maximum errors allowed
     // Maximum Errors allowed
     Label wlMaxErrors = new Label(wAdvancedComp, SWT.RIGHT);
-    wlMaxErrors.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.MaxErrors.Label"));
+    wlMaxErrors.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.MaxErrors.Label"));
     props.setLook(wlMaxErrors);
     FormData fdlMaxErrors = new FormData();
     fdlMaxErrors.left = new FormAttachment(0, 0);
     fdlMaxErrors.right = new FormAttachment(middle, 0);
-    fdlMaxErrors.top = new FormAttachment(wAddDateTime, margin);
+    fdlMaxErrors.top = new FormAttachment(wlAddDateTime, 2 * margin);
     wlMaxErrors.setLayoutData(fdlMaxErrors);
 
     wMaxErrors = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMaxErrors);
-    wlMaxErrors.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.MaxErrors.Tooltip"));
+    wlMaxErrors.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.MaxErrors.Tooltip"));
     wMaxErrors.addModifyListener(lsMod);
     FormData fdMaxErrors = new FormData();
     fdMaxErrors.left = new FormAttachment(middle, 0);
-    fdMaxErrors.top = new FormAttachment(wAddDateTime, margin);
+    fdMaxErrors.top = new FormAttachment(wlAddDateTime, 2 * margin);
     fdMaxErrors.right = new FormAttachment(100, 0);
     wMaxErrors.setLayoutData(fdMaxErrors);
 
     // Batch Size
     // Batch Size
     Label wlBatchSize = new Label(wAdvancedComp, SWT.RIGHT);
-    wlBatchSize.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.BatchSize.Label"));
+    wlBatchSize.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.BatchSize.Label"));
     props.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
@@ -902,7 +915,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     wBatchSize = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wBatchSize);
-    wBatchSize.setToolTipText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.BatchSize.Tooltip"));
+    wBatchSize.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.BatchSize.Tooltip"));
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
@@ -913,7 +926,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Rows per Batch
     // Kilobytes per Batch
     Label wlRowsPerBatch = new Label(wAdvancedComp, SWT.RIGHT);
-    wlRowsPerBatch.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.RowsPerBatch.Label"));
+    wlRowsPerBatch.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.RowsPerBatch.Label"));
     props.setLook(wlRowsPerBatch);
     FormData fdlRowsPerBatch = new FormData();
     fdlRowsPerBatch.left = new FormAttachment(0, 0);
@@ -924,7 +937,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wRowsPerBatch = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wRowsPerBatch);
     wRowsPerBatch.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.RowsPerBatch.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.RowsPerBatch.Label"));
     wRowsPerBatch.addModifyListener(lsMod);
     FormData fdRowsPerBatch = new FormData();
     fdRowsPerBatch.left = new FormAttachment(middle, 0);
@@ -939,7 +952,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Add File to result
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
     props.setLook(wFileResult);
-    wFileResult.setText(BaseMessages.getString(PKG, "JobMssqlBulkLoad.FileResult.Group.Label"));
+    wFileResult.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FileResult.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -950,7 +963,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     // Add file to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFileToResult.setText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.AddFileToResult.Label"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.AddFileToResult.Label"));
     props.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
@@ -960,10 +973,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
     props.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
-        BaseMessages.getString(PKG, "JobMssqlBulkLoad.AddFileToResult.Tooltip"));
+        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
-    fdAddFileToResult.top = new FormAttachment(wRowsPerBatch, margin);
+    fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
     fdAddFileToResult.right = new FormAttachment(100, 0);
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
@@ -1001,55 +1014,17 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wTablename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     setDataType();
     setCodeType();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobMssqlBulkLoadDialogSize");
     wTabFolder.setSelection(0);
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -1226,7 +1201,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       }
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(BaseMessages.getString(PKG, "JobMssqlBulkLoad.ConnectionError2.DialogMessage"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionMssqlBulkLoad.ConnectionError2.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
       mb.open();
     }
@@ -1252,8 +1228,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
               new EnterSelectionDialog(
                   shell,
                   available,
-                  BaseMessages.getString(PKG, "JobMssqlBulkLoad.SelectColumns.Title"),
-                  BaseMessages.getString(PKG, "JobMssqlBulkLoad.SelectColumns.Message"));
+                  BaseMessages.getString(PKG, "ActionMssqlBulkLoad.SelectColumns.Title"),
+                  BaseMessages.getString(PKG, "ActionMssqlBulkLoad.SelectColumns.Message"));
           dialog.setMulti(true);
           dialog.setAvoidQuickSearch();
           dialog.setSelectedNrs(idxSource);
@@ -1272,7 +1248,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
           new ErrorDialog(
               shell,
               BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-              BaseMessages.getString(PKG, "JobMssqlBulkLoad.ConnectionError2.DialogMessage"),
+              BaseMessages.getString(PKG, "ActionMssqlBulkLoad.ConnectionError2.DialogMessage"),
               e);
         } finally {
           database.disconnect();

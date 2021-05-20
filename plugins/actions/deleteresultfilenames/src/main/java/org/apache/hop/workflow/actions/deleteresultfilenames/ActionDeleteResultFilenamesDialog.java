@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -82,7 +83,6 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -101,7 +101,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Foldername line
+    // Folder name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Name.Label"));
     props.setLook(wlName);
@@ -135,7 +135,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
         BaseMessages.getString(PKG, "ActionDeleteResultFilenames.SpecifyWildcard.Tooltip"));
     FormData fdSpecifyWildcard = new FormData();
     fdSpecifyWildcard.left = new FormAttachment(middle, 0);
-    fdSpecifyWildcard.top = new FormAttachment(wName, margin);
+    fdSpecifyWildcard.top = new FormAttachment(wlSpecifyWildcard, 0, SWT.CENTER);
     fdSpecifyWildcard.right = new FormAttachment(100, 0);
     wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
     wSpecifyWildcard.addSelectionListener(
@@ -152,7 +152,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     props.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wSpecifyWildcard, margin);
+    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -162,7 +162,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wSpecifyWildcard, margin);
+    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
     fdWildcard.right = new FormAttachment(100, -margin);
     wWildcard.setLayoutData(fdWildcard);
 
@@ -190,53 +190,26 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdWildcardExclude.top = new FormAttachment(wWildcard, margin);
     fdWildcardExclude.right = new FormAttachment(100, -margin);
     wWildcardExclude.setLayoutData(fdWildcardExclude);
-
     // Whenever something changes, set the tooltip to the expanded version:
     wWildcardExclude.addModifyListener(
         e -> wWildcardExclude.setToolTipText(variables.resolve(wWildcardExclude.getText())));
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, margin, wWildcardExclude);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     CheckLimit();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

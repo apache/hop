@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.metastructure;
 
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,25 +43,26 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
 public class TransformMetaStructureDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TransformMetaStructureMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG =
+      TransformMetaStructureMeta.class; // for i18n purposes, needed by Translator2!!
 
   private final TransformMetaStructureMeta input;
 
   private Button wOutputRowcount;
   private TextVar wRowCountField;
 
-  public TransformMetaStructureDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
-    super( parent, variables, (BaseTransformMeta) in, tr, sname );
+  public TransformMetaStructureDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, tr, sname);
     input = (TransformMetaStructureMeta) in;
   }
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
-    props.setLook( shell );
-    setShellImage( shell, input );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
+    props.setLook(shell);
+    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
@@ -69,132 +71,111 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "TransformMetaStructureDialog.Shell.Title" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "TransformMetaStructureDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // TransformName line
-    wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "TransformMetaStructureDialog.TransformName.Label" ) );
-    props.setLook( wlTransformName );
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(
+        BaseMessages.getString(PKG, "TransformMetaStructureDialog.TransformName.Label"));
+    props.setLook(wlTransformName);
     fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment( middle, -margin );
-    fdlTransformName.top = new FormAttachment( 0, margin );
-    wlTransformName.setLayoutData( fdlTransformName );
-    wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTransformName.setText( transformName );
-    props.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    props.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment( middle, 0 );
-    fdTransformName.top = new FormAttachment( 0, margin );
-    fdTransformName.right = new FormAttachment( 100, 0 );
-    wTransformName.setLayoutData( fdTransformName );
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
 
     // Rowcout Output
-    Label wlOutputRowcount = new Label( shell, SWT.RIGHT );
-    wlOutputRowcount.setText( BaseMessages.getString( PKG, "TransformMetaStructureDialog.outputRowcount.Label" ) );
-    props.setLook( wlOutputRowcount );
+    Label wlOutputRowcount = new Label(shell, SWT.RIGHT);
+    wlOutputRowcount.setText(
+        BaseMessages.getString(PKG, "TransformMetaStructureDialog.outputRowcount.Label"));
+    props.setLook(wlOutputRowcount);
     FormData fdlOutputRowcount = new FormData();
-    fdlOutputRowcount.left = new FormAttachment( 0, 0 );
-    fdlOutputRowcount.top = new FormAttachment( wTransformName, margin );
-    fdlOutputRowcount.right = new FormAttachment( middle, -margin );
-    wlOutputRowcount.setLayoutData( fdlOutputRowcount );
-    wOutputRowcount = new Button( shell, SWT.CHECK );
-    props.setLook( wOutputRowcount );
+    fdlOutputRowcount.left = new FormAttachment(0, 0);
+    fdlOutputRowcount.top = new FormAttachment(wTransformName, margin);
+    fdlOutputRowcount.right = new FormAttachment(middle, -margin);
+    wlOutputRowcount.setLayoutData(fdlOutputRowcount);
+    wOutputRowcount = new Button(shell, SWT.CHECK);
+    props.setLook(wOutputRowcount);
     FormData fdOutputRowcount = new FormData();
-    fdOutputRowcount.left = new FormAttachment( middle, 0 );
-    fdOutputRowcount.top = new FormAttachment( wlOutputRowcount, 0, SWT.CENTER );
-    fdOutputRowcount.right = new FormAttachment( 100, 0 );
-    wOutputRowcount.setLayoutData( fdOutputRowcount );
-    wOutputRowcount.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
+    fdOutputRowcount.left = new FormAttachment(middle, 0);
+    fdOutputRowcount.top = new FormAttachment(wlOutputRowcount, 0, SWT.CENTER);
+    fdOutputRowcount.right = new FormAttachment(100, 0);
+    wOutputRowcount.setLayoutData(fdOutputRowcount);
+    wOutputRowcount.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
 
-        if ( wOutputRowcount.getSelection() ) {
-          wRowCountField.setEnabled( true );
-        } else {
-          wRowCountField.setEnabled( false );
-        }
-      }
-    } );
+            if (wOutputRowcount.getSelection()) {
+              wRowCountField.setEnabled(true);
+            } else {
+              wRowCountField.setEnabled(false);
+            }
+          }
+        });
 
     // Row count Field
-    Label wlRowCountField = new Label( shell, SWT.RIGHT );
-    wlRowCountField.setText( BaseMessages.getString( PKG, "TransformMetaStructureDialog.RowcountField.Label" ) );
-    props.setLook( wlRowCountField );
+    Label wlRowCountField = new Label(shell, SWT.RIGHT);
+    wlRowCountField.setText(
+        BaseMessages.getString(PKG, "TransformMetaStructureDialog.RowcountField.Label"));
+    props.setLook(wlRowCountField);
     FormData fdlRowCountField = new FormData();
-    fdlRowCountField.left = new FormAttachment( 0, 0 );
-    fdlRowCountField.right = new FormAttachment( middle, -margin );
-    fdlRowCountField.top = new FormAttachment( wlOutputRowcount, 2*margin );
-    wlRowCountField.setLayoutData( fdlRowCountField );
+    fdlRowCountField.left = new FormAttachment(0, 0);
+    fdlRowCountField.right = new FormAttachment(middle, -margin);
+    fdlRowCountField.top = new FormAttachment(wlOutputRowcount, 2 * margin);
+    wlRowCountField.setLayoutData(fdlRowCountField);
 
-    wRowCountField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wRowCountField );
-    wRowCountField.addModifyListener( lsMod );
+    wRowCountField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wRowCountField);
+    wRowCountField.addModifyListener(lsMod);
     FormData fdRowCountField = new FormData();
-    fdRowCountField.left = new FormAttachment( middle, 0 );
-    fdRowCountField.top = new FormAttachment( wlRowCountField, 0, SWT.CENTER  );
-    fdRowCountField.right = new FormAttachment( 100, -margin );
-    wRowCountField.setLayoutData( fdRowCountField );
-    wRowCountField.setEnabled( false );
+    fdRowCountField.left = new FormAttachment(middle, 0);
+    fdRowCountField.top = new FormAttachment(wlRowCountField, 0, SWT.CENTER);
+    fdRowCountField.right = new FormAttachment(100, -margin);
+    wRowCountField.setLayoutData(fdRowCountField);
+    wRowCountField.setEnabled(false);
 
     // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e->ok() );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e->cancel() );
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wRowCountField );
-
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
-      }
-    };
-
-    wTransformName.addSelectionListener( lsDef );
-    wRowCountField.addSelectionListener( lsDef );
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, wRowCountField);
 
     getData();
-    input.setChanged( changed );
+    input.setChanged(changed);
 
-    shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if ( input.getRowcountField() != null ) {
-      wRowCountField.setText( input.getRowcountField() );
+    if (input.getRowcountField() != null) {
+      wRowCountField.setText(input.getRowcountField());
     }
 
-    if ( input.isOutputRowcount() ) {
-      wRowCountField.setEnabled( true );
+    if (input.isOutputRowcount()) {
+      wRowCountField.setEnabled(true);
     }
 
-    wOutputRowcount.setSelection( input.isOutputRowcount() );
+    wOutputRowcount.setSelection(input.isOutputRowcount());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -202,24 +183,24 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
   private void cancel() {
     transformName = null;
-    input.setChanged( changed );
+    input.setChanged(changed);
     dispose();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( wTransformName.getText() ) ) {
+    if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
 
     transformName = wTransformName.getText(); // return value
 
-    getInfo( input );
+    getInfo(input);
 
     dispose();
   }
 
-  private void getInfo( TransformMetaStructureMeta tfoi ) {
-    tfoi.setOutputRowcount( wOutputRowcount.getSelection() );
-    tfoi.setRowcountField( wRowCountField.getText() );
+  private void getInfo(TransformMetaStructureMeta tfoi) {
+    tfoi.setOutputRowcount(wOutputRowcount.getSelection());
+    tfoi.setRowcountField(wRowCountField.getText());
   }
 }

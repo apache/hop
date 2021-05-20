@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,19 +33,16 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -232,16 +229,14 @@ public class DatabaseExplorerDialog extends Dialog {
       wCancel.addListener(
           SWT.Selection,
           e -> {
-            log.logBasic("SelectTableDialog", "CANCEL SelectTableDialog", null);
-            dbMeta = null;
-            dispose();
+            cancel();
           });
     } else {
       BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wRefresh}, margin, null);
     }
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> handleOK());
+    wOk.addListener(SWT.Selection, e -> ok());
     wRefresh.addListener(SWT.Selection, e -> getData());
     SelectionAdapter selAdapter =
         new SelectionAdapter() {
@@ -265,24 +260,17 @@ public class DatabaseExplorerDialog extends Dialog {
           }
         });
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            dispose();
-          }
-        });
-
-    BaseTransformDialog.setSize(shell, 320, 480, true);
-
     shell.open();
-    Display display = parent.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return tableName != null;
+  }
+
+  private void cancel() {
+    log.logBasic("SelectTableDialog", "CANCEL SelectTableDialog", null);
+    dbMeta = null;
+    dispose();
   }
 
   private void addButtons() {
@@ -890,7 +878,7 @@ public class DatabaseExplorerDialog extends Dialog {
     shell.dispose();
   }
 
-  public void handleOK() {
+  public void ok() {
     if (justLook) {
       dispose();
       return;
@@ -942,7 +930,7 @@ public class DatabaseExplorerDialog extends Dialog {
         if (up3 != null) {
           tableName = sel.getText();
           if (!justLook) {
-            handleOK();
+            ok();
           } else {
             previewTable(tableName, false);
           }

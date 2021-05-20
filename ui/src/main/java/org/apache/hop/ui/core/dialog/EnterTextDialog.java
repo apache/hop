@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,16 +51,14 @@ import org.eclipse.swt.widgets.Text;
 public class EnterTextDialog extends Dialog {
   private static final Class<?> PKG = EnterTextDialog.class; // For Translator
 
-  private String title, message;
+  private final String title;
+  private final String message;
 
-  private Label wlDesc;
   private Text wDesc;
-  private FormData fdlDesc, fdDesc;
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
-  private Shell parent, shell;
-  private SelectionAdapter lsDef;
-  private PropsUi props;
+  private Button wOk;
+  private final Shell parent;
+  private Shell shell;
+  private final PropsUi props;
   private String text;
   private boolean fixed;
   private boolean readonly, modal, singleLine;
@@ -113,8 +111,6 @@ public class EnterTextDialog extends Dialog {
   }
 
   public String open() {
-    Display display = parent.getDisplay();
-
     modal |=
         Const.isLinux(); // On Linux, this dialog seems to behave strangely except when shown modal
 
@@ -139,10 +135,10 @@ public class EnterTextDialog extends Dialog {
     int margin = props.getMargin();
 
     // From transform line
-    wlDesc = new Label(shell, SWT.NONE);
+    Label wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
     props.setLook(wlDesc);
-    fdlDesc = new FormData();
+    FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
     wlDesc.setLayoutData(fdlDesc);
@@ -159,7 +155,7 @@ public class EnterTextDialog extends Dialog {
     } else {
       props.setLook(wDesc);
     }
-    fdDesc = new FormData();
+    FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, 0);
@@ -168,20 +164,18 @@ public class EnterTextDialog extends Dialog {
     wDesc.setEditable(!readonly);
 
     // Some buttons
+    Listener lsOk;
     if (!readonly) {
       wOk = new Button(shell, SWT.PUSH);
       wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-      wCancel = new Button(shell, SWT.PUSH);
+      Button wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
       BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
       // Add listeners
-      lsCancel = e -> cancel();
-      lsOk = e -> ok();
-
-      wOk.addListener(SWT.Selection, lsOk);
-      wCancel.addListener(SWT.Selection, lsCancel);
+      wOk.addListener(SWT.Selection, e -> ok());
+      wCancel.addListener(SWT.Selection, e -> cancel());
     } else {
       wOk = new Button(shell, SWT.PUSH);
       wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
@@ -189,17 +183,8 @@ public class EnterTextDialog extends Dialog {
       BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, margin, null);
 
       // Add listeners
-      lsOk = e -> ok();
-      wOk.addListener(SWT.Selection, lsOk);
+      wOk.addListener(SWT.Selection, e -> ok());
     }
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wDesc.addSelectionListener(lsDef);
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -212,14 +197,8 @@ public class EnterTextDialog extends Dialog {
     origText = text;
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return text;
   }
 

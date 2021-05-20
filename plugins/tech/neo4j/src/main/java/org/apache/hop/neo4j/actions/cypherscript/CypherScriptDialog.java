@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.actions.cypherscript;
@@ -23,6 +22,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -35,14 +35,12 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -76,20 +74,13 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, cypherScript);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            cypherScript.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> cypherScript.setChanged();
     changed = cypherScript.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -199,21 +190,9 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
         margin,
         null);
 
-    // Detect X or ALT-F4 or something that kills this window...
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-    wName.addListener(SWT.DefaultSelection, e -> ok());
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return cypherScript;
   }

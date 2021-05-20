@@ -29,6 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -50,8 +51,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,7 +58,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -98,7 +96,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
   private Button wAddRowsToResult;
 
-  private Button wcustomSql;
+  private Button wCustomSql;
 
   private Label wlSql;
 
@@ -128,7 +126,6 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -147,22 +144,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd = new FormData();
-    fd.right = new FormAttachment(50, -10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wOk.setLayoutData(fd);
-
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fd = new FormData();
-    fd.left = new FormAttachment(50, 10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wCancel.setLayoutData(fd);
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
@@ -330,28 +319,28 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wCustomGroup.setLayout(CustomGroupLayout);
 
     // custom Sql?
-    Label wlcustomSql = new Label(wCustomGroup, SWT.RIGHT);
-    wlcustomSql.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.customSQL.Label"));
-    props.setLook(wlcustomSql);
-    FormData fdlcustomSql = new FormData();
-    fdlcustomSql.left = new FormAttachment(0, -margin);
-    fdlcustomSql.top = new FormAttachment(wSuccessGroup, margin);
-    fdlcustomSql.right = new FormAttachment(middle, -2 * margin);
-    wlcustomSql.setLayoutData(fdlcustomSql);
-    wcustomSql = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wcustomSql);
-    wcustomSql.setToolTipText(
+    Label wlCustomSql = new Label(wCustomGroup, SWT.RIGHT);
+    wlCustomSql.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.customSQL.Label"));
+    props.setLook(wlCustomSql);
+    FormData fdlCustomSql = new FormData();
+    fdlCustomSql.left = new FormAttachment(0, -margin);
+    fdlCustomSql.top = new FormAttachment(0, margin);
+    fdlCustomSql.right = new FormAttachment(middle, -2 * margin);
+    wlCustomSql.setLayoutData(fdlCustomSql);
+    wCustomSql = new Button(wCustomGroup, SWT.CHECK);
+    props.setLook(wCustomSql);
+    wCustomSql.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.customSQL.Tooltip"));
-    FormData fdcustomSql = new FormData();
-    fdcustomSql.left = new FormAttachment(middle, -margin);
-    fdcustomSql.top = new FormAttachment(wSuccessGroup, margin);
-    fdcustomSql.right = new FormAttachment(100, 0);
-    wcustomSql.setLayoutData(fdcustomSql);
-    wcustomSql.addSelectionListener(
+    FormData fdCustomSql = new FormData();
+    fdCustomSql.left = new FormAttachment(middle, -margin);
+    fdCustomSql.top = new FormAttachment(wlCustomSql, 0, SWT.CENTER);
+    fdCustomSql.right = new FormAttachment(100, 0);
+    wCustomSql.setLayoutData(fdCustomSql);
+    wCustomSql.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
 
-            setCustomerSql();
+            setCustomSql();
             action.setChanged();
           }
         });
@@ -361,7 +350,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     props.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, -margin);
-    fdlUseSubs.top = new FormAttachment(wcustomSql, margin);
+    fdlUseSubs.top = new FormAttachment(wlCustomSql, 2 * margin);
     fdlUseSubs.right = new FormAttachment(middle, -2 * margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(wCustomGroup, SWT.CHECK);
@@ -370,7 +359,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         BaseMessages.getString(PKG, "ActionEvalTableContent.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
     fdUseSubs.left = new FormAttachment(middle, -margin);
-    fdUseSubs.top = new FormAttachment(wcustomSql, margin);
+    fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
     wUseSubs.addSelectionListener(
@@ -387,7 +376,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     props.setLook(wlClearResultList);
     FormData fdlClearResultList = new FormData();
     fdlClearResultList.left = new FormAttachment(0, -margin);
-    fdlClearResultList.top = new FormAttachment(wUseSubs, margin);
+    fdlClearResultList.top = new FormAttachment(wlUseSubs, 2 * margin);
     fdlClearResultList.right = new FormAttachment(middle, -2 * margin);
     wlClearResultList.setLayoutData(fdlClearResultList);
     wClearResultList = new Button(wCustomGroup, SWT.CHECK);
@@ -396,7 +385,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         BaseMessages.getString(PKG, "ActionEvalTableContent.ClearResultList.Tooltip"));
     FormData fdClearResultList = new FormData();
     fdClearResultList.left = new FormAttachment(middle, -margin);
-    fdClearResultList.top = new FormAttachment(wUseSubs, margin);
+    fdClearResultList.top = new FormAttachment(wlClearResultList, 0, SWT.CENTER);
     fdClearResultList.right = new FormAttachment(100, 0);
     wClearResultList.setLayoutData(fdClearResultList);
     wClearResultList.addSelectionListener(
@@ -413,7 +402,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     props.setLook(wlAddRowsToResult);
     FormData fdlAddRowsToResult = new FormData();
     fdlAddRowsToResult.left = new FormAttachment(0, -margin);
-    fdlAddRowsToResult.top = new FormAttachment(wClearResultList, margin);
+    fdlAddRowsToResult.top = new FormAttachment(wlClearResultList, 2 * margin);
     fdlAddRowsToResult.right = new FormAttachment(middle, -2 * margin);
     wlAddRowsToResult.setLayoutData(fdlAddRowsToResult);
     wAddRowsToResult = new Button(wCustomGroup, SWT.CHECK);
@@ -422,7 +411,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         BaseMessages.getString(PKG, "ActionEvalTableContent.AddRowsToResult.Tooltip"));
     FormData fdAddRowsToResult = new FormData();
     fdAddRowsToResult.left = new FormAttachment(middle, -margin);
-    fdAddRowsToResult.top = new FormAttachment(wClearResultList, margin);
+    fdAddRowsToResult.top = new FormAttachment(wlAddRowsToResult, 0, SWT.CENTER);
     fdAddRowsToResult.right = new FormAttachment(100, 0);
     wAddRowsToResult.setLayoutData(fdAddRowsToResult);
     wAddRowsToResult.addSelectionListener(
@@ -447,7 +436,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     props.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wAddRowsToResult, margin);
+    fdlSql.top = new FormAttachment(wlAddRowsToResult, 2 * margin);
     wlSql.setLayoutData(fdlSql);
 
     wbSqlTable = new Button(wCustomGroup, SWT.PUSH | SWT.CENTER);
@@ -458,6 +447,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     fdbSqlTable.right = new FormAttachment(100, 0);
     fdbSqlTable.top = new FormAttachment(wAddRowsToResult, margin);
     wbSqlTable.setLayoutData(fdbSqlTable);
+    wbSqlTable.addListener(SWT.Selection, e -> getSql());
 
     wSql =
         new StyledTextComp(
@@ -519,43 +509,11 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // / END OF CustomGroup GROUP
     // ///////////////////////////////////////////////////////////
 
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-    Listener lsbSqlTable = e -> getSql();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wbSqlTable.addListener(SWT.Selection, lsbSqlTable);
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
-    setCustomerSql();
-    BaseTransformDialog.setSize(shell);
+    setCustomSql();
 
-    shell.open();
-    props.setDialogSize(shell, "ActionEvalTableContentDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -652,21 +610,21 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
             PKG, "ActionEvalTableContent.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
-  private void setCustomerSql() {
-    wlSql.setEnabled(wcustomSql.getSelection());
-    wSql.setEnabled(wcustomSql.getSelection());
-    wlAddRowsToResult.setEnabled(wcustomSql.getSelection());
-    wAddRowsToResult.setEnabled(wcustomSql.getSelection());
-    wlClearResultList.setEnabled(wcustomSql.getSelection());
-    wClearResultList.setEnabled(wcustomSql.getSelection());
-    wlUseSubs.setEnabled(wcustomSql.getSelection());
-    wbSqlTable.setEnabled(wcustomSql.getSelection());
-    wUseSubs.setEnabled(wcustomSql.getSelection());
-    wbTable.setEnabled(!wcustomSql.getSelection());
-    wTablename.setEnabled(!wcustomSql.getSelection());
-    wlTablename.setEnabled(!wcustomSql.getSelection());
-    wlSchemaname.setEnabled(!wcustomSql.getSelection());
-    wSchemaname.setEnabled(!wcustomSql.getSelection());
+  private void setCustomSql() {
+    wlSql.setEnabled(wCustomSql.getSelection());
+    wSql.setEnabled(wCustomSql.getSelection());
+    wlAddRowsToResult.setEnabled(wCustomSql.getSelection());
+    wAddRowsToResult.setEnabled(wCustomSql.getSelection());
+    wlClearResultList.setEnabled(wCustomSql.getSelection());
+    wClearResultList.setEnabled(wCustomSql.getSelection());
+    wlUseSubs.setEnabled(wCustomSql.getSelection());
+    wbSqlTable.setEnabled(wCustomSql.getSelection());
+    wUseSubs.setEnabled(wCustomSql.getSelection());
+    wbTable.setEnabled(!wCustomSql.getSelection());
+    wTablename.setEnabled(!wCustomSql.getSelection());
+    wlTablename.setEnabled(!wCustomSql.getSelection());
+    wlSchemaname.setEnabled(!wCustomSql.getSelection());
+    wSchemaname.setEnabled(!wCustomSql.getSelection());
   }
 
   public void dispose() {
@@ -700,7 +658,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       wLimit.setText("0");
     }
 
-    wcustomSql.setSelection(action.isUseCustomSql());
+    wCustomSql.setSelection(action.isUseCustomSql());
     wUseSubs.setSelection(action.isUseVars());
     wClearResultList.setSelection(action.isClearResultList());
     wAddRowsToResult.setSelection(action.isAddRowsResult());
@@ -734,7 +692,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     action.setSuccessCondition(
         ActionEvalTableContent.getSuccessConditionByDesc(wSuccessCondition.getText()));
     action.setLimit(wLimit.getText());
-    action.setUseCustomSql(wcustomSql.getSelection());
+    action.setUseCustomSql(wCustomSql.getSelection());
     action.setUseVars(wUseSubs.getSelection());
     action.setAddRowsResult(wAddRowsToResult.getSelection());
     action.setClearResultList(wClearResultList.getSelection());

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -131,7 +131,6 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -372,6 +371,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     fdTest.top = new FormAttachment(wProxyPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
@@ -544,6 +544,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     fdbLocalDirectory.right = new FormAttachment(100, 0);
     fdbLocalDirectory.top = new FormAttachment(0, margin);
     wbLocalDirectory.setLayoutData(fdbLocalDirectory);
+    wbLocalDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wLocalDirectory, variables));
 
     wLocalDirectory =
         new TextVar(
@@ -657,6 +659,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     fdbTestRemoteDirectoryExists.right = new FormAttachment(100, 0);
     fdbTestRemoteDirectoryExists.top = new FormAttachment(wSourceSettings, margin);
     wbTestRemoteDirectoryExists.setLayoutData(fdbTestRemoteDirectoryExists);
+    wbTestRemoteDirectoryExists.addListener(
+        SWT.Selection, e -> checkRemoteFolder(variables.resolve(wRemoteDirectory.getText())));
 
     wRemoteDirectory =
         new TextVar(
@@ -811,6 +815,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////////////////////////////////////
     // End of Socks Proxy Tab
     // ////////////////////////////////////////////////////////
+
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
@@ -818,50 +823,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add listeners
-    Listener lsTest = e -> test();
-    Listener lsCheckRemoteFolder =
-        e -> checkRemoteFolder(variables.resolve(wRemoteDirectory.getText()));
-    wbLocalDirectory.addListener(
-        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wLocalDirectory, variables));
-
-    wbTestRemoteDirectoryExists.addListener(SWT.Selection, lsCheckRemoteFolder);
-
-    wTest.addListener(SWT.Selection, lsTest);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wServerName.addSelectionListener(lsDef);
-    wUserName.addSelectionListener(lsDef);
-    wPassword.addSelectionListener(lsDef);
-    wRemoteDirectory.addSelectionListener(lsDef);
-    wLocalDirectory.addSelectionListener(lsDef);
-    wWildcard.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
-    shell.open();
-    props.setDialogSize(shell, "JobSFTPDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

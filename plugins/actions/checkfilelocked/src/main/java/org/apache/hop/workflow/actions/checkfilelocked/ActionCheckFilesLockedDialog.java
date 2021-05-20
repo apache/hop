@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,7 +61,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
   private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "JobCheckFilesLocked.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "ActionCheckFilesLocked.Filetype.All")};
 
   private Text wName;
 
@@ -94,13 +94,12 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     this.action = (ActionCheckFilesLocked) action;
 
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "JobCheckFilesLocked.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Name.Default"));
     }
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -114,14 +113,24 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Title"));
+    shell.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -144,7 +153,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Settings.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
     groupLayout.marginWidth = 10;
@@ -153,7 +162,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
-        BaseMessages.getString(PKG, "JobCheckFilesLocked.IncludeSubfolders.Label"));
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.IncludeSubfolders.Label"));
     props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
@@ -163,10 +172,10 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
     props.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
-        BaseMessages.getString(PKG, "JobCheckFilesLocked.IncludeSubfolders.Tooltip"));
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
-    fdIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
     fdIncludeSubfolders.right = new FormAttachment(100, 0);
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
@@ -177,20 +186,21 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
         });
 
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
-    wlPrevious.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Previous.Label"));
+    wlPrevious.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Previous.Label"));
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
     props.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
-    wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Previous.Tooltip"));
+    wPrevious.setToolTipText(
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
-    fdPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
@@ -212,7 +222,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -223,7 +233,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     // Browse Source folders button ...
     wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbDirectory);
-    wbDirectory.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.BrowseFolders.Label"));
+    wbDirectory.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
     fdbDirectory.right = new FormAttachment(100, -margin);
     fdbDirectory.top = new FormAttachment(wSettings, margin);
@@ -234,7 +244,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.BrowseFiles.Label"));
+    wbFilename.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wSettings, margin);
@@ -243,7 +253,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.FilenameAdd.Button"));
+    wbaFilename.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbFilename, -margin);
     fdbaFilename.top = new FormAttachment(wSettings, margin);
@@ -255,7 +265,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.top = new FormAttachment(wSettings, 2 * margin);
-    fdFilename.right = new FormAttachment(wbFilename, -55);
+    fdFilename.right = new FormAttachment(wbaFilename, -2 * margin);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -270,7 +280,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
 
     // Filemask
     wlFilemask = new Label(shell, SWT.RIGHT);
-    wlFilemask.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Wildcard.Label"));
+    wlFilemask.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Label"));
     props.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
@@ -282,45 +292,46 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
             variables,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "JobCheckFilesLocked.Wildcard.Tooltip"));
+            BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Tooltip"));
     props.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(wbFilename, -55);
+    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
     wFilemask.setLayoutData(fdFilemask);
 
-    // Buttons to the right of the screen...
-    wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobCheckFilesLocked.FilenameDelete.Tooltip"));
-    FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wFilemask, 40);
-    wbdFilename.setLayoutData(fdbdFilename);
-
-    wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(
-        BaseMessages.getString(PKG, "JobCheckFilesLocked.FilenameEdit.Tooltip"));
-    FormData fdbeFilename = new FormData();
-    fdbeFilename.right = new FormAttachment(100, 0);
-    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
-    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
-    wbeFilename.setLayoutData(fdbeFilename);
-
     wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobCheckFilesLocked.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(wFilemask, margin);
     wlFields.setLayoutData(fdlFields);
+
+    // Buttons to the right of the screen...
+    wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbdFilename);
+    wbdFilename.setText(
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.FilenameDelete.Button"));
+    wbdFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.FilenameDelete.Tooltip"));
+    FormData fdbdFilename = new FormData();
+    fdbdFilename.right = new FormAttachment(100, 0);
+    fdbdFilename.top = new FormAttachment(wlFields, margin);
+    wbdFilename.setLayoutData(fdbdFilename);
+
+    wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbeFilename);
+    wbeFilename.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.FilenameEdit.Button"));
+    wbeFilename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionCheckFilesLocked.FilenameEdit.Tooltip"));
+    FormData fdbeFilename = new FormData();
+    fdbeFilename.right = new FormAttachment(100, 0);
+    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
+    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
+    wbeFilename.setLayoutData(fdbeFilename);
 
     int rows =
         action.arguments == null ? 1 : (action.arguments.length == 0 ? 0 : action.arguments.length);
@@ -329,19 +340,19 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCheckFilesLocked.Fields.Argument.Label"),
+              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Argument.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobCheckFilesLocked.Fields.Wildcard.Label"),
+              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Wildcard.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
 
     colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "JobCheckFilesLocked.Fields.Column"));
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Column"));
     colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "JobCheckFilesLocked.Wildcard.Column"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Column"));
 
     wFields =
         new TableView(
@@ -356,8 +367,8 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbeFilename, -margin);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.argFromPrevious);
@@ -405,49 +416,12 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
           }
         });
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setPrevious();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

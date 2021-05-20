@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.workflow.actions.sftpput;
@@ -143,8 +142,9 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   private SftpClient sftpclient = null;
 
-  public ActionSftpPutDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
-    super( parent, workflowMeta, variables );
+  public ActionSftpPutDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionSftpPut) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionSftpPut.Title"));
@@ -153,13 +153,10 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod =
         e -> {
@@ -204,8 +201,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-      shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // The tab folder between the name and the buttons
     //
@@ -378,11 +374,12 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionSftpPut.keyfilePass.Label"),
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionSftpPut.keyfilePass.Label"),
             BaseMessages.getString(PKG, "ActionSftpPut.keyfilePass.Tooltip"),
-            true, false);
-    props.setLook( wKeyFilePass );
+            true,
+            false);
+    props.setLook(wKeyFilePass);
     wKeyFilePass.addModifyListener(lsMod);
     FormData fdkeyfilePass = new FormData();
     fdkeyfilePass.left = new FormAttachment(0, -margin);
@@ -396,7 +393,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     FormData fdlProxyType = new FormData();
     fdlProxyType.left = new FormAttachment(0, 0);
     fdlProxyType.right = new FormAttachment(middle, -margin);
-    fdlProxyType.top = new FormAttachment( wKeyFilePass, 2 * margin);
+    fdlProxyType.top = new FormAttachment(wKeyFilePass, 2 * margin);
     wlProxyType.setLayoutData(fdlProxyType);
 
     wProxyType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -406,7 +403,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wProxyType);
     FormData fdProxyType = new FormData();
     fdProxyType.left = new FormAttachment(middle, 0);
-    fdProxyType.top = new FormAttachment( wKeyFilePass, 2 * margin);
+    fdProxyType.top = new FormAttachment(wKeyFilePass, 2 * margin);
     fdProxyType.right = new FormAttachment(100, 0);
     wProxyType.setLayoutData(fdProxyType);
     wProxyType.addSelectionListener(
@@ -421,9 +418,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionSftpPut.ProxyHost.Label"),
-            BaseMessages.getString(PKG, "ActionSftpPut.ProxyHost.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyHost.Label"),
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyHost.Tooltip"),
+            false,
+            false);
     props.setLook(wProxyHost);
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
@@ -437,9 +436,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionSftpPut.ProxyPort.Label"),
-            BaseMessages.getString(PKG, "ActionSftpPut.ProxyPort.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyPort.Label"),
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyPort.Tooltip"),
+            false,
+            false);
     props.setLook(wProxyPort);
     wProxyPort.addModifyListener(lsMod);
     FormData fdProxyPort = new FormData();
@@ -453,9 +454,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionSftpPut.ProxyUsername.Label"),
-            BaseMessages.getString(PKG, "ActionSftpPut.ProxyUsername.Tooltip"), false, false);
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyUsername.Label"),
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyUsername.Tooltip"),
+            false,
+            false);
     props.setLook(wProxyUsername);
     wProxyUsername.addModifyListener(lsMod);
     FormData fdProxyUsername = new FormData();
@@ -469,10 +472,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         new LabelTextVar(
             variables,
             wServerSettings,
-          SWT.NONE,
-          BaseMessages.getString(PKG, "ActionSftpPut.ProxyPassword.Label"),
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionSftpPut.ProxyPassword.Label"),
             BaseMessages.getString(PKG, "ActionSftpPut.ProxyPassword.Tooltip"),
-            true, false);
+            true,
+            false);
     props.setLook(wProxyPassword);
     wProxyPassword.addModifyListener(lsMod);
     FormData fdProxyPasswd = new FormData();
@@ -490,6 +494,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdTest.top = new FormAttachment(wProxyPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
@@ -718,7 +723,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wAfterFtpPut.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
-            AfterFtpPutActivate();
+            afterFtpPutActivate();
           }
         });
 
@@ -843,6 +848,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdbTestChangeFolderExists.right = new FormAttachment(100, 0);
     fdbTestChangeFolderExists.top = new FormAttachment(wgSourceFiles, margin);
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
+    wbTestChangeFolderExists.addListener(SWT.Selection, e -> checkRemoteFolder());
 
     // Target (remote) folder
     wScpDirectory = new TextVar(variables, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -909,60 +915,18 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-
-    // Add listeners
-    Listener lsTest = e -> test();
-    Listener lsCheckChangeFolder = e -> checkRemoteFolder();
-
-    wTest.addListener(SWT.Selection, lsTest);
-    wbTestChangeFolderExists.addListener(SWT.Selection, lsCheckChangeFolder);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wServerName.addSelectionListener(lsDef);
-    wUserName.addSelectionListener(lsDef);
-    wPassword.addSelectionListener(lsDef);
-    wScpDirectory.addSelectionListener(lsDef);
-    wLocalDirectory.addSelectionListener(lsDef);
-    wWildcard.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
     wTabFolder.setSelection(0);
 
     getData();
     activeCopyFromPrevious();
     activeUseKey();
-    AfterFtpPutActivate();
-    BaseTransformDialog.setSize(shell);
+    afterFtpPutActivate();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -1024,7 +988,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
                 Const.toInt(variables.resolve(wServerPort.getText()), 22),
                 variables.resolve(wUserName.getText()),
                 variables.resolve(wKeyFilename.getText()),
-                variables.resolve( wKeyFilePass.getText()));
+                variables.resolve(wKeyFilePass.getText()));
         // Set proxy?
         String realProxyHost = variables.resolve(wProxyHost.getText());
         if (!Utils.isEmpty(realProxyHost)) {
@@ -1149,7 +1113,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     action.setAddFilenameResut(wAddFilenameToResult.getSelection());
     action.setUseKeyFile(wUsePublicKey.getSelection());
     action.setKeyFilename(wKeyFilename.getText());
-    action.setKeyPassPhrase( wKeyFilePass.getText());
+    action.setKeyPassPhrase(wKeyFilePass.getText());
     action.setCompression(wCompression.getText());
 
     action.setProxyType(wProxyType.getText());
@@ -1188,7 +1152,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void AfterFtpPutActivate() {
+  private void afterFtpPutActivate() {
     boolean moveFile =
         ActionSftpPut.getAfterSftpPutByDesc(wAfterFtpPut.getText())
             == ActionSftpPut.AFTER_FTPSPUT_MOVE;

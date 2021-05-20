@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
@@ -35,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
@@ -113,7 +113,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   public String open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
@@ -594,42 +593,11 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // If you hit enter in a text field: confirm and close
-    //
-    wTransformName.addListener(SWT.DefaultSelection, e -> ok());
-
-    wConnection.addListener(SWT.DefaultSelection, e -> ok());
-
-    wTable.addListener(SWT.DefaultSelection, e -> ok());
-    wConsistency.addListener(SWT.DefaultSelection, e -> ok());
-    wBatchSize.addListener(SWT.DefaultSelection, e -> ok());
-    wBatchInsertTimeout.addListener(SWT.DefaultSelection, e -> ok());
-    wSubBatchSize.addListener(SWT.DefaultSelection, e -> ok());
-    wTtlValue.addListener(SWT.DefaultSelection, e -> ok());
-    wKeyField.addListener(SWT.DefaultSelection, e -> ok());
-
-    wWithClause.addListener(SWT.DefaultSelection, e -> ok());
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     wTabFolder.setSelection(0);
-    setSize();
 
     getData();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }
@@ -934,7 +902,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wUpdateTableMetaData.setSelection(input.isUpdateCassandraMeta());
     wInsertFieldsNotInTableMeta.setSelection(input.isInsertFieldsNotInMeta());
     wUnloggedBatch.setSelection(input.isUseUnloggedBatch());
-    
+
     if (!Utils.isEmpty(input.getTtl())) {
       wTtlValue.setText(input.getTtl());
       wTtlUnits.setText(input.getTtlUnit());

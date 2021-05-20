@@ -121,7 +121,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -283,12 +282,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdHighPriority.top = new FormAttachment(wlHighPriority, 0, SWT.CENTER);
     fdHighPriority.right = new FormAttachment(100, 0);
     wHighPriority.setLayoutData(fdHighPriority);
-    wHighPriority.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
 
     // Out Dump
     //
@@ -368,12 +361,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdOptionEnclosed.top = new FormAttachment(wlOptionEnclosed, 0, SWT.CENTER);
     fdOptionEnclosed.right = new FormAttachment(100, 0);
     wOptionEnclosed.setLayoutData(fdOptionEnclosed);
-    wOptionEnclosed.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
 
     // Line terminated
     //
@@ -507,12 +494,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
     fdAddFileToResult.right = new FormAttachment(100, 0);
     wAddFileToResult.setLayoutData(fdAddFileToResult);
-    wAddFileToResult.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
 
     FormData fdFileResult = new FormData();
     fdFileResult.left = new FormAttachment(0, margin);
@@ -525,43 +506,15 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     // / END OF LOGGING GROUP
     // ///////////////////////////////////////////////////////////
 
-    // Add listeners
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wTableName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, n -> ok(), n -> cancel());
 
-    shell.open();
-    props.setDialogSize(shell, "ActionMysqlBulkFileDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 
   public void dumpFile() {
 
-    action.setChanged();
     if (wOutDumpValue.getSelectionIndex() == 0) {
       wSeparator.setEnabled(true);
       wEnclosed.setEnabled(true);

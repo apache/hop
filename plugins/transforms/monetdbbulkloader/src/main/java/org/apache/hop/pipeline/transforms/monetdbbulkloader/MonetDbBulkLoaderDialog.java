@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -125,7 +126,6 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -152,6 +152,17 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // props.getMiddlePct()
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN; // Default 4 pixel margin around components.
+
+    //
+    // OK (Button), Cancel (Button) and SQL (Button)
+    // - these appear at the bottom of the dialog window.
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wSql = new Button(shell, SWT.PUSH);
+    wSql.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.SQL.Button"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, null);
 
     //
     // Dialog Box Contents (Organized from dialog top to bottom, dialog left to right.)
@@ -402,18 +413,6 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     props.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
 
-    //
-    // OK (Button), Cancel (Button) and SQL (Button)
-    // - these appear at the bottom of the dialog window.
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.SQL.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel, wSql}, margin, null);
-
     // The field Table
     //
     // Output Fields tab - Widgets and FormData
@@ -471,18 +470,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     Button wClearDBCache = new Button(wOutputFieldsComp, SWT.PUSH);
     wClearDBCache.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.ClearDbCache"));
-
-    Listener lsClearDBCache =
-        e -> {
-          DbCache.getInstance().clear(input.getDbConnectionName());
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.ClearedDbCacheMsg"));
-          mb.setText(
-              BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.ClearedDbCacheTitle"));
-          mb.open();
-        };
-    wClearDBCache.addListener(SWT.Selection, lsClearDBCache);
+    wClearDBCache.addListener(SWT.Selection, e -> clearDbCache());
 
     //
     // Visual Layout Definition
@@ -520,7 +508,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wConnection, margin + 20);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Database Schema Line - (General Settings Tab)
@@ -598,7 +586,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlTruncate.setLayoutData(fdlTruncate);
 
     FormData fdTruncate = new FormData();
-    fdTruncate.top = new FormAttachment(wLogFile, margin * 2);
+    fdTruncate.top = new FormAttachment(wlTruncate, 0, SWT.CENTER);
     fdTruncate.left = new FormAttachment(wlTruncate, margin);
     fdTruncate.right = new FormAttachment(100, -margin);
     wTruncate.setLayoutData(fdTruncate);
@@ -609,7 +597,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlFullyQuoteSQL.setLayoutData(fdlFullyQuoteSQL);
 
     FormData fdFullyQuoteSQL = new FormData();
-    fdFullyQuoteSQL.top = new FormAttachment(wTruncate, margin * 2);
+    fdFullyQuoteSQL.top = new FormAttachment(wlFullyQuoteSQL, 0, SWT.CENTER);
     fdFullyQuoteSQL.left = new FormAttachment(wlFullyQuoteSQL, margin);
     fdFullyQuoteSQL.right = new FormAttachment(100, -margin);
     wFullyQuoteSQL.setLayoutData(fdFullyQuoteSQL);
@@ -761,41 +749,10 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         });
 
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsGetLU = e -> getUpdate();
-
-    lsSql = e -> create();
-    lsCancel = e -> cancel();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wGetLU.addListener(SWT.Selection, lsGetLU);
-    wSql.addListener(SWT.Selection, lsSql);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wSchema.addSelectionListener(lsDef);
-    wTable.addSelectionListener(lsDef);
-    wBufferSize.addSelectionListener(lsDef);
-    wLogFile.addSelectionListener(lsDef);
-
-    wFieldSeparator.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wGetLU.addListener(SWT.Selection, e -> getUpdate());
+    wSql.addListener(SWT.Selection, e -> create());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -805,20 +762,21 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
           }
         });
 
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
     setTableFieldCombo();
     input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
+  }
+
+  private void clearDbCache() {
+    DbCache.getInstance().clear(input.getDbConnectionName());
+    MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+    mb.setMessage(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.ClearedDbCacheMsg"));
+    mb.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.ClearedDbCacheTitle"));
+    mb.open();
   }
 
   protected void setTableFieldCombo() {

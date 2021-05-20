@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -76,7 +76,7 @@ public class ShowHelpDialog extends Dialog {
   private Shell shell;
 
   public ShowHelpDialog(Shell parent, String dialogTitle, String url, String header) {
-    super(parent, SWT.NONE);    
+    super(parent, SWT.NONE);
     this.dialogTitle = BaseMessages.getString(PKG, "HopGui.Documentation.Hop.Title");
     this.url = url;
     try {
@@ -97,7 +97,7 @@ public class ShowHelpDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
     PropsUi props = PropsUi.getInstance();
-    
+
     shell = createShell(parent);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setLayout(new FormLayout());
@@ -113,7 +113,7 @@ public class ShowHelpDialog extends Dialog {
     navigateToolBar.setLayoutData(fdtoolBarBack);
     navigateToolBar.setCursor(cursorHand);
     navigateToolBar.setBackground(navigateToolBar.getParent().getBackground());
-    
+
     tltmHome = new ToolItem(navigateToolBar, SWT.NONE);
     tltmHome.setImage(GuiResource.getInstance().getImageHome());
     tltmHome.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Home"));
@@ -130,7 +130,8 @@ public class ShowHelpDialog extends Dialog {
 
       tltmForward = new ToolItem(navigateToolBar, SWT.NONE);
       tltmForward.setImage(GuiResource.getInstance().getImageNavigateForward());
-      tltmForward.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Forward"));
+      tltmForward.setToolTipText(
+          BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Forward"));
       tltmForward.setEnabled(false);
       tltmForward.addListener(SWT.Selection, e -> forward());
     }
@@ -151,16 +152,16 @@ public class ShowHelpDialog extends Dialog {
     tltmPrint = new ToolItem(printToolBar, SWT.NONE);
     tltmPrint.setImage(GuiResource.getInstance().getImagePrint());
     tltmPrint.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Print"));
-    tltmPrint.setEnabled(true);    
+    tltmPrint.setEnabled(true);
     tltmPrint.addListener(SWT.Selection, e -> print());
-    
+
     textURL = new Text(shell, SWT.BORDER);
     FormData fdtext = new FormData();
     fdtext.top = new FormAttachment(0, MARGIN);
     fdtext.right = new FormAttachment(printToolBar, -MARGIN);
     fdtext.left = new FormAttachment(navigateToolBar, MARGIN);
     textURL.setLayoutData(fdtext);
-    textURL.setForeground(new Color(display, props.contrastColor( 101, 101, 101)));
+    textURL.setForeground(new Color(display, props.contrastColor(101, 101, 101)));
 
     // Browser
     wBrowser = new Browser(shell, SWT.NONE);
@@ -173,24 +174,11 @@ public class ShowHelpDialog extends Dialog {
     wBrowser.setUrl(url);
     props.setLook(wBrowser);
 
-    addProgressAndLocationListener();   
+    addProgressAndLocationListener();
 
-    // Specs are 760/530, but due to rendering differences, we need to adjust the actual hgt/wdt
-    // used
-    BaseTransformDialog.setSize(shell, 755, 538, true);
-    shell.setMinimumSize(515, 408);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addListener(SWT.Close, e -> ok());
-    
     textURL.setFocus();
-    
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> ok());
   }
 
   private void addProgressAndLocationListener() {

@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -168,9 +169,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   }
 
   public String open() {
-
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -401,38 +400,11 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     setButtonPositions(new Button[] {wOk, wCancel, wVars, wTest}, margin, null);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    // lsGet = new Listener() { public void handleEvent(Event e) { get(); } };
-    Listener lsTest = e -> newTest();
-    Listener lsVars = e -> test(true, true);
-    lsOk = e -> ok();
-    Listener lsTree = e -> treeDblClick(e);
-    // lsHelp = new Listener(){public void handleEvent(Event e){ wlHelpLabel.setVisible(true); }};
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    // wGet.addListener (SWT.Selection, lsGet );
-    wTest.addListener(SWT.Selection, lsTest);
-    wVars.addListener(SWT.Selection, lsVars);
-    wOk.addListener(SWT.Selection, lsOk);
-    wTree.addListener(SWT.MouseDoubleClick, lsTree);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            if (!cancel()) {
-              e.doit = false;
-            }
-          }
-        });
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wTest.addListener(SWT.Selection, e -> newTest());
+    wVars.addListener(SWT.Selection, e -> test(true, true));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wTree.addListener(SWT.MouseDoubleClick, e -> treeDblClick(e));
 
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
@@ -469,8 +441,6 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     wTreeScriptsItem.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.TransformScript.Label"));
 
-    // Set the shell size, based upon previous time...
-    setSize();
     getData();
 
     // Adding the Rest (Functions, InputItems, etc.) to the Tree
@@ -564,12 +534,8 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
           }
         });
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

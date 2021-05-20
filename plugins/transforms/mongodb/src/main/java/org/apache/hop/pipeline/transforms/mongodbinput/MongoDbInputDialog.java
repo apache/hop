@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -103,7 +104,6 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   @Override
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -482,40 +482,13 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     fd.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fd);
 
-    // Add listeners
-    lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wCollection.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData(input);
     input.setChanged(changed);
 
     wTabFolder.setSelection(0);
-    // Set the shell size, based upon previous time...
-    setSize();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -611,7 +584,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     return wFields.isDisposed();
   }
 
-  private void refreshFields( List<MongoField> fields) {
+  private void refreshFields(List<MongoField> fields) {
     if (fields == null) {
       return;
     }
@@ -813,7 +786,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-          metadataProvider, oneMeta, wTransformName.getText());
+            metadataProvider, oneMeta, wTransformName.getText());
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
@@ -953,16 +926,15 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       MongodbInputDiscoverFieldsImpl discoverFields = new MongodbInputDiscoverFieldsImpl();
 
       List<MongoField> discoveredFields =
-        discoverFields
-              .discoverFields(
-                  variables,
-                  connection,
-                  collection,
-                  query,
-                  fields,
-                  meta.isQueryIsPipeline(),
-                  numDocsToSample,
-                  meta);
+          discoverFields.discoverFields(
+              variables,
+              connection,
+              collection,
+              query,
+              fields,
+              meta.isQueryIsPipeline(),
+              numDocsToSample,
+              meta);
 
       // return true if query resulted in documents being returned and fields
       // getting extracted

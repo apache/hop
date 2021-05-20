@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,15 +50,9 @@ public class EnterPasswordDialog extends Dialog {
 
   private String title, message;
 
-  private Label wlDesc;
   private Text wDesc;
-  private FormData fdlDesc, fdDesc;
-  private Button wOk, wCancel;
-  private FormData fdOk, fdCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
-  private SelectionAdapter lsDef;
   private PropsUi props;
 
   private String description;
@@ -95,7 +89,6 @@ public class EnterPasswordDialog extends Dialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(
@@ -118,17 +111,17 @@ public class EnterPasswordDialog extends Dialog {
     int margin = props.getMargin();
 
     // From transform line
-    wlDesc = new Label(shell, SWT.NONE);
+    Label wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
     props.setLook(wlDesc);
-    fdlDesc = new FormData();
+    FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
     wlDesc.setLayoutData(fdlDesc);
     wDesc = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     wDesc.setText("");
     props.setLook(wDesc);
-    fdDesc = new FormData();
+    FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, 0);
@@ -137,26 +130,26 @@ public class EnterPasswordDialog extends Dialog {
     wDesc.setEditable(!readonly);
 
     // Some buttons
+    FormData fdOk;
+    Button wOk;
     if (!readonly) {
       wOk = new Button(shell, SWT.PUSH);
       wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-      wCancel = new Button(shell, SWT.PUSH);
+      Button wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
       fdOk = new FormData();
       fdOk.left = new FormAttachment(33, 0);
       fdOk.bottom = new FormAttachment(100, 0);
       wOk.setLayoutData(fdOk);
-      fdCancel = new FormData();
+      FormData fdCancel = new FormData();
       fdCancel.left = new FormAttachment(66, 0);
       fdCancel.bottom = new FormAttachment(100, 0);
       wCancel.setLayoutData(fdCancel);
 
       // Add listeners
-      lsCancel = e -> cancel();
-      lsOk = e -> ok();
 
-      wOk.addListener(SWT.Selection, lsOk);
-      wCancel.addListener(SWT.Selection, lsCancel);
+      wOk.addListener(SWT.Selection, e -> ok());
+      wCancel.addListener(SWT.Selection, e -> cancel());
     } else {
       wOk = new Button(shell, SWT.PUSH);
       wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
@@ -166,36 +159,13 @@ public class EnterPasswordDialog extends Dialog {
       wOk.setLayoutData(fdOk);
 
       // Add listeners
-      lsOk = e -> ok();
-      wOk.addListener(SWT.Selection, lsOk);
+      wOk.addListener(SWT.Selection, e -> ok());
     }
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wDesc.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return description;
   }
 

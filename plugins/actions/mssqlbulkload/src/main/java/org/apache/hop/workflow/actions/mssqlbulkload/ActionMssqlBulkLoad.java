@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,13 +60,12 @@ import java.util.List;
  * @since Jan-2007
  */
 @Action(
-	  id = "MSSQL_BULK_LOAD",
-	  name = "i18n::ActionMssqlBulkLoad.Name",
-	  description = "i18n::ActionMssqlBulkLoad.Description",
-	  image = "MssqlBulkLoad.svg",
-	  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
-	  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mssqlbulkload.html"
-)
+    id = "MSSQL_BULK_LOAD",
+    name = "i18n::ActionMssqlBulkLoad.Name",
+    description = "i18n::ActionMssqlBulkLoad.Description",
+    image = "MssqlBulkLoad.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mssqlbulkload.html")
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
 
@@ -98,8 +97,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   private DatabaseMeta connection;
 
-  public ActionMssqlBulkLoad( String n ) {
-    super( n, "" );
+  public ActionMssqlBulkLoad(String n) {
+    super(n, "");
     tableName = null;
     schemaname = null;
     filename = null;
@@ -131,7 +130,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public ActionMssqlBulkLoad() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -140,90 +139,94 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 500 );
+    StringBuilder retval = new StringBuilder(500);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
+    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
+    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "datafiletype", datafiletype ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldterminator", fieldterminator ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "lineterminated", lineterminated ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "codepage", codepage ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "specificcodepage", specificcodepage ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "formatfilename", formatfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "firetriggers", firetriggers ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "checkconstraints", checkconstraints ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "keepnulls", keepnulls ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "keepidentity", keepidentity ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablock", tablock ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "startfile", startfile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "endfile", endfile ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "orderby", orderby ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "orderdirection", orderdirection ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "maxerrors", maxerrors ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "batchsize", batchsize ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "rowsperbatch", rowsperbatch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "errorfilename", errorfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "adddatetime", adddatetime ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "truncate", truncate ) );
+    retval.append("      ").append(XmlHandler.addTagValue("datafiletype", datafiletype));
+    retval.append("      ").append(XmlHandler.addTagValue("fieldterminator", fieldterminator));
+    retval.append("      ").append(XmlHandler.addTagValue("lineterminated", lineterminated));
+    retval.append("      ").append(XmlHandler.addTagValue("codepage", codepage));
+    retval.append("      ").append(XmlHandler.addTagValue("specificcodepage", specificcodepage));
+    retval.append("      ").append(XmlHandler.addTagValue("formatfilename", formatfilename));
+    retval.append("      ").append(XmlHandler.addTagValue("firetriggers", firetriggers));
+    retval.append("      ").append(XmlHandler.addTagValue("checkconstraints", checkconstraints));
+    retval.append("      ").append(XmlHandler.addTagValue("keepnulls", keepnulls));
+    retval.append("      ").append(XmlHandler.addTagValue("keepidentity", keepidentity));
+    retval.append("      ").append(XmlHandler.addTagValue("tablock", tablock));
+    retval.append("      ").append(XmlHandler.addTagValue("startfile", startfile));
+    retval.append("      ").append(XmlHandler.addTagValue("endfile", endfile));
+    retval.append("      ").append(XmlHandler.addTagValue("orderby", orderby));
+    retval.append("      ").append(XmlHandler.addTagValue("orderdirection", orderdirection));
+    retval.append("      ").append(XmlHandler.addTagValue("maxerrors", maxerrors));
+    retval.append("      ").append(XmlHandler.addTagValue("batchsize", batchsize));
+    retval.append("      ").append(XmlHandler.addTagValue("rowsperbatch", rowsperbatch));
+    retval.append("      ").append(XmlHandler.addTagValue("errorfilename", errorfilename));
+    retval.append("      ").append(XmlHandler.addTagValue("adddatetime", adddatetime));
+    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
+    retval.append("      ").append(XmlHandler.addTagValue("truncate", truncate));
 
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
-      filename = XmlHandler.getTagValue( entrynode, "filename" );
-      datafiletype = XmlHandler.getTagValue( entrynode, "datafiletype" );
-      fieldterminator = XmlHandler.getTagValue( entrynode, "fieldterminator" );
+      super.loadXml(entrynode);
+      schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
+      tableName = XmlHandler.getTagValue(entrynode, "tablename");
+      filename = XmlHandler.getTagValue(entrynode, "filename");
+      datafiletype = XmlHandler.getTagValue(entrynode, "datafiletype");
+      fieldterminator = XmlHandler.getTagValue(entrynode, "fieldterminator");
 
-      lineterminated = XmlHandler.getTagValue( entrynode, "lineterminated" );
-      codepage = XmlHandler.getTagValue( entrynode, "codepage" );
-      specificcodepage = XmlHandler.getTagValue( entrynode, "specificcodepage" );
-      formatfilename = XmlHandler.getTagValue( entrynode, "formatfilename" );
+      lineterminated = XmlHandler.getTagValue(entrynode, "lineterminated");
+      codepage = XmlHandler.getTagValue(entrynode, "codepage");
+      specificcodepage = XmlHandler.getTagValue(entrynode, "specificcodepage");
+      formatfilename = XmlHandler.getTagValue(entrynode, "formatfilename");
 
-      firetriggers = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "firetriggers" ) );
-      checkconstraints = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "checkconstraints" ) );
-      keepnulls = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "keepnulls" ) );
-      keepidentity = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "keepidentity" ) );
+      firetriggers = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "firetriggers"));
+      checkconstraints =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "checkconstraints"));
+      keepnulls = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "keepnulls"));
+      keepidentity = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "keepidentity"));
 
-      tablock = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "tablock" ) );
-      startfile = Const.toInt( XmlHandler.getTagValue( entrynode, "startfile" ), 0 );
-      endfile = Const.toInt( XmlHandler.getTagValue( entrynode, "endfile" ), 0 );
+      tablock = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "tablock"));
+      startfile = Const.toInt(XmlHandler.getTagValue(entrynode, "startfile"), 0);
+      endfile = Const.toInt(XmlHandler.getTagValue(entrynode, "endfile"), 0);
 
-      orderby = XmlHandler.getTagValue( entrynode, "orderby" );
-      orderdirection = XmlHandler.getTagValue( entrynode, "orderdirection" );
+      orderby = XmlHandler.getTagValue(entrynode, "orderby");
+      orderdirection = XmlHandler.getTagValue(entrynode, "orderdirection");
 
-      errorfilename = XmlHandler.getTagValue( entrynode, "errorfilename" );
+      errorfilename = XmlHandler.getTagValue(entrynode, "errorfilename");
 
-      maxerrors = Const.toInt( XmlHandler.getTagValue( entrynode, "maxerrors" ), 0 );
-      batchsize = Const.toInt( XmlHandler.getTagValue( entrynode, "batchsize" ), 0 );
-      rowsperbatch = Const.toInt( XmlHandler.getTagValue( entrynode, "rowsperbatch" ), 0 );
-      adddatetime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddatetime" ) );
-      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
-      truncate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "truncate" ) );
+      maxerrors = Const.toInt(XmlHandler.getTagValue(entrynode, "maxerrors"), 0);
+      batchsize = Const.toInt(XmlHandler.getTagValue(entrynode, "batchsize"), 0);
+      rowsperbatch = Const.toInt(XmlHandler.getTagValue(entrynode, "rowsperbatch"), 0);
+      adddatetime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "adddatetime"));
+      String dbname = XmlHandler.getTagValue(entrynode, "connection");
+      addfiletoresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
+      truncate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "truncate"));
 
-      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
+      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
 
-    } catch ( HopException e ) {
-      throw new HopXmlException( "Unable to load action of type 'MSsql bulk load' from XML node", e );
+    } catch (HopException e) {
+      throw new HopXmlException("Unable to load action of type 'MSsql bulk load' from XML node", e);
     }
   }
 
-  public void setTablename( String tableName ) {
+  public void setTablename(String tableName) {
     this.tableName = tableName;
   }
 
-  public void setSchemaname( String schemaname ) {
+  public void setSchemaname(String schemaname) {
     this.schemaname = schemaname;
   }
 
@@ -235,7 +238,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return tableName;
   }
 
-  public void setMaxErrors( int maxerrors ) {
+  public void setMaxErrors(int maxerrors) {
     this.maxerrors = maxerrors;
   }
 
@@ -247,7 +250,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return batchsize;
   }
 
-  public void setBatchSize( int batchsize ) {
+  public void setBatchSize(int batchsize) {
     this.batchsize = batchsize;
   }
 
@@ -255,11 +258,11 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return rowsperbatch;
   }
 
-  public void setRowsPerBatch( int rowsperbatch ) {
+  public void setRowsPerBatch(int rowsperbatch) {
     this.rowsperbatch = rowsperbatch;
   }
 
-  public void setDatabase( DatabaseMeta database ) {
+  public void setDatabase(DatabaseMeta database) {
     this.connection = database;
   }
 
@@ -267,7 +270,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return connection;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -275,7 +279,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return false;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     String TakeFirstNbrLines = "";
     String LineTerminatedby = "";
     String FieldTerminatedby = "";
@@ -284,12 +288,12 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     String ErrorfileName = "";
 
     Result result = previousResult;
-    result.setResult( false );
+    result.setResult(false);
 
-    String vfsFilename = resolve( filename );
+    String vfsFilename = resolve(filename);
     FileObject fileObject = null;
     // Let's check the filename ...
-    if ( !Utils.isEmpty( vfsFilename ) ) {
+    if (!Utils.isEmpty(vfsFilename)) {
       try {
         // User has specified a file, We can continue ...
         //
@@ -297,74 +301,84 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
         // As such, we're going to verify that it's a local file...
         // We're also going to convert VFS FileObject to File
         //
-        fileObject = HopVfs.getFileObject( vfsFilename );
-        if ( !( fileObject instanceof LocalFile ) ) {
+        fileObject = HopVfs.getFileObject(vfsFilename);
+        if (!(fileObject instanceof LocalFile)) {
           // MSSQL BUKL INSERT can only use local files, so that's what we limit ourselves to.
           //
-          throw new HopException( BaseMessages.getString(
-            PKG, "JobMssqlBulkLoad.Error.OnlyLocalFileSupported", vfsFilename ) );
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "ActionMssqlBulkLoad.Error.OnlyLocalFileSupported", vfsFilename));
         }
 
         // Convert it to a regular platform specific file name
         //
-        String realFilename = HopVfs.getFilename( fileObject );
+        String realFilename = HopVfs.getFilename(fileObject);
 
         // Here we go... back to the regular scheduled program...
         //
-        File file = new File( realFilename );
-        if ( file.exists() && file.canRead() ) {
+        File file = new File(realFilename);
+        if (file.exists() && file.canRead()) {
           // User has specified an existing file, We can continue ...
-          if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobMssqlBulkLoad.FileExists.Label", realFilename ) );
+          if (log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FileExists.Label", realFilename));
           }
 
-          if ( connection != null ) {
+          if (connection != null) {
             // User has specified a connection, We can continue ...
-            Database db = new Database( this, this, connection );
+            Database db = new Database(this, this, connection);
 
-            if ( !"MSSQL".equals(db.getDatabaseMeta().getPluginId()) ) {
+            if (!"MSSQL".equals(db.getDatabaseMeta().getPluginId())) {
 
-           // if ( !( db.getDatabaseMeta().getIDatabase() instanceof MSSQLServerDatabaseMeta ) ) {
-            	
-              logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.DbNotMSSQL", connection
-                .getDatabaseName() ) );
+              // if ( !( db.getDatabaseMeta().getIDatabase() instanceof MSSQLServerDatabaseMeta ) )
+              // {
+
+              logError(
+                  BaseMessages.getString(
+                      PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", connection.getDatabaseName()));
               return result;
             }
             try {
               db.connect();
               // Get schemaname
-              String realSchemaname = resolve( schemaname );
+              String realSchemaname = resolve(schemaname);
               // Get tablename
-              String realTablename = resolve( tableName );
+              String realTablename = resolve(tableName);
 
               // Add schemaname (Most the time Schemaname.Tablename)
-              if ( schemaname != null ) {
+              if (schemaname != null) {
                 realTablename = realSchemaname + "." + realTablename;
               }
 
-              if ( db.checkTableExists( realTablename ) ) {
+              if (db.checkTableExists(realTablename)) {
                 // The table existe, We can continue ...
-                if ( log.isDetailed() ) {
-                  logDetailed( BaseMessages.getString( PKG, "JobMssqlBulkLoad.TableExists.Label", realTablename ) );
+                if (log.isDetailed()) {
+                  logDetailed(
+                      BaseMessages.getString(
+                          PKG, "ActionMssqlBulkLoad.TableExists.Label", realTablename));
                 }
 
                 // FIELDTERMINATOR
                 String Fieldterminator = getRealFieldTerminator();
-                if ( Utils.isEmpty( Fieldterminator )
-                  && ( datafiletype.equals( "char" ) || datafiletype.equals( "widechar" ) ) ) {
-                  logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.FieldTerminatorMissing" ) );
+                if (Utils.isEmpty(Fieldterminator)
+                    && (datafiletype.equals("char") || datafiletype.equals("widechar"))) {
+                  logError(
+                      BaseMessages.getString(
+                          PKG, "ActionMssqlBulkLoad.Error.FieldTerminatorMissing"));
                   return result;
                 } else {
-                  if ( datafiletype.equals( "char" ) || datafiletype.equals( "widechar" ) ) {
+                  if (datafiletype.equals("char") || datafiletype.equals("widechar")) {
                     useFieldSeparator = true;
                     FieldTerminatedby = "FIELDTERMINATOR='" + Fieldterminator + "'";
                   }
                 }
                 // Check Specific Code page
-                if ( codepage.equals( "Specific" ) ) {
-                  String realCodePage = resolve( codepage );
-                  if ( specificcodepage.length() < 0 ) {
-                    logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.SpecificCodePageMissing" ) );
+                if (codepage.equals("Specific")) {
+                  String realCodePage = resolve(codepage);
+                  if (specificcodepage.length() < 0) {
+                    logError(
+                        BaseMessages.getString(
+                            PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageMissing"));
                     return result;
 
                   } else {
@@ -375,21 +389,23 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Check Error file
-                String realErrorFile = resolve( errorfilename );
-                if ( realErrorFile != null ) {
-                  File errorfile = new File( realErrorFile );
-                  if ( errorfile.exists() && !adddatetime ) {
-                    // The error file is created when the command is executed. An error occurs if the file already
+                String realErrorFile = resolve(errorfilename);
+                if (realErrorFile != null) {
+                  File errorfile = new File(realErrorFile);
+                  if (errorfile.exists() && !adddatetime) {
+                    // The error file is created when the command is executed. An error occurs if
+                    // the file already
                     // exists.
-                    logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.ErrorFileExists" ) );
+                    logError(
+                        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.ErrorFileExists"));
                     return result;
                   }
-                  if ( adddatetime ) {
+                  if (adddatetime) {
                     // Add date time to filename...
                     SimpleDateFormat daf = new SimpleDateFormat();
                     Date now = new Date();
-                    daf.applyPattern( "yyyMMdd_HHmmss" );
-                    String d = daf.format( now );
+                    daf.applyPattern("yyyMMdd_HHmmss");
+                    String d = daf.format(now);
 
                     ErrorfileName = "ERRORFILE ='" + realErrorFile + "_" + d + "'";
                   } else {
@@ -399,79 +415,83 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 // ROWTERMINATOR
                 String Rowterminator = getRealLineterminated();
-                if ( !Utils.isEmpty( Rowterminator ) ) {
+                if (!Utils.isEmpty(Rowterminator)) {
                   LineTerminatedby = "ROWTERMINATOR='" + Rowterminator + "'";
                 }
 
                 // Start file at
-                if ( startfile > 0 ) {
+                if (startfile > 0) {
                   TakeFirstNbrLines = "FIRSTROW=" + startfile;
                 }
 
                 // End file at
-                if ( endfile > 0 ) {
+                if (endfile > 0) {
                   TakeFirstNbrLines = "LASTROW=" + endfile;
                 }
 
                 // Truncate table?
                 String SqlBulkLoad = "";
-                if ( truncate ) {
+                if (truncate) {
                   SqlBulkLoad = "TRUNCATE TABLE " + realTablename + ";";
                 }
 
                 // Build BULK Command
                 SqlBulkLoad =
-                  SqlBulkLoad
-                    + "BULK INSERT " + realTablename + " FROM " + "'" + realFilename.replace( '\\', '/' )
-                    + "'";
+                    SqlBulkLoad
+                        + "BULK INSERT "
+                        + realTablename
+                        + " FROM "
+                        + "'"
+                        + realFilename.replace('\\', '/')
+                        + "'";
                 SqlBulkLoad = SqlBulkLoad + " WITH (";
-                if ( useFieldSeparator ) {
+                if (useFieldSeparator) {
                   SqlBulkLoad = SqlBulkLoad + FieldTerminatedby;
                 } else {
                   SqlBulkLoad = SqlBulkLoad + "DATAFILETYPE ='" + datafiletype + "'";
                 }
 
-                if ( LineTerminatedby.length() > 0 ) {
+                if (LineTerminatedby.length() > 0) {
                   SqlBulkLoad = SqlBulkLoad + "," + LineTerminatedby;
                 }
-                if ( TakeFirstNbrLines.length() > 0 ) {
+                if (TakeFirstNbrLines.length() > 0) {
                   SqlBulkLoad = SqlBulkLoad + "," + TakeFirstNbrLines;
                 }
-                if ( UseCodepage.length() > 0 ) {
+                if (UseCodepage.length() > 0) {
                   SqlBulkLoad = SqlBulkLoad + "," + UseCodepage;
                 }
-                String realFormatFile = resolve( formatfilename );
-                if ( realFormatFile != null ) {
+                String realFormatFile = resolve(formatfilename);
+                if (realFormatFile != null) {
                   SqlBulkLoad = SqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
-                if ( firetriggers ) {
+                if (firetriggers) {
                   SqlBulkLoad = SqlBulkLoad + ",FIRE_TRIGGERS";
                 }
-                if ( keepnulls ) {
+                if (keepnulls) {
                   SqlBulkLoad = SqlBulkLoad + ",KEEPNULLS";
                 }
-                if ( keepidentity ) {
+                if (keepidentity) {
                   SqlBulkLoad = SqlBulkLoad + ",KEEPIDENTITY";
                 }
-                if ( checkconstraints ) {
+                if (checkconstraints) {
                   SqlBulkLoad = SqlBulkLoad + ",CHECK_CONSTRAINTS";
                 }
-                if ( tablock ) {
+                if (tablock) {
                   SqlBulkLoad = SqlBulkLoad + ",TABLOCK";
                 }
-                if ( orderby != null ) {
+                if (orderby != null) {
                   SqlBulkLoad = SqlBulkLoad + ",ORDER ( " + orderby + " " + orderdirection + ")";
                 }
-                if ( ErrorfileName.length() > 0 ) {
+                if (ErrorfileName.length() > 0) {
                   SqlBulkLoad = SqlBulkLoad + ", " + ErrorfileName;
                 }
-                if ( maxerrors > 0 ) {
+                if (maxerrors > 0) {
                   SqlBulkLoad = SqlBulkLoad + ", MAXERRORS=" + maxerrors;
                 }
-                if ( batchsize > 0 ) {
+                if (batchsize > 0) {
                   SqlBulkLoad = SqlBulkLoad + ", BATCHSIZE=" + batchsize;
                 }
-                if ( rowsperbatch > 0 ) {
+                if (rowsperbatch > 0) {
                   SqlBulkLoad = SqlBulkLoad + ", ROWS_PER_BATCH=" + rowsperbatch;
                 }
                 // End of Bulk command
@@ -479,80 +499,88 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 try {
                   // Run the SQL
-                  db.execStatement( SqlBulkLoad );
+                  db.execStatement(SqlBulkLoad);
 
                   // Everything is OK...we can disconnect now
                   db.disconnect();
 
-                  if ( isAddFileToResult() ) {
+                  if (isAddFileToResult()) {
                     // Add filename to output files
                     ResultFile resultFile =
-                      new ResultFile(
-                        ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename ), parentWorkflow
-                        .getWorkflowName(), toString() );
-                    result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+                        new ResultFile(
+                            ResultFile.FILE_TYPE_GENERAL,
+                            HopVfs.getFileObject(realFilename),
+                            parentWorkflow.getWorkflowName(),
+                            toString());
+                    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
                   }
 
-                  result.setResult( true );
-                } catch ( HopDatabaseException je ) {
-                  result.setNrErrors( 1 );
-                  logError( "An error occurred executing this action : " + je.getMessage(), je );
-                } catch ( HopFileException e ) {
-                  logError( "An error occurred executing this action : " + e.getMessage(), e );
-                  result.setNrErrors( 1 );
+                  result.setResult(true);
+                } catch (HopDatabaseException je) {
+                  result.setNrErrors(1);
+                  logError("An error occurred executing this action : " + je.getMessage(), je);
+                } catch (HopFileException e) {
+                  logError("An error occurred executing this action : " + e.getMessage(), e);
+                  result.setNrErrors(1);
                 } finally {
-                  if ( db != null ) {
+                  if (db != null) {
                     db.disconnect();
                     db = null;
                   }
                 }
               } else {
-                // Of course, the table should have been created already before the bulk load operation
+                // Of course, the table should have been created already before the bulk load
+                // operation
                 db.disconnect();
-                result.setNrErrors( 1 );
-                logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.TableNotExists", realTablename ) );
+                result.setNrErrors(1);
+                logError(
+                    BaseMessages.getString(
+                        PKG, "ActionMssqlBulkLoad.Error.TableNotExists", realTablename));
               }
-            } catch ( HopDatabaseException dbe ) {
+            } catch (HopDatabaseException dbe) {
               db.disconnect();
-              result.setNrErrors( 1 );
-              logError( "An error occurred executing this entry: " + dbe.getMessage() );
+              result.setNrErrors(1);
+              logError("An error occurred executing this entry: " + dbe.getMessage());
             }
           } else {
             // No database connection is defined
-            result.setNrErrors( 1 );
-            logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Nodatabase.Label" ) );
+            result.setNrErrors(1);
+            logError(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Nodatabase.Label"));
           }
         } else {
           // the file doesn't exist
-          result.setNrErrors( 1 );
-          logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.FileNotExists", realFilename ) );
+          result.setNrErrors(1);
+          logError(
+              BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.FileNotExists", realFilename));
         }
-      } catch ( Exception e ) {
+      } catch (Exception e) {
         // An unexpected error occurred
-        result.setNrErrors( 1 );
-        logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.UnexpectedError.Label" ), e );
+        result.setNrErrors(1);
+        logError(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.UnexpectedError.Label"), e);
       } finally {
         try {
-          if ( fileObject != null ) {
+          if (fileObject != null) {
             fileObject.close();
           }
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           // Ignore errors
         }
       }
     } else {
       // No file was specified
-      result.setNrErrors( 1 );
-      logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Nofilename.Label" ) );
+      result.setNrErrors(1);
+      logError(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Nofilename.Label"));
     }
     return result;
   }
 
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] { connection, };
+    return new DatabaseMeta[] {
+      connection,
+    };
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -560,15 +588,15 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return filename;
   }
 
-  public void setFieldTerminator( String fieldterminator ) {
+  public void setFieldTerminator(String fieldterminator) {
     this.fieldterminator = fieldterminator;
   }
 
-  public void setLineterminated( String lineterminated ) {
+  public void setLineterminated(String lineterminated) {
     this.lineterminated = lineterminated;
   }
 
-  public void setCodePage( String codepage ) {
+  public void setCodePage(String codepage) {
     this.codepage = codepage;
   }
 
@@ -576,7 +604,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return codepage;
   }
 
-  public void setSpecificCodePage( String specificcodepage ) {
+  public void setSpecificCodePage(String specificcodepage) {
     this.specificcodepage = specificcodepage;
   }
 
@@ -584,7 +612,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return specificcodepage;
   }
 
-  public void setFormatFilename( String formatfilename ) {
+  public void setFormatFilename(String formatfilename) {
     this.formatfilename = formatfilename;
   }
 
@@ -604,19 +632,19 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return datafiletype;
   }
 
-  public void setDataFileType( String datafiletype ) {
+  public void setDataFileType(String datafiletype) {
     this.datafiletype = datafiletype;
   }
 
   public String getRealLineterminated() {
-    return resolve( getLineterminated() );
+    return resolve(getLineterminated());
   }
 
   public String getRealFieldTerminator() {
-    return resolve( getFieldTerminator() );
+    return resolve(getFieldTerminator());
   }
 
-  public void setStartFile( int startfile ) {
+  public void setStartFile(int startfile) {
     this.startfile = startfile;
   }
 
@@ -624,7 +652,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return startfile;
   }
 
-  public void setEndFile( int endfile ) {
+  public void setEndFile(int endfile) {
     this.endfile = endfile;
   }
 
@@ -632,7 +660,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return endfile;
   }
 
-  public void setOrderBy( String orderby ) {
+  public void setOrderBy(String orderby) {
     this.orderby = orderby;
   }
 
@@ -644,11 +672,11 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return orderdirection;
   }
 
-  public void setOrderDirection( String orderdirection ) {
+  public void setOrderDirection(String orderdirection) {
     this.orderdirection = orderdirection;
   }
 
-  public void setErrorFilename( String errorfilename ) {
+  public void setErrorFilename(String errorfilename) {
     this.errorfilename = errorfilename;
   }
 
@@ -657,10 +685,10 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealOrderBy() {
-    return resolve( getOrderBy() );
+    return resolve(getOrderBy());
   }
 
-  public void setAddFileToResult( boolean addfiletoresultin ) {
+  public void setAddFileToResult(boolean addfiletoresultin) {
     this.addfiletoresult = addfiletoresultin;
   }
 
@@ -668,7 +696,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return addfiletoresult;
   }
 
-  public void setTruncate( boolean truncate ) {
+  public void setTruncate(boolean truncate) {
     this.truncate = truncate;
   }
 
@@ -676,7 +704,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return truncate;
   }
 
-  public void setAddDatetime( boolean adddatetime ) {
+  public void setAddDatetime(boolean adddatetime) {
     this.adddatetime = adddatetime;
   }
 
@@ -684,7 +712,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return adddatetime;
   }
 
-  public void setFireTriggers( boolean firetriggers ) {
+  public void setFireTriggers(boolean firetriggers) {
     this.firetriggers = firetriggers;
   }
 
@@ -692,7 +720,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return firetriggers;
   }
 
-  public void setCheckConstraints( boolean checkconstraints ) {
+  public void setCheckConstraints(boolean checkconstraints) {
     this.checkconstraints = checkconstraints;
   }
 
@@ -700,7 +728,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return checkconstraints;
   }
 
-  public void setKeepNulls( boolean keepnulls ) {
+  public void setKeepNulls(boolean keepnulls) {
     this.keepnulls = keepnulls;
   }
 
@@ -708,7 +736,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return keepnulls;
   }
 
-  public void setKeepIdentity( boolean keepidentity ) {
+  public void setKeepIdentity(boolean keepidentity) {
     this.keepidentity = keepidentity;
   }
 
@@ -716,7 +744,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return keepidentity;
   }
 
-  public void setTablock( boolean tablock ) {
+  public void setTablock(boolean tablock) {
     this.tablock = tablock;
   }
 
@@ -724,36 +752,46 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return tablock;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     ResourceReference reference = null;
-    if ( connection != null ) {
-      reference = new ResourceReference( this );
-      references.add( reference );
-      reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );
-      reference.getEntries().add( new ResourceEntry( connection.getDatabaseName(), ResourceType.DATABASENAME ) );
+    if (connection != null) {
+      reference = new ResourceReference(this);
+      references.add(reference);
+      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
     }
-    if ( filename != null ) {
+    if (filename != null) {
       String realFilename = getRealFilename();
-      if ( reference == null ) {
-        reference = new ResourceReference( this );
-        references.add( reference );
+      if (reference == null) {
+        reference = new ResourceReference(this);
+        references.add(reference);
       }
-      reference.getEntries().add( new ResourceEntry( realFilename, ResourceType.FILE ) );
+      reference.getEntries().add(new ResourceEntry(realFilename, ResourceType.FILE));
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace( ctx, getVariables() );
-    AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(),
-      ActionValidatorUtils.fileExistsValidator() );
-    ActionValidatorUtils.andValidator().validate( this, "filename", remarks, ctx );
+    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AndValidator.putValidators(
+        ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
+    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
 
-    ActionValidatorUtils.andValidator().validate( this, "tablename", remarks, AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "tablename",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
-
 }

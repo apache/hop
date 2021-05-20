@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -96,8 +96,9 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
   private Button wOK, wCancel;
 
-  public RepeatDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
-    super( parent, workflowMeta, variables );
+  public RepeatDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (Repeat) action;
 
     if (this.action.getName() == null) {
@@ -109,7 +110,6 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
   public IAction open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -123,7 +123,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     shell.setText("Repeat");
 
     int middle = props.getMiddlePct();
-    int margin = (int)(Const.MARGIN*props.getZoomFactor());
+    int margin = (int) (Const.MARGIN * props.getZoomFactor());
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
@@ -153,15 +153,16 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     // The filename browse button
     //
-    wbbFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbbFilename );
-    wbbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    wbbFilename.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
+    wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbbFilename);
+    wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbFilename.setToolTipText(
+        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
     FormData fdbFilename = new FormData();
-    fdbFilename.top = new FormAttachment( wlFilename, 0, SWT.CENTER );
-    fdbFilename.right = new FormAttachment( 100, 0 );
-    wbbFilename.setLayoutData( fdbFilename );
-    wbbFilename.addListener( SWT.Selection, e->browseForFile() );
+    fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    fdbFilename.right = new FormAttachment(100, 0);
+    wbbFilename.setLayoutData(fdbFilename);
+    wbbFilename.addListener(SWT.Selection, e -> browseForFile());
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
@@ -294,8 +295,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlLogFileBase.right = new FormAttachment(middle, -margin);
     fdlLogFileBase.top = new FormAttachment(lastLogControl, margin);
     wlLogFileBase.setLayoutData(fdlLogFileBase);
-    wLogFileBase =
-        new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLogFileBase = new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLogFileBase);
     FormData fdLogFileBase = new FormData();
     fdLogFileBase.left = new FormAttachment(middle, 0);
@@ -312,8 +312,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlLogFileExtension.right = new FormAttachment(middle, -margin);
     fdlLogFileExtension.top = new FormAttachment(lastLogControl, margin);
     wlLogFileExtension.setLayoutData(fdlLogFileExtension);
-    wLogFileExtension =
-        new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLogFileExtension = new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLogFileExtension);
     FormData fdLogFileExtension = new FormData();
     fdLogFileExtension.left = new FormAttachment(middle, 0);
@@ -411,7 +410,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     FormData fdLogFileGroup = new FormData();
     fdLogFileGroup.left = new FormAttachment(0, 0);
     fdLogFileGroup.right = new FormAttachment(100, 0);
-    fdLogFileGroup.top = new FormAttachment(lastControl, 2*margin);
+    fdLogFileGroup.top = new FormAttachment(lastControl, 2 * margin);
     wLogFileGroup.setLayoutData(fdLogFileGroup);
     wLogFileGroup.pack();
     lastControl = wLogFileGroup;
@@ -456,13 +455,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wParameters =
         new TableView(
-            variables,
-            shell,
-            SWT.BORDER,
-            columnInfos,
-            action.getParameters().size(),
-            null,
-            props);
+            variables, shell, SWT.BORDER, columnInfos, action.getParameters().size(), null, props);
     props.setLook(wParameters);
     FormData fdParameters = new FormData();
     fdParameters.left = new FormAttachment(0, 0);
@@ -472,25 +465,9 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wParameters.setLayoutData(fdParameters);
     lastControl = wParameters;
 
-    // Detect X or ALT-F4 or something that kills this window...
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-    wName.addListener(SWT.DefaultSelection, e -> ok());
-    wFilename.addListener(SWT.DefaultSelection, e -> ok());
-    wVariableName.addListener(SWT.DefaultSelection, e -> ok());
-    wVariableValue.addListener(SWT.DefaultSelection, e -> ok());
-    wDelay.addListener(SWT.DefaultSelection, e -> ok());
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
   }
@@ -501,27 +478,27 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     List<String> filterExtensions = new ArrayList<>();
     filterExtensions.add(
-      pipelineFileType.getFilterExtensions()[0]+
-        ";"+
-        workflowFileType.getFilterExtensions()[0] );
-    filterExtensions.addAll( Arrays.asList( pipelineFileType.getFilterExtensions()));
-    filterExtensions.addAll( Arrays.asList( workflowFileType.getFilterExtensions()));
+        pipelineFileType.getFilterExtensions()[0]
+            + ";"
+            + workflowFileType.getFilterExtensions()[0]);
+    filterExtensions.addAll(Arrays.asList(pipelineFileType.getFilterExtensions()));
+    filterExtensions.addAll(Arrays.asList(workflowFileType.getFilterExtensions()));
     filterExtensions.add("*.*");
 
     List<String> filterNames = new ArrayList<>();
     filterNames.add(
-      pipelineFileType.getFilterNames()[0]+
-        " and "+
-        workflowFileType.getFilterNames()[0] );
-    filterNames.addAll( Arrays.asList( pipelineFileType.getFilterNames()));
-    filterNames.addAll( Arrays.asList( workflowFileType.getFilterNames()));
-    filterNames.add(BaseMessages.getString( PKG, "System.FileType.AllFiles" ));
+        pipelineFileType.getFilterNames()[0] + " and " + workflowFileType.getFilterNames()[0]);
+    filterNames.addAll(Arrays.asList(pipelineFileType.getFilterNames()));
+    filterNames.addAll(Arrays.asList(workflowFileType.getFilterNames()));
+    filterNames.add(BaseMessages.getString(PKG, "System.FileType.AllFiles"));
 
-    BaseDialog.presentFileDialog( shell, wFilename, variables,
-      filterExtensions.toArray(new String[0]),
-      filterNames.toArray(new String[0]),
-      true
-    );
+    BaseDialog.presentFileDialog(
+        shell,
+        wFilename,
+        variables,
+        filterExtensions.toArray(new String[0]),
+        filterNames.toArray(new String[0]),
+        true);
   }
 
   private void enableControls() {
@@ -577,11 +554,9 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     // Get the run configurations for both pipelines and workflows
     //
     MetadataManager<PipelineRunConfiguration> prcManager =
-        new MetadataManager<>(
-            variables, getMetadataProvider(), PipelineRunConfiguration.class);
+        new MetadataManager<>(variables, getMetadataProvider(), PipelineRunConfiguration.class);
     MetadataManager<WorkflowRunConfiguration> wrcManager =
-        new MetadataManager<>(
-            variables, getMetadataProvider(), WorkflowRunConfiguration.class);
+        new MetadataManager<>(variables, getMetadataProvider(), WorkflowRunConfiguration.class);
     List<String> entries = new ArrayList<>();
     try {
       prcManager.getNames().forEach(name -> entries.add("Pipeline" + COLON_SEPARATOR + name));

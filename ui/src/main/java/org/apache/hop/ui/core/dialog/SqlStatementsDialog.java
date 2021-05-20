@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -185,34 +185,15 @@ public class SqlStatementsDialog extends Dialog {
     wEdit.setLayoutData(fdEdit);
 
     // Add listeners
-    lsClose = e -> close();
-    lsView = e -> view();
-    lsExec = e -> exec();
-    lsEdit = e -> edit();
-
-    wClose.addListener(SWT.Selection, lsClose);
-    wView.addListener(SWT.Selection, lsView);
-    wExec.addListener(SWT.Selection, lsExec);
-    wEdit.addListener(SWT.Selection, lsEdit);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            close();
-          }
-        });
+    wClose.addListener(SWT.Selection, e -> close());
+    wView.addListener(SWT.Selection, e -> view());
+    wExec.addListener(SWT.Selection, e -> exec());
+    wEdit.addListener(SWT.Selection, e -> edit());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> exec(), c -> close());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return transformName;
   }
 
@@ -335,7 +316,7 @@ public class SqlStatementsDialog extends Dialog {
         SqlStatement stat = stats.get(idx[i]);
         DatabaseMeta databaseMeta = stat.getDatabase();
         if (databaseMeta != null && !stat.hasError()) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
             try {

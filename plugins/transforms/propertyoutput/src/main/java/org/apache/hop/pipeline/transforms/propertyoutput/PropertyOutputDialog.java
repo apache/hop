@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -85,18 +85,18 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
   private final PropertyOutputMeta input;
 
-  public PropertyOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PropertyOutputDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (PropertyOutputMeta) in;
   }
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    setShellImage( shell, input );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    props.setLook(shell);
+    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
@@ -108,50 +108,49 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.DialogTitle" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.DialogTitle"));
 
     // get previous fields name
     getFields();
 
     // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
-
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
-    wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
-    props.setLook( wlTransformName );
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    props.setLook(wlTransformName);
     fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment( middle, -margin );
-    fdlTransformName.top = new FormAttachment( 0, margin );
-    wlTransformName.setLayoutData( fdlTransformName );
-    wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTransformName.setText( transformName );
-    props.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    props.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment( middle, 0 );
-    fdTransformName.top = new FormAttachment( 0, margin );
-    fdTransformName.right = new FormAttachment( 100, 0 );
-    wTransformName.setLayoutData( fdTransformName );
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.GeneralTab.TabTitle" ) );
+    wGeneralTab.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.GeneralTab.TabTitle"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -159,7 +158,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
     generalLayout.marginHeight = 3;
-    wGeneralComp.setLayout( generalLayout );
+    wGeneralComp.setLayout(generalLayout);
 
     // Fields grouping?
     // ////////////////////////
@@ -168,78 +167,79 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
     Group wFields = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wFields);
-    wFields.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Group.Fields.Label" ) );
+    wFields.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Group.Fields.Label"));
 
     FormLayout groupFieldsLayout = new FormLayout();
     groupFieldsLayout.marginWidth = 10;
     groupFieldsLayout.marginHeight = 10;
-    wFields.setLayout( groupFieldsLayout );
+    wFields.setLayout(groupFieldsLayout);
 
     // Key field
     Label wlKeyField = new Label(wFields, SWT.RIGHT);
-    wlKeyField.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.KeyField.Label" ) );
+    wlKeyField.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.KeyField.Label"));
     props.setLook(wlKeyField);
     FormData fdlKeyField = new FormData();
-    fdlKeyField.left = new FormAttachment( 0, 0 );
-    fdlKeyField.top = new FormAttachment( 0, 3 * margin );
-    fdlKeyField.right = new FormAttachment( middle, -margin );
+    fdlKeyField.left = new FormAttachment(0, 0);
+    fdlKeyField.top = new FormAttachment(0, 3 * margin);
+    fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
-    wKeyField = new CCombo(wFields, SWT.BORDER | SWT.READ_ONLY );
-    wKeyField.setEditable( true );
-    wKeyField.setItems( fieldNames );
-    props.setLook( wKeyField );
-    wKeyField.addModifyListener( lsMod );
+    wKeyField = new CCombo(wFields, SWT.BORDER | SWT.READ_ONLY);
+    wKeyField.setEditable(true);
+    wKeyField.setItems(fieldNames);
+    props.setLook(wKeyField);
+    wKeyField.addModifyListener(lsMod);
     FormData fdKeyField = new FormData();
-    fdKeyField.left = new FormAttachment( middle, 0 );
-    fdKeyField.top = new FormAttachment( 0, 3 * margin );
-    fdKeyField.right = new FormAttachment( 100, 0 );
+    fdKeyField.left = new FormAttachment(middle, 0);
+    fdKeyField.top = new FormAttachment(0, 3 * margin);
+    fdKeyField.right = new FormAttachment(100, 0);
     wKeyField.setLayoutData(fdKeyField);
 
     // Value field
     Label wlValueField = new Label(wFields, SWT.RIGHT);
-    wlValueField.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.ValueField.Label" ) );
+    wlValueField.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.ValueField.Label"));
     props.setLook(wlValueField);
     FormData fdlValueField = new FormData();
-    fdlValueField.left = new FormAttachment( 0, 0 );
-    fdlValueField.top = new FormAttachment( wKeyField, margin );
-    fdlValueField.right = new FormAttachment( middle, -margin );
+    fdlValueField.left = new FormAttachment(0, 0);
+    fdlValueField.top = new FormAttachment(wKeyField, margin);
+    fdlValueField.right = new FormAttachment(middle, -margin);
     wlValueField.setLayoutData(fdlValueField);
-    wValueField = new CCombo(wFields, SWT.BORDER | SWT.READ_ONLY );
-    wValueField.setEditable( true );
-    wValueField.setItems( fieldNames );
-    props.setLook( wValueField );
-    wValueField.addModifyListener( lsMod );
+    wValueField = new CCombo(wFields, SWT.BORDER | SWT.READ_ONLY);
+    wValueField.setEditable(true);
+    wValueField.setItems(fieldNames);
+    props.setLook(wValueField);
+    wValueField.addModifyListener(lsMod);
     FormData fdValueField = new FormData();
-    fdValueField.left = new FormAttachment( middle, 0 );
-    fdValueField.top = new FormAttachment( wKeyField, margin );
-    fdValueField.right = new FormAttachment( 100, 0 );
+    fdValueField.left = new FormAttachment(middle, 0);
+    fdValueField.top = new FormAttachment(wKeyField, margin);
+    fdValueField.right = new FormAttachment(100, 0);
     wValueField.setLayoutData(fdValueField);
 
     // Comment
     Label wlComment = new Label(wGeneralComp, SWT.RIGHT);
-    wlComment.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Comment.Label" ) );
+    wlComment.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Comment.Label"));
     props.setLook(wlComment);
     FormData fdlComment = new FormData();
-    fdlComment.left = new FormAttachment( 0, 0 );
-    fdlComment.top = new FormAttachment(wFields, 2 * margin );
-    fdlComment.right = new FormAttachment( middle, -margin );
+    fdlComment.left = new FormAttachment(0, 0);
+    fdlComment.top = new FormAttachment(wFields, 2 * margin);
+    fdlComment.right = new FormAttachment(middle, -margin);
     wlComment.setLayoutData(fdlComment);
 
-    wComment = new Text(wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    wComment.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.Comment.Tooltip" ) );
-    props.setLook( wComment );
-    wComment.addModifyListener( lsMod );
+    wComment =
+        new Text(wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    wComment.setToolTipText(BaseMessages.getString(PKG, "PropertyOutputDialog.Comment.Tooltip"));
+    props.setLook(wComment);
+    wComment.addModifyListener(lsMod);
     FormData fdComment = new FormData();
-    fdComment.left = new FormAttachment( middle, 0 );
-    fdComment.top = new FormAttachment(wFields, 2 * margin );
-    fdComment.right = new FormAttachment( 100, 0 );
-    fdComment.bottom = new FormAttachment( 100, -margin );
+    fdComment.left = new FormAttachment(middle, 0);
+    fdComment.top = new FormAttachment(wFields, 2 * margin);
+    fdComment.right = new FormAttachment(100, 0);
+    fdComment.bottom = new FormAttachment(100, -margin);
     wComment.setLayoutData(fdComment);
 
     FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment( 0, margin );
-    fdFields.top = new FormAttachment( 0, margin );
-    fdFields.right = new FormAttachment( 100, -margin );
+    fdFields.left = new FormAttachment(0, margin);
+    fdFields.top = new FormAttachment(0, margin);
+    fdFields.right = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
 
     // ///////////////////////////////////////////////////////////
@@ -247,10 +247,10 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     // ///////////////////////////////////////////////////////////
 
     FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment( 0, 0 );
-    fdGeneralComp.top = new FormAttachment( 0, 0 );
-    fdGeneralComp.right = new FormAttachment( 100, 0 );
-    fdGeneralComp.bottom = new FormAttachment( 100, 0 );
+    fdGeneralComp.left = new FormAttachment(0, 0);
+    fdGeneralComp.top = new FormAttachment(0, 0);
+    fdGeneralComp.right = new FormAttachment(100, 0);
+    fdGeneralComp.bottom = new FormAttachment(100, 0);
     wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
@@ -265,7 +265,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
-    wContentTab.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.ContentTab.TabTitle" ) );
+    wContentTab.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
@@ -273,7 +273,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wContentComp);
-    wContentComp.setLayout( contentLayout );
+    wContentComp.setLayout(contentLayout);
 
     // File grouping?
     // ////////////////////////
@@ -282,246 +282,265 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
     Group wFileName = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wFileName);
-    wFileName.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Group.File.Label" ) );
+    wFileName.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Group.File.Label"));
 
     FormLayout groupFileLayout = new FormLayout();
     groupFileLayout.marginWidth = 10;
     groupFileLayout.marginHeight = 10;
-    wFileName.setLayout( groupFileLayout );
+    wFileName.setLayout(groupFileLayout);
 
     // Filename line
-    wlFilename = new Label(wFileName, SWT.RIGHT );
-    wlFilename.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Filename.Label" ) );
-    props.setLook( wlFilename );
+    wlFilename = new Label(wFileName, SWT.RIGHT);
+    wlFilename.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Filename.Label"));
+    props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment(wFields, margin );
-    fdlFilename.right = new FormAttachment( middle, -margin );
+    fdlFilename.left = new FormAttachment(0, 0);
+    fdlFilename.top = new FormAttachment(wFields, margin);
+    fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
-    wbFilename = new Button(wFileName, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFilename );
-    wbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
+    wbFilename = new Button(wFileName, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename);
+    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
-    fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment(wFields, 0 );
+    fdbFilename.right = new FormAttachment(100, 0);
+    fdbFilename.top = new FormAttachment(wFields, 0);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFilename );
-    wFilename.addModifyListener( lsMod );
+    wFilename = new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wFilename);
+    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment( middle, 0 );
-    fdFilename.top = new FormAttachment(wFields, margin );
-    fdFilename.right = new FormAttachment( wbFilename, -margin );
+    fdFilename.left = new FormAttachment(middle, 0);
+    fdFilename.top = new FormAttachment(wFields, margin);
+    fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Append checkbox
     Label wlAppend = new Label(wFileName, SWT.RIGHT);
-    wlAppend.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Append.Label" ) );
+    wlAppend.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Append.Label"));
     props.setLook(wlAppend);
     FormData fdlAppend = new FormData();
-    fdlAppend.left = new FormAttachment( 0, 0 );
-    fdlAppend.top = new FormAttachment( wFilename, margin );
-    fdlAppend.right = new FormAttachment( middle, -margin );
+    fdlAppend.left = new FormAttachment(0, 0);
+    fdlAppend.top = new FormAttachment(wFilename, margin);
+    fdlAppend.right = new FormAttachment(middle, -margin);
     wlAppend.setLayoutData(fdlAppend);
-    wAppend = new Button(wFileName, SWT.CHECK );
-    props.setLook( wAppend );
-    wAppend.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.Append.Tooltip" ) );
+    wAppend = new Button(wFileName, SWT.CHECK);
+    props.setLook(wAppend);
+    wAppend.setToolTipText(BaseMessages.getString(PKG, "PropertyOutputDialog.Append.Tooltip"));
     FormData fdAppend = new FormData();
-    fdAppend.left = new FormAttachment( middle, 0 );
-    fdAppend.top = new FormAttachment( wlAppend, 0, SWT.CENTER );
-    fdAppend.right = new FormAttachment( 100, 0 );
+    fdAppend.left = new FormAttachment(middle, 0);
+    fdAppend.top = new FormAttachment(wlAppend, 0, SWT.CENTER);
+    fdAppend.right = new FormAttachment(100, 0);
     wAppend.setLayoutData(fdAppend);
-    wAppend.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        input.setChanged();
-      }
-    } );
+    wAppend.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        });
 
     // Create Parent Folder
     Label wlCreateParentFolder = new Label(wFileName, SWT.RIGHT);
-    wlCreateParentFolder.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.CreateParentFolder.Label" ) );
+    wlCreateParentFolder.setText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.CreateParentFolder.Label"));
     props.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
-    fdlCreateParentFolder.left = new FormAttachment( 0, 0 );
-    fdlCreateParentFolder.top = new FormAttachment( wAppend, margin );
-    fdlCreateParentFolder.right = new FormAttachment( middle, -margin );
+    fdlCreateParentFolder.left = new FormAttachment(0, 0);
+    fdlCreateParentFolder.top = new FormAttachment(wAppend, margin);
+    fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
-    wCreateParentFolder = new Button(wFileName, SWT.CHECK );
-    wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.CreateParentFolder.Tooltip" ) );
-    props.setLook( wCreateParentFolder );
+    wCreateParentFolder = new Button(wFileName, SWT.CHECK);
+    wCreateParentFolder.setToolTipText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.CreateParentFolder.Tooltip"));
+    props.setLook(wCreateParentFolder);
     FormData fdCreateParentFolder = new FormData();
-    fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
-    fdCreateParentFolder.right = new FormAttachment( 100, 0 );
+    fdCreateParentFolder.left = new FormAttachment(middle, 0);
+    fdCreateParentFolder.top = new FormAttachment(wlCreateParentFolder, 0, SWT.CENTER);
+    fdCreateParentFolder.right = new FormAttachment(100, 0);
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
-    wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
+    wCreateParentFolder.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     // FileNameInField line
     Label wlFileNameInField = new Label(wFileName, SWT.RIGHT);
-    wlFileNameInField.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.FileNameInField.Label" ) );
+    wlFileNameInField.setText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.FileNameInField.Label"));
     props.setLook(wlFileNameInField);
     FormData fdlFileNameInField = new FormData();
-    fdlFileNameInField.left = new FormAttachment( 0, 0 );
-    fdlFileNameInField.top = new FormAttachment( wCreateParentFolder, margin );
-    fdlFileNameInField.right = new FormAttachment( middle, -margin );
+    fdlFileNameInField.left = new FormAttachment(0, 0);
+    fdlFileNameInField.top = new FormAttachment(wCreateParentFolder, margin);
+    fdlFileNameInField.right = new FormAttachment(middle, -margin);
     wlFileNameInField.setLayoutData(fdlFileNameInField);
-    wFileNameInField = new Button(wFileName, SWT.CHECK );
-    wlFileNameInField.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.FileNameInField.Label" ) );
-    props.setLook( wFileNameInField );
+    wFileNameInField = new Button(wFileName, SWT.CHECK);
+    wlFileNameInField.setToolTipText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.FileNameInField.Label"));
+    props.setLook(wFileNameInField);
     FormData fdFileNameInField = new FormData();
-    fdFileNameInField.left = new FormAttachment( middle, 0 );
-    fdFileNameInField.top = new FormAttachment( wlFileNameInField, 0, SWT.CENTER );
-    fdFileNameInField.right = new FormAttachment( 100, 0 );
+    fdFileNameInField.left = new FormAttachment(middle, 0);
+    fdFileNameInField.top = new FormAttachment(wlFileNameInField, 0, SWT.CENTER);
+    fdFileNameInField.right = new FormAttachment(100, 0);
     wFileNameInField.setLayoutData(fdFileNameInField);
-    wFileNameInField.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-        activeFilenameInField();
-      }
-    } );
+    wFileNameInField.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            activateFilenameInField();
+          }
+        });
 
     // FileNameField Line
-    wlFileNameField = new Label(wFileName, SWT.RIGHT );
-    wlFileNameField.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.FileNameField.Label" ) );
-    props.setLook( wlFileNameField );
+    wlFileNameField = new Label(wFileName, SWT.RIGHT);
+    wlFileNameField.setText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.FileNameField.Label"));
+    props.setLook(wlFileNameField);
     FormData fdlFileNameField = new FormData();
-    fdlFileNameField.left = new FormAttachment( 0, 0 );
-    fdlFileNameField.right = new FormAttachment( middle, -margin );
-    fdlFileNameField.top = new FormAttachment( wFileNameInField, margin );
+    fdlFileNameField.left = new FormAttachment(0, 0);
+    fdlFileNameField.right = new FormAttachment(middle, -margin);
+    fdlFileNameField.top = new FormAttachment(wFileNameInField, margin);
     wlFileNameField.setLayoutData(fdlFileNameField);
 
-    wFileNameField = new ComboVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFileNameField );
-    wFileNameField.addModifyListener( lsMod );
+    wFileNameField = new ComboVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wFileNameField);
+    wFileNameField.addModifyListener(lsMod);
     FormData fdFileNameField = new FormData();
-    fdFileNameField.left = new FormAttachment( middle, 0 );
-    fdFileNameField.top = new FormAttachment( wFileNameInField, margin );
-    fdFileNameField.right = new FormAttachment( 100, 0 );
+    fdFileNameField.left = new FormAttachment(middle, 0);
+    fdFileNameField.top = new FormAttachment(wFileNameInField, margin);
+    fdFileNameField.right = new FormAttachment(100, 0);
     wFileNameField.setLayoutData(fdFileNameField);
-    wFileNameField.setEnabled( false );
-    wFileNameField.setItems( fieldNames );
+    wFileNameField.setEnabled(false);
+    wFileNameField.setItems(fieldNames);
 
     // Extension line
-    wlExtension = new Label(wFileName, SWT.RIGHT );
-    wlExtension.setText( BaseMessages.getString( PKG, "System.Label.Extension" ) );
-    props.setLook( wlExtension );
+    wlExtension = new Label(wFileName, SWT.RIGHT);
+    wlExtension.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    props.setLook(wlExtension);
     FormData fdlExtension = new FormData();
-    fdlExtension.left = new FormAttachment( 0, 0 );
-    fdlExtension.top = new FormAttachment( wFileNameField, margin );
-    fdlExtension.right = new FormAttachment( middle, -margin );
+    fdlExtension.left = new FormAttachment(0, 0);
+    fdlExtension.top = new FormAttachment(wFileNameField, margin);
+    fdlExtension.right = new FormAttachment(middle, -margin);
     wlExtension.setLayoutData(fdlExtension);
 
-    wExtension = new TextVar( variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wExtension );
-    wExtension.addModifyListener( lsMod );
+    wExtension = new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wExtension);
+    wExtension.addModifyListener(lsMod);
     FormData fdExtension = new FormData();
-    fdExtension.left = new FormAttachment( middle, 0 );
-    fdExtension.top = new FormAttachment( wFileNameField, margin );
-    fdExtension.right = new FormAttachment( 100, -margin );
+    fdExtension.left = new FormAttachment(middle, 0);
+    fdExtension.top = new FormAttachment(wFileNameField, margin);
+    fdExtension.right = new FormAttachment(100, -margin);
     wExtension.setLayoutData(fdExtension);
 
     // Create multi-part file?
-    wlAddTransformNr = new Label(wFileName, SWT.RIGHT );
-    wlAddTransformNr.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.AddTransformnr.Label" ) );
-    props.setLook( wlAddTransformNr );
+    wlAddTransformNr = new Label(wFileName, SWT.RIGHT);
+    wlAddTransformNr.setText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.AddTransformnr.Label"));
+    props.setLook(wlAddTransformNr);
     FormData fdlAddTransformNr = new FormData();
-    fdlAddTransformNr.left = new FormAttachment( 0, 0 );
-    fdlAddTransformNr.top = new FormAttachment( wExtension, 2 * margin );
-    fdlAddTransformNr.right = new FormAttachment( middle, -margin );
+    fdlAddTransformNr.left = new FormAttachment(0, 0);
+    fdlAddTransformNr.top = new FormAttachment(wExtension, 2 * margin);
+    fdlAddTransformNr.right = new FormAttachment(middle, -margin);
     wlAddTransformNr.setLayoutData(fdlAddTransformNr);
-    wAddTransformNr = new Button(wFileName, SWT.CHECK );
-    props.setLook( wAddTransformNr );
+    wAddTransformNr = new Button(wFileName, SWT.CHECK);
+    props.setLook(wAddTransformNr);
     FormData fdAddTransformNr = new FormData();
-    fdAddTransformNr.left = new FormAttachment( middle, 0 );
-    fdAddTransformNr.top = new FormAttachment( wlAddTransformNr, 0, SWT.CENTER );
-    fdAddTransformNr.right = new FormAttachment( 100, 0 );
+    fdAddTransformNr.left = new FormAttachment(middle, 0);
+    fdAddTransformNr.top = new FormAttachment(wlAddTransformNr, 0, SWT.CENTER);
+    fdAddTransformNr.right = new FormAttachment(100, 0);
     wAddTransformNr.setLayoutData(fdAddTransformNr);
-    wAddTransformNr.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
+    wAddTransformNr.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     // Create multi-part file?
-    wlAddDate = new Label(wFileName, SWT.RIGHT );
-    wlAddDate.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.AddDate.Label" ) );
-    props.setLook( wlAddDate );
+    wlAddDate = new Label(wFileName, SWT.RIGHT);
+    wlAddDate.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.AddDate.Label"));
+    props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
-    fdlAddDate.left = new FormAttachment( 0, 0 );
-    fdlAddDate.top = new FormAttachment( wAddTransformNr, margin );
-    fdlAddDate.right = new FormAttachment( middle, -margin );
+    fdlAddDate.left = new FormAttachment(0, 0);
+    fdlAddDate.top = new FormAttachment(wAddTransformNr, margin);
+    fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
-    wAddDate = new Button(wFileName, SWT.CHECK );
-    props.setLook( wAddDate );
+    wAddDate = new Button(wFileName, SWT.CHECK);
+    props.setLook(wAddDate);
     FormData fdAddDate = new FormData();
-    fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
-    fdAddDate.right = new FormAttachment( 100, 0 );
+    fdAddDate.left = new FormAttachment(middle, 0);
+    fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
+    fdAddDate.right = new FormAttachment(100, 0);
     wAddDate.setLayoutData(fdAddDate);
-    wAddDate.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
+    wAddDate.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
     // Create multi-part file?
-    wlAddTime = new Label(wFileName, SWT.RIGHT );
-    wlAddTime.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.AddTime.Label" ) );
-    props.setLook( wlAddTime );
+    wlAddTime = new Label(wFileName, SWT.RIGHT);
+    wlAddTime.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.AddTime.Label"));
+    props.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
-    fdlAddTime.left = new FormAttachment( 0, 0 );
-    fdlAddTime.top = new FormAttachment( wAddDate, margin );
-    fdlAddTime.right = new FormAttachment( middle, -margin );
+    fdlAddTime.left = new FormAttachment(0, 0);
+    fdlAddTime.top = new FormAttachment(wAddDate, margin);
+    fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
-    wAddTime = new Button(wFileName, SWT.CHECK );
-    props.setLook( wAddTime );
+    wAddTime = new Button(wFileName, SWT.CHECK);
+    props.setLook(wAddTime);
     FormData fdAddTime = new FormData();
-    fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
-    fdAddTime.right = new FormAttachment( 100, 0 );
+    fdAddTime.left = new FormAttachment(middle, 0);
+    fdAddTime.top = new FormAttachment(wlAddTime, 0, SWT.CENTER);
+    fdAddTime.right = new FormAttachment(100, 0);
     wAddTime.setLayoutData(fdAddTime);
-    wAddTime.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
+    wAddTime.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
-    wbShowFiles = new Button(wFileName, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbShowFiles );
-    wbShowFiles.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.ShowFiles.Button" ) );
+    wbShowFiles = new Button(wFileName, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbShowFiles);
+    wbShowFiles.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
-    fdbShowFiles.left = new FormAttachment( middle, 0 );
-    fdbShowFiles.top = new FormAttachment( wAddTime, margin * 2 );
+    fdbShowFiles.left = new FormAttachment(middle, 0);
+    fdbShowFiles.top = new FormAttachment(wAddTime, margin * 2);
     wbShowFiles.setLayoutData(fdbShowFiles);
-    wbShowFiles.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        PropertyOutputMeta tfoi = new PropertyOutputMeta();
-        getInfo( tfoi );
-        String[] files = tfoi.getFiles( variables );
-        if ( files != null && files.length > 0 ) {
-          EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
-            BaseMessages.getString( PKG, "PropertyOutputDialog.SelectOutputFiles.DialogTitle" ),
-            BaseMessages.getString( PKG, "PropertyOutputDialog.SelectOutputFiles.DialogMessage" ) );
-          esd.setViewOnly();
-          esd.open();
-        } else {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "PropertyOutputDialog.NoFilesFound.DialogMessage" ) );
-          mb.setText( BaseMessages.getString( PKG, "System.DialogTitle.Error" ) );
-          mb.open();
-        }
-      }
-    } );
+    wbShowFiles.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            PropertyOutputMeta tfoi = new PropertyOutputMeta();
+            getInfo(tfoi);
+            String[] files = tfoi.getFiles(variables);
+            if (files != null && files.length > 0) {
+              EnterSelectionDialog esd =
+                  new EnterSelectionDialog(
+                      shell,
+                      files,
+                      BaseMessages.getString(
+                          PKG, "PropertyOutputDialog.SelectOutputFiles.DialogTitle"),
+                      BaseMessages.getString(
+                          PKG, "PropertyOutputDialog.SelectOutputFiles.DialogMessage"));
+              esd.setViewOnly();
+              esd.open();
+            } else {
+              MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+              mb.setMessage(
+                  BaseMessages.getString(PKG, "PropertyOutputDialog.NoFilesFound.DialogMessage"));
+              mb.setText(BaseMessages.getString(PKG, "System.DialogTitle.Error"));
+              mb.open();
+            }
+          }
+        });
 
     FormData fdFileName = new FormData();
-    fdFileName.left = new FormAttachment( 0, margin );
-    fdFileName.top = new FormAttachment(wFields, margin );
-    fdFileName.right = new FormAttachment( 100, -margin );
+    fdFileName.left = new FormAttachment(0, margin);
+    fdFileName.top = new FormAttachment(wFields, margin);
+    fdFileName.right = new FormAttachment(100, -margin);
     wFileName.setLayoutData(fdFileName);
 
     // ///////////////////////////////////////////////////////////
@@ -535,41 +554,44 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
     Group wResultFile = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wResultFile);
-    wResultFile.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.Group.ResultFile.Label" ) );
+    wResultFile.setText(BaseMessages.getString(PKG, "PropertyOutputDialog.Group.ResultFile.Label"));
 
     FormLayout groupResultFile = new FormLayout();
     groupResultFile.marginWidth = 10;
     groupResultFile.marginHeight = 10;
-    wResultFile.setLayout( groupResultFile );
+    wResultFile.setLayout(groupResultFile);
 
     // Add File to the result files name
     Label wlAddToResult = new Label(wResultFile, SWT.RIGHT);
-    wlAddToResult.setText( BaseMessages.getString( PKG, "PropertyOutputDialog.AddFileToResult.Label" ) );
+    wlAddToResult.setText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.AddFileToResult.Label"));
     props.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
-    fdlAddToResult.left = new FormAttachment( 0, 0 );
-    fdlAddToResult.top = new FormAttachment(wFileName, margin );
-    fdlAddToResult.right = new FormAttachment( middle, -margin );
+    fdlAddToResult.left = new FormAttachment(0, 0);
+    fdlAddToResult.top = new FormAttachment(wFileName, margin);
+    fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
-    wAddToResult = new Button(wResultFile, SWT.CHECK );
-    wAddToResult.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.AddFileToResult.Tooltip" ) );
-    props.setLook( wAddToResult );
+    wAddToResult = new Button(wResultFile, SWT.CHECK);
+    wAddToResult.setToolTipText(
+        BaseMessages.getString(PKG, "PropertyOutputDialog.AddFileToResult.Tooltip"));
+    props.setLook(wAddToResult);
     FormData fdAddToResult = new FormData();
-    fdAddToResult.left = new FormAttachment( middle, 0 );
-    fdAddToResult.top = new FormAttachment( wlAddToResult, 0, SWT.CENTER );
-    fdAddToResult.right = new FormAttachment( 100, 0 );
+    fdAddToResult.left = new FormAttachment(middle, 0);
+    fdAddToResult.top = new FormAttachment(wlAddToResult, 0, SWT.CENTER);
+    fdAddToResult.right = new FormAttachment(100, 0);
     wAddToResult.setLayoutData(fdAddToResult);
-    SelectionAdapter lsSelAR = new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        input.setChanged();
-      }
-    };
-    wAddToResult.addSelectionListener( lsSelAR );
+    SelectionAdapter lsSelAR =
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        };
+    wAddToResult.addSelectionListener(lsSelAR);
 
     FormData fdResultFile = new FormData();
-    fdResultFile.left = new FormAttachment( 0, margin );
-    fdResultFile.top = new FormAttachment(wFileName, margin );
-    fdResultFile.right = new FormAttachment( 100, -margin );
+    fdResultFile.left = new FormAttachment(0, margin);
+    fdResultFile.top = new FormAttachment(wFileName, margin);
+    fdResultFile.right = new FormAttachment(100, -margin);
     wResultFile.setLayoutData(fdResultFile);
 
     // ///////////////////////////////////////////////////////////
@@ -577,10 +599,10 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     // ///////////////////////////////////////////////////////////
 
     FormData fdContentComp = new FormData();
-    fdContentComp.left = new FormAttachment( 0, 0 );
-    fdContentComp.top = new FormAttachment( 0, 0 );
-    fdContentComp.right = new FormAttachment( 100, 0 );
-    fdContentComp.bottom = new FormAttachment( 100, 0 );
+    fdContentComp.left = new FormAttachment(0, 0);
+    fdContentComp.top = new FormAttachment(0, 0);
+    fdContentComp.right = new FormAttachment(100, 0);
+    fdContentComp.bottom = new FormAttachment(100, 0);
     wContentComp.setLayoutData(wContentComp);
 
     wContentComp.layout();
@@ -591,128 +613,107 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     // ///////////////////////////////////////////////////////////
 
     FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment( 0, 0 );
-    fdTabFolder.top = new FormAttachment( wTransformName, margin );
-    fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners
+    wbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wFilename,
+                variables,
+                new String[] {"*.txt", "*.csv", "*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "System.FileType.TextFiles"),
+                  BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
-      }
-    };
+    wTabFolder.setSelection(0);
 
-    wTransformName.addSelectionListener( lsDef );
-
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
-            new String[] { "*.txt", "*.csv", "*" },
-            new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-                    BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
-                    BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
-            true )
-    );
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    lsResize = event -> {
-      // Point size = shell.getSize();
-
-    };
-    shell.addListener( SWT.Resize, lsResize );
-
-    wTabFolder.setSelection( 0 );
-
-    // Set the shell size, based upon previous time...
-    setSize();
     getData();
-    activeFilenameInField();
+    activateFilenameInField();
 
-    input.setChanged( changed ); // backupChanged);
+    input.setChanged(changed); // backupChanged);
 
-    shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
-  private void activeFilenameInField() {
-    wlFileNameField.setEnabled( wFileNameInField.getSelection() );
-    wFileNameField.setEnabled( wFileNameInField.getSelection() );
-    wlFilename.setEnabled( !wFileNameInField.getSelection() );
-    wFilename.setEnabled( !wFileNameInField.getSelection() );
-    wbFilename.setEnabled( !wFileNameInField.getSelection() );
-    wlExtension.setEnabled( !wFileNameInField.getSelection() );
-    wExtension.setEnabled( !wFileNameInField.getSelection() );
-    wlAddDate.setEnabled( !wFileNameInField.getSelection() );
-    wAddDate.setEnabled( !wFileNameInField.getSelection() );
-    wlAddTransformNr.setEnabled( !wFileNameInField.getSelection() );
-    wAddTransformNr.setEnabled( !wFileNameInField.getSelection() );
-    wlAddTime.setEnabled( !wFileNameInField.getSelection() );
-    wAddTime.setEnabled( !wFileNameInField.getSelection() );
-    wbShowFiles.setEnabled( !wFileNameInField.getSelection() );
+  private void activateFilenameInField() {
+    wlFileNameField.setEnabled(wFileNameInField.getSelection());
+    wFileNameField.setEnabled(wFileNameInField.getSelection());
+    wlFilename.setEnabled(!wFileNameInField.getSelection());
+    wFilename.setEnabled(!wFileNameInField.getSelection());
+    wbFilename.setEnabled(!wFileNameInField.getSelection());
+    wlExtension.setEnabled(!wFileNameInField.getSelection());
+    wExtension.setEnabled(!wFileNameInField.getSelection());
+    wlAddDate.setEnabled(!wFileNameInField.getSelection());
+    wAddDate.setEnabled(!wFileNameInField.getSelection());
+    wlAddTransformNr.setEnabled(!wFileNameInField.getSelection());
+    wAddTransformNr.setEnabled(!wFileNameInField.getSelection());
+    wlAddTime.setEnabled(!wFileNameInField.getSelection());
+    wAddTime.setEnabled(!wFileNameInField.getSelection());
+    wbShowFiles.setEnabled(!wFileNameInField.getSelection());
   }
 
   private void getFields() {
-    if ( !gotPreviousFields ) {
+    if (!gotPreviousFields) {
       try {
-        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
-        if ( r != null ) {
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
           fieldNames = r.getFieldNames();
         }
-      } catch ( HopException ke ) {
+      } catch (HopException ke) {
         new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "PropertyOutputDialog.FailedToGetFields.DialogTitle" ),
-          BaseMessages.getString( PKG, "PropertyOutputDialog.FailedToGetFields.DialogMessage" ), ke );
+            shell,
+            BaseMessages.getString(PKG, "PropertyOutputDialog.FailedToGetFields.DialogTitle"),
+            BaseMessages.getString(PKG, "PropertyOutputDialog.FailedToGetFields.DialogMessage"),
+            ke);
       }
       gotPreviousFields = true;
     }
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if ( input.getKeyField() != null ) {
-      wKeyField.setText( input.getKeyField() );
+    if (input.getKeyField() != null) {
+      wKeyField.setText(input.getKeyField());
     }
-    if ( input.getValueField() != null ) {
-      wValueField.setText( input.getValueField() );
+    if (input.getValueField() != null) {
+      wValueField.setText(input.getValueField());
     }
 
-    if ( input.getFileName() != null ) {
-      wFilename.setText( input.getFileName() );
+    if (input.getFileName() != null) {
+      wFilename.setText(input.getFileName());
     }
-    wFileNameInField.setSelection( input.isFileNameInField() );
-    if ( input.getFileNameField() != null ) {
-      wFileNameField.setText( input.getFileNameField() );
+    wFileNameInField.setSelection(input.isFileNameInField());
+    if (input.getFileNameField() != null) {
+      wFileNameField.setText(input.getFileNameField());
     }
-    wCreateParentFolder.setSelection( input.isCreateParentFolder() );
-    if ( input.getExtension() != null ) {
-      wExtension.setText( input.getExtension() );
+    wCreateParentFolder.setSelection(input.isCreateParentFolder());
+    if (input.getExtension() != null) {
+      wExtension.setText(input.getExtension());
     } else {
-      wExtension.setText( "properties" );
+      wExtension.setText("properties");
     }
 
-    wAddDate.setSelection( input.isDateInFilename() );
-    wAddTime.setSelection( input.isTimeInFilename() );
-    wAddTransformNr.setSelection( input.isTransformNrInFilename() );
+    wAddDate.setSelection(input.isDateInFilename());
+    wAddTime.setSelection(input.isTimeInFilename());
+    wAddTransformNr.setSelection(input.isTransformNrInFilename());
 
-    wAddToResult.setSelection( input.addToResult() );
-    wAppend.setSelection( input.isAppend() );
+    wAddToResult.setSelection(input.addToResult());
+    wAppend.setSelection(input.isAppend());
 
-    if ( input.getComment() != null ) {
-      wComment.setText( input.getComment() );
+    if (input.getComment() != null) {
+      wComment.setText(input.getComment());
     }
 
     wTransformName.selectAll();
@@ -721,33 +722,32 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
 
   private void cancel() {
     transformName = null;
-    input.setChanged( backupChanged );
+    input.setChanged(backupChanged);
     dispose();
   }
 
-  private void getInfo( PropertyOutputMeta info ) {
-    info.setKeyField( wKeyField.getText() );
-    info.setValueField( wValueField.getText() );
-    info.setCreateParentFolder( wCreateParentFolder.getSelection() );
-    info.setAppend( wAppend.getSelection() );
-    info.setFileName( wFilename.getText() );
-    info.setExtension( wExtension.getText() );
-    info.setTransformNrInFilename( wAddTransformNr.getSelection() );
-    info.setDateInFilename( wAddDate.getSelection() );
-    info.setTimeInFilename( wAddTime.getSelection() );
-    info.setFileNameField( wFileNameField.getText() );
-    info.setFileNameInField( wFileNameInField.getSelection() );
-    info.setAddToResult( wAddToResult.getSelection() );
+  private void getInfo(PropertyOutputMeta info) {
+    info.setKeyField(wKeyField.getText());
+    info.setValueField(wValueField.getText());
+    info.setCreateParentFolder(wCreateParentFolder.getSelection());
+    info.setAppend(wAppend.getSelection());
+    info.setFileName(wFilename.getText());
+    info.setExtension(wExtension.getText());
+    info.setTransformNrInFilename(wAddTransformNr.getSelection());
+    info.setDateInFilename(wAddDate.getSelection());
+    info.setTimeInFilename(wAddTime.getSelection());
+    info.setFileNameField(wFileNameField.getText());
+    info.setFileNameInField(wFileNameInField.getSelection());
+    info.setAddToResult(wAddToResult.getSelection());
 
-    info.setComment( wComment.getText() );
+    info.setComment(wComment.getText());
   }
 
   private void ok() {
     transformName = wTransformName.getText(); // return value
 
-    getInfo( input );
+    getInfo(input);
 
     dispose();
   }
-
 }
