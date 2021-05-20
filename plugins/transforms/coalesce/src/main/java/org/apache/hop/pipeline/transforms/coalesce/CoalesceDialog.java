@@ -160,22 +160,22 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     columns[1] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.ValueType.Label"),
+            BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.Type.Label"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             ValueMetaBase.getTypes());
     columns[1].setToolTip(
-        BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.ValueType.Tooltip"));
+        BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.Type.Tooltip"));
 
     columns[2] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.RemoveInputColumns.Label"),
+            BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.RemoveInputFields.Label"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
               BaseMessages.getString(PKG, "System.Combo.No"),
               BaseMessages.getString(PKG, "System.Combo.Yes")
             });
     columns[2].setToolTip(
-        BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.RemoveInputColumns.Tooltip"));
+        BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.RemoveInputFields.Tooltip"));
 
     columns[3] =
         new ColumnInfo(
@@ -193,7 +193,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE,
             columns,
-            input.getOperations().size(),
+            input.getFields().size(),
             e -> input.setChanged(),
             props);
     this.wFields.setLayoutData(
@@ -249,15 +249,15 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     wEmptyStrings.setSelection(input.isTreatEmptyStringsAsNulls());
 
-    List<CoalesceOperation> coalesces = input.getOperations();
+    List<CoalesceField> coalesces = input.getFields();
     for (int i = 0; i < coalesces.size(); i++) {
 
-      CoalesceOperation coalesce = coalesces.get(i);
+      CoalesceField coalesce = coalesces.get(i);
       TableItem item = wFields.getTable().getItem(i);
       item.setText(1, StringUtils.stripToEmpty(coalesce.getName()));
-      item.setText(2, ValueMetaBase.getTypeDesc(coalesce.getType()));
+      item.setText(2, StringUtils.stripToEmpty(coalesce.getType()));
       item.setText(3, getStringFromBoolean(coalesce.isRemoveFields()));
-      item.setText(4, String.join(", ", coalesce.getInputFields()));
+      item.setText(4, StringUtils.stripToEmpty(coalesce.getInputFields()));
     }
 
     wFields.setRowNums();
@@ -284,25 +284,20 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     int count = wFields.nrNonEmpty();
 
-    List<CoalesceOperation> coalesces = new ArrayList<>(count);
+    List<CoalesceField> coalesces = new ArrayList<>(count);
 
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
 
-      CoalesceOperation coalesce = new CoalesceOperation();
+      CoalesceField coalesce = new CoalesceField();
       coalesce.setName(item.getText(1));
-
-      String typeValueText = item.getText(2);
-      coalesce.setType(
-          Utils.isEmpty(typeValueText)
-              ? IValueMeta.TYPE_NONE
-              : ValueMetaBase.getType(typeValueText));
+      coalesce.setType(item.getText(2));
       coalesce.setRemoveFields(getBooleanFromString(item.getText(3)));
-      coalesce.setInputFields(item.getText(4));
+      coalesce.setInputFields(StringUtils.stripToNull(item.getText(4)));
       coalesces.add(coalesce);
     }
 
-    input.setOperations(coalesces);
+    input.setFields(coalesces);
 
     dispose();
   }

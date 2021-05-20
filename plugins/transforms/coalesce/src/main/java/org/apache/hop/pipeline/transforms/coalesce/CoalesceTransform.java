@@ -80,11 +80,20 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
 
       first = false;
       // clone the input row structure and place it in our data object
-      data.outputRowMeta = getInputRowMeta().clone();
+      data.outputRowMeta = getInputRowMeta().clone();    
+      
       // use meta.getFields() to change it, so it reflects the output row
       // structure
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
+      // Check output name
+      for (CoalesceField coalesce : meta.getFields()) {
+        String name = this.resolve(coalesce.getName());
+        if ( Utils.isEmpty(name) ) {
+          throw new HopException(BaseMessages.getString(PKG,"CoalesceTransform.Log.MissingFieldName"));
+        }        
+      }
+            
       checkInputFieldsExist(meta);
     }
 
@@ -107,14 +116,14 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // Calculates the coalesce value for each extra output field and also
     // converts its value to reflect the Value Type option,
     // or in case it was None to reflect on the default data type logic.
-    for (CoalesceOperation coalesce : meta.getOperations()) {
+    for (CoalesceField coalesce : meta.getFields()) {
 
-      int inputIndex = getFirstNonNullValueIndex(meta, inputRowMeta, row, coalesce);
+      int inputIndex = getFirstNonNullValueIndex(inputRowMeta, row, coalesce.getInputFieldNames(), meta.isTreatEmptyStringsAsNulls());
 
       // Resolve variable name
       String name = this.resolve(coalesce.getName());
       outputIndex = data.outputRowMeta.indexOfValue(name);
-
+      
       IValueMeta vm = data.outputRowMeta.getValueMeta(outputIndex);
       try {
         Object result = null;
@@ -155,10 +164,10 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
   private void checkInputFieldsExist(final CoalesceMeta meta) throws HopException {
     IRowMeta prev = getInputRowMeta();
 
-    for (CoalesceOperation coalesce : meta.getOperations()) {
+    for (CoalesceField coalesce : meta.getFields()) {
       List<String> missingFields = new ArrayList<>();
 
-      for (String field : coalesce.getInputFields()) {
+      for (String field : coalesce.getInputFieldNames()) {
 
         if (!Utils.isEmpty(field)) {
           IValueMeta vmi = prev.searchValueMeta(field);
@@ -179,19 +188,18 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
   }
 
   /** The actual coalesce logic, returns the index of the first non null value */
-  private int getFirstNonNullValueIndex(
-      final CoalesceMeta meta,
+  private int getFirstNonNullValueIndex(      
       final IRowMeta inputRowMeta,
       Object[] row,
-      CoalesceOperation coalesce) {
+      List<String> fields, boolean isTreatEmptyStringsAsNulls) {
 
-    for (String field : coalesce.getInputFields()) {
+    for (String fieldName : fields) {
 
-      int index = inputRowMeta.indexOfValue(field);
+      int index = inputRowMeta.indexOfValue(fieldName);
       if (index >= 0) {
-        if (!meta.isTreatEmptyStringsAsNulls() && row[index] != null) {
+        if (!isTreatEmptyStringsAsNulls && row[index] != null) {
           return index;
-        } else if (meta.isTreatEmptyStringsAsNulls()
+        } else if (isTreatEmptyStringsAsNulls
             && row[index] != null
             && !Utils.isEmpty(row[index].toString())) return index;
       }

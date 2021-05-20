@@ -19,33 +19,25 @@ package org.apache.hop.pipeline.transforms.coalesce;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -57,39 +49,28 @@ import java.util.Set;
     image = "coalesce.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/coalesce.html")
-@InjectionSupported(
-    localizationPrefix = "CoalesceMeta.Injection.",
-    groups = {"FIELDS"})
 public class CoalesceMeta extends BaseTransformMeta
     implements ITransformMeta<CoalesceTransform, CoalesceData> {
 
   private static final Class<?> PKG = CoalesceMeta.class; // for i18n purposes
 
-  private static final String TAG_NAME = "name";
-  private static final String TAG_FIELD = "field";
-  private static final String TAG_FIELDS = "fields";
-  private static final String TAG_INPUT = "input";
-  private static final String TAG_VALUE_TYPE = "value_type";
-  private static final String TAG_EMPTY_IS_NULL = "empty_is_null";
-  private static final String TAG_REMOVE = "remove";
-
   /** The fields to coalesce */
-  @InjectionDeep private List<CoalesceOperation> operations;
+  @HopMetadataProperty(key = "field", groupKey = "fields", injectionGroupDescription = "CoalesceMeta.Injection.Fields", injectionKeyDescription = "CoalesceMeta.Injection.Field")
+  private List<CoalesceField> fields = new ArrayList<>();
 
-  /** additional options */
-  @Injection(name = "EMPTY_STRING_AS_NULLS")
-  private boolean emptyStringsAsNulls;
-
+  /** additional options */  
+  @HopMetadataProperty(key = "empty_is_null", injectionKey="EMPTY_STRING_AS_NULLS", injectionKeyDescription = "CoalesceMeta.Injection.EmptyStringAsNulls") 
+  private boolean treatEmptyStringsAsNulls;
+  
   public CoalesceMeta() {
-    operations = new ArrayList<>();
+    fields = new ArrayList<>();
   }
 
   public CoalesceMeta(CoalesceMeta c) {
     super();
-    this.emptyStringsAsNulls = c.emptyStringsAsNulls;
-    Iterator<CoalesceOperation> iterator = c.operations.iterator();
-    while (iterator.hasNext()) {
-      operations.add(new CoalesceOperation(iterator.next()));
+    this.treatEmptyStringsAsNulls = c.treatEmptyStringsAsNulls;
+    for (CoalesceField field: c.getFields())  {
+      fields.add(new CoalesceField(field));
     }
   }
 
@@ -110,87 +91,21 @@ public class CoalesceMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    this.operations = new ArrayList<>();
-    this.emptyStringsAsNulls = false;
+    this.fields = new ArrayList<>();
+    this.treatEmptyStringsAsNulls = false;
   }
 
   public boolean isTreatEmptyStringsAsNulls() {
-    return this.emptyStringsAsNulls;
+    return this.treatEmptyStringsAsNulls;
   }
 
   public void setTreatEmptyStringsAsNulls(boolean value) {
-    this.emptyStringsAsNulls = value;
+    this.treatEmptyStringsAsNulls = value;
   }
 
   @Override
   public Object clone() {
     return new CoalesceMeta(this);
-  }
-
-  @Override
-  public String getXml() throws HopValueException {
-
-    StringBuilder xml = new StringBuilder(500);
-
-    xml.append(XmlHandler.addTagValue(TAG_EMPTY_IS_NULL, emptyStringsAsNulls));
-
-    xml.append(XmlHandler.openTag(TAG_FIELDS));
-    for (CoalesceOperation coalesce : operations) {
-      xml.append(XmlHandler.openTag(TAG_FIELD));
-
-      xml.append(XmlHandler.addTagValue(TAG_NAME, coalesce.getName()));
-      xml.append(
-          XmlHandler.addTagValue(
-              TAG_VALUE_TYPE, ValueMetaFactory.getValueMetaName(coalesce.getType())));
-      xml.append(XmlHandler.addTagValue(TAG_REMOVE, coalesce.isRemoveFields()));
-
-      xml.append(XmlHandler.openTag(TAG_INPUT));
-      for (String field : coalesce.getInputFields()) {
-        xml.append(XmlHandler.addTagValue(TAG_FIELD, field));
-      }
-      xml.append(XmlHandler.closeTag(TAG_INPUT));
-
-      xml.append(XmlHandler.closeTag(TAG_FIELD));
-    }
-    xml.append(XmlHandler.closeTag(TAG_FIELDS));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    try {
-      this.emptyStringsAsNulls =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, TAG_EMPTY_IS_NULL));
-
-      Node fields = XmlHandler.getSubNode(transformNode, TAG_FIELDS);
-      int count = XmlHandler.countNodes(fields, TAG_FIELD);
-      operations = new ArrayList<>(count);
-      for (int i = 0; i < count; i++) {
-        Node line = XmlHandler.getSubNodeByNr(fields, TAG_FIELD, i);
-
-        CoalesceOperation coalesce = new CoalesceOperation();
-        coalesce.setName(Const.NVL(XmlHandler.getTagValue(line, TAG_NAME), ""));
-        coalesce.setType(XmlHandler.getTagValue(line, TAG_VALUE_TYPE));
-        coalesce.setRemoveFields("Y".equalsIgnoreCase(XmlHandler.getTagValue(line, TAG_REMOVE)));
-
-        Node input = XmlHandler.getSubNode(line, TAG_INPUT);
-        if (input != null) {
-          Node field = input.getFirstChild();
-          while (field != null) {
-            coalesce.addInputField(XmlHandler.getNodeValue(field));
-            field = field.getNextSibling();
-          }
-        }
-
-        operations.add(coalesce);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "CoalesceMeta.Exception.UnableToReadXML"), e);
-    }
   }
 
   @Override
@@ -207,14 +122,14 @@ public class CoalesceMeta extends BaseTransformMeta
       IRowMeta unalteredInputRowMeta = rowMeta.clone();
 
       // first remove all unwanted input fields from the stream
-      for (CoalesceOperation coalesce : this.getOperations()) {
+      for (CoalesceField coalesce : this.getFields()) {
 
         if (coalesce.isRemoveFields()) {
 
           // Resolve variable name
           String name = variables.resolve(coalesce.getName());
 
-          for (String fieldName : coalesce.getInputFields()) {
+          for (String fieldName : coalesce.getInputFieldNames()) {
 
             // If input field name is recycled for output, don't
             // remove
@@ -228,8 +143,8 @@ public class CoalesceMeta extends BaseTransformMeta
       }
 
       // then add the output fields
-      for (CoalesceOperation coalesce : this.getOperations()) {
-        int type = coalesce.getType();
+      for (CoalesceField coalesce : this.getFields()) {
+        int type = ValueMetaFactory.getIdForValueMeta(coalesce.getType());
         if (type == IValueMeta.TYPE_NONE) {
           type = findDefaultValueType(unalteredInputRowMeta, coalesce);
         }
@@ -299,13 +214,13 @@ public class CoalesceMeta extends BaseTransformMeta
 
     // See if there are missing, duplicate or not enough input streams
     boolean missing = false;
-    for (CoalesceOperation coalesce : this.getOperations()) {
+    for (CoalesceField coalesce : this.getFields()) {
 
       Set<String> fields = new HashSet<>();
       List<String> missingFields = new ArrayList<>();
       List<String> duplicateFields = new ArrayList<>();
 
-      for (String fieldName : coalesce.getInputFields()) {
+      for (String fieldName : coalesce.getInputFieldNames()) {
 
         if (fields.contains(fieldName)) duplicateFields.add(fieldName);
         else fields.add(fieldName);
@@ -349,7 +264,7 @@ public class CoalesceMeta extends BaseTransformMeta
     }
 
     // See if there something to coalesce
-    if (this.getOperations().isEmpty()) {
+    if (this.getFields().isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,
@@ -368,12 +283,12 @@ public class CoalesceMeta extends BaseTransformMeta
    * If all fields are of the same data type then the output field should mirror this otherwise
    * return a more generic String type
    */
-  private int findDefaultValueType(final IRowMeta inputRowMeta, final CoalesceOperation coalesce) {
+  private int findDefaultValueType(final IRowMeta inputRowMeta, final CoalesceField coalesce) {
 
     int type = IValueMeta.TYPE_NONE;
     boolean first = true;
 
-    for (String field : coalesce.getInputFields()) {
+    for (String field : coalesce.getInputFieldNames()) {
 
       if (first) {
         type = getInputFieldValueType(inputRowMeta, field);
@@ -459,11 +374,11 @@ public class CoalesceMeta extends BaseTransformMeta
     return IValueMeta.TYPE_NONE;
   }
 
-  public List<CoalesceOperation> getOperations() {
-    return operations;
+  public List<CoalesceField> getFields() {
+    return fields;
   }
 
-  public void setOperations(List<CoalesceOperation> operations) {
-    this.operations = (operations == null) ? Collections.emptyList() : operations;
+  public void setFields(List<CoalesceField> fields) {
+    this.fields = (fields == null) ? Collections.emptyList() : fields;
   }
 }

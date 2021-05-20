@@ -37,11 +37,11 @@ public class CoalesceTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "TreatEmptyStringsAsNulls" );
+    List<String> attributes = Arrays.asList( "treatEmptyStringsAsNulls" );
 
     LoadSaveTester<CoalesceMeta> loadSaveTester =
       new LoadSaveTester<CoalesceMeta>( CoalesceMeta.class, attributes );
 
     loadSaveTester.testSerialization();
-}
+  }
 }

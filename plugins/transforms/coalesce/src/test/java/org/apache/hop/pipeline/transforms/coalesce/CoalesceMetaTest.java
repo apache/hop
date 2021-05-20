@@ -44,7 +44,7 @@ public class CoalesceMetaTest {
     assertEquals(3, prop.getPath().size());
     BeanLevelInfo info = prop.getPath().get(1);
     assertEquals(BeanLevelInfo.DIMENSION.LIST, info.dim);
-    assertEquals(CoalesceOperation.class, info.leafClass);
+    assertEquals(CoalesceField.class, info.leafClass);
 
     info = prop.getPath().get(2);
     assertEquals(String.class, info.leafClass);
@@ -74,7 +74,7 @@ public class CoalesceMetaTest {
     injector.setProperty(meta, "INPUT_FIELDS", resultRows, "inputs");
     injector.setProperty(meta, "REMOVE_INPUT_FIELDS", resultRows, "remove?");
 
-    assertEquals(3, meta.getOperations().size());
-    assertEquals("result1", meta.getOperations().get(0).getName());
+    assertEquals(3, meta.getFields().size());
+    assertEquals("result1", meta.getFields().get(0).getName());
   }
 }
