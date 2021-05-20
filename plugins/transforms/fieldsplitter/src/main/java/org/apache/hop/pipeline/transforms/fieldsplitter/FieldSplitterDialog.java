@@ -44,7 +44,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -250,8 +249,8 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              Const.getDateFormats()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Group"),
               ColumnInfo.COLUMN_TYPE_TEXT,
