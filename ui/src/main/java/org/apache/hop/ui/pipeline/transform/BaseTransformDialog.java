@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hop.ui.pipeline.transform;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -43,7 +42,6 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -54,6 +52,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -62,10 +61,23 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /** This class provides functionality common to Transform Dialogs. */
 public class BaseTransformDialog extends Dialog {
@@ -96,17 +108,11 @@ public class BaseTransformDialog extends Dialog {
   /** FormData for the common dialog buttons. */
   protected FormData fdOk, fdGet, fdPreview, fdSql, fdCreate, fdCancel;
 
-  /** Listeners for the common dialog buttons. */
-  protected Listener lsOk, lsGet, lsPreview, lsSql, lsCreate, lsCancel;
-
   /** The metadata for the associated pipeline. */
   protected PipelineMeta pipelineMeta;
 
-  /** A reference to the shell. */
+  /** A reference to the parent shell. */
   protected Shell shell;
-
-  /** A listener adapter for default widget selection. */
-  protected SelectionAdapter lsDef;
 
   /** A listener for dialog resizing. */
   protected Listener lsResize;
@@ -244,8 +250,7 @@ public class BaseTransformDialog extends Dialog {
             if (!transformMeta.isDeprecated() || deprecation) {
               return;
             }
-            String deprecated =
-                BaseMessages.getString(PKG, "System.Deprecated").toLowerCase();
+            String deprecated = BaseMessages.getString(PKG, "System.Deprecated").toLowerCase();
             shell.setText(shell.getText() + " (" + deprecated + ")");
             deprecation = true;
           }
@@ -559,15 +564,15 @@ public class BaseTransformDialog extends Dialog {
       Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod) {
 
     final MetaSelectionLine<DatabaseMeta> wConnection =
-      new MetaSelectionLine<>(
-        variables,
-        metadataProvider,
-        DatabaseMeta.class,
-        parent,
-        SWT.NONE,
-        BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
-        "Select the relational database connection to use" // TODO : i18n
-      );
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            DatabaseMeta.class,
+            parent,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
+            "Select the relational database connection to use" // TODO : i18n
+            );
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
   }
@@ -1230,7 +1235,7 @@ public class BaseTransformDialog extends Dialog {
         wTransformName.setText(baseName);
       } catch (Exception e) {
         new ErrorDialog(
-                shell, "Error", "Error extracting name from filename '" + filename + "'", e);
+            shell, "Error", "Error extracting name from filename '" + filename + "'", e);
       }
     }
   }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,6 @@ public class ErrorDialog extends Dialog {
   private Button wOk, wDetails, wCancel;
 
   private Shell shell;
-  private SelectionAdapter lsDef;
   private PropsUi props;
 
   private boolean cancelled;
@@ -196,35 +195,10 @@ public class ErrorDialog extends Dialog {
     }
     wDetails.addListener(SWT.Selection, e -> showDetails(details.toString()));
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wDesc.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            ok();
-          }
-        });
-    // Clean up used resources!
-    shell.addDisposeListener(arg0 -> {});
-
-    BaseTransformDialog.setSize(shell);
-
     // Set the focus on the "OK" button
     wOk.setFocus();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
   }
 
   @VisibleForTesting

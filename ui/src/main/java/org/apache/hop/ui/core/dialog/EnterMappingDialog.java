@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -310,8 +310,8 @@ public class EnterMappingDialog extends Dialog {
     fdlResult.top = new FormAttachment(0, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new List(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    for (int i = 0; i < targetList.length; i++) {
-      wResult.add(targetList[i]);
+    for (String s : targetList) {
+      wResult.add(s);
     }
     props.setLook(wResult);
     FormData fdResult = new FormData();
@@ -339,25 +339,10 @@ public class EnterMappingDialog extends Dialog {
         });
     wTarget.addListener(SWT.DefaultSelection, event -> add());
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return mappings;
   }
 
@@ -431,9 +416,9 @@ public class EnterMappingDialog extends Dialog {
 
       // Compare source and target values...
       //
-      if (sourceValue.equals( targetValue )) {
-        minDistance=0;
-        minTarget=i;
+      if (sourceValue.equals(targetValue)) {
+        minDistance = 0;
+        minTarget = i;
         break; // we found an exact match
       }
 
@@ -448,7 +433,7 @@ public class EnterMappingDialog extends Dialog {
     }
 
     if (minTarget >= 0) {
-      result.setTargetIndex( minTarget );
+      result.setTargetIndex(minTarget);
       result._found = true; // always make a guess
     }
 

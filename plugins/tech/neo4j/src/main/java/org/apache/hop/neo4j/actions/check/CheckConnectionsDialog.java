@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.actions.check;
@@ -25,6 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -185,21 +185,9 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     fdConnections.bottom = new FormAttachment(wOk, -margin * 2);
     wConnections.setLayoutData(fdConnections);
 
-    // Detect X or ALT-F4 or something that kills this window...
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-    wName.addListener(SWT.DefaultSelection, e -> ok());
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
   }

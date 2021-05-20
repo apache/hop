@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -185,8 +185,7 @@ public class PreviewRowsDialog {
     wClose.addListener(
         SWT.Selection,
         e -> {
-          askingToStop = true;
-          close();
+          cancel();
         });
     buttons.add(wClose);
 
@@ -204,8 +203,7 @@ public class PreviewRowsDialog {
       wStop.addListener(
           SWT.Selection,
           e -> {
-            askingToStop = true;
-            close();
+            cancel();
           });
       buttons.add(wStop);
     }
@@ -232,29 +230,18 @@ public class PreviewRowsDialog {
     //
     bottomButton = buttons.get(0);
     BaseTransformDialog.positionBottomButtons(
-      shell, buttons.toArray(new Button[buttons.size()]), props.getMargin(), null);
+        shell, buttons.toArray(new Button[buttons.size()]), props.getMargin(), null);
 
     if (addFields()) {
       return;
     }
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            askingToStop = true;
-            close();
-          }
-        });
 
     KeyListener escapeListener =
         new KeyAdapter() {
           @Override
           public void keyPressed(KeyEvent e) {
             if (e.keyCode == SWT.ESC) {
-              askingToStop = true;
-              close();
+              cancel();
             }
           }
         };
@@ -266,17 +253,12 @@ public class PreviewRowsDialog {
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> close(), c -> cancel());
+  }
 
-    shell.open();
-
-    if (!waitingForRows) {
-      while (!shell.isDisposed()) {
-        if (!shell.getDisplay().readAndDispatch()) {
-          shell.getDisplay().sleep();
-        }
-      }
-    }
+  private void cancel() {
+    askingToStop = true;
+    close();
   }
 
   private boolean addFields() {
@@ -333,7 +315,7 @@ public class PreviewRowsDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(bottomButton, -2*margin);
+    fdFields.bottom = new FormAttachment(bottomButton, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     if (dynamic) {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -166,6 +166,16 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "JobHTTP.Name.Label"));
@@ -237,7 +247,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wRunEveryRow);
     FormData fdRunEveryRow = new FormData();
     fdRunEveryRow.left = new FormAttachment(middle, 0);
-    fdRunEveryRow.top = new FormAttachment(wURL, margin);
+    fdRunEveryRow.top = new FormAttachment(wlRunEveryRow, 0, SWT.CENTER);
     fdRunEveryRow.right = new FormAttachment(100, 0);
     wRunEveryRow.setLayoutData(fdRunEveryRow);
     wRunEveryRow.addSelectionListener(
@@ -253,7 +263,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlFieldURL);
     FormData fdlFieldURL = new FormData();
     fdlFieldURL.left = new FormAttachment(0, 0);
-    fdlFieldURL.top = new FormAttachment(wRunEveryRow, margin);
+    fdlFieldURL.top = new FormAttachment(wlRunEveryRow, 2 * margin);
     fdlFieldURL.right = new FormAttachment(middle, -margin);
     wlFieldURL.setLayoutData(fdlFieldURL);
     wFieldURL = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -262,7 +272,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wFieldURL.addModifyListener(lsMod);
     FormData fdFieldURL = new FormData();
     fdFieldURL.left = new FormAttachment(middle, 0);
-    fdFieldURL.top = new FormAttachment(wRunEveryRow, margin);
+    fdFieldURL.top = new FormAttachment(wlRunEveryRow, 2 * margin);
     fdFieldURL.right = new FormAttachment(100, 0);
     wFieldURL.setLayoutData(fdFieldURL);
 
@@ -550,7 +560,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlDateTimeAdded);
     FormData fdlDateTimeAdded = new FormData();
     fdlDateTimeAdded.left = new FormAttachment(0, 0);
-    fdlDateTimeAdded.top = new FormAttachment(wAppend, margin);
+    fdlDateTimeAdded.top = new FormAttachment(wlAppend, 2 * margin);
     fdlDateTimeAdded.right = new FormAttachment(middle, -margin);
     wlDateTimeAdded.setLayoutData(fdlDateTimeAdded);
     wDateTimeAdded = new Button(wTargetFileGroup, SWT.CHECK);
@@ -559,7 +569,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
         BaseMessages.getString(PKG, "JobHTTP.TargetFilenameAddDate.Tooltip"));
     FormData fdDateTimeAdded = new FormData();
     fdDateTimeAdded.left = new FormAttachment(middle, 0);
-    fdDateTimeAdded.top = new FormAttachment(wAppend, margin);
+    fdDateTimeAdded.top = new FormAttachment(wlDateTimeAdded, 0, SWT.CENTER);
     fdDateTimeAdded.right = new FormAttachment(100, 0);
     wDateTimeAdded.setLayoutData(fdDateTimeAdded);
     wDateTimeAdded.addSelectionListener(
@@ -575,7 +585,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlTargetExt);
     FormData fdlTargetExt = new FormData();
     fdlTargetExt.left = new FormAttachment(0, 0);
-    fdlTargetExt.top = new FormAttachment(wDateTimeAdded, margin);
+    fdlTargetExt.top = new FormAttachment(wlDateTimeAdded, 2 * margin);
     fdlTargetExt.right = new FormAttachment(middle, -margin);
     wlTargetExt.setLayoutData(fdlTargetExt);
     wTargetExt = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -584,7 +594,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wTargetExt.addModifyListener(lsMod);
     FormData fdTargetExt = new FormData();
     fdTargetExt.left = new FormAttachment(middle, 0);
-    fdTargetExt.top = new FormAttachment(wDateTimeAdded, margin);
+    fdTargetExt.top = new FormAttachment(wlTargetExt, 0, SWT.CENTER);
     fdTargetExt.right = new FormAttachment(100, 0);
     wTargetExt.setLayoutData(fdTargetExt);
 
@@ -603,7 +613,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wAddFilenameToResult);
     FormData fdAddFilenameToResult = new FormData();
     fdAddFilenameToResult.left = new FormAttachment(middle, 0);
-    fdAddFilenameToResult.top = new FormAttachment(wTargetExt, margin);
+    fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
     fdAddFilenameToResult.right = new FormAttachment(100, 0);
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
 
@@ -698,54 +708,14 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wURL.addSelectionListener(lsDef);
-    wTargetFile.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobHTTPDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

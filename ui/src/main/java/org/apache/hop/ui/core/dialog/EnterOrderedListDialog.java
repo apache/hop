@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,9 +53,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * This dialogs allows you to select a ordered number of items from a list of strings.
- */
+/** This dialogs allows you to select a ordered number of items from a list of strings. */
 public class EnterOrderedListDialog extends Dialog {
   private static final Class<?> PKG = EnterOrderedListDialog.class;
 
@@ -88,7 +86,7 @@ public class EnterOrderedListDialog extends Dialog {
 
   public String[] open() {
     PropsUi props = PropsUi.getInstance();
-    
+
     shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
@@ -121,18 +119,26 @@ public class EnterOrderedListDialog extends Dialog {
 
     Composite leftPane = new Composite(top, SWT.NONE);
     leftPane.setLayout(new FormLayout());
-    leftPane.setLayoutData(new FormDataBuilder().top().left().bottom(100, 0).right(50, -36).result());
+    leftPane.setLayoutData(
+        new FormDataBuilder().top().left().bottom(100, 0).right(50, -36).result());
     props.setLook(leftPane);
 
     // Source list to the left...
     Label lblListSource = new Label(leftPane, SWT.NONE);
-    lblListSource.setText(BaseMessages.getString(PKG, "EnterOrderedListDialog.AvailableItems.Label"));
+    lblListSource.setText(
+        BaseMessages.getString(PKG, "EnterOrderedListDialog.AvailableItems.Label"));
     lblListSource.setLayoutData(new FormDataBuilder().top().left().result());
     props.setLook(lblListSource);
 
     wListSource = new List(leftPane, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    wListSource.setLayoutData(new FormDataBuilder().top(lblListSource, ConstUi.SMALL_MARGIN).left().bottom(100, 0).right(100, 0).result());
-    wListSource.addListener(SWT.Selection, e -> updateButton()); 
+    wListSource.setLayoutData(
+        new FormDataBuilder()
+            .top(lblListSource, ConstUi.SMALL_MARGIN)
+            .left()
+            .bottom(100, 0)
+            .right(100, 0)
+            .result());
+    wListSource.addListener(SWT.Selection, e -> updateButton());
     wListSource.addListener(SWT.DefaultSelection, e -> addToSelection(wListSource.getSelection()));
     wListSource.addKeyListener(
         new KeyAdapter() {
@@ -141,7 +147,7 @@ public class EnterOrderedListDialog extends Dialog {
               addToSelection(wListSource.getSelection());
             }
           }
-        });    
+        });
     props.setLook(wListSource);
 
     // *******************************************************************
@@ -185,19 +191,22 @@ public class EnterOrderedListDialog extends Dialog {
 
     wButtonAddAll = new Button(gButtonGroup, SWT.PUSH);
     wButtonAddAll.setImage(GuiResource.getInstance().getImageAddAll());
-    wButtonAddAll.setToolTipText(BaseMessages.getString(PKG, "EnterOrderedListDialog.AddAll.Tooltip"));
+    wButtonAddAll.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOrderedListDialog.AddAll.Tooltip"));
     wButtonAddAll.setLayoutData(new RowData(32, 32));
     wButtonAddAll.addListener(SWT.Selection, e -> addToSelection(wListSource.getItems()));
 
     wButtonRemove = new Button(gButtonGroup, SWT.PUSH);
     wButtonRemove.setImage(GuiResource.getInstance().getImageRemoveSingle());
-    wButtonRemove.setToolTipText(BaseMessages.getString(PKG, "EnterOrderedListDialog.RemoveOne.Tooltip"));
+    wButtonRemove.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOrderedListDialog.RemoveOne.Tooltip"));
     wButtonRemove.setLayoutData(new RowData(32, 32));
     wButtonRemove.addListener(SWT.Selection, e -> removeFromSelection(wListTarget.getSelection()));
 
     wButtonRemoveAll = new Button(gButtonGroup, SWT.PUSH);
     wButtonRemoveAll.setImage(GuiResource.getInstance().getImageRemoveAll());
-    wButtonRemoveAll.setToolTipText(BaseMessages.getString(PKG, "EnterOrderedListDialog.RemoveAll.Tooltip"));
+    wButtonRemoveAll.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOrderedListDialog.RemoveAll.Tooltip"));
     wButtonRemoveAll.setLayoutData(new RowData(32, 32));
     wButtonRemoveAll.addListener(SWT.Selection, e -> removeFromSelection(wListTarget.getItems()));
 
@@ -229,7 +238,8 @@ public class EnterOrderedListDialog extends Dialog {
     // *******************************************************************
     Composite rightPane = new Composite(top, SWT.NONE);
     rightPane.setLayout(new FormLayout());
-    rightPane.setLayoutData(new FormDataBuilder().top().left(middlePane, 0).bottom(100, 0).right(100, 0).result());
+    rightPane.setLayoutData(
+        new FormDataBuilder().top().left(middlePane, 0).bottom(100, 0).right(100, 0).result());
     props.setLook(rightPane);
 
     Label lblListTarget = new Label(rightPane, SWT.NONE);
@@ -238,9 +248,16 @@ public class EnterOrderedListDialog extends Dialog {
     props.setLook(lblListTarget);
 
     wListTarget = new List(rightPane, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    wListTarget.setLayoutData(new FormDataBuilder().top(lblListTarget, ConstUi.SMALL_MARGIN).left().bottom(100, 0).right(100, 0).result());
-    wListTarget.addListener(SWT.Selection, e -> updateButton()); 
-    wListTarget.addListener(SWT.DefaultSelection, e -> removeFromSelection(wListTarget.getSelection()));
+    wListTarget.setLayoutData(
+        new FormDataBuilder()
+            .top(lblListTarget, ConstUi.SMALL_MARGIN)
+            .left()
+            .bottom(100, 0)
+            .right(100, 0)
+            .result());
+    wListTarget.addListener(SWT.Selection, e -> updateButton());
+    wListTarget.addListener(
+        SWT.DefaultSelection, e -> removeFromSelection(wListTarget.getSelection()));
     wListTarget.addKeyListener(
         new KeyAdapter() {
           public void keyPressed(KeyEvent event) {
@@ -248,7 +265,7 @@ public class EnterOrderedListDialog extends Dialog {
               removeFromSelection(wListTarget.getSelection());
             }
           }
-        });    
+        });
     props.setLook(wListTarget);
 
     // *******************************************************************
@@ -263,8 +280,9 @@ public class EnterOrderedListDialog extends Dialog {
     wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOK.addListener(SWT.Selection, e -> ok());
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOK, wCancel}, props.getMargin(), null);
-    
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOK, wCancel}, props.getMargin(), null);
+
     // Drag & Drop for steps
     Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};
 
@@ -319,15 +337,7 @@ public class EnterOrderedListDialog extends Dialog {
     opened = true;
     update();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());
 
     return retval;
   }

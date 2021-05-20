@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -224,42 +224,13 @@ public class EnterOptionsDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wIconSize.addSelectionListener(lsDef);
-    wLineWidth.addSelectionListener(lsDef);
-    wMiddlePct.addSelectionListener(lsDef);
-    wDefaultPreview.addSelectionListener(lsDef);
-    wGridSize.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wTabFolder.setSelection(0);
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return props;
   }
 
@@ -822,11 +793,11 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook(wlDarkMode);
     FormData fdlDarkMode = new FormData();
     fdlDarkMode.left = new FormAttachment(0, 0);
-    fdlDarkMode.top = new FormAttachment(wlOriginalLook, 2*margin);
+    fdlDarkMode.top = new FormAttachment(wlOriginalLook, 2 * margin);
     fdlDarkMode.right = new FormAttachment(middle, -margin);
     wlDarkMode.setLayoutData(fdlDarkMode);
     wDarkMode = new Button(wLookComp, SWT.CHECK);
-    wDarkMode.setSelection( props.isDarkMode() );
+    wDarkMode.setSelection(props.isDarkMode());
     props.setLook(wDarkMode);
     FormData fdDarkMode = new FormData();
     fdDarkMode.left = new FormAttachment(middle, 0);
@@ -841,7 +812,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlDefaultLocale = new FormData();
     fdlDefaultLocale.left = new FormAttachment(0, 0);
     fdlDefaultLocale.right = new FormAttachment(middle, -margin);
-    fdlDefaultLocale.top = new FormAttachment(wlDarkMode, 2*margin);
+    fdlDefaultLocale.top = new FormAttachment(wlDarkMode, 2 * margin);
     wlDefaultLocale.setLayoutData(fdlDefaultLocale);
     wDefaultLocale = new Combo(wLookComp, SWT.SINGLE | SWT.READ_ONLY | SWT.LEFT | SWT.BORDER);
     wDefaultLocale.setItems(GlobalMessages.localeDescr);
@@ -1251,7 +1222,10 @@ public class EnterOptionsDialog extends Dialog {
           // Add a tab
           //
           CTabItem wPluginTab = new CTabItem(wTabFolder, SWT.NONE);
-          wPluginTab.setText(Const.NVL(TranslateUtil.translate(annotation.description(), emptySourceData.getClass()), ""));
+          wPluginTab.setText(
+              Const.NVL(
+                  TranslateUtil.translate(annotation.description(), emptySourceData.getClass()),
+                  ""));
 
           ScrolledComposite sOtherComp =
               new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -1413,7 +1387,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
-    props.setDarkMode( wDarkMode.getSelection() );
+    props.setDarkMode(wDarkMode.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
     props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());

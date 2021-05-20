@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -367,48 +368,13 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     setButtonPositions(new Button[] {wOk, wCancel}, margin, gCounter);
 
     // Add listeners
-    lsOk = e -> ok();
-    lsCancel = e -> cancel();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wValuename.addSelectionListener(lsDef);
-    wSchema.addSelectionListener(lsDef);
-    wSeqname.addSelectionListener(lsDef);
-    wStartAt.addSelectionListener(lsDef);
-    wIncrBy.addSelectionListener(lsDef);
-    wMaxVal.addSelectionListener(lsDef);
-    wCounterName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

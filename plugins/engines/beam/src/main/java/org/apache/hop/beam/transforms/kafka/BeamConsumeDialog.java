@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -86,6 +87,16 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     middle = props.getMiddlePct();
     margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -213,7 +224,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlUseLogAppendTime);
     FormData fdlUseLogAppendTime = new FormData();
     fdlUseLogAppendTime.left = new FormAttachment(0, 0);
-    fdlUseLogAppendTime.top = new FormAttachment(lastControl, margin);
+    fdlUseLogAppendTime.top = new FormAttachment(lastControl, 2 * margin);
     fdlUseLogAppendTime.right = new FormAttachment(middle, -margin);
     wlUseLogAppendTime.setLayoutData(fdlUseLogAppendTime);
     wUseLogAppendTime = new Button(shell, SWT.CHECK | SWT.LEFT);
@@ -231,7 +242,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlUseCreateTime);
     FormData fdlUseCreateTime = new FormData();
     fdlUseCreateTime.left = new FormAttachment(0, 0);
-    fdlUseCreateTime.top = new FormAttachment(lastControl, margin);
+    fdlUseCreateTime.top = new FormAttachment(lastControl, 2 * margin);
     fdlUseCreateTime.right = new FormAttachment(middle, -margin);
     wlUseCreateTime.setLayoutData(fdlUseCreateTime);
     wUseCreateTime = new Button(shell, SWT.CHECK | SWT.LEFT);
@@ -249,7 +260,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlRestrictToCommitted);
     FormData fdlRestrictToCommitted = new FormData();
     fdlRestrictToCommitted.left = new FormAttachment(0, 0);
-    fdlRestrictToCommitted.top = new FormAttachment(lastControl, margin);
+    fdlRestrictToCommitted.top = new FormAttachment(lastControl, 2 * margin);
     fdlRestrictToCommitted.right = new FormAttachment(middle, -margin);
     wlRestrictToCommitted.setLayoutData(fdlRestrictToCommitted);
     wRestrictToCommitted = new Button(shell, SWT.CHECK | SWT.LEFT);
@@ -259,7 +270,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdRestrictToCommitted.top = new FormAttachment(wlRestrictToCommitted, 0, SWT.CENTER);
     fdRestrictToCommitted.right = new FormAttachment(100, 0);
     wRestrictToCommitted.setLayoutData(fdRestrictToCommitted);
-    lastControl = wRestrictToCommitted;
+    lastControl = wlRestrictToCommitted;
 
     Label wlAllowCommitConsumed = new Label(shell, SWT.RIGHT);
     wlAllowCommitConsumed.setText(
@@ -267,7 +278,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlAllowCommitConsumed);
     FormData fdlAllowCommitConsumed = new FormData();
     fdlAllowCommitConsumed.left = new FormAttachment(0, 0);
-    fdlAllowCommitConsumed.top = new FormAttachment(lastControl, margin);
+    fdlAllowCommitConsumed.top = new FormAttachment(lastControl, 2 * margin);
     fdlAllowCommitConsumed.right = new FormAttachment(middle, -margin);
     wlAllowCommitConsumed.setLayoutData(fdlAllowCommitConsumed);
     wAllowCommitConsumed = new Button(shell, SWT.CHECK | SWT.LEFT);
@@ -277,7 +288,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdAllowCommitConsumed.top = new FormAttachment(wlAllowCommitConsumed, 0, SWT.CENTER);
     fdAllowCommitConsumed.right = new FormAttachment(100, 0);
     wAllowCommitConsumed.setLayoutData(fdAllowCommitConsumed);
-    lastControl = wAllowCommitConsumed;
+    lastControl = wlAllowCommitConsumed;
 
     // private Button wAllowCommitConsumed;
     Label wlConfigOptions = new Label(shell, SWT.LEFT);
@@ -285,18 +296,10 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlConfigOptions);
     FormData fdlConfigOptions = new FormData();
     fdlConfigOptions.left = new FormAttachment(0, 0);
-    fdlConfigOptions.top = new FormAttachment(lastControl, margin);
+    fdlConfigOptions.top = new FormAttachment(lastControl, 2 * margin);
     fdlConfigOptions.right = new FormAttachment(100, 0);
     wlConfigOptions.setLayoutData(fdlConfigOptions);
     lastControl = wlConfigOptions;
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     ColumnInfo[] columns =
         new ColumnInfo[] {
@@ -327,23 +330,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdConfigOptions.top = new FormAttachment(lastControl, margin);
     fdConfigOptions.bottom = new FormAttachment(wOk, -margin * 2);
     wConfigOptions.setLayoutData(fdConfigOptions);
-    // lastControl = wConfigOptions;
-
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wBootstrapServers.addSelectionListener(lsDef);
-    wKeyField.addSelectionListener(lsDef);
-    wMessageField.addSelectionListener(lsDef);
-    wTopics.addSelectionListener(lsDef);
+    lastControl = wConfigOptions;
 
     wUseProcessingTime.addListener(
         SWT.Selection,
@@ -364,19 +351,10 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
           wUseLogAppendTime.setSelection(false);
         });
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addListener(SWT.Close, e -> cancel());
-
     getData();
-    setSize();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -281,38 +281,12 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add listeners
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wPath.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize(shell, 670, 690);
-
     getData();
     mappingMeta.setChanged(changed);
     wTabFolder.setSelection(0);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

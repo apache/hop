@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -312,47 +313,15 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wTarget.setLayoutData(fdTarget);
 
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsGet = e -> get();
-    Listener lsGetAgg = e -> getAgg();
-    lsCancel = e -> cancel();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wGet.addListener(SWT.Selection, lsGet);
-    wGetAgg.addListener(SWT.Selection, lsGetAgg);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wOk.addListener(SWT.Selection, e -> ok());
+    wGet.addListener(SWT.Selection, e -> get());
+    wGetAgg.addListener(SWT.Selection, e -> getAgg());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
-    input.setChanged(backupChanged);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

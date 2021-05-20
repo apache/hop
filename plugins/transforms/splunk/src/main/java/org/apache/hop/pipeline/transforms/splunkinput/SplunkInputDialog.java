@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.splunkinput;
@@ -34,6 +33,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.splunk.SplunkConnection;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -272,38 +272,11 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     wScrolledComposite.setMinWidth(bounds.width);
     wScrolledComposite.setMinHeight(bounds.height);
 
-    // Add listeners
-    //
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wConnection.addSelectionListener(lsDef);
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
     input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -376,7 +349,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     this.getInfo(oneMeta);
     PipelineMeta previewMeta =
         PipelinePreviewFactory.generatePreviewPipeline(
-          metadataProvider, oneMeta, this.wTransformName.getText());
+            metadataProvider, oneMeta, this.wTransformName.getText());
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             this.shell,

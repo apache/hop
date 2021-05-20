@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -137,6 +137,16 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "JobDosToUnix.Name.Label"));
@@ -202,7 +212,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString(PKG, "JobDosToUnix.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
-    fdIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
     fdIncludeSubfolders.right = new FormAttachment(100, 0);
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
@@ -218,7 +228,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
@@ -227,7 +237,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobDosToUnix.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
-    fdPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
@@ -296,7 +306,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
     fdSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
-    fdSourceFileFolder.right = new FormAttachment(wbSourceFileFolder, -55);
+    fdSourceFileFolder.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -313,28 +323,6 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
                 new String[] {"*.xml;*.XML", "*"},
                 FILETYPES,
                 true));
-
-    // Buttons to the right of the screen...
-    wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdSourceFileFolder);
-    wbdSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Button"));
-    wbdSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Tooltip"));
-    FormData fdbdSourceFileFolder = new FormData();
-    fdbdSourceFileFolder.right = new FormAttachment(100, 0);
-    fdbdSourceFileFolder.top = new FormAttachment(wSourceFileFolder, 40);
-    wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
-
-    wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeSourceFileFolder);
-    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Button"));
-    wbeSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Tooltip"));
-    FormData fdbeSourceFileFolder = new FormData();
-    fdbeSourceFileFolder.right = new FormAttachment(100, 0);
-    fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
-    fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
-    wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
@@ -353,7 +341,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
     fdWildcard.top = new FormAttachment(wSourceFileFolder, margin);
-    fdWildcard.right = new FormAttachment(wbSourceFileFolder, -55);
+    fdWildcard.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wWildcard.setLayoutData(fdWildcard);
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
@@ -364,6 +352,28 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdlFields.right = new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(wWildcard, margin);
     wlFields.setLayoutData(fdlFields);
+
+    // Buttons to the right of the screen...
+    wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbdSourceFileFolder);
+    wbdSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Button"));
+    wbdSourceFileFolder.setToolTipText(
+        BaseMessages.getString(PKG, "JobDosToUnix.FilenameDelete.Tooltip"));
+    FormData fdbdSourceFileFolder = new FormData();
+    fdbdSourceFileFolder.right = new FormAttachment(100, 0);
+    fdbdSourceFileFolder.top = new FormAttachment(wlFields, margin);
+    wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
+
+    wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbeSourceFileFolder);
+    wbeSourceFileFolder.setText(BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Button"));
+    wbeSourceFileFolder.setToolTipText(
+        BaseMessages.getString(PKG, "JobDosToUnix.FilenameEdit.Tooltip"));
+    FormData fdbeSourceFileFolder = new FormData();
+    fdbeSourceFileFolder.right = new FormAttachment(100, 0);
+    fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
+    fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
+    wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
     int rows =
         action.sourceFileFolder == null
@@ -636,54 +646,16 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wSourceFileFolder.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     activeSuccessCondition();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

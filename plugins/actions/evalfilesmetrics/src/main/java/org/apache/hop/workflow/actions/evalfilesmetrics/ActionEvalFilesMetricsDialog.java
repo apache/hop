@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,8 +40,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -50,7 +48,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -151,6 +148,16 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "JobEvalFilesMetrics.Name.Label"));
@@ -226,7 +233,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
-            RefreshSourceFiles();
+            refreshSourceFiles();
           }
         });
 
@@ -346,7 +353,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wEvaluationType.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
-            RefreshSize();
+            refreshSize();
             action.setChanged();
           }
         });
@@ -414,7 +421,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
     fdSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
-    fdSourceFileFolder.right = new FormAttachment(wbSourceFileFolder, -55);
+    fdSourceFileFolder.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -426,28 +433,6 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
         e ->
             BaseDialog.presentFileDialog(
                 shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, true));
-
-    // Buttons to the right of the screen...
-    wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdSourceFileFolder);
-    wbdSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameDelete.Button"));
-    wbdSourceFileFolder.setToolTipText(
-        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameDelete.Tooltip"));
-    FormData fdbdSourceFileFolder = new FormData();
-    fdbdSourceFileFolder.right = new FormAttachment(100, 0);
-    fdbdSourceFileFolder.top = new FormAttachment(wSourceFileFolder, 40);
-    wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
-
-    wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeSourceFileFolder);
-    wbeSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameEdit.Button"));
-    FormData fdbeSourceFileFolder = new FormData();
-    fdbeSourceFileFolder.right = new FormAttachment(100, 0);
-    fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
-    fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
-    wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
@@ -466,7 +451,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
     fdWildcard.top = new FormAttachment(wSourceFileFolder, margin);
-    fdWildcard.right = new FormAttachment(wbSourceFileFolder, -55);
+    fdWildcard.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wWildcard.setLayoutData(fdWildcard);
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
@@ -477,6 +462,28 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     fdlFields.right = new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(wWildcard, margin);
     wlFields.setLayoutData(fdlFields);
+
+    // Buttons to the right of the screen...
+    wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbdSourceFileFolder);
+    wbdSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameDelete.Button"));
+    wbdSourceFileFolder.setToolTipText(
+        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameDelete.Tooltip"));
+    FormData fdbdSourceFileFolder = new FormData();
+    fdbdSourceFileFolder.right = new FormAttachment(100, 0);
+    fdbdSourceFileFolder.top = new FormAttachment(wlFields, margin);
+    wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
+
+    wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbeSourceFileFolder);
+    wbeSourceFileFolder.setText(
+        BaseMessages.getString(PKG, "JobEvalFilesMetrics.FilenameEdit.Button"));
+    FormData fdbeSourceFileFolder = new FormData();
+    fdbeSourceFileFolder.right = new FormAttachment(100, 0);
+    fdbeSourceFileFolder.left = new FormAttachment(wbdSourceFileFolder, 0, SWT.LEFT);
+    fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
+    wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
     int rows =
         action.getSourceFileFolder() == null
@@ -769,59 +776,21 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wSourceFileFolder.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     refresh();
-    RefreshSize();
-    RefreshSourceFiles();
+    refreshSize();
+    refreshSourceFiles();
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
-  private void RefreshSourceFiles() {
+  private void refreshSourceFiles() {
     boolean useStaticFiles =
         (ActionEvalFilesMetrics.getSourceFilesByDesc(wSourceFiles.getText())
             == ActionEvalFilesMetrics.SOURCE_FILES_FILES);
@@ -855,7 +824,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wResultFieldWildcard.setEnabled(setResultFields);
   }
 
-  private void RefreshSize() {
+  private void refreshSize() {
     boolean useSize =
         (ActionEvalFilesMetrics.getEvaluationTypeByDesc(wEvaluationType.getText())
             == ActionEvalFilesMetrics.EVALUATE_TYPE_SIZE);

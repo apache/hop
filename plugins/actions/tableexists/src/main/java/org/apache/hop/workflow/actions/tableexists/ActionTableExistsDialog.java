@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -44,8 +45,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * This dialog allows you to edit the Table Exists action settings. (select the connection and the table to be
- * checked) This entry type evaluates!
+ * This dialog allows you to edit the Table Exists action settings. (select the connection and the
+ * table to be checked) This entry type evaluates!
  *
  * @author Matt
  * @since 19-06-2003
@@ -67,11 +68,12 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
   private boolean changed;
 
-  public ActionTableExistsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables ) {
-    super( parent, workflowMeta, variables );
+  public ActionTableExistsDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionTableExists) action;
-    if ( this.action.getName() == null ) {
-      this.action.setName( BaseMessages.getString( PKG, "JobTableExists.Name.Default" ) );
+    if (this.action.getName() == null) {
+      this.action.setName(BaseMessages.getString(PKG, "JobTableExists.Name.Default"));
     }
   }
 
@@ -79,9 +81,9 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
-    props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, action );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    props.setLook(shell);
+    WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -90,165 +92,130 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "JobTableExists.Title" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "JobTableExists.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText( BaseMessages.getString( PKG, "JobTableExists.Name.Label" ) );
+    wlName.setText(BaseMessages.getString(PKG, "JobTableExists.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment( 0, 0 );
-    fdlName.right = new FormAttachment( middle, -margin );
-    fdlName.top = new FormAttachment( 0, margin );
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
+    fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wName );
-    wName.addModifyListener( lsMod );
+    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wName);
+    wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment( middle, 0 );
-    fdName.top = new FormAttachment( 0, margin );
-    fdName.right = new FormAttachment( 100, 0 );
+    fdName.left = new FormAttachment(middle, 0);
+    fdName.top = new FormAttachment(0, margin);
+    fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
+    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
 
     // Schema name line
     Label wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText( BaseMessages.getString( PKG, "JobTableExists.Schemaname.Label" ) );
+    wlSchemaname.setText(BaseMessages.getString(PKG, "JobTableExists.Schemaname.Label"));
     props.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
-    fdlSchemaname.left = new FormAttachment( 0, 0 );
-    fdlSchemaname.right = new FormAttachment( middle, -margin );
-    fdlSchemaname.top = new FormAttachment( wConnection, 2 * margin );
+    fdlSchemaname.left = new FormAttachment(0, 0);
+    fdlSchemaname.right = new FormAttachment(middle, -margin);
+    fdlSchemaname.top = new FormAttachment(wConnection, 2 * margin);
     wlSchemaname.setLayoutData(fdlSchemaname);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbSchema);
-    wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
-    fdbSchema.right = new FormAttachment( 100, 0 );
+    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
-    wbSchema.addSelectionListener(new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        getSchemaNames();
-      }
-    } );
+    wbSchema.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            getSchemaNames();
+          }
+        });
 
-    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wSchemaname );
-    wSchemaname.addModifyListener( lsMod );
+    wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wSchemaname);
+    wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
-    fdSchemaname.left = new FormAttachment( middle, 0 );
-    fdSchemaname.top = new FormAttachment( wConnection, 2 * margin );
-    fdSchemaname.right = new FormAttachment(wbSchema, -margin );
+    fdSchemaname.left = new FormAttachment(middle, 0);
+    fdSchemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdSchemaname.right = new FormAttachment(wbSchema, -margin);
     wSchemaname.setLayoutData(fdSchemaname);
 
     // Table name line
     Label wlTablename = new Label(shell, SWT.RIGHT);
-    wlTablename.setText( BaseMessages.getString( PKG, "JobTableExists.Tablename.Label" ) );
+    wlTablename.setText(BaseMessages.getString(PKG, "JobTableExists.Tablename.Label"));
     props.setLook(wlTablename);
     FormData fdlTablename = new FormData();
-    fdlTablename.left = new FormAttachment( 0, 0 );
-    fdlTablename.right = new FormAttachment( middle, -margin );
-    fdlTablename.top = new FormAttachment(wbSchema, margin );
+    fdlTablename.left = new FormAttachment(0, 0);
+    fdlTablename.right = new FormAttachment(middle, -margin);
+    fdlTablename.top = new FormAttachment(wbSchema, margin);
     wlTablename.setLayoutData(fdlTablename);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbTable);
-    wbTable.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
+    wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
-    fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment(wbSchema, margin );
-    wbTable.setLayoutData( fdbTable );
-    wbTable.addSelectionListener(new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        getTableName();
-      }
-    } );
+    fdbTable.right = new FormAttachment(100, 0);
+    fdbTable.top = new FormAttachment(wbSchema, margin);
+    wbTable.setLayoutData(fdbTable);
+    wbTable.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            getTableName();
+          }
+        });
 
-    wTablename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wTablename );
-    wTablename.addModifyListener( lsMod );
+    wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wTablename);
+    wTablename.addModifyListener(lsMod);
     FormData fdTablename = new FormData();
-    fdTablename.left = new FormAttachment( middle, 0 );
-    fdTablename.top = new FormAttachment(wbSchema, margin );
-    fdTablename.right = new FormAttachment(wbTable, -margin );
+    fdTablename.left = new FormAttachment(middle, 0);
+    fdTablename.top = new FormAttachment(wbSchema, margin);
+    fdTablename.right = new FormAttachment(wbTable, -margin);
     wTablename.setLayoutData(fdTablename);
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    FormData fd = new FormData();
-    fd.right = new FormAttachment( 50, -10 );
-    fd.bottom = new FormAttachment( 100, 0 );
-    fd.width = 100;
-    wOk.setLayoutData( fd );
-
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    fd = new FormData();
-    fd.left = new FormAttachment( 50, 10 );
-    fd.bottom = new FormAttachment( 100, 0 );
-    fd.width = 100;
-    wCancel.setLayoutData( fd );
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel);
-    wOk.addListener( SWT.Selection, lsOk);
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wTablename );
-    SelectionAdapter lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected(SelectionEvent e) {
-        ok();
-      }
-    };
-
-    wName.addSelectionListener(lsDef);
-    wTablename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, margin, wTablename);
 
     getData();
 
-    BaseTransformDialog.setSize( shell );
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    props.setDialogSize( shell, "JobTableExistsDialogSize" );
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
     return action;
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
+    WindowProperty winprop = new WindowProperty(shell);
+    props.setScreen(winprop);
     shell.dispose();
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText( Const.nullToEmpty( action.getName() ) );
-    wTablename.setText( Const.nullToEmpty( action.getTablename() ) );
-    wSchemaname.setText( Const.nullToEmpty( action.getSchemaname() ) );
-    if ( action.getDatabase() != null ) {
-      wConnection.setText( action.getDatabase().getName() );
+    wName.setText(Const.nullToEmpty(action.getName()));
+    wTablename.setText(Const.nullToEmpty(action.getTablename()));
+    wSchemaname.setText(Const.nullToEmpty(action.getSchemaname()));
+    if (action.getDatabase() != null) {
+      wConnection.setText(action.getDatabase().getName());
     }
 
     wName.selectAll();
@@ -256,59 +223,67 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   }
 
   private void cancel() {
-    action.setChanged( changed );
+    action.setChanged(changed);
     action = null;
     dispose();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( wName.getText() ) ) {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.TransformActionNameMissing.Title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ) );
+    if (Utils.isEmpty(wName.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "System.TransformActionNameMissing.Title"));
+      mb.setMessage(BaseMessages.getString(PKG, "System.ActionNameMissing.Msg"));
       mb.open();
       return;
     }
-    action.setName( wName.getText() );
-    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
-    action.setTablename( wTablename.getText() );
-    action.setSchemaname( wSchemaname.getText() );
+    action.setName(wName.getText());
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setTablename(wTablename.getText());
+    action.setSchemaname(wSchemaname.getText());
 
     dispose();
   }
 
   private void getSchemaNames() {
-    if ( wSchemaname.isDisposed() ) {
+    if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
-    if ( databaseMeta != null ) {
-      Database database = new Database( loggingObject, variables, databaseMeta );
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+    if (databaseMeta != null) {
+      Database database = new Database(loggingObject, variables, databaseMeta);
       try {
         database.connect();
         String[] schemas = database.getSchemas();
 
-        if ( null != schemas && schemas.length > 0 ) {
-          schemas = Const.sortStrings( schemas );
-          EnterSelectionDialog dialog = new EnterSelectionDialog( shell, schemas,
-            BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText() ),
-            BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Message" ) );
+        if (null != schemas && schemas.length > 0) {
+          schemas = Const.sortStrings(schemas);
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
           String d = dialog.open();
-          if ( d != null ) {
-            wSchemaname.setText( Const.NVL( d.toString(), "" ) );
+          if (d != null) {
+            wSchemaname.setText(Const.NVL(d.toString(), ""));
           }
 
         } else {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Empty.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Empty.Title" ) );
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
           mb.open();
         }
-      } catch ( Exception e ) {
-        new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
-          BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.ConnectionError" ), e );
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
       } finally {
-        if ( database != null ) {
+        if (database != null) {
           database.disconnect();
           database = null;
         }
@@ -318,19 +293,21 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
   private void getTableName() {
     String databaseName = wConnection.getText();
-    if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
-      if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases() );
-        std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
-        if ( std.open() ) {
-          wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );
-          wTablename.setText( Const.NVL( std.getTableName(), "" ) );
+    if (StringUtils.isNotEmpty(databaseName)) {
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      if (databaseMeta != null) {
+        DatabaseExplorerDialog std =
+            new DatabaseExplorerDialog(
+                shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
+        std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+        if (std.open()) {
+          wSchemaname.setText(Const.NVL(std.getSchemaName(), ""));
+          wTablename.setText(Const.NVL(std.getTableName(), ""));
         }
       } else {
-        MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-        mb.setMessage( BaseMessages.getString( PKG, "System.Dialog.ConnectionError.DialogMessage" ) );
-        mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(BaseMessages.getString(PKG, "System.Dialog.ConnectionError.DialogMessage"));
+        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
         mb.open();
       }
     }

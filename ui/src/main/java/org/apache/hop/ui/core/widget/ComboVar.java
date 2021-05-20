@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -210,7 +210,10 @@ public class ComboVar extends Composite {
   public synchronized boolean setFocus() {
     if (wCombo != null && !wCombo.isDisposed()) {
       synchronized (wCombo) {
-        if (!wCombo.isEnabled() || !wCombo.getVisible()) {
+        if (!wCombo.isEnabled()
+            || !wCombo.getVisible()
+            || !wCombo.isVisible()
+            || !wCombo.isFocusControl()) {
           return false;
         }
         return wCombo.setFocus();
@@ -220,13 +223,14 @@ public class ComboVar extends Composite {
     }
   }
 
-  @Override public void dispose() {
+  @Override
+  public void dispose() {
     if (wCombo != null && wCombo != null) {
       wCombo.dispose();
     }
   }
 
-  public void addTraverseListener( TraverseListener tl) {
+  public void addTraverseListener(TraverseListener tl) {
     wCombo.addTraverseListener(tl);
   }
 

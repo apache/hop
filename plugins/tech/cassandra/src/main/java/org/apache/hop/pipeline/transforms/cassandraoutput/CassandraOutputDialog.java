@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
@@ -35,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
@@ -620,16 +620,10 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         });
 
     wTabFolder.setSelection(0);
-    setSize();
 
     getData();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }
@@ -934,7 +928,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wUpdateTableMetaData.setSelection(input.isUpdateCassandraMeta());
     wInsertFieldsNotInTableMeta.setSelection(input.isInsertFieldsNotInMeta());
     wUnloggedBatch.setSelection(input.isUseUnloggedBatch());
-    
+
     if (!Utils.isEmpty(input.getTtl())) {
       wTtlValue.setText(input.getTtl());
       wTtlUnits.setText(input.getTtlUnit());

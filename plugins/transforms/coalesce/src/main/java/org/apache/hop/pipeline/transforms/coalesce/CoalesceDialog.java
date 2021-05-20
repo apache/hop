@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterOrderedListDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -238,21 +239,10 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
         };
     new Thread(runnable).start();
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addListener(SWT.Close, e -> cancel());
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -122,6 +122,16 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, (Event e) -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Name.Label"));
@@ -169,7 +179,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
         BaseMessages.getString(PKG, "JobDeleteFiles.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
     fdIncludeSubfolders.left = new FormAttachment(middle, 0);
-    fdIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
     fdIncludeSubfolders.right = new FormAttachment(100, 0);
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
@@ -184,7 +194,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
@@ -193,7 +203,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobDeleteFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
-    fdPrevious.top = new FormAttachment(wIncludeSubfolders, margin);
+    fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
@@ -258,7 +268,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.top = new FormAttachment(wSettings, 2 * margin);
-    fdFilename.right = new FormAttachment(wbFilename, -55);
+    fdFilename.right = new FormAttachment(wbaFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -291,8 +301,17 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(wbFilename, -55);
+    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
     wFilemask.setLayoutData(fdFilemask);
+
+    wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wFilemask, margin);
+    wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -302,7 +321,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
         BaseMessages.getString(PKG, "JobDeleteFiles.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wFilemask, 40);
+    fdbdFilename.top = new FormAttachment(wlFields, margin);
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -315,17 +334,8 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobDeleteFiles.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilemask, margin);
-    wlFields.setLayoutData(fdlFields);
-
-    String[] jobArgs = action.getArguments();
-    final int fieldsRows = (jobArgs == null) ? 1 : jobArgs.length;
+    String[] arguments = action.getArguments();
+    final int nrRows = (arguments == null) ? 1 : arguments.length;
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -350,15 +360,15 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            fieldsRows,
+            nrRows,
             lsMod,
             props);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(100, -75);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.isArgFromPrevious());
@@ -406,46 +416,11 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
           }
         });
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setPrevious();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -41,14 +42,11 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -116,6 +114,16 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Name.Label"));
@@ -150,7 +158,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionTruncateTables.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
-    fdPrevious.top = new FormAttachment(wConnection, margin);
+    fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
@@ -169,7 +177,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     FormData fdbTable = new FormData();
     fdbTable.left = new FormAttachment(0, margin);
     fdbTable.right = new FormAttachment(100, -margin);
-    fdbTable.top = new FormAttachment(wPrevious, 2 * margin);
+    fdbTable.top = new FormAttachment(wlPrevious, 2 * margin);
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -178,17 +186,6 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
             getTableName();
           }
         });
-
-    // Buttons to the right of the screen...
-    wbdTablename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdTablename);
-    wbdTablename.setText(BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Button"));
-    wbdTablename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Tooltip"));
-    FormData fdbdTablename = new FormData();
-    fdbdTablename.right = new FormAttachment(100, 0);
-    fdbdTablename.top = new FormAttachment(wbTable, 2 * middle);
-    wbdTablename.setLayoutData(fdbdTablename);
 
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Label"));
@@ -199,10 +196,29 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     fdlFields.top = new FormAttachment(wbTable, 2 * margin);
     wlFields.setLayoutData(fdlFields);
 
-    int rows = action.getTableNames() == null ? 1 : action.getTableNames().length;
-    final int FieldsRows = rows;
+    // Buttons to the right of the screen...
+    wbdTablename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbdTablename);
+    wbdTablename.setText(BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Button"));
+    wbdTablename.setToolTipText(
+        BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Tooltip"));
+    FormData fdbdTablename = new FormData();
+    fdbdTablename.right = new FormAttachment(100, 0);
+    fdbdTablename.top = new FormAttachment(wlFields, margin);
+    wbdTablename.setLayoutData(fdbdTablename);
+    wbdTablename.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFields.getSelectionIndices();
+          wFields.remove(idx);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+        });
 
-    ColumnInfo[] colinf =
+    int nrRows = action.getTableNames() == null ? 1 : action.getTableNames().length;
+    final int nrFieldsRows = nrRows;
+
+    ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Label"),
@@ -214,18 +230,19 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
               false),
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Tooltip"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Schema.Tooltip"));
+    columns[0].setUsingVariables(true);
+    columns[0].setToolTip(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Tooltip"));
+    columns[1].setUsingVariables(true);
+    columns[1].setToolTip(
+        BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Schema.Tooltip"));
 
     wFields =
         new TableView(
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrFieldsRows,
             lsMod,
             props);
 
@@ -233,7 +250,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbdTablename, -margin);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...
@@ -248,45 +265,11 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
           }
         });
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setPrevious();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "ActionTruncateTablesDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -298,8 +281,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 

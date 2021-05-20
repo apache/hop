@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -58,46 +56,17 @@ import org.eclipse.swt.widgets.Text;
 public class EnterValueDialog extends Dialog {
   private static final Class<?> PKG = EnterValueDialog.class; // For Translator
 
-  private Display display;
-
-  /*
-   * Type of Value: String, Number, Date, Boolean, Integer
-   */
-  private Label wlValueType;
-
   private CCombo wValueType;
-
-  private FormData fdlValueType, fdValueType;
-
-  private Label wlInputString;
 
   private Text wInputString;
 
-  private FormData fdlInputString, fdInputString;
-
-  private Label wlFormat;
-
   private CCombo wFormat;
-
-  private FormData fdlFormat, fdFormat;
-
-  private Label wlLength;
 
   private Text wLength;
 
-  private FormData fdlLength, fdLength;
-
-  private Label wlPrecision;
-
   private Text wPrecision;
 
-  private FormData fdlPrecision, fdPrecision;
-  private Button wOk, wCancel, wTest;
-  private Listener lsOk, lsCancel, lsTest;
-
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private PropsUi props;
 
@@ -118,7 +87,7 @@ public class EnterValueDialog extends Dialog {
 
   public ValueMetaAndData open() {
     Shell parent = getParent();
-    display = parent.getDisplay();
+    Display display = parent.getDisplay();
 
     shell =
         new Shell(
@@ -140,10 +109,13 @@ public class EnterValueDialog extends Dialog {
     int margin = props.getMargin();
 
     // Type of value
-    wlValueType = new Label(shell, SWT.RIGHT);
+    /*
+     * Type of Value: String, Number, Date, Boolean, Integer
+     */
+    Label wlValueType = new Label(shell, SWT.RIGHT);
     wlValueType.setText(BaseMessages.getString(PKG, "EnterValueDialog.Type.Label"));
     props.setLook(wlValueType);
-    fdlValueType = new FormData();
+    FormData fdlValueType = new FormData();
     fdlValueType.left = new FormAttachment(0, 0);
     fdlValueType.right = new FormAttachment(middle, -margin);
     fdlValueType.top = new FormAttachment(0, margin);
@@ -151,7 +123,7 @@ public class EnterValueDialog extends Dialog {
     wValueType = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
     wValueType.setItems(ValueMetaFactory.getValueMetaNames());
     props.setLook(wValueType);
-    fdValueType = new FormData();
+    FormData fdValueType = new FormData();
     fdValueType.left = new FormAttachment(middle, 0);
     fdValueType.top = new FormAttachment(0, margin);
     fdValueType.right = new FormAttachment(100, -margin);
@@ -159,103 +131,88 @@ public class EnterValueDialog extends Dialog {
     wValueType.addModifyListener(arg0 -> setFormats());
 
     // Value line
-    wlInputString = new Label(shell, SWT.RIGHT);
+    Label wlInputString = new Label(shell, SWT.RIGHT);
     wlInputString.setText(BaseMessages.getString(PKG, "EnterValueDialog.Value.Label"));
     props.setLook(wlInputString);
-    fdlInputString = new FormData();
+    FormData fdlInputString = new FormData();
     fdlInputString.left = new FormAttachment(0, 0);
     fdlInputString.right = new FormAttachment(middle, -margin);
     fdlInputString.top = new FormAttachment(wValueType, margin);
     wlInputString.setLayoutData(fdlInputString);
     wInputString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInputString);
-    fdInputString = new FormData();
+    FormData fdInputString = new FormData();
     fdInputString.left = new FormAttachment(middle, 0);
     fdInputString.top = new FormAttachment(wValueType, margin);
     fdInputString.right = new FormAttachment(100, -margin);
     wInputString.setLayoutData(fdInputString);
 
     // Format mask
-    wlFormat = new Label(shell, SWT.RIGHT);
+    Label wlFormat = new Label(shell, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "EnterValueDialog.ConversionFormat.Label"));
     props.setLook(wlFormat);
-    fdlFormat = new FormData();
+    FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.right = new FormAttachment(middle, -margin);
     fdlFormat.top = new FormAttachment(wInputString, margin);
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFormat);
-    fdFormat = new FormData();
+    FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
     fdFormat.right = new FormAttachment(100, -margin);
     fdFormat.top = new FormAttachment(wInputString, margin);
     wFormat.setLayoutData(fdFormat);
 
     // Length line
-    wlLength = new Label(shell, SWT.RIGHT);
+    Label wlLength = new Label(shell, SWT.RIGHT);
     wlLength.setText(BaseMessages.getString(PKG, "EnterValueDialog.Length.Label"));
     props.setLook(wlLength);
-    fdlLength = new FormData();
+    FormData fdlLength = new FormData();
     fdlLength.left = new FormAttachment(0, 0);
     fdlLength.right = new FormAttachment(middle, -margin);
     fdlLength.top = new FormAttachment(wFormat, margin);
     wlLength.setLayoutData(fdlLength);
     wLength = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLength);
-    fdLength = new FormData();
+    FormData fdLength = new FormData();
     fdLength.left = new FormAttachment(middle, 0);
     fdLength.right = new FormAttachment(100, -margin);
     fdLength.top = new FormAttachment(wFormat, margin);
     wLength.setLayoutData(fdLength);
 
     // Precision line
-    wlPrecision = new Label(shell, SWT.RIGHT);
+    Label wlPrecision = new Label(shell, SWT.RIGHT);
     wlPrecision.setText(BaseMessages.getString(PKG, "EnterValueDialog.Precision.Label"));
     props.setLook(wlPrecision);
-    fdlPrecision = new FormData();
+    FormData fdlPrecision = new FormData();
     fdlPrecision.left = new FormAttachment(0, 0);
     fdlPrecision.right = new FormAttachment(middle, -margin);
     fdlPrecision.top = new FormAttachment(wLength, margin);
     wlPrecision.setLayoutData(fdlPrecision);
     wPrecision = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPrecision);
-    fdPrecision = new FormData();
+    FormData fdPrecision = new FormData();
     fdPrecision.left = new FormAttachment(middle, 0);
     fdPrecision.right = new FormAttachment(100, -margin);
     fdPrecision.top = new FormAttachment(wLength, margin);
     wPrecision.setLayoutData(fdPrecision);
 
     // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wTest = new Button(shell, SWT.PUSH);
+    Button wTest = new Button(shell, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wTest, wCancel}, margin, wPrecision);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsTest = e -> test();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-    wTest.addListener(SWT.Selection, lsTest);
-
-    lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wInputString.addSelectionListener(lsDef);
-    wLength.addSelectionListener(lsDef);
-    wPrecision.addSelectionListener(lsDef);
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
+    wTest.addListener(SWT.Selection, e -> test());
 
     // If the user changes data type or if we type a text, we set the default mask for the type
     // We also set the list of possible masks in the wFormat
@@ -279,25 +236,10 @@ public class EnterValueDialog extends Dialog {
           }
         });
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return valueMetaAndData;
   }
 

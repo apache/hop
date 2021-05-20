@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,8 +52,6 @@ import org.eclipse.swt.widgets.Text;
 public class EnterStringDialog extends Dialog {
   private static final Class<?> PKG = EnterStringDialog.class; // For Translator
 
-  private Label wlString;
-
   private Text wString;
 
   private TextVar wStringVar;
@@ -62,13 +60,9 @@ public class EnterStringDialog extends Dialog {
 
   private boolean allowVariables;
 
-  private FormData fdlString, fdString;
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
+  private Button wOk;
 
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private String string;
 
@@ -139,10 +133,10 @@ public class EnterStringDialog extends Dialog {
     int margin = props.getMargin();
 
     // The String line...
-    wlString = new Label(shell, SWT.NONE);
+    Label wlString = new Label(shell, SWT.NONE);
     wlString.setText(lineText);
     props.setLook(wlString);
-    fdlString = new FormData();
+    FormData fdlString = new FormData();
     fdlString.left = new FormAttachment(0, 0);
     fdlString.top = new FormAttachment(0, margin);
     wlString.setLayoutData(fdlString);
@@ -158,7 +152,7 @@ public class EnterStringDialog extends Dialog {
       lastControl = wString;
     }
 
-    fdString = new FormData();
+    FormData fdString = new FormData();
     fdString.left = new FormAttachment(0, 0);
     fdString.top = new FormAttachment(wlString, margin);
     fdString.right = new FormAttachment(100, -margin);
@@ -174,52 +168,20 @@ public class EnterStringDialog extends Dialog {
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, margin, lastControl);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    if (allowVariables) {
-      wStringVar.addSelectionListener(lsDef);
-    } else {
-      wString.addSelectionListener(lsDef);
-    }
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
 
-    shell.pack();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return string;
   }
 

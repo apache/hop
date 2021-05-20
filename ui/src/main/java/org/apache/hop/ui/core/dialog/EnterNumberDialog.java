@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,11 +58,10 @@ public class EnterNumberDialog extends Dialog {
   protected Text wNumber;
   private FormData fdlNumber, fdNumber, fdlCheckbox, fdCheckbox;
   protected Button wOk, wCancel, wCheckbox;
-  private Listener lsOk, lsCancel;
+  private Listener lsOk;
   private boolean hideCancelButton;
 
   protected Shell shell;
-  private SelectionAdapter lsDef;
 
   protected int samples;
   private String shellText;
@@ -190,48 +189,13 @@ public class EnterNumberDialog extends Dialog {
             .result());
 
     // Add listeners
-    lsOk = e -> ok();
-    if (!hideCancelButton) {
-      lsCancel = e -> cancel();
-    }
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wNumber.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
 
-    shell.pack();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    if (this.width > 0) {
-      final int height = shell.computeSize(this.width, SWT.DEFAULT).y;
-      // for some reason the actual width and minimum width are smaller than what is requested - add
-      // the
-      // SHELL_WIDTH_OFFSET to get the desired size
-      shell.setMinimumSize(this.width + BaseDialog.SHELL_WIDTH_OFFSET, height);
-      shell.setSize(this.width + BaseDialog.SHELL_WIDTH_OFFSET, height);
-    }
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return samples;
   }
 

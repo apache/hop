@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -73,7 +74,8 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
         parent,
         variables,
         (BaseTransformMeta) transformMeta.getTransform(),
-      pipelineMeta, partitioningMeta.getPartitioner().getDescription() );
+        pipelineMeta,
+        partitioningMeta.getPartitioner().getDescription());
     this.transformMeta = transformMeta;
     this.partitioningMeta = partitioningMeta;
     partitioner = (ModPartitioner) partitioningMeta.getPartitioner();
@@ -140,47 +142,20 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
     getData();
 
-    // Set the shell size, based upon previous time, current content......
-    //
-    setSize();
-
     partitioningMeta.hasChanged(changed);
 
-    setSize();
     wOk.setEnabled(!StringUtil.isEmpty(wFieldname.getText()));
     ModifyListener modifyListener =
         modifyEvent -> wOk.setEnabled(!StringUtil.isEmpty(wFieldname.getText()));
     wFieldname.addModifyListener(modifyListener);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.tableinput;
@@ -38,6 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -328,50 +328,19 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
         });
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsPreview = e -> preview();
-    lsOk = e -> ok();
-    Listener lsbTable = e -> getSql();
-    Listener lsDatefrom = e -> setFlags();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wPreview.addListener(SWT.Selection, lsPreview);
-    wOk.addListener(SWT.Selection, lsOk);
-    wbTable.addListener(SWT.Selection, lsbTable);
-    wDatefrom.addListener(SWT.Selection, lsDatefrom);
-    wDatefrom.addListener(SWT.FocusOut, lsDatefrom);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wLimit.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            checkCancel(e);
-          }
-        });
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wPreview.addListener(SWT.Selection, e -> preview());
+    wOk.addListener(SWT.Selection, e -> ok());
+    wbTable.addListener(SWT.Selection, e -> getSql());
+    wDatefrom.addListener(SWT.Selection, e -> setFlags());
+    wDatefrom.addListener(SWT.FocusOut, e -> setFlags());
 
     getData();
     changedInDialog = false; // for prompting if dialog is simply closed
     input.setChanged(changed);
 
-    // Set the shell size, based upon previous time...
-    setSize();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return transformName;
   }
 

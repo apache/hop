@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -38,8 +39,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -68,7 +67,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
   private boolean changed;
 
-  private Label wlsuccessWhenSet;
+  private Label wlSuccessWhenSet;
   private Button wSuccessWhenSet;
 
   private Label wlSuccessCondition;
@@ -120,14 +119,24 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Title"));
+    shell.setText(BaseMessages.getString(PKG, "JobSimpleEval.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "JobSimpleEval.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -151,7 +160,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Tab.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "JobSimpleEval.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
@@ -167,7 +176,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     // /
     Group wSource = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSource);
-    wSource.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Source.Group.Label"));
+    wSource.setText(BaseMessages.getString(PKG, "JobSimpleEval.Source.Group.Label"));
     FormLayout sourcegroupLayout = new FormLayout();
     sourcegroupLayout.marginWidth = 10;
     sourcegroupLayout.marginHeight = 10;
@@ -175,7 +184,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Evaluate value (variable ou field from previous result entry)?
     Label wlValueType = new Label(wSource, SWT.RIGHT);
-    wlValueType.setText(BaseMessages.getString(PKG, "ActionSimpleEval.ValueType.Label"));
+    wlValueType.setText(BaseMessages.getString(PKG, "JobSimpleEval.ValueType.Label"));
     props.setLook(wlValueType);
     FormData fdlValueType = new FormData();
     fdlValueType.left = new FormAttachment(0, -margin);
@@ -201,7 +210,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Name of the field to evaluate
     wlFieldName = new Label(wSource, SWT.RIGHT);
-    wlFieldName.setText(BaseMessages.getString(PKG, "ActionSimpleEval.FieldName.Label"));
+    wlFieldName.setText(BaseMessages.getString(PKG, "JobSimpleEval.FieldName.Label"));
     props.setLook(wlFieldName);
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment(0, 0);
@@ -214,7 +223,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
             variables,
             wSource,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSimpleEval.FieldName.Tooltip"));
+            BaseMessages.getString(PKG, "JobSimpleEval.FieldName.Tooltip"));
     props.setLook(wFieldName);
     wFieldName.addModifyListener(lsMod);
     FormData fdFieldName = new FormData();
@@ -225,7 +234,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Name of the variable to evaluate
     wlVariableName = new Label(wSource, SWT.RIGHT);
-    wlVariableName.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Variable.Label"));
+    wlVariableName.setText(BaseMessages.getString(PKG, "JobSimpleEval.Variable.Label"));
     props.setLook(wlVariableName);
     FormData fdlVariableName = new FormData();
     fdlVariableName.left = new FormAttachment(0, 0);
@@ -238,7 +247,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
             variables,
             wSource,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSimpleEval.Variable.Tooltip"));
+            BaseMessages.getString(PKG, "JobSimpleEval.Variable.Tooltip"));
     props.setLook(wVariableName);
     wVariableName.addModifyListener(lsMod);
     FormData fdVariableName = new FormData();
@@ -249,7 +258,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Field type
     wlFieldType = new Label(wSource, SWT.RIGHT);
-    wlFieldType.setText(BaseMessages.getString(PKG, "ActionSimpleEval.FieldType.Label"));
+    wlFieldType.setText(BaseMessages.getString(PKG, "JobSimpleEval.FieldType.Label"));
     props.setLook(wlFieldType);
     FormData fdlFieldType = new FormData();
     fdlFieldType.left = new FormAttachment(0, 0);
@@ -275,7 +284,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Mask
     wlMask = new Label(wSource, SWT.RIGHT);
-    wlMask.setText(BaseMessages.getString(PKG, "ActionSimpleEval.Mask.Label"));
+    wlMask.setText(BaseMessages.getString(PKG, "JobSimpleEval.Mask.Label"));
     props.setLook(wlMask);
     FormData fdlMask = new FormData();
     fdlMask.left = new FormAttachment(0, 0);
@@ -312,7 +321,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     // /
     Group wSuccessOn = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wSuccessOn);
-    wSuccessOn.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessOn.Group.Label"));
+    wSuccessOn.setText(BaseMessages.getString(PKG, "JobSimpleEval.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
     successongroupLayout.marginWidth = 10;
@@ -321,21 +330,21 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessOn.setLayout(successongroupLayout);
 
     // Success when variable is not set?
-    wlsuccessWhenSet = new Label(wSuccessOn, SWT.RIGHT);
-    wlsuccessWhenSet.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSet.Label"));
-    props.setLook(wlsuccessWhenSet);
-    FormData fdlsuccessWhenSet = new FormData();
-    fdlsuccessWhenSet.left = new FormAttachment(0, 0);
-    fdlsuccessWhenSet.top = new FormAttachment(wVariableName, margin);
-    fdlsuccessWhenSet.right = new FormAttachment(middle, -margin);
-    wlsuccessWhenSet.setLayoutData(fdlsuccessWhenSet);
+    wlSuccessWhenSet = new Label(wSuccessOn, SWT.RIGHT);
+    wlSuccessWhenSet.setText(BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenSet.Label"));
+    props.setLook(wlSuccessWhenSet);
+    FormData fdlSuccessWhenSet = new FormData();
+    fdlSuccessWhenSet.left = new FormAttachment(0, 0);
+    fdlSuccessWhenSet.top = new FormAttachment(wVariableName, margin);
+    fdlSuccessWhenSet.right = new FormAttachment(middle, -margin);
+    wlSuccessWhenSet.setLayoutData(fdlSuccessWhenSet);
     wSuccessWhenSet = new Button(wSuccessOn, SWT.CHECK);
     wSuccessWhenSet.setToolTipText(
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSet.Tooltip"));
+        BaseMessages.getString(PKG, "JobSimpleEval.SuccessWhenSet.Tooltip"));
     props.setLook(wSuccessWhenSet);
     FormData fdSuccessWhenSet = new FormData();
     fdSuccessWhenSet.left = new FormAttachment(middle, 0);
-    fdSuccessWhenSet.top = new FormAttachment(wVariableName, margin);
+    fdSuccessWhenSet.top = new FormAttachment(wlSuccessWhenSet, 0, SWT.CENTER);
     fdSuccessWhenSet.right = new FormAttachment(100, 0);
     wSuccessWhenSet.setLayoutData(fdSuccessWhenSet);
     wSuccessWhenSet.addSelectionListener(
@@ -348,12 +357,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Success Condition
     wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
-    wlSuccessCondition.setText(BaseMessages.getString(PKG, "ActionSimpleEval.SuccessCondition.Label"));
+    wlSuccessCondition.setText(BaseMessages.getString(PKG, "JobSimpleEval.SuccessCondition.Label"));
     props.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
     fdlSuccessCondition.right = new FormAttachment(middle, 0);
-    fdlSuccessCondition.top = new FormAttachment(wSuccessWhenSet, margin);
+    fdlSuccessCondition.top = new FormAttachment(wlSuccessWhenSet, 2 * margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
 
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -374,7 +383,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     // Success number(date) Condition
     wlSuccessNumberCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessNumberCondition.setText(
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessNumberCondition.Label"));
+        BaseMessages.getString(PKG, "JobSimpleEval.SuccessNumberCondition.Label"));
     props.setLook(wlSuccessNumberCondition);
     FormData fdlSuccessNumberCondition = new FormData();
     fdlSuccessNumberCondition.left = new FormAttachment(0, 0);
@@ -402,7 +411,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     // Success Boolean Condition
     wlSuccessBooleanCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessBooleanCondition.setText(
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessBooleanCondition.Label"));
+        BaseMessages.getString(PKG, "JobSimpleEval.SuccessBooleanCondition.Label"));
     props.setLook(wlSuccessBooleanCondition);
     FormData fdlSuccessBooleanCondition = new FormData();
     fdlSuccessBooleanCondition.left = new FormAttachment(0, 0);
@@ -429,7 +438,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Compare with value
     wlCompareValue = new Label(wSuccessOn, SWT.RIGHT);
-    wlCompareValue.setText(BaseMessages.getString(PKG, "ActionSimpleEval.CompareValue.Label"));
+    wlCompareValue.setText(BaseMessages.getString(PKG, "JobSimpleEval.CompareValue.Label"));
     props.setLook(wlCompareValue);
     FormData fdlCompareValue = new FormData();
     fdlCompareValue.left = new FormAttachment(0, 0);
@@ -442,7 +451,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSimpleEval.CompareValue.Tooltip"));
+            BaseMessages.getString(PKG, "JobSimpleEval.CompareValue.Tooltip"));
     props.setLook(wCompareValue);
     wCompareValue.addModifyListener(lsMod);
     FormData fdCompareValue = new FormData();
@@ -453,7 +462,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Min value
     wlMinValue = new Label(wSuccessOn, SWT.RIGHT);
-    wlMinValue.setText(BaseMessages.getString(PKG, "ActionSimpleEval.MinValue.Label"));
+    wlMinValue.setText(BaseMessages.getString(PKG, "JobSimpleEval.MinValue.Label"));
     props.setLook(wlMinValue);
     FormData fdlMinValue = new FormData();
     fdlMinValue.left = new FormAttachment(0, 0);
@@ -466,7 +475,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSimpleEval.MinValue.Tooltip"));
+            BaseMessages.getString(PKG, "JobSimpleEval.MinValue.Tooltip"));
     props.setLook(wMinValue);
     wMinValue.addModifyListener(lsMod);
     FormData fdMinValue = new FormData();
@@ -477,7 +486,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     // Maximum value
     wlMaxValue = new Label(wSuccessOn, SWT.RIGHT);
-    wlMaxValue.setText(BaseMessages.getString(PKG, "ActionSimpleEval.MaxValue.Label"));
+    wlMaxValue.setText(BaseMessages.getString(PKG, "JobSimpleEval.MaxValue.Label"));
     props.setLook(wlMaxValue);
     FormData fdlMaxValue = new FormData();
     fdlMaxValue.left = new FormAttachment(0, 0);
@@ -490,7 +499,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
             variables,
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSimpleEval.MaxValue.Tooltip"));
+            BaseMessages.getString(PKG, "JobSimpleEval.MaxValue.Tooltip"));
     props.setLook(wMaxValue);
     wMaxValue.addModifyListener(lsMod);
     FormData fdMaxValue = new FormData();
@@ -527,48 +536,16 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
     refresh();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -623,7 +600,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wVariableName.setVisible(evaluateVariable);
     wlFieldName.setVisible(evaluatepreviousRowField);
     wFieldName.setVisible(evaluatepreviousRowField);
-    wlsuccessWhenSet.setVisible(evaluateVariable);
+    wlSuccessWhenSet.setVisible(evaluateVariable);
     wSuccessWhenSet.setVisible(evaluateVariable);
 
     boolean successWhenSet = wSuccessWhenSet.getSelection() && evaluateVariable;

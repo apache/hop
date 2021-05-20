@@ -281,40 +281,13 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     addInjectTab();
     addOptionsTab();
 
-    // Add listeners
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wPath.addSelectionListener(lsDef);
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
     metaInjectMeta.setChanged(changed);
 
-    shell.open();
-
     checkInvalidMapping();
 
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -582,7 +555,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     props.setLook(treeTb);
 
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
-    wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL );
+    wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     props.setLook(wSearchText);
     wSearchText.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
@@ -601,8 +574,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wCollapseAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.CollapseAll"));
     wCollapseAll.addListener(SWT.Selection, e -> setExpandedState(false));
-    
-    
+
     FormData fd = new FormData();
     fd.right = new FormAttachment(100);
     fd.top = new FormAttachment(0, 0);
@@ -896,14 +868,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         TreeItem transformItem = new TreeItem(wTree, SWT.NONE);
         transformItem.setText(transformMeta.getName());
         transformItem.setExpanded(true);
-       
-        
-        Image image = GuiResource.getInstance()
-        .getImagesTransforms()
-        .get(transformMeta.getPluginId())
-        .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
+
+        Image image =
+            GuiResource.getInstance()
+                .getImagesTransforms()
+                .get(transformMeta.getPluginId())
+                .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
         transformItem.setImage(image);
-        
+
         // For each transform, add the keys
         //
         ITransformMeta metaInterface = transformMeta.getTransform();
@@ -941,7 +913,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       TreeItem groupItem;
       if (!rootGroup) {
         groupItem = new TreeItem(transformItem, SWT.NONE);
-        groupItem.setText(Const.NVL(gr.getTranslatedDescription(),gr.getKey()));
+        groupItem.setText(Const.NVL(gr.getTranslatedDescription(), gr.getKey()));
         groupItem.setExpanded(true);
       } else {
         groupItem = null;
@@ -954,8 +926,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         }
 
         TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
-        treeItem.setText(Const.NVL(property.getTranslatedDescription(),property.getKey()));        
-        
+        treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
+
         TargetTransformAttribute target =
             new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
         treeItemTargetMap.put(treeItem, target);

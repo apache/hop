@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -190,6 +190,16 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Name line
     wName =
@@ -489,7 +499,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wUseAuth);
     FormData fdUseAuth = new FormData();
     fdUseAuth.left = new FormAttachment(middle, margin);
-    fdUseAuth.top = new FormAttachment(wServerGroup, 2 * margin);
+    fdUseAuth.top = new FormAttachment(wlUseAuth, 0, SWT.CENTER);
     fdUseAuth.right = new FormAttachment(100, 0);
     wUseAuth.setLayoutData(fdUseAuth);
     wUseAuth.addSelectionListener(
@@ -510,7 +520,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAuthUser.addModifyListener(lsMod);
     FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(0, 0);
-    fdAuthUser.top = new FormAttachment(wUseAuth, margin);
+    fdAuthUser.top = new FormAttachment(wlUseAuth, 2 * margin);
     fdAuthUser.right = new FormAttachment(100, 0);
     wAuthUser.setLayoutData(fdAuthUser);
 
@@ -542,7 +552,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wUseSecAuth);
     FormData fdUseSecAuth = new FormData();
     fdUseSecAuth.left = new FormAttachment(middle, margin);
-    fdUseSecAuth.top = new FormAttachment(wAuthPass, 2 * margin);
+    fdUseSecAuth.top = new FormAttachment(wlUseSecAuth, 0, SWT.CENTER);
     fdUseSecAuth.right = new FormAttachment(100, 0);
     wUseSecAuth.setLayoutData(fdUseSecAuth);
     wUseSecAuth.addSelectionListener(
@@ -560,7 +570,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlSecureConnectionType);
     FormData fdlSecureConnectionType = new FormData();
     fdlSecureConnectionType.left = new FormAttachment(0, 0);
-    fdlSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
+    fdlSecureConnectionType.top = new FormAttachment(wlUseSecAuth, 2 * margin);
     fdlSecureConnectionType.right = new FormAttachment(middle, -margin);
     wlSecureConnectionType.setLayoutData(fdlSecureConnectionType);
     wSecureConnectionType = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -569,7 +579,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wSecureConnectionType.addModifyListener(lsMod);
     FormData fdSecureConnectionType = new FormData();
     fdSecureConnectionType.left = new FormAttachment(middle, margin);
-    fdSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
+    fdSecureConnectionType.top = new FormAttachment(wlUseSecAuth, 2 * margin);
     fdSecureConnectionType.right = new FormAttachment(100, 0);
     wSecureConnectionType.setLayoutData(fdSecureConnectionType);
     wSecureConnectionType.add("SSL");
@@ -667,14 +677,14 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlOnlyComment);
     FormData fdlOnlyComment = new FormData();
     fdlOnlyComment.left = new FormAttachment(0, 0);
-    fdlOnlyComment.top = new FormAttachment(wAddDate, margin);
+    fdlOnlyComment.top = new FormAttachment(wlAddDate, 2 * margin);
     fdlOnlyComment.right = new FormAttachment(middle, -margin);
     wlOnlyComment.setLayoutData(fdlOnlyComment);
     wOnlyComment = new Button(wMessageSettingsGroup, SWT.CHECK);
     props.setLook(wOnlyComment);
     FormData fdOnlyComment = new FormData();
     fdOnlyComment.left = new FormAttachment(middle, margin);
-    fdOnlyComment.top = new FormAttachment(wAddDate, margin);
+    fdOnlyComment.top = new FormAttachment(wlOnlyComment, 0, SWT.CENTER);
     fdOnlyComment.right = new FormAttachment(100, 0);
     wOnlyComment.setLayoutData(fdOnlyComment);
     wOnlyComment.addSelectionListener(
@@ -690,20 +700,20 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlUseHTML);
     FormData fdlUseHTML = new FormData();
     fdlUseHTML.left = new FormAttachment(0, 0);
-    fdlUseHTML.top = new FormAttachment(wOnlyComment, margin);
+    fdlUseHTML.top = new FormAttachment(wlOnlyComment, 2 * margin);
     fdlUseHTML.right = new FormAttachment(middle, -margin);
     wlUseHTML.setLayoutData(fdlUseHTML);
     wUseHTML = new Button(wMessageSettingsGroup, SWT.CHECK);
     props.setLook(wUseHTML);
     FormData fdUseHTML = new FormData();
     fdUseHTML.left = new FormAttachment(middle, margin);
-    fdUseHTML.top = new FormAttachment(wOnlyComment, margin);
+    fdUseHTML.top = new FormAttachment(wlUseHTML, 0, SWT.CENTER);
     fdUseHTML.right = new FormAttachment(100, 0);
     wUseHTML.setLayoutData(fdUseHTML);
     wUseHTML.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
-            SetEnabledEncoding();
+            setEnabledEncoding();
             action.setChanged();
           }
         });
@@ -714,7 +724,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
-    fdlEncoding.top = new FormAttachment(wUseHTML, margin);
+    fdlEncoding.top = new FormAttachment(wlUseHTML, 2 * margin);
     fdlEncoding.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo(wMessageSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -723,7 +733,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, margin);
-    fdEncoding.top = new FormAttachment(wUseHTML, margin);
+    fdEncoding.top = new FormAttachment(wlEncoding, 0, SWT.CENTER);
     fdEncoding.right = new FormAttachment(100, 0);
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
@@ -753,7 +763,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wUsePriority);
     FormData fdUsePriority = new FormData();
     fdUsePriority.left = new FormAttachment(middle, margin);
-    fdUsePriority.top = new FormAttachment(wEncoding, margin);
+    fdUsePriority.top = new FormAttachment(wlUsePriority, 0, SWT.CENTER);
     fdUsePriority.right = new FormAttachment(100, 0);
     wUsePriority.setLayoutData(fdUsePriority);
     wUsePriority.addSelectionListener(
@@ -771,7 +781,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdlPriority = new FormData();
     fdlPriority.left = new FormAttachment(0, 0);
     fdlPriority.right = new FormAttachment(middle, -margin);
-    fdlPriority.top = new FormAttachment(wUsePriority, margin);
+    fdlPriority.top = new FormAttachment(wlUsePriority, 2 * margin);
     wlPriority.setLayoutData(fdlPriority);
     wPriority = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wPriority.add(BaseMessages.getString(PKG, "JobMail.Priority.Low.Label"));
@@ -781,7 +791,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wPriority);
     FormData fdPriority = new FormData();
     fdPriority.left = new FormAttachment(middle, 0);
-    fdPriority.top = new FormAttachment(wUsePriority, margin);
+    fdPriority.top = new FormAttachment(wlUsePriority, 2 * margin);
     fdPriority.right = new FormAttachment(100, 0);
     wPriority.setLayoutData(fdPriority);
 
@@ -958,7 +968,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wIncludeFiles);
     FormData fdIncludeFiles = new FormData();
     fdIncludeFiles.left = new FormAttachment(middle, margin);
-    fdIncludeFiles.top = new FormAttachment(0, margin);
+    fdIncludeFiles.top = new FormAttachment(wlIncludeFiles, 0, SWT.CENTER);
     fdIncludeFiles.right = new FormAttachment(100, 0);
     wIncludeFiles.setLayoutData(fdIncludeFiles);
     wIncludeFiles.addSelectionListener(
@@ -975,15 +985,16 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlTypes);
     FormData fdlTypes = new FormData();
     fdlTypes.left = new FormAttachment(0, 0);
-    fdlTypes.top = new FormAttachment(wIncludeFiles, margin);
+    fdlTypes.top = new FormAttachment(wlIncludeFiles, 2 * margin);
     fdlTypes.right = new FormAttachment(middle, -margin);
     wlTypes.setLayoutData(fdlTypes);
     wTypes = new List(wResultFilesGroup, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wTypes);
     FormData fdTypes = new FormData();
     fdTypes.left = new FormAttachment(middle, margin);
-    fdTypes.top = new FormAttachment(wIncludeFiles, margin);
-    fdTypes.bottom = new FormAttachment(wIncludeFiles, margin + 150);
+    fdTypes.top = new FormAttachment(wlIncludeFiles, 2 * margin);
+    fdTypes.bottom =
+        new FormAttachment(wIncludeFiles, margin + (int) (150 * props.getZoomFactor()));
     fdTypes.right = new FormAttachment(100, 0);
     wTypes.setLayoutData(fdTypes);
     for (int i = 0; i < ResultFile.getAllTypeDesc().length; i++) {
@@ -1003,7 +1014,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook(wZipFiles);
     FormData fdZipFiles = new FormData();
     fdZipFiles.left = new FormAttachment(middle, margin);
-    fdZipFiles.top = new FormAttachment(wTypes, margin);
+    fdZipFiles.top = new FormAttachment(wlZipFiles, 0, SWT.CENTER);
     fdZipFiles.right = new FormAttachment(100, 0);
     wZipFiles.setLayoutData(fdZipFiles);
     wZipFiles.addSelectionListener(
@@ -1024,7 +1035,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wZipFilename.addModifyListener(lsMod);
     FormData fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment(0, 0);
-    fdZipFilename.top = new FormAttachment(wZipFiles, margin);
+    fdZipFilename.top = new FormAttachment(wlZipFiles, 2 * margin);
     fdZipFilename.right = new FormAttachment(100, 0);
     wZipFilename.setLayoutData(fdZipFilename);
 
@@ -1086,7 +1097,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     FormData fdImageFilename = new FormData();
     fdImageFilename.left = new FormAttachment(middle, 0);
     fdImageFilename.top = new FormAttachment(wResultFilesGroup, margin);
-    fdImageFilename.right = new FormAttachment(wbImageFilename, -40);
+    fdImageFilename.right = new FormAttachment(wbaImageFilename, -margin);
     wImageFilename.setLayoutData(fdImageFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -1130,8 +1141,17 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     FormData fdContentID = new FormData();
     fdContentID.left = new FormAttachment(middle, 0);
     fdContentID.top = new FormAttachment(wImageFilename, margin);
-    fdContentID.right = new FormAttachment(wbImageFilename, -40);
+    fdContentID.right = new FormAttachment(wbaImageFilename, -margin);
     wContentID.setLayoutData(fdContentID);
+
+    wlFields = new Label(wEmbeddedImagesGroup, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "JobMail.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wContentID, margin);
+    wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
     wbdImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
@@ -1141,7 +1161,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         BaseMessages.getString(PKG, "JobMail.ImageFilenameDelete.Tooltip"));
     FormData fdbdImageFilename = new FormData();
     fdbdImageFilename.right = new FormAttachment(100, 0);
-    fdbdImageFilename.top = new FormAttachment(wContentID, 40);
+    fdbdImageFilename.top = new FormAttachment(wlFields, margin);
     wbdImageFilename.setLayoutData(fdbdImageFilename);
 
     wbeImageFilename = new Button(wEmbeddedImagesGroup, SWT.PUSH | SWT.CENTER);
@@ -1154,15 +1174,6 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdbeImageFilename.left = new FormAttachment(wbdImageFilename, 0, SWT.LEFT);
     fdbeImageFilename.top = new FormAttachment(wbdImageFilename, margin);
     wbeImageFilename.setLayoutData(fdbeImageFilename);
-
-    wlFields = new Label(wEmbeddedImagesGroup, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobMail.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wContentID, margin);
-    wlFields.setLayoutData(fdlFields);
 
     int rows =
         action.embeddedimages == null
@@ -1275,72 +1286,20 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    // Some buttons
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
-    // setButtonPositions(new Button[] { wOk, wCancel }, margin, wTabFolder);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wName.addSelectionListener(lsDef);
-    wServer.addSelectionListener(lsDef);
-    wSubject.addSelectionListener(lsDef);
-    wDestination.addSelectionListener(lsDef);
-    wDestinationCc.addSelectionListener(lsDef);
-    wDestinationBCc.addSelectionListener(lsDef);
-    wReply.addSelectionListener(lsDef);
-    wPerson.addSelectionListener(lsDef);
-    wPhone.addSelectionListener(lsDef);
-    wZipFilename.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // BaseTransformDialog.setTraverseOrder(new Control[] {wName, wDestination, wServer, wUseAuth,
-    // wAuthUser, wAuthPass, wReply,
-    // wSubject, wAddDate, wIncludeFiles, wTypes, wZipFiles, wZipFilename, wPerson, wPhone,
-    // wComment, wOk, wCancel });
 
     getData();
 
-    SetEnabledEncoding();
+    setEnabledEncoding();
     activeUsePriority();
     setFlags();
     setUseAuth();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobMailDialogSize");
     wTabFolder.setSelection(0);
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -1353,7 +1312,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wSensitivity.setEnabled(wUsePriority.getSelection());
   }
 
-  private void SetEnabledEncoding() {
+  private void setEnabledEncoding() {
     wEncoding.setEnabled(wUseHTML.getSelection());
     wlEncoding.setEnabled(wUseHTML.getSelection());
     wlImageFilename.setEnabled(wUseHTML.getSelection());

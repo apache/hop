@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,15 +70,12 @@ public class EnterSelectionDialog extends Dialog {
   private Button wbUseConstant;
 
   private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
 
   public Shell getShell() {
     return shell;
   }
-
-  private SelectionAdapter lsDef;
 
   private String[] choices;
   private String selection;
@@ -297,16 +294,18 @@ public class EnterSelectionDialog extends Dialog {
     } else {
       wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     }
-    wOk.addListener(SWT.Selection, e->ok());
+    wOk.addListener(SWT.Selection, e -> ok());
     buttons.add(wOk);
 
     if (addNoneOption) {
       Button wNone = new Button(shell, SWT.PUSH);
       wNone.setText(BaseMessages.getString(PKG, "EnterSelectionDialog.Button.None.Label"));
-      wNone.addListener(SWT.Selection, e->{
-        noneClicked=true;
-        cancel();
-      });
+      wNone.addListener(
+          SWT.Selection,
+          e -> {
+            noneClicked = true;
+            cancel();
+          });
       buttons.add(wNone);
     }
 
@@ -317,7 +316,7 @@ public class EnterSelectionDialog extends Dialog {
       buttons.add(wCancel);
     }
 
-    BaseTransformDialog.positionBottomButtons( shell, buttons.toArray( new Button[ 0 ] ), margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
 
     Control nextControl = wOk;
 
@@ -362,14 +361,6 @@ public class EnterSelectionDialog extends Dialog {
     wSelection.setLayoutData(fdSelection);
 
     // Add listeners
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wSelection.addSelectionListener(lsDef);
     wSelection.addKeyListener(
         new KeyAdapter() {
           public void keyPressed(KeyEvent e) {
@@ -378,31 +369,13 @@ public class EnterSelectionDialog extends Dialog {
             }
           }
         });
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
 
-    if (shellWidth == 0 || shellHeight == 0) {
-      BaseTransformDialog.setSize(shell);
-    } else {
-      shell.setSize(shellWidth, shellHeight);
-    }
-
     wOk.setFocus();
 
-    shell.open();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return selection;
   }
 
@@ -475,7 +448,6 @@ public class EnterSelectionDialog extends Dialog {
           }
         });
 
-
     fdSelection = new FormData();
     fdSelection.left = new FormAttachment(0, 10);
     fdSelection.right = new FormAttachment(100, -10);
@@ -483,13 +455,6 @@ public class EnterSelectionDialog extends Dialog {
     fdSelection.bottom = new FormAttachment(separator, -12);
     wSelection.setLayoutData(fdSelection);
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wSelection.addSelectionListener(lsDef);
     wSelection.addKeyListener(
         new KeyAdapter() {
           public void keyPressed(KeyEvent e) {
@@ -499,27 +464,12 @@ public class EnterSelectionDialog extends Dialog {
           }
         });
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
     wOk.setFocus();
-    shell.pack();
-    shell.open();
 
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return selection;
   }
 
@@ -684,10 +634,8 @@ public class EnterSelectionDialog extends Dialog {
     return addNoneOption;
   }
 
-  /**
-   * @param addNoneOption The addNoneOption to set
-   */
-  public void setAddNoneOption( boolean addNoneOption ) {
+  /** @param addNoneOption The addNoneOption to set */
+  public void setAddNoneOption(boolean addNoneOption) {
     this.addNoneOption = addNoneOption;
   }
 
@@ -700,10 +648,8 @@ public class EnterSelectionDialog extends Dialog {
     return noneClicked;
   }
 
-  /**
-   * @param noneClicked The noneClicked to set
-   */
-  public void setNoneClicked( boolean noneClicked ) {
+  /** @param noneClicked The noneClicked to set */
+  public void setNoneClicked(boolean noneClicked) {
     this.noneClicked = noneClicked;
   }
 }

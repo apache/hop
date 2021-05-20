@@ -332,6 +332,15 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     fdFilemask.right = new FormAttachment(wbaFilename, -2 * margin);
     wFilemask.setLayoutData(fdFilemask);
 
+    wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wFilemask, margin);
+    wlFields.setLayoutData(fdlFields);
+
     // Buttons to the right of the screen...
     wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdFilename);
@@ -341,7 +350,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
         BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wFilemask, 40);
+    fdbdFilename.top = new FormAttachment(wlFields, margin);
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -355,15 +364,6 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
-
-    wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilemask, margin);
-    wlFields.setLayoutData(fdlFields);
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -444,35 +444,11 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
           }
         });
 
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setPrevious();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

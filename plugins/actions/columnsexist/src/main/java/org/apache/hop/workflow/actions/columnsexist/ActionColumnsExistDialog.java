@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -44,8 +45,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -114,6 +113,14 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, (Event e) -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -270,77 +277,26 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbGetColumns, -margin);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...
-    wbdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
+    wbdFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFields.getSelectionIndices();
+          wFields.remove(idx);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     // Delete files from the list of files...
-    wbGetColumns.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            getListColumns();
-          }
-        });
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd = new FormData();
-    fd.right = new FormAttachment(50, -10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wOk.setLayoutData(fd);
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fd = new FormData();
-    fd.left = new FormAttachment(50, 10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wCancel.setLayoutData(fd);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wTablename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wbGetColumns.addListener(SWT.Selection, e -> getListColumns());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    props.setDialogSize(shell, "ActionColumnsExistDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

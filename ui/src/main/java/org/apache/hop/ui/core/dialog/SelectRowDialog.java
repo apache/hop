@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,10 +55,6 @@ public class SelectRowDialog extends Dialog {
 
   private Label wlFields;
   private TableView wFields;
-  private FormData fdFields;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private List<RowMetaAndData> buffer;
@@ -66,7 +62,6 @@ public class SelectRowDialog extends Dialog {
   private String title;
 
   private RowMetaAndData selection;
-  private IRowMeta rowMeta;
 
   private IVariables variables;
 
@@ -116,7 +111,7 @@ public class SelectRowDialog extends Dialog {
       return null;
     }
 
-    rowMeta = buffer.get(0).getRowMeta();
+    IRowMeta rowMeta = buffer.get(0).getRowMeta();
 
     int FieldsRows = buffer.size();
 
@@ -138,14 +133,14 @@ public class SelectRowDialog extends Dialog {
             null,
             props);
 
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
@@ -153,33 +148,15 @@ public class SelectRowDialog extends Dialog {
     wFields.setLayoutData(fdFields);
 
     // Add listeners
-    lsOk = e -> ok();
-    wOk.addListener(SWT.Selection, lsOk);
-
-    lsCancel = e -> close();
-    wCancel.addListener(SWT.Selection, lsCancel);
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> close());
 
     wFields.table.addListener(SWT.DefaultSelection, e -> ok());
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            close();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> close());
 
-    shell.open();
-
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return selection;
   }
 

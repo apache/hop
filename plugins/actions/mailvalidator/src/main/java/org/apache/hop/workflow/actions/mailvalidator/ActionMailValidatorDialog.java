@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -103,6 +104,16 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionMailValidatorDialog.Label"));
@@ -164,7 +175,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
         BaseMessages.getString(PKG, "ActionMailValidatorDialog.SMTPCheck.Tooltip"));
     FormData fdSMTPCheck = new FormData();
     fdSMTPCheck.left = new FormAttachment(middle, -margin);
-    fdSMTPCheck.top = new FormAttachment(wMailAddress, margin);
+    fdSMTPCheck.top = new FormAttachment(wlSMTPCheck, 0, SWT.CENTER);
     wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener(
         new SelectionAdapter() {
@@ -180,9 +191,8 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
     fdlTimeOut.right = new FormAttachment(middle, -2 * margin);
-    fdlTimeOut.top = new FormAttachment(wSMTPCheck, margin);
+    fdlTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
-
     wTimeOut = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "ActionMailValidatorDialog.TimeOutField.Tooltip"));
@@ -190,7 +200,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, -margin);
-    fdTimeOut.top = new FormAttachment(wSMTPCheck, margin);
+    fdTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
@@ -242,56 +252,18 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdSettingsGroup.left = new FormAttachment(0, margin);
     fdSettingsGroup.top = new FormAttachment(wMailAddress, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
+    fdSettingsGroup.bottom = new FormAttachment(wOk, -2 * margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
     // ///////////////////////////////////////////////////////////
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    // at the bottom
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wSettingsGroup);
-
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     activeSMTPCheck();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobSuccessDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

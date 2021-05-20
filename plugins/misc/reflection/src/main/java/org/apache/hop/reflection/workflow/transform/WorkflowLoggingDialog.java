@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.reflection.workflow.transform;
@@ -25,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
 
 public class WorkflowLoggingDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -105,7 +104,7 @@ public class WorkflowLoggingDialog extends BaseTransformDialog implements ITrans
     // Logging action results line
     Label wlLoggingActionResults = new Label(shell, SWT.RIGHT);
     wlLoggingActionResults.setText(
-        BaseMessages.getString(PKG, "WorkflowLoggingDialog.LoggingActions.Label" ));
+        BaseMessages.getString(PKG, "WorkflowLoggingDialog.LoggingActions.Label"));
     props.setLook(wlLoggingActionResults);
     FormData fdlLoggingActionResults = new FormData();
     fdlLoggingActionResults.left = new FormAttachment(0, 0);
@@ -113,60 +112,27 @@ public class WorkflowLoggingDialog extends BaseTransformDialog implements ITrans
     fdlLoggingActionResults.top = new FormAttachment(lastControl, margin);
     wlLoggingActionResults.setLayoutData(fdlLoggingActionResults);
     wLoggingActionResults = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook( wLoggingActionResults );
+    props.setLook(wLoggingActionResults);
     FormData fdLoggingActionResults = new FormData();
     fdLoggingActionResults.left = new FormAttachment(middle, margin);
     fdLoggingActionResults.top = new FormAttachment(wlLoggingActionResults, 0, SWT.CENTER);
     fdLoggingActionResults.right = new FormAttachment(100, 0);
     wLoggingActionResults.setLayoutData(fdLoggingActionResults);
 
-    // Output transform information?
+    // Buttons go at the very bottom
     //
-
-    // Some buttons
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
+    wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, wlLoggingActionResults);
 
-    // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -192,7 +158,7 @@ public class WorkflowLoggingDialog extends BaseTransformDialog implements ITrans
 
     transformName = wTransformName.getText(); // return value
 
-    input.setLoggingActionResults( wLoggingActionResults.getSelection());
+    input.setLoggingActionResults(wLoggingActionResults.getSelection());
 
     dispose();
   }

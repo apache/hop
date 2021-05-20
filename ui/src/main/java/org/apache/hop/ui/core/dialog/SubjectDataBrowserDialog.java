@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -139,23 +139,7 @@ public class SubjectDataBrowserDialog {
         props.getMargin(),
         null);
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            close();
-          }
-        });
-
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-
-    while (!shell.isDisposed()) {
-      if (!shell.getDisplay().readAndDispatch()) {
-        shell.getDisplay().sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());
   }
 
   private boolean addFields() {

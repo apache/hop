@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.workflow.actions.execcql;
@@ -23,6 +22,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -181,21 +181,9 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
         margin,
         null);
 
-    // Detect X or ALT-F4 or something that kills this window...
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-    wName.addListener(SWT.DefaultSelection, e -> ok());
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return execCql;
   }

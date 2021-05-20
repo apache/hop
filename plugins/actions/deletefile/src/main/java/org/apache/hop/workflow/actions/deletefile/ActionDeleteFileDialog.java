@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -169,7 +169,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     wAbortExists.setToolTipText(BaseMessages.getString(PKG, "JobDeleteFile.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();
     fdAbortExists.left = new FormAttachment(middle, 0);
-    fdAbortExists.top = new FormAttachment(wFilename, margin);
+    fdAbortExists.top = new FormAttachment(wlAbortExists, 0, SWT.CENTER);
     fdAbortExists.right = new FormAttachment(100, 0);
     wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener(
@@ -185,43 +185,16 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wAbortExists);
+        shell, new Button[] {wOk, wCancel}, 2 * margin, wlAbortExists);
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

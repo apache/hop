@@ -230,44 +230,16 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     setButtonPositions(new Button[] {wOk, wCancel}, margin, wCompress);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
     getData();
-    input.setChanged(changed);
 
     // Set the enablement of the dialog widgets
     setEnableDialog();
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

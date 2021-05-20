@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -119,6 +119,16 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, (Event e) -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "JobDeleteFolders.Name.Label"));
@@ -165,7 +175,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "JobDeleteFolders.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
-    fdPrevious.top = new FormAttachment(wName, margin);
+    fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
@@ -301,12 +311,21 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.top = new FormAttachment(wSuccessOn, 2 * margin);
-    fdFilename.right = new FormAttachment(wbDirectory, -55);
+    fdFilename.right = new FormAttachment(wbaFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename.addModifyListener(
         e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
+
+    wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "JobDeleteFolders.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wFilename, margin);
+    wlFields.setLayoutData(fdlFields);
 
     // Button Delete
     wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -316,7 +335,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
         BaseMessages.getString(PKG, "JobDeleteFolders.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wFilename, 40);
+    fdbdFilename.top = new FormAttachment(wlFields, margin);
     wbdFilename.setLayoutData(fdbdFilename);
 
     // Button Edit
@@ -330,15 +349,6 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
-
-    wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "JobDeleteFolders.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilename, margin);
-    wlFields.setLayoutData(fdlFields);
 
     int rows =
         action.arguments == null ? 1 : (action.arguments.length == 0 ? 0 : action.arguments.length);
@@ -368,8 +378,8 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(100, -75);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.argFromPrevious);
@@ -415,45 +425,12 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
           }
         });
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setPrevious();
     activeSuccessCondition();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

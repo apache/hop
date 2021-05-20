@@ -296,39 +296,12 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     addResultRowsTab();
     addResultFilesTab();
 
-    // Add listeners
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wPath.addSelectionListener(lsDef);
-    wResultFileNameField.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize(shell, 620, 675);
-
     getData();
     workflowExecutorMeta.setChanged(changed);
     wTabFolder.setSelection(0);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 

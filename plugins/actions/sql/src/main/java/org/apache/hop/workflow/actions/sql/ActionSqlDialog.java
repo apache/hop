@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,13 +39,10 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -68,9 +65,9 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.Sql"),
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.All")
+        BaseMessages.getString(PKG, "JobSQL.Filetype.Sql"),
+        BaseMessages.getString(PKG, "JobSQL.Filetype.Text"),
+        BaseMessages.getString(PKG, "JobSQL.Filetype.All")
       };
 
   private Text wName;
@@ -91,8 +88,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
   private Shell shell;
 
-  private boolean changed;
-
   private Button wSendOneStatement;
 
   // File
@@ -105,7 +100,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionSql) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionSQL.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "JobSQL.Name.Default"));
     }
   }
 
@@ -117,31 +112,29 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
-    ModifyListener lsMod = e -> action.setChanged();
-    changed = action.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionSQL.Title"));
+    shell.setText(BaseMessages.getString(PKG, "JobSQL.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());    
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-    
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionSQL.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "JobSQL.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -150,7 +143,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wName);
-    wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -158,11 +150,11 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    wConnection = addConnectionLine(shell, wName, action.getDatabase(), null);
 
     // SQL from file?
     Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
-    wlSqlFromFile.setText(BaseMessages.getString(PKG, "ActionSQL.SQLFromFile.Label"));
+    wlSqlFromFile.setText(BaseMessages.getString(PKG, "JobSQL.SQLFromFile.Label"));
     props.setLook(wlSqlFromFile);
     FormData fdlSqlFromFile = new FormData();
     fdlSqlFromFile.left = new FormAttachment(0, 0);
@@ -171,10 +163,10 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wlSqlFromFile.setLayoutData(fdlSqlFromFile);
     wSqlFromFile = new Button(shell, SWT.CHECK);
     props.setLook(wSqlFromFile);
-    wSqlFromFile.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.SQLFromFile.Tooltip"));
+    wSqlFromFile.setToolTipText(BaseMessages.getString(PKG, "JobSQL.SQLFromFile.Tooltip"));
     FormData fdSqlFromFile = new FormData();
     fdSqlFromFile.left = new FormAttachment(middle, 0);
-    fdSqlFromFile.top = new FormAttachment(wConnection, 2 * margin);
+    fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
     fdSqlFromFile.right = new FormAttachment(100, 0);
     wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener(
@@ -187,11 +179,11 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "ActionSQL.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "JobSQL.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wSqlFromFile, margin);
+    fdlFilename.top = new FormAttachment(wlSqlFromFile, 2 * margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -200,16 +192,15 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wSqlFromFile, margin);
+    fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
-    wFilename.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.Filename.Tooltip"));
-    wFilename.addModifyListener(lsMod);
+    wFilename.setToolTipText(BaseMessages.getString(PKG, "JobSQL.Filename.Tooltip"));
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wSqlFromFile, margin);
+    fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
@@ -230,7 +221,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     // Send one SQL Statement?
     Label wlUseOneStatement = new Label(shell, SWT.RIGHT);
-    wlUseOneStatement.setText(BaseMessages.getString(PKG, "ActionSQL.SendOneStatement.Label"));
+    wlUseOneStatement.setText(BaseMessages.getString(PKG, "JobSQL.SendOneStatement.Label"));
     props.setLook(wlUseOneStatement);
     FormData fdlUseOneStatement = new FormData();
     fdlUseOneStatement.left = new FormAttachment(0, 0);
@@ -240,10 +231,10 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wSendOneStatement = new Button(shell, SWT.CHECK);
     props.setLook(wSendOneStatement);
     wSendOneStatement.setToolTipText(
-        BaseMessages.getString(PKG, "ActionSQL.SendOneStatement.Tooltip"));
+        BaseMessages.getString(PKG, "JobSQL.SendOneStatement.Tooltip"));
     FormData fdUseOneStatement = new FormData();
     fdUseOneStatement.left = new FormAttachment(middle, 0);
-    fdUseOneStatement.top = new FormAttachment(wbFilename, margin);
+    fdUseOneStatement.top = new FormAttachment(wlUseOneStatement, 0, SWT.CENTER);
     fdUseOneStatement.right = new FormAttachment(100, 0);
     wSendOneStatement.setLayoutData(fdUseOneStatement);
     wSendOneStatement.addSelectionListener(
@@ -255,19 +246,19 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     // Use variable substitution?
     Label wlUseSubs = new Label(shell, SWT.RIGHT);
-    wlUseSubs.setText(BaseMessages.getString(PKG, "ActionSQL.UseVariableSubst.Label"));
+    wlUseSubs.setText(BaseMessages.getString(PKG, "JobSQL.UseVariableSubst.Label"));
     props.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, 0);
-    fdlUseSubs.top = new FormAttachment(wSendOneStatement, margin);
+    fdlUseSubs.top = new FormAttachment(wlUseOneStatement, 2 * margin);
     fdlUseSubs.right = new FormAttachment(middle, -margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(shell, SWT.CHECK);
     props.setLook(wUseSubs);
-    wUseSubs.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.UseVariableSubst.Tooltip"));
+    wUseSubs.setToolTipText(BaseMessages.getString(PKG, "JobSQL.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
     fdUseSubs.left = new FormAttachment(middle, 0);
-    fdUseSubs.top = new FormAttachment(wSendOneStatement, margin);
+    fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
     wUseSubs.addSelectionListener(
@@ -279,7 +270,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
         });
 
     wlPosition = new Label(shell, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "ActionSQL.LineNr.Label", "0"));
+    wlPosition.setText(BaseMessages.getString(PKG, "JobSQL.LineNr.Label", "0"));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
@@ -289,7 +280,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     // Script line
     wlSql = new Label(shell, SWT.NONE);
-    wlSql.setText(BaseMessages.getString(PKG, "ActionSQL.Script.Label"));
+    wlSql.setText(BaseMessages.getString(PKG, "JobSQL.Script.Label"));
     props.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
@@ -300,32 +291,12 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
         new StyledTextComp(
             action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     props.setLook(wSql, Props.WIDGET_STYLE_FIXED);
-    wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
-    fdSql.right = new FormAttachment(100, -10);
+    fdSql.right = new FormAttachment(100, -20);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
-
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     wSql.addModifyListener(arg0 -> setPosition());
 
     wSql.addKeyListener(
@@ -362,20 +333,12 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
             setPosition();
           }
         });
-    wSql.addModifyListener(lsMod);
 
     getData();
     activeSqlFromFile();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    props.setDialogSize(shell, "JobSQLDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 
@@ -383,7 +346,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     int lineNumber = wSql.getLineNumber();
     int columnNumber = wSql.getColumnNumber();
     wlPosition.setText(
-        BaseMessages.getString(PKG, "ActionSQL.Position.Label", "" + lineNumber, "" + columnNumber));
+        BaseMessages.getString(PKG, "JobSQL.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
   public void dispose() {
@@ -423,7 +386,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    action.setChanged(changed);
     action = null;
     dispose();
   }
@@ -443,6 +405,9 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     action.setSqlFilename(wFilename.getText());
     action.setSendOneStatement(wSendOneStatement.getSelection());
     action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+
+    action.setChanged();
+
     dispose();
   }
 }

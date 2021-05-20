@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -170,7 +170,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wAbortExists.setToolTipText(BaseMessages.getString(PKG, "JobCreateFile.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();
     fdAbortExists.left = new FormAttachment(middle, 0);
-    fdAbortExists.top = new FormAttachment(wFilename, margin);
+    fdAbortExists.top = new FormAttachment(wlAbortExists, 0, SWT.CENTER);
     fdAbortExists.right = new FormAttachment(100, 0);
     wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener(
@@ -187,7 +187,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     props.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameToResult.top = new FormAttachment(wAbortExists, margin);
+    fdlAddFilenameToResult.top = new FormAttachment(wlAbortExists, 2 * margin);
     fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new Button(shell, SWT.CHECK);
@@ -196,53 +196,24 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     props.setLook(wAddFilenameToResult);
     FormData fdAddFilenameToResult = new FormData();
     fdAddFilenameToResult.left = new FormAttachment(middle, 0);
-    fdAddFilenameToResult.top = new FormAttachment(wAbortExists, margin);
+    fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
     fdAddFilenameToResult.right = new FormAttachment(100, 0);
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, margin, wAddFilenameToResult);
 
-    // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wFilename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

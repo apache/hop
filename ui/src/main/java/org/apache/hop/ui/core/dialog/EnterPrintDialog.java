@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,40 +57,21 @@ public class EnterPrintDialog extends Dialog {
   private int retval;
   private Image image;
 
-  private Label wlCanvas;
   private Canvas wCanvas;
-  private FormData fdlCanvas, fdCanvas;
 
-  private Label wlCols;
   private Slider wCols;
-  private FormData fdlCols, fdCols;
 
-  private Label wlRows;
   private Slider wRows;
-  private FormData fdlRows, fdRows;
 
-  private Label wlScale;
   private Slider wScale;
-  private FormData fdlScale, fdScale;
 
-  private Label wlLeft;
   private Text wLeft;
-  private FormData fdlLeft, fdLeft;
 
-  private Label wlRight;
   private Text wRight;
-  private FormData fdlRight, fdRight;
 
-  private Label wlTop;
   private Text wTop;
-  private FormData fdlTop, fdTop;
 
-  private Label wlBottom;
   private Text wBottom;
-  private FormData fdlBottom, fdBottom;
-  private Button wOk, wCancel;
-  private FormData fdOk, fdCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private PropsUi props;
@@ -152,17 +133,17 @@ public class EnterPrintDialog extends Dialog {
     int margin = props.getMargin();
 
     // Canvas
-    wlCanvas = new Label(shell, SWT.NONE);
+    Label wlCanvas = new Label(shell, SWT.NONE);
     wlCanvas.setText(BaseMessages.getString(PKG, "EnterPrintDialog.PrintArea.Label"));
     props.setLook(wlCanvas);
-    fdlCanvas = new FormData();
+    FormData fdlCanvas = new FormData();
     fdlCanvas.left = new FormAttachment(0, 0);
     fdlCanvas.top = new FormAttachment(0, margin);
     wlCanvas.setLayoutData(fdlCanvas);
     wCanvas = new Canvas(shell, SWT.BORDER);
     props.setLook(wCanvas);
     wCanvas.addPaintListener(pe -> repaint(pe.gc, pe.width, pe.height));
-    fdCanvas = new FormData();
+    FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(wlCanvas, margin);
     fdCanvas.right = new FormAttachment(100, 0);
@@ -170,10 +151,10 @@ public class EnterPrintDialog extends Dialog {
     wCanvas.setLayoutData(fdCanvas);
 
     // Rows
-    wlRows = new Label(shell, SWT.NONE);
+    Label wlRows = new Label(shell, SWT.NONE);
     wlRows.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Rows.Label"));
     props.setLook(wlRows);
-    fdlRows = new FormData();
+    FormData fdlRows = new FormData();
     fdlRows.left = new FormAttachment(0, 0);
     fdlRows.right = new FormAttachment(middle, -margin);
     fdlRows.top = new FormAttachment(wCanvas, margin);
@@ -192,17 +173,17 @@ public class EnterPrintDialog extends Dialog {
           }
         });
     props.setLook(wRows);
-    fdRows = new FormData();
+    FormData fdRows = new FormData();
     fdRows.left = new FormAttachment(middle, 0);
     fdRows.top = new FormAttachment(wCanvas, margin);
     fdRows.right = new FormAttachment(100, 0);
     wRows.setLayoutData(fdRows);
 
     // Cols
-    wlCols = new Label(shell, SWT.NONE);
+    Label wlCols = new Label(shell, SWT.NONE);
     wlCols.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Cols.Label"));
     props.setLook(wlCols);
-    fdlCols = new FormData();
+    FormData fdlCols = new FormData();
     fdlCols.left = new FormAttachment(0, 0);
     fdlCols.right = new FormAttachment(middle, -margin);
     fdlCols.top = new FormAttachment(wRows, margin);
@@ -221,17 +202,17 @@ public class EnterPrintDialog extends Dialog {
           }
         });
     props.setLook(wCols);
-    fdCols = new FormData();
+    FormData fdCols = new FormData();
     fdCols.left = new FormAttachment(middle, 0);
     fdCols.top = new FormAttachment(wRows, margin);
     fdCols.right = new FormAttachment(100, 0);
     wCols.setLayoutData(fdCols);
 
     // Scale
-    wlScale = new Label(shell, SWT.NONE);
+    Label wlScale = new Label(shell, SWT.NONE);
     wlScale.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Scaling.Label"));
     props.setLook(wlScale);
-    fdlScale = new FormData();
+    FormData fdlScale = new FormData();
     fdlScale.left = new FormAttachment(0, 0);
     fdlScale.right = new FormAttachment(middle, -margin);
     fdlScale.top = new FormAttachment(wCols, margin);
@@ -251,17 +232,17 @@ public class EnterPrintDialog extends Dialog {
           }
         });
     props.setLook(wScale);
-    fdScale = new FormData();
+    FormData fdScale = new FormData();
     fdScale.left = new FormAttachment(middle, 0);
     fdScale.top = new FormAttachment(wCols, margin);
     fdScale.right = new FormAttachment(100, 0);
     wScale.setLayoutData(fdScale);
 
     // Left
-    wlLeft = new Label(shell, SWT.NONE);
+    Label wlLeft = new Label(shell, SWT.NONE);
     wlLeft.setText(BaseMessages.getString(PKG, "EnterPrintDialog.LeftMargin.Label"));
     props.setLook(wlLeft);
-    fdlLeft = new FormData();
+    FormData fdlLeft = new FormData();
     fdlLeft.left = new FormAttachment(0, 0);
     fdlLeft.right = new FormAttachment(middle, -margin);
     fdlLeft.top = new FormAttachment(wScale, margin);
@@ -273,17 +254,17 @@ public class EnterPrintDialog extends Dialog {
           leftMargin = Const.toDouble(w.getText(), 0.00);
         });
     props.setLook(wLeft);
-    fdLeft = new FormData();
+    FormData fdLeft = new FormData();
     fdLeft.left = new FormAttachment(middle, 0);
     fdLeft.top = new FormAttachment(wScale, margin);
     fdLeft.right = new FormAttachment(100, 0);
     wLeft.setLayoutData(fdLeft);
 
     // Right
-    wlRight = new Label(shell, SWT.NONE);
+    Label wlRight = new Label(shell, SWT.NONE);
     wlRight.setText(BaseMessages.getString(PKG, "EnterPrintDialog.RightMargin.Label"));
     props.setLook(wlRight);
-    fdlRight = new FormData();
+    FormData fdlRight = new FormData();
     fdlRight.left = new FormAttachment(0, 0);
     fdlRight.right = new FormAttachment(middle, -margin);
     fdlRight.top = new FormAttachment(wLeft, margin);
@@ -295,17 +276,17 @@ public class EnterPrintDialog extends Dialog {
           rightMargin = Const.toDouble(w.getText(), 0.00);
         });
     props.setLook(wRight);
-    fdRight = new FormData();
+    FormData fdRight = new FormData();
     fdRight.left = new FormAttachment(middle, 0);
     fdRight.top = new FormAttachment(wLeft, margin);
     fdRight.right = new FormAttachment(100, 0);
     wRight.setLayoutData(fdRight);
 
     // Top
-    wlTop = new Label(shell, SWT.NONE);
+    Label wlTop = new Label(shell, SWT.NONE);
     wlTop.setText(BaseMessages.getString(PKG, "EnterPrintDialog.TopMargin.Label"));
     props.setLook(wlTop);
-    fdlTop = new FormData();
+    FormData fdlTop = new FormData();
     fdlTop.left = new FormAttachment(0, 0);
     fdlTop.right = new FormAttachment(middle, -margin);
     fdlTop.top = new FormAttachment(wRight, margin);
@@ -317,17 +298,17 @@ public class EnterPrintDialog extends Dialog {
           topMargin = Const.toDouble(w.getText(), 0.00);
         });
     props.setLook(wTop);
-    fdTop = new FormData();
+    FormData fdTop = new FormData();
     fdTop.left = new FormAttachment(middle, 0);
     fdTop.top = new FormAttachment(wRight, margin);
     fdTop.right = new FormAttachment(100, 0);
     wTop.setLayoutData(fdTop);
 
     // Bottom
-    wlBottom = new Label(shell, SWT.NONE);
+    Label wlBottom = new Label(shell, SWT.NONE);
     wlBottom.setText(BaseMessages.getString(PKG, "EnterPrintDialog.BottomMargin.Label"));
     props.setLook(wlBottom);
-    fdlBottom = new FormData();
+    FormData fdlBottom = new FormData();
     fdlBottom.left = new FormAttachment(0, 0);
     fdlBottom.right = new FormAttachment(middle, -margin);
     fdlBottom.top = new FormAttachment(wTop, margin);
@@ -339,51 +320,34 @@ public class EnterPrintDialog extends Dialog {
           bottomMargin = Const.toDouble(w.getText(), 0.00);
         });
     props.setLook(wBottom);
-    fdBottom = new FormData();
+    FormData fdBottom = new FormData();
     fdBottom.left = new FormAttachment(middle, 0);
     fdBottom.top = new FormAttachment(wTop, margin);
     fdBottom.right = new FormAttachment(100, 0);
     wBottom.setLayoutData(fdBottom);
 
     // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fdOk = new FormData();
+    FormData fdOk = new FormData();
     fdOk.left = new FormAttachment(33, 0);
     fdOk.bottom = new FormAttachment(100, 0);
     wOk.setLayoutData(fdOk);
-    fdCancel = new FormData();
+    FormData fdCancel = new FormData();
     fdCancel.left = new FormAttachment(66, 0);
     fdCancel.bottom = new FormAttachment(100, 0);
     wCancel.setLayoutData(fdCancel);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return retval;
   }
 

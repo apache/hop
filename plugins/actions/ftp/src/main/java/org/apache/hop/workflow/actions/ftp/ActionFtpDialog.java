@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,8 +43,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -54,7 +52,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -165,8 +162,9 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   // encodings = (String [])charsetSet.toArray(new String[0]);
   // }
 
-  public ActionFtpDialog(Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
-    super( parent, workflowMeta, variables );
+  public ActionFtpDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionFtp) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFtp.Name.Default"));
@@ -220,8 +218,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-      shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // The tab folder between the name and the buttons
     //
@@ -1229,43 +1226,15 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2*margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-
     // Add listeners
-    Listener lsTest = e -> test();
-    Listener lsCheckFolder = e -> checkRemoteFolder(false, true, wMoveToDirectory.getText());
-    Listener lsCheckChangeFolder = e -> checkRemoteFolder(true, false, wFtpDirectory.getText());
-
-    wTest.addListener(SWT.Selection, lsTest);
-    wbTestFolderExists.addListener(SWT.Selection, lsCheckFolder);
-    wbTestChangeFolderExists.addListener(SWT.Selection, lsCheckChangeFolder);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wServerName.addSelectionListener(lsDef);
-    wUserName.addSelectionListener(lsDef);
-    wPassword.addSelectionListener(lsDef);
-    wFtpDirectory.addSelectionListener(lsDef);
-    wTargetDirectory.addSelectionListener(lsDef);
-    wFtpDirectory.addSelectionListener(lsDef);
-    wWildcard.addSelectionListener(lsDef);
-    wTimeout.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wTest.addListener(SWT.Selection, e -> test());
+    wbTestFolderExists.addListener(
+        SWT.Selection, e -> checkRemoteFolder(false, true, wMoveToDirectory.getText()));
+    wbTestChangeFolderExists.addListener(
+        SWT.Selection, e -> checkRemoteFolder(true, false, wFtpDirectory.getText()));
 
     getData();
     activateMoveTo();
@@ -1275,15 +1244,9 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     activeIfExists();
 
     wTabFolder.setSelection(0);
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobFTPDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 

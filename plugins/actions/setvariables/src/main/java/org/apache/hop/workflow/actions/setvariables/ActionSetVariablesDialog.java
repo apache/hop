@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -104,6 +106,16 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -201,7 +213,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wVarSubs.setToolTipText(BaseMessages.getString(PKG, "ActionSetVariables.VarsReplace.Tooltip"));
     FormData fdVarSubs = new FormData();
     fdVarSubs.left = new FormAttachment(middle, 0);
-    fdVarSubs.top = new FormAttachment(wName, margin);
+    fdVarSubs.top = new FormAttachment(wlVarSubs, 0, SWT.CENTER);
     fdVarSubs.right = new FormAttachment(100, 0);
     wVarSubs.setLayoutData(fdVarSubs);
     wVarSubs.addSelectionListener(
@@ -222,7 +234,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     // ///////////////////////////////////////////////////////////
 
     Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "ActionSetVariables.Variables.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "SetVariableDialog.Variables.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -237,15 +249,15 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     ColumnInfo[] colinf = {
       new ColumnInfo(
-          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableName"),
+          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableName"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(
-          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.Value"),
+          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.Value"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(
-          BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableType"),
+          BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableType"),
           ColumnInfo.COLUMN_TYPE_CCOMBO,
           ActionSetVariables.getVariableTypeDescriptions(),
           false),
@@ -267,46 +279,13 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection,  e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);      
-    
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

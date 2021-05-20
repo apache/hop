@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,9 +69,7 @@ public class CheckResultDialog extends Dialog {
 
   private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
-  private Button wClose, wView, wEdit, wNoOK;
-  private Listener lsClose, lsView, lsEdit, lsNoOK;
+  private Button wNoOK;
 
   private Shell shell;
   private PropsUi props;
@@ -82,15 +80,12 @@ public class CheckResultDialog extends Dialog {
 
   private String transformName;
 
-  private PipelineMeta pipelineMeta;
-
   public CheckResultDialog(
       PipelineMeta pipelineMeta, Shell parent, int style, List<ICheckResult> rem) {
     super(parent, style);
     remarks = rem;
     props = PropsUi.getInstance();
     transformName = null;
-    this.pipelineMeta = pipelineMeta;
   }
 
   public String open() {
@@ -118,7 +113,7 @@ public class CheckResultDialog extends Dialog {
     wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "CheckResultDialog.Remarks.Label"));
     props.setLook(wlFields);
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(0, margin);
@@ -158,7 +153,7 @@ public class CheckResultDialog extends Dialog {
             null,
             props);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
@@ -172,36 +167,26 @@ public class CheckResultDialog extends Dialog {
     fd.top = new FormAttachment(wFields, margin);
     wNoOK.setLayoutData(fd);
 
-    wClose = new Button(shell, SWT.PUSH);
+    Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
 
-    wView = new Button(shell, SWT.PUSH);
+    Button wView = new Button(shell, SWT.PUSH);
     wView.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.ViewMessage"));
 
-    wEdit = new Button(shell, SWT.PUSH);
+    Button wEdit = new Button(shell, SWT.PUSH);
     wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
 
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wClose, wView, wEdit}, margin, null);
 
     // Add listeners
-    lsClose = e -> close();
-    lsView = e -> view();
-    lsEdit = e -> edit();
-    lsNoOK = e -> noOK();
-
-    wClose.addListener(SWT.Selection, lsClose);
-    wView.addListener(SWT.Selection, lsView);
-    wEdit.addListener(SWT.Selection, lsEdit);
-    wNoOK.addListener(SWT.Selection, lsNoOK);
+    wClose.addListener(SWT.Selection, e -> close());
+    wView.addListener(SWT.Selection, e -> view());
+    wEdit.addListener(SWT.Selection, e -> edit());
+    wNoOK.addListener(SWT.Selection, e -> noOK());
 
     // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            close();
-          }
-        });
+    shell.addListener(SWT.Close, e -> close());
 
     getData();
 

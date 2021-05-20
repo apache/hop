@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.output;
@@ -35,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -136,8 +136,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.StepName.Label"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.StepName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -298,11 +297,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     // Add listeners
     //
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -377,8 +373,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wFromLabelGrid);
 
     Button wGetFromLabel = new Button(wFromComp, SWT.PUSH);
-    wGetFromLabel.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetFromLabel.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetFromLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -447,8 +442,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wFromPropsGrid);
 
     Button wGetFromProps = new Button(wFromComp, SWT.PUSH);
-    wGetFromProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetFromProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetFromProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -543,8 +537,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wToLabelGrid);
 
     Button wGetToLabel = new Button(wToComp, SWT.PUSH);
-    wGetToLabel.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetToLabel.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetToLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -612,8 +605,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wToPropsGrid);
 
     Button wGetToProps = new Button(wToComp, SWT.PUSH);
-    wGetToProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetToProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wGetToProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -647,8 +639,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
      * Relationships
      */
     CTabItem wRelationshipsTab = new CTabItem(wTabFolder, SWT.NONE);
-    wRelationshipsTab.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.RelationshipsTab"));
+    wRelationshipsTab.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.RelationshipsTab"));
 
     FormLayout relationshipsLayout = new FormLayout();
     relationshipsLayout.marginWidth = 3;
@@ -735,8 +726,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wRelPropsGrid);
 
     Button wbRelProps = new Button(wRelationshipsComp, SWT.PUSH);
-    wbRelProps.setText(
-        BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wbRelProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
     wbRelProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -768,37 +758,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
 
     wTabFolder.setSelection(0);
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-    wConnection.addSelectionListener(lsDef);
-    wBatchSize.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
     getData();
-    input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -1145,7 +1108,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
           shell,
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage"),
-          ke);  //$NON-NLS-2$
+          ke); //$NON-NLS-2$
     }
   }
 

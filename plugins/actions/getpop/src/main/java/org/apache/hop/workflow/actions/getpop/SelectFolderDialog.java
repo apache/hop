@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.getpop;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -29,13 +30,18 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 /**
- * This dialog represents an explorer type of interface on a given IMAP connection. It shows the folders defined
+ * This dialog represents an explorer type of interface on a given IMAP connection. It shows the
+ * folders defined
  *
  * @author Samatar
  * @since 12-08-2009
@@ -52,8 +58,8 @@ public class SelectFolderDialog extends Dialog {
   private final Folder folder;
   private final GuiResource guiresource = GuiResource.getInstance();
 
-  public SelectFolderDialog( Shell parent, int style, Folder folder ) {
-    super( parent, style );
+  public SelectFolderDialog(Shell parent, int style, Folder folder) {
+    super(parent, style);
     this.props = PropsUi.getInstance();
     this.folder = folder;
     this.selection = null;
@@ -62,86 +68,70 @@ public class SelectFolderDialog extends Dialog {
   public String open() {
 
     Shell parent = getParent();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setText( BaseMessages.getString( PKG, "SelectFolderDialog.Dialog.Main.Title" ) );
-    shell.setImage( guiresource.getImageHopUi() );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    props.setLook(shell);
+    shell.setText(BaseMessages.getString(PKG, "SelectFolderDialog.Dialog.Main.Title"));
+    shell.setImage(guiresource.getImageHopUi());
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
+    shell.setLayout(formLayout);
 
     // Tree
-    wTree = new Tree( shell, SWT.SINGLE | SWT.BORDER );
-    props.setLook( wTree );
+    wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER);
+    props.setLook(wTree);
+    // Double click in tree: select the value
+    wTree.addListener(SWT.DefaultSelection, e -> ok());
 
-    if ( !getData() ) {
+    if (!getData()) {
       return null;
     }
 
-    // Buttons
+    // Buttons at the bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wRefresh = new Button(shell, SWT.PUSH);
-    wRefresh.setText( BaseMessages.getString( PKG, "System.Button.Refresh" ) );
-
+    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
+    wRefresh.addListener(SWT.Selection, e -> getData());
     Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> dispose());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wRefresh, wCancel}, Const.MARGIN, null);
 
     FormData fdTree = new FormData();
-    fdTree.left = new FormAttachment( 0, 0 ); // To the right of the label
-    fdTree.top = new FormAttachment( 0, 0 );
-    fdTree.right = new FormAttachment( 100, 0 );
-    fdTree.bottom = new FormAttachment( 100, -50 );
-    wTree.setLayoutData( fdTree );
+    fdTree.left = new FormAttachment(0, 0); // To the right of the label
+    fdTree.top = new FormAttachment(0, 0);
+    fdTree.right = new FormAttachment(100, 0);
+    fdTree.bottom = new FormAttachment(wOk, -2 * Const.MARGIN);
+    wTree.setLayoutData(fdTree);
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wRefresh, wCancel}, Const.MARGIN, null );
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());
 
-    // Add listeners
-    wCancel.addListener( SWT.Selection, e -> dispose() );
-
-    // Add listeners
-    wOk.addListener( SWT.Selection, e -> handleOK() );
-
-    wTree.addSelectionListener( new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent arg0 ) {
-        handleOK();
-      }
-    } );
-
-    wRefresh.addListener( SWT.Selection, e -> getData() );
-
-    BaseTransformDialog.setSize( shell );
-
-    shell.open();
-    Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
     return selection;
   }
 
   private boolean getData() {
     // Clear the tree top entry
-    if ( tiTree != null && !tiTree.isDisposed() ) {
+    if (tiTree != null && !tiTree.isDisposed()) {
       tiTree.dispose();
     }
     wTree.removeAll();
     try {
-      buildFoldersTree( this.folder, null, true );
-    } catch ( Exception e ) {
+      buildFoldersTree(this.folder, null, true);
+    } catch (Exception e) {
       return false;
     }
 
     return true;
   }
 
-  private void buildFoldersTree( Folder folder, TreeItem parentTreeItem, boolean topfolder ) throws MessagingException {
-    if ( ( folder.getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
+  private void buildFoldersTree(Folder folder, TreeItem parentTreeItem, boolean topfolder)
+      throws MessagingException {
+    if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
       Folder[] f = folder.list();
       for (Folder value : f) {
         tiTree = topfolder ? new TreeItem(wTree, SWT.NONE) : new TreeItem(parentTreeItem, SWT.NONE);
@@ -156,22 +146,23 @@ public class SelectFolderDialog extends Dialog {
   }
 
   public void dispose() {
-    if ( this.folder != null ) {
+    if (this.folder != null) {
       try {
-        this.folder.close( false );
-      } catch ( Exception e ) { /* Ignore */
+        this.folder.close(false);
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
-    props.setScreen( new WindowProperty( shell ) );
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
-  public void handleOK() {
+  public void ok() {
     TreeItem[] ti = wTree.getSelection();
-    if ( ti.length == 1 ) {
-      TreeItem parent = ti[ 0 ].getParentItem();
-      String fullpath = ti[ 0 ].getText();
-      while ( parent != null ) {
+    if (ti.length == 1) {
+      TreeItem parent = ti[0].getParentItem();
+      String fullpath = ti[0].getText();
+      while (parent != null) {
         fullpath = parent.getText() + MailConnectionMeta.FOLDER_SEPARATOR + fullpath;
         parent = parent.getParentItem();
       }

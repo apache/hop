@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -34,10 +35,6 @@ import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -102,6 +99,16 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, (Event e) -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Name.Label"));
@@ -130,6 +137,18 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
+    Button wbGetConnections = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbGetConnections);
+    wbGetConnections.setText(
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.GetConnections"));
+    wbGetConnections.setToolTipText(
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.GetConnections.Tooltip"));
+    FormData fdbGetConnections = new FormData();
+    fdbGetConnections.right = new FormAttachment(100, -margin);
+    fdbGetConnections.top = new FormAttachment(wlFields, margin);
+    wbGetConnections.setLayoutData(fdbGetConnections);
+
+    // Buttons to the right of the screen...
     Button wbdSourceFileFolder = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbdSourceFileFolder);
     wbdSourceFileFolder.setText(
@@ -138,20 +157,8 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         BaseMessages.getString(PKG, "ActionCheckDbConnections.DeleteSourceFileButton.Label"));
     FormData fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment(100, -margin);
-    fdbdSourceFileFolder.top = new FormAttachment(wlFields, 50);
+    fdbdSourceFileFolder.top = new FormAttachment(wbGetConnections, margin);
     wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
-
-    // Buttons to the right of the screen...
-    Button wbgetConnections = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbgetConnections);
-    wbgetConnections.setText(
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.GetConnections"));
-    wbgetConnections.setToolTipText(
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.GetConnections.Tooltip"));
-    FormData fdbgetConnections = new FormData();
-    fdbgetConnections.right = new FormAttachment(100, -margin);
-    fdbgetConnections.top = new FormAttachment(wlFields, 20);
-    wbgetConnections.setLayoutData(fdbgetConnections);
 
     int rows =
         action.getConnections() == null
@@ -195,77 +202,27 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbgetConnections, -margin);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.right = new FormAttachment(wbGetConnections, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd = new FormData();
-    fd.right = new FormAttachment(50, -10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wOk.setLayoutData(fd);
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fd = new FormData();
-    fd.left = new FormAttachment(50, 10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wCancel.setLayoutData(fd);
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
     // Delete files from the list of files...
-    wbdSourceFileFolder.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
+    wbdSourceFileFolder.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFields.getSelectionIndices();
+          wFields.remove(idx);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     // get connections...
-    wbgetConnections.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            getDatabases();
-          }
-        });
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wbGetConnections.addListener(SWT.Selection, e -> getDatabases());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    props.setDialogSize(shell, "ActionCheckDbConnectionsDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 

@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaCl
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -75,10 +76,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -116,7 +113,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   private ModifyListener lsMod;
-  private SashForm wSash;
 
   private TableView wFields;
 
@@ -124,17 +120,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private Button wClearResultFields;
 
-  private Text wlHelpLabel;
-
-  private Button wTest;
-  private Listener lsTest;
-
-  protected Button wCreatePlugin;
-  protected Listener lsCreatePlugin;
-
   private Tree wTree;
   private TreeItem wTreeClassesItem;
-  private Listener lsTree;
 
   private Image imageActiveScript, imageInactiveScript;
   private CTabFolder folder, wTabFolder;
@@ -162,18 +149,16 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private UserDefinedJavaClassMeta input;
   private UserDefinedJavaClassCodeSnippits snippitsHelper;
 
-  private static GuiResource guiResource = GuiResource.getInstance();
+  private static final GuiResource guiResource = GuiResource.getInstance();
 
   private TreeItem itemInput, itemInfo, itemOutput;
-  private TreeItem itemWaitFieldsIn, itemWaitFieldsInfo, itemWaitFieldsOut;
   private IRowMeta inputRowMeta, infoRowMeta, outputRowMeta;
 
   private RowGeneratorMeta genMeta;
 
   private CTabItem fieldsTab;
 
-  private int middle, margin;
-  private CTabItem infoTab, targetTab, parametersTab;
+  private int margin;
   private TableView wInfoTransforms, wTargetTransforms, wParameters;
   private String[] prevTransformNames, nextTransformNames;
 
@@ -237,8 +222,18 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
 
-    middle = props.getMiddlePct();
+    int middle = props.getMiddlePct();
     margin = props.getMargin();
+
+    // Buttons go at the very bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    Button wTest = new Button(shell, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    setButtonPositions(new Button[] {wOk, wTest, wCancel}, margin, null);
 
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -260,7 +255,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-    wSash = new SashForm(shell, SWT.VERTICAL);
+    SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
     // Top sash form
     //
@@ -320,7 +315,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdlPosition.top = new FormAttachment(folder, margin);
     wlPosition.setLayoutData(fdlPosition);
 
-    wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
+    Text wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
     wlHelpLabel.setEditable(false);
     wlHelpLabel.setText("Hallo");
     props.setLook(wlHelpLabel);
@@ -351,7 +346,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -75);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // The Fields tab...
@@ -383,48 +378,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wSash.setWeights(new int[] {75, 25});
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wTest = new Button(shell, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"));
-    // wCreatePlugin = new Button(shell, SWT.PUSH);
-    // wCreatePlugin.setText("Create Plug-in");
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel, wTest /* , wCreatePlugin */}, margin, null);
-
-    lsCancel = e -> cancel();
-    lsTest = e -> test();
-    lsOk = e -> ok();
-    lsTree = e -> treeDblClick(e);
-    /*
-     * lsCreatePlugin = new Listener() { public void handleEvent(Event e) { createPlugin(); } };
-     */
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wTest.addListener(SWT.Selection, lsTest);
-    wOk.addListener(SWT.Selection, lsOk);
-    // wCreatePlugin.addListener(SWT.Selection, lsCreatePlugin);
-    wTree.addListener(SWT.MouseDoubleClick, lsTree);
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            if (!cancel()) {
-              e.doit = false;
-            }
-          }
-        });
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wTest.addListener(SWT.Selection, e -> test());
+    wOk.addListener(SWT.Selection, e -> ok());
+    wTree.addListener(SWT.MouseDoubleClick, this::treeDblClick);
 
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
@@ -461,8 +418,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wTreeClassesItem.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Classes.Label"));
 
-    // Set the shell size, based upon previous time...
-    setSize();
     getData();
 
     // Adding the Rest (Functions, InputItems, etc.) to the Tree
@@ -486,21 +441,21 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     itemOutput.setData("Field Helpers");
 
     // Display waiting message for input
-    itemWaitFieldsIn = new TreeItem(itemInput, SWT.NULL);
+    TreeItem itemWaitFieldsIn = new TreeItem(itemInput, SWT.NULL);
     itemWaitFieldsIn.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
     itemWaitFieldsIn.setForeground(guiResource.getColorDirectory());
     itemInput.setExpanded(true);
 
     // Display waiting message for info
-    itemWaitFieldsInfo = new TreeItem(itemInfo, SWT.NULL);
+    TreeItem itemWaitFieldsInfo = new TreeItem(itemInfo, SWT.NULL);
     itemWaitFieldsInfo.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
     itemWaitFieldsInfo.setForeground(guiResource.getColorDirectory());
     itemInfo.setExpanded(true);
 
     // Display waiting message for output
-    itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
+    TreeItem itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
     itemWaitFieldsOut.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
     itemWaitFieldsOut.setForeground(guiResource.getColorDirectory());
@@ -565,12 +520,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
           }
         });
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -702,7 +653,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void addInfoTab() {
-    infoTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem infoTab = new CTabItem(wTabFolder, SWT.NONE);
     infoTab.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Info.Title"));
     infoTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Info.TooltipText"));
@@ -768,7 +719,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void addTargetTab() {
-    targetTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem targetTab = new CTabItem(wTabFolder, SWT.NONE);
     targetTab.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Target.Title"));
     targetTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Target.TooltipText"));
@@ -834,7 +785,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void addParametersTab() {
-    parametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem parametersTab = new CTabItem(wTabFolder, SWT.NONE);
     parametersTab.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Parameters.Title"));
     parametersTab.setToolTipText(

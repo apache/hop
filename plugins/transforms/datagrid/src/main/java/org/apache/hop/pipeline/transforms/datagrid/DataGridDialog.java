@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -244,25 +245,6 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    lsDef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     lsResize =
         event -> {
           Point size = shell.getSize();
@@ -283,17 +265,8 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
           }
         });
 
-    // Set the shell size, based upon previous time...
-    setSize();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    input.setChanged(changed);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return transformName;
   }
 

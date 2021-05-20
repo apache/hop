@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,7 +57,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
   private static final String[] EXTENSIONS = new String[] {"*"};
 
   private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionPGPVerify.Filetype.All")};
+      new String[] {BaseMessages.getString(PKG, "JobPGPVerify.Filetype.All")};
 
   private Text wName;
 
@@ -67,7 +65,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
   private TextVar wFilename;
 
-  private Button wuseDetachedSignature;
+  private Button wUseDetachedSignature;
 
   private Label wlDetachedFilename;
 
@@ -86,7 +84,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     super(parent, workflowMeta, variables);
     this.action = (ActionPGPVerify) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionPGPVerify.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "JobPGPVerify.Name.Default"));
     }
   }
 
@@ -97,6 +95,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
+    WorkflowMeta workflowMeta = getWorkflowMeta();
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
@@ -105,14 +104,24 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Title"));
+    shell.setText(BaseMessages.getString(PKG, "JobPGPVerify.Title"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // GPGLocation line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "JobPGPVerify.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -133,7 +142,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     // /
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wSettings);
-    wSettings.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Settings.Group.Label"));
+    wSettings.setText(BaseMessages.getString(PKG, "JobPGPVerify.Settings.Group.Label"));
 
     FormLayout SettingsgroupLayout = new FormLayout();
     SettingsgroupLayout.marginWidth = 10;
@@ -143,7 +152,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
     // GPGLocation line
     Label wlGPGLocation = new Label(wSettings, SWT.RIGHT);
-    wlGPGLocation.setText(BaseMessages.getString(PKG, "ActionPGPVerify.GPGLocation.Label"));
+    wlGPGLocation.setText(BaseMessages.getString(PKG, "JobPGPVerify.GPGLocation.Label"));
     props.setLook(wlGPGLocation);
     FormData fdlGPGLocation = new FormData();
     fdlGPGLocation.left = new FormAttachment(0, 0);
@@ -170,7 +179,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
     // Filename line
     Label wlFilename = new Label(wSettings, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Filename.Label"));
+    wlFilename.setText(BaseMessages.getString(PKG, "JobPGPVerify.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -195,25 +204,25 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
-    Label wluseDetachedSignature = new Label(wSettings, SWT.RIGHT);
-    wluseDetachedSignature.setText(
-        BaseMessages.getString(PKG, "ActionPGPVerify.useDetachedSignature.Label"));
-    props.setLook(wluseDetachedSignature);
-    FormData fdluseDetachedSignature = new FormData();
-    fdluseDetachedSignature.left = new FormAttachment(0, 0);
-    fdluseDetachedSignature.top = new FormAttachment(wFilename, margin);
-    fdluseDetachedSignature.right = new FormAttachment(middle, -margin);
-    wluseDetachedSignature.setLayoutData(fdluseDetachedSignature);
-    wuseDetachedSignature = new Button(wSettings, SWT.CHECK);
-    props.setLook(wuseDetachedSignature);
-    wuseDetachedSignature.setToolTipText(
-        BaseMessages.getString(PKG, "ActionPGPVerify.useDetachedSignature.Tooltip"));
-    FormData fduseDetachedSignature = new FormData();
-    fduseDetachedSignature.left = new FormAttachment(middle, 0);
-    fduseDetachedSignature.top = new FormAttachment(wFilename, margin);
-    fduseDetachedSignature.right = new FormAttachment(100, -margin);
-    wuseDetachedSignature.setLayoutData(fduseDetachedSignature);
-    wuseDetachedSignature.addSelectionListener(
+    Label wlUseDetachedSignature = new Label(wSettings, SWT.RIGHT);
+    wlUseDetachedSignature.setText(
+        BaseMessages.getString(PKG, "JobPGPVerify.useDetachedSignature.Label"));
+    props.setLook(wlUseDetachedSignature);
+    FormData fdlUseDetachedSignature = new FormData();
+    fdlUseDetachedSignature.left = new FormAttachment(0, 0);
+    fdlUseDetachedSignature.top = new FormAttachment(wFilename, margin);
+    fdlUseDetachedSignature.right = new FormAttachment(middle, -margin);
+    wlUseDetachedSignature.setLayoutData(fdlUseDetachedSignature);
+    wUseDetachedSignature = new Button(wSettings, SWT.CHECK);
+    props.setLook(wUseDetachedSignature);
+    wUseDetachedSignature.setToolTipText(
+        BaseMessages.getString(PKG, "JobPGPVerify.useDetachedSignature.Tooltip"));
+    FormData fdUseDetachedSignature = new FormData();
+    fdUseDetachedSignature.left = new FormAttachment(middle, 0);
+    fdUseDetachedSignature.top = new FormAttachment(wlUseDetachedSignature, 0, SWT.CENTER);
+    fdUseDetachedSignature.right = new FormAttachment(100, -margin);
+    wUseDetachedSignature.setLayoutData(fdUseDetachedSignature);
+    wUseDetachedSignature.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
 
@@ -223,11 +232,11 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
     // DetachedFilename line
     wlDetachedFilename = new Label(wSettings, SWT.RIGHT);
-    wlDetachedFilename.setText(BaseMessages.getString(PKG, "ActionPGPVerify.DetachedFilename.Label"));
+    wlDetachedFilename.setText(BaseMessages.getString(PKG, "JobPGPVerify.DetachedFilename.Label"));
     props.setLook(wlDetachedFilename);
     FormData fdlDetachedFilename = new FormData();
     fdlDetachedFilename.left = new FormAttachment(0, 0);
-    fdlDetachedFilename.top = new FormAttachment(wuseDetachedSignature, margin);
+    fdlDetachedFilename.top = new FormAttachment(wlUseDetachedSignature, 2 * margin);
     fdlDetachedFilename.right = new FormAttachment(middle, -margin);
     wlDetachedFilename.setLayoutData(fdlDetachedFilename);
 
@@ -236,7 +245,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbDetachedFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbDetachedFilename = new FormData();
     fdbDetachedFilename.right = new FormAttachment(100, 0);
-    fdbDetachedFilename.top = new FormAttachment(wuseDetachedSignature, 0);
+    fdbDetachedFilename.top = new FormAttachment(wlDetachedFilename, 0, SWT.CENTER);
     wbDetachedFilename.setLayoutData(fdbDetachedFilename);
 
     wDetachedFilename = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -244,7 +253,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wDetachedFilename.addModifyListener(lsMod);
     FormData fdDetachedFilename = new FormData();
     fdDetachedFilename.left = new FormAttachment(middle, 0);
-    fdDetachedFilename.top = new FormAttachment(wuseDetachedSignature, margin);
+    fdDetachedFilename.top = new FormAttachment(wlDetachedFilename, 0, SWT.CENTER);
     fdDetachedFilename.right = new FormAttachment(wbDetachedFilename, -margin);
     wDetachedFilename.setLayoutData(fdDetachedFilename);
 
@@ -280,51 +289,17 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     fdSettings.left = new FormAttachment(0, margin);
     fdSettings.top = new FormAttachment(wName, margin);
     fdSettings.right = new FormAttachment(100, -margin);
+    fdSettings.bottom = new FormAttachment(wOk, -2 * margin);
     wSettings.setLayoutData(fdSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners   
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wGPGLocation.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     enableDetachedSignature();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "JobPGPVerifyDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -346,7 +321,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     if (action.getDetachedfilename() != null) {
       wDetachedFilename.setText(action.getDetachedfilename());
     }
-    wuseDetachedSignature.setSelection(action.useDetachedfilename());
+    wUseDetachedSignature.setSelection(action.useDetachedfilename());
 
     wName.selectAll();
     wName.setFocus();
@@ -370,13 +345,13 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     action.setGPGLocation(wGPGLocation.getText());
     action.setFilename(wFilename.getText());
     action.setDetachedfilename(wDetachedFilename.getText());
-    action.setUseDetachedfilename(wuseDetachedSignature.getSelection());
+    action.setUseDetachedfilename(wUseDetachedSignature.getSelection());
     dispose();
   }
 
   private void enableDetachedSignature() {
-    wlDetachedFilename.setEnabled(wuseDetachedSignature.getSelection());
-    wDetachedFilename.setEnabled(wuseDetachedSignature.getSelection());
-    wbDetachedFilename.setEnabled(wuseDetachedSignature.getSelection());
+    wlDetachedFilename.setEnabled(wUseDetachedSignature.getSelection());
+    wDetachedFilename.setEnabled(wUseDetachedSignature.getSelection());
+    wbDetachedFilename.setEnabled(wUseDetachedSignature.getSelection());
   }
 }

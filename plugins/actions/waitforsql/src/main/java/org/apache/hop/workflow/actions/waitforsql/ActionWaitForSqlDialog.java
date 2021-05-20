@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -50,8 +51,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,7 +58,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -93,7 +91,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
 
   private Button wAddRowsToResult;
 
-  private Button wcustomSql;
+  private Button wCustomSql;
 
   private Label wlSql;
 
@@ -116,7 +114,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
 
   private TextVar wCheckCycleTime;
 
-  private Button wSuccesOnTimeout;
+  private Button wSuccessOnTimeout;
 
   private Label wlClearResultList;
   private Button wClearResultList;
@@ -151,13 +149,14 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons go at the very bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
@@ -340,25 +339,25 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     wCheckCycleTime.setLayoutData(fdCheckCycleTime);
 
     // Success on timeout
-    Label wlSuccesOnTimeout = new Label(wSuccessGroup, SWT.RIGHT);
-    wlSuccesOnTimeout.setText(
+    Label wlSuccessOnTimeout = new Label(wSuccessGroup, SWT.RIGHT);
+    wlSuccessOnTimeout.setText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessOnTimeout.Label"));
-    props.setLook(wlSuccesOnTimeout);
-    FormData fdlSuccesOnTimeout = new FormData();
-    fdlSuccesOnTimeout.left = new FormAttachment(0, -margin);
-    fdlSuccesOnTimeout.top = new FormAttachment(wCheckCycleTime, margin);
-    fdlSuccesOnTimeout.right = new FormAttachment(middle, -2 * margin);
-    wlSuccesOnTimeout.setLayoutData(fdlSuccesOnTimeout);
-    wSuccesOnTimeout = new Button(wSuccessGroup, SWT.CHECK);
-    props.setLook(wSuccesOnTimeout);
-    wSuccesOnTimeout.setToolTipText(
+    props.setLook(wlSuccessOnTimeout);
+    FormData fdlSuccessOnTimeout = new FormData();
+    fdlSuccessOnTimeout.left = new FormAttachment(0, -margin);
+    fdlSuccessOnTimeout.top = new FormAttachment(wCheckCycleTime, margin);
+    fdlSuccessOnTimeout.right = new FormAttachment(middle, -2 * margin);
+    wlSuccessOnTimeout.setLayoutData(fdlSuccessOnTimeout);
+    wSuccessOnTimeout = new Button(wSuccessGroup, SWT.CHECK);
+    props.setLook(wSuccessOnTimeout);
+    wSuccessOnTimeout.setToolTipText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessOnTimeout.Tooltip"));
-    FormData fdSuccesOnTimeout = new FormData();
-    fdSuccesOnTimeout.left = new FormAttachment(middle, -margin);
-    fdSuccesOnTimeout.top = new FormAttachment(wCheckCycleTime, margin);
-    fdSuccesOnTimeout.right = new FormAttachment(100, -margin);
-    wSuccesOnTimeout.setLayoutData(fdSuccesOnTimeout);
-    wSuccesOnTimeout.addSelectionListener(
+    FormData fdSuccessOnTimeout = new FormData();
+    fdSuccessOnTimeout.left = new FormAttachment(middle, -margin);
+    fdSuccessOnTimeout.top = new FormAttachment(wlSuccessOnTimeout, 0, SWT.CENTER);
+    fdSuccessOnTimeout.right = new FormAttachment(100, -margin);
+    wSuccessOnTimeout.setLayoutData(fdSuccessOnTimeout);
+    wSuccessOnTimeout.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
@@ -387,23 +386,23 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     wCustomGroup.setLayout(CustomGroupLayout);
 
     // custom SQL?
-    Label wlcustomSql = new Label(wCustomGroup, SWT.RIGHT);
-    wlcustomSql.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.customSQL.Label"));
-    props.setLook(wlcustomSql);
-    FormData fdlcustomSql = new FormData();
-    fdlcustomSql.left = new FormAttachment(0, -margin);
-    fdlcustomSql.top = new FormAttachment(wSuccessGroup, margin);
-    fdlcustomSql.right = new FormAttachment(middle, -2 * margin);
-    wlcustomSql.setLayoutData(fdlcustomSql);
-    wcustomSql = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wcustomSql);
-    wcustomSql.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.customSQL.Tooltip"));
-    FormData fdcustomSql = new FormData();
-    fdcustomSql.left = new FormAttachment(middle, -margin);
-    fdcustomSql.top = new FormAttachment(wSuccessGroup, margin);
-    fdcustomSql.right = new FormAttachment(100, 0);
-    wcustomSql.setLayoutData(fdcustomSql);
-    wcustomSql.addSelectionListener(
+    Label wlCustomSql = new Label(wCustomGroup, SWT.RIGHT);
+    wlCustomSql.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.customSQL.Label"));
+    props.setLook(wlCustomSql);
+    FormData fdlCustomSql = new FormData();
+    fdlCustomSql.left = new FormAttachment(0, -margin);
+    fdlCustomSql.top = new FormAttachment(wSuccessGroup, margin);
+    fdlCustomSql.right = new FormAttachment(middle, -2 * margin);
+    wlCustomSql.setLayoutData(fdlCustomSql);
+    wCustomSql = new Button(wCustomGroup, SWT.CHECK);
+    props.setLook(wCustomSql);
+    wCustomSql.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.customSQL.Tooltip"));
+    FormData fdCustomSql = new FormData();
+    fdCustomSql.left = new FormAttachment(middle, -margin);
+    fdCustomSql.top = new FormAttachment(wlCustomSql, 0, SWT.CENTER);
+    fdCustomSql.right = new FormAttachment(100, 0);
+    wCustomSql.setLayoutData(fdCustomSql);
+    wCustomSql.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent e) {
 
@@ -417,7 +416,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     props.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, -margin);
-    fdlUseSubs.top = new FormAttachment(wcustomSql, margin);
+    fdlUseSubs.top = new FormAttachment(wlCustomSql, 2 * margin);
     fdlUseSubs.right = new FormAttachment(middle, -2 * margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(wCustomGroup, SWT.CHECK);
@@ -426,7 +425,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "ActionWaitForSQL.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
     fdUseSubs.left = new FormAttachment(middle, -margin);
-    fdUseSubs.top = new FormAttachment(wcustomSql, margin);
+    fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
     wUseSubs.addSelectionListener(
@@ -443,7 +442,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     props.setLook(wlClearResultList);
     FormData fdlClearResultList = new FormData();
     fdlClearResultList.left = new FormAttachment(0, -margin);
-    fdlClearResultList.top = new FormAttachment(wUseSubs, margin);
+    fdlClearResultList.top = new FormAttachment(wlUseSubs, 2 * margin);
     fdlClearResultList.right = new FormAttachment(middle, -2 * margin);
     wlClearResultList.setLayoutData(fdlClearResultList);
     wClearResultList = new Button(wCustomGroup, SWT.CHECK);
@@ -452,7 +451,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "ActionWaitForSQL.ClearResultList.Tooltip"));
     FormData fdClearResultList = new FormData();
     fdClearResultList.left = new FormAttachment(middle, -margin);
-    fdClearResultList.top = new FormAttachment(wUseSubs, margin);
+    fdClearResultList.top = new FormAttachment(wlClearResultList, 0, SWT.CENTER);
     fdClearResultList.right = new FormAttachment(100, 0);
     wClearResultList.setLayoutData(fdClearResultList);
     wClearResultList.addSelectionListener(
@@ -469,7 +468,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     props.setLook(wlAddRowsToResult);
     FormData fdlAddRowsToResult = new FormData();
     fdlAddRowsToResult.left = new FormAttachment(0, -margin);
-    fdlAddRowsToResult.top = new FormAttachment(wClearResultList, margin);
+    fdlAddRowsToResult.top = new FormAttachment(wClearResultList, 2 * margin);
     fdlAddRowsToResult.right = new FormAttachment(middle, -2 * margin);
     wlAddRowsToResult.setLayoutData(fdlAddRowsToResult);
     wAddRowsToResult = new Button(wCustomGroup, SWT.CHECK);
@@ -478,7 +477,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "ActionWaitForSQL.AddRowsToResult.Tooltip"));
     FormData fdAddRowsToResult = new FormData();
     fdAddRowsToResult.left = new FormAttachment(middle, -margin);
-    fdAddRowsToResult.top = new FormAttachment(wClearResultList, margin);
+    fdAddRowsToResult.top = new FormAttachment(wlAddRowsToResult, 0, SWT.CENTER);
     fdAddRowsToResult.right = new FormAttachment(100, 0);
     wAddRowsToResult.setLayoutData(fdAddRowsToResult);
     wAddRowsToResult.addSelectionListener(
@@ -569,41 +568,17 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdCustomGroup.left = new FormAttachment(0, margin);
     fdCustomGroup.top = new FormAttachment(wSuccessGroup, margin);
     fdCustomGroup.right = new FormAttachment(100, -margin);
-    fdCustomGroup.bottom = new FormAttachment(wOk, -margin);
+    fdCustomGroup.bottom = new FormAttachment(wOk, -2 * margin);
     wCustomGroup.setLayoutData(fdCustomGroup);
     // ///////////////////////////////////////////////////////////
     // / END OF CustomGroup GROUP
     // ///////////////////////////////////////////////////////////
 
-    // Add listeners
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setCustomerSql();
-    BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "ActionWaitForSQLDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
@@ -697,20 +672,20 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void setCustomerSql() {
-    wlClearResultList.setEnabled(wcustomSql.getSelection());
-    wClearResultList.setEnabled(wcustomSql.getSelection());
-    wlSql.setEnabled(wcustomSql.getSelection());
-    wSql.setEnabled(wcustomSql.getSelection());
-    wlAddRowsToResult.setEnabled(wcustomSql.getSelection());
-    wAddRowsToResult.setEnabled(wcustomSql.getSelection());
-    wlUseSubs.setEnabled(wcustomSql.getSelection());
-    wbSqlTable.setEnabled(wcustomSql.getSelection());
-    wUseSubs.setEnabled(wcustomSql.getSelection());
-    wbTable.setEnabled(!wcustomSql.getSelection());
-    wTablename.setEnabled(!wcustomSql.getSelection());
-    wlTablename.setEnabled(!wcustomSql.getSelection());
-    wlSchemaname.setEnabled(!wcustomSql.getSelection());
-    wSchemaname.setEnabled(!wcustomSql.getSelection());
+    wlClearResultList.setEnabled(wCustomSql.getSelection());
+    wClearResultList.setEnabled(wCustomSql.getSelection());
+    wlSql.setEnabled(wCustomSql.getSelection());
+    wSql.setEnabled(wCustomSql.getSelection());
+    wlAddRowsToResult.setEnabled(wCustomSql.getSelection());
+    wAddRowsToResult.setEnabled(wCustomSql.getSelection());
+    wlUseSubs.setEnabled(wCustomSql.getSelection());
+    wbSqlTable.setEnabled(wCustomSql.getSelection());
+    wUseSubs.setEnabled(wCustomSql.getSelection());
+    wbTable.setEnabled(!wCustomSql.getSelection());
+    wTablename.setEnabled(!wCustomSql.getSelection());
+    wlTablename.setEnabled(!wCustomSql.getSelection());
+    wlSchemaname.setEnabled(!wCustomSql.getSelection());
+    wSchemaname.setEnabled(!wCustomSql.getSelection());
   }
 
   public void dispose() {
@@ -732,14 +707,14 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
 
     wSuccessCondition.setText(ActionWaitForSql.getSuccessConditionDesc(action.successCondition));
     wRowsCountValue.setText(Const.NVL(action.rowsCountValue, "0"));
-    wcustomSql.setSelection(action.isCustomSql);
+    wCustomSql.setSelection(action.isCustomSql);
     wUseSubs.setSelection(action.isUseVars);
     wAddRowsToResult.setSelection(action.isAddRowsResult);
     wClearResultList.setSelection(action.isClearResultList);
     wSql.setText(Const.nullToEmpty(action.customSql));
     wMaximumTimeout.setText(Const.NVL(action.getMaximumTimeout(), ""));
     wCheckCycleTime.setText(Const.NVL(action.getCheckCycleTime(), ""));
-    wSuccesOnTimeout.setSelection(action.isSuccessOnTimeout());
+    wSuccessOnTimeout.setSelection(action.isSuccessOnTimeout());
 
     wName.selectAll();
     wName.setFocus();
@@ -767,14 +742,14 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     action.successCondition =
         ActionWaitForSql.getSuccessConditionByDesc(wSuccessCondition.getText());
     action.rowsCountValue = wRowsCountValue.getText();
-    action.isCustomSql = wcustomSql.getSelection();
+    action.isCustomSql = wCustomSql.getSelection();
     action.isUseVars = wUseSubs.getSelection();
     action.isAddRowsResult = wAddRowsToResult.getSelection();
     action.isClearResultList = wClearResultList.getSelection();
     action.customSql = wSql.getText();
     action.setMaximumTimeout(wMaximumTimeout.getText());
     action.setCheckCycleTime(wCheckCycleTime.getText());
-    action.setSuccessOnTimeout(wSuccesOnTimeout.getSelection());
+    action.setSuccessOnTimeout(wSuccessOnTimeout.getSelection());
 
     dispose();
   }
