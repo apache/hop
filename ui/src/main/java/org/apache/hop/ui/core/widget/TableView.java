@@ -2508,7 +2508,7 @@ public class TableView extends Composite {
       comboVar.layout();
     } else {
       safelyDisposeControl(combo);
-
+      String cellValue = item.getText(colNr);
       combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
       props.setLook(combo, Props.WIDGET_STYLE_TABLE);
       combo.addTraverseListener(lsTraverse);
@@ -2518,7 +2518,7 @@ public class TableView extends Composite {
 
       combo.setItems(opt);
       combo.setVisibleItemCount(opt.length);
-      combo.setText(item.getText(colNr));
+      combo.setText(cellValue);
       if (lsMod != null) {
         combo.addModifyListener(lsMod);
       }
