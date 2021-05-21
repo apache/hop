@@ -85,6 +85,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
 import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
@@ -172,7 +173,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -213,7 +213,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MouseListener,
         MouseMoveListener,
         MouseTrackListener,
-        KeyListener,
         IHasLogChannel,
         ILogParentProvided, // TODO: Aren't these the same?
         IHopFileTypeHandler,
@@ -572,7 +571,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
     }
-    canvas.addKeyListener(this);
 
     setBackground(GuiResource.getInstance().getColorBackground());
 
@@ -766,6 +764,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case TRANSFORM_ICON:
+          if (shift && control) {
+            openReferencedObject();
+            return;
+          }
+
           transformMeta = (TransformMeta) areaOwner.getOwner();
           currentTransform = transformMeta;
 
@@ -2018,33 +2021,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
   }
-
-  @Override
-  public void keyPressed(KeyEvent e) {
-
-    if (e.character == 'E' && (e.stateMask & SWT.CTRL) != 0) {
-      checkErrorVisuals();
-    }
-
-    // SPACE : over a transform: show output fields...
-    if (e.character == ' ' && lastMove != null) {
-
-      Point real = lastMove;
-
-      // Hide the tooltip!
-      hideToolTips();
-
-      // Set the pop-up menu
-      TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize);
-      if (transformMeta != null) {
-        // OK, we found a transform, show the output fields...
-        inputOutputFields(transformMeta, false);
-      }
-    }
-  }
-
-  @Override
-  public void keyReleased(KeyEvent e) {}
 
   @Override
   public boolean setFocus() {
@@ -5053,6 +5029,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'z')
+  @GuiOsxKeyboardShortcut(command = true, key = 'z')
   @Override
   public void undo() {
     pipelineUndoDelegate.undoPipelineAction(this, pipelineMeta);
@@ -5067,6 +5044,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/redo.svg",
       disabledImage = "ui/images/redo-disabled.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
   @Override
   public void redo() {
     pipelineUndoDelegate.redoPipelineAction(this, pipelineMeta);
@@ -5209,6 +5187,70 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void copyTransformToClipboard(HopGuiPipelineTransformContext context) {
     pipelineClipboardDelegate.copySelected(
         pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList());
+  }
+
+  @GuiKeyboardShortcut(key = ' ')
+  @GuiOsxKeyboardShortcut(key = ' ')
+  public void showOutputFields() {
+    if (lastMove != null) {
+
+      // Hide the tooltip!
+      hideToolTips();
+
+      // Find the transform
+      TransformMeta transformMeta = pipelineMeta.getTransform(lastMove.x, lastMove.y, iconSize);
+      if (transformMeta != null) {
+        // Show the output fields...
+        //
+        inputOutputFields(transformMeta, false);
+      }
+    }
+  }
+
+  @GuiKeyboardShortcut(key = 'z')
+  @GuiOsxKeyboardShortcut(key = 'z')
+  public void openReferencedObject() {
+    if (lastMove != null) {
+
+      // Hide the tooltip!
+      hideToolTips();
+
+      // Find the transform
+      TransformMeta transformMeta = pipelineMeta.getTransform(lastMove.x, lastMove.y, iconSize);
+      if (transformMeta != null) {
+
+        // Open referenced object...
+        //
+        ITransformMeta iTransformMeta = transformMeta.getTransform();
+        String[] objectDescriptions = iTransformMeta.getReferencedObjectDescriptions();
+        if (objectDescriptions == null || objectDescriptions.length == 0) {
+          return;
+        }
+        // Only one reference?: open immediately
+        //
+        if (objectDescriptions.length == 1) {
+          HopGuiPipelineTransformContext.openReferencedObject(
+              pipelineMeta, variables, iTransformMeta, objectDescriptions[0], 0);
+        } else {
+          // Show Selection dialog...
+          //
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  getShell(),
+                  objectDescriptions,
+                  BaseMessages.getString(
+                      PKG, "HopGuiPipelineGraph.OpenReferencedObject.Selection.Title"),
+                  BaseMessages.getString(
+                      PKG, "HopGuiPipelineGraph.OpenReferencedObject.Selection.Message"));
+          String answer = dialog.open(0);
+          if (answer != null) {
+            int index = dialog.getSelectionNr();
+            HopGuiPipelineTransformContext.openReferencedObject(
+                pipelineMeta, variables, iTransformMeta, answer, index);
+          }
+        }
+      }
+    }
   }
 
   @Override
