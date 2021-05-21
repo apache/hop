@@ -69,6 +69,8 @@ public class DataSetConst {
 
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
+  public static final String STATE_KEY_GOLDEN_DATASET_RESULTS = "GoldenDataSetResults";
+
   private static final String[] tweakDesc =
       new String[] {
         BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),
@@ -92,7 +94,7 @@ public class DataSetConst {
    * @return The nr of errors, 0 if no errors found
    * @throws HopException In case there was an error loading data or metadata.
    */
-  public static final int validateTransResultAgainstUnitTest(
+  public static final int validateTransformResultAgainstUnitTest(
       IPipelineEngine<PipelineMeta> pipeline,
       PipelineUnitTest unitTest,
       IHopMetadataProvider metadataProvider,
@@ -418,25 +420,25 @@ public class DataSetConst {
             }
           }
         }
+      }
 
-        if (nrLocationErrors == 0) {
-          String comment = "Test passed succesfully against golden data set";
-          results.add(
-              new UnitTestResult(
-                  pipeline.getPipelineMeta().getName(),
-                  unitTest.getName(),
-                  location.getDataSetName(),
-                  location.getTransformName(),
-                  false,
-                  comment));
-        } else {
-          nrErrors += nrLocationErrors;
-        }
+      if (nrLocationErrors == 0) {
+        String comment = "Test passed successfully against golden data set";
+        results.add(
+            new UnitTestResult(
+                pipeline.getPipelineMeta().getName(),
+                unitTest.getName(),
+                location.getDataSetName(),
+                location.getTransformName(),
+                false,
+                comment));
+      } else {
+        nrErrors += nrLocationErrors;
       }
     }
 
     if (nrErrors == 0) {
-      String comment = "Test passed succesfully against unit test";
+      String comment = "Test passed successfully against unit test";
       results.add(
           new UnitTestResult(
               pipeline.getPipelineMeta().getName(),

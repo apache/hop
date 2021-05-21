@@ -13,19 +13,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.testing.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -33,62 +29,70 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnitTestUtil {
 
-  public static final PipelineMeta loadTestPipeline( PipelineUnitTest test, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  public static final PipelineMeta loadTestPipeline(
+      PipelineUnitTest test, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException {
     PipelineMeta unitTestPipelineMeta = null;
     // Environment substitution is not yet supported in the UI
     //
     String filename = test.calculateCompletePipelineFilename(variables);
-    if ( StringUtils.isNotEmpty( filename ) ) {
-      unitTestPipelineMeta = new PipelineMeta( filename, metadataProvider, true, variables );
+    if (StringUtils.isNotEmpty(filename)) {
+      unitTestPipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
     }
-    if ( unitTestPipelineMeta == null ) {
-      throw new HopException( "Unable to find a valid pipeline filename in unit test '" + test.getName() + "'" );
+    if (unitTestPipelineMeta == null) {
+      throw new HopException(
+          "Unable to find a valid pipeline filename in unit test '" + test.getName() + "'");
     }
 
     // Pass some data from the parent...
     //
-    unitTestPipelineMeta.setMetadataProvider( metadataProvider );
+    unitTestPipelineMeta.setMetadataProvider(metadataProvider);
 
     return unitTestPipelineMeta;
   }
 
-  public static final void executeUnitTest( PipelineUnitTest test, ILoggingObject parentObject, LogLevel logLevel,
-                                            IHopMetadataProvider metadataProvider, IVariables variables,
-                                            IPipelineResultEvaluator pipelineResultEvaluator,
-                                            ITestResultsEvaluator testResultsEvaluator,
-                                            IExceptionEvaluator exceptionEvaluator) throws HopException {
+  public static final void executeUnitTest(
+      PipelineUnitTest test,
+      ILoggingObject parentObject,
+      LogLevel logLevel,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      IPipelineResultEvaluator pipelineResultEvaluator,
+      ITestResultsEvaluator testResultsEvaluator,
+      IExceptionEvaluator exceptionEvaluator)
+      throws HopException {
     PipelineMeta testPipelineMeta = null;
 
     try {
       // 1. Load the pipeline meta data, set unit test attributes...
       //
-      testPipelineMeta = loadTestPipeline( test, metadataProvider, variables );
+      testPipelineMeta = loadTestPipeline(test, metadataProvider, variables);
 
       // 2. Create the pipeline executor...
       //
-      IPipelineEngine<PipelineMeta> testPipeline = new LocalPipelineEngine( testPipelineMeta, variables, parentObject );
+      IPipelineEngine<PipelineMeta> testPipeline =
+          new LocalPipelineEngine(testPipelineMeta, variables, parentObject);
 
       // 3. Pass execution details...
       //
-      testPipeline.initializeFrom( variables );
-      testPipeline.setLogLevel( logLevel );
-      testPipeline.setMetadataProvider( metadataProvider );
+      testPipeline.initializeFrom(variables);
+      testPipeline.setLogLevel(logLevel);
+      testPipeline.setMetadataProvider(metadataProvider);
 
       // Don't show to unit tests results dialog in case of errors
       //
-      testPipeline.setVariable( DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "Y" );
+      testPipeline.setVariable(DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "Y");
 
       // Make sure to run the unit test: gather data to compare after execution.
       //
-      testPipeline.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
-      testPipeline.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, test.getName() );
+      testPipeline.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "Y");
+      testPipeline.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
 
       // 4. Execute
       //
@@ -98,14 +102,14 @@ public class UnitTestUtil {
       // 5. Validate results...
       //
       Result pipelineResult = testPipeline.getResult();
-      pipelineResultEvaluator.evaluatePipelineResults( testPipeline, pipelineResult );
+      pipelineResultEvaluator.evaluatePipelineResults(testPipeline, pipelineResult);
 
       List<UnitTestResult> testResults = new ArrayList<>();
-      DataSetConst.validateTransResultAgainstUnitTest( testPipeline, test, metadataProvider, testResults );
-      testResultsEvaluator.evaluateTestResults( testPipeline, testResults );
-    } catch ( HopException e ) {
-      exceptionEvaluator.evaluateTestException( test, testPipelineMeta, e );
+      DataSetConst.validateTransformResultAgainstUnitTest(
+          testPipeline, test, metadataProvider, testResults);
+      testResultsEvaluator.evaluateTestResults(testPipeline, testResults);
+    } catch (HopException e) {
+      exceptionEvaluator.evaluateTestException(test, testPipelineMeta, e);
     }
   }
-
 }
