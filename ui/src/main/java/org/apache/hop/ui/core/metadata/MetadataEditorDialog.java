@@ -102,14 +102,6 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     // Create editor controls
     editor.createControl(area);
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return result;
