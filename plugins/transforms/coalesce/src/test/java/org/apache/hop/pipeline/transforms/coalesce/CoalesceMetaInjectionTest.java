@@ -30,10 +30,10 @@ public class CoalesceMetaInjectionTest extends BaseMetadataInjectionTest<Coalesc
   @Test
   public void test() throws Exception {
     check("EMPTY_STRING_AS_NULLS", () -> meta.isTreatEmptyStringsAsNulls());
-    check("NAME", () -> meta.getOperations().get(0).getName());
+    check("NAME", () -> meta.getFields().get(0).getName());
     // check( "TYPE", () -> meta.getOperations().get(0).getType() );
     skipPropertyTest("TYPE");
-    check("INPUT_FIELDS", () -> meta.getOperations().get(0).getInputField(0));
-    check("REMOVE_INPUT_FIELDS", () -> meta.getOperations().get(0).isRemoveFields());
+    check("INPUT_FIELDS", () -> meta.getFields().get(0).getInputFields());
+    check("REMOVE_INPUT_FIELDS", () -> meta.getFields().get(0).isRemoveFields());
   }
 }

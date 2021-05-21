@@ -18,69 +18,50 @@
 package org.apache.hop.pipeline.transforms.coalesce;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
  * Contains the properties of the inputs fields, target field name, target value type and options.
  *
  * @author Nicolas ADMENT
  */
-public class CoalesceOperation implements Cloneable {
-
-  private List<String> fields = new ArrayList<>();
-
-  private int type = IValueMeta.TYPE_NONE;
+public class CoalesceField implements Cloneable {
 
   /** The target field name */
-  @Injection(name = "NAME", group = "FIELDS")
+  @HopMetadataProperty(key = "name", injectionKey="NAME", injectionKeyDescription = "CoalesceMeta.Injection.Field.Name")
   private String name;
 
-  @Injection(name = "TYPE", group = "FIELDS")
-  public void setType(final String name) {
-    this.type = ValueMetaFactory.getIdForValueMeta(name);
-  }
+  @HopMetadataProperty(key = "type",  injectionKey="TYPE", injectionKeyDescription = "CoalesceMeta.Injection.Field.Type")
+  private String type = ValueMetaFactory.getValueMetaName(IValueMeta.TRIM_TYPE_NONE);
 
-  @Injection(name = "INPUT_FIELDS", group = "FIELDS")
-  public void setInputFields(final String fields) {
-
-    this.fields = new ArrayList<>();
-
-    if (fields != null) {
-      for (String field : fields.split("\\s*,\\s*")) {
-        this.addInputField(field);
-      }
-    }
-  }
-
-  @Injection(name = "REMOVE_INPUT_FIELDS", group = "FIELDS")
+  @HopMetadataProperty(key = "remove", injectionKey="REMOVE_INPUT_FIELDS", injectionKeyDescription = "CoalesceMeta.Injection.Field.Remove")
   private boolean removeFields;
+     
+  @HopMetadataProperty(key = "input", injectionKey="INPUT_FIELDS",  injectionKeyDescription = "CoalesceMeta.Injection.Field.InputFields")
+  private String inputFields;
 
-  public CoalesceOperation() {
+  private List<String> cache = new ArrayList<>();
+
+  public CoalesceField() {
     super();
   }
 
-  public CoalesceOperation(CoalesceOperation cloned) {
+  public CoalesceField(CoalesceField cloned) {
     super();
     this.name = cloned.name;
     this.type = cloned.type;
     this.removeFields = cloned.removeFields;
-
-    Iterator<String> iterator = cloned.fields.iterator();
-    while (iterator.hasNext()) {
-      fields.add(iterator.next());
-    }
+    this.setInputFields(cloned.inputFields);
   }
 
   @Override
   public Object clone() {
-    return new CoalesceOperation(this);
+    return new CoalesceField(this);
   }
 
   public String getName() {
@@ -91,41 +72,32 @@ public class CoalesceOperation implements Cloneable {
     this.name = StringUtils.stripToNull(name);
   }
 
-  public List<String> getInputFields() {
-    return this.fields;
+  public String getInputFields() {
+    return this.inputFields;
   }
 
-  public String getInputField(int index) {
-    return this.fields.get(index);
+  public void setInputFields(final String fields) {
+    this.inputFields = fields;
+        
+    // Rebuild cache
+    cache = new ArrayList<>();
+    if (inputFields != null) {
+      for (String field : inputFields.split("\\s*,\\s*")) {
+          this.cache.add(field);
+      }
+    }    
   }
-
-  public void addInputField(final String field) {
-    // Ignore empty field
-    if (Utils.isEmpty(field)) return;
-
-    this.fields.add(field);
+  
+  public List<String> getInputFieldNames() {
+      return cache;
   }
-
-  public void removeInputField(final String field) {
-    this.fields.remove(field);
-  }
-
-  public void setInputFields(final List<String> fields) {
-
-    if (fields == null) this.fields = new ArrayList<>();
-    else this.fields = fields;
-  }
-
-  public int getType() {
+    
+  public String getType() {
     return this.type;
   }
 
-  public void setType(final int type) {
+  public void setType(final String type) {
     this.type = type;
-  }
-
-  private String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName(this.type);
   }
 
   /**
@@ -143,6 +115,6 @@ public class CoalesceOperation implements Cloneable {
 
   @Override
   public String toString() {
-    return name + ":" + getTypeDesc();
+    return name + ":" + type;
   }
 }
