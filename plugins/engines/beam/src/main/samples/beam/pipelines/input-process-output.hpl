@@ -54,7 +54,7 @@
     <file_description_name>Customers</file_description_name>
     <attributes/>
     <GUI>
-      <xloc>144</xloc>
+      <xloc>160</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -89,7 +89,7 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>432</xloc>
+      <xloc>352</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -115,7 +115,7 @@
         <value>
           <name/>
           <type>String</type>
-          <text>CA</text>
+          <text>FL</text>
           <length>-1</length>
           <precision>-1</precision>
           <isnull>N</isnull>
@@ -125,7 +125,7 @@
     </compare>
     <attributes/>
     <GUI>
-      <xloc>288</xloc>
+      <xloc>256</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -147,7 +147,7 @@
     <windowed>N</windowed>
     <attributes/>
     <GUI>
-      <xloc>576</xloc>
+      <xloc>480</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>

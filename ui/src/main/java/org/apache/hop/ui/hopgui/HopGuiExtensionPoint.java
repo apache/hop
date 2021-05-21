@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
@@ -48,6 +49,8 @@ public enum HopGuiExtensionPoint {
 
   HopGuiWorkflowClipboardFilePaste(
       "A filename is pasted into a workflow", HopGuiWorkflowClipboardExtension.class),
+
+  HopGuiPipelineFinished("A pipeline finished in the GUI", HopGuiPipelineFinishedExtension.class),
   ;
 
   public String id;

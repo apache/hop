@@ -63,6 +63,7 @@ public class DataSetConst {
   public static final String AREA_DRAWN_UNIT_TEST_NAME = "Drawn_UnitTestName";
   public static final String AREA_DRAWN_INPUT_DATA_SET = "Input_DataSet";
   public static final String AREA_DRAWN_GOLDEN_DATA_SET = "Golden_DataSet";
+  public static final String AREA_DRAWN_GOLDEN_DATA_RESULT = "Golden_DataSet_Result";
 
   public static final String ROW_COLLECTION_MAP = "RowCollectionMap";
   public static final String UNIT_TEST_RESULTS = "UnitTestResults";
@@ -70,6 +71,7 @@ public class DataSetConst {
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
   public static final String STATE_KEY_GOLDEN_DATASET_RESULTS = "GoldenDataSetResults";
+  public static final String STATE_KEY_ACTIVE_UNIT_TEST = "ActiveUnitTest";
 
   private static final String[] tweakDesc =
       new String[] {
@@ -438,7 +440,7 @@ public class DataSetConst {
     }
 
     if (nrErrors == 0) {
-      String comment = "Test passed successfully against unit test";
+      String comment = "Unit test was successfully executed.";
       results.add(
           new UnitTestResult(
               pipeline.getPipelineMeta().getName(),

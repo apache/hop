@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,6 +75,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected final String id;
 
+  /**
+   * This is a state map which can be used by plugins to render extra states on top of pipelines and
+   * workflows or their components.
+   */
+  protected Map<String, Object> stateMap;
+
   public HopGuiAbstractGraph(HopGui hopGui, Composite parent, int style, CTabItem parentTabItem) {
     super(parent, style);
     this.parentComposite = parent;
@@ -85,6 +91,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     defaultFont = parentTabItem.getFont();
     changedState = false;
     this.id = UUID.randomUUID().toString();
+    this.stateMap = new HashMap<>();
   }
 
   protected Shell hopShell() {
@@ -322,7 +329,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   public abstract void adjustScrolling();
 
-  protected void adjustScrolling( Point maximum ) {
+  protected void adjustScrolling(Point maximum) {
     int newWidth = (int) (calculateCorrectedMagnification() * maximum.x);
     int newHeight = (int) (calculateCorrectedMagnification() * maximum.y);
 
@@ -330,33 +337,33 @@ public abstract class HopGuiAbstractGraph extends Composite {
     ScrollBar h = wsCanvas.getHorizontalBar();
     ScrollBar v = wsCanvas.getVerticalBar();
 
-    if (canvasBounds.width==0 || canvasBounds.height==0) {
-      h.setVisible( false );
-      v.setVisible( false );
+    if (canvasBounds.width == 0 || canvasBounds.height == 0) {
+      h.setVisible(false);
+      v.setVisible(false);
       return;
     }
 
     canvas.setSize(canvasBounds.width, canvasBounds.height);
-    h.setVisible( newWidth >= canvasBounds.width );
-    v.setVisible( newHeight >= canvasBounds.height );
+    h.setVisible(newWidth >= canvasBounds.width);
+    v.setVisible(newHeight >= canvasBounds.height);
 
-    int hThumb = (int)(100.0*canvasBounds.width / newWidth );
-    int vThumb = (int)(100.0*canvasBounds.height / newHeight );
+    int hThumb = (int) (100.0 * canvasBounds.width / newWidth);
+    int vThumb = (int) (100.0 * canvasBounds.height / newHeight);
 
     if (h != null) {
-      h.setMinimum( 1 );
-      h.setMaximum( 100 );
+      h.setMinimum(1);
+      h.setMaximum(100);
       h.setThumb(hThumb);
-      if ( !EnvironmentUtils.getInstance().isWeb() ){
-        h.setPageIncrement( 10 );
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        h.setPageIncrement(10);
       }
     }
     if (v != null) {
-      v.setMinimum( 1 );
-      v.setMaximum( 100 );
+      v.setMinimum(1);
+      v.setMaximum(100);
       v.setThumb(vThumb);
-      if ( !EnvironmentUtils.getInstance().isWeb() ) {
-        v.setPageIncrement( 10 );
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        v.setPageIncrement(10);
       }
     }
     canvas.setFocus();
@@ -374,5 +381,19 @@ public abstract class HopGuiAbstractGraph extends Composite {
   /** @param variables The variables to set */
   public void setVariables(IVariables variables) {
     this.variables = variables;
+  }
+
+  /**
+   * Gets stateMap
+   *
+   * @return value of stateMap
+   */
+  public Map<String, Object> getStateMap() {
+    return stateMap;
+  }
+
+  /** @param stateMap The stateMap to set */
+  public void setStateMap(Map<String, Object> stateMap) {
+    this.stateMap = stateMap;
   }
 }

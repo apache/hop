@@ -6,24 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,6 +45,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetField;
@@ -82,6 +66,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.testing.EditRowsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
@@ -114,11 +99,7 @@ public class TestingGuiPlugin {
 
   private static TestingGuiPlugin instance = null;
 
-  private Map<PipelineMeta, PipelineUnitTest> activeTests;
-
-  public TestingGuiPlugin() {
-    activeTests = new HashMap<>();
-  }
+  public TestingGuiPlugin() {}
 
   public static TestingGuiPlugin getInstance() {
     if (instance == null) {
@@ -170,7 +151,7 @@ public class TestingGuiPlugin {
     if (checkTestPresent(hopGui, pipelineMeta)) {
       return;
     }
-    PipelineUnitTest unitTest = activeTests.get(pipelineMeta);
+    PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
 
     try {
 
@@ -345,7 +326,7 @@ public class TestingGuiPlugin {
 
   private boolean checkTestPresent(HopGui hopGui, PipelineMeta pipelineMeta) {
 
-    PipelineUnitTest activeTest = activeTests.get(pipelineMeta);
+    PipelineUnitTest activeTest = getCurrentUnitTest(pipelineMeta);
     if (activeTest != null) {
       return false;
     }
@@ -384,7 +365,7 @@ public class TestingGuiPlugin {
     if (checkTestPresent(hopGui, sourcePipelineMeta)) {
       return;
     }
-    PipelineUnitTest unitTest = activeTests.get(sourcePipelineMeta);
+    PipelineUnitTest unitTest = getCurrentUnitTest(sourcePipelineMeta);
 
     try {
       // Create a copy and modify the pipeline
@@ -782,8 +763,10 @@ public class TestingGuiPlugin {
 
       // Remove
       //
-      activeTests.remove(pipelineMeta);
-      pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
+      Map<String, Object> stateMap = getStateMap(pipelineMeta);
+      if (stateMap != null) {
+        stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+      }
 
       // Clear the combo box
       //
@@ -1101,12 +1084,33 @@ public class TestingGuiPlugin {
   }
 
   public static final void selectUnitTest(PipelineMeta pipelineMeta, PipelineUnitTest unitTest) {
-    getInstance().getActiveTests().put(pipelineMeta, unitTest);
+    Map<String, Object> stateMap = getStateMap(pipelineMeta);
+    if (stateMap == null) {
+      // Can't select since we don't find the tab
+    }
+    stateMap.put(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST, unitTest);
     selectUnitTestInList(unitTest.getName());
   }
 
+  public static final Map<String, Object> getStateMap(PipelineMeta pipelineMeta) {
+    for (TabItemHandler item : HopGui.getDataOrchestrationPerspective().getItems()) {
+      if (item.getTypeHandler().getSubject().equals(pipelineMeta)) {
+        HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) item.getTypeHandler();
+        return pipelineGraph.getStateMap();
+      }
+    }
+    return null;
+  }
+
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
-    return getInstance().getActiveTests().get(pipelineMeta);
+    Map<String, Object> stateMap = getStateMap(pipelineMeta);
+    if (stateMap == null) {
+      return null;
+    }
+
+    PipelineUnitTest test =
+        (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    return test;
   }
 
   @GuiContextAction(
@@ -1368,19 +1372,5 @@ public class TestingGuiPlugin {
           exception);
     }
     return tests;
-  }
-
-  /**
-   * Gets activeTests
-   *
-   * @return value of activeTests
-   */
-  public Map<PipelineMeta, PipelineUnitTest> getActiveTests() {
-    return activeTests;
-  }
-
-  /** @param activeTests The activeTests to set */
-  public void setActiveTests(Map<PipelineMeta, PipelineUnitTest> activeTests) {
-    this.activeTests = activeTests;
   }
 }
