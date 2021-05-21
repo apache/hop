@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -88,7 +89,7 @@ public class HopGuiWorkflowActionDelegate {
         action.setPluginId(actionPlugin.getIds()[0]);
         action.setName(actionName);
 
-        if ( action.isStart() ) {
+        if (action.isStart()) {
           // Check if start is already on the canvas...
           if (workflowMeta.findStart() != null) {
             HopGuiWorkflowGraph.showOnlyStartOnceMessage(hopGui.getShell());
@@ -101,11 +102,10 @@ public class HopGuiWorkflowActionDelegate {
           if (d != null && d.open() != null) {
             ActionMeta actionMeta = new ActionMeta();
             actionMeta.setAction(action);
-            if (location != null) {
-              actionMeta.setLocation(location.x, location.y);
-            } else {
-              actionMeta.setLocation(50, 50);
+            if (location == null) {
+              location = new Point(50, 50);
             }
+            PropsUi.setLocation(actionMeta, location.x, location.y);
             workflowMeta.addAction(actionMeta);
 
             // Verify that the name is not already used in the workflow.
@@ -113,7 +113,9 @@ public class HopGuiWorkflowActionDelegate {
             workflowMeta.renameActionIfNameCollides(actionMeta);
 
             hopGui.undoDelegate.addUndoNew(
-                workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
+                workflowMeta,
+                new ActionMeta[] {actionMeta},
+                new int[] {workflowMeta.indexOfAction(actionMeta)});
             workflowGraph.adjustScrolling();
             workflowGraph.updateGui();
             return actionMeta;
@@ -123,14 +125,15 @@ public class HopGuiWorkflowActionDelegate {
         } else {
           ActionMeta actionMeta = new ActionMeta();
           actionMeta.setAction(action);
-          if (location != null) {
-            actionMeta.setLocation(location.x, location.y);
-          } else {
-            actionMeta.setLocation(50, 50);
-          }          
+          if (location == null) {
+            location = new Point(50, 50);
+          }
+          PropsUi.setLocation(actionMeta, location.x, location.y);
           workflowMeta.addAction(actionMeta);
           hopGui.undoDelegate.addUndoNew(
-              workflowMeta, new ActionMeta[] {actionMeta}, new int[] {workflowMeta.indexOfAction(actionMeta)});
+              workflowMeta,
+              new ActionMeta[] {actionMeta},
+              new int[] {workflowMeta.indexOfAction(actionMeta)});
           workflowGraph.adjustScrolling();
           workflowGraph.updateGui();
           return actionMeta;
@@ -151,14 +154,16 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   public IActionDialog getActionDialog(IAction action, WorkflowMeta workflowMeta) {
-    Class<?>[] paramClasses = new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class };
-    Object[] paramArgs = new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
+    Class<?>[] paramClasses =
+        new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class};
+    Object[] paramArgs =
+        new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
 
-    if ( MissingAction.ID.equals(action.getPluginId())) {
+    if (MissingAction.ID.equals(action.getPluginId())) {
       return new MissingActionDialog(
-          hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables() );
+          hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables());
     }
-  
+
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin(ActionPluginType.class, action);
     String dialogClassName = action.getDialogClassName();
@@ -324,8 +329,9 @@ public class HopGuiWorkflowActionDelegate {
       return;
     }
 
-    ActionMeta copyOfAction = action.clone();  
+    ActionMeta copyOfAction = action.clone();
     Point p = action.getLocation();
+    PropsUi.setLocation(copyOfAction, p.x + 10, p.y + 10);
     copyOfAction.setLocation(p.x + 10, p.y + 10);
 
     workflowMeta.addAction(copyOfAction);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -141,7 +141,7 @@ public class HopGuiWorkflowClipboardDelegate {
       for (int i = 0; i < actions.length; i++) {
         Point p = actions[i].getLocation();
         String name = actions[i].getName();
-        actions[i].setLocation(p.x + offset.x, p.y + offset.y);
+        PropsUi.setLocation(actions[i], p.x + offset.x, p.y + offset.y);
 
         // Check the name, find alternative...
         actionsOldNames.add(name);
@@ -170,7 +170,7 @@ public class HopGuiWorkflowClipboardDelegate {
         Node noteNode = XmlHandler.getSubNodeByNr(notesNode, "notepad", i);
         notes[i] = new NotePadMeta(noteNode);
         Point p = notes[i].getLocation();
-        notes[i].setLocation(p.x + offset.x, p.y + offset.y);
+        PropsUi.setLocation(notes[i], p.x + offset.x, p.y + offset.y);
         workflowMeta.addNote(notes[i]);
         notes[i].setSelected(true);
       }

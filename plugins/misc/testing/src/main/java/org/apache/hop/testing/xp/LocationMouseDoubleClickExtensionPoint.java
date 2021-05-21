@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,10 +26,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
+import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -45,33 +47,35 @@ import java.util.List;
 import java.util.Map;
 
 @ExtensionPoint(
-  extensionPointId = "PipelineGraphMouseDown",
-  id = "LocationMouseDoubleClickExtensionPoint",
-  description = "Open a data set when double clicked on it"
-)
-public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<HopGuiPipelineGraphExtension> {
+    extensionPointId = "PipelineGraphMouseDown",
+    id = "LocationMouseDoubleClickExtensionPoint",
+    description = "Open a data set when double clicked on it")
+public class LocationMouseDoubleClickExtensionPoint
+    implements IExtensionPoint<HopGuiPipelineGraphExtension> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension pipelineGraphExtension ) throws HopException {
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension pipelineGraphExtension)
+      throws HopException {
     HopGuiPipelineGraph pipelineGraph = pipelineGraphExtension.getPipelineGraph();
     PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipelineMeta );
-    if ( unitTest == null ) {
+    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
+    if (unitTest == null) {
       return;
     }
 
     HopGui hopGui = HopGui.getInstance();
     try {
-      List<DataSet> dataSets = hopGui.getMetadataProvider().getSerializer( DataSet.class ).loadAll();
+      List<DataSet> dataSets = hopGui.getMetadataProvider().getSerializer(DataSet.class).loadAll();
 
       Map<String, IRowMeta> transformFieldsMap = new HashMap<>();
-      for ( TransformMeta transformMeta : pipelineMeta.getTransforms() ) {
+      for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
         try {
           IRowMeta transformFields =
               pipelineMeta.getTransformFields(pipelineGraph.getVariables(), transformMeta);
-          transformFieldsMap.put( transformMeta.getName(), transformFields );
-        } catch ( Exception e ) {
+          transformFieldsMap.put(transformMeta.getName(), transformFields);
+        } catch (Exception e) {
           // Ignore GUI errors...
         }
       }
@@ -81,53 +85,83 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
       MouseEvent e = pipelineGraphExtension.getEvent();
       Point point = pipelineGraphExtension.getPoint();
 
-      if ( e.button == 1 || e.button == 2 ) {
-        AreaOwner areaOwner = pipelineGraph.getVisibleAreaOwner( point.x, point.y );
-        if ( areaOwner != null && areaOwner.getAreaType() != null ) {
+      if (e.button == 1 || e.button == 2) {
+        AreaOwner areaOwner = pipelineGraph.getVisibleAreaOwner(point.x, point.y);
+        if (areaOwner != null && areaOwner.getAreaType() != null) {
           // Check if this is the flask...
           //
-          if ( DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals( areaOwner.getParent() ) ) {
+          if (DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals(areaOwner.getParent())) {
 
             // Open the dataset double clicked on...
             //
             String transformName = (String) areaOwner.getOwner();
 
-            PipelineUnitTestSetLocation inputLocation = unitTest.findInputLocation( transformName );
-            if ( inputLocation != null ) {
-              PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), inputLocation, dataSets, transformFieldsMap );
-              if ( dialog.open() ) {
-                hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class ).save( unitTest );
+            PipelineUnitTestSetLocation inputLocation = unitTest.findInputLocation(transformName);
+            if (inputLocation != null) {
+              PipelineUnitTestSetLocationDialog dialog =
+                  new PipelineUnitTestSetLocationDialog(
+                      hopGui.getShell(), inputLocation, dataSets, transformFieldsMap);
+              if (dialog.open()) {
+                hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
                 pipelineGraph.updateGui();
               }
             }
-          } else if ( DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals( areaOwner.getParent() ) ) {
+          } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals(areaOwner.getParent())) {
 
             // Open the dataset double clicked on...
             //
             String transformName = (String) areaOwner.getOwner();
 
-            PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation( transformName );
-            if ( goldenLocation != null ) {
-              PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), goldenLocation, dataSets, transformFieldsMap );
-              if ( dialog.open() ) {
+            PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation(transformName);
+            if (goldenLocation != null) {
+              PipelineUnitTestSetLocationDialog dialog =
+                  new PipelineUnitTestSetLocationDialog(
+                      hopGui.getShell(), goldenLocation, dataSets, transformFieldsMap);
+              if (dialog.open()) {
                 // Save the unit test
-                hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class ).save( unitTest );
+                hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
                 pipelineGraph.updateGui();
               }
+            }
+          } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT.equals(areaOwner.getParent())) {
+
+            // Open the dataset double clicked on...
+            //
+            String transformName = (String) areaOwner.getOwner();
+
+            PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation(transformName);
+            if (goldenLocation != null) {
+
+              // Find the errors list of the unit test...
+              //
+              IPipelineEngine<PipelineMeta> pipeline = pipelineGraph.getPipeline();
+              if (pipeline == null) {
+                return;
+              }
+
+              List<UnitTestResult> results =
+                  (List<UnitTestResult>)
+                      pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_RESULTS);
+              if (results == null || results.isEmpty()) {
+                return;
+              }
+
+              ValidatePipelineUnitTestExtensionPoint.showUnitTestErrors(pipeline, results, hopGui);
             }
           }
         }
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error editing location", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error editing location", e);
     }
   }
 
-  private void openDataSet( String dataSetName ) {
+  private void openDataSet(String dataSetName) {
 
     HopGui hopGui = HopGui.getInstance();
-    
-    MetadataManager<DataSet> manager = new MetadataManager<>(hopGui.getVariables(),  hopGui.getMetadataProvider(), DataSet.class);
-    manager.editMetadata(dataSetName); 
+
+    MetadataManager<DataSet> manager =
+        new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class);
+    manager.editMetadata(dataSetName);
   }
 }

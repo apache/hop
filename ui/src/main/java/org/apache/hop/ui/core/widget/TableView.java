@@ -169,8 +169,6 @@ public class TableView extends Composite {
   private ModifyListener lsContent;
   private Clipboard clipboard;
 
-  // private int last_carret_position;
-
   private ArrayList<ChangeAction> undo;
   private int undoPosition;
   private String[] beforeEdit;

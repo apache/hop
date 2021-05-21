@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.commons.lang.StringUtils;
@@ -111,6 +111,7 @@ import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -131,6 +132,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegat
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
@@ -1172,8 +1174,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       synchronized (rowBuffer.getBuffer()) {
         if (!rowBuffer.isEmpty()) {
           try {
-            String title = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", dataTransformMeta.getName());
-            String message = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", dataTransformMeta.getName());
+            String title =
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineGraph.ViewOutput.OutputDialog.Header",
+                    dataTransformMeta.getName());
+            String message =
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text",
+                    dataTransformMeta.getName());
             String prefix = "";
 
             if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
@@ -1192,13 +1202,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       case None:
                         break;
                       case First:
-                        prefix = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
+                        prefix =
+                            BaseMessages.getString(
+                                PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
                         break;
                       case Last:
-                        prefix = BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
+                        prefix =
+                            BaseMessages.getString(
+                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
                         break;
                       case Random:
-                        prefix += BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");;
+                        prefix +=
+                            BaseMessages.getString(
+                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
+                        ;
                         break;
                       default:
                         break;
@@ -1274,21 +1291,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         String message = null;
         switch (fSingleClickType) {
           case Pipeline:
-            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
+            message =
+                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
             contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
             break;
           case Transform:
-            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Transform.Header", fSingleClickTransform.getName());
+            message =
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineGraph.ContextualActionDialog.Transform.Header",
+                    fSingleClickTransform.getName());
             contextHandler =
                 new HopGuiPipelineTransformContext(pipelineMeta, fSingleClickTransform, this, real);
             break;
           case Note:
-            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
+            message =
+                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
             contextHandler =
                 new HopGuiPipelineNoteContext(pipelineMeta, fSingleClickNote, this, real);
             break;
           case Hop:
-            message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
+            message =
+                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
             contextHandler =
                 new HopGuiPipelineHopContext(pipelineMeta, fSingleClickHop, this, real);
             break;
@@ -2316,7 +2340,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             hopShell(),
             choices.toArray(new String[choices.size()]),
             BaseMessages.getString(PKG, "HopGuiPipelineGraph.DistributionMethodDialog.Header"),
-                BaseMessages.getString(PKG, "HopGuiPipelineGraph.DistributionMethodDialog.Text"));
+            BaseMessages.getString(PKG, "HopGuiPipelineGraph.DistributionMethodDialog.Text"));
     if (dialog.open() != null) {
       IPlugin plugin = plugins.get(dialog.getSelectionNr());
       try {
@@ -3263,7 +3287,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               propsUi.isIndicateSlowPipelineTransformsEnabled(),
               propsUi.getZoomFactor(),
               outputRowsMap,
-              !propsUi.useDoubleClick());
+              !propsUi.useDoubleClick(),
+              stateMap);
 
       // correct the magnification with the overall zoom factor
       //
@@ -3591,8 +3616,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
       name = "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Name",
-      tooltip =
-          "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Tooltip",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Tooltip",
       image = "ui/images/debug.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -4014,22 +4038,24 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Create toolbar for close and min/max to the upper right corner...
     //
     ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
-    extraViewTabFolder.setTopRight( extraViewToolBar, SWT.RIGHT );
+    extraViewTabFolder.setTopRight(extraViewToolBar, SWT.RIGHT);
     props.setLook(extraViewToolBar);
 
     minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    minMaxItem.setToolTipText(BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
+    minMaxItem.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
-    
+
     closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
-    closeItem.setToolTipText(BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
+    closeItem.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
     closeItem.addListener(SWT.Selection, e -> disposeExtraView());
-        
+
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-    extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));    
-    
+    extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
+
     sashForm.setWeights(
         new int[] {
           60, 40,
@@ -4147,7 +4173,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           // Update the GUI at the end of the pipeline
           //
-          pipeline.addExecutionFinishedListener(p -> updateGui());
+          pipeline.addExecutionFinishedListener(e -> pipelineFinished());
         }
       } else {
         modalMessageDialog(
@@ -4158,6 +4184,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } else {
       showSaveFileMessage();
     }
+  }
+
+  private void pipelineFinished() {
+    try {
+      HopGuiPipelineFinishedExtension ext = new HopGuiPipelineFinishedExtension(this, pipeline);
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopGuiExtensionPoint.HopGuiPipelineFinished.id, ext);
+    } catch (HopException e) {
+      new ErrorDialog(
+          getShell(),
+          "Error",
+          "Hop GUI encountered an error with an extension point at the end of a pipeline",
+          e);
+    }
+
+    updateGui();
   }
 
   private void addRowsSamplerToPipeline(IPipelineEngine<PipelineMeta> pipeline) {

@@ -315,7 +315,6 @@ public class HopGuiPipelineTransformDelegate {
               mb.open();
             }
             PropsUi.setLocation(transformMeta, location.x, location.y);
-            transformMeta.setLocation(location.x, location.y);
             pipelineMeta.addTransform(transformMeta);
             hopGui.undoDelegate.addUndoNew(
                 pipelineMeta,

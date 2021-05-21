@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,15 +24,22 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.testing.util.DataSetConst;
+
+import java.util.Map;
 
 @ExtensionPoint(
-  extensionPointId = "HopGuiPipelineAfterClose",
-  id = "HopGuiPipelineAfterClose",
-  description = "Cleanup the active unit test for the closed pipeline"
-)
+    extensionPointId = "HopGuiPipelineAfterClose",
+    id = "HopGuiPipelineAfterClose",
+    description = "Cleanup the active unit test for the closed pipeline")
 public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, PipelineMeta pipelineMeta ) throws HopException {
-    TestingGuiPlugin.getInstance().getActiveTests().remove( pipelineMeta );
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
+      throws HopException {
+    Map<String, Object> stateMap = TestingGuiPlugin.getStateMap(pipelineMeta);
+    if (stateMap != null) {
+      stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    }
   }
 }

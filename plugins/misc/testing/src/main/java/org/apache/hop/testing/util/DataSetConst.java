@@ -63,11 +63,15 @@ public class DataSetConst {
   public static final String AREA_DRAWN_UNIT_TEST_NAME = "Drawn_UnitTestName";
   public static final String AREA_DRAWN_INPUT_DATA_SET = "Input_DataSet";
   public static final String AREA_DRAWN_GOLDEN_DATA_SET = "Golden_DataSet";
+  public static final String AREA_DRAWN_GOLDEN_DATA_RESULT = "Golden_DataSet_Result";
 
   public static final String ROW_COLLECTION_MAP = "RowCollectionMap";
   public static final String UNIT_TEST_RESULTS = "UnitTestResults";
 
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
+
+  public static final String STATE_KEY_GOLDEN_DATASET_RESULTS = "GoldenDataSetResults";
+  public static final String STATE_KEY_ACTIVE_UNIT_TEST = "ActiveUnitTest";
 
   private static final String[] tweakDesc =
       new String[] {
@@ -92,7 +96,7 @@ public class DataSetConst {
    * @return The nr of errors, 0 if no errors found
    * @throws HopException In case there was an error loading data or metadata.
    */
-  public static final int validateTransResultAgainstUnitTest(
+  public static final int validateTransformResultAgainstUnitTest(
       IPipelineEngine<PipelineMeta> pipeline,
       PipelineUnitTest unitTest,
       IHopMetadataProvider metadataProvider,
@@ -418,25 +422,25 @@ public class DataSetConst {
             }
           }
         }
+      }
 
-        if (nrLocationErrors == 0) {
-          String comment = "Test passed succesfully against golden data set";
-          results.add(
-              new UnitTestResult(
-                  pipeline.getPipelineMeta().getName(),
-                  unitTest.getName(),
-                  location.getDataSetName(),
-                  location.getTransformName(),
-                  false,
-                  comment));
-        } else {
-          nrErrors += nrLocationErrors;
-        }
+      if (nrLocationErrors == 0) {
+        String comment = "Test passed successfully against golden data set";
+        results.add(
+            new UnitTestResult(
+                pipeline.getPipelineMeta().getName(),
+                unitTest.getName(),
+                location.getDataSetName(),
+                location.getTransformName(),
+                false,
+                comment));
+      } else {
+        nrErrors += nrLocationErrors;
       }
     }
 
     if (nrErrors == 0) {
-      String comment = "Test passed succesfully against unit test";
+      String comment = "Unit test was successfully executed.";
       results.add(
           new UnitTestResult(
               pipeline.getPipelineMeta().getName(),
