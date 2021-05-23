@@ -45,56 +45,18 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Widget to display or modify data, displayed in a Table format.
@@ -130,7 +92,7 @@ public class TableView extends Composite {
   private boolean previousShift;
   private int selectionStart;
 
-  public Table table;
+  public final Table table;
 
   private TableEditor editor;
   private final TableColumn[] tableColumn;
@@ -153,6 +115,7 @@ public class TableView extends Composite {
   private final ModifyListener lsModCombo;
   private final TraverseListener lsTraverse;
   private final Listener lsFocusInTabItem;
+  private final Listener lsKeyUp;
 
   private int sortField;
   private int sortFieldLast;
@@ -759,16 +722,8 @@ public class TableView extends Composite {
             boolean right = false;
             boolean left = false;
 
-            /*
-             * left = e.keyCode == SWT.ARROW_LEFT && last_carret_position==0;
-             *
-             * if (text!=null && !text.isDisposed()) right = e.keyCode == SWT.ARROW_RIGHT &&
-             * last_carret_position==text.getText().length();
-             */
-
             // "ENTER": close the text editor and copy the data over
             // We edit the data after moving to another cell, only if editNextCell =
-            // true;
             if (e.character == SWT.CR
                 || e.keyCode == SWT.ARROW_DOWN
                 || e.keyCode == SWT.ARROW_UP
@@ -832,11 +787,8 @@ public class TableView extends Composite {
 
             } else if (e.keyCode == SWT.ESC) {
               text.dispose();
-              // setFocus();
               table.setFocus();
             }
-
-            // last_carret_position = text.isDisposed()?-1:text.getCaretPosition();
           }
         };
 
@@ -896,7 +848,6 @@ public class TableView extends Composite {
               }
 
               selectRows(selectionStart, activeTableRow);
-              // activeTableItem = table.getItem(activeTableRow);
               table.showItem(table.getItem(activeTableRow));
               e.doit = false;
               return;
@@ -910,7 +861,6 @@ public class TableView extends Composite {
               }
 
               selectRows(activeTableRow, selectionStart);
-              // activeTableItem = table.getItem(activeTableRow);
 
               table.showItem(table.getItem(activeTableRow));
               e.doit = false;
@@ -991,7 +941,6 @@ public class TableView extends Composite {
               unselectAll();
               selectRows(activeTableRow, activeTableRow);
               setFocus();
-              // table.setFocus();
               return;
             }
 
@@ -1083,7 +1032,6 @@ public class TableView extends Composite {
                       || (e.character == '/')
                       || (e.character == ';');
 
-              // setSelection(row, rowNr, colNr);
               // character a-z, A-Z, 0-9: start typing...
               if (e.character == SWT.CR || e.keyCode == SWT.F2 || textChar) {
                 boolean selectText = true;
@@ -1121,7 +1069,6 @@ public class TableView extends Composite {
                   item.setText(1, "");
                   setRowNums();
                 }
-                // row = table.getItem(rowNr);
                 e.doit = false;
                 edit(activeTableRow, activeTableColumn);
               }
@@ -1132,6 +1079,27 @@ public class TableView extends Composite {
           }
         };
     table.addKeyListener(lsKeyTable);
+
+    // KeyUp Listener for OsX
+
+    lsKeyUp =
+        event -> {
+          if (table.isDisposed()) {
+            return;
+          }
+          final TableItem row = activeTableItem;
+          if (row == null) {
+            return;
+          }
+          final int rowNr = table.indexOf(row);
+          final int colNr = activeTableColumn;
+          final String value = getTextWidgetValue(colNr);
+
+          final String[] fBeforeEdit = beforeEdit;
+          String[] afterEdit = getItemText(row);
+          checkChanged(new String[][] {fBeforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
+          row.setText(colNr, value);
+        };
 
     // Table listens to the mouse:
     MouseAdapter lsMouseT =
@@ -1154,7 +1122,6 @@ public class TableView extends Composite {
                 }
               }
             }
-            // if ( event.button == 1 ) {
             boolean rightClick = event.button == 3;
             if (event.button == 1 || rightClick) {
               boolean shift = (event.stateMask & SWT.SHIFT) != 0;
@@ -1923,7 +1890,6 @@ public class TableView extends Composite {
     for (int r = 0; r < items.length; r++) {
       TableItem ti = items[r];
       for (int c = 1; c < table.getColumnCount(); c++) {
-        ColumnInfo ci = columns[c - 1];
         if (c > 1) {
           selection += CLIPBOARD_DELIMITER;
         }
@@ -2133,11 +2099,6 @@ public class TableView extends Composite {
       addUndo(ta);
     }
 
-    /*
-     * try { table.getRow(); } catch(Exception e) // Index is too high: lower to last available value {
-     * setPosition(table.getItemCount()-1, 1); }
-     */
-
     setRowNums();
 
     setModified();
@@ -2308,7 +2269,6 @@ public class TableView extends Composite {
       }
       textWidget.addModifyListener(lsUndo);
       textWidget.setSelection(content.length());
-      // last_carret_position = content.length();
       textWidget.addKeyListener(lsKeyText);
       // Make the column larger so we can still see the string we're entering...
       textWidget.addModifyListener(modifyListener);
@@ -2323,6 +2283,9 @@ public class TableView extends Composite {
       textWidget.addTraverseListener(lsTraverse);
       textWidget.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
       textWidget.addFocusListener(lsFocusText);
+      if (OsHelper.isMac()) {
+        textWidget.addListener(SWT.KeyUp, lsKeyUp);
+      }
     } else {
       Text textWidget = new Text(table, SWT.NONE);
       text = textWidget;
@@ -2332,7 +2295,6 @@ public class TableView extends Composite {
       }
       textWidget.addModifyListener(lsUndo);
       textWidget.setSelection(content.length());
-      // last_carret_position = content.length();
       textWidget.addKeyListener(lsKeyText);
       // Make the column larger so we can still see the string we're entering...
       textWidget.addModifyListener(modifyListener);
@@ -2347,6 +2309,9 @@ public class TableView extends Composite {
       textWidget.addTraverseListener(lsTraverse);
       textWidget.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
       textWidget.addFocusListener(lsFocusText);
+      if (OsHelper.isMac()) {
+        textWidget.addListener(SWT.KeyUp, lsKeyUp);
+      }
     }
     props.setLook(text, Props.WIDGET_STYLE_TABLE);
 
@@ -2570,7 +2535,6 @@ public class TableView extends Composite {
     buttonRowNr = rowNr;
     buttonColNr = colNr;
 
-    // button.addTraverseListener(lsTraverse);
     buttonContent = row.getText(colNr);
 
     String tooltip = columns[colNr - 1].getToolTip();
@@ -2592,7 +2556,6 @@ public class TableView extends Composite {
     editor.minimumWidth = size.x;
     editor.minimumHeight = size.y - 2;
 
-    // setRowNums();
     editor.layout();
 
     // Open the text editor in the correct column of the selected row.
@@ -2600,10 +2563,6 @@ public class TableView extends Composite {
 
     button.setFocus();
 
-    // if the button loses focus, destroy it...
-    /*
-     * button.addFocusListener(new FocusAdapter() { public void focusLost(FocusEvent e) { button.dispose(); } } );
-     */
   }
 
   public void setRowNums() {
@@ -2611,7 +2570,6 @@ public class TableView extends Composite {
       TableItem item = table.getItem(i);
       if (item != null) {
         String num = "" + (i + 1);
-        // for(int j=num.length();j<3;j++) num="0"+num;
         if (!item.getText(0).equals(num)) {
           item.setText(0, num);
         }
@@ -2868,7 +2826,7 @@ public class TableView extends Composite {
   }
 
   private void addUndo(ChangeAction ta) {
-    while (undo.size() > undoPosition + 1 && undo.size() > 0) {
+    while (undo.size() > undoPosition + 1 && !undo.isEmpty()) {
       int last = undo.size() - 1;
       undo.remove(last);
     }
@@ -2972,7 +2930,6 @@ public class TableView extends Composite {
       rowNr = 0;
     }
 
-    // cursor.setSelection(rowNr, 0);
     selectRows(rowNr, rowNr);
   }
 
@@ -3058,7 +3015,6 @@ public class TableView extends Composite {
       rowNr = 0;
     }
 
-    // cursor.setSelection(rowNr, 0);
     selectRows(rowNr, rowNr);
   }
 
@@ -3118,9 +3074,7 @@ public class TableView extends Composite {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get(undoPosition);
-
-    return retval;
+      return undo.get(undoPosition);
   }
 
   private ChangeAction nextUndo() {
@@ -3131,9 +3085,7 @@ public class TableView extends Composite {
 
     undoPosition++;
 
-    ChangeAction retval = undo.get(undoPosition);
-
-    return retval;
+    return undo.get(undoPosition);
   }
 
   private ChangeAction viewNextUndo() {
@@ -3142,9 +3094,7 @@ public class TableView extends Composite {
       return null; // no redo left...
     }
 
-    ChangeAction retval = undo.get(undoPosition + 1);
-
-    return retval;
+    return undo.get(undoPosition + 1);
   }
 
   private void clearUndo() {
