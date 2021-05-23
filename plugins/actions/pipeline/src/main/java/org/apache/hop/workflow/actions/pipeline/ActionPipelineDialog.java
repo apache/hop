@@ -92,10 +92,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-    IPlugin plugin = PluginRegistry.getInstance().getPlugin(ActionPluginType.class, action);
-    plugin.setDocumentationUrl(
-        "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html");
-    HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
 
     backupChanged = action.hasChanged();
 
