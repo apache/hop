@@ -252,7 +252,6 @@ public class EnterSelectionDialog extends Dialog {
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
       fdlSelection.top = new FormAttachment(treeTb, 10);
-      wlSelection.setLayoutData(fdlSelection);
     } else {
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
@@ -260,8 +259,8 @@ public class EnterSelectionDialog extends Dialog {
       props.setLook(wlSelection);
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
-      wlSelection.setLayoutData(fdlSelection);
     }
+    wlSelection.setLayoutData(fdlSelection);
 
     int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL;
     if (multi) {
@@ -371,7 +370,7 @@ public class EnterSelectionDialog extends Dialog {
 
     getData();
 
-    wOk.setFocus();
+    wSelection.setFocus();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

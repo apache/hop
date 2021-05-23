@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,9 +60,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -81,6 +84,7 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
@@ -591,6 +595,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (areaOwner != null && areaOwner.getAreaType() != null) {
         switch (areaOwner.getAreaType()) {
           case ACTION_ICON:
+            if (shift && control) {
+              openReferencedObject();
+              return;
+            }
+
             ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
             currentAction = actionCopy;
 
@@ -3281,28 +3290,30 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(100, 0);       
+    fdTabFolder.bottom = new FormAttachment(100, 0);
     extraViewTabFolder.setLayoutData(fdTabFolder);
 
     // Create toolbar for close and min/max to the upper right corner...
     //
     ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
-    extraViewTabFolder.setTopRight( extraViewToolBar, SWT.RIGHT );
+    extraViewTabFolder.setTopRight(extraViewToolBar, SWT.RIGHT);
     props.setLook(extraViewToolBar);
 
     minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    minMaxItem.setToolTipText(BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
+    minMaxItem.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
-    
+
     closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
-    closeItem.setToolTipText(BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
+    closeItem.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
     closeItem.addListener(SWT.Selection, e -> disposeExtraView());
-        
+
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
-    
+
     sashForm.setWeights(
         new int[] {
           60, 40,
@@ -3798,6 +3809,51 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowMeta.unselectAll();
     newEntry.setSelected(true);
     updateGui();
+  }
+
+  @GuiKeyboardShortcut(key = 'z')
+  @GuiOsxKeyboardShortcut(key = 'z')
+  public void openReferencedObject() {
+    if (lastMove != null) {
+
+      // Hide the tooltip!
+      hideToolTips();
+
+      // Find the transform
+      ActionMeta action = workflowMeta.getAction(lastMove.x, lastMove.y, iconSize);
+      if (action != null) {
+        // Open referenced object...
+        //
+        IAction iAction = action.getAction();
+        String[] objectDescriptions = iAction.getReferencedObjectDescriptions();
+        if (objectDescriptions == null || objectDescriptions.length == 0) {
+          return;
+        }
+        // Only one reference?: open immediately
+        //
+        if (objectDescriptions.length == 1) {
+          HopGuiWorkflowActionContext.openReferencedObject(
+              workflowMeta, variables, iAction, objectDescriptions[0], 0);
+        } else {
+          // Show Selection dialog...
+          //
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  getShell(),
+                  objectDescriptions,
+                  BaseMessages.getString(
+                      PKG, "HopGuiWorkflowGraph.OpenReferencedObject.Selection.Title"),
+                  BaseMessages.getString(
+                      PKG, "HopGuiWorkflowGraph.OpenReferencedObject.Selection.Message"));
+          String answer = dialog.open(0);
+          if (answer != null) {
+            int index = dialog.getSelectionNr();
+            HopGuiWorkflowActionContext.openReferencedObject(
+                workflowMeta, variables, iAction, answer, index);
+          }
+        }
+      }
+    }
   }
 
   @Override
