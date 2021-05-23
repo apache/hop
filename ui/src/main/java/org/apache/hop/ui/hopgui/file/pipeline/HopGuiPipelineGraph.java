@@ -3374,8 +3374,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = "pipeline-graph-transform-10050-create-hop",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Name",
-      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditTransform.Tooltip",
+      name = "i18n::HopGuiPipelineGraph.HopAction.CreateHop.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.CreateHop.Tooltip",
       image = "ui/images/hop.svg",
       category = "Basic",
       categoryOrder = "1")
@@ -3384,7 +3384,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     endHopTransform = null;
     redraw();
   }
-
+  
   private boolean pointOnLine(int x, int y, int[] line) {
     int dx, dy;
     int pm = HOP_SEL_MARGIN / 2;
