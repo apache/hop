@@ -969,7 +969,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   @Override
   public String[] getReferencedObjectDescriptions() {
     return new String[] {
-      BaseMessages.getString(PKG, "ActionJob.ReferencedObject.Description"),
+      BaseMessages.getString(PKG, "ActionWorkflow.ReferencedObject.Description"),
     };
   }
 
