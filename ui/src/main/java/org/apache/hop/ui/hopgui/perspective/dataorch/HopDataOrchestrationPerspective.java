@@ -184,7 +184,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
             
     MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
-    miCloseOthers.setText("Close Others");
+    miCloseOthers.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
     miCloseOthers.addListener( SWT.Selection, (event) -> {
     	TabItemHandler currentItem = activeItem; 
      	items.forEach((item) -> {
@@ -197,7 +197,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
         
     MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
-    miCloseAll.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
+    miCloseAll.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
     miCloseAll.addListener( SWT.Selection, (event) -> {    	   
     	items.forEach((item) -> {
 			// FIXME: Works only if you activate the item
