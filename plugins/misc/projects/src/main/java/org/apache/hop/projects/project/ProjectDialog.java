@@ -71,21 +71,24 @@ public class ProjectDialog extends Dialog {
   private Button wEnforceHomeExecution;
   private TableView wVariables;
 
-  private int margin;
-  private int middle;
-
-  private IVariables variables;
+  private final IVariables variables;
 
   private boolean needingProjectRefresh;
 
-  private String originalName;
+  private final String originalName;
+  private final Boolean editMode;
 
   public ProjectDialog(
-      Shell parent, Project project, ProjectConfig projectConfig, IVariables variables) {
+      Shell parent,
+      Project project,
+      ProjectConfig projectConfig,
+      IVariables variables,
+      Boolean editMode) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 
     this.project = project;
     this.projectConfig = projectConfig;
+    this.editMode = editMode;
 
     props = PropsUi.getInstance();
 
@@ -111,8 +114,8 @@ public class ProjectDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(shell);
 
-    margin = Const.MARGIN + 2;
-    middle = Const.MIDDLE_PCT;
+    int margin = Const.MARGIN + 2;
+    int middle = Const.MIDDLE_PCT;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -387,11 +390,7 @@ public class ProjectDialog extends Dialog {
     fdVariables.top = new FormAttachment(wlVariables, margin);
     fdVariables.bottom = new FormAttachment(wOk, -margin * 2);
     wVariables.setLayoutData(fdVariables);
-    wVariables.addModifyListener(
-        e -> {
-          needingProjectRefresh = true;
-        });
-    // lastControl = wVariables;
+    wVariables.addModifyListener(e -> needingProjectRefresh = true);
 
     // See if we need a project refresh/reload
     //
@@ -490,20 +489,20 @@ public class ProjectDialog extends Dialog {
       }
 
       // Check if project name is unique otherwise force the user to change it!
-      ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
-      List<String> prjs = prjsCfg.listProjectConfigNames();
-      for (String prj : prjs) {
-        if (projectName.equals(prj)) {
-          throw new HopException(
-              "Project '" + projectName + "' already exists. Project name must be unique!");
+      if (Boolean.FALSE.equals(editMode)) {
+        ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
+        List<String> prjs = prjsCfg.listProjectConfigNames();
+        for (String prj : prjs) {
+          if (projectName.equals(prj)) {
+            throw new HopException(
+                "Project '" + projectName + "' already exists. Project name must be unique!");
+          }
         }
       }
 
-      if (StringUtils.isNotEmpty(originalName)) {
-        if (!projectName.equals(originalName)) {
-          wName.setText(originalName);
-          throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
-        }
+      if (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName)) {
+        wName.setText(originalName);
+        throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
       }
 
       getInfo(project, projectConfig);
