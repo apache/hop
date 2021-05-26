@@ -20,7 +20,9 @@ package org.apache.hop.core.injection.bean;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -39,9 +41,11 @@ import static java.util.Objects.requireNonNull;
 /** Engine for get/set metadata injection properties from bean. */
 public class BeanInjector<Meta extends Object> {
   private final BeanInjectionInfo<Meta> info;
+  private final IHopMetadataProvider metadataProvider;
 
-  public BeanInjector(BeanInjectionInfo<Meta> info) {
+  public BeanInjector(BeanInjectionInfo<Meta> info, IHopMetadataProvider metadataProvider) {
     this.info = info;
+    this.metadataProvider = metadataProvider;
   }
 
   public Object getObject(Object root, String propName) throws Exception {
@@ -309,7 +313,16 @@ public class BeanInjector<Meta extends Object> {
           // usual setter
           Object value;
           if (data != null) {
-            value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+            if (s.storeWithName) {
+              // The name is stored in the data row
+              //
+              String name = data.getString(dataName, null);
+              IHopMetadataSerializer<? extends IHopMetadata> serializer =
+                  metadataProvider.getSerializer((Class<? extends IHopMetadata>) s.leafClass);
+              value = serializer.load(name);
+            } else {
+              value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+            }
           } else {
             value = RowMetaAndData.getStringAsJavaType(dataValue, s.leafClass, s.converter);
           }

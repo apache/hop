@@ -291,7 +291,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
       logDetailed("Handing transform '" + targetTransform + "' injection!");
     }
     BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());
-    BeanInjector injector = new BeanInjector(injectionInfo);
+    BeanInjector injector = new BeanInjector(injectionInfo, metadataProvider);
 
     // Collect all the metadata for this target transform...
     //
@@ -358,7 +358,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
     }
     BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());
-    BeanInjector injector = new BeanInjector(injectionInfo);
+    BeanInjector injector = new BeanInjector(injectionInfo, metadataProvider);
 
     // Collect all the metadata for this target transform...
     //

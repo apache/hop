@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -505,7 +506,8 @@ public abstract class BaseDialog extends Dialog {
           || (control instanceof Combo)
           || (control instanceof CCombo)
           || (control instanceof TextVar)
-          || (control instanceof ComboVar)) {
+          || (control instanceof ComboVar)
+          || (control instanceof List)) {
         control.addListener(SWT.DefaultSelection, e -> okConsumer.accept(null));
       } else if (control instanceof Composite) {
         // Check all children

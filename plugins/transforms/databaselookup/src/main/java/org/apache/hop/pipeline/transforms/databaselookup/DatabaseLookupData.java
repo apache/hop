@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,6 +43,7 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
   public boolean allEquals;
   public int[] conditions;
   public boolean hasDBCondition;
+  public int[] returnValueTypes;
 
   public DatabaseLookupData() {
     super();
@@ -50,29 +51,28 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
     db = null;
   }
 
-  /**
-   * ICache for {@code DatabaseLookup} transform.
-   */
+  /** ICache for {@code DatabaseLookup} transform. */
   public interface ICache {
     /**
-     * Returns the very first data row that matches all conditions or {@code null} if none has been found.
-     * Note, cache should keep the order in which elements were put into it.
+     * Returns the very first data row that matches all conditions or {@code null} if none has been
+     * found. Note, cache should keep the order in which elements were put into it.
      *
      * @param lookupMeta meta object for dealing with {@code lookupRow}
-     * @param lookupRow  tuple containing values for comparison
+     * @param lookupRow tuple containing values for comparison
      * @return first matching data row or {@code null}
      * @throws HopException
      */
-    Object[] getRowFromCache( IRowMeta lookupMeta, Object[] lookupRow) throws HopException;
+    Object[] getRowFromCache(IRowMeta lookupMeta, Object[] lookupRow) throws HopException;
 
     /**
      * Saved {@code add} as data row and {@code lookupRow} as a key for searching it.
      *
-     * @param meta       transform's meta
+     * @param meta transform's meta
      * @param lookupMeta {@code lookupRow}'s meta
-     * @param lookupRow  tuple of keys
-     * @param add        tuple of data
+     * @param lookupRow tuple of keys
+     * @param add tuple of data
      */
-    void storeRowInCache( DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow, Object[] add);
+    void storeRowInCache(
+        DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow, Object[] add);
   }
 }

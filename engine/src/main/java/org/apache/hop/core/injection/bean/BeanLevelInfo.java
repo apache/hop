@@ -65,6 +65,9 @@ public class BeanLevelInfo<Meta extends Object> {
   /** Flag for the metadata property system with support for simplified List<String> fields */
   public boolean stringList = false;
 
+  /** To support inflation from a hop metadata provider by name */
+  public boolean storeWithName = false;
+
   public void init(BeanInjectionInfo info) {
     introspect(info, leafClass, new TreeMap<>());
   }

@@ -24,6 +24,7 @@ import org.apache.hop.core.injection.bean.BeanLevelInfo;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
@@ -130,7 +131,8 @@ public class AnalyticQueryMetaTest {
   @Test
   public void testInjection() throws Exception {
     BeanInjectionInfo<AnalyticQueryMeta> info = new BeanInjectionInfo<>(AnalyticQueryMeta.class);
-    BeanInjector<AnalyticQueryMeta> injector = new BeanInjector<>(info);
+    BeanInjector<AnalyticQueryMeta> injector =
+        new BeanInjector<>(info, new MemoryMetadataProvider());
 
     AnalyticQueryMeta meta = new AnalyticQueryMeta();
 

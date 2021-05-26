@@ -58,8 +58,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -69,7 +67,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -825,7 +822,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     setActive();
     refreshTree();
-    setExpandedState(true);
 
     wTabFolder.setSelection(0);
 
@@ -866,7 +862,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       for (TransformMeta transformMeta : injectTransforms) {
         TreeItem transformItem = new TreeItem(wTree, SWT.NONE);
         transformItem.setText(transformMeta.getName());
-        transformItem.setExpanded(true);
+        boolean expanded = false;
 
         Image image =
             GuiResource.getInstance()
@@ -879,8 +875,10 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         //
         ITransformMeta metaInterface = transformMeta.getTransform();
         if (BeanInjectionInfo.isInjectionSupported(metaInterface.getClass())) {
-          processMDIDescription(transformMeta, transformItem, metaInterface);
+          expanded = expanded || processMDIDescription(transformMeta, transformItem, metaInterface);
         }
+
+        transformItem.setExpanded(expanded);
       }
 
     } catch (Throwable t) {
@@ -897,8 +895,15 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
-  private void processMDIDescription(
+  /**
+   * @param transformMeta
+   * @param transformItem
+   * @param metaInterface
+   * @return true if there was at least one used key
+   */
+  private boolean processMDIDescription(
       TransformMeta transformMeta, TreeItem transformItem, ITransformMeta metaInterface) {
+    boolean hasUsedKeys = false;
     BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(metaInterface.getClass());
 
     List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
@@ -933,6 +938,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
         SourceTransformField source = targetSourceMapping.get(target);
         if (source != null) {
+          hasUsedKeys = true;
           treeItem.setText(
               1,
               Const.NVL(
@@ -941,6 +947,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         }
       }
     }
+    return hasUsedKeys;
   }
 
   private void setExpandedState(boolean state) {

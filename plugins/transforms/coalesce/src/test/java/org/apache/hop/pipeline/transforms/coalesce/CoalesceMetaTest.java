@@ -23,6 +23,7 @@ import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.injection.bean.BeanLevelInfo;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -53,7 +54,8 @@ public class CoalesceMetaTest {
   @Test
   public void testInjection() throws Exception {
     BeanInjectionInfo<CoalesceMeta> injectionInfo = new BeanInjectionInfo<>(CoalesceMeta.class);
-    BeanInjector<CoalesceMeta> injector = new BeanInjector<>(injectionInfo);
+    BeanInjector<CoalesceMeta> injector =
+        new BeanInjector<>(injectionInfo, new MemoryMetadataProvider());
 
     IRowMeta resultMeta =
         new RowMetaBuilder()

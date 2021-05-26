@@ -58,7 +58,7 @@ public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?
     this.meta = meta;
     this.metadataProvider = new MemoryMetadataProvider();
     info = new BeanInjectionInfo(meta.getClass());
-    injector = new BeanInjector(info);
+    injector = new BeanInjector(info, metadataProvider);
     nonTestedProperties = new HashSet<>(info.getProperties().keySet());
     for (BeanInjectionInfo.Group group : info.getGroups()) {
       List<BeanInjectionInfo.Property> properties = group.getProperties();

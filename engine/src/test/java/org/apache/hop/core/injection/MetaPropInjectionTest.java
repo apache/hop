@@ -22,11 +22,13 @@ import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.injection.bean.BeanLevelInfo;
 import org.apache.hop.core.injection.metadata.PropBeanChild;
+import org.apache.hop.core.injection.metadata.PropBeanGrandChild;
 import org.apache.hop.core.injection.metadata.PropBeanListChild;
 import org.apache.hop.core.injection.metadata.PropBeanParent;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -48,7 +50,7 @@ public class MetaPropInjectionTest {
   public void testHopMetadataPropertyInjectionInfo() throws Exception {
     BeanInjectionInfo<PropBeanParent> info = new BeanInjectionInfo<>(PropBeanParent.class);
     assertEquals(4, info.getGroups().size());
-    assertEquals(9, info.getProperties().size());
+    assertEquals(11, info.getProperties().size());
 
     // String PropBeanParent.stringField
     //
@@ -147,6 +149,24 @@ public class MetaPropInjectionTest {
     assertNull(beanLevelInfo.field);
     assertNull(beanLevelInfo.getter);
     assertNull(beanLevelInfo.setter);
+
+    // PropBeanChild PropBeanParent.child
+    //
+    prop = info.getProperties().get("grand_child_name");
+    assertNotNull(prop);
+    assertEquals(4, prop.getPath().size());
+    assertEquals(PropBeanParent.class, prop.getPath().get(0).leafClass);
+    assertEquals(PropBeanChild.class, prop.getPath().get(1).leafClass);
+    assertEquals(PropBeanGrandChild.class, prop.getPath().get(2).leafClass);
+    assertEquals(String.class, prop.getPath().get(3).leafClass);
+
+    prop = info.getProperties().get("grand_child_description");
+    assertNotNull(prop);
+    assertEquals(4, prop.getPath().size());
+    assertEquals(PropBeanParent.class, prop.getPath().get(0).leafClass);
+    assertEquals(PropBeanChild.class, prop.getPath().get(1).leafClass);
+    assertEquals(PropBeanGrandChild.class, prop.getPath().get(2).leafClass);
+    assertEquals(String.class, prop.getPath().get(3).leafClass);
   }
 
   @Test
@@ -165,8 +185,10 @@ public class MetaPropInjectionTest {
     parentMetadata.addValue(new ValueMetaString("booleanValue"), "true");
     parentMetadata.addValue(new ValueMetaString("childValue1"), "cv1");
     parentMetadata.addValue(new ValueMetaString("childValue2"), "cv2");
+    parentMetadata.addValue(new ValueMetaString("grandChildName"), "someName");
+    parentMetadata.addValue(new ValueMetaString("grandChildDescription"), "someDescription");
 
-    BeanInjector<PropBeanParent> injector = new BeanInjector<>(info);
+    BeanInjector<PropBeanParent> injector = new BeanInjector<>(info, new MemoryMetadataProvider());
 
     injector.setProperty(parent, "str", Arrays.asList(parentMetadata), "stringValue");
     injector.setProperty(parent, "int", Arrays.asList(parentMetadata), "intValue");
@@ -174,6 +196,10 @@ public class MetaPropInjectionTest {
     injector.setProperty(parent, "boolean", Arrays.asList(parentMetadata), "booleanValue");
     injector.setProperty(parent, "child1", Arrays.asList(parentMetadata), "childValue1");
     injector.setProperty(parent, "child2", Arrays.asList(parentMetadata), "childValue2");
+    injector.setProperty(
+        parent, "grand_child_name", Arrays.asList(parentMetadata), "grandChildName");
+    injector.setProperty(
+        parent, "grand_child_description", Arrays.asList(parentMetadata), "grandChildDescription");
 
     assertEquals(parent.getStringField(), "someString");
     assertEquals(parent.getIntField(), 123);
@@ -181,6 +207,8 @@ public class MetaPropInjectionTest {
     assertTrue(parent.isBooleanField());
     assertEquals(parent.getChild().getChildField1(), "cv1");
     assertEquals(parent.getChild().getChildField2(), "cv2");
+    assertEquals("someName", parent.getChild().getGrandChild().getGrandChildName());
+    assertEquals("someDescription", parent.getChild().getGrandChild().getGrandChildDescription());
 
     IRowMeta stringRowMeta = new RowMetaBuilder().addString("stringField").build();
     List<RowMetaAndData> stringsRows =

@@ -25,14 +25,20 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.workflow.action.ActionMeta;
+
+import java.util.List;
 
 /**
  * This is a convenient way to add a pipeline you just designed to a workflow in the form of an
@@ -54,7 +60,6 @@ public class ActionPipelineGuiPlugin {
 
     PipelineMeta pipelineMeta = context.getPipelineMeta();
     HopGuiPipelineGraph pipelineGraph = context.getPipelineGraph();
-    HopGui hopGui = pipelineGraph.getHopGui();
     IVariables variables = pipelineGraph.getVariables();
 
     ActionPipeline actionPipeline = new ActionPipeline(pipelineMeta.getName());
@@ -72,6 +77,35 @@ public class ActionPipelineGuiPlugin {
     }
 
     actionPipeline.setFileName(ext.filename);
+
+    // The pipeline run configuration to use: pick the only one or ask
+    //
+    try {
+      IHopMetadataProvider metadataProvider = pipelineGraph.getHopGui().getMetadataProvider();
+      IHopMetadataSerializer<PipelineRunConfiguration> serializer =
+          metadataProvider.getSerializer(PipelineRunConfiguration.class);
+      List<String> configNames = serializer.listObjectNames();
+      if (!configNames.isEmpty()) {
+        if (configNames.size() == 1) {
+          actionPipeline.setRunConfiguration(configNames.get(0));
+        } else {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  pipelineGraph.getShell(),
+                  configNames.toArray(new String[0]),
+                  "Select run configuration",
+                  "Select the pipeline run configuration to use in the action:");
+          String configName = dialog.open();
+          if (configName != null) {
+            actionPipeline.setRunConfiguration(configName);
+          }
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          pipelineGraph.getShell(), "Error", "Error selecting pipeline run configurations", e);
+    }
+
     ActionMeta actionMeta = new ActionMeta(actionPipeline);
 
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());

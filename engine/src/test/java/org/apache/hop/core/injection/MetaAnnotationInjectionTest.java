@@ -26,6 +26,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -50,9 +52,12 @@ public class MetaAnnotationInjectionTest {
 
   private static final String TEST_NAME = "TEST_NAME";
 
+  private IHopMetadataProvider metadataProvider;
+
   @Before
   public void before() {
     HopLogStore.init();
+    metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
@@ -88,7 +93,7 @@ public class MetaAnnotationInjectionTest {
     rows.add(new RowMetaAndData(meta, "<sep>", "/tmp/file.txt", "123", "1234567891213", "y"));
     rows.add(new RowMetaAndData(meta, "<sep>", "/tmp/file2.txt", "123", "1234567891213", "y"));
 
-    BeanInjector inj = buildBeanInjectorFor(MetaBeanLevel1.class);
+    BeanInjector inj = buildBeanInjectorFor(MetaBeanLevel1.class, metadataProvider);
     inj.setProperty(obj, "SEPARATOR", rows, "f1");
     inj.setProperty(obj, "FILENAME", rows, "f2");
     inj.setProperty(obj, "FILENAME_ARRAY", rows, "f2");
@@ -111,7 +116,7 @@ public class MetaAnnotationInjectionTest {
   public void testInjectionConstant() throws Exception {
     MetaBeanLevel1 obj = new MetaBeanLevel1();
 
-    BeanInjector inj = buildBeanInjectorFor(MetaBeanLevel1.class);
+    BeanInjector inj = buildBeanInjectorFor(MetaBeanLevel1.class, metadataProvider);
     inj.setProperty(obj, "SEPARATOR", null, "<sep>");
     inj.setProperty(obj, "FINT", null, "123");
     inj.setProperty(obj, "FLONG", null, "1234567891213");
@@ -139,7 +144,7 @@ public class MetaAnnotationInjectionTest {
   @Test
   public void testInjectionForArrayPropertyWithoutDefaultConstructor_class_parameter()
       throws HopException {
-    BeanInjector beanInjector = buildBeanInjectorFor(MetadataBean.class);
+    BeanInjector beanInjector = buildBeanInjectorFor(MetadataBean.class, metadataProvider);
     MetadataBean targetBean = new MetadataBean();
     beanInjector.setProperty(targetBean, COMPLEX_NAME, createRowMetaAndData(), FIELD_ONE);
 
@@ -151,7 +156,8 @@ public class MetaAnnotationInjectionTest {
   @Test
   public void testInjectionForArrayPropertyWithoutDefaultConstructorInterface_parameter()
       throws HopException {
-    BeanInjector beanInjector = buildBeanInjectorFor(MetadataBeanImplementsInterface.class);
+    BeanInjector beanInjector =
+        buildBeanInjectorFor(MetadataBeanImplementsInterface.class, metadataProvider);
     MetadataBeanImplementsInterface targetBean = new MetadataBeanImplementsInterface();
     beanInjector.setProperty(targetBean, COMPLEX_NAME, createRowMetaAndData(), FIELD_ONE);
 
@@ -215,9 +221,10 @@ public class MetaAnnotationInjectionTest {
     assertEquals(String.class, ri.getProperties().get("A").getPropertyClass());
   }
 
-  private static BeanInjector buildBeanInjectorFor(Class<?> clazz) {
+  private static BeanInjector buildBeanInjectorFor(
+      Class<?> clazz, IHopMetadataProvider metadataProvider) {
     BeanInjectionInfo metaBeanInfo = new BeanInjectionInfo(clazz);
-    return new BeanInjector(metaBeanInfo);
+    return new BeanInjector(metaBeanInfo, metadataProvider);
   }
 
   private static List<RowMetaAndData> createRowMetaAndData() {
