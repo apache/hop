@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,6 +41,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -111,7 +112,8 @@ public class ExplorerPerspective implements IHopPerspective {
 
   public static final String TOOLBAR_ITEM_OPEN = "ExplorerPerspective-Toolbar-10000-Open";
   public static final String TOOLBAR_ITEM_DELETE = "ExplorerPerspective-Toolbar-10100-Delete";
-  public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10100-Refresh";
+  public static final String TOOLBAR_ITEM_RENAME = "ExplorerPerspective-Toolbar-10200-Rename";
+  public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10300-Refresh";
 
   private static ExplorerPerspective instance;
 
@@ -457,8 +459,37 @@ public class ExplorerPerspective implements IHopPerspective {
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.DeleteFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.DeleteFile.Message"),
+          e);
+    }
+  }
+
+  private void renameFile(TreeItem item) {
+    try {
+      TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(item, 0));
+      if (tif != null && tif.fileType != null) {
+
+        FileObject fileObject = HopVfs.getFileObject(tif.path);
+        String name = fileObject.getName().getBaseName();
+
+        EnterStringDialog dialog =
+            new EnterStringDialog(hopGui.getShell(), name, "Rename file", "New name: ");
+        String newName = dialog.open();
+        if (newName != null) {
+          FileObject newObject =
+              HopVfs.getFileObject(HopVfs.getFilename(fileObject.getParent()) + "/" + newName);
+          fileObject.moveTo(newObject);
+
+          refresh();
+          updateSelection();
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
           e);
     }
   }
@@ -714,12 +745,30 @@ public class ExplorerPerspective implements IHopPerspective {
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg",
       separator = true)
+  @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
     }
     deleteFile(selection[0]);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_RENAME,
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.Rename.Tooltip",
+      image = "ui/images/rename.svg",
+      separator = false)
+  @GuiKeyboardShortcut(key = SWT.F2)
+  @GuiOsxKeyboardShortcut(key = SWT.F2)
+  public void renameFile() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      return;
+    }
+    renameFile(selection[0]);
   }
 
   public void onNewFile() {}
@@ -870,6 +919,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, tif != null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
 
     for (IExplorerSelectionListener listener : selectionListeners) {
       listener.fileSelected();
