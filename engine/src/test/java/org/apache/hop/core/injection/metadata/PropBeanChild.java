@@ -27,11 +27,10 @@ public class PropBeanChild {
   @HopMetadataProperty(key = "child2")
   private String childField2;
 
-  public PropBeanChild() {}
+  @HopMetadataProperty private PropBeanGrandChild grandChild;
 
-  public PropBeanChild(String childField1, String childField2) {
-    this.childField1 = childField1;
-    this.childField2 = childField2;
+  public PropBeanChild() {
+    grandChild = new PropBeanGrandChild();
   }
 
   /**
@@ -60,5 +59,19 @@ public class PropBeanChild {
   /** @param childField2 The childField2 to set */
   public void setChildField2(String childField2) {
     this.childField2 = childField2;
+  }
+
+  /**
+   * Gets grandChild
+   *
+   * @return value of grandChild
+   */
+  public PropBeanGrandChild getGrandChild() {
+    return grandChild;
+  }
+
+  /** @param grandChild The grandChild to set */
+  public void setGrandChild(PropBeanGrandChild grandChild) {
+    this.grandChild = grandChild;
   }
 }

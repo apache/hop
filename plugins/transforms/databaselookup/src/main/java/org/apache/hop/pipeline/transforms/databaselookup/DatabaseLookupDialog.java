@@ -47,15 +47,11 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -297,7 +293,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
-    int nrKeyRows = (input.getStreamKeyField1() != null ? input.getStreamKeyField1().length : 1);
+    int nrKeyRows =
+        input.getLookup().getKeyFields().isEmpty() ? 1 : input.getLookup().getKeyFields().size();
 
     ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -353,7 +350,10 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wlReturn.setLayoutData(fdlReturn);
 
     int UpInsCols = 4;
-    int UpInsRows = (input.getReturnValueField() != null ? input.getReturnValueField().length : 1);
+    int UpInsRows =
+        input.getLookup().getReturnValues().isEmpty()
+            ? 1
+            : input.getLookup().getReturnValues().size();
 
     ColumnInfo[] ciReturn = new ColumnInfo[UpInsCols];
     ciReturn[0] =
@@ -591,61 +591,37 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wCachesize.setText("" + input.getCacheSize());
     wCacheLoadAll.setSelection(input.isLoadingAllDataInCache());
 
-    if (input.getStreamKeyField1() != null) {
-      for (int i = 0; i < input.getStreamKeyField1().length; i++) {
-        TableItem item = wKey.table.getItem(i);
-        if (input.getTableKeyField()[i] != null) {
-          item.setText(1, input.getTableKeyField()[i]);
-        }
-        if (input.getKeyCondition()[i] != null) {
-          item.setText(2, input.getKeyCondition()[i]);
-        }
-        if (input.getStreamKeyField1()[i] != null) {
-          item.setText(3, input.getStreamKeyField1()[i]);
-        }
-        if (input.getStreamKeyField2()[i] != null) {
-          item.setText(4, input.getStreamKeyField2()[i]);
-        }
-      }
-    }
+    Lookup lookup = input.getLookup();
 
-    if (input.getReturnValueField() != null) {
-      for (int i = 0; i < input.getReturnValueField().length; i++) {
-        TableItem item = wReturn.table.getItem(i);
-        if (input.getReturnValueField()[i] != null) {
-          item.setText(1, input.getReturnValueField()[i]);
-        }
-        if (input.getReturnValueNewName()[i] != null
-            && !input.getReturnValueNewName()[i].equals(input.getReturnValueField()[i])) {
-          item.setText(2, input.getReturnValueNewName()[i]);
-        }
+    for (int i = 0; i < lookup.getKeyFields().size(); i++) {
+      KeyField keyField = lookup.getKeyFields().get(i);
 
-        if (input.getReturnValueDefault()[i] != null) {
-          item.setText(3, input.getReturnValueDefault()[i]);
-        }
-        item.setText(4, ValueMetaFactory.getValueMetaName(input.getReturnValueDefaultType()[i]));
-      }
+      TableItem item = wKey.table.getItem(i);
+      item.setText(1, Const.NVL(keyField.getTableField(), ""));
+      item.setText(2, Const.NVL(keyField.getCondition(), ""));
+      item.setText(3, Const.NVL(keyField.getStreamField1(), ""));
+      item.setText(4, Const.NVL(keyField.getStreamField2(), ""));
     }
+    for (int i = 0; i < lookup.getReturnValues().size(); i++) {
+      ReturnValue returnValue = lookup.getReturnValues().get(i);
 
-    if (input.getSchemaName() != null) {
-      wSchema.setText(input.getSchemaName());
+      TableItem item = wReturn.table.getItem(i);
+      item.setText(1, Const.NVL(returnValue.getTableField(), ""));
+      item.setText(2, Const.NVL(returnValue.getNewName(), ""));
+      item.setText(3, Const.NVL(returnValue.getDefaultValue(), ""));
+      item.setText(4, Const.NVL(returnValue.getDefaultType(), ""));
     }
-    if (input.getTableName() != null) {
-      wTable.setText(input.getTableName());
-    }
+    wSchema.setText(Const.NVL(input.getSchemaName(), ""));
+    wTable.setText(Const.NVL(input.getTableName(), ""));
     if (input.getDatabaseMeta() != null) {
       wConnection.setText(input.getDatabaseMeta().getName());
     }
-    if (input.getOrderByClause() != null) {
-      wOrderBy.setText(input.getOrderByClause());
-    }
-    wFailMultiple.setSelection(input.isFailingOnMultipleResults());
-    wEatRows.setSelection(input.isEatingRowOnLookupFailure());
+    wOrderBy.setText(Const.NVL(lookup.getOrderByClause(), ""));
+    wFailMultiple.setSelection(lookup.isFailingOnMultipleResults());
+    wEatRows.setSelection(lookup.isEatingRowOnLookupFailure());
 
-    wKey.setRowNums();
-    wKey.optWidth(true);
-    wReturn.setRowNums();
-    wReturn.optWidth(true);
+    wKey.optimizeTableView();
+    wReturn.optimizeTableView();
 
     enableFields();
 
@@ -664,53 +640,38 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       return;
     }
 
-    int nrkeys = wKey.nrNonEmpty();
-    int nrFields = wReturn.nrNonEmpty();
-
-    input.allocate(nrkeys, nrFields);
+    Lookup lookup = input.getLookup();
+    lookup.getKeyFields().clear();
+    lookup.getReturnValues().clear();
 
     input.setCached(wCache.getSelection());
     input.setCacheSize(Const.toInt(wCachesize.getText(), 0));
     input.setLoadingAllDataInCache(wCacheLoadAll.getSelection());
 
-    logDebug(
-        BaseMessages.getString(PKG, "DatabaseLookupDialog.Log.FoundKeys", String.valueOf(nrkeys)));
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrkeys; i++) {
-      TableItem item = wKey.getNonEmpty(i);
-      input.getTableKeyField()[i] = item.getText(1);
-      input.getKeyCondition()[i] = item.getText(2);
-      input.getStreamKeyField1()[i] = item.getText(3);
-      input.getStreamKeyField2()[i] = item.getText(4);
+    for (TableItem item : wKey.getNonEmptyItems()) {
+      KeyField keyField = new KeyField();
+      keyField.setTableField(item.getText(1));
+      keyField.setCondition(item.getText(2));
+      keyField.setStreamField1(item.getText(3));
+      keyField.setStreamField2(item.getText(4));
+      lookup.getKeyFields().add(keyField);
     }
 
-    logDebug(
-        BaseMessages.getString(
-            PKG, "DatabaseLookupDialog.Log.FoundFields", String.valueOf(nrFields)));
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wReturn.getNonEmpty(i);
-      input.getReturnValueField()[i] = item.getText(1);
-      input.getReturnValueNewName()[i] = item.getText(2);
-      if (input.getReturnValueNewName()[i] == null
-          || input.getReturnValueNewName()[i].length() == 0) {
-        input.getReturnValueNewName()[i] = input.getReturnValueField()[i];
-      }
-
-      input.getReturnValueDefault()[i] = item.getText(3);
-      input.getReturnValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(4));
-
-      if (input.getReturnValueDefaultType()[i] < 0) {
-        input.getReturnValueDefaultType()[i] = IValueMeta.TYPE_STRING;
-      }
+    for (TableItem item : wReturn.getNonEmptyItems()) {
+      ReturnValue returnValue = new ReturnValue();
+      returnValue.setTableField(item.getText(1));
+      returnValue.setNewName(item.getText(2));
+      returnValue.setDefaultValue(item.getText(3));
+      returnValue.setDefaultType(item.getText(4));
+      lookup.getReturnValues().add(returnValue);
     }
 
-    input.setSchemaName(wSchema.getText());
-    input.setTableName(wTable.getText());
+    lookup.setSchemaName(wSchema.getText());
+    lookup.setTableName(wTable.getText());
     input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
-    input.setOrderByClause(wOrderBy.getText());
-    input.setFailingOnMultipleResults(wFailMultiple.getSelection());
-    input.setEatingRowOnLookupFailure(wEatRows.getSelection());
+    lookup.setOrderByClause(wOrderBy.getText());
+    lookup.setFailingOnMultipleResults(wFailMultiple.getSelection());
+    lookup.setEatingRowOnLookupFailure(wEatRows.getSelection());
 
     transformName = wTransformName.getText(); // return value
 

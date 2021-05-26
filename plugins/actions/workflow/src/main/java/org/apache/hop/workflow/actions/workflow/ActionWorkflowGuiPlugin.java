@@ -25,7 +25,12 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
@@ -36,6 +41,9 @@ import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+
+import java.util.List;
 
 /**
  * This is a convenient way to add a workflow you just designed to another workflow in the form of
@@ -75,6 +83,35 @@ public class ActionWorkflowGuiPlugin {
     }
 
     actionWorkflow.setFileName(ext.filename);
+
+    // The pipeline run configuration to use: pick the only one or ask
+    //
+    try {
+      IHopMetadataProvider metadataProvider = workflowGraph.getHopGui().getMetadataProvider();
+      IHopMetadataSerializer<WorkflowRunConfiguration> serializer =
+          metadataProvider.getSerializer(WorkflowRunConfiguration.class);
+      List<String> configNames = serializer.listObjectNames();
+      if (!configNames.isEmpty()) {
+        if (configNames.size() == 1) {
+          actionWorkflow.setRunConfiguration(configNames.get(0));
+        } else {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  workflowGraph.getShell(),
+                  configNames.toArray(new String[0]),
+                  "Select run configuration",
+                  "Select the workflow run configuration to use in the action:");
+          String configName = dialog.open();
+          if (configName != null) {
+            actionWorkflow.setRunConfiguration(configName);
+          }
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          workflowGraph.getShell(), "Error", "Error selecting workflow run configurations", e);
+    }
+
     ActionMeta actionMeta = new ActionMeta(actionWorkflow);
 
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());

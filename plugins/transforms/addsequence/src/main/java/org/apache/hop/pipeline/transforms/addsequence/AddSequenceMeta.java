@@ -74,25 +74,39 @@ public class AddSequenceMeta extends BaseTransformMeta
       injectionKeyDescription = "AddSequenceMeta.Injection.Connection")
   private DatabaseMeta databaseMeta;
 
-  @HopMetadataProperty(key = "schema")
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKeyDescription = "AddSequenceMeta.Injection.SchemaName")
   private String schemaName;
 
-  @HopMetadataProperty(key = "seqname")
+  @HopMetadataProperty(
+      key = "seqname",
+      injectionKeyDescription = "AddSequenceMeta.Injection.SequenceName")
   private String sequenceName;
 
-  @HopMetadataProperty(key = "use_counter")
+  @HopMetadataProperty(
+      key = "use_counter",
+      injectionKeyDescription = "AddSequenceMeta.Injection.UseCounter")
   private boolean counterUsed;
 
-  @HopMetadataProperty(key = "counter_name")
+  @HopMetadataProperty(
+      key = "counter_name",
+      injectionKeyDescription = "AddSequenceMeta.Injection.CounterName")
   private String counterName;
 
-  @HopMetadataProperty(key = "start_at")
+  @HopMetadataProperty(
+      key = "start_at",
+      injectionKeyDescription = "AddSequenceMeta.Injection.StartAt")
   private String startAt;
 
-  @HopMetadataProperty(key = "increment_by")
+  @HopMetadataProperty(
+      key = "increment_by",
+      injectionKeyDescription = "AddSequenceMeta.Injection.IncrementBy")
   private String incrementBy;
 
-  @HopMetadataProperty(key = "max_value")
+  @HopMetadataProperty(
+      key = "max_value",
+      injectionKeyDescription = "AddSequenceMeta.Injection.MaxValue")
   private String maxValue;
 
   /** @return Returns the connection. */

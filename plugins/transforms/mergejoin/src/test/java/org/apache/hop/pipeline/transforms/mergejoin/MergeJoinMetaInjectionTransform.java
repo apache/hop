@@ -24,6 +24,7 @@ import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,7 +40,8 @@ public class MergeJoinMetaInjectionTransform {
   @Test
   public void testInjection() throws Exception {
     BeanInjectionInfo<MergeJoinMeta> injectionInfo = new BeanInjectionInfo<>(MergeJoinMeta.class);
-    BeanInjector<MergeJoinMeta> injector = new BeanInjector<>(injectionInfo);
+    BeanInjector<MergeJoinMeta> injector =
+        new BeanInjector<>(injectionInfo, new MemoryMetadataProvider());
 
     MergeJoinMeta meta = new MergeJoinMeta();
 
