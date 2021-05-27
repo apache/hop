@@ -55,8 +55,6 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -1186,12 +1184,5 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       pipelineExecutorMeta.getOutputRowsLength()[i] = Const.toInt(item.getText(3), -1);
       pipelineExecutorMeta.getOutputRowsPrecision()[i] = Const.toInt(item.getText(4), -1);
     }
-  }
-
-  @Override
-  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl(
-        "https://hop.apache.org/manual/latest/plugins/transforms/pipelineexcecutor.html");
-    return super.createHelpButton(shell, transformMeta, plugin);
   }
 }

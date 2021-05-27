@@ -140,7 +140,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           if (data.groupFieldIndex < 0) {
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "JobExecutor.Exception.GroupFieldNotFound", data.groupField));
+                    PKG, "WorkflowExecutor.Exception.GroupFieldNotFound", data.groupField));
           }
           data.groupFieldMeta = getInputRowMeta().getValueMeta(data.groupFieldIndex);
         }
@@ -190,7 +190,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
       return true;
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "JobExecutor.UnexpectedError"), e);
+      throw new HopException(BaseMessages.getString(PKG, "WorkflowExecutor.UnexpectedError"), e);
     }
   }
 
@@ -311,7 +311,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
             throw new HopException(
                 BaseMessages.getString(
                     PKG,
-                    "JobExecutor.IncorrectDataTypePassed",
+                    "WorkflowExecutor.IncorrectDataTypePassed",
                     valueMeta.getTypeDesc(),
                     ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i])));
           }
@@ -377,7 +377,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           int idx = getInputRowMeta().indexOfValue(fieldName);
           if (idx < 0) {
             throw new HopException(
-                BaseMessages.getString(PKG, "JobExecutor.Exception.UnableToFindField", fieldName));
+                BaseMessages.getString(PKG, "WorkflowExecutor.Exception.UnableToFindField", fieldName));
           }
           variableValue = data.groupBuffer.get(0).getString(idx, "");
         } else {

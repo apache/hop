@@ -176,7 +176,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     formLayout.marginHeight = 15;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JobExecutorDialog.Shell.Title"));
+    shell.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Shell.Title"));
 
     Label wicon = new Label(shell, SWT.RIGHT);
     wicon.setImage(getImage());
@@ -197,7 +197,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "JobExecutorDialog.TransformName.Label"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.TransformName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -231,7 +231,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wbBrowse = new Button(shell, SWT.PUSH);
     props.setLook(wbBrowse);
-    wbBrowse.setText(BaseMessages.getString(PKG, "JobExecutorDialog.Browse.Label"));
+    wbBrowse.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, 0);
     fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
@@ -502,9 +502,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private void addParametersTab() {
     CTabItem wParametersTab = new CTabItem(wTabFolder, SWT.NONE);
-    wParametersTab.setText(BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.Title"));
+    wParametersTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.Title"));
     wParametersTab.setToolTipText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.Tooltip"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.Tooltip"));
 
     Composite wParametersComposite = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wParametersComposite);
@@ -518,7 +518,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     //
     wGetParameters = new Button(wParametersComposite, SWT.PUSH);
     wGetParameters.setText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.GetParameters"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.GetParameters"));
     props.setLook(wGetParameters);
     FormData fdGetParameters = new FormData();
     fdGetParameters.bottom = new FormAttachment(100, 0);
@@ -534,17 +534,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     parameterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.column.Variable"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.column.Variable"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.column.Field"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.column.Field"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {},
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.column.Input"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.column.Input"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
@@ -581,7 +581,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(BaseMessages.getString(PKG, "JobExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.InheritAll"));
     props.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.left = new FormAttachment(0, 0);
@@ -621,8 +621,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "JobExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "JobExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
           e);
     }
   }
@@ -630,8 +630,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private void addRowGroupTab() {
 
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
-    wTab.setText(BaseMessages.getString(PKG, "JobExecutorDialog.RowGroup.Title"));
-    wTab.setToolTipText(BaseMessages.getString(PKG, "JobExecutorDialog.RowGroup.Tooltip"));
+    wTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.RowGroup.Title"));
+    wTab.setToolTipText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.RowGroup.Tooltip"));
 
     Composite wInputComposite = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wInputComposite);
@@ -645,7 +645,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     //
     wlGroupSize = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlGroupSize);
-    wlGroupSize.setText(BaseMessages.getString(PKG, "JobExecutorDialog.GroupSize.Label"));
+    wlGroupSize.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.GroupSize.Label"));
     FormData fdlGroupSize = new FormData();
     fdlGroupSize.top = new FormAttachment(0, 0);
     fdlGroupSize.left = new FormAttachment(0, 0);
@@ -664,7 +664,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     //
     wlGroupField = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlGroupField);
-    wlGroupField.setText(BaseMessages.getString(PKG, "JobExecutorDialog.GroupField.Label"));
+    wlGroupField.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.GroupField.Label"));
     FormData fdlGroupField = new FormData();
     fdlGroupField.top = new FormAttachment(wGroupSize, 10);
     fdlGroupField.left = new FormAttachment(0, 0);
@@ -683,7 +683,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     //
     wlGroupTime = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlGroupTime);
-    wlGroupTime.setText(BaseMessages.getString(PKG, "JobExecutorDialog.GroupTime.Label"));
+    wlGroupTime.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.GroupTime.Label"));
     FormData fdlGroupTime = new FormData();
     fdlGroupTime.top = new FormAttachment(wGroupField, 10);
     fdlGroupTime.left = new FormAttachment(0, 0); // First one in the left
@@ -705,8 +705,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private void addExecutionResultTab() {
 
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
-    wTab.setText(BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionResults.Title"));
-    wTab.setToolTipText(BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionResults.Tooltip"));
+    wTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResults.Title"));
+    wTab.setToolTipText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResults.Tooltip"));
 
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -723,7 +723,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlExecutionResultTarget);
     wlExecutionResultTarget.setText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionResultTarget.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResultTarget.Label"));
     FormData fdlExecutionResultTarget = new FormData();
     fdlExecutionResultTarget.top = new FormAttachment(0, 0);
     fdlExecutionResultTarget.left = new FormAttachment(0, 0); // First one in the left
@@ -742,12 +742,12 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(
-                  PKG, "JobExecutorMeta.ExecutionResults.FieldDescription.Label"),
+                  PKG, "WorkflowExecutorMeta.ExecutionResults.FieldDescription.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorMeta.ExecutionResults.FieldName.Label"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.ExecutionResults.FieldName.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false)
@@ -792,46 +792,46 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     tiExecutionTimeField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionTimeField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionTimeField.Label"));
     tiExecutionResultField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionResultField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResultField.Label"));
     tiExecutionNrErrorsField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionNrErrorsField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionNrErrorsField.Label"));
     tiExecutionLinesReadField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesReadField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesReadField.Label"));
     tiExecutionLinesWrittenField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesWrittenField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesWrittenField.Label"));
     tiExecutionLinesInputField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesInputField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesInputField.Label"));
     tiExecutionLinesOutputField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesOutputField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesOutputField.Label"));
     tiExecutionLinesRejectedField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesRejectedField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesRejectedField.Label"));
     tiExecutionLinesUpdatedField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesUpdatedField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesUpdatedField.Label"));
     tiExecutionLinesDeletedField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLinesDeletedField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLinesDeletedField.Label"));
     tiExecutionFilesRetrievedField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionFilesRetrievedField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionFilesRetrievedField.Label"));
     tiExecutionExitStatusField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionExitStatusField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionExitStatusField.Label"));
     tiExecutionLogTextField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLogTextField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLogTextField.Label"));
     tiExecutionLogChannelIdField.setText(
         FIELD_DESCRIPTION,
-        BaseMessages.getString(PKG, "JobExecutorDialog.ExecutionLogChannelIdField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionLogChannelIdField.Label"));
 
     wWorkflowExecutorParameters.setRowNums();
     wWorkflowExecutorParameters.optWidth(true);
@@ -851,8 +851,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private void addResultFilesTab() {
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
-    wTab.setText(BaseMessages.getString(PKG, "JobExecutorDialog.ResultFiles.Title"));
-    wTab.setToolTipText(BaseMessages.getString(PKG, "JobExecutorDialog.ResultFiles.Tooltip"));
+    wTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFiles.Title"));
+    wTab.setToolTipText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFiles.Tooltip"));
 
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -869,7 +869,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFilesTarget);
     wlResultFilesTarget.setText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.ResultFilesTarget.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFilesTarget.Label"));
     FormData fdlResultFilesTarget = new FormData();
     fdlResultFilesTarget.top = new FormAttachment(0, 0);
     fdlResultFilesTarget.left = new FormAttachment(0, 0); // First one in the left
@@ -889,7 +889,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFileNameField);
     wlResultFileNameField.setText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.ResultFileNameField.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFileNameField.Label"));
     FormData fdlResultFileNameField = new FormData();
     fdlResultFileNameField.top = new FormAttachment(wResultFilesTarget, 10);
     fdlResultFileNameField.left = new FormAttachment(0, 0); // First one in the left
@@ -921,8 +921,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private void addResultRowsTab() {
 
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
-    wTab.setText(BaseMessages.getString(PKG, "JobExecutorDialog.ResultRows.Title"));
-    wTab.setToolTipText(BaseMessages.getString(PKG, "JobExecutorDialog.ResultRows.Tooltip"));
+    wTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRows.Title"));
+    wTab.setToolTipText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRows.Tooltip"));
 
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -939,7 +939,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultRowsTarget);
     wlResultRowsTarget.setText(
-        BaseMessages.getString(PKG, "JobExecutorDialog.ResultRowsTarget.Label"));
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRowsTarget.Label"));
     FormData fdlResultRowsTarget = new FormData();
     fdlResultRowsTarget.top = new FormAttachment(0, 0);
     fdlResultRowsTarget.left = new FormAttachment(0, 0); // First one in the left
@@ -955,7 +955,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 
     wlResultFields = new Label(wInputComposite, SWT.NONE);
-    wlResultFields.setText(BaseMessages.getString(PKG, "JobExecutorDialog.ResultFields.Label"));
+    wlResultFields.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFields.Label"));
     props.setLook(wlResultFields);
     FormData fdlResultFields = new FormData();
     fdlResultFields.left = new FormAttachment(0, 0);
@@ -970,20 +970,20 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     ColumnInfo[] ciResultFields =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.ColumnInfo.Field"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Field"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.ColumnInfo.Type"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Type"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaFactory.getValueMetaNames()),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.ColumnInfo.Length"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Length"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JobExecutorDialog.ColumnInfo.Precision"),
+              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Precision"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
@@ -1063,8 +1063,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "JobExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "JobExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
           e);
     }
 
@@ -1163,12 +1163,5 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       workflowExecutorMeta.getResultRowsLength()[i] = Const.toInt(item.getText(3), -1);
       workflowExecutorMeta.getResultRowsPrecision()[i] = Const.toInt(item.getText(4), -1);
     }
-  }
-
-  @Override
-  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl(
-        "https://hop.apache.org/manual/latest/plugins/transforms/workflowexecutor.html");
-    return super.createHelpButton(shell, transformMeta, plugin);
   }
 }
