@@ -20,13 +20,14 @@ package org.apache.hop.pipeline.transforms.calculator;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 
 import java.util.Objects;
 
 public class CalculatorMetaFunction implements Cloneable {
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
-  public enum CalculationType {
+  public enum CalculationType implements IEnumHasCode {
     NONE("-", "-", IValueMeta.TYPE_NONE),
     CONSTANT(
         "CONSTANT",
@@ -423,7 +424,8 @@ public class CalculatorMetaFunction implements Cloneable {
 
   @HopMetadataProperty(
       key = "calc_type",
-      injectionKeyDescription = "CalculatorMeta.Injection.Calculation.CalculationType")
+      injectionKeyDescription = "CalculatorMeta.Injection.Calculation.CalculationType",
+      storeWithCode = true)
   private CalculationType calcType;
 
   @HopMetadataProperty(

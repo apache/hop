@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -40,5 +41,34 @@ public class CalculatorMetaFunctionTest {
 
     meta2.setCalcType(CalculatorMetaFunction.CalculationType.ADD_DAYS);
     assertFalse(meta1.equals(meta2));
+  }
+
+  @Test
+  public void testXmlSerialization() throws Exception {
+    CalculatorMetaFunction function =
+        new CalculatorMetaFunction(
+            "copyA",
+            CalculatorMetaFunction.CalculationType.COPY_OF_FIELD,
+            "A",
+            null,
+            null,
+            "String",
+            100,
+            -1,
+            null,
+            null,
+            null,
+            null,
+            false);
+    String xml = XmlMetadataUtil.serializeObjectToXml(function);
+    assertEquals(
+        "<calc_type>COPY_FIELD</calc_type>\n"
+            + "<field_a>A</field_a>\n"
+            + "<field_name>copyA</field_name>\n"
+            + "<remove>N</remove>\n"
+            + "<value_length>100</value_length>\n"
+            + "<value_precision>-1</value_precision>\n"
+            + "<value_type>String</value_type>\n",
+        xml);
   }
 }
