@@ -816,7 +816,7 @@
                     <excludes>
 
                         <!-- General Exclusions -->
-                        <exclude>DISCLAIMER-WIP</exclude>
+                        <exclude>DISCLAIMER</exclude>
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
                         <exclude>**/licenses/*</exclude>
