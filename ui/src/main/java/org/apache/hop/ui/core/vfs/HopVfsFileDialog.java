@@ -82,6 +82,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -282,8 +283,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-    // Force white color
-    navigateToolBar.setBackground(GuiResource.getInstance().getColorWhite());
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -1219,11 +1218,20 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       root = BROWSER_TOOLBAR_PARENT_ID,
       id = BROWSER_ITEM_ID_SHOW_HIDDEN,
       toolTip = "i18n::HopVfsFileDialog.ShowHiddenFiles.Tooltip.Message",
-      image = "ui/images/show.svg",
+      image = "ui/images/hide.svg",
       separator = true)
   public void showHideHidden() {
     showingHiddenFiles = !showingHiddenFiles;
 
+    ToolItem toolItem = browserToolbarWidgets.findToolItem(BROWSER_ITEM_ID_SHOW_HIDDEN);
+    if (toolItem != null) {
+      if (showingHiddenFiles) {
+        toolItem.setImage(GuiResource.getInstance().getImageShow());
+      } else {
+        toolItem.setImage(GuiResource.getInstance().getImageHide());
+      }
+    }
+    
     refreshBrowser();
   }
 
