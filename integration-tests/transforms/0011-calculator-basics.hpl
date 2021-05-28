@@ -47,8 +47,14 @@
     <failIfNoFile>Y</failIfNoFile>
     <calculation>
       <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>static</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>constStr</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -56,8 +62,14 @@
     </calculation>
     <calculation>
       <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>1</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>constInt</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -65,8 +77,14 @@
     </calculation>
     <calculation>
       <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a> - </field_a>
+      <field_b/>
+      <field_c/>
       <field_name>ConstSep</field_name>
+      <grouping_symbol/>
       <remove>Y</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -74,9 +92,14 @@
     </calculation>
     <calculation>
       <calc_type>ADD</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
+      <field_c/>
       <field_name>intAPlusB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -84,9 +107,14 @@
     </calculation>
     <calculation>
       <calc_type>ADD</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
+      <field_c/>
       <field_name>numAPlusB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -94,9 +122,14 @@
     </calculation>
     <calculation>
       <calc_type>ADD</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>strA</field_a>
       <field_b>ConstSep</field_b>
+      <field_c/>
       <field_name>strAPlusBTmp</field_name>
+      <grouping_symbol/>
       <remove>Y</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -104,9 +137,14 @@
     </calculation>
     <calculation>
       <calc_type>ADD</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>strAPlusBTmp</field_a>
       <field_b>strB</field_b>
+      <field_c/>
       <field_name>strAPlusB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -114,9 +152,14 @@
     </calculation>
     <calculation>
       <calc_type>SUBTRACT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intC</field_a>
       <field_b>intB</field_b>
+      <field_c/>
       <field_name>intCMinusB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -124,9 +167,14 @@
     </calculation>
     <calculation>
       <calc_type>SUBTRACT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numC</field_a>
       <field_b>numB</field_b>
+      <field_c/>
       <field_name>numCMinusB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -134,9 +182,14 @@
     </calculation>
     <calculation>
       <calc_type>MULTIPLY</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
+      <field_c/>
       <field_name>intATimesB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -144,9 +197,14 @@
     </calculation>
     <calculation>
       <calc_type>MULTIPLY</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
+      <field_c/>
       <field_name>numATimesB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -154,9 +212,14 @@
     </calculation>
     <calculation>
       <calc_type>DIVIDE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intC</field_a>
       <field_b>intA</field_b>
+      <field_c/>
       <field_name>intCDivA</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -164,9 +227,14 @@
     </calculation>
     <calculation>
       <calc_type>DIVIDE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
+      <field_c/>
       <field_name>numADivB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -174,9 +242,14 @@
     </calculation>
     <calculation>
       <calc_type>SQUARE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intA</field_a>
       <field_b>intA</field_b>
+      <field_c/>
       <field_name>intA*A</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -184,9 +257,14 @@
     </calculation>
     <calculation>
       <calc_type>SQUARE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
       <field_b>numA</field_b>
+      <field_c/>
       <field_name>numA*A</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -194,8 +272,14 @@
     </calculation>
     <calculation>
       <calc_type>SQUARE_ROOT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intA</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>intSqrt(a)</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -203,8 +287,14 @@
     </calculation>
     <calculation>
       <calc_type>SQUARE_ROOT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>numSqrt(a)</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -212,9 +302,14 @@
     </calculation>
     <calculation>
       <calc_type>PERCENT_1</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>intA</field_a>
       <field_b>intB</field_b>
+      <field_c/>
       <field_name>intPctAofB</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -222,9 +317,29 @@
     </calculation>
     <calculation>
       <calc_type>PERCENT_1</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>numA</field_a>
       <field_b>numB</field_b>
+      <field_c/>
       <field_name>numPctAofB</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Number</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>COPY_FIELD</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>numA</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>copyOfNumA</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>

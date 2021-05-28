@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaDialogHelper;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
@@ -868,17 +869,18 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
   }
 
   protected PipelineMeta createSubPipelineMeta() {
-    InjectorMeta rm = new InjectorMeta();
+    InjectorMeta injectorMeta = new InjectorMeta();
     String[] fieldNames = getFieldNames();
-    int[] empty = new int[fieldNames.length];
-    Arrays.fill(empty, -1);
-    rm.setFieldname(fieldNames);
-    rm.setType(getFieldTypes());
-    rm.setLength(empty);
-    rm.setPrecision(empty);
+    int[] fieldTypes = getFieldTypes();
+    for (int i = 0; i < fieldNames.length; i++) {
+      InjectorField field =
+          new InjectorField(
+              fieldNames[i], ValueMetaFactory.getValueMetaName(fieldTypes[i]), "", "");
+      injectorMeta.getInjectorFields().add(field);
+    }
 
     TransformMeta recsFromStream =
-        new TransformMeta("RecordsFromStream", "Get messages from Kafka", rm);
+        new TransformMeta("RecordsFromStream", "Get messages from Kafka", injectorMeta);
     recsFromStream.setLocation(new Point(100, 100));
 
     PipelineMeta pipelineMeta = new PipelineMeta();

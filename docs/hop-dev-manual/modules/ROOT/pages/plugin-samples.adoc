@@ -24,7 +24,8 @@ This document will explain how a developer can add samples to the plugins in the
 == The Samples project
 
 The ```samples``` project in the Hop distribution is located in the config/projects/samples folder.
-Its parent is the ```default``` project.  This means that it's not needed to add any metadata objects (like run configurations) to the ```samples``` projects that are already present in the ```default``` project.
+Its parent is the ```default``` project.
+This means that it's not needed to add any metadata objects (like run configurations) to the ```samples``` projects that are already present in the ```default``` project.
 
 == Plugin samples
 
@@ -32,19 +33,19 @@ If a plugin places a ```samples/``` folder under the ```src/main/``` folder its 
 The content will end up exactly in the same folder structure.
 A few examples:
 
-
 |===
 |Source |Target
 
-|```plugins/transforms/addsequence/src/main/samples/transforms/Add Sequence - Add a unique ID.hpl```
-|```config/projects/samples/transforms/Add Sequence - Add a unique ID.hpl```
+|```plugins/transforms/addsequence/src/main/samples/transforms/add-sequence-add-a-unique-id.hpl```
+|```config/projects/samples/transforms/add-sequence-add-a-unique-id.hpl```
 
 |```plugins/engines/beam/src/main/samples/metadata/pipeline-run-configuration/Direct.json```
 |```config/projects/samples/metadata/pipeline-run-configuration/Direct.json```
 
 |===
 
-As you can see it's easy to add extra metadata simply by putting it in the ```metadata/``` folder under your samples/ folder in the plugin.  The same goes for test data ```datasets``` and so on.
+As you can see it's easy to add extra metadata simply by putting it in the ```metadata/``` folder under your samples/ folder in the plugin.
+The same goes for test data ```datasets``` and so on.
 
 == Standard project content
 
@@ -53,5 +54,17 @@ If you have metadata objects, sample input files data sets or files that you mig
 [source]
 assemblies/static/src/main/resources/config/projects/samples
 
+== Naming standard
 
+When naming samples and folders please stick to the following basic rules:
+
+* The filenames start with the name of the transform, action or plugin
+* All lowercase
+* No spaces in the filename or underscores: use dashes (-)
+* Put plugins in the right folders: transform samples to in transforms/, action samples go in actions/ and so on.
+Keep things clean.
+* If you need to add input files for your sample put them in a files/ sub-folder like `transforms/files`
+* Please use our best practices guide to create the examples.
+* Create notes in pipelines and workflows explaining what happens.
+Make the note font large enough: 11 or higher.
 

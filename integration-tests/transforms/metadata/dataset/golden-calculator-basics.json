@@ -202,6 +202,14 @@
       "field_precision": -1,
       "field_format": "####0.0#########;-####0.0#########",
       "field_name": "numPctAofB"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 3,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "copyOfNumA"
     }
   ],
   "folder_name": ""

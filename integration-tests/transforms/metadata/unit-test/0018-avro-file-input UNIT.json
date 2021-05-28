@@ -1,0 +1,76 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "cc",
+          "data_set_field": "cc"
+        },
+        {
+          "transform_field": "comments",
+          "data_set_field": "comments"
+        },
+        {
+          "transform_field": "country",
+          "data_set_field": "country"
+        },
+        {
+          "transform_field": "email",
+          "data_set_field": "email"
+        },
+        {
+          "transform_field": "first_name",
+          "data_set_field": "first_name"
+        },
+        {
+          "transform_field": "gender",
+          "data_set_field": "gender"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "ip_address",
+          "data_set_field": "ip_address"
+        },
+        {
+          "transform_field": "last_name",
+          "data_set_field": "last_name"
+        },
+        {
+          "transform_field": "registration_dttm",
+          "data_set_field": "registration_dttm"
+        },
+        {
+          "transform_field": "salary",
+          "data_set_field": "salary"
+        },
+        {
+          "transform_field": "title",
+          "data_set_field": "title"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-avro-file-input"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0018-avro-file-input UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0018-avro-file-input.hpl",
+  "test_type": "UNIT_TEST"
+}

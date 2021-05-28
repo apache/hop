@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
@@ -840,6 +839,7 @@
                         <exclude>**/test/**/*.xls</exclude>
                         <exclude>**/test/**/*.xlsx</exclude>
                         <exclude>**/test/**/*.edi</exclude>
+                        <exclude>**/test/**/*.avro</exclude>
 
                         <!-- Integration Test Exclusion -->
                         <exclude>**/datasets/*.csv</exclude>

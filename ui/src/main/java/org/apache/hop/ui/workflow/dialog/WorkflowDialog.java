@@ -74,8 +74,6 @@ import java.util.ArrayList;
 public class WorkflowDialog extends Dialog {
   private static final Class<?> PKG = WorkflowDialog.class; // For Translator
 
-  private static Class<?> PKGBASE = WorkflowMeta.class;
-
   private CTabFolder wTabFolder;
 
   private final PropsUi props;
@@ -101,19 +99,9 @@ public class WorkflowDialog extends Dialog {
   // Workflow description
   private Text wDescription;
 
-  // Extended description
-  private Label wlExtendedDescription;
-
   private Text wExtendedDescription;
 
-  private FormData fdlExtendedDescription, fdExtendedDescription;
-
-  // Workflow Status
-  private Label wlWorkflowStatus;
-
   private CCombo wWorkflowStatus;
-
-  private FormData fdlWorkflowStatus, fdWorkflowStatus;
 
   // Workflow version
   private Text wVersion;
@@ -163,6 +151,14 @@ public class WorkflowDialog extends Dialog {
     middle = props.getMiddlePct();
     margin = props.getMargin();
 
+    // THE BUTTONS
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -193,16 +189,8 @@ public class WorkflowDialog extends Dialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
@@ -326,11 +314,12 @@ public class WorkflowDialog extends Dialog {
     wDescription.setLayoutData(fdDescription);
 
     // Pipeline Extended description
-    wlExtendedDescription = new Label(wWorkflowComp, SWT.RIGHT);
+    // Extended description
+    Label wlExtendedDescription = new Label(wWorkflowComp, SWT.RIGHT);
     wlExtendedDescription.setText(
         BaseMessages.getString(PKG, "WorkflowDialog.Extendeddescription.Label"));
     props.setLook(wlExtendedDescription);
-    fdlExtendedDescription = new FormData();
+    FormData fdlExtendedDescription = new FormData();
     fdlExtendedDescription.left = new FormAttachment(0, 0);
     fdlExtendedDescription.top = new FormAttachment(wDescription, margin);
     fdlExtendedDescription.right = new FormAttachment(middle, -margin);
@@ -340,7 +329,7 @@ public class WorkflowDialog extends Dialog {
         new Text(wWorkflowComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     props.setLook(wExtendedDescription, Props.WIDGET_STYLE_FIXED);
     wExtendedDescription.addModifyListener(lsMod);
-    fdExtendedDescription = new FormData();
+    FormData fdExtendedDescription = new FormData();
     fdExtendedDescription.left = new FormAttachment(middle, 0);
     fdExtendedDescription.top = new FormAttachment(wDescription, margin);
     fdExtendedDescription.right = new FormAttachment(100, 0);
@@ -348,10 +337,11 @@ public class WorkflowDialog extends Dialog {
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
     // Pipeline Status
-    wlWorkflowStatus = new Label(wWorkflowComp, SWT.RIGHT);
+    // Workflow Status
+    Label wlWorkflowStatus = new Label(wWorkflowComp, SWT.RIGHT);
     wlWorkflowStatus.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowStatus.Label"));
     props.setLook(wlWorkflowStatus);
-    fdlWorkflowStatus = new FormData();
+    FormData fdlWorkflowStatus = new FormData();
     fdlWorkflowStatus.left = new FormAttachment(0, 0);
     fdlWorkflowStatus.right = new FormAttachment(middle, 0);
     fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
@@ -364,7 +354,7 @@ public class WorkflowDialog extends Dialog {
     wWorkflowStatus.select(-1); // +1: starts at -1
 
     props.setLook(wWorkflowStatus);
-    fdWorkflowStatus = new FormData();
+    FormData fdWorkflowStatus = new FormData();
     fdWorkflowStatus.left = new FormAttachment(middle, 0);
     fdWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     fdWorkflowStatus.right = new FormAttachment(100, 0);
@@ -738,7 +728,7 @@ public class WorkflowDialog extends Dialog {
             if (deprecation) {
               return;
             }
-            String deprecated = BaseMessages.getString(PKGBASE, "System.Deprecated").toLowerCase();
+            String deprecated = BaseMessages.getString(PKG, "System.Deprecated").toLowerCase();
             shell.setText(shell.getText() + " (" + deprecated + ")");
             deprecation = true;
           }
