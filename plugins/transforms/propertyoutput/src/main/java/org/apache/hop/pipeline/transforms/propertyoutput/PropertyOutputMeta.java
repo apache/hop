@@ -53,8 +53,7 @@ import java.util.Map;
     name = "i18n::PropertyOutput.Name",
     description = "i18n::PropertyOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/propertyoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/propertyoutput.html")
 public class PropertyOutputMeta extends BaseTransformMeta
     implements ITransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
