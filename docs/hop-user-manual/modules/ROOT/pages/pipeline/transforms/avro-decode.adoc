@@ -17,13 +17,11 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 
-= Avro File Input
+= Avro Decode
 
 == Description
 
-The "Avro File Input" transform simply reads Avro records from one or more files.
-Each record is encapsulated in an Avro field.
-Each value has its own Schema and record.
+The "Avro Decode" transform allows you to decode an Avro field and convert them to Hop fields.
 
 == Options
 
@@ -37,14 +35,18 @@ Each value has its own Schema and record.
 |Name of the transform.
 Note: This name has to be unique in a single pipeline.
 
-|Filename field
-|Select the field which contains the filename(s) of the Avro files to read
+|Source field
+|Select the name of the field (of type: Avro) to convert
 
-|Avro output field name
-|The name of the field which will contain the Avro records
+|Source fields
+|You can specify the names of the Avro fields to select from the Avro records.
+You can also specify to which Hop data type you want to convert to.
+Please note that complex data types like Map and Record are converted into JSON which you can then parse further in subsequent transforms.
+Note: The "Avro type" column is informational only.
+It's not used at runtime.
 
-|Maximum number of rows to read
-|Specify a positive number to limit the amount of rows read from all files.
+|Get fields button
+|You can use the "Get fields" button to retrieve the fields to read from an Avro file.
 
 |===
 
