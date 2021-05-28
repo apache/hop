@@ -41,6 +41,7 @@ ENV HOP_OPTIONS=-XX:+AggressiveHeap
 
 RUN apk update \
   && apk add --no-cache bash curl procps \ 
+  gcompat \
   msttcorefonts-installer \
   fontconfig \
   font-noto \

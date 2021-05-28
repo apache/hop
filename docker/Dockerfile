@@ -69,6 +69,7 @@ RUN chmod 777 -R /tmp && chmod o+t -R /tmp
 
 # Install some fonts
 RUN apk --no-cache add msttcorefonts-installer \
+        gcompat \
         fontconfig \
         font-noto \
         font-noto-adlam \
