@@ -7,6 +7,7 @@
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
     <parameters>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
@@ -16,21 +17,22 @@
     <created_date>2021/04/29 12:59:13.792</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/04/29 12:59:13.792</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <note>Copy rows generated with clone rows.
-Description of Flagfield denoted below 
+      <note>Duplicate input rows with clone rows.
+
+The 'Flagfield' output field contains:
 >> N  : it’s the original row
 >> Y  : cloned row, a copy of the original row</note>
-      <xloc>384</xloc>
-      <yloc>32</yloc>
-      <width>248</width>
-      <heigth>74</heigth>
+      <xloc>80</xloc>
+      <yloc>16</yloc>
+      <width>231</width>
+      <heigth>89</heigth>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
+      <fontsize>11</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -46,42 +48,28 @@ Description of Flagfield denoted below
   </notepads>
   <order>
     <hop>
-      <from>Generate rows</from>
-      <to>Add sequence</to>
+      <from>add unique id</from>
+      <to>duplicate rows</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Add sequence</from>
-      <to>Clone row</to>
+      <from>5 static rows</from>
+      <to>Wait 1s</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Wait 1s</from>
+      <to>add system date</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add system date</from>
+      <to>add unique id</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Clone row</name>
-    <type>CloneRow</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <nrclones>2</nrclones>
-    <addcloneflag>Y</addcloneflag>
-    <cloneflagfield>Flagfield</cloneflagfield>
-    <nrcloneinfield>N</nrcloneinfield>
-    <nrclonefield/>
-    <addclonenum>N</addclonenum>
-    <clonenumfield/>
-    <attributes/>
-    <GUI>
-      <xloc>624</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Add sequence</name>
+    <name>add unique id</name>
     <type>Sequence</type>
     <description/>
     <distribute>Y</distribute>
@@ -91,16 +79,15 @@ Description of Flagfield denoted below
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <valuename>valuename</valuename>
-    <use_database>N</use_database>
-    <connection/>
-    <schema/>
-    <seqname>SEQ_</seqname>
-    <use_counter>Y</use_counter>
     <counter_name/>
-    <start_at>1</start_at>
+    <use_counter>Y</use_counter>
+    <use_database>N</use_database>
     <increment_by>1</increment_by>
     <max_value>999999999</max_value>
+    <schema/>
+    <seqname>SEQ_</seqname>
+    <start_at>1</start_at>
+    <valuename>id</valuename>
     <attributes/>
     <GUI>
       <xloc>480</xloc>
@@ -108,7 +95,31 @@ Description of Flagfield denoted below
     </GUI>
   </transform>
   <transform>
-    <name>Generate rows</name>
+    <name>duplicate rows</name>
+    <type>CloneRow</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <nrclones>1</nrclones>
+    <addcloneflag>Y</addcloneflag>
+    <cloneflagfield>Flagfield</cloneflagfield>
+    <nrcloneinfield>N</nrcloneinfield>
+    <nrclonefield/>
+    <addclonenum>Y</addclonenum>
+    <clonenumfield>CopyNumber</clonenumfield>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>5 static rows</name>
     <type>RowGenerator</type>
     <description/>
     <distribute>Y</distribute>
@@ -120,35 +131,65 @@ Description of Flagfield denoted below
     </partitioning>
     <fields>
       <field>
-        <name>quote</name>
-        <type>String</type>
+        <currency/>
+        <decimal/>
         <format/>
-        <currency/>
-        <decimal/>
         <group/>
-        <nullif>Cloning is great. If God made the original, then making copies should be fine.</nullif>
         <length>-1</length>
+        <name>quote</name>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>created_date</name>
-        <type>Date</type>
-        <format>yyyy/MM/dd HH:mm:ss</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>2021/04/29 13:05:45</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>Welcome to Apache Hop!</nullif>
       </field>
     </fields>
-    <limit>5</limit>
-    <never_ending>N</never_ending>
     <interval_in_ms>5000</interval_in_ms>
-    <row_time_field>now</row_time_field>
     <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>5</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Wait 1s</name>
+    <type>Delay</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <timeout>1</timeout>
+    <scaletime>seconds</scaletime>
+    <attributes/>
+    <GUI>
+      <xloc>208</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>add system date</name>
+    <type>SystemInfo</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>SystemDate</name>
+        <type>system date (variable)</type>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
       <xloc>336</xloc>

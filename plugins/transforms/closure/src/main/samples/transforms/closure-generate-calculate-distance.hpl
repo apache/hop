@@ -16,18 +16,20 @@
     <created_date>2021/04/29 13:15:08.242</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/04/29 13:15:08.242</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <note>Generate a Reflexive Transitive Closure Table for Mondrian</note>
-      <xloc>368</xloc>
-      <yloc>128</yloc>
-      <width>314</width>
-      <heigth>26</heigth>
+      <note>Generate a Reflexive Transitive Closure Table
+
+It calculates the distance to the parent element in a hierarchy</note>
+      <xloc>64</xloc>
+      <yloc>32</yloc>
+      <width>324</width>
+      <heigth>57</heigth>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
+      <fontsize>11</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -43,13 +45,13 @@
   </notepads>
   <order>
     <hop>
-      <from>Input Data</from>
+      <from>Hierarchical data</from>
       <to>Closure generator</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Closure generator</from>
-      <to>Sort rows</to>
+      <to>Sort by ids and distance</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -70,12 +72,12 @@
     <is_root_zero>N</is_root_zero>
     <attributes/>
     <GUI>
-      <xloc>496</xloc>
-      <yloc>208</yloc>
+      <xloc>224</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Input Data</name>
+    <name>Hierarchical data</name>
     <type>DataGrid</type>
     <description/>
     <distribute>Y</distribute>
@@ -194,12 +196,12 @@
     </data>
     <attributes/>
     <GUI>
-      <xloc>352</xloc>
-      <yloc>208</yloc>
+      <xloc>80</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Sort rows</name>
+    <name>Sort by ids and distance</name>
     <type>SortRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -244,8 +246,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>624</xloc>
-      <yloc>208</yloc>
+      <xloc>384</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

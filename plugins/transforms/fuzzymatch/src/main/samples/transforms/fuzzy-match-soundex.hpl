@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>Fuzzy Match - address match</name>
+    <name>fuzzy-match-soundex</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -16,19 +16,19 @@
     <created_date>2021/04/30 17:23:29.449</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/04/30 17:23:29.449</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
       <note>Fuzzy Match using Soundex function based on Similarly sounding phonetics
 </note>
-      <xloc>432</xloc>
+      <xloc>64</xloc>
       <yloc>32</yloc>
-      <width>413</width>
+      <width>400</width>
       <heigth>41</heigth>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
+      <fontsize>11</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -45,7 +45,7 @@
   <order>
     <hop>
       <from>Fuzzy match</from>
-      <to>Dummy (do nothing)</to>
+      <to>Output</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -59,6 +59,23 @@
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>Output</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Fuzzy match</name>
     <type>FuzzyMatch</type>
@@ -85,93 +102,8 @@
     </lookup>
     <attributes/>
     <GUI>
-      <xloc>576</xloc>
-      <yloc>128</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Reference Data</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>Reference_Names</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
-    <data>
-      <line>
-        <item>Shore</item>
-      </line>
-      <line>
-        <item>Damn</item>
-      </line>
-      <line>
-        <item>Two</item>
-      </line>
-      <line>
-        <item>Water</item>
-      </line>
-      <line>
-        <item>Miltan</item>
-      </line>
-      <line>
-        <item>Color</item>
-      </line>
-      <line>
-        <item>Whole</item>
-      </line>
-      <line>
-        <item>Our</item>
-      </line>
-      <line>
-        <item>AC/DC</item>
-      </line>
-      <line>
-        <item>Shaeffer</item>
-      </line>
-      <line>
-        <item>Booda</item>
-      </line>
-      <line>
-        <item>Raleigh</item>
-      </line>
-    </data>
-    <attributes/>
-    <GUI>
-      <xloc>576</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Dummy (do nothing)</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>768</xloc>
-      <yloc>128</yloc>
+      <xloc>240</xloc>
+      <yloc>112</yloc>
     </GUI>
   </transform>
   <transform>
@@ -244,8 +176,76 @@
     </data>
     <attributes/>
     <GUI>
-      <xloc>416</xloc>
-      <yloc>128</yloc>
+      <xloc>80</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Reference Data</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>Reference_Names</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>Shore</item>
+      </line>
+      <line>
+        <item>Damn</item>
+      </line>
+      <line>
+        <item>Two</item>
+      </line>
+      <line>
+        <item>Water</item>
+      </line>
+      <line>
+        <item>Miltan</item>
+      </line>
+      <line>
+        <item>Color</item>
+      </line>
+      <line>
+        <item>Whole</item>
+      </line>
+      <line>
+        <item>Our</item>
+      </line>
+      <line>
+        <item>AC/DC</item>
+      </line>
+      <line>
+        <item>Shaeffer</item>
+      </line>
+      <line>
+        <item>Booda</item>
+      </line>
+      <line>
+        <item>Raleigh</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>240</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
