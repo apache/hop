@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,6 +56,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.joda.time.Instant;
 
@@ -395,7 +396,8 @@ public class TransformBatchTransform extends TransformTransform {
           //
           PluginRegistry registry = PluginRegistry.getInstance();
           ITransformMeta iTransformMeta =
-              registry.loadClass(TransformPluginType.class, transformPluginId, ITransformMeta.class);
+              registry.loadClass(
+                  TransformPluginType.class, transformPluginId, ITransformMeta.class);
           if (iTransformMeta == null) {
             throw new HopException(
                 "Unable to load transform plugin with ID "
@@ -499,7 +501,8 @@ public class TransformBatchTransform extends TransformTransform {
           for (String targetTransform : targetTransforms) {
             TransformMetaDataCombi targetCombi = findCombi(pipeline, targetTransform);
             transformCombis.add(targetCombi);
-            targetRowMetas.add(pipelineMeta.getTransformFields(pipeline, transformCombi.transformName));
+            targetRowMetas.add(
+                pipelineMeta.getTransformFields(pipeline, transformCombi.transformName));
 
             String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};
@@ -748,14 +751,17 @@ public class TransformBatchTransform extends TransformTransform {
         int x,
         int y) {
       InjectorMeta injectorMeta = new InjectorMeta();
-      injectorMeta.allocate(injectorRowMeta.size());
-      for (int i = 0; i < injectorRowMeta.size(); i++) {
-        IValueMeta valueMeta = injectorRowMeta.getValueMeta(i);
-        injectorMeta.getFieldname()[i] = valueMeta.getName();
-        injectorMeta.getType()[i] = valueMeta.getType();
-        injectorMeta.getLength()[i] = valueMeta.getLength();
-        injectorMeta.getPrecision()[i] = valueMeta.getPrecision();
+      for (IValueMeta valueMeta : injectorRowMeta.getValueMetaList()) {
+        injectorMeta
+            .getInjectorFields()
+            .add(
+                new InjectorField(
+                    valueMeta.getName(),
+                    valueMeta.getTypeDesc(),
+                    Integer.toString(valueMeta.getLength()),
+                    Integer.toString(valueMeta.getPrecision())));
       }
+
       TransformMeta injectorTransformMeta = new TransformMeta(injectorTransformName, injectorMeta);
       injectorTransformMeta.setLocation(x, y);
       pipelineMeta.addTransform(injectorTransformMeta);

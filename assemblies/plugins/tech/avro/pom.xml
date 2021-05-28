@@ -22,23 +22,33 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>hop-assemblies-plugins</artifactId>
     <groupId>org.apache.hop</groupId>
+    <artifactId>hop-assemblies-plugins-tech</artifactId>
     <version>0.99-SNAPSHOT</version>
   </parent>
+
+  <artifactId>hop-assemblies-plugins-tech-avro</artifactId>
+  <version>0.99-SNAPSHOT</version>
   <packaging>pom</packaging>
-
-  <artifactId>hop-assemblies-plugins-tech</artifactId>
-
-  <name>Hop Assemblies Plugins Technology</name>
+  <name>Hop Assemblies Plugins Technology Avro</name>
   <description></description>
 
-  <modules>
-    <module>avro</module>
-    <module>azure</module>
-    <module>cassandra</module>
-    <module>google</module>
-    <module>neo4j</module>
-  </modules>
+  <properties>
+    <avro.version>1.8.2</avro.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-plugins-tech-avro</artifactId>
+      <version>0.99-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+      <version>${avro.version}</version>
+    </dependency>
+
+  </dependencies>
 
 </project>
