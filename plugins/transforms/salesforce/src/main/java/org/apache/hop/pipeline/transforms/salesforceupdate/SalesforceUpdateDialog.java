@@ -715,7 +715,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       // return fieldsname for the module
       return connection.getFields(selectedModule);
     } catch (Exception e) {
-      throw new HopException("Erreur getting fields from module [" + url + "]!", e);
+      throw new HopException("Error getting fields from module [" + url + "]!", e);
     } finally {
       if (connection != null) {
         try {

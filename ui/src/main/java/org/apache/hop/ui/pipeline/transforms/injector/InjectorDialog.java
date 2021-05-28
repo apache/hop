@@ -25,17 +25,22 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class InjectorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
@@ -99,9 +104,9 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
     fdlFields.top = new FormAttachment(wTransformName, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getFieldname().length;
+    final int nrFieldsRows = input.getInjectorFields().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Fieldname"),
@@ -126,8 +131,8 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrFieldsRows,
             lsMod,
             props);
 
@@ -160,14 +165,14 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    for (int i = 0; i < input.getFieldname().length; i++) {
+    for (int i = 0; i < input.getInjectorFields().size(); i++) {
+      InjectorField field = input.getInjectorFields().get(i);
+
       TableItem item = wFields.table.getItem(i);
-      item.setText(1, input.getFieldname()[i]);
-      item.setText(2, ValueMetaFactory.getValueMetaName(input.getType()[i]));
-      int len = input.getLength()[i];
-      int prc = input.getPrecision()[i];
-      item.setText(3, len >= 0 ? "" + len : "");
-      item.setText(4, prc >= 0 ? "" + prc : "");
+      item.setText(1, Const.NVL(field.getName(), ""));
+      item.setText(2, Const.NVL(field.getType(), ""));
+      item.setText(3, Const.NVL(field.getLength(), ""));
+      item.setText(4, Const.NVL(field.getPrecision(), ""));
     }
 
     wTransformName.selectAll();
@@ -187,14 +192,14 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
     transformName = wTransformName.getText(); // return value
     int nrFields = wFields.nrNonEmpty();
-    input.allocate(nrFields);
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getFieldname()[i] = item.getText(1);
-      input.getType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(2));
-      input.getLength()[i] = Const.toInt(item.getText(3), -1);
-      input.getPrecision()[i] = Const.toInt(item.getText(4), -1);
+
+    input.getInjectorFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      input
+          .getInjectorFields()
+          .add(
+              new InjectorField(
+                  item.getText(1), item.getText(2), item.getText(3), item.getText(4)));
     }
     dispose();
   }

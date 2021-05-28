@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.reflection.pipeline.xp;
@@ -55,10 +54,13 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
 
     // Prevent recursive logging of the logging pipeline
     //
-    if (pipeline.getExtensionDataMap().get(PIPELINE_LOGGING_FLAG)!=null) {
+    if (pipeline.getExtensionDataMap().get(PIPELINE_LOGGING_FLAG) != null) {
       return;
     }
 
+    if (pipeline.isPreview()) {
+      return;
+    }
 
     IHopMetadataProvider metadataProvider = pipeline.getMetadataProvider();
     IHopMetadataSerializer<PipelineLog> serializer =

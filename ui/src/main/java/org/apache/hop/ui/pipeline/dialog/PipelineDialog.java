@@ -44,8 +44,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -53,7 +51,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -63,8 +60,6 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 
-// import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupMeta;
-
 public class PipelineDialog extends Dialog {
 
   private static final Class<?> PKG = PipelineDialog.class; // For Translator
@@ -72,15 +67,13 @@ public class PipelineDialog extends Dialog {
   public enum Tabs {
     PIPELINE_TAB,
     PARAM_TAB,
-    MISC_TAB,
     MONITOR_TAB,
     EXTRA_TAB,
   }
 
   private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
 
-  private CTabItem wPipelineTab, wParamTab, wMiscTab, wMonitorTab;
+  private CTabItem wPipelineTab, wParamTab, wMonitorTab;
 
   private Text wPipelineName;
   private Button wNameFilenameSync;
@@ -89,14 +82,9 @@ public class PipelineDialog extends Dialog {
   // Pipeline description
   private Text wPipelineDescription;
 
-  private Label wlExtendedDescription;
   private Text wExtendedDescription;
-  private FormData fdlExtendedDescription, fdExtendedDescription;
 
-  // Pipeline Status
-  private Label wlPipelineStatus;
   private CCombo wPipelineStatus;
-  private FormData fdlPipelineStatus, fdPipelineStatus;
 
   // Pipeline version
   private Text wPipelineVersion;
@@ -109,14 +97,12 @@ public class PipelineDialog extends Dialog {
 
   private TableView wParamFields;
 
-  private Button wOk, wCancel;
-
-  private IVariables variables;
+  private final IVariables variables;
   private PipelineMeta pipelineMeta;
   private Shell shell;
 
   private ModifyListener lsMod;
-  private PropsUi props;
+  private final PropsUi props;
 
   private int middle;
 
@@ -130,7 +116,6 @@ public class PipelineDialog extends Dialog {
 
   protected boolean changed;
 
-  // private DatabaseDialog databaseDialog;
   private SelectionAdapter lsModSel;
   private TextVar wTransformPerfMaxSize;
 
@@ -176,6 +161,17 @@ public class PipelineDialog extends Dialog {
     middle = props.getMiddlePct();
     margin = props.getMargin();
 
+    // THE BUTTONS
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -205,23 +201,12 @@ public class PipelineDialog extends Dialog {
       }
     }
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
 
     if (currentTab != null) {
       setCurrentTab(currentTab);
@@ -337,11 +322,11 @@ public class PipelineDialog extends Dialog {
     wPipelineDescription.setLayoutData(fdPipelineDescription);
 
     // Pipeline Extended description
-    wlExtendedDescription = new Label(wPipelineComp, SWT.RIGHT);
+    Label wlExtendedDescription = new Label(wPipelineComp, SWT.RIGHT);
     wlExtendedDescription.setText(
         BaseMessages.getString(PKG, "PipelineDialog.Extendeddescription.Label"));
     props.setLook(wlExtendedDescription);
-    fdlExtendedDescription = new FormData();
+    FormData fdlExtendedDescription = new FormData();
     fdlExtendedDescription.left = new FormAttachment(0, 0);
     fdlExtendedDescription.top = new FormAttachment(wPipelineDescription, margin);
     fdlExtendedDescription.right = new FormAttachment(middle, -margin);
@@ -351,7 +336,7 @@ public class PipelineDialog extends Dialog {
         new Text(wPipelineComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     props.setLook(wExtendedDescription, Props.WIDGET_STYLE_FIXED);
     wExtendedDescription.addModifyListener(lsMod);
-    fdExtendedDescription = new FormData();
+    FormData fdExtendedDescription = new FormData();
     fdExtendedDescription.left = new FormAttachment(middle, 0);
     fdExtendedDescription.top = new FormAttachment(wPipelineDescription, margin);
     fdExtendedDescription.right = new FormAttachment(100, 0);
@@ -359,10 +344,11 @@ public class PipelineDialog extends Dialog {
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
     // Pipeline Status
-    wlPipelineStatus = new Label(wPipelineComp, SWT.RIGHT);
+    // Pipeline Status
+    Label wlPipelineStatus = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineStatus.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineStatus.Label"));
     props.setLook(wlPipelineStatus);
-    fdlPipelineStatus = new FormData();
+    FormData fdlPipelineStatus = new FormData();
     fdlPipelineStatus.left = new FormAttachment(0, 0);
     fdlPipelineStatus.right = new FormAttachment(middle, 0);
     fdlPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
@@ -376,7 +362,7 @@ public class PipelineDialog extends Dialog {
     wPipelineStatus.addSelectionListener(lsModSel);
 
     props.setLook(wPipelineStatus);
-    fdPipelineStatus = new FormData();
+    FormData fdPipelineStatus = new FormData();
     fdPipelineStatus.left = new FormAttachment(middle, 0);
     fdPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     fdPipelineStatus.right = new FormAttachment(100, 0);
@@ -840,9 +826,6 @@ public class PipelineDialog extends Dialog {
     switch (currentTab) {
       case PARAM_TAB:
         wTabFolder.setSelection(wParamTab);
-        break;
-      case MISC_TAB:
-        wTabFolder.setSelection(wMiscTab);
         break;
       case MONITOR_TAB:
         wTabFolder.setSelection(wMonitorTab);
