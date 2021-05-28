@@ -170,7 +170,7 @@ under the License.
 *** xref:pipeline/transforms/numberrange.adoc[Number range]
 *** xref:pipeline/transforms/pgpdecryptstream.adoc[PGP decrypt stream]
 *** xref:pipeline/transforms/pgpencryptstream.adoc[PGP encrypt stream]
-*** xref:pipeline/transforms/pipelineexcecutor.adoc[Pipeline Executor]
+*** xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor]
 *** xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL Bulk Loader]
 *** xref:pipeline/transforms/processfiles.adoc[Process files]
 *** xref:pipeline/transforms/propertyinput.adoc[Properties file Input]

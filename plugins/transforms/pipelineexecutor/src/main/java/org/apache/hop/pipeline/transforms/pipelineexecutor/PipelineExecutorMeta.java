@@ -69,6 +69,7 @@ import java.util.List;
     name = "i18n::PipelineExecutor.Name",
     description = "i18n::PipelineExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/pipelineexecutor.html",
     keywords = "")
 public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>

@@ -78,6 +78,7 @@ import java.util.Map;
     name = "i18n::WorkflowExecutor.Name",
     description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/workflowexecutor.html",
     keywords = "")
 public class WorkflowExecutorMeta extends BaseTransformMeta
     implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
@@ -389,7 +390,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(
-              PKG, "JobExecutorMeta.Exception.ErrorLoadingJobExecutorDetailsFromXML"),
+              PKG, "WorkflowExecutorMeta.Exception.ErrorLoadingJobExecutorDetailsFromXML"),
           e);
     }
   }
@@ -599,7 +600,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,
-              BaseMessages.getString(PKG, "JobExecutorMeta.CheckResult.NotReceivingAnyFields"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.CheckResult.NotReceivingAnyFields"),
               transformMeta);
       remarks.add(cr);
     } else {
@@ -607,7 +608,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
-                  PKG, "JobExecutorMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
+                  PKG, "WorkflowExecutorMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
               transformMeta);
       remarks.add(cr);
     }
@@ -618,14 +619,14 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
-                  PKG, "JobExecutorMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms"),
+                  PKG, "WorkflowExecutorMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "JobExecutorMeta.CheckResult.NoInputReceived"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
     }
@@ -718,7 +719,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
       return proposedNewFilename;
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "JobExecutorMeta.Exception.UnableToLoadWorkflow", filename));
+          BaseMessages.getString(PKG, "WorkflowExecutorMeta.Exception.UnableToLoadWorkflow", filename));
     }
   }
 
@@ -738,21 +739,21 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
           new Stream(
               StreamType.TARGET,
               executionResultTargetTransformMeta,
-              BaseMessages.getString(PKG, "JobExecutorMeta.ResultStream.Description"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.ResultStream.Description"),
               StreamIcon.TARGET,
               null));
       ioMeta.addStream(
           new Stream(
               StreamType.TARGET,
               resultRowsTargetTransformMeta,
-              BaseMessages.getString(PKG, "JobExecutorMeta.ResultRowsStream.Description"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.ResultRowsStream.Description"),
               StreamIcon.TARGET,
               null));
       ioMeta.addStream(
           new Stream(
               StreamType.TARGET,
               resultFilesTargetTransformMeta,
-              BaseMessages.getString(PKG, "JobExecutorMeta.ResultFilesStream.Description"),
+              BaseMessages.getString(PKG, "WorkflowExecutorMeta.ResultFilesStream.Description"),
               StreamIcon.TARGET,
               null));
       setTransformIOMeta(ioMeta);
@@ -1132,7 +1133,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
   @Override
   public String[] getReferencedObjectDescriptions() {
     return new String[] {
-      BaseMessages.getString(PKG, "JobExecutorMeta.ReferencedObject.Description"),
+      BaseMessages.getString(PKG, "WorkflowExecutorMeta.ReferencedObject.Description"),
     };
   }
 

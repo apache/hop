@@ -55,8 +55,8 @@ import java.util.Map;
 @Transform(
     id = "PropertyInput",
     image = "propertyinput.svg",
-    name = "i18n::BaseTransform.TypeTooltipDesc.PropertyInput",
-    description = "i18n::BaseTransform.TypeLongDesc.PropertyInput",
+    name = "i18n::PropertyInput.Name",
+    description = "i18n::PropertyInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/pgbulkloader.html")
 public class PropertyInputMeta extends BaseTransformMeta
