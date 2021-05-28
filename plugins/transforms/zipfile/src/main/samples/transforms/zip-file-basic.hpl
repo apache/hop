@@ -110,7 +110,7 @@ Pass the fields to zip file step (you can select post zip action for source file
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
     <limit>0</limit>
     <file>
-      <name>${Internal.Pipeline.Filename.Directory}/dataset/transactions.csv</name>
+      <name>${PROJECT_HOME}/transforms/files/transactions.csv</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>

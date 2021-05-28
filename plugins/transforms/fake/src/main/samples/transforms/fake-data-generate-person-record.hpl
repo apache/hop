@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>fake_data</name>
+    <name>fake-data-generate-person-record</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -23,12 +23,12 @@
     <notepad>
       <note>Fake Data transform generates data based on categories
 </note>
-      <xloc>368</xloc>
+      <xloc>80</xloc>
       <yloc>48</yloc>
-      <width>305</width>
+      <width>299</width>
       <heigth>41</heigth>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
+      <fontsize>11</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -45,17 +45,41 @@
   <order>
     <hop>
       <from>Generate 1000 rows</from>
-      <to>Generate_Random_Personal_Record</to>
+      <to>Generate random person record</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Generate_Random_Personal_Record</from>
-      <to>Random_Personal_Data</to>
+      <from>Generate random person record</from>
+      <to>Results</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Generate_Random_Personal_Record</name>
+    <name>Generate 1000 rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1000</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Generate random person record</name>
     <type>Fake</type>
     <description/>
     <distribute>Y</distribute>
@@ -105,12 +129,12 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>464</xloc>
-      <yloc>112</yloc>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Random_Personal_Data</name>
+    <name>Results</name>
     <type>Dummy</type>
     <description/>
     <distribute>Y</distribute>
@@ -122,32 +146,8 @@
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>672</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Generate 1000 rows</name>
-    <type>RowGenerator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-    </fields>
-    <limit>1000</limit>
-    <never_ending>N</never_ending>
-    <interval_in_ms>5000</interval_in_ms>
-    <row_time_field>now</row_time_field>
-    <last_time_field>FiveSecondsAgo</last_time_field>
-    <attributes/>
-    <GUI>
-      <xloc>288</xloc>
-      <yloc>112</yloc>
+      <xloc>480</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

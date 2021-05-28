@@ -125,7 +125,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/mapping/sub-mapping.hpl</filename>
+    <filename>${PROJECT_HOME}/mapping/simple-mapping-child.hpl</filename>
     <mappings>
       <input>
         <mapping>

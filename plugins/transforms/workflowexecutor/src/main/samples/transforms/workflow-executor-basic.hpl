@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>pl_Workflow Executor Sample</name>
+    <name>workflow-executor-basic</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -20,25 +20,41 @@
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
+    <notepad>
+      <note>This pipeline execute a workflow once for every input row.
+It passes values to a parameter that is set as a variable in the workflow.</note>
+      <xloc>96</xloc>
+      <yloc>48</yloc>
+      <width>370</width>
+      <heigth>42</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
   </notepads>
   <order>
     <hop>
-      <from>pass parameters</from>
-      <to>wf_get_list_of_pipelines</to>
+      <from>Data for parameters</from>
+      <to>workflow-executor-child.hwf</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>wf_get_list_of_pipelines</from>
+      <from>workflow-executor-child.hwf</from>
       <to>Result files</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>wf_get_list_of_pipelines</from>
-      <to>Result rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>wf_get_list_of_pipelines</from>
+      <from>workflow-executor-child.hwf</from>
       <to>Results</to>
       <enabled>Y</enabled>
     </hop>
@@ -56,25 +72,8 @@
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>864</xloc>
-      <yloc>176</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Result rows</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>864</xloc>
-      <yloc>272</yloc>
+      <xloc>608</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform>
@@ -90,12 +89,12 @@
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>864</xloc>
-      <yloc>64</yloc>
+      <xloc>608</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>pass parameters</name>
+    <name>Data for parameters</name>
     <type>DataGrid</type>
     <description/>
     <distribute>Y</distribute>
@@ -107,7 +106,7 @@
     </partitioning>
     <fields>
       <field>
-        <name>parameter</name>
+        <name>parameterField</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -131,12 +130,12 @@
     </data>
     <attributes/>
     <GUI>
-      <xloc>361</xloc>
-      <yloc>177</yloc>
+      <xloc>128</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>wf_get_list_of_pipelines</name>
+    <name>workflow-executor-child.hwf</name>
     <type>WorkflowExecutor</type>
     <description/>
     <distribute>Y</distribute>
@@ -147,15 +146,15 @@
       <schema_name/>
     </partitioning>
     <run_configuration>local</run_configuration>
-    <filename>${Internal.Entry.Current.Folder}/wf_get_list_of_pipelines.hwf</filename>
+    <filename>${Internal.Entry.Current.Folder}/workflow-executor-child.hwf</filename>
     <group_size>1</group_size>
     <group_field/>
     <group_time/>
     <parameters>
       <variablemapping>
         <variable>PARAM</variable>
-        <field>parameter</field>
-        <input>Test parameter</input>
+        <field>parameterField</field>
+        <input/>
       </variablemapping>
       <inherit_all_vars>Y</inherit_all_vars>
     </parameters>
@@ -174,7 +173,7 @@
     <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
     <execution_log_text_field>ExecutionLogText</execution_log_text_field>
     <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
-    <result_rows_target_transform>Result rows</result_rows_target_transform>
+    <result_rows_target_transform/>
     <result_rows_field>
       <name>parameter</name>
       <type>String</type>
@@ -185,8 +184,8 @@
     <result_files_file_name_field>FileName</result_files_file_name_field>
     <attributes/>
     <GUI>
-      <xloc>592</xloc>
-      <yloc>176</yloc>
+      <xloc>352</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

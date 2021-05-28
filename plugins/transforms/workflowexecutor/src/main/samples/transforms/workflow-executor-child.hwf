@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow>
-  <name>wf_get_list_of_pipelines</name>
+  <name>workflow-executor-child</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -26,8 +26,8 @@
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>288</xloc>
-      <yloc>208</yloc>
+      <xloc>160</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -38,8 +38,8 @@
       <maximumTimeout>1</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
-      <xloc>448</xloc>
-      <yloc>208</yloc>
+      <xloc>320</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -48,29 +48,17 @@
       <type>ADD_RESULT_FILENAMES</type>
       <attributes/>
       <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>Y</include_subfolders>
-      <delete_all_before>N</delete_all_before>
       <fields>
         <field>
           <name>${HOP_UNIT_TESTS_FOLDER}</name>
           <filemask>.*</filemask>
         </field>
       </fields>
+      <delete_all_before>N</delete_all_before>
+      <include_subfolders>Y</include_subfolders>
       <parallel>N</parallel>
-      <xloc>608</xloc>
-      <yloc>208</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Display msgbox info</name>
-      <description/>
-      <type>MSGBOX_INFO</type>
-      <attributes/>
-      <bodymessage>PARAM=${PARAM}</bodymessage>
-      <titremessage>Parameter test</titremessage>
-      <parallel>N</parallel>
-      <xloc>816</xloc>
-      <yloc>208</yloc>
+      <xloc>480</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -85,13 +73,6 @@
     <hop>
       <from>Wait for</from>
       <to>Add filenames to result</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Add filenames to result</from>
-      <to>Display msgbox info</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
