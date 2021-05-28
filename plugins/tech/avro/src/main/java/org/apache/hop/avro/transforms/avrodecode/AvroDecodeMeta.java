@@ -40,7 +40,7 @@ import java.util.List;
     id = "AvroDecode",
     name = "Avro Decode",
     description = "Decodes Avro data types into Hop fields",
-    image = "avro_input.svg",
+    image = "avro_decode.svg",
     categoryDescription = "Input",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/avro-decode.html",
     keywords = {"Avro", "Decode"})
