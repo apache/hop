@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>Enhanced JSON - Generate complex nested structure from table</name>
+    <name>json-output-generate-nested-structure</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -21,16 +21,16 @@
   </info>
   <notepads>
     <notepad>
-      <note>This sample gets a table of values and generate a complex nested structure as output
-by looping over a predefined key. Second Enhanced JSON Transform als gets a JSON fragment produced
-by furst Enhanced JSON Transform and use it as value of an attribute of the resulting final 
-JSON stream.</note>
-      <xloc>144</xloc>
-      <yloc>160</yloc>
-      <width>559</width>
+      <note>This sample gets a table of values and generates a complex nested JSON structure by looping over a predefined key.
+The second 'Enhanced JSON Output' transform uses a JSON fragment
+from the first 'Enhanced JSON Output' transform and uses it as value of an attribute of the resulting final
+JSON value.</note>
+      <xloc>64</xloc>
+      <yloc>32</yloc>
+      <width>603</width>
       <heigth>74</heigth>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
+      <fontsize>11</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -46,12 +46,12 @@ JSON stream.</note>
   </notepads>
   <order>
     <hop>
-      <from>Data grid</from>
-      <to>Sort rows</to>
+      <from>Input data</from>
+      <to>Sort the fields</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Sort rows</from>
+      <from>Sort the fields</from>
       <to>Intermediate Structures</to>
       <enabled>Y</enabled>
     </hop>
@@ -62,10 +62,10 @@ JSON stream.</note>
     </hop>
   </order>
   <transform>
-    <name>Data grid</name>
+    <name>Input data</name>
     <type>DataGrid</type>
     <description/>
-    <distribute>N</distribute>
+    <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -156,8 +156,8 @@ JSON stream.</note>
     </data>
     <attributes/>
     <GUI>
-      <xloc>224</xloc>
-      <yloc>256</yloc>
+      <xloc>80</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
@@ -217,8 +217,8 @@ JSON stream.</note>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>688</xloc>
-      <yloc>256</yloc>
+      <xloc>560</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
@@ -274,12 +274,12 @@ JSON stream.</note>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>528</xloc>
-      <yloc>256</yloc>
+      <xloc>384</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Sort rows</name>
+    <name>Sort the fields</name>
     <type>SortRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -316,8 +316,8 @@ JSON stream.</note>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>256</yloc>
+      <xloc>224</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
