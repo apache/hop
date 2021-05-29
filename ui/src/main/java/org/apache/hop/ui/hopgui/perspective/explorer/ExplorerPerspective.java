@@ -41,7 +41,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -80,6 +79,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
@@ -466,32 +466,47 @@ public class ExplorerPerspective implements IHopPerspective {
   }
 
   private void renameFile(TreeItem item) {
-    try {
       TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(item, 0));
       if (tif != null && tif.fileType != null) {
-
-        FileObject fileObject = HopVfs.getFileObject(tif.path);
-        String name = fileObject.getName().getBaseName();
-
-        EnterStringDialog dialog =
-            new EnterStringDialog(hopGui.getShell(), name, "Rename file", "New name: ");
-        String newName = dialog.open();
-        if (newName != null) {
-          FileObject newObject =
-              HopVfs.getFileObject(HopVfs.getFilename(fileObject.getParent()) + "/" + newName);
-          fileObject.moveTo(newObject);
-
-          refresh();
-          updateSelection();
-        }
-      }
-    } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
-          e);
-    }
+                
+        // The control that will be the editor must be a child of the Tree
+        Text text = new Text(tree, SWT.BORDER);
+        text.setText(item.getText());
+        text.addListener(SWT.FocusOut, event -> text.dispose());
+        text.addListener(SWT.KeyUp, event -> {
+          switch (event.keyCode) {
+            case SWT.CR:
+            case SWT.KEYPAD_CR:
+              // If name changed
+              if (!item.getText().equals(text.getText())) {
+                try {
+                  FileObject fileObject = HopVfs.getFileObject(tif.path);
+                  FileObject newObject = HopVfs.getFileObject(
+                      HopVfs.getFilename(fileObject.getParent()) + "/" + text.getText());
+                  fileObject.moveTo(newObject);
+                } catch (Exception e) {
+                  new ErrorDialog(hopGui.getShell(),
+                      BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Header"),
+                      BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
+                      e);
+                }
+                finally {
+                  text.dispose();              
+                  refresh();
+                  updateSelection();
+                }
+              }
+              break;
+            case SWT.ESC:
+              text.dispose();
+              break;
+          }
+        });
+        
+        text.selectAll();
+        text.setFocus();
+        treeEditor.setEditor(text, item);
+     }            
   }
 
   protected void createTabFolder(Composite parent) {
