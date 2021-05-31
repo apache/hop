@@ -62,17 +62,12 @@ public class SqlStatementsDialog extends Dialog {
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("SQL Statements Dialog", LoggingObjectType.HOP_GUI, null);
 
-  private List<SqlStatement> stats;
+  private final List<SqlStatement> stats;
 
   private TableView wFields;
-  private FormData fdFields;
-
-  private Button wClose, wView, wEdit, wExec;
-  private FormData fdClose, fdView, fdEdit, fdExec;
-  private Listener lsClose, lsView, lsEdit, lsExec;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
   private Color red;
 
@@ -149,46 +144,46 @@ public class SqlStatementsDialog extends Dialog {
             null,
             props);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(100, -50);
     wFields.setLayoutData(fdFields);
 
-    wClose = new Button(shell, SWT.PUSH);
+    Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-    fdClose = new FormData();
+    wClose.addListener(SWT.Selection, e -> close());
+    FormData fdClose = new FormData();
     fdClose.left = new FormAttachment(25, 0);
     fdClose.bottom = new FormAttachment(100, 0);
     wClose.setLayoutData(fdClose);
 
-    wView = new Button(shell, SWT.PUSH);
+    Button wView = new Button(shell, SWT.PUSH);
     wView.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ViewSql"));
-    fdView = new FormData();
+    wView.addListener(SWT.Selection, e -> view());
+    FormData fdView = new FormData();
     fdView.left = new FormAttachment(wClose, margin);
     fdView.bottom = new FormAttachment(100, 0);
     wView.setLayoutData(fdView);
 
-    wExec = new Button(shell, SWT.PUSH);
+    Button wExec = new Button(shell, SWT.PUSH);
     wExec.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ExecSQL"));
-    fdExec = new FormData();
+    wExec.addListener(SWT.Selection, e -> exec());
+    FormData fdExec = new FormData();
     fdExec.left = new FormAttachment(wView, margin);
     fdExec.bottom = new FormAttachment(100, 0);
     wExec.setLayoutData(fdExec);
 
-    wEdit = new Button(shell, SWT.PUSH);
+    Button wEdit = new Button(shell, SWT.PUSH);
     wEdit.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.EditTransform"));
-    fdEdit = new FormData();
+    wEdit.addListener(SWT.Selection, e -> edit());
+    FormData fdEdit = new FormData();
     fdEdit.left = new FormAttachment(wExec, margin);
     fdEdit.bottom = new FormAttachment(100, 0);
     wEdit.setLayoutData(fdEdit);
 
     // Add listeners
-    wClose.addListener(SWT.Selection, e -> close());
-    wView.addListener(SWT.Selection, e -> view());
-    wExec.addListener(SWT.Selection, e -> exec());
-    wEdit.addListener(SWT.Selection, e -> edit());
 
     getData();
 
