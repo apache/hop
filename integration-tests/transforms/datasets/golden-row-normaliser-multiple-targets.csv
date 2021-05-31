@@ -1,0 +1,9 @@
+id,countryCode,language,name,capital
+1,BE,EN,Belgium,Brussels
+1,BE,FR,Belgique,Bruxelles
+2,US,EN,United States,Washington
+2,US,FR,Étas Unis,Washington
+3,FR,EN,France,Paris
+3,FR,FR,France,Paris
+4,NL,EN,The Nederlands,Den Haag
+4,NL,FR,Pays Bas,La Hague

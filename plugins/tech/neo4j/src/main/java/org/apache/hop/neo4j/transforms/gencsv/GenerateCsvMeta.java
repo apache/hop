@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.gencsv;
@@ -41,7 +40,7 @@ import org.w3c.dom.Node;
         "Generate CSV files for nodes and relationships in the import/ folder for use with neo4j-import",
     image = "neo4j_load.svg",
     categoryDescription = "Neo4j",
-    documentationUrl = "https://github.com/mattcasters/hop-neo4j/wiki/")
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/generate-csvs.html")
 public class GenerateCsvMeta extends BaseTransformMeta
     implements ITransformMeta<GenerateCsv, GenerateCsvData> {
 

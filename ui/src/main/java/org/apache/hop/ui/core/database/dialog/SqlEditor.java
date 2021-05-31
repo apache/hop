@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -56,7 +57,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -74,30 +74,22 @@ public class SqlEditor {
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("SQL Editor", LoggingObjectType.HOP_GUI, null);
 
-  private PropsUi props;
+  private final PropsUi props;
 
-  private Label wlScript;
   private StyledTextComp wScript;
-  private FormData fdlScript, fdScript;
 
   private Label wlPosition;
-  private FormData fdlPosition;
 
-  private Button wExec, wClear, wCancel;
-  private Listener lsExec, lsClear, lsCancel;
-
-  private String input;
-  private DatabaseMeta connection;
+  private final String input;
+  private final DatabaseMeta connection;
   private Shell shell;
-  private DbCache dbcache;
+  private final DbCache dbcache;
 
-  private ILogChannel log;
+  private final ILogChannel log;
   private int style = SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
-  private Shell parentShell;
+  private final Shell parentShell;
 
-  private IVariables variables;
-
-  private List<SqlScriptStatement> statements;
+  private final IVariables variables;
 
   public SqlEditor(
       Shell parent, int style, IVariables variables, DatabaseMeta ci, DbCache dbc, String sql) {
@@ -125,12 +117,33 @@ public class SqlEditor {
 
     int margin = props.getMargin();
 
+    Button wExec = new Button(shell, SWT.PUSH);
+    wExec.setText(BaseMessages.getString(PKG, "SQLEditor.Button.Execute"));
+    wExec.addListener(
+        SWT.Selection,
+        e -> {
+          try {
+            exec();
+          } catch (Exception ge) {
+            // Ignore errors
+          }
+        });
+    Button wClear = new Button(shell, SWT.PUSH);
+    wClear.setText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache"));
+    wClear.setToolTipText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache.Tooltip"));
+    wClear.addListener(SWT.Selection, e -> clearCache());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wExec, wClear, wCancel}, margin, null);
+
     // Script line
-    wlScript = new Label(shell, SWT.NONE);
+    Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "SQLEditor.Editor.Label"));
     props.setLook(wlScript);
 
-    fdlScript = new FormData();
+    FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(0, 0);
     fdlScript.top = new FormAttachment(0, 0);
     wlScript.setLayoutData(fdlScript);
@@ -139,11 +152,11 @@ public class SqlEditor {
             this.variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.setText("");
     props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
-    fdScript = new FormData();
+    FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -10);
-    fdScript.bottom = new FormAttachment(100, -70);
+    fdScript.bottom = new FormAttachment(wExec, -2 * margin);
     wScript.setLayoutData(fdScript);
 
     wScript.addModifyListener(arg0 -> setPosition());
@@ -186,53 +199,15 @@ public class SqlEditor {
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "SQLEditor.LineNr.Label", "0"));
     props.setLook(wlPosition);
-    fdlPosition = new FormData();
+    FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.top = new FormAttachment(wScript, margin);
     fdlPosition.right = new FormAttachment(100, 0);
     wlPosition.setLayoutData(fdlPosition);
 
-    wExec = new Button(shell, SWT.PUSH);
-    wExec.setText(BaseMessages.getString(PKG, "SQLEditor.Button.Execute"));
-    wClear = new Button(shell, SWT.PUSH);
-    wClear.setText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-
-    wClear.setToolTipText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache.Tooltip"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wExec, wClear, wCancel}, margin, null);
-
-    // Add listeners
-    lsCancel = e -> cancel();
-    lsClear = e -> clearCache();
-    lsExec =
-        e -> {
-          try {
-            exec();
-          } catch (Exception ge) {
-            // Ignore errors
-          }
-        };
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wClear.addListener(SWT.Selection, lsClear);
-    wExec.addListener(SWT.Selection, lsExec);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
-    BaseTransformDialog.setSize(shell);
-
     getData();
 
-    shell.open();
+    BaseDialog.defaultShellHandling(shell, c -> exec(), c -> cancel());
   }
 
   public void setPosition() {
@@ -315,7 +290,8 @@ public class SqlEditor {
 
       // Multiple statements in the script need to be split into individual
       // executable statements
-      statements = databaseMeta.getIDatabase().getSqlScriptStatements(sqlScript + Const.CR);
+      List<SqlScriptStatement> statements =
+          databaseMeta.getIDatabase().getSqlScriptStatements(sqlScript + Const.CR);
 
       int nrstats = 0;
       for (SqlScriptStatement sql : statements) {

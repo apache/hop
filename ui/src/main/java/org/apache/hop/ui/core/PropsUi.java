@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,7 +133,7 @@ public class PropsUi extends Props {
         setOSLookShown(true);
       }
     } else {
-      //TODO: temp fix for grids clean this up!
+      // TODO: temp fix for grids clean this up!
       setOSLookShown(true);
     }
 
@@ -662,7 +662,7 @@ public class PropsUi extends Props {
   }
 
   public boolean useDoubleClick() {
-    return YES.equalsIgnoreCase(getProperty(USE_DOUBLE_CLICK_ON_CANVAS, YES));
+    return YES.equalsIgnoreCase(getProperty(USE_DOUBLE_CLICK_ON_CANVAS, NO));
   }
 
   public void setUseDoubleClickOnCanvas(boolean use) {
@@ -800,7 +800,6 @@ public class PropsUi extends Props {
     //
     contrastingColors.put(toRGB("#c9e8fb"), toRGB("#0f88d2"));
 
-
     contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
     contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
     contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));
@@ -822,7 +821,6 @@ public class PropsUi extends Props {
   }
 
   /**
-   *
    * @param rgb the color to contrast if the system is in "Dark Mode"
    * @return The contrasted color
    */
@@ -837,9 +835,8 @@ public class PropsUi extends Props {
     return rgb;
   }
 
-
-  public RGB contrastColor( int r, int g, int b ) {
-    return contrastColor( new RGB(r,g,b) );
+  public RGB contrastColor(int r, int g, int b) {
+    return contrastColor(new RGB(r, g, b));
   }
 
   public Map<String, String> getContrastingColorStrings() {
@@ -878,5 +875,4 @@ public class PropsUi extends Props {
   public void setContrastingColors(Map<RGB, RGB> contrastingColors) {
     this.contrastingColors = contrastingColors;
   }
-
 }

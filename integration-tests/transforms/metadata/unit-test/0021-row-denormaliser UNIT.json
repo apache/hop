@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "colorBlack",
+          "data_set_field": "colorBlack"
+        },
+        {
+          "transform_field": "colorBlue",
+          "data_set_field": "colorBlue"
+        },
+        {
+          "transform_field": "colorGreen",
+          "data_set_field": "colorGreen"
+        },
+        {
+          "transform_field": "colorRed",
+          "data_set_field": "colorRed"
+        },
+        {
+          "transform_field": "colorWhite",
+          "data_set_field": "colorWhite"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-denormaliser"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0021-row-denormaliser UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0021-row-denormaliser.hpl",
+  "test_type": "UNIT_TEST"
+}

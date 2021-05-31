@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "price",
+          "data_set_field": "price"
+        },
+        {
+          "transform_field": "range",
+          "data_set_field": "range"
+        }
+      ],
+      "field_order": [
+        ""
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-number-range"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0023-number-range UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0023-number-range.hpl",
+  "test_type": "UNIT_TEST"
+}
