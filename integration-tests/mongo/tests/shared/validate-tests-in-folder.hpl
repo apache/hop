@@ -11,7 +11,7 @@
     <parameters>
       <parameter>
         <name>PARENT_FOLDER</name>
-        <default_value>file:///home/matt/git/mattcasters/incubator-hop/integration-tests/neo4j/tests/neo4j-cypher/</default_value>
+        <default_value></default_value>
         <description>The folder in which the parent workflow was executed.</description>
       </parameter>
     </parameters>

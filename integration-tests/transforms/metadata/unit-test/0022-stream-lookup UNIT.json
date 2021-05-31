@@ -31,6 +31,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0022-stream-lookup.hpl",
+  "pipeline_filename": "./0022-stream-lookup.hpl",
   "test_type": "UNIT_TEST"
 }

@@ -13,25 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.core.search.BaseSearchableAnalyser;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 
-public abstract class BaseMetadataSearchableAnalyser<T extends IHopMetadata> extends BaseSearchableAnalyser<T> {
+public abstract class BaseMetadataSearchableAnalyser<T extends IHopMetadata>
+    extends BaseSearchableAnalyser<T> {
 
   public abstract Class<T> getSearchableClass();
 
   protected String getMetadataComponent() {
-    HopMetadata annotation = getSearchableClass().getAnnotation( HopMetadata.class );
-    if (annotation!=null) {
+    HopMetadata annotation = getSearchableClass().getAnnotation(HopMetadata.class);
+    if (annotation != null) {
       return annotation.name();
     }
     return null;
   }
-
 }

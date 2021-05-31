@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-number-rang.csv",
+  "name": "golden-number-range",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "#.#",
+      "field_name": "price"
+    },
+    {
+      "field_comment": "",
+      "field_length": 255,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "range"
+    }
+  ],
+  "folder_name": ""
+}
