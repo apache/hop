@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field",
+          "data_set_field": "field"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        }
+      ],
+      "field_order": [
+        "id",
+        "type",
+        "field"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-normaliser-single-target"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0020-row-normaliser-single-target UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0020-row-normaliser-single-target.hpl",
+  "test_type": "UNIT_TEST"
+}
