@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.loginfo;
@@ -56,6 +55,7 @@ import java.util.List;
     image = "systeminfo.svg",    
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-getloginfo.html"
 )
+
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
 public class GetLoggingInfoMeta extends BaseTransformMeta
     implements ITransformMeta<GetLoggingInfo, GetLoggingInfoData> {
