@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow>
   <name>main-neo4j-output-merge-nodes</name>
-  <name_sync_with_filename>N</name_sync_with_filename>
+  <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
   <workflow_version/>
@@ -31,8 +31,8 @@
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>176</xloc>
-      <yloc>128</yloc>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -60,8 +60,8 @@
       </parameters>
       <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>336</xloc>
-      <yloc>128</yloc>
+      <xloc>224</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -89,37 +89,8 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>688</xloc>
-      <yloc>128</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>validate</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/tests/shared/validate-tests-in-folder.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>1152</xloc>
-      <yloc>128</yloc>
+      <xloc>528</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -133,8 +104,8 @@
 </script>
       <replace_variables>N</replace_variables>
       <parallel>N</parallel>
-      <xloc>496</xloc>
-      <yloc>128</yloc>
+      <xloc>368</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -162,8 +133,23 @@
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>912</xloc>
-      <yloc>128</yloc>
+      <xloc>720</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run neo4j-output-merge-nodes Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>neo4j-output-merge-nodes-validation</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>944</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -198,14 +184,13 @@
     </hop>
     <hop>
       <from>neo4j-output-merge-nodes.hpl</from>
-      <to>validate</to>
+      <to>Run neo4j-output-merge-nodes Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
   </notepads>
-  <attributes>
-  </attributes>
+  <attributes/>
 </workflow>

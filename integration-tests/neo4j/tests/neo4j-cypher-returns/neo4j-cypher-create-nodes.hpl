@@ -1,31 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>neo4j-output-create-nodes</name>
+    <name>neo4j-cypher-create-nodes</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
-    <directory>/</directory>
+    <pipeline_status>0</pipeline_status>
     <parameters>
     </parameters>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
-    
-    
-    
-    
     <created_user>-</created_user>
     <created_date>2019/08/06 16:10:49.753</created_date>
     <modified_user>-</modified_user>
@@ -57,6 +44,7 @@
     <cypher>CREATE (n:Customer { id : $id, housenr: $housenr })</cypher>
     <batch_size>1000</batch_size>
     <read_only>N</read_only>
+    <nr_retries_on_error/>
     <retry>N</retry>
     <cypher_from_field>N</cypher_from_field>
     <cypher_field/>
@@ -78,17 +66,14 @@
     </mappings>
     <returns/>
     <attributes/>
-    <cluster_schema/>
-    
     <GUI>
       <xloc>528</xloc>
       <yloc>128</yloc>
-      <draw>Y</draw>
     </GUI>
   </transform>
   <transform>
     <name>customers-1k.txt</name>
-    <type>CsvInput</type>
+    <type>CSVInput</type>
     <description/>
     <distribute>N</distribute>
     <custom_distribution/>
@@ -223,17 +208,12 @@
       </field>
     </fields>
     <attributes/>
-    <cluster_schema/>
-    
     <GUI>
       <xloc>208</xloc>
       <yloc>128</yloc>
-      <draw>Y</draw>
     </GUI>
   </transform>
   <transform_error_handling>
   </transform_error_handling>
-  
-  
   <attributes/>
 </pipeline>
