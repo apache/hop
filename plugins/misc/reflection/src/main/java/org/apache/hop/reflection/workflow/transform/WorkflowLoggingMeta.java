@@ -42,6 +42,7 @@ import org.w3c.dom.Node;
   name = "i18n::WorkflowLogging.Transform.Name",
   description = "i18n::WorkflowLogging.Transform.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+  documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
   image = "workflow-log.svg",
   keywords = "audit,log,metrics")
 public class WorkflowLoggingMeta extends BaseTransformMeta

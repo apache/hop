@@ -63,7 +63,7 @@ import java.util.Map;
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/textfileoutput.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/textfileoutput.html")
 @InjectionSupported(
     localizationPrefix = "TextFileOutput.Injection.",
     groups = {"OUTPUT_FIELDS"})

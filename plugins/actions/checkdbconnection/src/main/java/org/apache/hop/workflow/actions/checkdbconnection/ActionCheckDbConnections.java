@@ -54,7 +54,7 @@ import java.util.List;
     image = "CheckDbConnection.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/actions/checkdbconnection.html")
+        "https://hop.apache.org/manual/latest/workflow/actions/checkdbconnection.html")
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator
 

@@ -599,11 +599,4 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
       }
     }
   }
-
-  @Override
-  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl(
-        "https://hop.apache.org/manual/latest/plugins/transforms/tableinput.html");
-    return super.createHelpButton(shell, transformMeta, plugin);
-  }
 }

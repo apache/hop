@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n::StreamSchemaTransform.Category",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/streamschemamerge.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {
 

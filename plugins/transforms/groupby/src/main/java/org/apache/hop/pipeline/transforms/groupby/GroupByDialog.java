@@ -655,11 +655,4 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       }
     }
   }
-
-  @Override
-  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl(
-        "https://hop.apache.org/manual/latest/plugins/transforms/groupby.html");
-    return super.createHelpButton(shell, transformMeta, plugin);
-  }
 }

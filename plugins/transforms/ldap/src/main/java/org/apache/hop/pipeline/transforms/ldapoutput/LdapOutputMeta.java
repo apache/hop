@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = {"ldap", "output"},
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/ldapoutput.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/ldapoutput.html")
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static Class<?> PKG = LdapOutputMeta.class; // For Translator

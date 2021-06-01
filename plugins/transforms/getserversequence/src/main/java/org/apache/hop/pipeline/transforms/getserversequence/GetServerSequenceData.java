@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.getserverequence;
+package org.apache.hop.pipeline.transforms.getserversequence;
 
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.row.IRowMeta;

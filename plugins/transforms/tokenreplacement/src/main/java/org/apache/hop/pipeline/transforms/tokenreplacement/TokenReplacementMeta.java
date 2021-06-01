@@ -53,7 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.TokenReplacement",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/tokenreplacement.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/tokenreplacement.html")
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})

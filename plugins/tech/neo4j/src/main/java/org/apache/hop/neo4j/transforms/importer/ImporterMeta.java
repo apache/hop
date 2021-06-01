@@ -38,8 +38,9 @@ import org.w3c.dom.Node;
     name = "Neo4j Import",
     description = "Runs an import command using the provided CSV files ",
     image = "neo4j_import.svg",
-    categoryDescription = "Neo4j",
-    documentationUrl = "https://github.com/mattcasters/hop-neo4j/wiki/")
+    categoryDescription = "Neo4j",    
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-importe.html"
+)
 public class ImporterMeta extends BaseTransformMeta
     implements ITransformMeta<Importer, ImporterData> {
 
