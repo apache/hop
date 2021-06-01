@@ -16,7 +16,7 @@
       "field_length": -1,
       "field_type": 1,
       "field_precision": -1,
-      "field_format": "#.#",
+      "field_format": "#.00",
       "field_name": "price"
     },
     {

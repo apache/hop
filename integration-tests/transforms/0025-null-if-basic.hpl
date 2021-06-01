@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>0023-number-range</name>
+    <name>0025-null-if-basic</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -13,29 +13,29 @@
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <created_user>-</created_user>
-    <created_date>2021/05/31 14:12:11.112</created_date>
+    <created_date>2021/06/01 17:40:11.867</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2021/05/31 14:12:11.112</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <modified_date>2021/06/01 17:40:11.867</modified_date>
+    <key_for_session_key/>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
   <order>
     <hop>
-      <from>Prices</from>
-      <to>Price range</to>
+      <from>Sample data</from>
+      <to>Null if</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Price range</from>
-      <to>Verify</to>
+      <from>Null if</from>
+      <to>Preview</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Price range</name>
-    <type>NumberRange</type>
+    <name>Null if</name>
+    <type>NullIf</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -44,44 +44,32 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <inputField>price</inputField>
-    <outputField>range</outputField>
-    <fallBackValue>illegal</fallBackValue>
-    <rules>
-      <rule>
-        <lower_bound>-1.7976931348623157E308</lower_bound>
-        <upper_bound>10.0</upper_bound>
-        <value>bargain</value>
-      </rule>
-      <rule>
-        <lower_bound>10.0</lower_bound>
-        <upper_bound>50.0</upper_bound>
-        <value>cheap</value>
-      </rule>
-      <rule>
-        <lower_bound>50.0</lower_bound>
-        <upper_bound>250.0</upper_bound>
-        <value>average</value>
-      </rule>
-      <rule>
-        <lower_bound>250.0</lower_bound>
-        <upper_bound>1000.0</upper_bound>
-        <value>pricey</value>
-      </rule>
-      <rule>
-        <lower_bound>1000.0</lower_bound>
-        <upper_bound>1.7976931348623157E308</upper_bound>
-        <value>expensive</value>
-      </rule>
-    </rules>
+    <fields>
+      <field>
+        <name>strA</name>
+        <value>a3</value>
+      </field>
+      <field>
+        <name>intB</name>
+        <value>22</value>
+      </field>
+      <field>
+        <name>numC</name>
+        <value>333.33</value>
+      </field>
+      <field>
+        <name>boolD</name>
+        <value>false</value>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
       <xloc>256</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Prices</name>
+    <name>Sample data</name>
     <type>DataGrid</type>
     <description/>
     <distribute>Y</distribute>
@@ -93,7 +81,18 @@
     </partitioning>
     <fields>
       <field>
-        <name>id</name>
+        <name>strA</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>intB</name>
         <type>Integer</type>
         <format/>
         <currency/>
@@ -104,67 +103,62 @@
         <set_empty_string>N</set_empty_string>
       </field>
       <field>
-        <name>price</name>
+        <name>numC</name>
         <type>Number</type>
-        <format>#.00</format>
+        <format/>
         <currency/>
-        <decimal>.</decimal>
+        <decimal/>
         <group/>
-        <length>5</length>
-        <precision>2</precision>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>boolD</name>
+        <type>Boolean</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
     <data>
       <line>
-        <item>1</item>
-        <item>9.99</item>
+        <item>a1</item>
+        <item>11</item>
+        <item>111.11</item>
+        <item>true</item>
       </line>
       <line>
-        <item>2</item>
-        <item>6.23</item>
+        <item>a2</item>
+        <item>22</item>
+        <item>222.22</item>
+        <item>false</item>
       </line>
       <line>
-        <item>3</item>
-        <item>57.41</item>
+        <item>a3</item>
+        <item>33</item>
+        <item>333.33</item>
+        <item>true</item>
       </line>
       <line>
-        <item>4</item>
-        <item>299.99</item>
-      </line>
-      <line>
-        <item>5</item>
-        <item>100.00</item>
-      </line>
-      <line>
-        <item>6</item>
-        <item>-103.97</item>
-      </line>
-      <line>
-        <item>7</item>
-        <item>974.95</item>
-      </line>
-      <line>
-        <item>8</item>
-        <item>2399.99</item>
-      </line>
-      <line>
-        <item>9</item>
-        <item>14.99</item>
-      </line>
-      <line>
-        <item>10</item>
-        <item>123.45</item>
+        <item>a4</item>
+        <item>44</item>
+        <item>444.44</item>
+        <item>false</item>
       </line>
     </data>
     <attributes/>
     <GUI>
       <xloc>96</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Verify</name>
+    <name>Preview</name>
     <type>Dummy</type>
     <description/>
     <distribute>Y</distribute>
@@ -177,7 +171,7 @@
     <attributes/>
     <GUI>
       <xloc>416</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

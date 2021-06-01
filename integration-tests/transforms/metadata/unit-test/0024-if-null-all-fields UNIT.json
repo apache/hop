@@ -1,0 +1,53 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "a",
+          "data_set_field": "a"
+        },
+        {
+          "transform_field": "b",
+          "data_set_field": "b"
+        },
+        {
+          "transform_field": "c",
+          "data_set_field": "c"
+        },
+        {
+          "transform_field": "d",
+          "data_set_field": "d"
+        },
+        {
+          "transform_field": "e",
+          "data_set_field": "e"
+        },
+        {
+          "transform_field": "f",
+          "data_set_field": "f"
+        }
+      ],
+      "field_order": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-if-null-all-fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0024-if-null-all-fields UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0024-if-null-all-fields.hpl",
+  "test_type": "UNIT_TEST"
+}
