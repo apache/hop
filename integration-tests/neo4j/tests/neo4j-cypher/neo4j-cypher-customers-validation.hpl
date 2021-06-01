@@ -2,7 +2,7 @@
 <pipeline>
   <info>
     <name>neo4j-cypher-customers-validation</name>
-    <name_sync_with_filename>N</name_sync_with_filename>
+    <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
@@ -66,12 +66,12 @@
       <schema_name/>
     </partitioning>
     <fields>
-    </fields>
-    <limit>1</limit>
-    <never_ending>N</never_ending>
+</fields>
     <interval_in_ms>5000</interval_in_ms>
-    <row_time_field>now</row_time_field>
     <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
       <xloc>112</xloc>

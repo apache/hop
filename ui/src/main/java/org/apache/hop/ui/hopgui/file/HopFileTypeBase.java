@@ -52,13 +52,13 @@ public abstract class HopFileTypeBase implements IHopFileType {
       } else {
         FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
-        String fileExtension = fileName.getExtension();
+        String fileExtension = fileName.getExtension().toLowerCase();
 
         // No extension
         if ( Utils.isEmpty(fileExtension) ) return false;
         
         // Verify the extension
-        //
+        //        
         for ( String typeExtension : getFilterExtensions() ) {
           if ( typeExtension.toLowerCase().endsWith( fileExtension ) ) {
             return true;

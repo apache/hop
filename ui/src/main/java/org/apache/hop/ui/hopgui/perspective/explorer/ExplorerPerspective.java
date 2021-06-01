@@ -80,6 +80,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
@@ -111,10 +112,11 @@ public class ExplorerPerspective implements IHopPerspective {
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ExplorerPerspective-Toolbar";
 
   public static final String TOOLBAR_ITEM_OPEN = "ExplorerPerspective-Toolbar-10000-Open";
+  public static final String TOOLBAR_ITEM_CREATE_FOLDER = "ExplorerPerspective-Toolbar-10050-CreateFolder";
   public static final String TOOLBAR_ITEM_DELETE = "ExplorerPerspective-Toolbar-10100-Delete";
   public static final String TOOLBAR_ITEM_RENAME = "ExplorerPerspective-Toolbar-10200-Rename";
   public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10300-Refresh";
-
+  
   private static ExplorerPerspective instance;
 
   public static ExplorerPerspective getInstance() {
@@ -466,32 +468,47 @@ public class ExplorerPerspective implements IHopPerspective {
   }
 
   private void renameFile(TreeItem item) {
-    try {
       TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(item, 0));
       if (tif != null && tif.fileType != null) {
-
-        FileObject fileObject = HopVfs.getFileObject(tif.path);
-        String name = fileObject.getName().getBaseName();
-
-        EnterStringDialog dialog =
-            new EnterStringDialog(hopGui.getShell(), name, "Rename file", "New name: ");
-        String newName = dialog.open();
-        if (newName != null) {
-          FileObject newObject =
-              HopVfs.getFileObject(HopVfs.getFilename(fileObject.getParent()) + "/" + newName);
-          fileObject.moveTo(newObject);
-
-          refresh();
-          updateSelection();
-        }
-      }
-    } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
-          e);
-    }
+                
+        // The control that will be the editor must be a child of the Tree
+        Text text = new Text(tree, SWT.BORDER);
+        text.setText(item.getText());
+        text.addListener(SWT.FocusOut, event -> text.dispose());
+        text.addListener(SWT.KeyUp, event -> {
+          switch (event.keyCode) {
+            case SWT.CR:
+            case SWT.KEYPAD_CR:
+              // If name changed
+              if (!item.getText().equals(text.getText())) {
+                try {
+                  FileObject fileObject = HopVfs.getFileObject(tif.path);
+                  FileObject newObject = HopVfs.getFileObject(
+                      HopVfs.getFilename(fileObject.getParent()) + "/" + text.getText());
+                  fileObject.moveTo(newObject);
+                } catch (Exception e) {
+                  new ErrorDialog(hopGui.getShell(),
+                      BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Header"),
+                      BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
+                      e);
+                }
+                finally {
+                  text.dispose();              
+                  refresh();
+                  updateSelection();
+                }
+              }
+              break;
+            case SWT.ESC:
+              text.dispose();
+              break;
+          }
+        });
+        
+        text.selectAll();
+        text.setFocus();
+        treeEditor.setEditor(text, item);
+     }            
   }
 
   protected void createTabFolder(Composite parent) {
@@ -741,6 +758,55 @@ public class ExplorerPerspective implements IHopPerspective {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_CREATE_FOLDER,
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.CreateFolder.Tooltip",
+      image = "ui/images/folder-add.svg")
+  public void createFolder() {
+    
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      return;
+    }
+    TreeItem item = selection[0];
+    TreeItemFolder tif = treeItemFolderMap.get(ConstUi.getTreePath(selection[0], 0));
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            getShell(),
+            "",
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Header"),
+                BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Message", tif.path));
+    String folder = dialog.open();
+    if (folder != null) {
+      String newPath = tif.path;
+      if (!newPath.endsWith("/") && !newPath.endsWith("\\")) {
+        newPath += "/";
+      }
+      newPath += folder;
+      try {
+        FileObject newFolder = HopVfs.getFileObject(newPath);
+        newFolder.createFolder();     
+                
+        refresh();
+        updateSelection();
+        
+//        IHopFileType fileType = getFileType(newPath);
+//        TreeItem folderItem = new TreeItem(item, SWT.NONE);
+//        folderItem.setText(folder);
+//        setItemImage(folderItem, fileType);
+//        callPaintListeners(tree, item, newPath, folder, fileType);
+//        addToFolderMap(item, newPath, folder, fileType);
+      } catch (Throwable e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFolder.Header"),
+            BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFolder.Message", newPath),
+            e);
+      }
+    }
+  }
+  
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg",
@@ -919,7 +985,8 @@ public class ExplorerPerspective implements IHopPerspective {
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, tif != null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);        
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, tif != null && tif.fileType instanceof FolderFileType);        
 
     for (IExplorerSelectionListener listener : selectionListeners) {
       listener.fileSelected();

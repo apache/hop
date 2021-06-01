@@ -31,14 +31,6 @@
           "data_set_field": "name"
         },
         {
-          "transform_field": "state",
-          "data_set_field": "state"
-        },
-        {
-          "transform_field": "stateCode",
-          "data_set_field": "stateCode"
-        },
-        {
           "transform_field": "street",
           "data_set_field": "street"
         },
@@ -59,6 +51,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./tests/neo4j-graph-output/neo4j-cypher-graph-validation.hpl",
+  "pipeline_filename": "tests/neo4j-cypher/neo4j-cypher-customers-validation.hpl",
   "test_type": "UNIT_TEST"
 }

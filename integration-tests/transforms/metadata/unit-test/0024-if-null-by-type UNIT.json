@@ -1,0 +1,53 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "intB",
+          "data_set_field": "intB"
+        },
+        {
+          "transform_field": "intF",
+          "data_set_field": "intF"
+        },
+        {
+          "transform_field": "numD",
+          "data_set_field": "numD"
+        },
+        {
+          "transform_field": "strA",
+          "data_set_field": "strA"
+        },
+        {
+          "transform_field": "strC",
+          "data_set_field": "strC"
+        },
+        {
+          "transform_field": "strE",
+          "data_set_field": "strE"
+        }
+      ],
+      "field_order": [
+        "strA",
+        "intB",
+        "strC",
+        "numD",
+        "strE",
+        "intF"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-if-null-by-type"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0024-if-null-by-type UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0024-if-null-by-type.hpl",
+  "test_type": "UNIT_TEST"
+}
