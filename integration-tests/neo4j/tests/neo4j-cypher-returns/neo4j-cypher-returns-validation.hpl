@@ -2,7 +2,7 @@
 <pipeline>
   <info>
     <name>neo4j-cypher-returns-validation</name>
-    <name_sync_with_filename>N</name_sync_with_filename>
+    <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
