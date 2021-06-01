@@ -324,11 +324,11 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     dispose();
   }
 
-  private void getInfo(ActionPipeline ap) throws HopException {
-    ap.setName(wName.getText());
-    ap.setRunConfiguration(wRunConfiguration.getText());
-    ap.setFileName(wPath.getText());
-    if (ap.getFilename().isEmpty()) {
+  private void getInfo(ActionPipeline actionPipeline) throws HopException {
+    actionPipeline.setName(wName.getText());
+    actionPipeline.setRunConfiguration(wRunConfiguration.getText());
+    actionPipeline.setFileName(wPath.getText());
+    if (actionPipeline.getFilename().isEmpty()) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
@@ -343,55 +343,55 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         nr++;
       }
     }
-    ap.parameters = new String[nr];
-    ap.parameterFieldNames = new String[nr];
-    ap.parameterValues = new String[nr];
+    actionPipeline.parameters = new String[nrItems];
+    actionPipeline.parameterFieldNames = new String[nrItems];
+    actionPipeline.parameterValues = new String[nrItems];
     nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String param = wParameters.getNonEmpty(i).getText(1);
       String fieldName = wParameters.getNonEmpty(i).getText(2);
       String value = wParameters.getNonEmpty(i).getText(3);
 
-      ap.parameters[nr] = param;
+      actionPipeline.parameters[nr] = param;
 
       if (!Utils.isEmpty(Const.trim(fieldName))) {
-        ap.parameterFieldNames[nr] = fieldName;
+        actionPipeline.parameterFieldNames[nr] = fieldName;
       } else {
-        ap.parameterFieldNames[nr] = "";
+        actionPipeline.parameterFieldNames[nr] = "";
       }
 
       if (!Utils.isEmpty(Const.trim(value))) {
-        ap.parameterValues[nr] = value;
+        actionPipeline.parameterValues[nr] = value;
       } else {
-        ap.parameterValues[nr] = "";
+        actionPipeline.parameterValues[nr] = "";
       }
 
       nr++;
     }
 
-    ap.setPassingAllParameters(wPassParams.getSelection());
+    actionPipeline.setPassingAllParameters(wPassParams.getSelection());
 
-    ap.logfile = wLogfile.getText();
-    ap.logext = wLogext.getText();
+    actionPipeline.logfile = wLogfile.getText();
+    actionPipeline.logext = wLogext.getText();
 
     if (wLoglevel.getSelectionIndex() >= 0) {
-      ap.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+      actionPipeline.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
     } else {
-      ap.logFileLevel = LogLevel.BASIC;
+      actionPipeline.logFileLevel = LogLevel.BASIC;
     }
 
-    ap.paramsFromPrevious = wPrevToParams.getSelection();
-    ap.execPerRow = wEveryRow.getSelection();
-    ap.setLogfile = wSetLogfile.getSelection();
-    ap.addDate = wAddDate.getSelection();
-    ap.addTime = wAddTime.getSelection();
-    ap.clearResultRows = wClearRows.getSelection();
-    ap.clearResultFiles = wClearFiles.getSelection();
-    ap.createParentFolder = wCreateParentFolder.getSelection();
-    ap.setRunConfiguration(wRunConfiguration.getText());
-    ap.setAppendLogfile = wAppendLogfile.getSelection();
-    ap.setWaitingToFinish(wWaitingToFinish.getSelection());
-    ap.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
+    actionPipeline.paramsFromPrevious = wPrevToParams.getSelection();
+    actionPipeline.execPerRow = wEveryRow.getSelection();
+    actionPipeline.setLogfile = wSetLogfile.getSelection();
+    actionPipeline.addDate = wAddDate.getSelection();
+    actionPipeline.addTime = wAddTime.getSelection();
+    actionPipeline.clearResultRows = wClearRows.getSelection();
+    actionPipeline.clearResultFiles = wClearFiles.getSelection();
+    actionPipeline.createParentFolder = wCreateParentFolder.getSelection();
+    actionPipeline.setRunConfiguration(wRunConfiguration.getText());
+    actionPipeline.setAppendLogfile = wAppendLogfile.getSelection();
+    actionPipeline.setWaitingToFinish(wWaitingToFinish.getSelection());
+    actionPipeline.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
   }
 
   protected void ok() {
