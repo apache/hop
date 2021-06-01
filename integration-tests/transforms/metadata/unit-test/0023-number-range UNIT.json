@@ -11,16 +11,16 @@
           "data_set_field": "id"
         },
         {
-          "transform_field": "price",
-          "data_set_field": "price"
-        },
-        {
           "transform_field": "range",
           "data_set_field": "range"
+        },
+        {
+          "transform_field": "price",
+          "data_set_field": "price"
         }
       ],
       "field_order": [
-        ""
+        "id"
       ],
       "transform_name": "Verify",
       "data_set_name": "golden-number-range"
