@@ -48,6 +48,6 @@
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "/home/matt/git/mattcasters/incubator-hop/integration-tests/transforms/0024-if-null-all-fields.hpl",
+  "pipeline_filename": "./0024-if-null-all-fields.hpl",
   "test_type": "UNIT_TEST"
 }

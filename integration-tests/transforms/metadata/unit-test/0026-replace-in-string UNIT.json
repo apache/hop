@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "strA",
+          "data_set_field": "strA"
+        },
+        {
+          "transform_field": "strB",
+          "data_set_field": "strB"
+        },
+        {
+          "transform_field": "strC",
+          "data_set_field": "strC"
+        },
+        {
+          "transform_field": "strD",
+          "data_set_field": "strD"
+        }
+      ],
+      "field_order": [
+        "strA",
+        "strB",
+        "strC",
+        "strD"
+      ],
+      "transform_name": "Preview",
+      "data_set_name": "golden-replace-in-string"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0026-replace-in-string UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0026-replace-in-string.hpl",
+  "test_type": "UNIT_TEST"
+}

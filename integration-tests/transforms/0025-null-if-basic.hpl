@@ -16,7 +16,7 @@
     <created_date>2021/06/01 17:40:11.867</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/06/01 17:40:11.867</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -65,6 +65,23 @@
     <attributes/>
     <GUI>
       <xloc>256</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Preview</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -154,23 +171,6 @@
     <attributes/>
     <GUI>
       <xloc>96</xloc>
-      <yloc>128</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Preview</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>416</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
