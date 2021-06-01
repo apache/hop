@@ -97,10 +97,11 @@ public class ValidatePipelineUnitTestExtensionPoint
 
         String dontShowResults =
             pipeline.getVariable(DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "N");
-
-        final HopGui hopGui = HopGui.getInstance();
-        if (hopGui != null && "N".equalsIgnoreCase(dontShowResults)) {
-          showUnitTestErrors(pipeline, results, hopGui);
+        if ("N".equalsIgnoreCase(dontShowResults)) {
+          final HopGui hopGui = HopGui.getInstance();
+          if (hopGui != null) {
+            showUnitTestErrors(pipeline, results, hopGui);
+          }
         }
       }
       log.logBasic("----------------------------------------------");
