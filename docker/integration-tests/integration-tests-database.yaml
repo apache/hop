@@ -21,11 +21,12 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
-     args:
-      - JENKINS_USER=jenkins
-      - JENKINS_UID=1000
-      - JENKINS_GROUP=jenkins
-      - JENKINS_GID=1000
+    build:
+      args:
+        - JENKINS_USER=jenkins
+        - JENKINS_UID=1000
+        - JENKINS_GROUP=jenkins
+        - JENKINS_GID=1000
     depends_on:
       postgres:
         condition: service_healthy
