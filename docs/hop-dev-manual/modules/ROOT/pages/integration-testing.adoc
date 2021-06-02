@@ -85,19 +85,12 @@ mvn clean install
 . Run the Docker Compose script
 +
 ----
-docker-compose -f docker/integration-tests/docker-compose-ci.yaml up -d
-----
-+
-. Check the running container
-+
-----
-docker logs integration-tests_integration_test_1
-----
-+
-. Cleanup after run
-+
-----
-docker-compose -f docker/integration-tests/docker-compose-ci.yaml down --rmi all
+cd integration-tests/scripts
+./run-tests-docker.sh 
+
+# Optionally you can run a single project by adding the PROJECT_NAME variable to the script
+
+./run-tests-docker.sh  PROJECT_NAME=database
 ----
 +
 . Surefire Reports
@@ -108,7 +101,7 @@ We generate xml reports that can be used by Jenkins to generate reports. these r
 
 A script is also provided to run the test without using Docker. This script is also used inside the automated test suite but can be used in a stand alone mode.
 
-This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`. Be sure to export the needed system variables for the script to find the correct paths to run the tests.
+This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`. Be sure to export the needed system variables for the script to find the correct paths to run the tests. You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
 
 
 == Special checks
