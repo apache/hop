@@ -17,17 +17,25 @@
 
 version: '3'
 services:
-  integration_test:
-    build:
-      context: ../../.
-      dockerfile: docker/integration-tests/Dockerfile.unit-tests
-      args:
-        - JENKINS_USER=jenkins
-        - JENKINS_UID=1000
-        - JENKINS_GROUP=jenkins
-        - JENKINS_GID=1000
-    volumes:
-      - ../../integration-tests/:/files
+  integration_test_neo4j:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    links:
+      - neo4j
+
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474"
+      - "7687"
     environment:
-      - FLASK_ENV=docker
-    command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]
+      - NEO4J_AUTH=neo4j/abcd
+    healthcheck:
+      test: echo 'ok'
+      interval: 10s
+      timeout: 10s
+      retries: 5
