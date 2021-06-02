@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
   name = "i18n::PipelineDataProbe.Transform.Name",
   description = "i18n::PipelineDataProbe.Transform.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+  documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
   image = "probe.svg",
   keywords = "audit,log,metrics,profile,probe,stream")
 public class PipelineDataProbeMeta extends BaseTransformMeta

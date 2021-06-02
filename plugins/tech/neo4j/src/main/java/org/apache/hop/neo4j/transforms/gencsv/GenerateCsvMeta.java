@@ -40,7 +40,7 @@ import org.w3c.dom.Node;
         "Generate CSV files for nodes and relationships in the import/ folder for use with neo4j-import",
     image = "neo4j_load.svg",
     categoryDescription = "Neo4j",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/generate-csvs.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/generate-csvs.html")
 public class GenerateCsvMeta extends BaseTransformMeta
     implements ITransformMeta<GenerateCsv, GenerateCsvData> {
 

@@ -49,7 +49,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.StringOperations",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/stringoperations.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/stringoperations.html")
 @InjectionSupported(localizationPrefix = "StringOperationsDialog.Injection.")
 public class StringOperationsMeta extends BaseTransformMeta
     implements ITransformMeta<StringOperations, StringOperationsData> {

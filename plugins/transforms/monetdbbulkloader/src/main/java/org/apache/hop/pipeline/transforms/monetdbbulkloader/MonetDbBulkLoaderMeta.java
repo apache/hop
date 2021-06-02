@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::MonetDBBulkLoaderDialog.TypeLongDesc.MonetDBBulkLoader",
     description = "i18n::MonetDBBulkLoaderDialog.TypeTooltipDesc.MonetDBBulkLoader",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/monetdbbulkloader.html",
+        "https://hop.apache.org/manual/latest/pipeline/transforms/monetdbbulkloader.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
 public class MonetDbBulkLoaderMeta extends BaseTransformMeta

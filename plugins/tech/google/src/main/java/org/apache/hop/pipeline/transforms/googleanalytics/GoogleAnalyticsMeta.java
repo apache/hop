@@ -53,7 +53,7 @@ import java.util.List;
         name = "i18n::BaseTransform.TypeLongDesc.GoogleAnalytics",
         description = "i18n::BaseTransform.TypeTooltipDesc.GoogleAnalytics",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/googleanalytics.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/googleanalytics.html"
 )
 @InjectionSupported(
         localizationPrefix = "GoogleAnalytics.Injection.",

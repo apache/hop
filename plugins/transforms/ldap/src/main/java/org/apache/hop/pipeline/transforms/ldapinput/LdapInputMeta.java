@@ -51,7 +51,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"ldap", "input"},
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/ldapinput.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator

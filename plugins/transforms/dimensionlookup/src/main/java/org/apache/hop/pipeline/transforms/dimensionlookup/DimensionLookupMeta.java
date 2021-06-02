@@ -78,7 +78,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/dimensionlookup.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/dimensionlookup.html")
 @InjectionSupported(
     localizationPrefix = "DimensionLookup.Injection.",
     groups = {"KEYS", "FIELDS"})

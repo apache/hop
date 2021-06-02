@@ -52,7 +52,7 @@ import java.util.List;
     name = "Neo4JOutput.Transform.Name",
     description = "Neo4JOutput.Transform.Description",
     categoryDescription = "Neo4JOutput.Transform.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/neo4j-output.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-output.html")
 @InjectionSupported(
     localizationPrefix = "Neo4JOutput.Injection.",
     groups = {"FROM_NODE_PROPS", "FROM_LABELS", "TO_NODE_PROPS", "TO_LABELS", "REL_PROPS"})

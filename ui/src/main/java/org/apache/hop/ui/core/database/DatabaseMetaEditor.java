@@ -623,7 +623,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     fdlOptions.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlOptions.right = new FormAttachment( 100, 0 );
     wlOptions.setLayoutData( fdlOptions );
-    wOptions = new TableView( manager.getVariables(), wOptionsComp, SWT.NONE, optionsColumns, databaseMeta.getExtraOptions().size(), null, props );
+    wOptions = new TableView( manager.getVariables(), wOptionsComp, SWT.NONE, optionsColumns, databaseMeta.getExtraOptions().size(),  event -> setChanged(), props );
     props.setLook( wOptions );
     FormData fdOptions = new FormData();
     fdOptions.top = new FormAttachment( wlOptions, margin * 2 );

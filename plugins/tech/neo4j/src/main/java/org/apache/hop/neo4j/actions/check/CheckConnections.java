@@ -41,7 +41,7 @@ import java.util.List;
     image = "neo4j_check.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/actions/neo4j-checkconnections.html")
+        "https://hop.apache.org/manual/latest/workflow/actions/neo4j-checkconnections.html")
 public class CheckConnections extends ActionBase implements IAction {
 
   private List<String> connectionNames;

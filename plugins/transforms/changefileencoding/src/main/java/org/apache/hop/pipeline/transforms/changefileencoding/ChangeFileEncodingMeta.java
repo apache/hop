@@ -43,7 +43,7 @@ import java.util.List;
     description = "i18n::ChangeFileEncoding.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/changefileencoding.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/changefileencoding.html")
 public class ChangeFileEncodingMeta extends BaseTransformMeta
     implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 

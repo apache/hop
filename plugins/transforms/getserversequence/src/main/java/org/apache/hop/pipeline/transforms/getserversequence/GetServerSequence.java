@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.getserverequence;
+package org.apache.hop.pipeline.transforms.getserversequence;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;

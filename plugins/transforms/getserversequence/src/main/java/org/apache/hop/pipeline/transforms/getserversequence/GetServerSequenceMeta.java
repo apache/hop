@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.getserverequence;
+package org.apache.hop.pipeline.transforms.getserversequence;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -45,7 +45,7 @@ import java.util.List;
     description = "i18n::GetServerSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/getserversequence.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/getserversequence.html")
 public class GetServerSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<GetServerSequence, GetServerSequenceData> {
   private static final Class<?> PKG = GetServerSequenceMeta.class; // For Translator

@@ -54,7 +54,7 @@ import java.util.List;
     image = "Cassandrain.svg",
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
-    documentationUrl = "Products/Cassandra_Input",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cassandra-input.html",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
 public class CassandraInputMeta extends BaseTransformMeta

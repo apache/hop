@@ -41,8 +41,9 @@ import org.w3c.dom.Node;
   id = "PipelineLogging",
   name = "i18n::PipelineLogging.Transform.Name",
   description = "i18n::PipelineLogging.Transform.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",      
   image = "pipeline-log.svg",
+  documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
   keywords = "audit,log,metrics")
 public class PipelineLoggingMeta extends BaseTransformMeta
     implements ITransformMeta<PipelineLogging, PipelineLoggingData> {
