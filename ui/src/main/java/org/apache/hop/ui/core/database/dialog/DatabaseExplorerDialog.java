@@ -64,7 +64,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -130,6 +129,9 @@ public class DatabaseExplorerDialog extends Dialog {
   private Button bSql;
   private String activeSchemaTable;
   private Button bTruncate;
+
+  private ToolBar toolBar;
+  private GuiToolbarWidgets toolBarWidgets;
 
   public DatabaseExplorerDialog(
       Shell parent,
@@ -215,13 +217,13 @@ public class DatabaseExplorerDialog extends Dialog {
 
     // Add a toolbar
     //
-    ToolBar toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    GuiToolbarWidgets toolBarWidgets = new GuiToolbarWidgets();
+    toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     FormData layoutData = new FormData();
-    layoutData.left = new FormAttachment(0, 0);
     layoutData.top = new FormAttachment(0, 0);
+    layoutData.left = new FormAttachment(0, 0);
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
@@ -235,7 +237,7 @@ public class DatabaseExplorerDialog extends Dialog {
     props.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0); // To the right of the label
-    fdTree.top = new FormAttachment(0, toolBar.getBounds().height);
+    fdTree.top = new FormAttachment(toolBar, margin);
     fdTree.right = new FormAttachment(buttonsComposite, -margin);
     fdTree.bottom = new FormAttachment(wOk, -2 * margin);
     wTree.setLayoutData(fdTree);
@@ -418,7 +420,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
     FormData fdComposite = new FormData();
     fdComposite.right = new FormAttachment(100, 0);
-    fdComposite.top = new FormAttachment(0, 20);
+    fdComposite.top = new FormAttachment(0, toolBar.getBounds().height);
     buttonsComposite.setLayoutData(fdComposite);
   }
 
@@ -426,7 +428,8 @@ public class DatabaseExplorerDialog extends Dialog {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EXPAND_ALL,
       toolTip = "i18n::DatabaseExplorerDialog.Toolbar.ExpandAll.Tooltip",
-      type = GuiToolbarElementType.BUTTON)
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/expand-all.svg")
   public void expandAll() {
     expandAllItems(wTree.getItems(), true);
   }
@@ -435,7 +438,8 @@ public class DatabaseExplorerDialog extends Dialog {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COLLAPSE_ALL,
       toolTip = "i18n::DatabaseExplorerDialog.Toolbar.CollapseAll.Tooltip",
-      type = GuiToolbarElementType.BUTTON)
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/collapse-all.svg")
   public void collapseAll() {
     expandAllItems(wTree.getItems(), false);
   }
