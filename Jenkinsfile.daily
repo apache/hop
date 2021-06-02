@@ -84,28 +84,25 @@ pipeline {
                 sh "mvn $MAVEN_PARAMS clean install"
             }
         }
-        stage('Code Quality') {
-            tools{
-                jdk 'jdk_11_latest'
-            }
-            steps {
-                echo 'Checking Code Quality on SonarCloud'
-                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-                }
-            }
-        }
+        // stage('Code Quality') {
+        //     tools{
+        //         jdk 'jdk_11_latest'
+        //     }
+        //     steps {
+        //         echo 'Checking Code Quality on SonarCloud'
+        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
+        //         }
+        //     }
+        // }
         stage('Create Docker image & Run Tests'){
             steps {
-                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' build --build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid}"
-                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' up -d"
-                    sh "docker wait integration-tests_integration_test_1"
-                    sh "docker logs integration-tests_integration_test_1"
+                    sh "docker-compose -f 'docker/integration-tests/integration-tests-base.yaml' build --build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid}"
+                    sh "integration-tests/scripts/run-tests-docker.sh"
                 }
             post {
                 always {
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
-                    sh "docker-compose -f 'docker/integration-tests/docker-compose-ci.yaml' down --rmi all"
                 }
             }
         }
