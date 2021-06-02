@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,46 +46,41 @@ import java.util.List;
  * @author matt
  */
 @HopMetadata(
-  key = "unit-test",
-  name = "Pipeline Unit Test",
-  description = "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
-  image = "Test_tube_icon.svg"
-)
+    key = "unit-test",
+    name = "Pipeline Unit Test",
+    description =
+        "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
+    image = "Test_tube_icon.svg")
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty( key = "pipeline_filename" )
+  @HopMetadataProperty(key = "pipeline_filename")
   protected String pipelineFilename; // file (3rd priority)
 
-  @HopMetadataProperty( key = "input_data_sets" )
+  @HopMetadataProperty(key = "input_data_sets")
   protected List<PipelineUnitTestSetLocation> inputDataSets;
 
-  @HopMetadataProperty( key = "golden_data_sets" )
+  @HopMetadataProperty(key = "golden_data_sets")
   protected List<PipelineUnitTestSetLocation> goldenDataSets;
 
-  @HopMetadataProperty( key = "trans_test_tweaks" )
+  @HopMetadataProperty(key = "trans_test_tweaks")
   protected List<PipelineUnitTestTweak> tweaks;
 
-  @HopMetadataProperty( key = "test_type" )
+  @HopMetadataProperty(key = "test_type")
   protected TestType type;
 
-  @HopMetadataProperty( key = "persist_filename" )
+  @HopMetadataProperty(key = "persist_filename")
   protected String filename;
 
-  @HopMetadataProperty
-  protected String basePath;
+  @HopMetadataProperty protected String basePath;
 
-  @HopMetadataProperty( key = "database_replacements" )
+  @HopMetadataProperty(key = "database_replacements")
   protected List<PipelineUnitTestDatabaseReplacement> databaseReplacements;
 
-  @HopMetadataProperty
-  protected List<VariableValue> variableValues;
+  @HopMetadataProperty protected List<VariableValue> variableValues;
 
-  @HopMetadataProperty
-  protected boolean autoOpening;
-
+  @HopMetadataProperty protected boolean autoOpening;
 
   public PipelineUnitTest() {
     inputDataSets = new ArrayList<>();
@@ -95,18 +90,20 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     databaseReplacements = new ArrayList<>();
     variableValues = new ArrayList<>();
     basePath = null;
-    autoOpening = false;
+    autoOpening = true;
   }
 
-  public PipelineUnitTest( String name, String description,
-                           String pipelineFilename,
-                           List<PipelineUnitTestSetLocation> inputDataSets,
-                           List<PipelineUnitTestSetLocation> goldenDataSets,
-                           List<PipelineUnitTestTweak> tweaks,
-                           TestType type,
-                           String filename,
-                           List<PipelineUnitTestDatabaseReplacement> databaseReplacements,
-                           boolean autoOpening ) {
+  public PipelineUnitTest(
+      String name,
+      String description,
+      String pipelineFilename,
+      List<PipelineUnitTestSetLocation> inputDataSets,
+      List<PipelineUnitTestSetLocation> goldenDataSets,
+      List<PipelineUnitTestTweak> tweaks,
+      TestType type,
+      String filename,
+      List<PipelineUnitTestDatabaseReplacement> databaseReplacements,
+      boolean autoOpening) {
     this();
     this.name = name;
     this.description = description;
@@ -120,18 +117,18 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     this.autoOpening = autoOpening;
   }
 
-  public PipelineUnitTestSetLocation findGoldenLocation( String transformName ) {
-    for ( PipelineUnitTestSetLocation location : goldenDataSets ) {
-      if ( transformName.equalsIgnoreCase( location.getTransformName() ) ) {
+  public PipelineUnitTestSetLocation findGoldenLocation(String transformName) {
+    for (PipelineUnitTestSetLocation location : goldenDataSets) {
+      if (transformName.equalsIgnoreCase(location.getTransformName())) {
         return location;
       }
     }
     return null;
   }
 
-  public PipelineUnitTestSetLocation findInputLocation( String transformName ) {
-    for ( PipelineUnitTestSetLocation location : inputDataSets ) {
-      if ( transformName.equalsIgnoreCase( location.getTransformName() ) ) {
+  public PipelineUnitTestSetLocation findInputLocation(String transformName) {
+    for (PipelineUnitTestSetLocation location : inputDataSets) {
+      if (transformName.equalsIgnoreCase(location.getTransformName())) {
         return location;
       }
     }
@@ -141,13 +138,15 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
   /**
    * Retrieve the golden data set for the specified location
    *
-   * @param log       the logging channel to log to
+   * @param log the logging channel to log to
    * @param metadataProvider The metadataProvider to use
-   * @param location  the location where we want to check against golden rows
+   * @param location the location where we want to check against golden rows
    * @return The golden data set
    * @throws HopException
    */
-  public DataSet getGoldenDataSet( ILogChannel log, IHopMetadataProvider metadataProvider, PipelineUnitTestSetLocation location ) throws HopException {
+  public DataSet getGoldenDataSet(
+      ILogChannel log, IHopMetadataProvider metadataProvider, PipelineUnitTestSetLocation location)
+      throws HopException {
 
     String transformName = location.getTransformName();
     String goldenDataSetName = location.getDataSetName();
@@ -155,19 +154,26 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     try {
       // Look in the golden data sets list for the mentioned transform name
       //
-      if ( goldenDataSetName == null ) {
-        throw new HopException( "Unable to find golden data set for transform '" + transformName + "'" );
+      if (goldenDataSetName == null) {
+        throw new HopException(
+            "Unable to find golden data set for transform '" + transformName + "'");
       }
 
-      DataSet goldenDataSet = metadataProvider.getSerializer( DataSet.class ).load(goldenDataSetName);
-      if ( goldenDataSet == null ) {
-        throw new HopException( "Unable to find golden data set '" + goldenDataSetName + "' for transform '" + transformName + "'" );
+      DataSet goldenDataSet = metadataProvider.getSerializer(DataSet.class).load(goldenDataSetName);
+      if (goldenDataSet == null) {
+        throw new HopException(
+            "Unable to find golden data set '"
+                + goldenDataSetName
+                + "' for transform '"
+                + transformName
+                + "'");
       }
 
       return goldenDataSet;
 
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to retrieve sorted golden row data set '" + transformName + "'", e );
+    } catch (Exception e) {
+      throw new HopException(
+          "Unable to retrieve sorted golden row data set '" + transformName + "'", e);
     }
   }
 
@@ -177,9 +183,10 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
    * @param transformName the name of the transform on which a tweak is put
    * @return the first tweak for a certain transform or null if nothing was found
    */
-  public PipelineUnitTestTweak findTweak( String transformName ) {
-    for ( PipelineUnitTestTweak tweak : tweaks ) {
-      if ( tweak.getTransformName() != null && tweak.getTransformName().equalsIgnoreCase( transformName ) ) {
+  public PipelineUnitTestTweak findTweak(String transformName) {
+    for (PipelineUnitTestTweak tweak : tweaks) {
+      if (tweak.getTransformName() != null
+          && tweak.getTransformName().equalsIgnoreCase(transformName)) {
         return tweak;
       }
     }
@@ -189,69 +196,73 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
   /**
    * Remove all input and golden data sets on the transform with the provided name
    *
-   * @param transformName the name of the transform for which we need to clear out all input and golden data sets
+   * @param transformName the name of the transform for which we need to clear out all input and
+   *     golden data sets
    */
-  public void removeInputAndGoldenDataSets( String transformName ) {
+  public void removeInputAndGoldenDataSets(String transformName) {
 
-    for ( Iterator<PipelineUnitTestSetLocation> iterator = inputDataSets.iterator(); iterator.hasNext(); ) {
+    for (Iterator<PipelineUnitTestSetLocation> iterator = inputDataSets.iterator();
+        iterator.hasNext(); ) {
       PipelineUnitTestSetLocation inputLocation = iterator.next();
-      if ( inputLocation.getTransformName().equalsIgnoreCase( transformName ) ) {
+      if (inputLocation.getTransformName().equalsIgnoreCase(transformName)) {
         iterator.remove();
       }
     }
 
-    for ( Iterator<PipelineUnitTestSetLocation> iterator = goldenDataSets.iterator(); iterator.hasNext(); ) {
+    for (Iterator<PipelineUnitTestSetLocation> iterator = goldenDataSets.iterator();
+        iterator.hasNext(); ) {
       PipelineUnitTestSetLocation goldenLocation = iterator.next();
-      if ( goldenLocation.getTransformName().equalsIgnoreCase( transformName ) ) {
+      if (goldenLocation.getTransformName().equalsIgnoreCase(transformName)) {
         iterator.remove();
       }
     }
   }
 
-  public boolean matchesPipelineFilename(IVariables variables, String referencePipelineFilename) throws HopFileException, FileSystemException {
-    if ( Utils.isEmpty(referencePipelineFilename)) {
+  public boolean matchesPipelineFilename(IVariables variables, String referencePipelineFilename)
+      throws HopFileException, FileSystemException {
+    if (Utils.isEmpty(referencePipelineFilename)) {
       return false;
     }
-    FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
+    FileObject pipelineFile = HopVfs.getFileObject(referencePipelineFilename);
     String pipelineUri = pipelineFile.getName().getURI();
 
     String testPipelineFilename = calculateCompletePipelineFilename(variables);
     if (Utils.isEmpty(testPipelineFilename)) {
       return false;
     }
-    FileObject testPipelineFile = HopVfs.getFileObject( testPipelineFilename );
+    FileObject testPipelineFile = HopVfs.getFileObject(testPipelineFilename);
     String testPipelineUri = testPipelineFile.getName().getURI();
 
-    return pipelineUri.equals( testPipelineUri );
+    return pipelineUri.equals(testPipelineUri);
   }
 
-  public String calculateCompletePipelineFilename( IVariables variables) {
+  public String calculateCompletePipelineFilename(IVariables variables) {
 
     // Without a filename we don't have any work
     //
-    if ( StringUtil.isEmpty( pipelineFilename ) ) {
+    if (StringUtil.isEmpty(pipelineFilename)) {
       return null;
     }
 
     // If the filename is an absolute path, just return that.
     //
-    if (pipelineFilename.startsWith( "/" ) || pipelineFilename.startsWith( "file:///" )) {
-      return variables.resolve( pipelineFilename ); // to make sure
+    if (pipelineFilename.startsWith("/") || pipelineFilename.startsWith("file:///")) {
+      return variables.resolve(pipelineFilename); // to make sure
     }
 
     // We're dealing with a relative path vs the base path
     //
-    String baseFilePath = variables.resolve( basePath );
-    if ( StringUtils.isEmpty( baseFilePath ) ) {
+    String baseFilePath = variables.resolve(basePath);
+    if (StringUtils.isEmpty(baseFilePath)) {
       // See if the base path environment variable is set
       //
-      baseFilePath = variables.getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
+      baseFilePath = variables.getVariable(DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER);
     }
-    if ( StringUtils.isEmpty( baseFilePath ) ) {
+    if (StringUtils.isEmpty(baseFilePath)) {
       baseFilePath = "";
     }
-    if ( StringUtils.isNotEmpty( baseFilePath ) ) {
-      if ( !baseFilePath.endsWith( File.separator ) ) {
+    if (StringUtils.isNotEmpty(baseFilePath)) {
+      if (!baseFilePath.endsWith(File.separator)) {
         baseFilePath += File.separator;
       }
     }
@@ -267,10 +278,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -283,10 +292,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return pipelineFilename;
   }
 
-  /**
-   * @param pipelineFilename The transFilename to set
-   */
-  public void setPipelineFilename( String pipelineFilename ) {
+  /** @param pipelineFilename The transFilename to set */
+  public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
 
@@ -299,10 +306,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return inputDataSets;
   }
 
-  /**
-   * @param inputDataSets The inputDataSets to set
-   */
-  public void setInputDataSets( List<PipelineUnitTestSetLocation> inputDataSets ) {
+  /** @param inputDataSets The inputDataSets to set */
+  public void setInputDataSets(List<PipelineUnitTestSetLocation> inputDataSets) {
     this.inputDataSets = inputDataSets;
   }
 
@@ -315,10 +320,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return goldenDataSets;
   }
 
-  /**
-   * @param goldenDataSets The goldenDataSets to set
-   */
-  public void setGoldenDataSets( List<PipelineUnitTestSetLocation> goldenDataSets ) {
+  /** @param goldenDataSets The goldenDataSets to set */
+  public void setGoldenDataSets(List<PipelineUnitTestSetLocation> goldenDataSets) {
     this.goldenDataSets = goldenDataSets;
   }
 
@@ -331,10 +334,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return tweaks;
   }
 
-  /**
-   * @param tweaks The tweaks to set
-   */
-  public void setTweaks( List<PipelineUnitTestTweak> tweaks ) {
+  /** @param tweaks The tweaks to set */
+  public void setTweaks(List<PipelineUnitTestTweak> tweaks) {
     this.tweaks = tweaks;
   }
 
@@ -347,10 +348,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( TestType type ) {
+  /** @param type The type to set */
+  public void setType(TestType type) {
     this.type = type;
   }
 
@@ -363,10 +362,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -379,10 +376,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return basePath;
   }
 
-  /**
-   * @param basePath The basePath to set
-   */
-  public void setBasePath( String basePath ) {
+  /** @param basePath The basePath to set */
+  public void setBasePath(String basePath) {
     this.basePath = basePath;
   }
 
@@ -395,10 +390,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return databaseReplacements;
   }
 
-  /**
-   * @param databaseReplacements The databaseReplacements to set
-   */
-  public void setDatabaseReplacements( List<PipelineUnitTestDatabaseReplacement> databaseReplacements ) {
+  /** @param databaseReplacements The databaseReplacements to set */
+  public void setDatabaseReplacements(
+      List<PipelineUnitTestDatabaseReplacement> databaseReplacements) {
     this.databaseReplacements = databaseReplacements;
   }
 
@@ -411,10 +405,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return variableValues;
   }
 
-  /**
-   * @param variableValues The variableValues to set
-   */
-  public void setVariableValues( List<VariableValue> variableValues ) {
+  /** @param variableValues The variableValues to set */
+  public void setVariableValues(List<VariableValue> variableValues) {
     this.variableValues = variableValues;
   }
 
@@ -427,39 +419,38 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return autoOpening;
   }
 
-  /**
-   * @param autoOpening The autoOpening to set
-   */
-  public void setAutoOpening( boolean autoOpening ) {
+  /** @param autoOpening The autoOpening to set */
+  public void setAutoOpening(boolean autoOpening) {
     this.autoOpening = autoOpening;
   }
 
-  public void setRelativeFilename( IVariables variables, String referencePipelineFilename ) throws HopException {
+  public void setRelativeFilename(IVariables variables, String referencePipelineFilename)
+      throws HopException {
     // Build relative path whenever a pipeline is saved
     //
-    if ( StringUtils.isEmpty( referencePipelineFilename ) ) {
+    if (StringUtils.isEmpty(referencePipelineFilename)) {
       return; // nothing we can do
     }
 
     // Set the filename to be safe
     //
-    setPipelineFilename( referencePipelineFilename );
+    setPipelineFilename(referencePipelineFilename);
 
     String base = getBasePath();
-    if ( StringUtils.isEmpty( base ) ) {
-      base = variables.getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
+    if (StringUtils.isEmpty(base)) {
+      base = variables.getVariable(DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER);
     }
-    base = variables.resolve( base );
-    if ( StringUtils.isNotEmpty( base ) ) {
+    base = variables.resolve(base);
+    if (StringUtils.isNotEmpty(base)) {
       // See if the base path is present in the filename
       // Then replace the filename
       //
       try {
-        FileObject baseFolder = HopVfs.getFileObject( base );
-        FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
+        FileObject baseFolder = HopVfs.getFileObject(base);
+        FileObject pipelineFile = HopVfs.getFileObject(referencePipelineFilename);
         FileObject parent = pipelineFile.getParent();
-        while ( parent != null ) {
-          if ( parent.equals( baseFolder ) ) {
+        while (parent != null) {
+          if (parent.equals(baseFolder)) {
             // Here we are, we found the base folder in the pipeline file
             //
             String pipelineFileString = pipelineFile.toString();
@@ -467,27 +458,30 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
 
             // Final validation & unit test filename correction
             //
-            if ( pipelineFileString.startsWith( baseFolderName ) ) {
-              String relativeFile = pipelineFileString.substring( baseFolderName.length() );
+            if (pipelineFileString.startsWith(baseFolderName)) {
+              String relativeFile = pipelineFileString.substring(baseFolderName.length());
               String relativeFilename;
-              if ( relativeFile.startsWith( "/" ) ) {
+              if (relativeFile.startsWith("/")) {
                 relativeFilename = "." + relativeFile;
               } else {
                 relativeFilename = "./" + relativeFile;
               }
               // Set the pipeline filename to the relative path
               //
-              setPipelineFilename( relativeFilename );
+              setPipelineFilename(relativeFilename);
 
-              LogChannel.GENERAL.logDetailed( "Unit test '" + getName() + "' : saved relative path to pipeline: " + relativeFilename );
+              LogChannel.GENERAL.logDetailed(
+                  "Unit test '"
+                      + getName()
+                      + "' : saved relative path to pipeline: "
+                      + relativeFilename);
             }
           }
           parent = parent.getParent();
         }
-      } catch ( Exception e ) {
-        throw new HopException( "Error calculating relative unit test file path", e );
+      } catch (Exception e) {
+        throw new HopException("Error calculating relative unit test file path", e);
       }
     }
-
   }
 }

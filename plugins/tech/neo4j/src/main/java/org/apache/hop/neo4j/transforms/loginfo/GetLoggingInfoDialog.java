@@ -100,11 +100,24 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Some buttons at the bottom
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wPreview = new Button(shell, SWT.PUSH);
+    wPreview.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Button.PreviewRows"));
+    wPreview.setEnabled(!isReceivingInput);
+    wPreview.addListener(SWT.Selection, e -> preview());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
+
     // See if the transform receives input.
     //
     isReceivingInput = pipelineMeta.findNrPrevTransforms(transformMeta) > 0;
 
-    // Transformname line
+    // Transform name line
     wlTransformname = new Label(shell, SWT.RIGHT);
     wlTransformname.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformname);
@@ -189,24 +202,8 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Button.PreviewRows"));
-    wPreview.setEnabled(!isReceivingInput);
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, wFields);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview.addListener(SWT.Selection, e -> preview());
 
     getData();
 

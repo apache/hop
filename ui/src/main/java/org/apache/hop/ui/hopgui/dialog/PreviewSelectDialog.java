@@ -90,6 +90,17 @@ public class PreviewSelectDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button wPreview = new Button(shell, SWT.PUSH);
+    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Show"));
+    wPreview.addListener(SWT.Selection, e -> preview());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Close"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wPreview, wCancel}, margin, null);
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "PreviewSelectDialog.Label.Transforms")); // Transforms:
@@ -100,9 +111,9 @@ public class PreviewSelectDialog extends Dialog {
     wlFields.setLayoutData(fdlFields);
 
     List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
-    final int FieldsRows = usedTransforms.size();
+    final int nrRows = usedTransforms.size();
 
-    ColumnInfo[] colinf = {
+    ColumnInfo[] columns = {
       new ColumnInfo(
           BaseMessages.getString(PKG, "PreviewSelectDialog.Column.TransformName"),
           ColumnInfo.COLUMN_TYPE_TEXT,
@@ -120,8 +131,8 @@ public class PreviewSelectDialog extends Dialog {
             HopGui.getInstance().getVariables(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrRows,
             true, // read-only
             null,
             props);
@@ -130,20 +141,8 @@ public class PreviewSelectDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wPreview, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    Button wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Show"));
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wPreview, wCancel}, margin, null);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wPreview.addListener(SWT.Selection, e -> preview());
 
     getData();
 

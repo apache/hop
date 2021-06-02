@@ -65,14 +65,14 @@ public class CheckResultDialog extends Dialog {
   private static final String STRING_SHOW_REMARKS =
       BaseMessages.getString(PKG, "CheckResultDialog.WarningsErrors.Label");
 
-  private List<ICheckResult> remarks;
+  private final List<ICheckResult> remarks;
 
   private Label wlFields;
   private TableView wFields;
   private Button wNoOK;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
   private Color red, green, yellow;
 
@@ -80,9 +80,8 @@ public class CheckResultDialog extends Dialog {
 
   private String transformName;
 
-  public CheckResultDialog(
-      PipelineMeta pipelineMeta, Shell parent, int style, List<ICheckResult> rem) {
-    super(parent, style);
+  public CheckResultDialog(Shell parent, List<ICheckResult> rem) {
+    super(parent, SWT.NONE);
     remarks = rem;
     props = PropsUi.getInstance();
     transformName = null;
@@ -110,6 +109,20 @@ public class CheckResultDialog extends Dialog {
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button wClose = new Button(shell, SWT.PUSH);
+    wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
+    wClose.addListener(SWT.Selection, e -> close());
+    Button wView = new Button(shell, SWT.PUSH);
+    wView.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.ViewMessage"));
+    wView.addListener(SWT.Selection, e -> view());
+    Button wEdit = new Button(shell, SWT.PUSH);
+    wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
+    wEdit.addListener(SWT.Selection, e -> edit());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wClose, wView, wEdit}, margin, null);
+
     wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "CheckResultDialog.Remarks.Label"));
     props.setLook(wlFields);
@@ -119,23 +132,23 @@ public class CheckResultDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsCols = 3;
-    int FieldsRows = 1;
+    int nrColumns = 3;
+    int nrRows = 1;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] columns = new ColumnInfo[nrColumns];
+    columns[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "CheckResultDialog.TransformName.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    colinf[1] =
+    columns[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "CheckResultDialog.Result.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    colinf[2] =
+    columns[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "CheckResultDialog.Remark.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
@@ -147,8 +160,8 @@ public class CheckResultDialog extends Dialog {
             HopGui.getInstance().getVariables(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrRows,
             true,
             null,
             props);
@@ -157,7 +170,7 @@ public class CheckResultDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wClose, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     wNoOK = new Button(shell, SWT.CHECK);
@@ -166,23 +179,6 @@ public class CheckResultDialog extends Dialog {
     fd.left = new FormAttachment(0, 0);
     fd.top = new FormAttachment(wFields, margin);
     wNoOK.setLayoutData(fd);
-
-    Button wClose = new Button(shell, SWT.PUSH);
-    wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-
-    Button wView = new Button(shell, SWT.PUSH);
-    wView.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.ViewMessage"));
-
-    Button wEdit = new Button(shell, SWT.PUSH);
-    wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wClose, wView, wEdit}, margin, null);
-
-    // Add listeners
-    wClose.addListener(SWT.Selection, e -> close());
-    wView.addListener(SWT.Selection, e -> view());
-    wEdit.addListener(SWT.Selection, e -> edit());
     wNoOK.addListener(SWT.Selection, e -> noOK());
 
     // Detect X or ALT-F4 or something that kills this window...

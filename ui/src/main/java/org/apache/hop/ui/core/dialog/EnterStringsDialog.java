@@ -96,6 +96,16 @@ public class EnterStringsDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Message line
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(message);
@@ -105,9 +115,9 @@ public class EnterStringsDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsRows = strings.getRowMeta().size();
+    int nrRows = strings.getRowMeta().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "EnterStringsDialog.StringName.Label"),
@@ -126,8 +136,8 @@ public class EnterStringsDialog extends Dialog {
             Variables.getADefaultVariableSpace(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrRows,
             null,
             props);
     wFields.setReadonly(readOnly);
@@ -136,20 +146,8 @@ public class EnterStringsDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, 30);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
 
