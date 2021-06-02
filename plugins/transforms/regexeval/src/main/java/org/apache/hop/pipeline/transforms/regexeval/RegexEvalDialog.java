@@ -308,7 +308,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wUseVar);
     FormData fdUseVar = new FormData();
     fdUseVar.left = new FormAttachment(wlUseVar, margin);
-    fdUseVar.bottom = new FormAttachment(100, 0);
+    fdUseVar.top = new FormAttachment(wlUseVar, 0, SWT.CENTER);
     wUseVar.setLayoutData(fdUseVar);
     wUseVar.addSelectionListener(lsSel);
     Composite wBottom = new Composite(wSash, SWT.NONE);
@@ -625,7 +625,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
     wTabFolder.setLayoutData(fdTabFolder);
 
     FormData fdBottom = new FormData();
@@ -639,10 +639,10 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdSash.left = new FormAttachment(0, 0);
     fdSash.top = new FormAttachment(wTransformName, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSash.bottom = new FormAttachment(wOk, -margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {60, 40});
+    wSash.setWeights(60, 40);
 
     // Add listeners
 

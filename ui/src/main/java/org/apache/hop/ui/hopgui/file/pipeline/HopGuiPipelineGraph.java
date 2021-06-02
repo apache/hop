@@ -97,6 +97,7 @@ import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.CheckResultDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -117,6 +118,7 @@ import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
+import org.apache.hop.ui.hopgui.dialog.CheckPipelineProgressDialog;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
@@ -153,8 +155,6 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -226,6 +226,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_PAUSE = "HopGuiPipelineGraph-ToolBar-10020-Pause";
   public static final String TOOLBAR_ITEM_PREVIEW = "HopGuiPipelineGraph-ToolBar-10040-Preview";
   public static final String TOOLBAR_ITEM_DEBUG = "HopGuiPipelineGraph-ToolBar-10045-Debug";
+  public static final String TOOLBAR_ITEM_CHECK = "HopGuiPipelineGraph-ToolBar-10060-Check";
 
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiPipelineGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiPipelineGraph-ToolBar-10110-Redo";
@@ -254,7 +255,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   private static final int HOP_SEL_MARGIN = 9;
 
@@ -269,11 +270,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private final HopDataOrchestrationPerspective perspective;
 
-  private Composite mainComposite;
+  private final Composite mainComposite;
 
-  private DefaultToolTip toolTip;
+  private final DefaultToolTip toolTip;
 
-  private CheckBoxToolTip helpTip;
+  private final CheckBoxToolTip helpTip;
 
   private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
@@ -325,9 +326,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   protected TransformMeta currentTransform;
 
-  private List<AreaOwner> areaOwners;
+  private final List<AreaOwner> areaOwners;
 
-  private SashForm sashForm;
+  private final SashForm sashForm;
 
   public CTabFolder extraViewTabFolder;
 
@@ -3384,7 +3385,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     endHopTransform = null;
     redraw();
   }
-  
+
   private boolean pointOnLine(int x, int y, int[] line) {
     int dx, dy;
     int pm = HOP_SEL_MARGIN / 2;
@@ -3891,11 +3892,32 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pauseResume();
   }
 
-  /* TODO: re-introduce
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_CHECK,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.VerifyPipeline",
+      image = "ui/images/check-pipeline.svg",
+      separator = true)
   public void checkPipeline() {
-    hopGui.checkPipeline();
+    try {
+      CheckPipelineProgressDialog dialog =
+          new CheckPipelineProgressDialog(getShell(), variables, pipelineMeta, getRemarks(), false);
+      dialog.open();
+
+      CheckResultDialog crd = new CheckResultDialog(getShell(), getRemarks());
+      String transformName = crd.open();
+      if (transformName != null) {
+        // Go to the indicated transform
+        //
+        TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+        if (transformMeta != null) {
+          pipelineTransformDelegate.editTransform(pipelineMeta, transformMeta);
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error verifying pipeline", e);
+    }
   }
-  */
 
   /** TODO: re-introduce public void analyseImpact() { hopGui.analyseImpact(); } */
 

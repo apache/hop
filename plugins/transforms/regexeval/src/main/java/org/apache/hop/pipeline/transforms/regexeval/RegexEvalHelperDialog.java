@@ -126,6 +126,16 @@ public class RegexEvalHelperDialog extends Dialog {
     int margin = props.getMargin();
     int middle = 30;
 
+    // Some buttons at the bottom
+
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     CTabFolder wNoteFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wNoteFolder, Props.WIDGET_STYLE_TAB);
 
@@ -328,19 +338,8 @@ public class RegexEvalHelperDialog extends Dialog {
     fdNoteFolder.left = new FormAttachment(0, 0);
     fdNoteFolder.top = new FormAttachment(0, margin);
     fdNoteFolder.right = new FormAttachment(100, 0);
-    fdNoteFolder.bottom = new FormAttachment(100, -50);
+    fdNoteFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wNoteFolder.setLayoutData(fdNoteFolder);
-
-    // Some buttons
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wNoteFolder);
 
     // Add listeners
 
@@ -356,7 +355,7 @@ public class RegexEvalHelperDialog extends Dialog {
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    wNoteFolder.setSelection(0);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

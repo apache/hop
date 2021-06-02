@@ -220,10 +220,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     //
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     Button wTest = new Button(shell, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"));
+    wTest.addListener(SWT.Selection, e -> test());
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wTest, wCancel}, margin, null);
 
     // Filename line
@@ -287,6 +290,15 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdlScript.top = new FormAttachment(0, 0);
     wlScript.setLayoutData(fdlScript);
 
+    wlPosition = new Label(wTop, SWT.NONE);
+    wlPosition.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label"));
+    props.setLook(wlPosition);
+    FormData fdlPosition = new FormData();
+    fdlPosition.left = new FormAttachment(wTree, margin);
+    fdlPosition.right = new FormAttachment(30, 0);
+    fdlPosition.bottom = new FormAttachment(100, 0);
+    wlPosition.setLayoutData(fdlPosition);
+
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
     folder.setUnselectedImageVisible(true);
     folder.setUnselectedCloseVisible(true);
@@ -294,21 +306,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdScript.left = new FormAttachment(wTree, margin);
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -5);
-    fdScript.bottom = new FormAttachment(100, -50);
+    fdScript.bottom = new FormAttachment(wlPosition, -margin);
     folder.setLayoutData(fdScript);
-
-    wlPosition = new Label(wTop, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label"));
-    props.setLook(wlPosition);
-    FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment(wTree, margin);
-    fdlPosition.right = new FormAttachment(30, 0);
-    fdlPosition.top = new FormAttachment(folder, margin);
-    wlPosition.setLayoutData(fdlPosition);
 
     Text wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
     wlHelpLabel.setEditable(false);
-    wlHelpLabel.setText("Hallo");
+    wlHelpLabel.setText("Help");
     props.setLook(wlHelpLabel);
     FormData fdHelpLabel = new FormData();
     fdHelpLabel.left = new FormAttachment(wlPosition, margin);
@@ -364,14 +367,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     fdSash.left = new FormAttachment(0, 0);
     fdSash.top = new FormAttachment(wTransformName, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, -50);
+    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {75, 25});
+    wSash.setWeights(75, 25);
 
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wTest.addListener(SWT.Selection, e -> test());
-    wOk.addListener(SWT.Selection, e -> ok());
     wTree.addListener(SWT.MouseDoubleClick, this::treeDblClick);
 
     folder.addCTabFolder2Listener(

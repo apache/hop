@@ -19,16 +19,12 @@ package org.apache.hop.ui.testing;
 
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
@@ -70,11 +66,7 @@ public class EditRowsDialog {
 
   private TableView wFields;
 
-  private FormData fdlFields, fdFields;
-
-  private Button wOK;
-
-  private Button wCancel;
+  private Button wOk;
 
   private Shell shell;
 
@@ -146,16 +138,16 @@ public class EditRowsDialog {
 
     // Buttons go at the very bottom
     //
-    wOK = new Button(shell, SWT.PUSH);
-    wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOK.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
         shell,
         new Button[] {
-          wOK, wCancel,
+          wOk, wCancel,
         },
         Const.MARGIN,
         null);
@@ -172,14 +164,13 @@ public class EditRowsDialog {
   }
 
   private boolean addFields() {
-    // int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     if (wlMessage == null) {
       wlMessage = new Label(shell, SWT.LEFT);
       wlMessage.setText(message);
       props.setLook(wlMessage);
-      fdlFields = new FormData();
+      FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment(0, 0);
       fdlFields.right = new FormAttachment(100, 0);
       fdlFields.top = new FormAttachment(0, margin);
@@ -221,11 +212,11 @@ public class EditRowsDialog {
             props);
     wFields.setShowingBlueNullValues(true);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlMessage, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     shell.layout(true, true);

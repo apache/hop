@@ -104,29 +104,46 @@ public class SqlStatementsDialog extends Dialog {
 
     int margin = props.getMargin();
 
-    int FieldsCols = 4;
-    int FieldsRows = stats.size();
+    // Add the buttons at the bottom
+    //
+    Button wExec = new Button(shell, SWT.PUSH);
+    wExec.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ExecSQL"));
+    wExec.addListener(SWT.Selection, e -> exec());
+    Button wEdit = new Button(shell, SWT.PUSH);
+    wEdit.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.EditTransform"));
+    wEdit.addListener(SWT.Selection, e -> edit());
+    Button wView = new Button(shell, SWT.PUSH);
+    wView.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ViewSql"));
+    wView.addListener(SWT.Selection, e -> view());
+    Button wClose = new Button(shell, SWT.PUSH);
+    wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
+    wClose.addListener(SWT.Selection, e -> close());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wExec, wEdit, wView, wClose}, margin, null);
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    int nrCols = 4;
+    int nrRows = stats.size();
+
+    ColumnInfo[] columns = new ColumnInfo[nrCols];
+    columns[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SQLStatementDialog.TableCol.TransformName"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    colinf[1] =
+    columns[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SQLStatementDialog.TableCol.Connection"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    colinf[2] =
+    columns[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SQLStatementDialog.TableCol.SQL"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    colinf[3] =
+    columns[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SQLStatementDialog.TableCol.Error"),
             ColumnInfo.COLUMN_TYPE_TEXT,
@@ -138,8 +155,8 @@ public class SqlStatementsDialog extends Dialog {
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrRows,
             true, // read-only
             null,
             props);
@@ -148,40 +165,8 @@ public class SqlStatementsDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wExec, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    Button wClose = new Button(shell, SWT.PUSH);
-    wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-    wClose.addListener(SWT.Selection, e -> close());
-    FormData fdClose = new FormData();
-    fdClose.left = new FormAttachment(25, 0);
-    fdClose.bottom = new FormAttachment(100, 0);
-    wClose.setLayoutData(fdClose);
-
-    Button wView = new Button(shell, SWT.PUSH);
-    wView.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ViewSql"));
-    wView.addListener(SWT.Selection, e -> view());
-    FormData fdView = new FormData();
-    fdView.left = new FormAttachment(wClose, margin);
-    fdView.bottom = new FormAttachment(100, 0);
-    wView.setLayoutData(fdView);
-
-    Button wExec = new Button(shell, SWT.PUSH);
-    wExec.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.ExecSQL"));
-    wExec.addListener(SWT.Selection, e -> exec());
-    FormData fdExec = new FormData();
-    fdExec.left = new FormAttachment(wView, margin);
-    fdExec.bottom = new FormAttachment(100, 0);
-    wExec.setLayoutData(fdExec);
-
-    Button wEdit = new Button(shell, SWT.PUSH);
-    wEdit.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Button.EditTransform"));
-    wEdit.addListener(SWT.Selection, e -> edit());
-    FormData fdEdit = new FormData();
-    fdEdit.left = new FormAttachment(wExec, margin);
-    fdEdit.bottom = new FormAttachment(100, 0);
-    wEdit.setLayoutData(fdEdit);
 
     // Add listeners
 

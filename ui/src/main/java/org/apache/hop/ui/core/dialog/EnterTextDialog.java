@@ -27,8 +27,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -38,7 +36,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -134,6 +131,22 @@ public class EnterTextDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Some buttons at the bottom
+    if (!readonly) {
+      wOk = new Button(shell, SWT.PUSH);
+      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+      wOk.addListener(SWT.Selection, e -> ok());
+      Button wCancel = new Button(shell, SWT.PUSH);
+      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.addListener(SWT.Selection, e -> cancel());
+      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+    } else {
+      wOk = new Button(shell, SWT.PUSH);
+      wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
+      wOk.addListener(SWT.Selection, e -> ok());
+      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, margin, null);
+    }
+
     // From transform line
     Label wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
@@ -159,32 +172,10 @@ public class EnterTextDialog extends Dialog {
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, 0);
-    fdDesc.bottom = new FormAttachment(100, -50);
+    fdDesc.bottom = new FormAttachment(wOk, -2 * margin);
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(!readonly);
-
-    // Some buttons
-    Listener lsOk;
-    if (!readonly) {
-      wOk = new Button(shell, SWT.PUSH);
-      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-      Button wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-      // Add listeners
-      wOk.addListener(SWT.Selection, e -> ok());
-      wCancel.addListener(SWT.Selection, e -> cancel());
-    } else {
-      wOk = new Button(shell, SWT.PUSH);
-      wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, margin, null);
-
-      // Add listeners
-      wOk.addListener(SWT.Selection, e -> ok());
-    }
+    wDesc.addListener(SWT.DefaultSelection, e -> ok());
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -197,7 +188,22 @@ public class EnterTextDialog extends Dialog {
     origText = text;
     getData();
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    // Set the size as well...
+    //
+    BaseTransformDialog.setSize(shell);
+
+    // Open the shell
+    //
+    shell.open();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
+    }
 
     return text;
   }

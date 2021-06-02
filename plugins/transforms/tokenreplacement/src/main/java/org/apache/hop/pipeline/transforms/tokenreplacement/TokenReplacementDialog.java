@@ -252,7 +252,17 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Transformname line
+    // Buttons at the bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+
+    // Transform name line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformName);
@@ -1203,21 +1213,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wTabFolder);
-
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
     wGet.addListener(SWT.Selection, e -> get());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     // Whenever something changes, set the tooltip to the expanded version:
     wInputFilename.addModifyListener(

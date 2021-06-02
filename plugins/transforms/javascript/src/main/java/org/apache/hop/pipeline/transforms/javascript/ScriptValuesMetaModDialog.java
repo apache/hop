@@ -188,6 +188,22 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wVars = new Button(shell, SWT.PUSH);
+    wVars.addListener(SWT.Selection, e -> test(true, true));
+    wVars.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.GetVariables.Button"));
+    Button wTest = new Button(shell, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestScript.Button"));
+    wTest.addListener(SWT.Selection, e -> newTest());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wVars, wTest, wCancel}, margin, null);
+
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
@@ -260,7 +276,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     props.setLook(wlOptimizationLevel);
     FormData fdlOptimizationLevel = new FormData();
     fdlOptimizationLevel.left = new FormAttachment(wTree, margin * 2);
-    fdlOptimizationLevel.bottom = new FormAttachment(100, -2 * margin);
+    fdlOptimizationLevel.bottom = new FormAttachment(100, -margin);
     wlOptimizationLevel.setLayoutData(fdlOptimizationLevel);
 
     wOptimizationLevel = new TextVar(variables, wTop, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -282,7 +298,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, 2 * margin);
     fdlPosition.right = new FormAttachment(100, 0);
-    fdlPosition.bottom = new FormAttachment(wOptimizationLevel, -2 * margin);
+    fdlPosition.bottom = new FormAttachment(wOptimizationLevel, -margin);
     wlPosition.setLayoutData(fdlPosition);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
@@ -292,7 +308,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     fdScript.left = new FormAttachment(wTree, margin);
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -5);
-    fdScript.bottom = new FormAttachment(wlPosition, -2 * margin);
+    fdScript.bottom = new FormAttachment(wlPosition, -margin);
     folder.setLayoutData(fdScript);
 
     FormData fdTop = new FormData();
@@ -383,27 +399,12 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     fdSash.left = new FormAttachment(0, 0);
     fdSash.top = new FormAttachment(wTransformName, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, -50);
+    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {75, 25});
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wVars = new Button(shell, SWT.PUSH);
-    wVars.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.GetVariables.Button"));
-    Button wTest = new Button(shell, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestScript.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel, wVars, wTest}, margin, null);
+    wSash.setWeights(75, 25);
 
     // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wTest.addListener(SWT.Selection, e -> newTest());
-    wVars.addListener(SWT.Selection, e -> test(true, true));
-    wOk.addListener(SWT.Selection, e -> ok());
     wTree.addListener(SWT.MouseDoubleClick, e -> treeDblClick(e));
 
     folder.addCTabFolder2Listener(

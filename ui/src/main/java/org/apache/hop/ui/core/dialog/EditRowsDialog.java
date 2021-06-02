@@ -66,17 +66,13 @@ public class EditRowsDialog {
 
   private TableView wFields;
 
-  private FormData fdlFields, fdFields;
-
   private Button wOk;
-
-  private Button wCancel;
 
   private Shell shell;
 
-  private List<Object[]> rowBuffer;
+  private final List<Object[]> rowBuffer;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private String title, message;
 
@@ -87,13 +83,13 @@ public class EditRowsDialog {
 
   private IRowMeta rowMeta;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   protected int lineNr;
 
   private int style = SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
 
-  private Shell parentShell;
+  private final Shell parentShell;
 
   private List<Object[]> outputList;
 
@@ -144,7 +140,7 @@ public class EditRowsDialog {
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
 
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
@@ -177,7 +173,7 @@ public class EditRowsDialog {
       wlMessage = new Label(shell, SWT.LEFT);
       wlMessage.setText(message);
       props.setLook(wlMessage);
-      fdlFields = new FormData();
+      FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment(0, 0);
       fdlFields.right = new FormAttachment(100, 0);
       fdlFields.top = new FormAttachment(0, margin);
@@ -219,11 +215,11 @@ public class EditRowsDialog {
             props);
     wFields.setShowingBlueNullValues(true);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlMessage, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     shell.layout(true, true);
