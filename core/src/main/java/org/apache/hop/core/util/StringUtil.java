@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -616,5 +617,15 @@ public class StringUtil {
     }
 
     return source.substring( 0, index );
+  }
+  
+  /**
+   * Remove diacritical marks from a string (accents and cedilla) and return the same string withour marks.
+   * 
+   * @param source the {@link String} to clean
+   * @return the string without marks
+   */
+  public static String removeDiacriticalMarks(String source) {    
+    return Normalizer.normalize(source, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
   }
 }
