@@ -19,6 +19,9 @@
 #
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_NAME="$1"
+
+echo "The Project Name = ${PROJECT_NAME}"
 
 if [ -z "${HOP_LOCATION}" ]; then
     HOP_LOCATION=/opt/hop
@@ -49,6 +52,10 @@ if [ -z "${POSTGRES_PASSWORD}" ]; then
     POSTGRES_PASSWORD=hop_password
 fi
 
+if [ -z "${PROJECT_NAME}" ]; then
+    PROJECT_NAME="*"
+fi
+
 #set global variables
 SPACER="==========================================="
 
@@ -60,8 +67,6 @@ mkdir -p "${TMP_FOLDER}"
 #cleanup Temp
 export TMP_TESTCASES="${TMP_FOLDER}"/testcases.xml
 rm -f "${TMP_TESTCASES}"
-rm -rf "${CURRENT_DIR}"/../surefire-reports
-mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 
 # Set up auditing
 # Start with a new blank slate every time
@@ -75,7 +80,7 @@ mkdir -p "${HOP_AUDIT_FOLDER}"
 TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
 
 #Loop over project folders
-for d in "${CURRENT_DIR}"/../*/ ; do
+for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
     #cleanup project testcases
     rm -f "${TMP_TESTCASES}"
 

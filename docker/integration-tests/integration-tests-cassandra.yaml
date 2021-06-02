@@ -17,17 +17,23 @@
 
 version: '3'
 services:
-  integration_test:
-    build:
-      context: ../../.
-      dockerfile: docker/integration-tests/Dockerfile.unit-tests
-      args:
-        - JENKINS_USER=jenkins
-        - JENKINS_UID=1000
-        - JENKINS_GROUP=jenkins
-        - JENKINS_GID=1000
-    volumes:
-      - ../../integration-tests/:/files
-    environment:
-      - FLASK_ENV=docker
-    command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]
+  integration_test_cassandra:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    links:
+      - cassandra
+
+  cassandra:
+    image: cassandra:latest
+    ports:
+      - "9042"
+      - "9160"
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 10s
+      timeout: 5s
+      retries: 50
