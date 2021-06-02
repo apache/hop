@@ -81,7 +81,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 echo 'Build & Test'
-                sh "mvn $MAVEN_PARAMS clean install"
+                sh "mvn $MAVEN_PARAMS clean install -DskipTests=true"
             }
         }
         // stage('Code Quality') {
@@ -97,8 +97,7 @@ pipeline {
         // }
         stage('Create Docker image & Run Tests'){
             steps {
-                    sh "docker-compose -f 'docker/integration-tests/integration-tests-base.yaml' build --build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid}"
-                    sh "integration-tests/scripts/run-tests-docker.sh"
+                    sh "integration-tests/scripts/run-tests-docker.sh JENKINS_USER=${jenkins_user} JENKINS_UID=${jenkins_uid} JENKINS_GROUP=${jenkins_group} JENKINS_GID=${jenkins_gid}"
                 }
             post {
                 always {

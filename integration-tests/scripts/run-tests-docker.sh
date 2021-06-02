@@ -20,10 +20,44 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DOCKER_FILES_DIR="$(cd ${CURRENT_DIR}/../../docker/integration-tests/ && pwd)"
-PROJECT_NAME="$1"
+
+for ARGUMENT in "$@"
+do
+
+    KEY=$(echo $ARGUMENT | cut -f1 -d=)
+    VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
+
+    case "$KEY" in
+            PROJECT_NAME)    PROJECT_NAME=${VALUE} ;;
+            JENKINS_USER)    REPOSITORY_NAME=${VALUE} ;;
+            JENKINS_UID)    REPOSITORY_NAME=${VALUE} ;;
+            JENKINS_GROUP)    REPOSITORY_NAME=${VALUE} ;;
+            JENKINS_GID)    REPOSITORY_NAME=${VALUE} ;;
+            *)   
+    esac    
+
+
+done
+
 
 if [ -z "${PROJECT_NAME}" ]; then
     PROJECT_NAME="*"
+fi
+
+if [ -z "${JENKINS_USER}" ]; then
+    JENKINS_USER="jenkins"
+fi
+
+if [ -z "${JENKINS_UID}" ]; then
+    JENKINS_UID="1000"
+fi
+
+if [ -z "${JENKINS_GROUP}" ]; then
+    JENKINS_GROUP="jenkins"
+fi
+
+if [ -z "${JENKINS_GID}" ]; then
+    JENKINS_GID="1000"
 fi
 
 #Cleanup surefire reports
@@ -45,10 +79,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
 
         if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
             echo "Project compose exists."
+            PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}
             PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
             docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down --rmi all
         else
             echo "Project compose does not exists."
+            PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}
             PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
             docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml down
         fi
