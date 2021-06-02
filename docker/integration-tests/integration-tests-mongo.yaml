@@ -21,12 +21,6 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
-    build:
-      args:
-        - JENKINS_USER=jenkins
-        - JENKINS_UID=1000
-        - JENKINS_GROUP=jenkins
-        - JENKINS_GID=1000
     depends_on:
       mongo:
         condition: service_healthy

@@ -29,10 +29,10 @@ do
 
     case "$KEY" in
             PROJECT_NAME)    PROJECT_NAME=${VALUE} ;;
-            JENKINS_USER)    REPOSITORY_NAME=${VALUE} ;;
-            JENKINS_UID)    REPOSITORY_NAME=${VALUE} ;;
-            JENKINS_GROUP)    REPOSITORY_NAME=${VALUE} ;;
-            JENKINS_GID)    REPOSITORY_NAME=${VALUE} ;;
+            JENKINS_USER)    JENKINS_USER=${VALUE} ;;
+            JENKINS_UID)    JENKINS_UID=${VALUE} ;;
+            JENKINS_GROUP)    JENKINS_GROUP=${VALUE} ;;
+            JENKINS_GID)    JENKINS_GID=${VALUE} ;;
             *)   
     esac    
 
