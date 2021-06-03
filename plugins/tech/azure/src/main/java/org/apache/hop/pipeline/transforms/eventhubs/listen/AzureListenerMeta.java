@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
     image = "event-hubs-listener.svg",
     categoryDescription = "Streaming",
     documentationUrl =
-        "http://hop.apache.org/manual/latest/pipeline/transforms/azure-event-hubs-listener.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/azure-event-hubs-listener.html")
 public class AzureListenerMeta extends BaseTransformMeta
     implements ITransformMeta<AzureListener, AzureListenerData> {
 

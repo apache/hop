@@ -41,7 +41,7 @@ import org.w3c.dom.Node;
     image = "event-hubs-writer.svg",
     categoryDescription = "Streaming",
     documentationUrl =
-        "http://hop.apache.org/manual/latest/pipeline/transforms/azure-event-hubs-writer.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/azure-event-hubs-writer.html")
 public class AzureWriterMeta extends BaseTransformMeta
     implements ITransformMeta<AzureWrite, AzureWriterData> {
 

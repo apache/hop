@@ -698,6 +698,7 @@ public class PluginRegistry {
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ImageFile.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Category.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Keywords.Label" ) ) );
+    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.DocumentationUrl.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ClassName.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Libraries.Label" ) ) );
 
@@ -724,6 +725,7 @@ public class PluginRegistry {
       row[ rowIndex++ ] = Const.NVL( plugin.getImageFile(), "" );
       row[ rowIndex++ ] = Const.NVL( plugin.getCategory(), "" );
       row[ rowIndex++ ] = String.join( ",", plugin.getKeywords() );
+      row[ rowIndex++ ] = Const.NVL( plugin.getDocumentationUrl(), "" );
       row[ rowIndex++ ] = plugin.getClassMap().values().toString();
       row[ rowIndex++ ] = String.join( ",", plugin.getLibraries() );
 
