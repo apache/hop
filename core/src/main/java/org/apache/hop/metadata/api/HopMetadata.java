@@ -39,4 +39,6 @@ public @interface HopMetadata {
   String description() default "";
 
   String image() default "ui/images/folder.svg";
+  
+  String documentationUrl() default "";
 }

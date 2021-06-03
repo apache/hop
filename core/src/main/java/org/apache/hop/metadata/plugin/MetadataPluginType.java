@@ -90,7 +90,7 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> {
 
   @Override
   protected String extractDocumentationUrl( HopMetadata annotation ) {
-    return null;
+    return annotation.documentationUrl();
   }
 
   @Override

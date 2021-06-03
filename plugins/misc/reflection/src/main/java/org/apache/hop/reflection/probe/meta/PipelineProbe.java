@@ -30,7 +30,8 @@ import java.util.List;
     key = "pipeline-probe",
     name = "Pipeline Probe",
     description = "This allows you to stream output rows of a transform to another pipeline",
-    image = "probe.svg")
+    image = "probe.svg",
+    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-probe.html")
 public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

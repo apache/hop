@@ -27,7 +27,9 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "pipeline-log",
     name = "Pipeline Log",
     description = "This metadata object type allows you to log activity of a pipeline with another pipeline",
-    image = "pipeline-log.svg")
+    image = "pipeline-log.svg",
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/pipeline-log.html"
+)
 public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

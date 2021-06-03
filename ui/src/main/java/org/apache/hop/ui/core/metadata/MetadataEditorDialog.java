@@ -29,8 +29,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -72,7 +70,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-
+    
     List<Button> buttons = new ArrayList<>();
     buttons.add(wOk);
     Button[] extras = editor.createButtonsForButtonBar(shell);
@@ -85,6 +83,14 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[0]), props.getMargin(), null);
 
+        
+    Button wHelp = editor.createHelpButton(shell);
+    FormData fdHelp = new FormData();
+    fdHelp.bottom = new FormAttachment(100, 0);
+    fdHelp.left = new FormAttachment(0, 0);
+    wHelp.setLayoutData(fdHelp);
+    
+    
     // Create editor content area
     Composite area = new Composite(shell, SWT.NONE);
     FormLayout layout = new FormLayout();
