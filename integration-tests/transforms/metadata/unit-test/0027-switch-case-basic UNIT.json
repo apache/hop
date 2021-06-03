@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "extra",
+          "data_set_field": "extra"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-switch-case-basic"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0027-switch-case-basic UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0027-switch-case-basic.hpl",
+  "test_type": "UNIT_TEST"
+}
