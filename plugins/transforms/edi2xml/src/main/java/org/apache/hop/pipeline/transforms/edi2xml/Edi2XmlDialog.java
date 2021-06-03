@@ -117,7 +117,8 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            BaseTransformDialog.getFieldsFromPrevious(wEdiField, pipelineMeta, transformMeta);
+            BaseTransformDialog.getFieldsFromPrevious(
+                variables, wEdiField, pipelineMeta, transformMeta);
             shell.setCursor(null);
             busy.dispose();
           }

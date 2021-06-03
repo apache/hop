@@ -140,7 +140,8 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            BaseTransformDialog.getFieldsFromPrevious(wSplitField, pipelineMeta, transformMeta);
+            BaseTransformDialog.getFieldsFromPrevious(
+                variables, wSplitField, pipelineMeta, transformMeta);
             shell.setCursor(null);
             busy.dispose();
           }

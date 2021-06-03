@@ -1640,7 +1640,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         DirectoryDialogButtonListenerFactory.getSelectionAdapter(shell, wWarnDestDir));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wWarnDestDir.addModifyListener(getModifyListenerTooltipText(wWarnDestDir));
+    wWarnDestDir.addModifyListener(getModifyListenerTooltipText(variables, wWarnDestDir));
 
     // Error lines files directory + extension
     previous = wWarnDestDir;
@@ -1695,7 +1695,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         DirectoryDialogButtonListenerFactory.getSelectionAdapter(shell, wErrorDestDir));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wErrorDestDir.addModifyListener(getModifyListenerTooltipText(wErrorDestDir));
+    wErrorDestDir.addModifyListener(getModifyListenerTooltipText(variables, wErrorDestDir));
 
     // Data Error lines files directory + extension
     previous = wErrorDestDir;
@@ -1750,7 +1750,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         DirectoryDialogButtonListenerFactory.getSelectionAdapter(shell, wLineNrDestDir));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wLineNrDestDir.addModifyListener(getModifyListenerTooltipText(wLineNrDestDir));
+    wLineNrDestDir.addModifyListener(getModifyListenerTooltipText(variables, wLineNrDestDir));
 
     FormData fdErrorComp = new FormData();
     fdErrorComp.left = new FormAttachment(0, 0);

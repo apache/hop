@@ -47,7 +47,7 @@ public interface IStream {
 
   void setStreamIcon(StreamIcon streamIcon);
 
-  void setSubject(Object subject);
+  void setSubject(String subject);
 
-  Object getSubject();
+  String getSubject();
 }

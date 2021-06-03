@@ -88,7 +88,7 @@ public class BaseTransformDialog extends Dialog {
       new SimpleLoggingObject("Transform dialog", LoggingObjectType.TRANSFORM_DIALOG, null);
 
   /** The variable bindings for this dialog. */
-  protected static IVariables variables;
+  protected IVariables variables;
 
   /** The transform name. */
   protected String transformName;
@@ -540,10 +540,12 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Gets the modify listener tooltip text.
    *
+   * @param variables
    * @param textField the text field
    * @return the modify listener tooltip text
    */
-  public static final ModifyListener getModifyListenerTooltipText(final TextVar textField) {
+  public static final ModifyListener getModifyListenerTooltipText(
+      IVariables variables, final TextVar textField) {
     return e -> {
       // maybe replace this with extra arguments
       textField.setToolTipText(variables.resolve(textField.getText()));
@@ -728,6 +730,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Gets unused fields from previous transforms and inserts them as rows into a table view.
    *
+   * @param variables
    * @param pipelineMeta the pipeline metadata
    * @param transformMeta the transform metadata
    * @param tableView the table view
@@ -739,6 +742,7 @@ public class BaseTransformDialog extends Dialog {
    * @param listener a listener for tables insert events
    */
   public static final void getFieldsFromPrevious(
+      IVariables variables,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
       TableView tableView,
@@ -982,13 +986,17 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Gets fields from previous transforms and populate a ComboVar.
    *
+   * @param variables
    * @param comboVar the Combo Box (with Variables) to populate
    * @param pipelineMeta the pipeline metadata
    * @param transformMeta the transform metadata
    */
   public static final void getFieldsFromPrevious(
-      ComboVar comboVar, PipelineMeta pipelineMeta, TransformMeta transformMeta) {
-    String selectedField = null;
+      IVariables variables,
+      ComboVar comboVar,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta) {
+    String selectedField;
     int indexField = -1;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformMeta);

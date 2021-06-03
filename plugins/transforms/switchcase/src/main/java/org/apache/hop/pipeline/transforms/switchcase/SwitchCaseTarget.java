@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,37 +17,65 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * Utility class that contains the case value, the target transform name and the resolved target transform
+ * Utility class that contains the case value, the target transform name and the resolved target
+ * transform
  *
  * @author matt
  */
 public class SwitchCaseTarget implements Cloneable {
-  /**
-   * The value to switch over
-   */
-  @Injection( name = "CASE_VALUE" )
-  public String caseValue;
+  /** The value to switch over */
+  @HopMetadataProperty(
+      key = "value",
+      injectionKey = "SWITCH_CASE_TARGET.CASE_VALUE",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.CASE_VALUE")
+  private String caseValue;
 
-  /**
-   * The case target transform name (only used during serialization)
-   */
-  @Injection( name = "CASE_TARGET_TRANSFORM_NAME" )
-  public String caseTargetTransformName;
+  /** The case target transform name (only used during serialization) */
+  @HopMetadataProperty(
+      key = "target_transform",
+      injectionKey = "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.CASE_TARGET_TRANSFORM_NAME")
+  private String caseTargetTransformName;
 
-  /**
-   * The case target transform
-   */
-  public TransformMeta caseTargetTransform;
+  public SwitchCaseTarget() {}
 
-  public SwitchCaseTarget() {
+  public SwitchCaseTarget(SwitchCaseTarget t) {
+    this.caseValue = t.caseValue;
+    this.caseTargetTransformName = t.caseTargetTransformName;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+  public SwitchCaseTarget clone() {
+    return new SwitchCaseTarget(this);
   }
 
+  /**
+   * Gets caseValue
+   *
+   * @return value of caseValue
+   */
+  public String getCaseValue() {
+    return caseValue;
+  }
+
+  /** @param caseValue The caseValue to set */
+  public void setCaseValue(String caseValue) {
+    this.caseValue = caseValue;
+  }
+
+  /**
+   * Gets caseTargetTransformName
+   *
+   * @return value of caseTargetTransformName
+   */
+  public String getCaseTargetTransformName() {
+    return caseTargetTransformName;
+  }
+
+  /** @param caseTargetTransformName The caseTargetTransformName to set */
+  public void setCaseTargetTransformName(String caseTargetTransformName) {
+    this.caseTargetTransformName = caseTargetTransformName;
+  }
 }
