@@ -93,19 +93,18 @@ public class ContextDialog extends Dialog {
   public static final String AUDIT_TYPE_CONTEXT_DIALOG = "ContextDialog";
   public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
-  private Point location;
-  private List<GuiAction> actions;
-  private String contextId;
-  private PropsUi props;
+  private final Point location;
+  private final List<GuiAction> actions;
+  private final PropsUi props;
   private Shell shell;
   private Text wSearch;
   private Label wlTooltip;
   private Canvas wCanvas;
   private ScrolledComposite wScrolledComposite;
 
-  private int iconSize;
+  private final int iconSize;
 
-  private int margin;
+  private final int margin;
   private int xMargin;
   private int yMargin;
 
@@ -125,7 +124,7 @@ public class ContextDialog extends Dialog {
 
   private List<AreaOwner<OwnerType, Object>> areaOwners = new ArrayList<>();
 
-  private Color highlightColor;
+  private final Color highlightColor;
 
   private int totalContentHeight = 0;
   private int previousTotalContentHeight = 0;
@@ -133,7 +132,6 @@ public class ContextDialog extends Dialog {
   private Font itemsFont;
   private Item firstShownItem;
   private Item lastShownItem;
-  private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
 
   private static ContextDialog activeInstance;
@@ -221,8 +219,8 @@ public class ContextDialog extends Dialog {
   private List<CategoryAndOrder> categories;
 
   private static class Item {
-    private GuiAction action;
-    private Image image;
+    private final GuiAction action;
+    private final Image image;
     private boolean selected;
     private AreaOwner<OwnerType, Object> areaOwner;
 
@@ -303,7 +301,6 @@ public class ContextDialog extends Dialog {
     this.setText(title);
     this.location = location;
     this.actions = actions;
-    this.contextId = contextId;
 
     props = PropsUi.getInstance();
 
@@ -389,7 +386,7 @@ public class ContextDialog extends Dialog {
 
     // Create a toolbar at the right of the search bar...
     //
-    toolBar = new ToolBar(searchComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    ToolBar toolBar = new ToolBar(searchComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
@@ -478,7 +475,7 @@ public class ContextDialog extends Dialog {
 
     wCanvas.addListener(SWT.KeyDown, event -> onKeyPressed(event));
     wCanvas.addListener(SWT.Paint, event -> onPaint(event));
-    wCanvas.addListener(SWT.MouseDown, event -> onMouseDown(event));
+    wCanvas.addListener(SWT.MouseUp, event -> onMouseUp(event));
     if (!EnvironmentUtils.getInstance().isWeb()) {
       wCanvas.addListener(SWT.MouseMove, event -> onMouseMove(event));
     }
@@ -707,7 +704,7 @@ public class ContextDialog extends Dialog {
     }
   }
 
-  private void onMouseDown(Event event) {
+  private void onMouseUp(Event event) {
     AreaOwner<OwnerType, Object> areaOwner =
         AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
     if (areaOwner == null) {
