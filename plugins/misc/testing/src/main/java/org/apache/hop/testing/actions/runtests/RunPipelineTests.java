@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -187,6 +187,9 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
         metadataProvider.getSerializer(PipelineUnitTest.class);
     String testName = testNames.get(index);
     PipelineUnitTest test = testSerializer.load(testName);
+    if (test == null) {
+      throw new HopException("Unit test '" + testName + "' could not be found");
+    }
     return UnitTestUtil.loadTestPipeline(test, metadataProvider, variables);
   }
 

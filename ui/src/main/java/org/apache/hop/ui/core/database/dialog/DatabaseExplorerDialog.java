@@ -20,12 +20,16 @@ package org.apache.hop.ui.core.database.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
@@ -35,22 +39,18 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -58,12 +58,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -79,15 +79,21 @@ import java.util.List;
  * @since 18-05-2003
  *     <p>
  */
+@GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
   private static final Class<?> PKG = DatabaseExplorerDialog.class; // For Translator
 
-  private ILogChannel log;
-  private PropsUi props;
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseExplorerDialog-Toolbar";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL = "DatabaseExplorer-ToolBar-10100-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "DatabaseExplorer-ToolBar-10200-CollapseAll";
+
+  private final ILogChannel log;
+  private final PropsUi props;
   private DatabaseMeta dbMeta;
-  private IVariables variables;
-  private DbCache dbcache;
-  private ILoggingObject loggingObject;
+  private final IVariables variables;
+  private final DbCache dbcache;
+  private final ILoggingObject loggingObject;
 
   private static final String STRING_CATALOG =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Catalogs.Label");
@@ -100,20 +106,17 @@ public class DatabaseExplorerDialog extends Dialog {
   private static final String STRING_SYNONYMS =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Synonyms.Label");
 
-  private Shell parent, shell;
+  private final Shell parent;
+  private Shell shell;
   private Tree wTree;
   private TreeItem tiTree;
 
-  private Button wOk;
-  private Button wRefresh;
-  private Button wCancel;
-
   private String tableName;
 
-  private boolean justLook;
+  private final boolean justLook;
   private String selectedSchema;
   private String selectedTable;
-  private List<DatabaseMeta> databases;
+  private final List<DatabaseMeta> databases;
   private boolean splitSchemaAndTable;
   private String schemaName;
   private Composite buttonsComposite;
@@ -126,8 +129,9 @@ public class DatabaseExplorerDialog extends Dialog {
   private Button bSql;
   private String activeSchemaTable;
   private Button bTruncate;
-  private FormData fdExpandAll;
-  private ToolItem expandAll, collapseAll;
+
+  private ToolBar toolBar;
+  private GuiToolbarWidgets toolBarWidgets;
 
   public DatabaseExplorerDialog(
       Shell parent,
@@ -188,81 +192,82 @@ public class DatabaseExplorerDialog extends Dialog {
 
     shell.setLayout(formLayout);
 
-    addButtons();
+    int margin = Const.MARGIN;
+
+    // Main buttons at the bottom
+    //
+    List<Button> buttons = new ArrayList<>();
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    buttons.add(wOk);
+
+    Button wRefresh = new Button(shell, SWT.PUSH);
+    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
+    wRefresh.addListener(SWT.Selection, e -> getData());
+    buttons.add(wRefresh);
+
+    if (!justLook) {
+      Button wCancel = new Button(shell, SWT.PUSH);
+      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.addListener(SWT.Selection, e -> cancel());
+      buttons.add(wCancel);
+    }
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
+
+    // Add a toolbar
+    //
+    toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    FormData layoutData = new FormData();
+    layoutData.top = new FormAttachment(0, 0);
+    layoutData.left = new FormAttachment(0, 0);
+    layoutData.right = new FormAttachment(100, 0);
+    toolBar.setLayoutData(layoutData);
+    toolBar.pack();
+    PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+
+    addRightButtons();
     refreshButtons(null);
 
     // Tree
     wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
     props.setLook(wTree);
+    FormData fdTree = new FormData();
+    fdTree.left = new FormAttachment(0, 0); // To the right of the label
+    fdTree.top = new FormAttachment(toolBar, margin);
+    fdTree.right = new FormAttachment(buttonsComposite, -margin);
+    fdTree.bottom = new FormAttachment(wOk, -2 * margin);
+    wTree.setLayoutData(fdTree);
 
     if (!getData()) {
       return false;
     }
 
-    // Buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wRefresh = new Button(shell, SWT.PUSH);
-    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
-
-    if (!justLook) {
-      wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    }
-
-    FormData fdTree = new FormData();
-
-    int margin = 10;
-
-    fdTree.left = new FormAttachment(0, 0); // To the right of the label
-    fdTree.top = new FormAttachment(0, 0);
-    fdTree.right = new FormAttachment(buttonsComposite, -margin);
-    fdTree.bottom = new FormAttachment(100, -50);
-    wTree.setLayoutData(fdTree);
-
-    if (!justLook) {
-      BaseTransformDialog.positionBottomButtons(
-          shell, new Button[] {wOk, wCancel, wRefresh}, margin, null);
-
-      // Add listeners
-      wCancel.addListener(
-          SWT.Selection,
-          e -> {
-            cancel();
-          });
-    } else {
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wRefresh}, margin, null);
-    }
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wRefresh.addListener(SWT.Selection, e -> getData());
-    SelectionAdapter selAdapter =
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            refreshButtons(getSchemaTable());
-          }
-
-          public void widgetDefaultSelected(SelectionEvent e) {
-            openSchema(e);
-          }
-        };
-    wTree.addSelectionListener(selAdapter);
-
-    wTree.addMouseListener(
-        new MouseAdapter() {
-          public void mouseDown(MouseEvent e) {
-            if (e.button == 3) // right click!
-            {
-              setTreeMenu();
-            }
+    wTree.addListener(SWT.Selection, e -> refreshButtons(getSchemaTable()));
+    wTree.addListener(SWT.DefaultSelection, this::openSchema);
+    wTree.addListener(
+        SWT.MouseDown,
+        e -> {
+          if (e.button == 3) // right click!
+          {
+            setTreeMenu();
           }
         });
+    shell.addListener(SWT.Close, e -> cancel());
 
     shell.open();
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
+    }
 
     return tableName != null;
   }
@@ -273,36 +278,12 @@ public class DatabaseExplorerDialog extends Dialog {
     dispose();
   }
 
-  private void addButtons() {
+  private void addRightButtons() {
     buttonsComposite = new Composite(shell, SWT.NONE);
     props.setLook(buttonsComposite);
     buttonsComposite.setLayout(new FormLayout());
 
     activeSchemaTable = null;
-
-    ToolBar treeTb = new ToolBar(shell, SWT.HORIZONTAL | SWT.FLAT);
-    expandAll = new ToolItem(treeTb, SWT.PUSH);
-    expandAll.setImage(GuiResource.getInstance().getImageExpandAll());
-    collapseAll = new ToolItem(treeTb, SWT.PUSH);
-    collapseAll.setImage(GuiResource.getInstance().getImageCollapseAll());
-    fdExpandAll = new FormData();
-    fdExpandAll.right = new FormAttachment(100, 0);
-    fdExpandAll.top = new FormAttachment(0, 0);
-    treeTb.setLayoutData(fdExpandAll);
-
-    expandAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent event) {
-            expandAllItems(wTree.getItems(), true);
-          }
-        });
-
-    collapseAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent event) {
-            expandAllItems(wTree.getItems(), false);
-          }
-        });
 
     bPrev = new Button(buttonsComposite, SWT.PUSH);
     bPrev.setText(
@@ -439,8 +420,28 @@ public class DatabaseExplorerDialog extends Dialog {
 
     FormData fdComposite = new FormData();
     fdComposite.right = new FormAttachment(100, 0);
-    fdComposite.top = new FormAttachment(0, 20);
+    fdComposite.top = new FormAttachment(0, toolBar.getBounds().height);
     buttonsComposite.setLayoutData(fdComposite);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXPAND_ALL,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.ExpandAll.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/expand-all.svg")
+  public void expandAll() {
+    expandAllItems(wTree.getItems(), true);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COLLAPSE_ALL,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.CollapseAll.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/collapse-all.svg")
+  public void collapseAll() {
+    expandAllItems(wTree.getItems(), false);
   }
 
   private void expandAllItems(TreeItem[] treeitems, boolean expand) {
@@ -919,7 +920,7 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  public void openSchema(SelectionEvent e) {
+  public void openSchema(Event e) {
     TreeItem sel = (TreeItem) e.item;
 
     TreeItem up1 = sel.getParentItem();

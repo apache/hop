@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
@@ -55,7 +56,7 @@ public class EnterMappingDialog extends Dialog {
   public class GuessPair {
     private int _srcIndex = -1;
     private int _targetIndex = -1;
-    private boolean _found = false;
+    private boolean _found;
 
     public GuessPair(int src) {
       _srcIndex = src;
@@ -97,11 +98,11 @@ public class EnterMappingDialog extends Dialog {
 
   private Shell shell;
 
-  private String[] sourceList;
+  private final String[] sourceList;
 
-  private String[] targetList;
+  private final String[] targetList;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private String sourceSeparator;
   private String targetSeparator;
@@ -160,7 +161,6 @@ public class EnterMappingDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     int margin = props.getMargin();
-    int buttonSpace = 90;
 
     // Some buttons at the bottom
     //
@@ -186,13 +186,7 @@ public class EnterMappingDialog extends Dialog {
     fdSourceHide.right = new FormAttachment(25, 0);
     fdSourceHide.bottom = new FormAttachment(wOk, -2 * margin);
     wSourceHide.setLayoutData(fdSourceHide);
-    wSourceHide.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            refreshMappings();
-          }
-        });
+    wSourceHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Hide used target fields?
     wTargetHide = new Button(shell, SWT.CHECK);
@@ -204,13 +198,7 @@ public class EnterMappingDialog extends Dialog {
     fdTargetHide.right = new FormAttachment(50, 0);
     fdTargetHide.bottom = new FormAttachment(wOk, -2 * margin);
     wTargetHide.setLayoutData(fdTargetHide);
-    wTargetHide.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            refreshMappings();
-          }
-        });
+    wTargetHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Automatic source selection
     wSourceAuto = new Button(shell, SWT.CHECK);
@@ -221,7 +209,7 @@ public class EnterMappingDialog extends Dialog {
     FormData fdSourceAuto = new FormData();
     fdSourceAuto.left = new FormAttachment(0, 0);
     fdSourceAuto.right = new FormAttachment(25, 0);
-    fdSourceAuto.bottom = new FormAttachment(wSourceHide, -2 * margin);
+    fdSourceAuto.bottom = new FormAttachment(wSourceHide, -margin);
     wSourceAuto.setLayoutData(fdSourceAuto);
 
     // Automatic target selection
@@ -233,7 +221,7 @@ public class EnterMappingDialog extends Dialog {
     FormData fdTargetAuto = new FormData();
     fdTargetAuto.left = new FormAttachment(25, margin * 2);
     fdTargetAuto.right = new FormAttachment(50, 0);
-    fdTargetAuto.bottom = new FormAttachment(wTargetHide, -2 * margin);
+    fdTargetAuto.bottom = new FormAttachment(wTargetHide, -margin);
     wTargetAuto.setLayoutData(fdTargetAuto);
 
     // Source table
@@ -254,7 +242,7 @@ public class EnterMappingDialog extends Dialog {
     fdSource.left = new FormAttachment(0, 0);
     fdSource.right = new FormAttachment(25, 0);
     fdSource.top = new FormAttachment(wlSource, margin);
-    fdSource.bottom = new FormAttachment(wSourceAuto, -2 * margin);
+    fdSource.bottom = new FormAttachment(wSourceAuto, -margin);
     wSource.setLayoutData(fdSource);
 
     // Target table
@@ -274,7 +262,7 @@ public class EnterMappingDialog extends Dialog {
     fdTarget.left = new FormAttachment(wSource, margin * 2);
     fdTarget.right = new FormAttachment(50, 0);
     fdTarget.top = new FormAttachment(wlTarget, margin);
-    fdTarget.bottom = new FormAttachment(wTargetAuto, -2 * margin);
+    fdTarget.bottom = new FormAttachment(wTargetAuto, -margin);
     wTarget.setLayoutData(fdTarget);
 
     // Delete mapping button
@@ -313,7 +301,7 @@ public class EnterMappingDialog extends Dialog {
     fdResult.left = new FormAttachment(wDelete, margin * 2);
     fdResult.right = new FormAttachment(100, 0);
     fdResult.top = new FormAttachment(wlResult, margin);
-    fdResult.bottom = new FormAttachment(wOk, -50);
+    fdResult.bottom = new FormAttachment(wSource, 0, SWT.BOTTOM);
     wResult.setLayoutData(fdResult);
 
     wSource.addListener(
@@ -336,7 +324,26 @@ public class EnterMappingDialog extends Dialog {
 
     getData();
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    // Set the size as well...
+    //
+    BaseTransformDialog.setSize(shell);
+
+    // Shell closed?
+    //
+    shell.addListener(SWT.Close, e -> cancel());
+
+    // Open the shell
+    //
+    shell.open();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
+    }
 
     return mappings;
   }

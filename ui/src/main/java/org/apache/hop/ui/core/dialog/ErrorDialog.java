@@ -93,6 +93,17 @@ public class ErrorDialog extends Dialog {
     final Font largeFont = GuiResource.getInstance().getFontBold();
     final Color gray = GuiResource.getInstance().getColorDemoGray();
 
+    // Calculate the details...
+    //
+    final StringBuilder text = new StringBuilder();
+    final StringBuilder details = new StringBuilder();
+
+    if (exception != null) {
+      handleException(message, exception, text, details);
+    } else {
+      text.append(message);
+    }
+
     shell =
         new Shell(
             parent,
@@ -109,45 +120,19 @@ public class ErrorDialog extends Dialog {
 
     int margin = props.getMargin();
 
-    // From transform line
-    Label wlDesc = new Label(shell, SWT.NONE);
-    wlDesc.setText(message);
-    props.setLook(wlDesc);
-    FormData fdlDesc = new FormData();
-    fdlDesc.left = new FormAttachment(0, 0);
-    fdlDesc.top = new FormAttachment(0, margin);
-    wlDesc.setLayoutData(fdlDesc);
-    wlDesc.setFont(largeFont);
-
-    Text wDesc = new Text(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
-    final StringBuilder text = new StringBuilder();
-    final StringBuilder details = new StringBuilder();
-
-    if (exception != null) {
-      handleException(message, exception, text, details);
-      wDesc.setText(exMsgFunction.apply(text.toString()));
-    } else {
-      text.append(message);
-      wDesc.setText(exMsgFunction.apply(text.toString()));
-    }
-    wDesc.setBackground(gray);
-    FormData fdDesc = new FormData();
-    fdDesc.left = new FormAttachment(0, 0);
-    fdDesc.top = new FormAttachment(wlDesc, margin);
-    fdDesc.right = new FormAttachment(100, 0);
-    fdDesc.bottom = new FormAttachment(100, -50);
-    wDesc.setLayoutData(fdDesc);
-    wDesc.setEditable(false);
-
+    // Buttons at the bottom
+    //
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
     if (showCancelButton) {
       wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.addListener(SWT.Selection, e -> cancel());
     }
     Button wDetails = new Button(shell, SWT.PUSH);
     wDetails.setText(BaseMessages.getString(PKG, "System.Button.Details"));
+    wDetails.addListener(SWT.Selection, e -> showDetails(details.toString()));
 
     Button[] buttons;
     if (showCancelButton) {
@@ -161,15 +146,29 @@ public class ErrorDialog extends Dialog {
             wOk, wDetails,
           };
     }
-
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
 
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    if (showCancelButton) {
-      wCancel.addListener(SWT.Selection, e -> cancel());
-    }
-    wDetails.addListener(SWT.Selection, e -> showDetails(details.toString()));
+    // From transform line
+    Label wlDesc = new Label(shell, SWT.NONE);
+    wlDesc.setText(message);
+    props.setLook(wlDesc);
+    FormData fdlDesc = new FormData();
+    fdlDesc.left = new FormAttachment(0, 0);
+    fdlDesc.top = new FormAttachment(0, margin);
+    wlDesc.setLayoutData(fdlDesc);
+    wlDesc.setFont(largeFont);
+
+    Text wDesc = new Text(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wDesc.setText(exMsgFunction.apply(text.toString()));
+
+    wDesc.setBackground(gray);
+    FormData fdDesc = new FormData();
+    fdDesc.left = new FormAttachment(0, 0);
+    fdDesc.top = new FormAttachment(wlDesc, margin);
+    fdDesc.right = new FormAttachment(100, 0);
+    fdDesc.bottom = new FormAttachment(wOk, -2 * margin);
+    wDesc.setLayoutData(fdDesc);
+    wDesc.setEditable(false);
 
     // Set the focus on the "OK" button
     wOk.setFocus();
