@@ -75,7 +75,7 @@ under the License.
 *** xref:pipeline/transforms/calculator.adoc[Calculator]
 *** xref:pipeline/transforms/cassandra-input.adoc[Cassandra Input]
 *** xref:pipeline/transforms/cassandra-output.adoc[Cassandra Output]
-*** xref:pipeline/transforms/sstable-output.adoc[SSTable Output]
+*** xref:pipeline/transforms/sstable-output.adoc[Cassandra SSTable Output]
 *** xref:pipeline/transforms/calldbproc.adoc[Call DB procedure]
 *** xref:pipeline/transforms/changefileencoding.adoc[Change file encoding]
 *** xref:pipeline/transforms/checkfilelocked.adoc[Check if file is locked]
