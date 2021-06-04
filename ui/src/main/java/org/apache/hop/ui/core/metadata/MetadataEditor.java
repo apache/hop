@@ -25,15 +25,19 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -102,6 +106,12 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return null;
   }
 
+  protected Button createHelpButton(final Shell shell) {  
+    HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
+    IPlugin plugin =  PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());   
+    return HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
+  }
+  
   public HopGui getHopGui() {
     return hopGui;
   }

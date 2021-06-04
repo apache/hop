@@ -53,7 +53,8 @@ import java.util.logging.Level;
     key = "neo4j-connection",
     name = "Neo4j Connection",
     description = "A shared connection to a Neo4j server",
-    image = "neo4j_logo.svg")
+    image = "neo4j_logo.svg",
+    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/neo4j/neo4j-connection.html")
 public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String server;

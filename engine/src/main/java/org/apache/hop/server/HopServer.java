@@ -96,7 +96,8 @@ import java.util.Random;
   key = "server",
   name = "Hop Server",
   description = "Defines a Hop Hop Server",
-  image = "ui/images/server.svg"
+  image = "ui/images/server.svg",
+  documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/hop-server.html"
 )
 public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   private static final Class<?> PKG = HopServer.class; // For Translator
