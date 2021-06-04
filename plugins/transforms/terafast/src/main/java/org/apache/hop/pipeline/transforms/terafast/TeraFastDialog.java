@@ -787,7 +787,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
   /** ... */
   public void setTableFieldCombo() {
     clearColInfo();
-    new FieldLoader(this).start();
+    new FieldLoader(variables, this).start();
   }
 
   /** Clear. */
@@ -804,6 +804,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
   private static final class FieldLoader extends Thread {
 
+    private final IVariables variables;
     private final TeraFastDialog dialog;
 
     /**
@@ -811,7 +812,8 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
      *
      * @param dialog dialog to set.
      */
-    public FieldLoader(final TeraFastDialog dialog) {
+    public FieldLoader(final IVariables variables, final TeraFastDialog dialog) {
+      this.variables = variables;
       this.dialog = dialog;
     }
 

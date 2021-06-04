@@ -1600,7 +1600,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         VariableButtonListenerFactory.getSelectionAdapter(shell, wWarningDestDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wWarningDestDir.addModifyListener(getModifyListenerTooltipText(wWarningDestDir));
+    wWarningDestDir.addModifyListener(getModifyListenerTooltipText(variables, wWarningDestDir));
 
     // Error lines files directory + extention
     previous = wWarningDestDir;
@@ -1668,7 +1668,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         VariableButtonListenerFactory.getSelectionAdapter(shell, wErrorDestDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wErrorDestDir.addModifyListener(getModifyListenerTooltipText(wErrorDestDir));
+    wErrorDestDir.addModifyListener(getModifyListenerTooltipText(variables, wErrorDestDir));
 
     // Line numbers files directory + extention
     previous = wErrorDestDir;
@@ -1736,7 +1736,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         VariableButtonListenerFactory.getSelectionAdapter(shell, wLineNrDestDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wLineNrDestDir.addModifyListener(getModifyListenerTooltipText(wLineNrDestDir));
+    wLineNrDestDir.addModifyListener(getModifyListenerTooltipText(variables, wLineNrDestDir));
 
     wErrorComp.layout();
     wErrorTab.setControl(wErrorComp);

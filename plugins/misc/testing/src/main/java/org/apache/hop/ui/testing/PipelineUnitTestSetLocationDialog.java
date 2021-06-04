@@ -22,8 +22,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
@@ -34,6 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -55,38 +58,36 @@ import java.util.Map;
 public class PipelineUnitTestSetLocationDialog extends Dialog {
   private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class; // For Translator
 
-  private PipelineUnitTestSetLocation location;
+  private final PipelineUnitTestSetLocation location;
   private final List<DataSet> dataSets;
   private final Map<String, IRowMeta> transformFieldsMap;
 
-  private String[] transformNames;
-  private String[] datasetNames;
+  private final String[] transformNames;
+  private final String[] datasetNames;
+  private final IVariables variables;
+  private final IHopMetadataProvider metadataProvider;
 
   private Shell shell;
 
   private Combo wTransformName;
-  private Combo wDatasetName;
+  private MetaSelectionLine<DataSet> wDataset;
   private TableView wFieldMappings;
   private TableView wFieldOrder;
 
-  private Button wOk;
-  private Button wMapFields;
-  private Button wGetSortFields;
-  private Button wCancel;
-
-  private PropsUi props;
-
-  private int middle;
-  private int margin;
+  private final PropsUi props;
 
   private boolean ok;
 
   public PipelineUnitTestSetLocationDialog(
       Shell parent,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
       PipelineUnitTestSetLocation location,
       List<DataSet> dataSets,
       Map<String, IRowMeta> transformFieldsMap) {
     super(parent, SWT.NONE);
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
     this.location = location;
     this.dataSets = dataSets;
     this.transformFieldsMap = transformFieldsMap;
@@ -106,8 +107,8 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     props.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageTable());
 
-    middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    int middle = props.getMiddlePct();
+    int margin = Const.MARGIN;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -136,25 +137,21 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     wTransformName.setLayoutData(fdTransformName);
     Control lastControl = wTransformName;
 
-    //
-    //
-    Label wlDatasetName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlDatasetName);
-    wlDatasetName.setText(
-        BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.DatasetName.Label"));
-    FormData fdlDatasetName = new FormData();
-    fdlDatasetName.top = new FormAttachment(lastControl, margin);
-    fdlDatasetName.left = new FormAttachment(0, 0);
-    fdlDatasetName.right = new FormAttachment(middle, -margin);
-    wlDatasetName.setLayoutData(fdlDatasetName);
-    wDatasetName = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wDatasetName.setItems(datasetNames);
+    wDataset =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            DataSet.class,
+            shell,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.DatasetName.Label"),
+            BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.DatasetName.Label"));
     FormData fdDatasetName = new FormData();
     fdDatasetName.top = new FormAttachment(lastControl, margin);
-    fdDatasetName.left = new FormAttachment(middle, 0);
+    fdDatasetName.left = new FormAttachment(0, 0);
     fdDatasetName.right = new FormAttachment(100, 0);
-    wDatasetName.setLayoutData(fdDatasetName);
-    lastControl = wDatasetName;
+    wDataset.setLayoutData(fdDatasetName);
+    lastControl = wDataset;
 
     // The field mapping from the transform to the data set...
     //
@@ -182,18 +179,18 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
     // Buttons at the bottom...
     //
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wMapFields = new Button(shell, SWT.PUSH);
+    Button wMapFields = new Button(shell, SWT.PUSH);
     wMapFields.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.MapFields.Button"));
     wMapFields.addListener(SWT.Selection, e -> getFieldMappings());
-    wGetSortFields = new Button(shell, SWT.PUSH);
+    Button wGetSortFields = new Button(shell, SWT.PUSH);
     wGetSortFields.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.GetSortFields.Button"));
     wGetSortFields.addListener(SWT.Selection, e -> getSortFields());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
@@ -277,7 +274,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
       getInfo(loc);
 
       String transformName = wTransformName.getText();
-      String datasetName = wDatasetName.getText();
+      String datasetName = wDataset.getText();
       if (StringUtils.isEmpty(transformName) || StringUtils.isEmpty(datasetName)) {
         throw new HopException("Please select a transform and a data set to map fields between");
       }
@@ -336,7 +333,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
   protected void getSortFields() {
     try {
-      String datasetName = wDatasetName.getText();
+      String datasetName = wDataset.getText();
       if (StringUtils.isEmpty(datasetName)) {
         throw new HopException("Please select a data set to get order fields from");
       }
@@ -367,7 +364,13 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
   public void getData() {
 
     wTransformName.setText(Const.NVL(location.getTransformName(), ""));
-    wDatasetName.setText(Const.NVL(location.getDataSetName(), ""));
+
+    try {
+      wDataset.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting data sets from the metadata", e);
+    }
+    wDataset.setText(Const.NVL(location.getDataSetName(), ""));
 
     for (int i = 0; i < location.getFieldMappings().size(); i++) {
       PipelineUnitTestFieldMapping fieldMapping = location.getFieldMappings().get(i);
@@ -400,7 +403,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
   public void getInfo(PipelineUnitTestSetLocation loc) {
 
     loc.setTransformName(wTransformName.getText());
-    loc.setDataSetName(wDatasetName.getText());
+    loc.setDataSetName(wDataset.getText());
     loc.getFieldMappings().clear();
 
     int nrMappings = wFieldMappings.nrNonEmpty();

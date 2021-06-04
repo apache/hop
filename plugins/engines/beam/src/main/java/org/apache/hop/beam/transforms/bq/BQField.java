@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +18,29 @@
 package org.apache.hop.beam.transforms.bq;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class BQField {
+
+  @HopMetadataProperty(key = "name")
   private String name;
+
+  @HopMetadataProperty(key = "new_name")
   private String newName;
+
+  @HopMetadataProperty(key = "type")
   private String hopType;
 
-  public BQField() {
-  }
+  public BQField() {}
 
-  public BQField( String name, String newName, String hopType ) {
+  public BQField(String name, String newName, String hopType) {
     this.name = name;
     this.newName = newName;
     this.hopType = hopType;
   }
 
   public String getNewNameOrName() {
-    if ( StringUtils.isNotEmpty(newName)) {
+    if (StringUtils.isNotEmpty(newName)) {
       return newName;
     } else {
       return name;
@@ -50,10 +56,8 @@ public class BQField {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -66,10 +70,8 @@ public class BQField {
     return newName;
   }
 
-  /**
-   * @param newName The newName to set
-   */
-  public void setNewName( String newName ) {
+  /** @param newName The newName to set */
+  public void setNewName(String newName) {
     this.newName = newName;
   }
 
@@ -82,10 +84,8 @@ public class BQField {
     return hopType;
   }
 
-  /**
-   * @param hopType The hopType to set
-   */
-  public void setHopType( String hopType ) {
+  /** @param hopType The hopType to set */
+  public void setHopType(String hopType) {
     this.hopType = hopType;
   }
 }

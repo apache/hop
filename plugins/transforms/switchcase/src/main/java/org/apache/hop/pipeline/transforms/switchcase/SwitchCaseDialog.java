@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -33,12 +34,17 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
-import org.apache.hop.core.variables.IVariables;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
@@ -273,7 +279,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            input.getTransformIOMeta().getTargetStreams().size(),
+            input.getCaseTargets().size(),
             lsMod,
             props);
 
@@ -326,9 +332,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wFieldName.setText(Const.NVL(input.getFieldname(), ""));
-    wContains.setSelection(input.isContains());
-    wDataType.setText(ValueMetaBase.getTypeDesc(input.getCaseValueType()));
+    wFieldName.setText(Const.NVL(input.getFieldName(), ""));
+    wContains.setSelection(input.isUsingContains());
+    wDataType.setText(Const.NVL(input.getCaseValueType(), ""));
     wDecimalSymbol.setText(Const.NVL(input.getCaseValueDecimal(), ""));
     wGroupingSymbol.setText(Const.NVL(input.getCaseValueGroup(), ""));
     wConversionMask.setText(Const.NVL(input.getCaseValueFormat(), ""));
@@ -337,22 +343,15 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
       TableItem item = wValues.table.getItem(i);
       SwitchCaseTarget target = input.getCaseTargets().get(i);
       if (target != null) {
-        item.setText(1, Const.NVL(target.caseValue, "")); // The value
-        item.setText(
-            2,
-            target.caseTargetTransform == null
-                ? ""
-                : target.caseTargetTransform.getName()); // The target transform name
+        item.setText(1, Const.NVL(target.getCaseValue(), "")); // The value
+        item.setText(2, Const.NVL(target.getCaseTargetTransformName(), ""));
       }
     }
     wValues.removeEmptyRows();
     wValues.setRowNums();
     wValues.optWidth(true);
 
-    wDefaultTarget.setText(
-        input.getDefaultTargetTransform() == null
-            ? ""
-            : input.getDefaultTargetTransform().getName());
+    wDefaultTarget.setText(Const.NVL(input.getDefaultTargetTransformName(), ""));
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -369,26 +368,26 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
       return;
     }
 
-    input.setFieldname(wFieldName.getText());
-    input.setContains(wContains.getSelection());
-    input.setCaseValueType(ValueMetaBase.getType(wDataType.getText()));
+    input.setFieldName(wFieldName.getText());
+    input.setUsingContains(wContains.getSelection());
+    input.setCaseValueType(wDataType.getText());
     input.setCaseValueFormat(wConversionMask.getText());
     input.setCaseValueDecimal(wDecimalSymbol.getText());
     input.setCaseValueGroup(wGroupingSymbol.getText());
 
     int nrValues = wValues.nrNonEmpty();
-    input.allocate();
+    input.getCaseTargets().clear();
 
     for (int i = 0; i < nrValues; i++) {
       TableItem item = wValues.getNonEmpty(i);
 
       SwitchCaseTarget target = new SwitchCaseTarget();
-      target.caseValue = item.getText(1);
-      target.caseTargetTransform = pipelineMeta.findTransform(item.getText(2));
+      target.setCaseValue(item.getText(1));
+      target.setCaseTargetTransformName(item.getText(2));
       input.getCaseTargets().add(target);
     }
 
-    input.setDefaultTargetTransform(pipelineMeta.findTransform(wDefaultTarget.getText()));
+    input.setDefaultTargetTransformName(wDefaultTarget.getText());
 
     transformName = wTransformName.getText(); // return value
 

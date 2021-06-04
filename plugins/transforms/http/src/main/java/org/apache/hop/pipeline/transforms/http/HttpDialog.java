@@ -256,7 +256,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            BaseTransformDialog.getFieldsFromPrevious(wUrlField, pipelineMeta, transformMeta);
+            BaseTransformDialog.getFieldsFromPrevious(
+                variables, wUrlField, pipelineMeta, transformMeta);
             shell.setCursor(null);
             busy.dispose();
           }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.GroupByTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -36,42 +37,68 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
+public class BeamGroupByTransformHandler extends BeamBaseTransformHandler
+    implements IBeamPipelineTransformHandler {
 
-  public BeamGroupByTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  @Override
+  public boolean isInput() {
+    return false;
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
-                                         PCollection<HopRow> input ) throws HopException {
+  @Override
+  public boolean isOutput() {
+    return false;
+  }
+
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input)
+      throws HopException {
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
-    String[] aggregates = new String[ meta.getAggregateType().length ];
-    for ( int i = 0; i < aggregates.length; i++ ) {
-      aggregates[ i ] = MemoryGroupByMeta.getTypeDesc( meta.getAggregateType()[ i ] );
+    String[] aggregates = new String[meta.getAggregateType().length];
+    for (int i = 0; i < aggregates.length; i++) {
+      aggregates[i] = MemoryGroupByMeta.getTypeDesc(meta.getAggregateType()[i]);
     }
 
-    PTransform<PCollection<HopRow>, PCollection<HopRow>> transformTransform = new GroupByTransform(
-      transformMeta.getName(),
-      JsonRowMeta.toJson( rowMeta ),  // The io row
-      transformPluginClasses,
-      xpPluginClasses,
-      meta.getGroupField(),
-      meta.getSubjectField(),
-      aggregates,
-      meta.getAggregateField()
-    );
+    PTransform<PCollection<HopRow>, PCollection<HopRow>> transformTransform =
+        new GroupByTransform(
+            transformMeta.getName(),
+            JsonRowMeta.toJson(rowMeta), // The io row
+            transformPluginClasses,
+            xpPluginClasses,
+            meta.getGroupField(),
+            meta.getSubjectField(),
+            aggregates,
+            meta.getAggregateField());
 
     // Apply the transform transform to the previous io transform PCollection(s)
     //
-    PCollection<HopRow> transformPCollection = input.apply( transformMeta.getName(), transformTransform );
+    PCollection<HopRow> transformPCollection =
+        input.apply(transformMeta.getName(), transformTransform);
 
     // Save this in the map
     //
-    transformCollectionMap.put( transformMeta.getName(), transformPCollection );
-    log.logBasic( "Handled Group By (TRANSFORM) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
+    transformCollectionMap.put(transformMeta.getName(), transformPCollection);
+    log.logBasic(
+        "Handled Group By (TRANSFORM) : "
+            + transformMeta.getName()
+            + ", gets data from "
+            + previousTransforms.size()
+            + " previous transform(s)");
   }
 }

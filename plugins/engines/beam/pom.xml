@@ -49,10 +49,12 @@
   </parent>
 
   <properties>
-    <apache-beam-version>2.28.0</apache-beam-version>
+    <apache-beam-version>2.29.0</apache-beam-version>
     <spark-version>2.4.7</spark-version>
-    <flink-version>1.9.3</flink-version>
+    <flink-version>1.10.1</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
+    <bigtable-hbase-beam.version>1.20.1</bigtable-hbase-beam.version>
+    <grpc.version>1.37.0</grpc.version>
   </properties>
 
   <dependencies>
@@ -113,6 +115,12 @@
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-scala_2.11</artifactId>
       <version>2.10.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>${google-api-client.version}</version>
     </dependency>
 
     <dependency>
@@ -197,7 +205,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-flink-1.9</artifactId>
+      <artifactId>beam-runners-flink-1.10</artifactId>
       <version>${apache-beam-version}</version>
       <exclusions>
         <exclusion>
@@ -397,6 +405,12 @@
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>${json-simple.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud.bigtable</groupId>
+      <artifactId>bigtable-hbase-beam</artifactId>
+      <version>${bigtable-hbase-beam.version}</version>
     </dependency>
 
     <dependency>

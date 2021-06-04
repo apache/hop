@@ -100,7 +100,12 @@ public class LocationMouseDoubleClickExtensionPoint
             if (inputLocation != null) {
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
-                      hopGui.getShell(), inputLocation, dataSets, transformFieldsMap);
+                      hopGui.getShell(),
+                      variables,
+                      hopGui.getMetadataProvider(),
+                      inputLocation,
+                      dataSets,
+                      transformFieldsMap);
               if (dialog.open()) {
                 hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
                 pipelineGraph.updateGui();
@@ -116,7 +121,12 @@ public class LocationMouseDoubleClickExtensionPoint
             if (goldenLocation != null) {
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
-                      hopGui.getShell(), goldenLocation, dataSets, transformFieldsMap);
+                      hopGui.getShell(),
+                      variables,
+                      hopGui.getMetadataProvider(),
+                      goldenLocation,
+                      dataSets,
+                      transformFieldsMap);
               if (dialog.open()) {
                 // Save the unit test
                 hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);

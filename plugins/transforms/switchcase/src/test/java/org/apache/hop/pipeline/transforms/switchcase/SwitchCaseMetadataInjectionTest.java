@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.switchcase;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,21 +28,21 @@ public class SwitchCaseMetadataInjectionTest extends BaseMetadataInjectionTest<S
 
   @Before
   public void setup() throws Exception {
-    super.setup( new SwitchCaseMeta() );
+    super.setup(new SwitchCaseMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", () -> meta.getFieldname() );
-    String[] typeNames = ValueMetaBase.getAllTypes();
-    checkStringToInt( "VALUE_TYPE", () -> meta.getCaseValueType(), typeNames, getTypeCodes( typeNames ) );
-    check( "VALUE_DECIMAL", () -> meta.getCaseValueDecimal() );
-    check( "VALUE_GROUP", () -> meta.getCaseValueGroup() );
-    check( "VALUE_FORMAT", () -> meta.getCaseValueFormat() );
-    check( "CONTAINS", () -> meta.isContains() );
-    check( "DEFAULT_TARGET_TRANSFORM_NAME", () -> meta.getDefaultTargetTransformName() );
-    check( "SWITCH_CASE_TARGET.CASE_VALUE", () -> meta.getCaseTargets().get( 0 ).caseValue );
-    check( "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME", () -> meta.getCaseTargets().get( 0 ).caseTargetTransformName );
+    check("FIELD_NAME", () -> meta.getFieldName());
+    check("VALUE_TYPE", () -> meta.getCaseValueType());
+    check("VALUE_DECIMAL", () -> meta.getCaseValueDecimal());
+    check("VALUE_GROUP", () -> meta.getCaseValueGroup());
+    check("VALUE_FORMAT", () -> meta.getCaseValueFormat());
+    check("CONTAINS", () -> meta.isUsingContains());
+    check("DEFAULT_TARGET_TRANSFORM_NAME", () -> meta.getDefaultTargetTransformName());
+    check("SWITCH_CASE_TARGET.CASE_VALUE", () -> meta.getCaseTargets().get(0).getCaseValue());
+    check(
+        "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME",
+        () -> meta.getCaseTargets().get(0).getCaseTargetTransformName());
   }
-
 }

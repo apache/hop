@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StaticHopRowFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.RowMetaAndData;
@@ -48,25 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
-    implements IBeamTransformHandler {
-
-  public BeamRowGeneratorTransformHandler(
-    IVariables variables,
-    IBeamPipelineEngineRunConfiguration runConfiguration,
-      IHopMetadataProvider metadataProvider,
-      PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
-    super(
-      variables,
-        runConfiguration,
-        false,
-        false,
-        metadataProvider,
-        pipelineMeta,
-        transformPluginClasses,
-        xpPluginClasses);
-  }
+    implements IBeamPipelineTransformHandler {
 
   public boolean isInput() {
     return true;
@@ -79,6 +62,12 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
   @Override
   public void handleTransform(
       ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,

@@ -26,7 +26,7 @@ public class Stream implements IStream {
   private StreamType streamType;
   private TransformMeta transformMeta;
   private StreamIcon streamIcon;
-  private Object subject;
+  private String subject;
 
   /**
    * @param streamType
@@ -40,7 +40,7 @@ public class Stream implements IStream {
       TransformMeta transformMeta,
       String description,
       StreamIcon streamIcon,
-      Object subject) {
+      String subject) {
     this.streamType = streamType;
     this.transformMeta = transformMeta;
     this.description = description;
@@ -142,12 +142,12 @@ public class Stream implements IStream {
   }
 
   /** @return the subject */
-  public Object getSubject() {
+  public String getSubject() {
     return subject;
   }
 
   /** @param subject the subject to set */
-  public void setSubject(Object subject) {
+  public void setSubject(String subject) {
     this.subject = subject;
   }
 }

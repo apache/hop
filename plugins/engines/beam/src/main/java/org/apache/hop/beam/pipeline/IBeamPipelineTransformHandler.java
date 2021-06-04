@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,31 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.hop.beam.pipeline.handler;
+package org.apache.hop.beam.pipeline;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 import java.util.Map;
 
-public interface IBeamTransformHandler {
-
-  void handleTransform( ILogChannel log,
-                        TransformMeta transformMeta,
-                        Map<String, PCollection<HopRow>> transformCollectionMap,
-                        Pipeline pipeline,
-                        IRowMeta rowMeta,
-                        List<TransformMeta> previousTransforms,
-                        PCollection<HopRow> input
-  ) throws HopException;
+public interface IBeamPipelineTransformHandler {
 
   boolean isInput();
 
   boolean isOutput();
+
+  void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input)
+      throws HopException;
 }

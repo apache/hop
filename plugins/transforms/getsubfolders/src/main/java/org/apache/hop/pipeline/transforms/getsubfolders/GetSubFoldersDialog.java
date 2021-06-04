@@ -224,7 +224,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
             BaseTransformDialog.getFieldsFromPrevious(
-                wFoldernameField, pipelineMeta, transformMeta);
+                variables, wFoldernameField, pipelineMeta, transformMeta);
             shell.setCursor(null);
             busy.dispose();
           }
