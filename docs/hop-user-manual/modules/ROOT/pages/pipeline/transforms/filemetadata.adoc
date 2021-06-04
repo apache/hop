@@ -1,0 +1,60 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+= File Metadata
+
+== Description
+
+This transform scans a file to determine its metadata structure or layout. Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
+The information provided in this file can be used to actually read the file later, e.g. through metadata injection.
+The layout detected depends on the number of rows scanned. For example, if the first 100 rows of a file are scanned and the first field is detected as an integer, there is a possibility this field contains alphanumerical characters in later rows.
+Using 0 rows for 'limit scanned rows' is a way to make sure the entire file is scanned and the layout is detected correctly, even though this may be time consuming or even impossible for large files.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform name|the name for this transform
+|filename|the filename to scan for metadata
+|limit scanned rows|the number of rows to limit the scan to (default 10,000). Use 0 rows to scan the entire file.
+|fallback charset|charset to use while scanning the file
+|delimiter candidates|list of delimiters to try while detecting the file layout. Tab, semicolon, comma are provided by default
+|enclosure candidates|list of delimiters to try while detecting the file layout. Double and single quote are provided by default.
+|===
+
+
+== Output Fields
+
+The fields returned by this transform are
+
+* charset
+* delimiter
+* field_count
+* skip_header_lines
+* skip_footer_lines
+* header_line_present
+* name
+* type
+* length
+* precision
+* mask
+* decimal_symbol
+* grouping_symbol
+|===
