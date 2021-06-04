@@ -50,7 +50,8 @@ import java.util.List;
     name = "Pipeline Unit Test",
     description =
         "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
-    image = "Test_tube_icon.svg")
+    image = "Test_tube_icon.svg",
+    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-unit-test.html")
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String description;
