@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 
-= SSTable Output
+= Cassandra SSTable Output
 
 This transform writes to a file system directory as a Cassandra SSTable.
 
