@@ -34,9 +34,7 @@ import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
-import org.apache.hop.pipeline.transforms.mergejoin.LeftKey;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
-import org.apache.hop.pipeline.transforms.mergejoin.RightKey;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseTarget;
@@ -278,17 +276,16 @@ public class BeamPipelineMetaUtil {
     // Send rows to A (true) and B (false)
     //
     SwitchCaseMeta switchCaseMeta = new SwitchCaseMeta();
-    switchCaseMeta.allocate();
-    switchCaseMeta.setFieldname("stateCode");
-    switchCaseMeta.setCaseValueType(IValueMeta.TYPE_STRING);
+    switchCaseMeta.setFieldName("stateCode");
+    switchCaseMeta.setCaseValueType("String");
     // Last one in the array is the Default target
     //
     for (int i = 0; i < stateCodes.length - 1; i++) {
       String stateCode = stateCodes[i];
       List<SwitchCaseTarget> caseTargets = switchCaseMeta.getCaseTargets();
       SwitchCaseTarget target = new SwitchCaseTarget();
-      target.caseValue = stateCode;
-      target.caseTargetTransformName = stateCode;
+      target.setCaseValue(stateCode);
+      target.setCaseTargetTransformName(stateCode);
       caseTargets.add(target);
     }
     switchCaseMeta.setDefaultTargetTransformName(stateCodes[stateCodes.length - 1]);

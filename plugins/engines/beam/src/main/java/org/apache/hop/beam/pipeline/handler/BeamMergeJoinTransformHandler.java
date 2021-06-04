@@ -28,6 +28,7 @@ import org.apache.hop.beam.core.fn.AssemblerFn;
 import org.apache.hop.beam.core.fn.HopKeyValueFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -47,25 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
-    implements IBeamTransformHandler {
-
-  public BeamMergeJoinTransformHandler(
-      IVariables variables,
-      IBeamPipelineEngineRunConfiguration runConfiguration,
-      IHopMetadataProvider metadataProvider,
-      PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
-    super(
-        variables,
-        runConfiguration,
-        false,
-        false,
-        metadataProvider,
-        pipelineMeta,
-        transformPluginClasses,
-        xpPluginClasses);
-  }
+    implements IBeamPipelineTransformHandler {
 
   public boolean isInput() {
     return false;
@@ -78,10 +61,16 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
   @Override
   public void handleTransform(
       ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
-      IRowMeta dontUseThisOne,
+      IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
       PCollection<HopRow> input)
       throws HopException {

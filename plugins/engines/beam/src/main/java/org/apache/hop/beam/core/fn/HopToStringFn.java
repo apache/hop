@@ -71,6 +71,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   @Setup
   public void setUp() {
     try {
+      initCounter = Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName);
       readCounter = Metrics.counter(Pipeline.METRIC_NAME_READ, counterName);
       outputCounter = Metrics.counter(Pipeline.METRIC_NAME_OUTPUT, counterName);
       errorCounter = Metrics.counter(Pipeline.METRIC_NAME_ERROR, counterName);
@@ -80,7 +81,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
       BeamHop.init(transformPluginClasses, xpPluginClasses);
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
-      Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName).inc();
+      initCounter.inc();
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Parse error on setup of Hop data to string lines : " + e.getMessage());

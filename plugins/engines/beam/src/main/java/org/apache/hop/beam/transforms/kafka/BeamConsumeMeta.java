@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,24 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.core.transform.BeamKafkaInputTransform;
+import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -37,43 +46,49 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Transform(
-        id = "BeamKafkaConsume",
-        name = "Beam Kafka Consume",
-        description = "Get messages from Kafka topics (Kafka Consumer)",
-        image = "beam-kafka-input.svg",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamkafkaconsume.html"
-)
-public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta<BeamConsume, DummyData> {
+    id = "BeamKafkaConsume",
+    name = "Beam Kafka Consume",
+    description = "Get messages from Kafka topics (Kafka Consumer)",
+    image = "beam-kafka-input.svg",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/beamkafkaconsume.html")
+public class BeamConsumeMeta extends BaseTransformMeta
+    implements ITransformMeta<BeamConsume, DummyData>, IBeamPipelineTransformHandler {
 
-  public static final String BOOTSTRAP_SERVERS = "bootstrap_servers";
-  public static final String TOPICS = "topics";
-  public static final String KEY_FIELD = "key_field";
-  public static final String MESSAGE_FIELD = "message_field";
-  public static final String GROUP_ID = "group_id";
-  public static final String USE_PROCESSING_TIME = "use_processing_time";
-  public static final String USE_LOG_APPEND_TIME = "use_log_append_time";
-  public static final String USE_CREATE_TIME = "use_create_time";
-  public static final String RESTRICT_TO_COMMITTED = "restrict_to_committed";
-  public static final String ALLOW_COMMIT_ON_CONSUMED = "allow_commit_on_consumed";
-  public static final String CONFIG_OPTIONS = "config_options";
-  public static final String CONFIG_OPTION = "config_option";
-  public static final String CONFIG_OPTION_PARAMETER = "parameter";
-  public static final String CONFIG_OPTION_VALUE = "value";
-  public static final String CONFIG_OPTION_TYPE = "type";
+  @HopMetadataProperty private String topics;
 
-  private String topics;
+  @HopMetadataProperty(key = "bootstrap_servers")
   private String bootstrapServers;
+
+  @HopMetadataProperty(key = "key_field")
   private String keyField;
+
+  @HopMetadataProperty(key = "message_field")
   private String messageField;
+
+  @HopMetadataProperty(key = "group_id")
   private String groupId;
+
+  @HopMetadataProperty(key = "use_processing_time")
   private boolean usingProcessingTime; // default
+
+  @HopMetadataProperty(key = "use_log_append_time")
   private boolean usingLogAppendTime;
+
+  @HopMetadataProperty(key = "use_create_time")
   private boolean usingCreateTime;
+
+  @HopMetadataProperty(key = "restrict_to_committed")
   private boolean restrictedToCommitted;
+
+  @HopMetadataProperty(key = "allow_commit_on_consumed")
   private boolean allowingCommitOnConsumedOffset;
+
+  @HopMetadataProperty(groupKey = "config_options", key = "config_option")
   private List<ConfigOption> configOptions;
 
   public BeamConsumeMeta() {
@@ -81,7 +96,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     configOptions = new ArrayList<>();
   }
 
-  @Override public void setDefault() {
+  @Override
+  public void setDefault() {
     bootstrapServers = "bootstrapServer1:9001,bootstrapServer2:9001";
     topics = "Topic1,Topic2";
     keyField = "key";
@@ -95,76 +111,110 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     configOptions = new ArrayList<>();
   }
 
-  @Override public BeamConsume createTransform( TransformMeta transformMeta, DummyData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new BeamConsume( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  @Override
+  public BeamConsume createTransform(
+      TransformMeta transformMeta,
+      DummyData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new BeamConsume(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  @Override public DummyData getTransformData() {
+  @Override
+  public DummyData getTransformData() {
     return new DummyData();
   }
 
-  @Override public String getDialogClassName() {
+  @Override
+  public String getDialogClassName() {
     return BeamConsumeDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
-    throws HopTransformException {
+  @Override
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
-    IValueMeta keyValueMeta = new ValueMetaString( variables.resolve( keyField ) );
-    keyValueMeta.setOrigin( name );
-    inputRowMeta.addValueMeta( keyValueMeta );
+    IValueMeta keyValueMeta = new ValueMetaString(variables.resolve(keyField));
+    keyValueMeta.setOrigin(name);
+    inputRowMeta.addValueMeta(keyValueMeta);
 
-    IValueMeta messageValueMeta = new ValueMetaString( variables.resolve( messageField ) );
-    messageValueMeta.setOrigin( name );
-    inputRowMeta.addValueMeta( messageValueMeta );
+    IValueMeta messageValueMeta = new ValueMetaString(variables.resolve(messageField));
+    messageValueMeta.setOrigin(name);
+    inputRowMeta.addValueMeta(messageValueMeta);
   }
 
-  @Override public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append( XmlHandler.addTagValue( BOOTSTRAP_SERVERS, bootstrapServers ) );
-    xml.append( XmlHandler.addTagValue( TOPICS, topics ) );
-    xml.append( XmlHandler.addTagValue( KEY_FIELD, keyField ) );
-    xml.append( XmlHandler.addTagValue( MESSAGE_FIELD, messageField ) );
-    xml.append( XmlHandler.addTagValue( GROUP_ID, groupId ) );
-    xml.append( XmlHandler.addTagValue( USE_PROCESSING_TIME, usingProcessingTime ) );
-    xml.append( XmlHandler.addTagValue( USE_LOG_APPEND_TIME, usingLogAppendTime ) );
-    xml.append( XmlHandler.addTagValue( USE_CREATE_TIME, usingCreateTime ) );
-    xml.append( XmlHandler.addTagValue( RESTRICT_TO_COMMITTED, restrictedToCommitted ) );
-    xml.append( XmlHandler.addTagValue( ALLOW_COMMIT_ON_CONSUMED, allowingCommitOnConsumedOffset ) );
-    xml.append( XmlHandler.openTag( CONFIG_OPTIONS ) );
-    for ( ConfigOption option : configOptions ) {
-      xml.append( XmlHandler.openTag( CONFIG_OPTION ) );
-      xml.append( XmlHandler.addTagValue( CONFIG_OPTION_PARAMETER, option.getParameter() ) );
-      xml.append( XmlHandler.addTagValue( CONFIG_OPTION_VALUE, option.getValue() ) );
-      xml.append( XmlHandler.addTagValue( CONFIG_OPTION_TYPE, option.getType() == null ? "" : option.getType().name() ) );
-      xml.append( XmlHandler.closeTag( CONFIG_OPTION ) );
+  @Override
+  public boolean isInput() {
+    return true;
+  }
+
+  @Override
+  public boolean isOutput() {
+    return false;
+  }
+
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      org.apache.beam.sdk.Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input)
+      throws HopException {
+
+    // Output rows (fields selection)
+    //
+    IRowMeta outputRowMeta = new RowMeta();
+    getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
+
+    String[] parameters = new String[getConfigOptions().size()];
+    String[] values = new String[getConfigOptions().size()];
+    String[] types = new String[getConfigOptions().size()];
+    for (int i = 0; i < parameters.length; i++) {
+      ConfigOption option = getConfigOptions().get(i);
+      parameters[i] = variables.resolve(option.getParameter());
+      values[i] = variables.resolve(option.getValue());
+      types[i] =
+          option.getType() == null ? ConfigOption.Type.String.name() : option.getType().name();
     }
-    xml.append( XmlHandler.closeTag( CONFIG_OPTIONS ) );
-    return xml.toString();
-  }
 
-  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    bootstrapServers = XmlHandler.getTagValue( transformNode, BOOTSTRAP_SERVERS );
-    topics = XmlHandler.getTagValue( transformNode, TOPICS );
-    keyField = XmlHandler.getTagValue( transformNode, KEY_FIELD );
-    messageField = XmlHandler.getTagValue( transformNode, MESSAGE_FIELD );
-    groupId = XmlHandler.getTagValue( transformNode, GROUP_ID );
-    usingProcessingTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, USE_PROCESSING_TIME ) );
-    usingLogAppendTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, USE_LOG_APPEND_TIME ) );
-    usingCreateTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, USE_CREATE_TIME ) );
-    restrictedToCommitted = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, RESTRICT_TO_COMMITTED ) );
-    allowingCommitOnConsumedOffset = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, ALLOW_COMMIT_ON_CONSUMED ) );
-    configOptions = new ArrayList<>();
-    Node optionsNode = XmlHandler.getSubNode( transformNode, CONFIG_OPTIONS );
-    List<Node> optionNodes = XmlHandler.getNodes( optionsNode, CONFIG_OPTION );
-    for ( Node optionNode : optionNodes ) {
-      String parameter = XmlHandler.getTagValue( optionNode, CONFIG_OPTION_PARAMETER );
-      String value = XmlHandler.getTagValue( optionNode, CONFIG_OPTION_VALUE );
-      ConfigOption.Type type = ConfigOption.Type.getTypeFromName( XmlHandler.getTagValue( optionNode, CONFIG_OPTION_TYPE ) );
-      configOptions.add( new ConfigOption( parameter, value, type ) );
-    }
+    BeamKafkaInputTransform beamInputTransform =
+        new BeamKafkaInputTransform(
+            transformMeta.getName(),
+            transformMeta.getName(),
+            variables.resolve(getBootstrapServers()),
+            variables.resolve(getTopics()),
+            variables.resolve(getGroupId()),
+            isUsingProcessingTime(),
+            isUsingLogAppendTime(),
+            isUsingCreateTime(),
+            isRestrictedToCommitted(),
+            isAllowingCommitOnConsumedOffset(),
+            parameters,
+            values,
+            types,
+            JsonRowMeta.toJson(outputRowMeta),
+            transformPluginClasses,
+            xpPluginClasses);
+    PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
+    transformCollectionMap.put(transformMeta.getName(), afterInput);
+    log.logBasic("Handled transform (KAFKA INPUT) : " + transformMeta.getName());
   }
-
 
   /**
    * Gets bootstrapServers
@@ -175,10 +225,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return bootstrapServers;
   }
 
-  /**
-   * @param bootstrapServers The bootstrapServers to set
-   */
-  public void setBootstrapServers( String bootstrapServers ) {
+  /** @param bootstrapServers The bootstrapServers to set */
+  public void setBootstrapServers(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
   }
 
@@ -191,10 +239,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return topics;
   }
 
-  /**
-   * @param topics The topics to set
-   */
-  public void setTopics( String topics ) {
+  /** @param topics The topics to set */
+  public void setTopics(String topics) {
     this.topics = topics;
   }
 
@@ -207,10 +253,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return keyField;
   }
 
-  /**
-   * @param keyField The keyField to set
-   */
-  public void setKeyField( String keyField ) {
+  /** @param keyField The keyField to set */
+  public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
 
@@ -223,10 +267,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return messageField;
   }
 
-  /**
-   * @param messageField The messageField to set
-   */
-  public void setMessageField( String messageField ) {
+  /** @param messageField The messageField to set */
+  public void setMessageField(String messageField) {
     this.messageField = messageField;
   }
 
@@ -239,10 +281,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return groupId;
   }
 
-  /**
-   * @param groupId The groupId to set
-   */
-  public void setGroupId( String groupId ) {
+  /** @param groupId The groupId to set */
+  public void setGroupId(String groupId) {
     this.groupId = groupId;
   }
 
@@ -255,10 +295,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return usingProcessingTime;
   }
 
-  /**
-   * @param usingProcessingTime The usingProcessingTime to set
-   */
-  public void setUsingProcessingTime( boolean usingProcessingTime ) {
+  /** @param usingProcessingTime The usingProcessingTime to set */
+  public void setUsingProcessingTime(boolean usingProcessingTime) {
     this.usingProcessingTime = usingProcessingTime;
   }
 
@@ -271,10 +309,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return usingLogAppendTime;
   }
 
-  /**
-   * @param usingLogAppendTime The usingLogAppendTime to set
-   */
-  public void setUsingLogAppendTime( boolean usingLogAppendTime ) {
+  /** @param usingLogAppendTime The usingLogAppendTime to set */
+  public void setUsingLogAppendTime(boolean usingLogAppendTime) {
     this.usingLogAppendTime = usingLogAppendTime;
   }
 
@@ -287,10 +323,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return usingCreateTime;
   }
 
-  /**
-   * @param usingCreateTime The usingCreateTime to set
-   */
-  public void setUsingCreateTime( boolean usingCreateTime ) {
+  /** @param usingCreateTime The usingCreateTime to set */
+  public void setUsingCreateTime(boolean usingCreateTime) {
     this.usingCreateTime = usingCreateTime;
   }
 
@@ -303,10 +337,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return restrictedToCommitted;
   }
 
-  /**
-   * @param restrictedToCommitted The restrictedToCommitted to set
-   */
-  public void setRestrictedToCommitted( boolean restrictedToCommitted ) {
+  /** @param restrictedToCommitted The restrictedToCommitted to set */
+  public void setRestrictedToCommitted(boolean restrictedToCommitted) {
     this.restrictedToCommitted = restrictedToCommitted;
   }
 
@@ -319,10 +351,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return allowingCommitOnConsumedOffset;
   }
 
-  /**
-   * @param allowingCommitOnConsumedOffset The allowingCommitOnConsumedOffset to set
-   */
-  public void setAllowingCommitOnConsumedOffset( boolean allowingCommitOnConsumedOffset ) {
+  /** @param allowingCommitOnConsumedOffset The allowingCommitOnConsumedOffset to set */
+  public void setAllowingCommitOnConsumedOffset(boolean allowingCommitOnConsumedOffset) {
     this.allowingCommitOnConsumedOffset = allowingCommitOnConsumedOffset;
   }
 
@@ -335,10 +365,8 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
     return configOptions;
   }
 
-  /**
-   * @param configOptions The configOptions to set
-   */
-  public void setConfigOptions( List<ConfigOption> configOptions ) {
+  /** @param configOptions The configOptions to set */
+  public void setConfigOptions(List<ConfigOption> configOptions) {
     this.configOptions = configOptions;
   }
 }

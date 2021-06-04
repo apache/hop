@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.hop.beam.transforms.bq;
+package org.apache.hop.beam.transforms.bigtable;
 
+import com.google.bigtable.v2.Mutation;
+import com.google.protobuf.ByteString;
+import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.transform.BeamBQInputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -44,41 +42,56 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.w3c.dom.Node;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Transform(
-    id = "BeamBQInput",
-    name = "Beam BigQuery Input",
-    description = "Reads from a BigQuery table in Beam",
-    image = "beam-bq-input.svg",
+    id = "BeamBigtableOutput",
+    name = "Beam Bigtable Output",
+    description = "Writes to Bigtable in Beam",
+    image = "beam-gcp-bigtable-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/beambigqueryinput.html")
-public class BeamBQInputMeta extends BaseTransformMeta
+        "https://hop.apache.org/manual/latest/pipeline/transforms/beam-bigtable-output.html")
+public class BeamBigtableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
 
-  @HopMetadataProperty(key = "dataset_id")
-  private String datasetId;
+  @HopMetadataProperty(key = "instance_id")
+  private String instanceId;
 
   @HopMetadataProperty(key = "table_id")
   private String tableId;
 
-  @HopMetadataProperty(key = "query")
-  private String query;
+  @HopMetadataProperty(key = "key_field")
+  private String keyField;
 
-  @HopMetadataProperty(groupKey = "fields", key = "field")
-  private List<BQField> fields;
+  @HopMetadataProperty(groupKey = "columns", key = "column")
+  private List<BigtableColumn> columns;
 
-  public BeamBQInputMeta() {
-    super();
-    fields = new ArrayList<>();
+  public BeamBigtableOutputMeta() {
+    columns = new ArrayList<>();
+  }
+
+  public BeamBigtableOutputMeta(BeamBigtableOutputMeta m) {
+    this();
+    this.projectId = m.projectId;
+    this.instanceId = m.instanceId;
+    this.tableId = m.tableId;
+    this.keyField = m.keyField;
+    for (BigtableColumn column : this.columns) {
+      this.columns.add(new BigtableColumn(column));
+    }
+  }
+
+  public BeamBigtableOutputMeta clone() {
+    return new BeamBigtableOutputMeta(this);
   }
 
   @Override
@@ -97,41 +110,13 @@ public class BeamBQInputMeta extends BaseTransformMeta
   }
 
   @Override
-  public String getDialogClassName() {
-    return BeamBQInputDialog.class.getName();
-  }
-
-  @Override
-  public void getFields(
-      IRowMeta inputRowMeta,
-      String name,
-      IRowMeta[] info,
-      TransformMeta nextTransform,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-
-    try {
-      for (BQField field : fields) {
-        int type = ValueMetaFactory.getIdForValueMeta(field.getHopType());
-        IValueMeta valueMeta =
-            ValueMetaFactory.createValueMeta(field.getNewNameOrName(), type, -1, -1);
-        valueMeta.setOrigin(name);
-        inputRowMeta.addValueMeta(valueMeta);
-      }
-    } catch (Exception e) {
-      throw new HopTransformException("Error getting Beam BQ Input transform output", e);
-    }
-  }
-
-  @Override
   public boolean isInput() {
-    return true;
+    return false;
   }
 
   @Override
   public boolean isOutput() {
-    return false;
+    return true;
   }
 
   @Override
@@ -151,25 +136,55 @@ public class BeamBQInputMeta extends BaseTransformMeta
       PCollection<HopRow> input)
       throws HopException {
 
-    // Output rows (fields selection)
+    // Which transform do we apply this transform to?
+    // Ignore info hops until we figure that out.
     //
-    IRowMeta outputRowMeta = new RowMeta();
-    getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
+    if (previousTransforms.size() > 1) {
+      throw new HopException("Combining data from multiple transforms is not supported yet!");
+    }
+    TransformMeta previousTransform = previousTransforms.get(0);
 
-    BeamBQInputTransform beamInputTransform =
-        new BeamBQInputTransform(
+    BigtableIO.Write write =
+        BigtableIO.write()
+            .withProjectId(variables.resolve(projectId))
+            .withInstanceId(variables.resolve(instanceId))
+            .withTableId(variables.resolve(tableId));
+
+    String realKeyField = variables.resolve(keyField);
+    int keyIndex = rowMeta.indexOfValue(realKeyField);
+    if (keyIndex < 0) {
+      throw new HopException("Key field " + realKeyField + " could not be found in the input");
+    }
+
+    // Encode the columns to JSON...
+    //
+    JSONArray j = new JSONArray();
+    for (BigtableColumn column : columns) {
+      JSONObject jc = new JSONObject();
+      jc.put("qualifier", variables.resolve(column.getName()));
+      jc.put("family", variables.resolve(column.getFamily()));
+      jc.put("field", variables.resolve(column.getSourceField()));
+      j.add(jc);
+    }
+
+    HopToBigtableFn function =
+        new HopToBigtableFn(
+            keyIndex,
+            j.toJSONString(),
             transformMeta.getName(),
-            transformMeta.getName(),
-            variables.resolve(projectId),
-            variables.resolve(datasetId),
-            variables.resolve(tableId),
-            variables.resolve(query),
-            JsonRowMeta.toJson(outputRowMeta),
+            JsonRowMeta.toJson(rowMeta),
             transformPluginClasses,
             xpPluginClasses);
-    PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
-    transformCollectionMap.put(transformMeta.getName(), afterInput);
-    log.logBasic("Handled transform (BQ INPUT) : " + transformMeta.getName());
+
+    PCollection<KV<ByteString, Iterable<Mutation>>> bigtableInput =
+        input.apply(transformMeta.getName(), ParDo.of(function));
+    write.expand(bigtableInput);
+
+    log.logBasic(
+        "Handled transform (Bigtable OUTPUT) : "
+            + transformMeta.getName()
+            + ", gets data from "
+            + previousTransform.getName());
   }
 
   /**
@@ -187,17 +202,17 @@ public class BeamBQInputMeta extends BaseTransformMeta
   }
 
   /**
-   * Gets datasetId
+   * Gets instanceId
    *
-   * @return value of datasetId
+   * @return value of instanceId
    */
-  public String getDatasetId() {
-    return datasetId;
+  public String getInstanceId() {
+    return instanceId;
   }
 
-  /** @param datasetId The datasetId to set */
-  public void setDatasetId(String datasetId) {
-    this.datasetId = datasetId;
+  /** @param instanceId The instanceId to set */
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
   }
 
   /**
@@ -215,30 +230,30 @@ public class BeamBQInputMeta extends BaseTransformMeta
   }
 
   /**
-   * Gets query
+   * Gets keyField
    *
-   * @return value of query
+   * @return value of keyField
    */
-  public String getQuery() {
-    return query;
+  public String getKeyField() {
+    return keyField;
   }
 
-  /** @param query The query to set */
-  public void setQuery(String query) {
-    this.query = query;
+  /** @param keyField The keyField to set */
+  public void setKeyField(String keyField) {
+    this.keyField = keyField;
   }
 
   /**
-   * Gets fields
+   * Gets columns
    *
-   * @return value of fields
+   * @return value of columns
    */
-  public List<BQField> getFields() {
-    return fields;
+  public List<BigtableColumn> getColumns() {
+    return columns;
   }
 
-  /** @param fields The fields to set */
-  public void setFields(List<BQField> fields) {
-    this.fields = fields;
+  /** @param columns The columns to set */
+  public void setColumns(List<BigtableColumn> columns) {
+    this.columns = columns;
   }
 }

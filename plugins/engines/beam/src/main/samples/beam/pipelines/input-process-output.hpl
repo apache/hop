@@ -50,8 +50,8 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <input_location>${DATA_INPUT}</input_location>
     <file_description_name>Customers</file_description_name>
+    <input_location>${DATA_INPUT}</input_location>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
@@ -115,7 +115,7 @@
         <value>
           <name/>
           <type>String</type>
-          <text>FL</text>
+          <text>CA</text>
           <length>-1</length>
           <precision>-1</precision>
           <isnull>N</isnull>
@@ -140,10 +140,9 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <output_location>${DATA_OUTPUT}</output_location>
-    <file_description_name/>
     <file_prefix>input-process-output</file_prefix>
     <file_suffix>.csv</file_suffix>
+    <output_location>${DATA_OUTPUT}</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>

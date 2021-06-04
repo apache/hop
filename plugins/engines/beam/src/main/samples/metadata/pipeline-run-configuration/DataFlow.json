@@ -5,15 +5,15 @@
       "streamingHopTransformsBufferSize": "5000",
       "gcpMaximumNumberOfWorkers": "8",
       "gcpZone": "",
-      "gcpProjectId": "kettledataflow",
+      "gcpProjectId": "apachehop",
       "userAgent": "Hop",
       "gcpRegion": "us-east1",
       "pluginsToStage": "",
-      "tempLocation": "",
+      "tempLocation": "gs://apachehop/tmp/",
       "gcpWorkerDiskType": "",
-      "gcpAppName": "Hop",
+      "gcpAppName": "ApacheHop",
       "gcpInitialNumberOfWorkers": "8",
-      "gcpStagingLocation": "gs://kettledataflow/binaries/",
+      "gcpStagingLocation": "gs://apachehop/binaries/",
       "fatJar": "/home/matt/parking/hop-0.99-fat.jar",
       "streamingHopTransformsFlushInterval": "1000",
       "transformPluginClasses": "",
@@ -26,17 +26,17 @@
     {
       "name": "DATA_INPUT",
       "description": "",
-      "value": "gs://kettledataflow/input/customers-noheader-1M.txt"
+      "value": "gs://apachehop/input/customers-noheader-1M.txt"
     },
     {
       "name": "STATE_INPUT",
       "description": "",
-      "value": "gs://kettledataflow/input/state-data.txt"
+      "value": "gs://apachehop/input/state-data.txt"
     },
     {
       "name": "DATA_OUTPUT",
       "description": "",
-      "value": "gs://kettledataflow/output/"
+      "value": "gs://apachehop/output/"
     }
   ],
   "name": "DataFlow",

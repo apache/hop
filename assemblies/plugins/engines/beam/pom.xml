@@ -50,10 +50,13 @@
   </repositories>
 
   <properties>
-    <apache-beam-version>2.28.0</apache-beam-version>
+    <apache-beam-version>2.29.0</apache-beam-version>
     <spark-version>2.4.7</spark-version>
-    <flink-version>1.9.3</flink-version>
+    <flink-version>1.10.1</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
+    <bigtable-hbase-beam.version>1.20.1</bigtable-hbase-beam.version>
+    <grpc.version>1.37.0</grpc.version>
+    <gax-grpc.version>1.63.0</gax-grpc.version>
   </properties>
 
   <dependencies>
@@ -63,11 +66,73 @@
       <version>0.99-SNAPSHOT</version>
     </dependency>
 
-    <!-- Force the right BQ lib -->
+    <!-- Force the right libs version -->
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-bigquery</artifactId>
       <version>v2-rev20191211-1.30.9</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-core</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf-lite</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-api</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-context</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-grpclb</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-auth</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-alts</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.api</groupId>
+      <artifactId>gax-grpc</artifactId>
+      <version>${gax-grpc.version}</version>
     </dependency>
 
     <!-- The Apache Beam dependencies -->
@@ -160,7 +225,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-flink-1.9</artifactId>
+      <artifactId>beam-runners-flink-1.10</artifactId>
       <version>${apache-beam-version}</version>
       <exclusions>
         <exclusion>
@@ -369,6 +434,12 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud.bigtable</groupId>
+      <artifactId>bigtable-hbase-beam</artifactId>
+      <version>${bigtable-hbase-beam.version}</version>
     </dependency>
 
     <dependency>
