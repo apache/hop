@@ -25,7 +25,7 @@
   <parent>
     <artifactId>hop-plugins-transforms</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.99-SNAPSHOT</version>
+    <version>0.99</version>
   </parent>
   <artifactId>hop-transform-sasinput</artifactId>
 

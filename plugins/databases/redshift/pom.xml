@@ -24,7 +24,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-redshift</artifactId>
-    <version>0.99-SNAPSHOT</version>
+    <version>0.99</version>
 
     <dependencies>
         <dependency>
@@ -41,7 +41,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>0.99-SNAPSHOT</version>
+        <version>0.99</version>
     </parent>
 
     <properties>

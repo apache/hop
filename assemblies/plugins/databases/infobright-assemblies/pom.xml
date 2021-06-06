@@ -25,12 +25,12 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.99-SNAPSHOT</version>
+        <version>0.99</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-infobright</artifactId>
-    <version>0.99-SNAPSHOT</version>
+    <version>0.99</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases Inforbright</name>

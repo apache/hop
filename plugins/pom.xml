@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins</artifactId>
-  <version>0.99-SNAPSHOT</version>
+  <version>0.99</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins</name>
@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.99-SNAPSHOT</version>
+    <version>0.99</version>
   </parent>
 
   <profiles>
