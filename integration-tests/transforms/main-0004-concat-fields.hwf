@@ -26,7 +26,6 @@
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>64</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -40,9 +39,11 @@
         <test_name>
           <name>0004-concat-fields UNIT</name>
         </test_name>
+        <test_name>
+          <name>0004-concat-some-fields UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>224</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -52,8 +53,6 @@
     <hop>
       <from>START</from>
       <to>Run Pipeline Unit Tests</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
