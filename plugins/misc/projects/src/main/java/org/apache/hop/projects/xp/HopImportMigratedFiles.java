@@ -106,12 +106,15 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                     String folderName = outFile.getParent();
                     Files.createDirectories(Paths.get(folderName));
                     StreamResult streamResult = new StreamResult(new File(outFilename));
-                    transformer.transform(domSource, streamResult);
+                    try {
+                        transformer.transform(domSource, streamResult);
+                    } catch(TransformerException e) {
+                        iLogChannel.logError("Error transforming '" + filename + " to Hop.");
+                        e.printStackTrace();
+                    }
                 }
             }
         }catch(TransformerConfigurationException e) {
-            e.printStackTrace();
-        }catch(TransformerException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
