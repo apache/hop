@@ -520,6 +520,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     for (TableItem item : wFields.getNonEmptyItems()) {
       input.getFields().add(new ParquetField(item.getText(1), item.getText(2)));
     }
+    input.setChanged();
     dispose();
   }
 
