@@ -57,6 +57,7 @@
         <module>cassandra</module>
         <module>google</module>
         <module>neo4j</module>
+        <module>parquet</module>
       </modules>
     </profile>
 
