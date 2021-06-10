@@ -168,7 +168,7 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
         if (i > 0) {
           targetString.append(data.stringSeparator);
         }
-        IValueMeta valueMeta = getInputRowMeta().getValueMeta(i);
+        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
         concatFieldFastDataDump(
             targetString, valueMeta, r[i], ""); // "": no specific null value defined
       }
@@ -177,7 +177,7 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
         if (i > 0) {
           targetString.append(data.stringSeparator);
         }
-        IValueMeta valueMeta = getInputRowMeta().getValueMeta(i);
+        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
         concatFieldFastDataDump(
             targetString, valueMeta, r[data.fieldnrs[i]], data.stringNullValue[i]);
       }
