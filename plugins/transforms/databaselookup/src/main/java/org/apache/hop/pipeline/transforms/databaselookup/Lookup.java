@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
@@ -185,4 +187,5 @@ public class Lookup {
   public void setEatingRowOnLookupFailure(boolean eatingRowOnLookupFailure) {
     this.eatingRowOnLookupFailure = eatingRowOnLookupFailure;
   }
+
 }

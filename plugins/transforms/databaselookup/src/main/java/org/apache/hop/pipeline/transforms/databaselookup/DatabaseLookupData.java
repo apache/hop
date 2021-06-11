@@ -44,6 +44,7 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
   public int[] conditions;
   public boolean hasDBCondition;
   public int[] returnValueTypes;
+  public String[] returnTrimTypes;
 
   public DatabaseLookupData() {
     super();
