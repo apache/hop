@@ -28,7 +28,7 @@ Hop allows data professionals to work **visually**, using **metadata** to descri
 
 == Architecture
 
-Hop was designed to be as flexible as possible: at the core is the small but powerful Hop engine. All functionality is added through plugins. The default Hop installation comes with over 250 plugins. You can removed or add third-party plugins according to your needs to tailor Hop to be exactly what you need. Hop is designed to work in any scenario, from IoT to huge volumes of data, on-prem, in the cloud, on a bare OS or in containers and kubernetes.
+Hop was designed to be as flexible as possible: at the core is the small but powerful Hop engine. All functionality is added through plugins. The default Hop installation comes with over 250 plugins. You can remove or add third-party plugins according to your needs to tailor Hop to be exactly what you need. Hop is designed to work in any scenario, from IoT to huge volumes of data, on-prem, in the cloud, on a bare OS or in containers and kubernetes.
 
 == Flexible Runtimes
 
