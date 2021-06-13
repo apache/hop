@@ -14,5 +14,5 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-A Hop Environment are instances of projects that hold the actual runtime configurations and other metadata objects for a project. +
+Hop Environments are instances of projects that hold the actual runtime configurations and other metadata objects for a project. +
 Example: the 'dev' environment for the 'Sales' project specifies to read from host '10.0.0.1' for the 'customers' database connection
