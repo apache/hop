@@ -72,9 +72,9 @@ public class DatabaseLookupMetaTest {
   public void getFieldWithValueUsedTwice() throws HopTransformException {
 
     Lookup lookup = databaseLookupMeta.getLookup();
-    lookup.getReturnValues().add(new ReturnValue("match", "v1", "", "String"));
-    lookup.getReturnValues().add(new ReturnValue("match", "v2", "", "String"));
-    lookup.getReturnValues().add(new ReturnValue("mismatch", "v3", "", "String"));
+    lookup.getReturnValues().add(new ReturnValue("match", "v1", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup.getReturnValues().add(new ReturnValue("match", "v2", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup.getReturnValues().add(new ReturnValue("mismatch", "v3", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     IValueMeta v1 = new ValueMetaString("match");
     IValueMeta v2 = new ValueMetaString("match1");
@@ -104,9 +104,9 @@ public class DatabaseLookupMetaTest {
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     Lookup lookup = meta.getLookup();
-    lookup.getReturnValues().add(new ReturnValue("f1", "s4", "", "String"));
-    lookup.getReturnValues().add(new ReturnValue("f2", "s5", "", "String"));
-    lookup.getReturnValues().add(new ReturnValue("f3", "s6", "", "String"));
+    lookup.getReturnValues().add(new ReturnValue("f1", "s4", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup.getReturnValues().add(new ReturnValue("f2", "s5", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup.getReturnValues().add(new ReturnValue("f3", "s6", "", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     DatabaseLookupData databaseLookupData = new DatabaseLookupData();
 
@@ -132,8 +132,8 @@ public class DatabaseLookupMetaTest {
     Lookup lookup = meta.getLookup();
     lookup.getKeyFields().add(new KeyField("aa", "gg", "ee", "cc"));
     lookup.getKeyFields().add(new KeyField("bb", "hh", "ff", "dd"));
-    lookup.getReturnValues().add(new ReturnValue("ii", "kk", "mm", "String"));
-    lookup.getReturnValues().add(new ReturnValue("jj", "ll", "nn", "Integer"));
+    lookup.getReturnValues().add(new ReturnValue("ii", "kk", "mm", "String", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_BOTH)));
+    lookup.getReturnValues().add(new ReturnValue("jj", "ll", "nn", "Integer", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
     lookup.setOrderByClause("FOO DESC");
     lookup.setEatingRowOnLookupFailure(true);
     lookup.setFailingOnMultipleResults(true);
@@ -166,6 +166,7 @@ public class DatabaseLookupMetaTest {
       assertEquals(r1.getNewName(), r2.getNewName());
       assertEquals(r1.getDefaultValue(), r2.getDefaultValue());
       assertEquals(r1.getDefaultType(), r2.getDefaultType());
+      assertEquals(r1.getTrimType(), r2.getTrimType());
     }
 
     assertEquals(lookup.isEatingRowOnLookupFailure(), lookup2.isEatingRowOnLookupFailure());

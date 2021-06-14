@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ReturnValue {
@@ -59,14 +61,15 @@ public class ReturnValue {
     this.newName = r.newName;
     this.defaultValue = r.defaultValue;
     this.defaultType = r.defaultType;
-    this.trimType = ValueMetaBase.trimTypeCode[0];
+    this.trimType = r.trimType;
   }
 
-  public ReturnValue(String tableField, String newName, String defaultValue, String defaultType) {
+  public ReturnValue(String tableField, String newName, String defaultValue, String defaultType, String trimType) {
     this.tableField = tableField;
     this.newName = newName;
     this.defaultValue = defaultValue;
     this.defaultType = defaultType;
+    this.trimType = trimType;
   }
 
   /**
