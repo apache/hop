@@ -52,13 +52,20 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
 
   private static Class<?> PKG = TransformMetaStructureMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private String fieldName;
-  private String comments;
-  private String typeName;
-  private String positionName;
-  private String lengthName;
-  private String precisionName;
-  private String originName;
+  private boolean includePositionField;
+  private String positionFieldname;
+  private boolean includeFieldnameField;
+  private String fieldFieldname;
+  private boolean includeCommentsField;
+  private String commentsFieldname;
+  private boolean includeTypeField;
+  private String typeFieldname;
+  private boolean includeLengthField;
+  private String lengthFieldname;
+  private boolean includePrecisionField;
+  private String precisionFieldname;
+  private boolean includeOriginField;
+  private String originFieldname;
 
   private boolean outputRowcount;
   private String rowcountField;
@@ -73,8 +80,22 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
   public String getXml() {
     StringBuilder xml = new StringBuilder( 500 );
 
-    xml.append( "      " ).append( XmlHandler.addTagValue( "outputRowcount", outputRowcount ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "outputRowcount", outputRowcount ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "rowcountField", rowcountField ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includePositionField", includePositionField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "positionFieldname", positionFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includeFieldnameField", includeFieldnameField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "fieldFieldname", fieldFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includeCommentsField", includeCommentsField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "commentsFieldname", commentsFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includeTypeField", includeTypeField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "typeFieldname", typeFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includePrecisionField", includePrecisionField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "precisionFieldname", precisionFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includeLengthField", includeLengthField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "lengthFieldname", lengthFieldname ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "includeOriginField", includeOriginField) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "originFieldname", originFieldname ) );
 
     return xml.toString();
   }
@@ -83,6 +104,20 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
     try {
       outputRowcount = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outputRowcount" ) );
       rowcountField = XmlHandler.getTagValue( transformNode, "rowcountField" );
+      includePositionField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includePositionField" ));
+      positionFieldname = XmlHandler.getTagValue( transformNode, "positionFieldname" );
+      includeFieldnameField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includeFieldnameField" ));
+      fieldFieldname = XmlHandler.getTagValue( transformNode, "fieldFieldname" );
+      includeTypeField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includeTypeField" ));
+      commentsFieldname = XmlHandler.getTagValue( transformNode, "commentsFieldname" );
+      includeLengthField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includeLengthField" ));
+      typeFieldname = XmlHandler.getTagValue( transformNode, "typeFieldname" );
+      includePrecisionField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includePrecisionField" ));
+      precisionFieldname = XmlHandler.getTagValue( transformNode, "precisionFieldname" );
+      includeCommentsField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includeCommentsField" ));
+      lengthFieldname = XmlHandler.getTagValue( transformNode, "lengthFieldname" );
+      includeOriginField = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "includeOriginField" ));
+      originFieldname = XmlHandler.getTagValue( transformNode, "originFieldname" );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load transform info from Xml", e );
     }
@@ -113,33 +148,47 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
     this.setDefault();
     // create the new fields
     // Position
-    IValueMeta positionFieldValue = new ValueMetaInteger( positionName );
-    positionFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( positionFieldValue );
+    if (includePositionField) {
+      IValueMeta positionFieldValue = new ValueMetaInteger(positionFieldname);
+      positionFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(positionFieldValue);
+    }
     // field name
-    IValueMeta nameFieldValue = new ValueMetaString( fieldName );
-    nameFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( nameFieldValue );
+    if (includeFieldnameField) {
+      IValueMeta nameFieldValue = new ValueMetaString(fieldFieldname);
+      nameFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(nameFieldValue);
+    }
     // comments
-    IValueMeta commentsFieldValue = new ValueMetaString( comments );
-    nameFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( commentsFieldValue );
+    if (includeCommentsField) {
+      IValueMeta commentsFieldValue = new ValueMetaString(commentsFieldname);
+      commentsFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(commentsFieldValue);
+    }
     // Type
-    IValueMeta typeFieldValue = new ValueMetaString( typeName );
-    typeFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( typeFieldValue );
+    if (includeTypeField) {
+      IValueMeta typeFieldValue = new ValueMetaString(typeFieldname);
+      typeFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(typeFieldValue);
+    }
     // Length
-    IValueMeta lengthFieldValue = new ValueMetaInteger( lengthName );
-    lengthFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( lengthFieldValue );
+    if (includeLengthField) {
+      IValueMeta lengthFieldValue = new ValueMetaInteger(lengthFieldname);
+      lengthFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(lengthFieldValue);
+    }
     // Precision
-    IValueMeta precisionFieldValue = new ValueMetaInteger( precisionName );
-    precisionFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( precisionFieldValue );
+    if (includePrecisionField) {
+      IValueMeta precisionFieldValue = new ValueMetaInteger(precisionFieldname);
+      precisionFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(precisionFieldValue);
+    }
     // Origin
-    IValueMeta originFieldValue = new ValueMetaString( originName );
-    originFieldValue.setOrigin( name );
-    inputRowMeta.addValueMeta( originFieldValue );
+    if (includeOriginField) {
+      IValueMeta originFieldValue = new ValueMetaString(originFieldname);
+      originFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(originFieldValue);
+    }
 
     if ( isOutputRowcount() ) {
       // RowCount
@@ -152,14 +201,13 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
 
   @Override
   public void setDefault() {
-    positionName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.PositionName" );
-    fieldName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.FieldName" );
-    comments = BaseMessages.getString( PKG, "TransformMetaStructureMeta.Comments" );
-    typeName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.TypeName" );
-    lengthName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.LengthName" );
-    precisionName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.PrecisionName" );
-    originName = BaseMessages.getString( PKG, "TransformMetaStructureMeta.OriginName" );
-
+    positionFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.PositionName" );
+    fieldFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.FieldName" );
+    commentsFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.CommentsName" );
+    typeFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.TypeName" );
+    lengthFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.LengthName" );
+    precisionFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.PrecisionName" );
+    originFieldname = BaseMessages.getString( PKG, "TransformMetaStructureMeta.OriginName" );
   }
 
   public boolean isOutputRowcount() {
@@ -178,4 +226,115 @@ public class TransformMetaStructureMeta extends BaseTransformMeta implements ITr
     this.rowcountField = rowcountField;
   }
 
+  public String getFieldFieldname() {
+    return fieldFieldname;
+  }
+
+  public void setFieldFieldname(String fieldFieldname) {
+    this.fieldFieldname = fieldFieldname;
+  }
+
+  public String getCommentsFieldname() {
+    return commentsFieldname;
+  }
+
+  public void setCommentsFieldname(String commentsFieldname) {
+    this.commentsFieldname = commentsFieldname;
+  }
+
+  public String getTypeFieldname() {
+    return typeFieldname;
+  }
+
+  public void setTypeFieldname(String typeFieldname) {
+    this.typeFieldname = typeFieldname;
+  }
+
+  public String getPositionFieldname() {
+    return positionFieldname;
+  }
+
+  public void setPositionFieldname(String positionFieldname) {
+    this.positionFieldname = positionFieldname;
+  }
+
+  public String getLengthFieldname() {
+    return lengthFieldname;
+  }
+
+  public void setLengthFieldname(String lengthFieldname) {
+    this.lengthFieldname = lengthFieldname;
+  }
+
+  public String getPrecisionFieldname() {
+    return precisionFieldname;
+  }
+
+  public void setPrecisionFieldname(String precisionFieldname) {
+    this.precisionFieldname = precisionFieldname;
+  }
+
+  public String getOriginFieldname() {
+    return originFieldname;
+  }
+
+  public void setOriginFieldname(String originFieldname) {
+    this.originFieldname = originFieldname;
+  }
+
+  public boolean isIncludePositionField() {
+    return includePositionField;
+  }
+
+  public void setIncludePositionField(boolean includePositionField) {
+    this.includePositionField = includePositionField;
+  }
+
+  public boolean isIncludeFieldnameField() {
+    return includeFieldnameField;
+  }
+
+  public void setIncludeFieldnameField(boolean includeFieldnameField) {
+    this.includeFieldnameField = includeFieldnameField;
+  }
+
+  public boolean isIncludeCommentsField() {
+    return includeCommentsField;
+  }
+
+  public void setIncludeCommentsField(boolean includeCommentsField) {
+    this.includeCommentsField = includeCommentsField;
+  }
+
+  public boolean isIncludeTypeField() {
+    return includeTypeField;
+  }
+
+  public void setIncludeTypeField(boolean includeTypeField) {
+    this.includeTypeField = includeTypeField;
+  }
+
+  public boolean isIncludeLengthField() {
+    return includeLengthField;
+  }
+
+  public void setIncludeLengthField(boolean includeLengthField) {
+    this.includeLengthField = includeLengthField;
+  }
+
+  public boolean isIncludePrecisionField() {
+    return includePrecisionField;
+  }
+
+  public void setIncludePrecisionField(boolean includePrecisionField) {
+    this.includePrecisionField = includePrecisionField;
+  }
+
+  public boolean isIncludeOriginField() {
+    return includeOriginField;
+  }
+
+  public void setIncludeOriginField(boolean includeOriginField) {
+    this.includeOriginField = includeOriginField;
+  }
 }

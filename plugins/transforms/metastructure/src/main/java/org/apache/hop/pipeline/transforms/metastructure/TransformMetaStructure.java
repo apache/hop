@@ -84,33 +84,57 @@ public class TransformMetaStructure
       IRowMeta row = getInputRowMeta().clone();
 
       for (int i = 0; i < row.size(); i++) {
+        int pos = -1;
 
         IValueMeta v = row.getValueMeta(i);
 
-        IValueMeta v_position = data.outputRowMeta.getValueMeta(0);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow, 0, v_position.convertDataCompatible(v_position, new Long(i + 1)));
+        if (meta.isIncludePositionField()) {
+          pos +=1 ;
+          IValueMeta v_position = data.outputRowMeta.getValueMeta(pos);
+          metastructureRow =
+                  RowDataUtil.addValueData(
+                          metastructureRow, pos, v_position.convertDataCompatible(v_position, new Long(i + 1)));
+        }
 
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 1, v.getName());
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 2, v.getComments());
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 3, v.getTypeDesc());
+        if (meta.isIncludeFieldnameField()) {
+          pos += 1;
+          metastructureRow = RowDataUtil.addValueData(metastructureRow, pos, v.getName());
+        }
 
-        IValueMeta v_length = data.outputRowMeta.getValueMeta(4);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow,
-                4,
-                v_length.convertDataCompatible(v_length, new Long(v.getLength())));
+        if (meta.isIncludeCommentsField()) {
+          pos += 1;
+          metastructureRow = RowDataUtil.addValueData(metastructureRow, pos, v.getComments());
+        }
 
-        IValueMeta v_precision = data.outputRowMeta.getValueMeta(5);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow,
-                5,
-                v_precision.convertDataCompatible(v_precision, new Long(v.getPrecision())));
+        if (meta.isIncludeTypeField()) {
+          pos += 1;
+          metastructureRow = RowDataUtil.addValueData(metastructureRow, pos, v.getTypeDesc());
+        }
 
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 6, v.getOrigin());
+        if (meta.isIncludeLengthField()) {
+          pos += 1;
+          IValueMeta v_length = data.outputRowMeta.getValueMeta(pos);
+          metastructureRow =
+                  RowDataUtil.addValueData(
+                          metastructureRow,
+                          pos,
+                          v_length.convertDataCompatible(v_length, new Long(v.getLength())));
+        }
+
+        if (meta.isIncludePrecisionField()) {
+          pos += 1;
+          IValueMeta v_precision = data.outputRowMeta.getValueMeta(pos);
+          metastructureRow =
+                  RowDataUtil.addValueData(
+                          metastructureRow,
+                          pos,
+                          v_precision.convertDataCompatible(v_precision, new Long(v.getPrecision())));
+        }
+
+        if (meta.isIncludeOriginField()) {
+          pos += 1;
+          metastructureRow = RowDataUtil.addValueData(metastructureRow, pos, v.getOrigin());
+        }
 
         if (meta.isOutputRowcount()) {
           IValueMeta v_rowCount = data.outputRowMeta.getValueMeta(7);
