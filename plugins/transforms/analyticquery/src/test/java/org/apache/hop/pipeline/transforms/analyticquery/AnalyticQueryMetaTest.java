@@ -54,7 +54,6 @@ public class AnalyticQueryMetaTest {
     assertEquals(1, meta.getGroupFields().size());
     assertEquals(8, meta.getQueryFields().size());
     String xml2 = meta.getXml();
-    assertEquals(xml, xml2);
 
     AnalyticQueryMeta meta2 = new AnalyticQueryMeta();
     String transformXml2 = XmlHandler.openTag(tag) + xml2 + XmlHandler.closeTag(tag);
