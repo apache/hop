@@ -72,53 +72,6 @@ gpg --verify apache-hop-X.XX-incubating.tar.gz.asc
 sha512sum -c apache-hop-X.XX-incubating.tar.gz.sha512
 ----
 
-== Creating the client
-
-The client included in the release has to be build using the source code in the release. Copy the source you just prepared to a temp location to generate the client.
-
-[source,bash]
-----
-# Copy source to temp build location
-mkdir /tmp/client_build
-cp apache-hop-x.xx-incubating.tar.gz /tmp/client_build/
-cd /tmp/client_build
-
-# Extract
-tar -xvf apache-hop-X.XX-incubating.tar.gz
-cd apache-hop-X.XX-incubating
-
-# Run Build
-mvn -T 4 clean install -DskipTests=true
-
-# Copy client back (and rename)
-cp assemblies/client/target/hop-client-X.XX.zip SVN_LOCATION/hop_public_release/X.XX/apache-hop-client-X.XX-incubating.zip
-
-# Switch back to your SVN folder
-cd SVN_LOCATION/hop_public_release/X.XX/
-----
-
-As we now added a new binary file we also need to sign and create a sha512 for it.
-
-[source,bash]
-----
-# Create keyfile and sha512
-gpg --armor --default-key username@apache.org --output apache-hop-client-X.XX-incubating.zip.asc --detach-sig apache-hop-client-X.XX-incubating.zip
-sha512sum apache-hop-client-X.XX-incubating-.zip > apache-hop-client-X.XX-incubating.zip.sha512
-
-# Validate
-gpg --verify apache-hop-client-X.XX-incubating.zip.asc
-sha512sum -c apache-hop-client-X.XX-incubating.zip.sha512
-----
-
-Commit everything to SVN
-
-[source,bash]
-----
-svn add *
-svn status
-svn commit -m 'Add release files for Apache Hop X.XX'
-----
-
 == Creating Dockerhub Artifacts
 
 To create the docker images you can use the build used to create the client, go to the folder with the code and do following steps
