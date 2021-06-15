@@ -18,6 +18,7 @@
 package org.apache.hop.core.xml;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -27,6 +28,8 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
@@ -1186,6 +1189,31 @@ public class XmlHandler {
     String tag = "wrap";
     String newXml = openTag(tag) + xml + closeTag(tag);
     return loadXmlString(newXml, tag);
+  }
+
+  public static String getLicenseHeader(IVariables variables) throws HopException {
+    String licenseFile = variables.getVariable(Const.HOP_LICENSE_HEADER_FILE);
+    if (StringUtils.isEmpty(licenseFile)) {
+      return "";
+    }
+
+    // Load the file...
+    //
+    String realLicenseFile = variables.resolve(licenseFile);
+    try (InputStream inputStream = HopVfs.getInputStream(realLicenseFile)) {
+      List<String> lines = IOUtils.readLines(inputStream, Const.XML_ENCODING);
+      if (lines.isEmpty()) {
+        return "";
+      }
+      String xml = "<!--" + Const.CR;
+      for (String line : lines) {
+        xml += line + Const.CR;
+      }
+      xml += "-->" + Const.CR;
+      return xml;
+    } catch (Exception e) {
+      throw new HopException("Error reading license file : " + realLicenseFile, e);
+    }
   }
 }
 

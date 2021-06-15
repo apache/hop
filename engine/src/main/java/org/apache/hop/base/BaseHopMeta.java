@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,12 @@
  */
 package org.apache.hop.base;
 
-import org.apache.hop.core.xml.IXml;
-
-
 /**
  * This class defines a base hop from one action copy to another, or from one transform to another.
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseHopMeta<T> implements IXml {
+public abstract class BaseHopMeta<T> {
   public static final String XML_TAG = "hop";
 
   public boolean split = false;
@@ -33,10 +30,10 @@ public abstract class BaseHopMeta<T> implements IXml {
   protected boolean changed;
   private boolean errorHop;
 
-  public BaseHopMeta() {
-  }
+  public BaseHopMeta() {}
 
-  public BaseHopMeta( boolean split, T from, T to, boolean enabled, boolean changed, boolean errorHop ) {
+  public BaseHopMeta(
+      boolean split, T from, T to, boolean enabled, boolean changed, boolean errorHop) {
     this.split = split;
     this.from = from;
     this.to = to;
@@ -46,10 +43,10 @@ public abstract class BaseHopMeta<T> implements IXml {
   }
 
   public void setChanged() {
-    setChanged( true );
+    setChanged(true);
   }
 
-  public void setChanged( boolean ch ) {
+  public void setChanged(boolean ch) {
     changed = ch;
   }
 
@@ -58,15 +55,15 @@ public abstract class BaseHopMeta<T> implements IXml {
   }
 
   public void setEnabled() {
-    setEnabled( true );
+    setEnabled(true);
   }
 
   public boolean isEnabled() {
     return enabled;
   }
 
-  public void setEnabled( boolean en ) {
-    if ( enabled != en ) {
+  public void setEnabled(boolean en) {
+    if (enabled != en) {
       setChanged();
       enabled = en;
     }
@@ -76,7 +73,7 @@ public abstract class BaseHopMeta<T> implements IXml {
     return errorHop;
   }
 
-  public void setErrorHop( boolean errorHop ) {
+  public void setErrorHop(boolean errorHop) {
     this.errorHop = errorHop;
   }
 
@@ -89,10 +86,8 @@ public abstract class BaseHopMeta<T> implements IXml {
     return split;
   }
 
-  /**
-   * @param split The split to set
-   */
-  public void setSplit( boolean split ) {
+  /** @param split The split to set */
+  public void setSplit(boolean split) {
     this.split = split;
   }
 }

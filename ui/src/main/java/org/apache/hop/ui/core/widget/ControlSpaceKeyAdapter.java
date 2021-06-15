@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -43,6 +41,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -143,12 +142,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
       props.setLook(list);
       list.setItems(getVariableNames(variables));
-      final DefaultToolTip toolTip = new DefaultToolTip(list, ToolTip.RECREATE, true);
-      toolTip.setImage(GuiResource.getInstance().getImageVariable());
-      toolTip.setHideOnMouseDown(true);
-      toolTip.setRespectMonitorBounds(true);
-      toolTip.setRespectDisplayBounds(true);
-      toolTip.setPopupDelay(350);
+      final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
+      toolTip.setAutoHide(true);
 
       list.addSelectionListener(
           new SelectionAdapter() {
@@ -173,8 +168,10 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
                 message += BaseMessages.getString(PKG, "TextVar.InternalVariable.Message");
               }
               toolTip.setText(message);
-              toolTip.hide();
-              toolTip.show(new Point(shellBounds.width, 0));
+              toolTip.setVisible(false);
+              toolTip.setLocation(
+                  shell.getLocation().x, shell.getLocation().y + shellBounds.height);
+              toolTip.setVisible(true);
             }
           });
 

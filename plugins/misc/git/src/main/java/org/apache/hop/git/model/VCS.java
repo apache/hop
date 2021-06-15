@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 /*
@@ -35,9 +34,8 @@
 package org.apache.hop.git.model;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.git.dialog.UsernamePasswordDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -69,14 +67,23 @@ public abstract class VCS {
    * @return true on success
    */
   protected boolean promptUsernamePassword() {
-    UsernamePasswordDialog dialog = new UsernamePasswordDialog(shell);
-    if (dialog.open() == Window.OK) {
-      String username = dialog.getUsername();
-      String password = dialog.getPassword();
-      setCredential(username, password);
-      return true;
+    EnterStringDialog userDialog =
+        new EnterStringDialog(shell, "", "Username?", "Enter the git username to use");
+    String username = userDialog.open();
+    if (username == null) {
+      return false;
     }
-    return false;
+
+    EnterStringDialog passDialog =
+        new EnterStringDialog(shell, "", "Password?", "Enter the git password to use");
+    passDialog.setEchoChar('*');
+    String password = passDialog.open();
+    if (password == null) {
+      return false;
+    }
+
+    setCredential(username, password);
+    return true;
   }
 
   public abstract void setCredential(String username, String password);

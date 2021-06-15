@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,32 +37,36 @@ import java.io.OutputStream;
 import java.util.List;
 
 @ExtensionPoint(
-  extensionPointId = "PipelinePrepareExecution",
-  id = "ChangePipelineMetaPriorToExecutionExtensionPoint",
-  description = "Change the pipeline metadata in prior to execution preparation but only during execution in HopGui"
-)
-public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
+    extensionPointId = "PipelinePrepareExecution",
+    id = "ChangePipelineMetaPriorToExecutionExtensionPoint",
+    description =
+        "Change the pipeline metadata in prior to execution preparation but only during execution in HopGui")
+public class ChangePipelineMetaPriorToExecutionExtensionPoint
+    implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline)
+      throws HopException {
     PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
-    boolean runUnitTest = "Y".equalsIgnoreCase( variables.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
-    if ( !runUnitTest ) {
+    boolean runUnitTest =
+        "Y".equalsIgnoreCase(variables.getVariable(DataSetConst.VAR_RUN_UNIT_TEST));
+    if (!runUnitTest) {
       // No business here...
-      if ( log.isDetailed() ) {
-        log.logDetailed( "Not running a unit test..." );
+      if (log.isDetailed()) {
+        log.logDetailed("Not running a unit test...");
       }
       return;
     }
-    String unitTestName = pipeline.getVariable( DataSetConst.VAR_UNIT_TEST_NAME );
+    String unitTestName = pipeline.getVariable(DataSetConst.VAR_UNIT_TEST_NAME);
 
     // Do we have something to work with?
     // Unit test disabled?  Github issue #5
     //
-    if ( StringUtils.isEmpty( unitTestName ) ) {
-      if ( log.isDetailed() ) {
-        log.logDetailed( "Unit test disabled." );
+    if (StringUtils.isEmpty(unitTestName)) {
+      if (log.isDetailed()) {
+        log.logDetailed("Unit test disabled.");
       }
       return;
     }
@@ -70,55 +74,57 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
     PipelineUnitTest unitTest = null;
 
     try {
-      unitTest = pipeline.getMetadataProvider().getSerializer(PipelineUnitTest.class).load( unitTestName );
-    } catch ( HopException e ) {
-      throw new HopException( "Unable to load unit test '" + unitTestName + "'", e );
+      unitTest =
+          pipeline.getMetadataProvider().getSerializer(PipelineUnitTest.class).load(unitTestName);
+    } catch (HopException e) {
+      throw new HopException("Unable to load unit test '" + unitTestName + "'", e);
     }
 
-    if ( unitTest == null ) {
-      throw new HopException( "Unit test '" + unitTestName + "' could not be found." );
+    if (unitTest == null) {
+      throw new HopException("Unit test '" + unitTestName + "' could not be found.");
     }
 
     // Get a modified copy of the pipeline using the unit test information
     //
-    PipelineMetaModifier modifier = new PipelineMetaModifier( pipeline, pipelineMeta, unitTest );
-    PipelineMeta copyPipelineMeta = modifier.getTestPipeline( log, pipeline, pipeline.getMetadataProvider() );
+    PipelineMetaModifier modifier = new PipelineMetaModifier(pipeline, pipelineMeta, unitTest);
+    PipelineMeta copyPipelineMeta =
+        modifier.getTestPipeline(log, pipeline, pipeline.getMetadataProvider());
 
     // Now replace the metadata in the IPipelineEngine<PipelineMeta> object...
     //
-    pipeline.setPipelineMeta( copyPipelineMeta );
+    pipeline.setPipelineMeta(copyPipelineMeta);
 
     // Set parameters and variables...
     //
     String[] parameters = copyPipelineMeta.listParameters();
     List<VariableValue> variableValues = unitTest.getVariableValues();
-    for ( VariableValue variableValue : variableValues ) {
-      String key = pipeline.resolve( variableValue.getKey() );
-      String value = pipeline.resolve( variableValue.getValue() );
+    for (VariableValue variableValue : variableValues) {
+      String key = pipeline.resolve(variableValue.getKey());
+      String value = pipeline.resolve(variableValue.getValue());
 
-      if ( StringUtils.isEmpty( key ) ) {
+      if (StringUtils.isEmpty(key)) {
         continue;
       }
-      if ( Const.indexOfString( key, parameters ) < 0 ) {
+      if (Const.indexOfString(key, parameters) < 0) {
         // set the variable in the pipeline metadata...
         //
-        pipeline.setVariable( key, value );
+        pipeline.setVariable(key, value);
       } else {
         // Set the parameter value...
         //
-        pipeline.setParameterValue( key, value );
+        pipeline.setParameterValue(key, value);
       }
     }
 
-    String testFilename = pipeline.resolve( unitTest.getFilename() );
-    if ( !StringUtil.isEmpty( testFilename ) ) {
+    String testFilename = pipeline.resolve(unitTest.getFilename());
+    if (!StringUtil.isEmpty(testFilename)) {
       try {
-        OutputStream os = HopVfs.getOutputStream( testFilename, false );
-        os.write( XmlHandler.getXmlHeader().getBytes() );
-        os.write( copyPipelineMeta.getXml().getBytes() );
+        OutputStream os = HopVfs.getOutputStream(testFilename, false);
+        os.write(XmlHandler.getXmlHeader().getBytes());
+        os.write(copyPipelineMeta.getXml(variables).getBytes());
         os.close();
-      } catch ( Exception e ) {
-        throw new HopException( "Error writing test filename to '" + testFilename + "'", e );
+      } catch (Exception e) {
+        throw new HopException("Error writing test filename to '" + testFilename + "'", e);
       }
     }
   }

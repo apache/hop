@@ -60,8 +60,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -72,7 +70,6 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
@@ -84,7 +81,6 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
@@ -114,8 +110,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -148,6 +142,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -286,8 +281,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private ToolItem closeItem;
   private ToolItem minMaxItem;
 
-  private CheckBoxToolTip helpTip;
-
   private List<AreaOwner> areaOwners;
 
   private HopWorkflowFileType<WorkflowMeta> fileType;
@@ -297,7 +290,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private ActionMeta endHopAction;
   private ActionMeta noInputAction;
-  private DefaultToolTip toolTip;
   private Point[] previous_transform_locations;
   private Point[] previous_note_locations;
   private ActionMeta currentAction;
@@ -401,16 +393,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           100,
         });
 
-    toolTip = new DefaultToolTip(canvas, ToolTip.NO_RECREATE, true);
-    toolTip.setRespectMonitorBounds(true);
-    toolTip.setRespectDisplayBounds(true);
-    toolTip.setPopupDelay(350);
-    toolTip.setShift(
-        new org.eclipse.swt.graphics.Point(ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET));
-
-    helpTip = new CheckBoxToolTip(canvas);
-    helpTip.addCheckBoxToolTipListener(
-        enabled -> hopGui.getProps().setShowingHelpToolTips(enabled));
+    toolTip = new ToolTip(getShell(), SWT.BALLOON);
+    toolTip.setAutoHide(true);
 
     newProps();
 
@@ -493,8 +477,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   protected void hideToolTips() {
-    toolTip.hide();
-    helpTip.hide();
+    toolTip.setVisible(false);
   }
 
   public void mouseDoubleClick(MouseEvent e) {
@@ -1040,11 +1023,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         // Show a short tooltip
         //
-        toolTip.hide();
-        toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
-        toolTip.setImage(GuiResource.getInstance().getImageInfo());
+        toolTip.setVisible(false);
         toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-        toolTip.show(new org.eclipse.swt.graphics.Point(e.x, e.y));
+        showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
 
         return;
       }
@@ -1111,7 +1092,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // disable the tooltip
     //
-    toolTip.hide();
+    hideToolTips();
 
     Point real = screen2real(e.x, e.y);
     // Remember the last position of the mouse for paste with keyboard
@@ -1240,9 +1221,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               endHopLocation = null;
             } else {
               noInputAction = actionCopy;
-              toolTip.setImage(null);
               toolTip.setText("The start action can only be used at the start of a Workflow");
-              toolTip.show(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
             }
           } else if (endHopAction != null) {
             hopCandidate = new WorkflowHopMeta(actionCopy, endHopAction);
@@ -1299,11 +1279,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     boolean tip = true;
 
-    // toolTip.hide();
     Point real = screen2real(e.x, e.y);
 
     // Show a tool tip upon mouse-over of an object on the canvas
-    if (tip && !helpTip.isVisible()) {
+    if (tip) {
       setToolTip(real.x, real.y, e.x, e.y);
     }
   }
@@ -1737,19 +1716,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int y2 = to.y + iconSize / 2;
 
     return new int[] {x1, y1, x2, y2};
-  }
-
-  private void showHelpTip(int x, int y, String tipTitle, String tipMessage) {
-
-    helpTip.setTitle(tipTitle);
-    helpTip.setMessage(tipMessage);
-    helpTip.setCheckBoxMessage(
-        BaseMessages.getString(PKG, "WorkflowGraph.HelpToolTip.DoNotShowAnyMoreCheckBox.Message"));
-    // helpTip.hide();
-    // int iconSize = spoon.props.getIconSize();
-    org.eclipse.swt.graphics.Point location = new org.eclipse.swt.graphics.Point(x - 5, y - 5);
-
-    helpTip.show(location);
   }
 
   @GuiContextAction(
@@ -2554,17 +2520,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     if (tip == null || tip.length() == 0) {
-      toolTip.hide();
+      toolTip.setVisible(false);
     } else {
       if (!tip.toString().equalsIgnoreCase(getToolTipText())) {
-        if (tipImage != null) {
-          toolTip.setImage(tipImage);
-        } else {
-          toolTip.setImage(GuiResource.getInstance().getImageHopUi());
-        }
         toolTip.setText(tip.toString());
-        toolTip.hide();
-        toolTip.show(new org.eclipse.swt.graphics.Point(screenX, screenY));
+        toolTip.setVisible(false);
+        showToolTip(new org.eclipse.swt.graphics.Point(screenX, screenY));
       }
     }
   }
@@ -3207,7 +3168,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       AuditManager.registerEvent(
           HopNamespace.getNamespace(), "file", workflowMeta.getFilename(), "save");
 
-      String xml = workflowMeta.getXml();
+      String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
       try {
         out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Const.XML_ENCODING));

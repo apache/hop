@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -131,36 +131,32 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(500); // 358 chars in just tags and spaces alone
+    StringBuilder xml = new StringBuilder(500); // 358 chars in just tags and spaces alone
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    retval.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    retval.append("      ").append(XmlHandler.addTagValue("destination_folder", destinationFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("action", action));
-    retval
-        .append("      ")
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
+    xml.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
+    xml.append("      ").append(XmlHandler.addTagValue("destination_folder", destinationFolder));
+    xml.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    xml.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    xml.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
+    xml.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
+    xml.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    xml.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    xml.append("      ").append(XmlHandler.addTagValue("action", action));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    retval.append("      ").append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
-    retval
-        .append("      ")
+    xml.append("      ").append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("CreateDestinationFolder", createDestinationFolder));
-    retval
-        .append("      ")
+    xml.append("      ")
         .append(XmlHandler.addTagValue("RemovedSourceFilename", removedSourceFilename));
-    retval
-        .append("      ")
+    xml.append("      ")
         .append(XmlHandler.addTagValue("AddDestinationFilename", addDestinationFilename));
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)

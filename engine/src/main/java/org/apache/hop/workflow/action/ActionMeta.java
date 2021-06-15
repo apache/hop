@@ -47,7 +47,7 @@ import java.util.Map;
  * @author Matt
  * @since 01-10-2003
  */
-public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged, IAttributes, IBaseMeta {
+public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttributes, IBaseMeta {
   public static final String XML_TAG = "action";
 
   private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
@@ -79,22 +79,21 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged, IAtt
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
+    StringBuilder xml = new StringBuilder(100);
 
-    retval.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
     action.setParentWorkflowMeta(
         parentWorkflowMeta); // Attempt to set the WorkflowMeta for entries that need it
-    retval.append(action.getXml());
+    xml.append(action.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("parallel", launchingInParallel));
-    retval.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
-    retval.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
+    xml.append("      ").append(XmlHandler.addTagValue("parallel", launchingInParallel));
+    xml.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
+    xml.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
 
-    retval.append(
-        AttributesUtil.getAttributesXml(attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY));
+    xml.append(AttributesUtil.getAttributesXml(attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY));
 
-    retval.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
-    return retval.toString();
+    xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
+    return xml.toString();
   }
 
   public ActionMeta(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)

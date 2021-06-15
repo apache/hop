@@ -102,25 +102,25 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     filemasks = new String[nrFields];
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
+  public String getXml(IVariables variables) {
+    StringBuilder xml = new StringBuilder(300);
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    xml.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
 
-    retval.append("      <fields>").append(Const.CR);
+    xml.append("      <fields>").append(Const.CR);
     if (arguments != null) {
       for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
-        retval.append("        </field>").append(Const.CR);
+        xml.append("        <field>").append(Const.CR);
+        xml.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
+        xml.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
+        xml.append("        </field>").append(Const.CR);
       }
     }
-    retval.append("      </fields>").append(Const.CR);
+    xml.append("      </fields>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)

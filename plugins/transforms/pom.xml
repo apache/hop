@@ -108,7 +108,6 @@
         <module>filemetadata</module>
         <module>filesfromresult</module>
         <module>filestoresult</module>
-        <module>filter</module>
         <module>filterrows</module>
         <module>flattener</module>
         <module>fuzzymatch</module>

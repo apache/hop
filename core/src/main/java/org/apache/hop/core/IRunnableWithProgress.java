@@ -15,29 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.filter;
+package org.apache.hop.core;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import java.lang.reflect.InvocationTargetException;
 
-public class FilterMetaInjectionTest extends BaseMetadataInjectionTest<FilterMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Before
-  public void setup() throws Exception {
-    setup(new FilterMeta());
-  }
-
-  @Test
-  public void test() throws Exception {
-
-    check("SEND_FALSE_TRANSFORM", () -> meta.getFalseTransformName());
-
-    check("SEND_TRUE_TRANSFORM", () -> meta.getTrueTransformName());
-
-    check("CONDITION", () -> meta.getCondition());
-  }
+public interface IRunnableWithProgress {
+  void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException;
 }

@@ -230,7 +230,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     // let the transformation complete it's execution to allow for any customizations to MDI to
     // happen in the init methods of transforms
     if (log.isDetailed()) {
-      logDetailed("XML of transformation after injection: " + data.pipelineMeta.getXml());
+      logDetailed("XML of transformation after injection: " + data.pipelineMeta.getXml(this));
     }
     String targetFile = resolve(meta.getTargetFile());
     if (!Utils.isEmpty(targetFile)) {
@@ -269,7 +269,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     try {
       os = HopVfs.getOutputStream(targetFilePath, false);
       os.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
-      os.write(data.pipelineMeta.getXml().getBytes(Const.XML_ENCODING));
+      os.write(data.pipelineMeta.getXml(this).getBytes(Const.XML_ENCODING));
     } catch (IOException e) {
       throw new HopException(
           "Unable to write target file (hpl after injection) to file '" + targetFilePath + "'", e);

@@ -45,7 +45,7 @@ public class AnalyticQueryMetaTest {
   public void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
-    Path path = Paths.get(getClass().getResource("/transform1.hpl").toURI());
+    Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());
     String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     String transformXml = XmlHandler.openTag(tag) + xml + XmlHandler.closeTag(tag);
     AnalyticQueryMeta meta = new AnalyticQueryMeta();
@@ -54,7 +54,6 @@ public class AnalyticQueryMetaTest {
     assertEquals(1, meta.getGroupFields().size());
     assertEquals(8, meta.getQueryFields().size());
     String xml2 = meta.getXml();
-    assertEquals(xml, xml2);
 
     AnalyticQueryMeta meta2 = new AnalyticQueryMeta();
     String transformXml2 = XmlHandler.openTag(tag) + xml2 + XmlHandler.closeTag(tag);
@@ -81,7 +80,7 @@ public class AnalyticQueryMetaTest {
   public void testXmlMissingMetadata() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
-    Path path = Paths.get(getClass().getResource("/transform2.hpl").toURI());
+    Path path = Paths.get(getClass().getResource("/transform2.snippet").toURI());
     String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     String transformXml = XmlHandler.openTag(tag) + xml + XmlHandler.closeTag(tag);
     AnalyticQueryMeta meta = new AnalyticQueryMeta();
