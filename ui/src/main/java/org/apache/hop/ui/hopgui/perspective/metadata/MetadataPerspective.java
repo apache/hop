@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,6 @@ import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.core.widget.TreeToolTipSupport;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -92,7 +91,7 @@ import java.util.List;
 @GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective {
 
-  public static final Class<?> PKG = MetadataPerspective.class; //i18n
+  public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
@@ -135,8 +134,8 @@ public class MetadataPerspective implements IHopPerspective {
     return "metadata-perspective";
   }
 
-  @GuiKeyboardShortcut( control = true, shift = true, key = 'm')
-  @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'm')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'm')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'm')
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -153,7 +152,7 @@ public class MetadataPerspective implements IHopPerspective {
       HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
     } else {
       IHopFileTypeHandler handler = getActiveFileTypeHandler();
-      boolean changed = handler!=null ? handler.hasChanged() : false;
+      boolean changed = handler != null ? handler.hasChanged() : false;
       HopGui.getInstance().handleFileCapabilities(metadataFileType, changed, false, false);
     }
   }
@@ -203,7 +202,7 @@ public class MetadataPerspective implements IHopPerspective {
         .addEventListener(
             getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
-    HopGuiKeyHandler.getInstance().addParentObjectToHandle( this );
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
@@ -316,9 +315,6 @@ public class MetadataPerspective implements IHopPerspective {
     treeEditor = new TreeEditor(tree);
     treeEditor.horizontalAlignment = SWT.LEFT;
     treeEditor.grabHorizontal = true;
-
-    // Add on first level tooltip with metatada description
-    new TreeToolTipSupport(tree);
 
     // Remember tree node expanded/Collapsed
     TreeMemory.addTreeListener(tree, METADATA_PERSPECTIVE_TREE);
@@ -455,7 +451,8 @@ public class MetadataPerspective implements IHopPerspective {
 
         editor.setFocus();
 
-        HopGui.getInstance().handleFileCapabilities(metadataFileType, editor.hasChanged(), false, false);
+        HopGui.getInstance()
+            .handleFileCapabilities(metadataFileType, editor.hasChanged(), false, false);
       }
     }
   }
@@ -531,9 +528,11 @@ public class MetadataPerspective implements IHopPerspective {
 
         manager.newMetadataWithEditor();
       } catch (Exception e) {
-        new ErrorDialog(getShell()
-                , BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header")
-                , BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"), e);
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header"),
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"),
+            e);
       }
     }
   }
@@ -601,9 +600,13 @@ public class MetadataPerspective implements IHopPerspective {
                       text.dispose();
                     }
                   } catch (Exception e) {
-                    new ErrorDialog(getShell()
-                            , BaseMessages.getString(PKG, "MetadataPerspective.EditMetadata.Error.Header")
-                            , BaseMessages.getString(PKG, "MetadataPerspective.EditMetadata.Error.Message"), e);
+                    new ErrorDialog(
+                        getShell(),
+                        BaseMessages.getString(
+                            PKG, "MetadataPerspective.EditMetadata.Error.Header"),
+                        BaseMessages.getString(
+                            PKG, "MetadataPerspective.EditMetadata.Error.Message"),
+                        e);
                   }
                 }
                 break;
@@ -680,8 +683,11 @@ public class MetadataPerspective implements IHopPerspective {
         }
         refresh();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Header")
-                , BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Message"), e);
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Header"),
+            BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Message"),
+            e);
       }
     }
   }
@@ -716,8 +722,11 @@ public class MetadataPerspective implements IHopPerspective {
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     hopGui
-      .getDisplay()
-      .asyncExec(() -> hopGui.handleFileCapabilities(activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+        .getDisplay()
+        .asyncExec(
+            () ->
+                hopGui.handleFileCapabilities(
+                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
   }
 
   @GuiToolbarElement(
@@ -784,8 +793,11 @@ public class MetadataPerspective implements IHopPerspective {
 
       tree.setRedraw(true);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Header")
-              , BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"), e);
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Header"),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"),
+          e);
     }
   }
 

@@ -342,7 +342,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         String xml =
             new PipelineConfiguration(
                     pipelineMeta, executionConfiguration, serializableMetadataProvider)
-                .getXml();
+                .getXml(this);
         String reply =
             hopServer.sendXml(this, xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y");
         WebResult webResult = WebResult.fromXmlString(reply);

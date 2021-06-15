@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -149,43 +149,37 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
+    StringBuilder xml = new StringBuilder(300);
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("copy_empty_folders", copyEmptyFolders));
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("overwrite_files", overwriteFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("remove_source_files", removeSourceFiles));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("add_result_filesname", addResultFilenames));
-    retval
-        .append("      ")
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("copy_empty_folders", copyEmptyFolders));
+    xml.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    xml.append("      ").append(XmlHandler.addTagValue("overwrite_files", overwriteFiles));
+    xml.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
+    xml.append("      ").append(XmlHandler.addTagValue("remove_source_files", removeSourceFiles));
+    xml.append("      ").append(XmlHandler.addTagValue("add_result_filesname", addResultFilenames));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("destination_is_a_file", destinationIsAFile));
-    retval
-        .append("      ")
+    xml.append("      ")
         .append(XmlHandler.addTagValue("create_destination_folder", createDestinationFolder));
 
-    retval.append("      <fields>").append(Const.CR);
+    xml.append("      <fields>").append(Const.CR);
 
     // Get source and destination files, also wildcard
     String[] vSourceFileFolder = preprocessfilefilder(sourceFileFolder);
     String[] vDestinationFileFolder = preprocessfilefilder(destinationFileFolder);
     if (sourceFileFolder != null) {
       for (int i = 0; i < sourceFileFolder.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        saveSource(retval, sourceFileFolder[i]);
-        saveDestination(retval, destinationFileFolder[i]);
-        retval.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
-        retval.append("        </field>").append(Const.CR);
+        xml.append("        <field>").append(Const.CR);
+        saveSource(xml, sourceFileFolder[i]);
+        saveDestination(xml, destinationFileFolder[i]);
+        xml.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
+        xml.append("        </field>").append(Const.CR);
       }
     }
-    retval.append("      </fields>").append(Const.CR);
+    xml.append("      </fields>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   @Override
@@ -456,9 +450,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               // Source is a file, destination is a folder
               // Copy the file to the destination folder
               //
-              NameFileFilter nameFileFilter = new NameFileFilter( Arrays.asList(sourceFileFolder.getName().getBaseName()));
+              NameFileFilter nameFileFilter =
+                  new NameFileFilter(Arrays.asList(sourceFileFolder.getName().getBaseName()));
               FileSelector fileSelector = new FileFilterSelector(nameFileFilter);
-              destinationFileFolder.copyFrom( sourceFileFolder.getParent(), fileSelector );
+              destinationFileFolder.copyFrom(sourceFileFolder.getParent(), fileSelector);
 
               if (isDetailed()) {
                 logDetailed(
@@ -611,7 +606,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           BaseMessages.getString(
               PKG,
               "ActionCopyFiles.Error.Exception.CopyProcessFileSystemException",
-              fse.getMessage()), fse);
+              fse.getMessage()),
+          fse);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
@@ -673,7 +669,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   "      "
                       + BaseMessages.getString(
-                          PKG, "ActionCopyFiles.Log.FileOverwrite", HopVfs.getFriendlyURI(destfile)));
+                          PKG,
+                          "ActionCopyFiles.Log.FileOverwrite",
+                          HopVfs.getFriendlyURI(destfile)));
             }
 
             resultat = true;
@@ -1099,7 +1097,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 logDetailed(
                     "      "
                         + BaseMessages.getString(
-                            PKG, "ActionCopyFiles.Log.FileExists", HopVfs.getFriendlyURI(filename)));
+                            PKG,
+                            "ActionCopyFiles.Log.FileExists",
+                            HopVfs.getFriendlyURI(filename)));
               }
 
               if (overwriteFiles) {

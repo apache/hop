@@ -36,7 +36,6 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -44,8 +43,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,8 +51,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -1502,12 +1497,12 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       message +=
           BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      Window.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
-              shell,
-              BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+
+      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO);
+      box.setText(
+          BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundTitle"));
+      box.setMessage(message);
+      boolean goOn = ((box.open()) & SWT.YES) != 0;
       if (!goOn) {
         return;
       }

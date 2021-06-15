@@ -69,7 +69,8 @@ public class PipelineMetaModifier {
     //
     InputStream stream;
     try {
-      stream = new ByteArrayInputStream(pipelineMeta.getXml().getBytes(Const.XML_ENCODING));
+      stream =
+          new ByteArrayInputStream(pipelineMeta.getXml(variables).getBytes(Const.XML_ENCODING));
     } catch (UnsupportedEncodingException e) {
       throw new HopException("Encoding error", e);
     }

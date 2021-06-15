@@ -74,6 +74,8 @@ public class EnterStringDialog extends Dialog {
 
   private boolean mandatory;
 
+  private char echoChar = 0;
+
   /**
    * This constructs without allowing for variable substitution. This constructor allows for
    * backwards compatibility for objects that wish to create this object without variable
@@ -149,6 +151,10 @@ public class EnterStringDialog extends Dialog {
       wString.setText(string);
       props.setLook(wString);
       lastControl = wString;
+    }
+
+    if (echoChar != 0) {
+      wString.setEchoChar(echoChar);
     }
 
     FormData fdString = new FormData();
@@ -237,5 +243,19 @@ public class EnterStringDialog extends Dialog {
   /** @param mandatory the manditory to set */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
+  }
+
+  /**
+   * Gets echoChar
+   *
+   * @return value of echoChar
+   */
+  public char getEchoChar() {
+    return echoChar;
+  }
+
+  /** @param echoChar The echoChar to set */
+  public void setEchoChar(char echoChar) {
+    this.echoChar = echoChar;
   }
 }

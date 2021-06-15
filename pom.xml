@@ -823,8 +823,6 @@
                         <exclude>**/target/**</exclude>
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.json</exclude>
-                        <exclude>**/*.hpl</exclude>
-                        <exclude>**/*.hwf</exclude>
                         <exclude>**/PUT_JDBC_HERE</exclude>
                         <exclude>**/hop.pwd</exclude>
                         <exclude>**/*.iml</exclude>
@@ -841,6 +839,7 @@
                         <exclude>**/test/**/*.xlsx</exclude>
                         <exclude>**/test/**/*.edi</exclude>
                         <exclude>**/test/**/*.avro</exclude>
+                        <exclude>**/test/**/*.snippet</exclude>
 
                         <!-- Integration Test Exclusion -->
                         <exclude>**/datasets/*.csv</exclude>

@@ -24,6 +24,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -301,6 +302,8 @@ public class HopGuiWorkflowClipboardDelegate {
     if (actions == null || actions.size() == 0) {
       return;
     }
+
+    IVariables variables = workflowGraph.getVariables();
 
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     try {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ package org.apache.hop.workflow;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -43,16 +44,22 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
   private boolean unconditional;
 
   public WorkflowHopMeta() {
-    super( false, null, null, true, true, false );
+    super(false, null, null, true, true, false);
   }
 
-  public WorkflowHopMeta( WorkflowHopMeta hop ) {
-    super( hop.isSplit(), hop.getFromAction(), hop.getToAction(), hop.isEnabled(), hop.hasChanged(), hop.isErrorHop() );
+  public WorkflowHopMeta(WorkflowHopMeta hop) {
+    super(
+        hop.isSplit(),
+        hop.getFromAction(),
+        hop.getToAction(),
+        hop.isEnabled(),
+        hop.hasChanged(),
+        hop.isErrorHop());
     evaluation = hop.evaluation;
     unconditional = hop.unconditional;
   }
 
-  public WorkflowHopMeta( ActionMeta from, ActionMeta to ) {
+  public WorkflowHopMeta(ActionMeta from, ActionMeta to) {
     this.from = from;
     this.to = to;
     enabled = true;
@@ -60,89 +67,93 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     evaluation = true;
     unconditional = false;
 
-    if ( from != null && from.isStart() ) {
+    if (from != null && from.isStart()) {
       setUnconditional();
     }
   }
 
-  public WorkflowHopMeta( Node hopNode, List<ActionMeta> actions ) throws HopXmlException {
+  public WorkflowHopMeta(Node hopNode, List<ActionMeta> actions) throws HopXmlException {
     try {
-      this.from = searchAction( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_FROM_TAG ) );
-      this.to = searchAction( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_TO_TAG ) );
-      String en = XmlHandler.getTagValue( hopNode, "enabled" );
+      this.from =
+          searchAction(actions, XmlHandler.getTagValue(hopNode, WorkflowHopMeta.XML_FROM_TAG));
+      this.to = searchAction(actions, XmlHandler.getTagValue(hopNode, WorkflowHopMeta.XML_TO_TAG));
+      String en = XmlHandler.getTagValue(hopNode, "enabled");
 
-      if ( en == null ) {
+      if (en == null) {
         enabled = true;
       } else {
-        enabled = en.equalsIgnoreCase( "Y" );
+        enabled = en.equalsIgnoreCase("Y");
       }
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfo" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfo"), e);
     }
   }
 
-  @Override public WorkflowHopMeta clone() {
-    return new WorkflowHopMeta( this );
+  @Override
+  public WorkflowHopMeta clone() {
+    return new WorkflowHopMeta(this);
   }
 
-  @Override public String toString() {
-    String strFrom = ( this.from == null ) ? "(empty)" : this.from.getName();
-    String strTo = ( this.to == null ) ? "(empty)" : this.to.getName();
+  @Override
+  public String toString() {
+    String strFrom = (this.from == null) ? "(empty)" : this.from.getName();
+    String strTo = (this.to == null) ? "(empty)" : this.to.getName();
     String strEnabled = enabled ? "enabled" : "disabled";
     String strEvaluation = unconditional ? "unconditional" : evaluation ? "success" : "failure";
     return strFrom + " --> " + strTo + " [" + strEnabled + ", " + strEvaluation + ")";
   }
 
-  private ActionMeta searchAction( List<ActionMeta> actions, String name ) {
-    for ( ActionMeta action : actions ) {
-      if ( action.getName().equalsIgnoreCase( name ) ) {
+  private ActionMeta searchAction(List<ActionMeta> actions, String name) {
+    for (ActionMeta action : actions) {
+      if (action.getName().equalsIgnoreCase(name)) {
         return action;
       }
     }
     return null;
   }
 
-  public WorkflowHopMeta( Node hopNode, WorkflowMeta workflow ) throws HopXmlException {
+  public WorkflowHopMeta(Node hopNode, WorkflowMeta workflow) throws HopXmlException {
     try {
-      String fromName = XmlHandler.getTagValue( hopNode, XML_FROM_TAG );
-      String toName = XmlHandler.getTagValue( hopNode, XML_TO_TAG );
-      String sEnabled = XmlHandler.getTagValue( hopNode, "enabled" );
-      String sEvaluation = XmlHandler.getTagValue( hopNode, "evaluation" );
-      String sUnconditional = XmlHandler.getTagValue( hopNode, "unconditional" );
+      String fromName = XmlHandler.getTagValue(hopNode, XML_FROM_TAG);
+      String toName = XmlHandler.getTagValue(hopNode, XML_TO_TAG);
+      String sEnabled = XmlHandler.getTagValue(hopNode, "enabled");
+      String sEvaluation = XmlHandler.getTagValue(hopNode, "evaluation");
+      String sUnconditional = XmlHandler.getTagValue(hopNode, "unconditional");
 
-      this.from = workflow.findAction( fromName );
-      this.to = workflow.findAction( toName );
+      this.from = workflow.findAction(fromName);
+      this.to = workflow.findAction(toName);
 
-      if ( sEnabled == null ) {
+      if (sEnabled == null) {
         enabled = true;
       } else {
-        enabled = "Y".equalsIgnoreCase( sEnabled );
+        enabled = "Y".equalsIgnoreCase(sEnabled);
       }
-      if ( sEvaluation == null ) {
+      if (sEvaluation == null) {
         evaluation = true;
       } else {
-        evaluation = "Y".equalsIgnoreCase( sEvaluation );
+        evaluation = "Y".equalsIgnoreCase(sEvaluation);
       }
-      unconditional = "Y".equalsIgnoreCase( sUnconditional );
-    } catch ( Exception e ) {
+      unconditional = "Y".equalsIgnoreCase(sUnconditional);
+    } catch (Exception e) {
       throw new HopXmlException(
-        BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfoXML" ), e );
+          BaseMessages.getString(PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfoXML"), e);
     }
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
-    if ( ( null != this.from ) && ( null != this.to ) ) {
-      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
-      retval.append( "      " ).append( XmlHandler.addTagValue( XML_FROM_TAG, this.from.getName() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( XML_TO_TAG, this.to.getName() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "evaluation", evaluation ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "unconditional", unconditional ) );
-      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    StringBuilder xml = new StringBuilder(200);
+    if ((null != this.from) && (null != this.to)) {
+      xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+      xml.append("      ").append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
+      xml.append("      ").append(XmlHandler.addTagValue("enabled", enabled));
+      xml.append("      ").append(XmlHandler.addTagValue("evaluation", evaluation));
+      xml.append("      ").append(XmlHandler.addTagValue("unconditional", unconditional));
+      xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
     }
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public boolean getEvaluation() {
@@ -150,28 +161,28 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
   }
 
   public void setEvaluation() {
-    if ( !evaluation ) {
+    if (!evaluation) {
       setChanged();
     }
-    setEvaluation( true );
+    setEvaluation(true);
   }
 
-  public void setEvaluation( boolean e ) {
-    if ( evaluation != e ) {
+  public void setEvaluation(boolean e) {
+    if (evaluation != e) {
       setChanged();
     }
     evaluation = e;
   }
 
   public void setUnconditional() {
-    if ( !unconditional ) {
+    if (!unconditional) {
       setChanged();
     }
     unconditional = true;
   }
 
   public void setConditional() {
-    if ( unconditional ) {
+    if (unconditional) {
       setChanged();
     }
     unconditional = false;
@@ -182,23 +193,22 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
   }
 
   public String getDescription() {
-    if ( isUnconditional() ) {
-      return BaseMessages.getString( PKG, "WorkflowHopMeta.Msg.ExecNextActionUncondition" );
+    if (isUnconditional()) {
+      return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionUncondition");
     } else {
-      if ( getEvaluation() ) {
-        return BaseMessages.getString( PKG, "WorkflowHopMeta.Msg.ExecNextActionFlawLess" );
+      if (getEvaluation()) {
+        return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionFlawLess");
       } else {
-        return BaseMessages.getString( PKG, "WorkflowHopMeta.Msg.ExecNextActionFailed" );
+        return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionFailed");
       }
     }
   }
-
 
   public ActionMeta getFromAction() {
     return this.from;
   }
 
-  public void setFromAction( ActionMeta fromAction ) {
+  public void setFromAction(ActionMeta fromAction) {
     this.from = fromAction;
     changed = true;
   }
@@ -207,19 +217,16 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     return this.to;
   }
 
-  public void setToAction( ActionMeta toAction ) {
+  public void setToAction(ActionMeta toAction) {
     this.to = toAction;
     changed = true;
   }
 
-  /**
-   * @param unconditional the unconditional to set
-   */
-  public void setUnconditional( boolean unconditional ) {
-    if ( this.unconditional != unconditional ) {
+  /** @param unconditional the unconditional to set */
+  public void setUnconditional(boolean unconditional) {
+    if (this.unconditional != unconditional) {
       setChanged();
     }
     this.unconditional = unconditional;
   }
-
 }

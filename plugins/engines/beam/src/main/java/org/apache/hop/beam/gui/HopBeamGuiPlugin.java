@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,8 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -117,7 +117,7 @@ public class HopBeamGuiPlugin {
           };
 
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      pmd.run(true, false, op);
+      pmd.run(false, op);
 
       GuiResource.getInstance().toClipboard(filename);
 
@@ -172,10 +172,10 @@ public class HopBeamGuiPlugin {
       SerializableMetadataProvider metadataProvider =
           new SerializableMetadataProvider(hopGui.getMetadataProvider());
       String jsonString = metadataProvider.toJson();
-      String realFilename = hopGui.getVariables().resolve( filename );
+      String realFilename = hopGui.getVariables().resolve(filename);
 
-      try ( OutputStream outputStream = HopVfs.getOutputStream(realFilename, false)) {
-        outputStream.write( jsonString.getBytes( StandardCharsets.UTF_8 ) );
+      try (OutputStream outputStream = HopVfs.getOutputStream(realFilename, false)) {
+        outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
       }
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error saving metadata to JSON file : " + filename, e);

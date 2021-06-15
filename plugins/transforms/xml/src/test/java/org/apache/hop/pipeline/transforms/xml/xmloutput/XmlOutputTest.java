@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,18 +45,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Tatsiana_Kasiankova
- * 
- */
+/** @author Tatsiana_Kasiankova */
 public class XmlOutputTest {
 
   private TransformMockHelper<XmlOutputMeta, XmlOutputData> transformMockHelper;
   private XmlOutput xmlOutput;
   private XmlOutputMeta xmlOutputMeta;
   private XmlOutputData xmlOutputData;
-  private Pipeline trans = mock( Pipeline.class );
-  private static final String[] ILLEGAL_CHARACTERS_IN_XML_ATTRIBUTES = { "<", ">", "&", "\'", "\"" };
+  private Pipeline pipeline = mock(Pipeline.class);
+  private static final String[] ILLEGAL_CHARACTERS_IN_XML_ATTRIBUTES = {"<", ">", "&", "\'", "\""};
 
   private static Object[] rowWithData;
   private static Object[] rowWithNullData;
@@ -64,7 +61,7 @@ public class XmlOutputTest {
   @BeforeClass
   public static void setUpBeforeClass() {
 
-    rowWithData = initRowWithData( ILLEGAL_CHARACTERS_IN_XML_ATTRIBUTES );
+    rowWithData = initRowWithData(ILLEGAL_CHARACTERS_IN_XML_ATTRIBUTES);
     rowWithNullData = initRowWithNullData();
   }
 
@@ -72,84 +69,93 @@ public class XmlOutputTest {
   public void setup() throws Exception {
 
     transformMockHelper =
-      new TransformMockHelper<>( "XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        transformMockHelper.iLogChannel );
-    TransformMeta mockMeta = mock( TransformMeta.class );
-    when( transformMockHelper.pipelineMeta.findTransform( Matchers.anyString() ) ).thenReturn( mockMeta );
-    when( trans.getLogLevel() ).thenReturn( LogLevel.DEBUG );
+        new TransformMockHelper<>("XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    TransformMeta mockMeta = mock(TransformMeta.class);
+    when(transformMockHelper.pipelineMeta.findTransform(Matchers.anyString())).thenReturn(mockMeta);
+    when(pipeline.getLogLevel()).thenReturn(LogLevel.DEBUG);
 
     // Create and set Meta with some realistic data
     xmlOutputMeta = new XmlOutputMeta();
-    xmlOutputMeta.setOutputFields( initOutputFields( rowWithData.length, ContentType.Attribute ) );
+    xmlOutputMeta.setOutputFields(initOutputFields(rowWithData.length, ContentType.Attribute));
     // Set as true to prevent unnecessary for this test checks at initialization
-    xmlOutputMeta.setDoNotOpenNewFileInit( false );
+    xmlOutputMeta.setDoNotOpenNewFileInit(false);
 
     xmlOutputData = new XmlOutputData();
-    xmlOutputData.formatRowMeta = initRowMeta( rowWithData.length );
-    xmlOutputData.fieldnrs = initFieldNmrs( rowWithData.length );
+    xmlOutputData.formatRowMeta = initRowMeta(rowWithData.length);
+    xmlOutputData.fieldnrs = initFieldNmrs(rowWithData.length);
     xmlOutputData.OpenedNewFile = true;
 
-    TransformMeta transformMeta = new TransformMeta( "TransformMetaId", "TransformMetaName", xmlOutputMeta );
-    xmlOutput = spy( new XmlOutput( transformMeta, xmlOutputMeta, xmlOutputData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );
+    TransformMeta transformMeta =
+        new TransformMeta("TransformMetaId", "TransformMetaName", xmlOutputMeta);
+    xmlOutput =
+        spy(
+            new XmlOutput(
+                transformMeta,
+                xmlOutputMeta,
+                xmlOutputData,
+                0,
+                transformMockHelper.pipelineMeta,
+                transformMockHelper.pipeline));
   }
 
   @Test
-  public void testSpecialSymbolsInAttributeValuesAreEscaped() throws HopException, XMLStreamException {
-    xmlOutput.init(  );
+  public void testSpecialSymbolsInAttributeValuesAreEscaped()
+      throws HopException, XMLStreamException {
+    xmlOutput.init();
 
-    xmlOutputData.writer = mock( XMLStreamWriter.class );
-    xmlOutput.writeRowAttributes( rowWithData );
-    xmlOutput.dispose( );
-    verify( xmlOutputData.writer, times( rowWithData.length ) ).writeAttribute( any(), any() );
-    verify( xmlOutput, atLeastOnce() ).closeOutputStream( any() );
+    xmlOutputData.writer = mock(XMLStreamWriter.class);
+    xmlOutput.writeRowAttributes(rowWithData);
+    xmlOutput.dispose();
+    verify(xmlOutputData.writer, times(rowWithData.length)).writeAttribute(any(), any());
+    verify(xmlOutput, atLeastOnce()).closeOutputStream(any());
   }
 
   @Test
   public void testNullInAttributeValuesAreEscaped() throws HopException, XMLStreamException {
 
-    testNullValuesInAttribute( 0 );
+    testNullValuesInAttribute(0);
   }
 
   @Test
   public void testNullInAttributeValuesAreNotEscaped() throws HopException, XMLStreamException {
 
-    xmlOutput.setVariable( Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, "Y" );
+    xmlOutput.setVariable(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, "Y");
 
-    testNullValuesInAttribute( rowWithNullData.length  );
+    testNullValuesInAttribute(rowWithNullData.length);
   }
 
-  /**
-   * Testing to verify that getIfPresent defaults the XMLField ContentType value
-   */
+  /** Testing to verify that getIfPresent defaults the XMLField ContentType value */
   @Test
   public void testDefaultXmlFieldContentType() {
-    XmlField[] xmlFields = initOutputFields( 4, null );
-    xmlFields[0].setContentType( ContentType.getIfPresent( "Element" ) );
-    xmlFields[1].setContentType( ContentType.getIfPresent( "Attribute" ) );
-    xmlFields[2].setContentType( ContentType.getIfPresent( "" ) );
-    xmlFields[3].setContentType( ContentType.getIfPresent( "WrongValue" ) );
-    assertEquals( xmlFields[0].getContentType(), ContentType.Element );
-    assertEquals( xmlFields[1].getContentType(), ContentType.Attribute );
-    assertEquals( xmlFields[2].getContentType(), ContentType.Element );
-    assertEquals( xmlFields[3].getContentType(), ContentType.Element );
+    XmlField[] xmlFields = initOutputFields(4, null);
+    xmlFields[0].setContentType(ContentType.getIfPresent("Element"));
+    xmlFields[1].setContentType(ContentType.getIfPresent("Attribute"));
+    xmlFields[2].setContentType(ContentType.getIfPresent(""));
+    xmlFields[3].setContentType(ContentType.getIfPresent("WrongValue"));
+    assertEquals(xmlFields[0].getContentType(), ContentType.Element);
+    assertEquals(xmlFields[1].getContentType(), ContentType.Attribute);
+    assertEquals(xmlFields[2].getContentType(), ContentType.Element);
+    assertEquals(xmlFields[3].getContentType(), ContentType.Element);
   }
 
-  private void testNullValuesInAttribute( int writeNullInvocationExpected ) throws HopException, XMLStreamException {
+  private void testNullValuesInAttribute(int writeNullInvocationExpected)
+      throws HopException, XMLStreamException {
 
-    xmlOutput.init(  );
+    xmlOutput.init();
 
-    xmlOutputData.writer = mock( XMLStreamWriter.class );
-    xmlOutput.writeRowAttributes( rowWithNullData );
-    xmlOutput.dispose(  );
-    verify( xmlOutputData.writer, times( writeNullInvocationExpected ) ).writeAttribute( any(), any() );
-    verify( xmlOutput, atLeastOnce() ).closeOutputStream( any() );
+    xmlOutputData.writer = mock(XMLStreamWriter.class);
+    xmlOutput.writeRowAttributes(rowWithNullData);
+    xmlOutput.dispose();
+    verify(xmlOutputData.writer, times(writeNullInvocationExpected)).writeAttribute(any(), any());
+    verify(xmlOutput, atLeastOnce()).closeOutputStream(any());
   }
 
-  private static Object[] initRowWithData( String[] dt ) {
+  private static Object[] initRowWithData(String[] dt) {
 
     Object[] data = new Object[dt.length * 3];
-    for ( int i = 0; i < dt.length; i++ ) {
+    for (int i = 0; i < dt.length; i++) {
       data[3 * i] = dt[i] + "TEST";
       data[3 * i + 1] = "TEST" + dt[i] + "TEST";
       data[3 * i + 2] = "TEST" + dt[i];
@@ -160,7 +166,7 @@ public class XmlOutputTest {
   private static Object[] initRowWithNullData() {
 
     Object[] data = new Object[15];
-    for ( int i = 0; i < data.length; i++ ) {
+    for (int i = 0; i < data.length; i++) {
 
       data[i] = null;
     }
@@ -168,29 +174,39 @@ public class XmlOutputTest {
     return data;
   }
 
-  private IRowMeta initRowMeta(int count ) {
+  private IRowMeta initRowMeta(int count) {
     IRowMeta rm = new RowMeta();
-    for ( int i = 0; i < count; i++ ) {
-      rm.addValueMeta( new ValueMetaString( "string" ) );
+    for (int i = 0; i < count; i++) {
+      rm.addValueMeta(new ValueMetaString("string"));
     }
     return rm;
   }
 
-  private XmlField[] initOutputFields(int i, ContentType attribute ) {
+  private XmlField[] initOutputFields(int i, ContentType attribute) {
 
     XmlField[] fields = new XmlField[i];
-    for ( int j = 0; j < fields.length; j++ ) {
+    for (int j = 0; j < fields.length; j++) {
       fields[j] =
-          new XmlField( attribute, "Fieldname" + ( j + 1 ), "ElementName" + ( j + 1 ), 2, null, -1, -1, null, null,
-              null, null );
+          new XmlField(
+              attribute,
+              "Fieldname" + (j + 1),
+              "ElementName" + (j + 1),
+              2,
+              null,
+              -1,
+              -1,
+              null,
+              null,
+              null,
+              null);
     }
 
     return fields;
   }
 
-  private int[] initFieldNmrs( int i ) {
+  private int[] initFieldNmrs(int i) {
     int[] fNmrs = new int[i];
-    for ( int j = 0; j < fNmrs.length; j++ ) {
+    for (int j = 0; j < fNmrs.length; j++) {
       fNmrs[j] = j;
     }
     return fNmrs;

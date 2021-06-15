@@ -328,14 +328,20 @@ public class WorkflowMeta extends AbstractMeta
     return false;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Gets the XML representation of this workflow.
    *
-   * @see org.apache.hop.core.xml.IXml#getXml()
+   * @return the XML representation of this workflow
+   * @throws HopException if any errors occur during generation of the XML
+   * @see IXml#getXml(IVariables)
+   * @param variables
    */
-  public String getXml() throws HopException {
+  @Override
+  public String getXml(IVariables variables) throws HopException {
 
     StringBuilder xml = new StringBuilder(500);
+
+    xml.append(XmlHandler.getLicenseHeader(variables));
 
     xml.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
 
@@ -1831,7 +1837,7 @@ public class WorkflowMeta extends AbstractMeta
 
           // At the end, add ourselves to the map...
           //
-          definition = new ResourceDefinition(resourceName, workflowMeta.getXml());
+          definition = new ResourceDefinition(resourceName, workflowMeta.getXml(variables));
 
           // Also remember the original filename (if any), including variables etc.
           //

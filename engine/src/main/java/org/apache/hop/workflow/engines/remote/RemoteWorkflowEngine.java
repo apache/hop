@@ -266,7 +266,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       // TODO: pass variables and source rows as well...
       //
 
-      sendToHopServer(workflowMeta, workflowExecutionConfiguration, metadataProvider);
+      sendToHopServer(this, workflowMeta, workflowExecutionConfiguration, metadataProvider);
       fireWorkflowStartedListeners();
 
       initialized = true;
@@ -354,6 +354,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    * @throws HopException the hop exception
    */
   public void sendToHopServer(
+      IVariables variables,
       WorkflowMeta workflowMeta,
       WorkflowExecutionConfiguration executionConfiguration,
       IHopMetadataProvider metadataProvider)
@@ -414,7 +415,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       } else {
         String xml =
             new WorkflowConfiguration(workflowMeta, executionConfiguration, metadataProvider)
-                .getXml();
+                .getXml(variables);
 
         String reply =
             hopServer.sendXml(this, xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y");

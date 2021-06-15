@@ -81,7 +81,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
             echo "Project compose exists."
             PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}
             PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
-            docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down --rmi all
+            docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down
         else
             echo "Project compose does not exists."
             PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}
@@ -92,4 +92,6 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
 done
 
 #Cleanup all images
-docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml down --rmi all --remove-orphans
+for d in ${DOCKER_FILES_DIR}/integration-tests-*.yaml ; do
+  docker-compose -f $d down --rmi all --remove-orphans
+done
