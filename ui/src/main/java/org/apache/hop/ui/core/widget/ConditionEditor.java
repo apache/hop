@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -334,7 +335,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                         new EnterValueDialog(shell, SWT.NONE, v.getValueMeta(), v.getValueData());
                     evd.setModalDialog(
                         true); // To keep the condition editor from being closed with a value dialog
-                               // still
+                    // still
                     // open.
                     ValueMetaAndData newval = evd.open();
                     if (newval != null) {

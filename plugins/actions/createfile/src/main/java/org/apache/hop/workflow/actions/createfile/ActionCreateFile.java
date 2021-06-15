@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -79,17 +79,16 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
+    StringBuilder xml = new StringBuilder(50);
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("      ").append(XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("add_filename_result", addfilenameresult));
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("filename", filename));
+    xml.append("      ").append(XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists));
+    xml.append("      ").append(XmlHandler.addTagValue("add_filename_result", addfilenameresult));
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)

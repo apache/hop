@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
 
 import java.util.Random;
 import java.util.UUID;
@@ -28,24 +29,24 @@ public class ConditionLoadSaveValidator implements IFieldLoadSaveValidator<Condi
   @Override
   public Condition getTestObject() {
     Condition rtn = new Condition();
-    rtn.setFunction( rand.nextInt( Condition.functions.length ) );
-    rtn.setLeftValuename( UUID.randomUUID().toString() );
-    rtn.setNegated( rand.nextBoolean() );
-    rtn.setOperator( rand.nextInt( Condition.operators.length ) );
-    rtn.setRightValuename( UUID.randomUUID().toString() );
+    rtn.setFunction(rand.nextInt(Condition.functions.length));
+    rtn.setLeftValuename(UUID.randomUUID().toString());
+    rtn.setNegated(rand.nextBoolean());
+    rtn.setOperator(rand.nextInt(Condition.operators.length));
+    rtn.setRightValuename(UUID.randomUUID().toString());
     return rtn;
   }
 
   @Override
-  public boolean validateTestObject( Condition testObject, Object actual ) {
-    if ( !( actual instanceof Condition ) ) {
+  public boolean validateTestObject(Condition testObject, Object actual) {
+    if (!(actual instanceof Condition)) {
       return false;
     }
     Condition another = (Condition) actual;
     try {
-      return ( testObject.getXml().equals( another.getXml() ) );
-    } catch ( HopException ex ) {
-      throw new RuntimeException( ex );
+      return (testObject.getXml().equals(another.getXml()));
+    } catch (HopException ex) {
+      throw new RuntimeException(ex);
     }
   }
 }

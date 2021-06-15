@@ -1,6 +1,11 @@
 {
   "variables": [
     {
+      "name": "HOP_LICENSE_HEADER_FILE",
+      "value": "${PROJECT_HOME}/../asf-header.txt",
+      "description": "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    },
+    {
       "name": "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION",
       "value": "N",
       "description": "System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to \"Y\", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string."

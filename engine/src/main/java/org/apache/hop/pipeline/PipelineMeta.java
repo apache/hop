@@ -1818,32 +1818,15 @@ public class PipelineMeta extends AbstractMeta
    *
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
-   * @see IXml#getXml()
+   * @see IXml#getXml(IVariables)
+   * @param variables
    */
   @Override
-  public String getXml() throws HopException {
-    return getXml(true, true, true, true);
-  }
-
-  /**
-   * Gets the XML representation of this pipeline, including or excluding transform, database, hop
-   * server, cluster, or partition information as specified by the parameters
-   *
-   * @param includeTransforms whether to include transform data
-   * @param includeNamedParameters whether to include named parameters data
-   * @param includeNotePads whether to include notepads data
-   * @param includeAttributeGroups whether to include attributes map data
-   * @return the XML representation of this pipeline
-   * @throws HopException if any errors occur during generation of the XML
-   */
-  public String getXml(
-      boolean includeTransforms,
-      boolean includeNamedParameters,
-      boolean includeNotePads,
-      boolean includeAttributeGroups)
-      throws HopException {
+  public String getXml(IVariables variables) throws HopException {
 
     StringBuilder xml = new StringBuilder(800);
+
+    xml.append(XmlHandler.getLicenseHeader(variables));
 
     xml.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
 
@@ -1863,21 +1846,18 @@ public class PipelineMeta extends AbstractMeta
       xml.append("    ").append(XmlHandler.addTagValue("pipeline_status", pipelineStatus));
     }
 
-    if (includeNamedParameters) {
-      xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
-      String[] parameters = listParameters();
-      for (int idx = 0; idx < parameters.length; idx++) {
-        xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
-        xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
-        xml.append("        ")
-            .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
-        xml.append("        ")
-            .append(
-                XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
-        xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
-      }
-      xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
+    xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
+    String[] parameters = listParameters();
+    for (int idx = 0; idx < parameters.length; idx++) {
+      xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
+      xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append("        ")
+          .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
+      xml.append("        ")
+          .append(XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
+      xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
     }
+    xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
 
     // Performance monitoring
     //
@@ -1911,52 +1891,43 @@ public class PipelineMeta extends AbstractMeta
 
     xml.append("  ").append(XmlHandler.closeTag(XML_TAG_INFO)).append(Const.CR);
 
-    if (includeNotePads) {
-      xml.append("  ").append(XmlHandler.openTag(XML_TAG_NOTEPADS)).append(Const.CR);
-      if (notes != null) {
-        for (int i = 0; i < nrNotes(); i++) {
-          NotePadMeta ni = getNote(i);
-          xml.append(ni.getXml());
-        }
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_NOTEPADS)).append(Const.CR);
+    if (notes != null) {
+      for (int i = 0; i < nrNotes(); i++) {
+        NotePadMeta ni = getNote(i);
+        xml.append(ni.getXml());
       }
-      xml.append("  ").append(XmlHandler.closeTag(XML_TAG_NOTEPADS)).append(Const.CR);
+    }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_NOTEPADS)).append(Const.CR);
+
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_ORDER)).append(Const.CR);
+    for (int i = 0; i < nrPipelineHops(); i++) {
+      PipelineHopMeta pipelineHopMeta = getPipelineHop(i);
+      xml.append(pipelineHopMeta.getXml());
+    }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ORDER)).append(Const.CR);
+
+    /* The transforms... */
+    for (int i = 0; i < nrTransforms(); i++) {
+      TransformMeta transformMeta = getTransform(i);
+      xml.append(transformMeta.getXml());
     }
 
-    if (includeTransforms) {
-      xml.append("  ").append(XmlHandler.openTag(XML_TAG_ORDER)).append(Const.CR);
-      for (int i = 0; i < nrPipelineHops(); i++) {
-        PipelineHopMeta pipelineHopMeta = getPipelineHop(i);
-        xml.append(pipelineHopMeta.getXml());
-      }
-      xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ORDER)).append(Const.CR);
+    /* The error handling metadata on the transforms */
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_TRANSFORM_ERROR_HANDLING)).append(Const.CR);
+    for (int i = 0; i < nrTransforms(); i++) {
+      TransformMeta transformMeta = getTransform(i);
 
-      /* The transforms... */
-      for (int i = 0; i < nrTransforms(); i++) {
-        TransformMeta transformMeta = getTransform(i);
-        xml.append(transformMeta.getXml());
+      if (transformMeta.getTransformErrorMeta() != null) {
+        xml.append(transformMeta.getTransformErrorMeta().getXml());
       }
-
-      /* The error handling metadata on the transforms */
-      xml.append("  ")
-          .append(XmlHandler.openTag(XML_TAG_TRANSFORM_ERROR_HANDLING))
-          .append(Const.CR);
-      for (int i = 0; i < nrTransforms(); i++) {
-        TransformMeta transformMeta = getTransform(i);
-
-        if (transformMeta.getTransformErrorMeta() != null) {
-          xml.append(transformMeta.getTransformErrorMeta().getXml());
-        }
-      }
-      xml.append("  ")
-          .append(XmlHandler.closeTag(XML_TAG_TRANSFORM_ERROR_HANDLING))
-          .append(Const.CR);
     }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_TRANSFORM_ERROR_HANDLING)).append(Const.CR);
 
     // Also store the attribute groups
     //
-    if (includeAttributeGroups) {
-      xml.append(AttributesUtil.getAttributesXml(attributesMap));
-    }
+    xml.append(AttributesUtil.getAttributesXml(attributesMap));
+
     xml.append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
 
     return XmlFormatter.format(xml.toString());
@@ -3896,7 +3867,7 @@ public class PipelineMeta extends AbstractMeta
 
           // At the end, add ourselves to the map...
           //
-          String pipelineMetaContent = pipelineMeta.getXml();
+          String pipelineMetaContent = pipelineMeta.getXml(variables);
 
           definition = new ResourceDefinition(exportFileName, pipelineMetaContent);
 
@@ -4053,31 +4024,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setPipelineType(PipelineType pipelineType) {
     this.pipelineType = pipelineType;
-  }
-
-  /**
-   * Utility method to write the XML of this pipeline to a file, mostly for testing purposes.
-   *
-   * @param filename The filename to save to
-   * @throws HopXmlException in case something goes wrong.
-   */
-  public void writeXml(String filename) throws HopXmlException {
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(filename);
-      fos.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
-      fos.write(getXml().getBytes(Const.XML_ENCODING));
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to save to XML file '" + filename + "'", e);
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          throw new HopXmlException("Unable to close file '" + filename + "'", e);
-        }
-      }
-    }
   }
 
   @Override

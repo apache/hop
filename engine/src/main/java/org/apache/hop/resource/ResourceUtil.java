@@ -124,7 +124,7 @@ public class ResourceUtil {
         //
         if (executionConfiguration != null) {
           ResourceDefinition resourceDefinition =
-              new ResourceDefinition(injectFilename, executionConfiguration.getXml());
+              new ResourceDefinition(injectFilename, executionConfiguration.getXml(variables));
           definitions.put(injectFilename, resourceDefinition);
         }
 

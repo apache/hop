@@ -179,7 +179,7 @@ public class DatabaseLookupMetaTest {
   public void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
-    Path path = Paths.get(getClass().getResource("/transform1.hpl").toURI());
+    Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());
     String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     String transformXml = XmlHandler.openTag(tag) + xml + XmlHandler.closeTag(tag);
     DatabaseLookupMeta meta = new DatabaseLookupMeta();

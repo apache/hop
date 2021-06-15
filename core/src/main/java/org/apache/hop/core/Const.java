@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -386,9 +386,7 @@ public class Const {
   public static final String HOP_LENIENT_STRING_TO_NUMBER_CONVERSION =
       "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
 
-  /**
-   * System wide flag to ignore timezone while writing date/timestamp value to the database.
-   */
+  /** System wide flag to ignore timezone while writing date/timestamp value to the database. */
   public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE =
       "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
 
@@ -401,18 +399,18 @@ public class Const {
 
   /**
    * System wide flag to control behavior of the merge rows (diff) transform in case of "identical"
-   * comparison. 'Y' preserves the old behavior and takes the fields from the reference
-   * stream 'N' enables the documented behavior and takes the fields from the comparison stream
-   * (correct behavior)
+   * comparison. 'Y' preserves the old behavior and takes the fields from the reference stream 'N'
+   * enables the documented behavior and takes the fields from the comparison stream (correct
+   * behavior)
    */
   public static final String HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL =
       "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
 
   /**
    * System wide flag to control behavior of the Memory Group By transform in case of SUM and
-   * AVERAGE aggregation. 'Y' preserves the old behavior and always returns a Number type
-   * for SUM and Average aggregations 'N' enables the documented behavior of returning the same type
-   * as the input fields use (correct behavior).
+   * AVERAGE aggregation. 'Y' preserves the old behavior and always returns a Number type for SUM
+   * and Average aggregations 'N' enables the documented behavior of returning the same type as the
+   * input fields use (correct behavior).
    */
   public static final String HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE =
       "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE";
@@ -512,7 +510,7 @@ public class Const {
   public static final String HOP_PLUGIN_PACKAGES = "HOP_PLUGIN_PACKAGES";
 
   public static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
-  
+
   /**
    * Name of the environment variable that contains the size of the pipeline rowset size. This
    * overwrites values that you set pipeline settings.
@@ -792,6 +790,12 @@ public class Const {
    */
   public static final String HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_TEXT_SIZE_DEFAULT);
+
+  /**
+   * This is the name of the variable which when set should contains the path to a file which will
+   * be included in the serialization of pipelines and workflows.
+   */
+  public static final String HOP_LICENSE_HEADER_FILE = "HOP_LICENSE_HEADER_FILE";
 
   public static final String[] HOP_SYSTEM_SETTING_VARIABLES =
       new String[] {
@@ -2045,8 +2049,8 @@ public class Const {
       String escape) {
 
     ArrayList<String> splitList = null;
-    boolean withEnclosure = StringUtils.isNotEmpty( enclosure );
-    boolean withEscape = StringUtils.isNotEmpty( escape );
+    boolean withEnclosure = StringUtils.isNotEmpty(enclosure);
+    boolean withEscape = StringUtils.isNotEmpty(escape);
     boolean concatWithNext = false;
 
     // Handle "bad input" cases
@@ -2093,7 +2097,7 @@ public class Const {
           if (withEscape) {
 
             if (concatWithNext) {
-              concatWithNext=false;
+              concatWithNext = false;
               addSplit = true;
             }
 
@@ -2118,17 +2122,14 @@ public class Const {
             }
 
             if (addSplit) {
-              int lastSplitIndex = splitList.size()-1;
+              int lastSplitIndex = splitList.size() - 1;
               currentSplit = splitList.get(lastSplitIndex) + currentSplit;
-              splitList.remove( lastSplitIndex );
+              splitList.remove(lastSplitIndex);
             }
           }
 
-
-
           // Find number of enclosures in the split, and whether that number is odd or even.
-          int numEnclosures =
-              withEnclosure ? StringUtils.countMatches(currentSplit, enclosure) : 0;
+          int numEnclosures = withEnclosure ? StringUtils.countMatches(currentSplit, enclosure) : 0;
           boolean oddNumberOfEnclosures = (numEnclosures % 2 != 0);
 
           // This split contains an enclosure, so either start or finish concatenating
