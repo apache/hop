@@ -32,4 +32,19 @@ Before producing this output the transform reads and discards (or eats) all inpu
 |Transform name|Name of the transform.
 |Output row count|Include the number of rows eaten by this transform in the output
 |Field for row count|The name of the field containing the number of rows eaten
+|Include position field?|Include the field position in the transform's output
+|Field for position|The name of the field containing position
+|Include field name field?|Include the field name in the transform's output
+|Field for field name|The name of the field containing field's name
+|Include comment field?|Include the field comment in the transform's output
+|Field for comments|The name of the field containing the comment
+|Include type field?|Include the field data type in the transform's output
+|Field for type|The name of the field containing the data type
+|Include length field?|Include the field length in the transform's output
+|Field for length|The name of the field containing the data length
+|Include precision field?|Include the field precision in the transform's output
+|Field for precision|The name of the field containing precision (if value is numeric)
+|Include origin field?|Include the field origin in the transform's output
+|Field for origin|The name of the field containing field's origin
+
 |===

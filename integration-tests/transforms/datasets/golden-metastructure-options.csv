@@ -1,0 +1,6 @@
+Position,Fieldname,Type,Length,Precision,Origin,Rowcount
+1,strField,String,50,-1,Test data,1
+2,numField,Number,7,3,Test data,1
+3,intField,Integer,9,0,Test data,1
+4,datField,Date,-1,-1,Test data,1
+5,boolField,Boolean,-1,-1,Test data,1
