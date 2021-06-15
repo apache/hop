@@ -41,19 +41,15 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -672,16 +668,17 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   protected void showEnterSelectionDialog() {
     TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
 
-    String[] choices = null;
+    String[] choices;
     if (transformMeta != null) {
       try {
         IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
         if (row.size() == 0) {
-          MessageDialog.openError(
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"));
+              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+              SWT.ICON_ERROR | SWT.OK);
 
           return;
         }
@@ -732,10 +729,11 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
           wKeyField.setText(newSelection.toString());
         }
       } catch (HopException ex) {
-        MessageDialog.openError(
+        new ErrorDialog(
             shell,
             BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"));
+            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+            ex);
       }
     }
   }
@@ -750,18 +748,20 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
         if (row.size() == 0) {
-          MessageDialog.openError(
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"));
+              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+              SWT.ICON_ERROR | SWT.OK);
 
           return;
         }
       } catch (HopException ex) {
-        MessageDialog.openError(
+        new ErrorDialog(
             shell,
             BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"));
+            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+            ex);
       }
     }
   }

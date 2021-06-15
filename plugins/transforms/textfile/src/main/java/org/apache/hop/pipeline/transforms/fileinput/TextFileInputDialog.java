@@ -34,6 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -42,36 +43,55 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.dialog.*;
-import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
-import org.apache.hop.core.variables.IVariables;
+import java.util.Locale;
+import java.util.Vector;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -2607,8 +2627,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   private void get() {
     if (wFiletype.getText().equalsIgnoreCase("CSV")) {
       getCSV();
-    } else {
-      getFixed();
     }
   }
 
@@ -3034,83 +3052,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     }
 
     return retval;
-  }
-
-  private void getFixed() {
-    TextFileInputMeta info = new TextFileInputMeta();
-    getInfo(info);
-
-    Shell sh = new Shell(shell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-
-    try {
-      List<String> rows = getFirst(50, false);
-      fields = getFields(info, rows);
-
-      final TextFileImportWizardPage1 page1 =
-          new TextFileImportWizardPage1("1", props, rows, fields);
-      page1.createControl(sh);
-      final TextFileImportWizardPage2 page2 =
-          new TextFileImportWizardPage2("2", props, rows, fields);
-      page2.createControl(sh);
-
-      Wizard wizard =
-          new Wizard() {
-            public boolean performFinish() {
-              wFields.clearAll(false);
-
-              for (ITextFileInputField field1 : fields) {
-                TextFileInputField field = (TextFileInputField) field1;
-                if (!field.isIgnored() && field.getLength() > 0) {
-                  TableItem item = new TableItem(wFields.table, SWT.NONE);
-                  item.setText(1, field.getName());
-                  item.setText(2, "" + field.getTypeDesc());
-                  item.setText(3, "" + field.getFormat());
-                  item.setText(4, "" + field.getPosition());
-                  item.setText(5, field.getLength() < 0 ? "" : "" + field.getLength());
-                  item.setText(6, field.getPrecision() < 0 ? "" : "" + field.getPrecision());
-                  item.setText(7, "" + field.getCurrencySymbol());
-                  item.setText(8, "" + field.getDecimalSymbol());
-                  item.setText(9, "" + field.getGroupSymbol());
-                  item.setText(10, "" + field.getNullString());
-                  item.setText(11, "" + field.getIfNullValue());
-                  item.setText(12, "" + field.getTrimTypeDesc());
-                  item.setText(
-                      13,
-                      field.isRepeated()
-                          ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                          : BaseMessages.getString(PKG, "System.Combo.No"));
-                }
-              }
-              int size = wFields.table.getItemCount();
-              if (size == 0) {
-                new TableItem(wFields.table, SWT.NONE);
-              }
-
-              wFields.removeEmptyRows();
-              wFields.setRowNums();
-              wFields.optWidth(true);
-
-              input.setChanged();
-
-              return true;
-            }
-          };
-
-      wizard.addPage(page1);
-      wizard.addPage(page2);
-
-      WizardDialog wd = new WizardDialog(shell, wizard);
-      WizardDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      wd.setMinimumPageSize(700, 375);
-      wd.updateSize();
-      wd.open();
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "TextFileInputDialog.ErrorShowingFixedWizard.DialogTitle"),
-          BaseMessages.getString(PKG, "TextFileInputDialog.ErrorShowingFixedWizard.DialogMessage"),
-          e);
-    }
   }
 
   private Vector<ITextFileInputField> getFields(TextFileInputMeta info, List<String> rows) {
