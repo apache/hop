@@ -17,29 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.metastructure;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.w3c.dom.Node;
+import org.apache.hop.pipeline.transform.TransformMeta;
+
+import java.util.List;
 
 @Transform(
     id = "TransformMetaStructure",
@@ -52,26 +48,64 @@ import org.w3c.dom.Node;
 public class TransformMetaStructureMeta extends BaseTransformMeta
     implements ITransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
-  private static Class<?> PKG =
-      TransformMetaStructureMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
 
-  @HopMetadataProperty private boolean includePositionField;
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includePositionField;
+
   @HopMetadataProperty private String positionFieldname;
-  @HopMetadataProperty private boolean includeFieldnameField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeFieldnameField;
+
   @HopMetadataProperty private String fieldFieldname;
-  @HopMetadataProperty private boolean includeCommentsField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeCommentsField;
+
   @HopMetadataProperty private String commentsFieldname;
-  @HopMetadataProperty private boolean includeTypeField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeTypeField;
+
   @HopMetadataProperty private String typeFieldname;
-  @HopMetadataProperty private boolean includeLengthField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeLengthField;
+
   @HopMetadataProperty private String lengthFieldname;
-  @HopMetadataProperty private boolean includePrecisionField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includePrecisionField;
+
   @HopMetadataProperty private String precisionFieldname;
-  @HopMetadataProperty private boolean includeOriginField;
+
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeOriginField;
+
   @HopMetadataProperty private String originFieldname;
 
-  @HopMetadataProperty private boolean outputRowcount;
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean outputRowcount;
+
   @HopMetadataProperty private String rowcountField;
+
+  public TransformMetaStructureMeta() {
+    includePositionField = true;
+    positionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PositionName");
+    includeFieldnameField = true;
+    fieldFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.FieldName");
+    includeCommentsField = true;
+    commentsFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.CommentsName");
+    includeTypeField = true;
+    typeFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.TypeName");
+    includeLengthField = true;
+    lengthFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthName");
+    includePrecisionField = true;
+    precisionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionName");
+    includeOriginField = true;
+    originFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginName");
+  }
 
   @Override
   public TransformMetaStructureMeta clone() {
@@ -79,7 +113,7 @@ public class TransformMetaStructureMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
+  public TransformMetaStructure createTransform(
       TransformMeta transformMeta,
       TransformMetaStructureData data,
       int copyNr,
@@ -172,17 +206,6 @@ public class TransformMetaStructureMeta extends BaseTransformMeta
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-  }
-
-  @Override
-  public void setDefault() {
-    positionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PositionName");
-    fieldFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.FieldName");
-    commentsFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.CommentsName");
-    typeFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.TypeName");
-    lengthFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthName");
-    precisionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionName");
-    originFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginName");
   }
 
   public boolean isOutputRowcount() {

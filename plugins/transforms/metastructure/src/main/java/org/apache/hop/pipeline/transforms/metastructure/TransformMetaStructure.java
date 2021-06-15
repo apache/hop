@@ -135,7 +135,7 @@ public class TransformMetaStructure
           outputRow =
               RowDataUtil.addValueData(
                   outputRow,
-                  pos++,
+                  pos,
                   v_rowCount.convertDataCompatible(v_rowCount, new Long(data.rowCount)));
         }
         putRow(data.outputRowMeta, outputRow.clone());
