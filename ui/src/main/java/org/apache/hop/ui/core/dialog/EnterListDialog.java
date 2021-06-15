@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +36,6 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -63,20 +61,15 @@ import java.util.StringTokenizer;
 public class EnterListDialog extends Dialog {
   private static final Class<?> PKG = EnterListDialog.class; // For Translator
 
-  private PropsUi props;
+  private final PropsUi props;
 
-  private String[] input;
-  private String[] retval;
+  private final String[] input;
+  private String[] returnValues;
 
-  private Hashtable<Integer, String> selection;
+  private final Hashtable<Integer, String> selection;
 
   private Shell shell;
   private List wListSource, wListDest;
-  private Label wlListSource, wlListDest;
-  private Button wOk;
-  private Button wCancel;
-
-  private Button wAddOne, wAddAll, wRemoveAll, wRemoveOne;
 
   private boolean opened;
 
@@ -85,7 +78,7 @@ public class EnterListDialog extends Dialog {
     this.props = PropsUi.getInstance();
 
     this.input = input;
-    this.retval = null;
+    this.returnValues = null;
 
     selection = new Hashtable<>();
 
@@ -103,6 +96,16 @@ public class EnterListDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // //////////////////////////////////////////////////
     // Top & Bottom regions.
     // //////////////////////////////////////////////////
@@ -116,7 +119,7 @@ public class EnterListDialog extends Dialog {
     fdTop.left = new FormAttachment(0, 0);
     fdTop.top = new FormAttachment(0, 0);
     fdTop.right = new FormAttachment(100, 0);
-    fdTop.bottom = new FormAttachment(100, -50);
+    fdTop.bottom = new FormAttachment(wOk, -2 * margin);
     top.setLayoutData(fdTop);
     props.setLook(top);
 
@@ -157,7 +160,7 @@ public class EnterListDialog extends Dialog {
     props.setLook(leftsplit);
 
     // Source list to the left...
-    wlListSource = new Label(leftsplit, SWT.NONE);
+    Label wlListSource = new Label(leftsplit, SWT.NONE);
     wlListSource.setText(BaseMessages.getString(PKG, "EnterListDialog.AvailableItems.Label"));
     props.setLook(wlListSource);
     FormData fdlListSource = new FormData();
@@ -174,37 +177,54 @@ public class EnterListDialog extends Dialog {
     fdListSource.right = new FormAttachment(100, 0);
     fdListSource.bottom = new FormAttachment(100, 0);
     wListSource.setLayoutData(fdListSource);
+    // Double click adds to destination.
+    wListSource.addListener(SWT.DefaultSelection, e -> addToSelection(wListSource.getSelection()));
+    wListSource.addKeyListener(
+        new KeyAdapter() {
+          public void keyPressed(KeyEvent e) {
+            if (e.character == SWT.CR) {
+              addToSelection(wListSource.getSelection());
+            }
+          }
+        });
 
     // /////////////////////////
     // MIDDLE
     // /////////////////////////
 
-    Composite compmiddle = new Composite(sashform, SWT.NONE);
-    compmiddle.setLayout(new FormLayout());
+    Composite compMiddle = new Composite(sashform, SWT.NONE);
+    compMiddle.setLayout(new FormLayout());
     FormData fdCompMiddle = new FormData();
     fdCompMiddle.left = new FormAttachment(0, 0);
     fdCompMiddle.top = new FormAttachment(0, 0);
     fdCompMiddle.right = new FormAttachment(100, 0);
     fdCompMiddle.bottom = new FormAttachment(100, 0);
-    compmiddle.setLayoutData(fdCompMiddle);
-    props.setLook(compmiddle);
+    compMiddle.setLayoutData(fdCompMiddle);
+    props.setLook(compMiddle);
 
-    Composite gButtonGroup = new Composite(compmiddle, SWT.NONE);
+    Composite gButtonGroup = new Composite(compMiddle, SWT.NONE);
     GridLayout gridLayout = new GridLayout(1, false);
     gButtonGroup.setLayout(gridLayout);
 
-    wAddOne = new Button(gButtonGroup, SWT.PUSH);
+    Button wAddOne = new Button(gButtonGroup, SWT.PUSH);
     wAddOne.setText(" > ");
     wAddOne.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.AddOne.Tooltip"));
-    wAddAll = new Button(gButtonGroup, SWT.PUSH);
+    wAddOne.addListener(SWT.Selection, e -> addToSelection(wListSource.getSelection()));
+
+    Button wAddAll = new Button(gButtonGroup, SWT.PUSH);
     wAddAll.setText(" >> ");
     wAddAll.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.AddAll.Tooltip"));
-    wRemoveOne = new Button(gButtonGroup, SWT.PUSH);
+    wAddAll.addListener(SWT.Selection, e -> addToSelection(wListSource.getItems()));
+
+    Button wRemoveOne = new Button(gButtonGroup, SWT.PUSH);
     wRemoveOne.setText(" < ");
     wRemoveOne.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.RemoveOne.Tooltip"));
-    wRemoveAll = new Button(gButtonGroup, SWT.PUSH);
+    wRemoveOne.addListener(SWT.Selection, e -> delFromSelection(wListDest.getSelection()));
+
+    Button wRemoveAll = new Button(gButtonGroup, SWT.PUSH);
     wRemoveAll.setText(" << ");
     wRemoveAll.setToolTipText(BaseMessages.getString(PKG, "EnterListDialog.RemoveAll.Tooltip"));
+    wRemoveAll.addListener(SWT.Selection, e -> delFromSelection(wListDest.getItems()));
 
     GridData gdAddOne = new GridData(GridData.FILL_BOTH);
     wAddOne.setLayoutData(gdAddOne);
@@ -228,17 +248,17 @@ public class EnterListDialog extends Dialog {
     // ///////////////////////////////
     // RIGHT
     // ///////////////////////////////
-    Composite rightsplit = new Composite(sashform, SWT.NONE);
-    rightsplit.setLayout(new FormLayout());
-    FormData fdRightsplit = new FormData();
-    fdRightsplit.left = new FormAttachment(0, 0);
-    fdRightsplit.top = new FormAttachment(0, 0);
-    fdRightsplit.right = new FormAttachment(100, 0);
-    fdRightsplit.bottom = new FormAttachment(100, 0);
-    rightsplit.setLayoutData(fdRightsplit);
-    props.setLook(rightsplit);
+    Composite rightSplit = new Composite(sashform, SWT.NONE);
+    rightSplit.setLayout(new FormLayout());
+    FormData fdRightSplit = new FormData();
+    fdRightSplit.left = new FormAttachment(0, 0);
+    fdRightSplit.top = new FormAttachment(0, 0);
+    fdRightSplit.right = new FormAttachment(100, 0);
+    fdRightSplit.bottom = new FormAttachment(100, 0);
+    rightSplit.setLayoutData(fdRightSplit);
+    props.setLook(rightSplit);
 
-    wlListDest = new Label(rightsplit, SWT.NONE);
+    Label wlListDest = new Label(rightSplit, SWT.NONE);
     wlListDest.setText(BaseMessages.getString(PKG, "EnterListDialog.Selection.Label"));
     props.setLook(wlListDest);
     FormData fdlListDest = new FormData();
@@ -246,67 +266,51 @@ public class EnterListDialog extends Dialog {
     fdlListDest.top = new FormAttachment(0, 0);
     wlListDest.setLayoutData(fdlListDest);
 
-    wListDest = new List(rightsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    wListDest = new List(rightSplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wListDest);
-
     FormData fdListDest = new FormData();
     fdListDest.left = new FormAttachment(0, 0);
     fdListDest.top = new FormAttachment(wlListDest, 0);
     fdListDest.right = new FormAttachment(100, 0);
     fdListDest.bottom = new FormAttachment(100, 0);
     wListDest.setLayoutData(fdListDest);
+    // Double click adds to source
+    wListDest.addListener(SWT.DefaultSelection, e -> delFromSelection(wListDest.getSelection()));
+    wListDest.addKeyListener(
+        new KeyAdapter() {
+          public void keyPressed(KeyEvent e) {
+            if (e.character == SWT.CR) {
+              delFromSelection(wListDest.getSelection());
+            }
+          }
+        });
 
-    sashform.setWeights(new int[] {40, 16, 40});
-
-    // //////////////////////////////////////////////////////////////
-    // THE BOTTOM BUTTONS...
-    // //////////////////////////////////////////////////////////////
-
-    wOk = new Button(bottom, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(bottom, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    FormData fdOk = new FormData();
-    FormData fdCancel = new FormData();
-
-    fdOk.left = new FormAttachment(35, 0);
-    fdOk.bottom = new FormAttachment(100, 0);
-    wOk.setLayoutData(fdOk);
-
-    fdCancel.left = new FormAttachment(wOk, 10);
-    fdCancel.bottom = new FormAttachment(100, 0);
-    wCancel.setLayoutData(fdCancel);
+    sashform.setWeights(40, 16, 40);
 
     // Add listeners
-    wCancel.addListener(SWT.Selection, e -> dispose());
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> handleOK());
 
     // Drag & Drop for transforms
-    Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};
+    Transfer[] transfers = new Transfer[] {TextTransfer.getInstance()};
 
     DragSource ddSource = new DragSource(wListSource, DND.DROP_MOVE | DND.DROP_COPY);
-    ddSource.setTransfer(ttypes);
+    ddSource.setTransfer(transfers);
     ddSource.addDragListener(
         new DragSourceListener() {
           public void dragStart(DragSourceEvent event) {}
 
           public void dragSetData(DragSourceEvent event) {
             String[] ti = wListSource.getSelection();
-            String data = new String();
-            for (int i = 0; i < ti.length; i++) {
-              data += ti[i] + Const.CR;
+            StringBuilder data = new StringBuilder();
+            for (String s : ti) {
+              data.append(s).append(Const.CR);
             }
-            event.data = data;
+            event.data = data.toString();
           }
 
           public void dragFinished(DragSourceEvent event) {}
         });
     DropTarget ddTarget = new DropTarget(wListDest, DND.DROP_MOVE | DND.DROP_COPY);
-    ddTarget.setTransfer(ttypes);
+    ddTarget.setTransfer(transfers);
     ddTarget.addDropListener(
         new DropTargetListener() {
           public void dragEnter(DropTargetEvent event) {}
@@ -332,79 +336,31 @@ public class EnterListDialog extends Dialog {
           public void dropAccept(DropTargetEvent event) {}
         });
 
-    wListSource.addKeyListener(
-        new KeyAdapter() {
-          public void keyPressed(KeyEvent e) {
-            if (e.character == SWT.CR) {
-              addToSelection(wListSource.getSelection());
-            }
-          }
-        });
-    wListDest.addKeyListener(
-        new KeyAdapter() {
-          public void keyPressed(KeyEvent e) {
-            if (e.character == SWT.CR) {
-              delFromSelection(wListDest.getSelection());
-            }
-          }
-        });
-
-    // Double click adds to destination.
-    wListSource.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            addToSelection(wListSource.getSelection());
-          }
-        });
-    // Double click adds to source
-    wListDest.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            delFromSelection(wListDest.getSelection());
-          }
-        });
-
-    wAddOne.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            addToSelection(wListSource.getSelection());
-          }
-        });
-
-    wRemoveOne.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            delFromSelection(wListDest.getSelection());
-          }
-        });
-
-    wAddAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            addToSelection(wListSource.getItems());
-          }
-        });
-
-    wRemoveAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            delFromSelection(wListDest.getItems());
-          }
-        });
+    // Catch close of dialog
+    //
+    shell.addListener(SWT.Close, e -> cancel());
 
     opened = true;
     getData();
 
+    // Set the size as well...
+    //
     BaseTransformDialog.setSize(shell);
 
+    // Open the shell
+    //
     shell.open();
-    Display display = parent.getDisplay();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
-    return retval;
+
+    return returnValues;
   }
 
   public void getData() {
@@ -454,13 +410,17 @@ public class EnterListDialog extends Dialog {
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
-  public void handleOK() {
-    retval = wListDest.getItems();
+  public void ok() {
+    returnValues = wListDest.getItems();
+    dispose();
+  }
+
+  public void cancel() {
+    returnValues = null;
     dispose();
   }
 }

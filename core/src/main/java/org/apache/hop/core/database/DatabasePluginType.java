@@ -29,16 +29,15 @@ import java.util.Map;
  *
  * @author matt
  */
-public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> implements IPluginType<DatabaseMetaPlugin> {
+public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   private static DatabasePluginType pluginType;
 
   private DatabasePluginType() {
     super( DatabaseMetaPlugin.class, "DATABASE", "Database" );
-    populateFolders( "databases" );
 
     String sharedJdbcDirectory = System.getProperty( Const.HOP_SHARED_JDBC_FOLDER );
     if ( StringUtils.isNotEmpty(sharedJdbcDirectory)) {
-      extraLibraryFolders.add(sharedJdbcDirectory);
+      getExtraLibraryFolders().add(sharedJdbcDirectory);
     }
   }
 

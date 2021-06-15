@@ -1,0 +1,54 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopRun]]
+:imagesdir: ../assets/images
+
+= Hop Run
+
+Hop Run is a command line tool to run your workflows and pipelines.
+
+Hop Run can be launched through the script with the corresponding name in your Hop installation directory, either `hop-run.sh` on Mac and Linux or `hop-run.bat` on Windows.
+
+Except for the laucher script, all options are platform agnostic; there is no difference in the way hop-run works on any operating system.
+
+
+== Hop Run Options
+
+You can display Hop Run's options by running the command without any options.
+
+If you're on Windows (tough luck), run `hop-run.bat`, on Mac and Linux, run `hop-run.sh`.
+
+You'll see the option listed in a similar output to the one below:
+
+image::hop-run/hop-run-options.png[Hop Run - Options, align="left"]
+
+The available options are listed in more detail in the table below:
+
+[width="90%", options="header"]
+|===
+|Short|Extended|Description
+|e|environment|The name of the environment to use. Check the https://hop.apache.org/manual/latest/hop-gui/environments/environments.html[documentation on environments] for more details.
+|f|file|The filename of the workflow or pipeline to run
+|h|help|Displays this help message and quits.
+|l|level|The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+|o|printoptions|Print the used options
+|p|parameters|A comma separated list of PARAMETER=VALUE pairs
+|r|runconfig|The name of the Run Configuration to use. Check the https://hop.apache.org/manual/latest/hop-gui/run-configurations/run-configurations.html[documentation on run configurations] for more details.
+|s|system-properties|A comma separated list of KEY=VALUE pairs
+|===
+
+== Examples

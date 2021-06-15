@@ -25,20 +25,18 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.70-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-greenplum</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases Greenplum</name>
     <description></description>
 
     <properties>
-        <!-- Test running configuration -->
-        <greenplum.version>5.1.4</greenplum.version>
     </properties>
 
     <dependencies>
@@ -47,18 +45,6 @@
             <artifactId>hop-databases-greenplum</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.pivotal</groupId>
-            <artifactId>greenplum-jdbc</artifactId>
-            <version>${greenplum.version}</version>
-        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>pivotal</id>
-            <name>Pivotal Repository</name>
-            <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
-        </repository>
-    </repositories>
+    
 </project>

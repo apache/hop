@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
@@ -33,6 +34,7 @@ import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -46,7 +48,9 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
@@ -54,11 +58,19 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -68,9 +80,13 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
+
+  public static final Class<?> PKG = ProjectsGuiPlugin.class; // i18n
 
   public static final String ID_TOOLBAR_PROJECT_LABEL = "toolbar-40000-project-label";
   public static final String ID_TOOLBAR_PROJECT_COMBO = "toolbar-40010-project-list";
@@ -83,6 +99,8 @@ public class ProjectsGuiPlugin {
   public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-50020-environment-edit";
   public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-50030-environment-add";
   public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-50040-environment-delete";
+
+  public static final String ID_MAIN_MENU_PROJECT_EXPORT = "10055-menu-file-export-to-svg";
 
   public static final String NAVIGATE_TOOLBAR_PARENT_ID = "HopVfsFileDialog-NavigateToolbar";
   private static final String NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME =
@@ -116,7 +134,7 @@ public class ProjectsGuiPlugin {
     try {
       Project project = projectConfig.loadProject(hopGui.getVariables());
       ProjectDialog projectDialog =
-          new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables());
+          new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
         config.addProjectConfig(projectConfig);
         project.saveToFile();
@@ -124,12 +142,8 @@ public class ProjectsGuiPlugin {
         refreshProjectsList();
         selectProjectInList(projectName);
 
-        if (projectDialog.isVariablesChanged()) {
-          MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-          box.setText("Reload project?");
-          box.setMessage("Do you want to reload this project to apply changed variables?");
-          int answer = box.open();
-          if ((answer & SWT.YES) != 0) {
+        if (projectDialog.isNeedingProjectRefresh()) {
+          if (askAboutProjectRefresh(hopGui)) {
             // Try to stick to the same environment if we have one selected...
             //
             LifecycleEnvironment environment = null;
@@ -142,8 +156,21 @@ public class ProjectsGuiPlugin {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error editing project '" + projectName, e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Header"),
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Message", projectName),
+          e);
     }
+  }
+
+  private boolean askAboutProjectRefresh(HopGui hopGui) {
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Header"));
+    box.setMessage(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Message"));
+    int answer = box.open();
+    return (answer & SWT.YES) != 0;
   }
 
   @GuiToolbarElement(
@@ -180,7 +207,12 @@ public class ProjectsGuiPlugin {
         hopGui.getLog().logError("Unable to find project '" + projectName + "'");
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error changing project to '" + projectName, e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeProject.Error.Dialog.Header"),
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.ChangeProject.Error.Dialog.Message", projectName),
+          e);
     }
   }
 
@@ -200,15 +232,19 @@ public class ProjectsGuiPlugin {
       image = "project-add.svg")
   public void addNewProject() {
     HopGui hopGui = HopGui.getInstance();
+    IVariables variables = hopGui.getVariables();
+
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
+      String standardProjectsFolder = variables.resolve(config.getStandardProjectsFolder());
+      String defaultProjectConfigFilename = variables.resolve(config.getDefaultProjectConfigFile());
       ProjectConfig projectConfig =
-          new ProjectConfig("", "", ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+          new ProjectConfig("", standardProjectsFolder, defaultProjectConfigFilename);
 
       Project project = new Project();
+      project.setParentProjectName(config.getStandardParentProject());
       ProjectDialog projectDialog =
-          new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables());
+          new ProjectDialog(hopGui.getShell(), project, projectConfig, variables, false);
       String projectName = projectDialog.open();
       if (projectName != null) {
         config.addProjectConfig(projectConfig);
@@ -216,7 +252,21 @@ public class ProjectsGuiPlugin {
 
         // Save the project-config.json file as well in the project itself
         //
-        project.saveToFile();
+        File configFile = new File(projectConfig.getActualProjectConfigFilename(variables));
+
+        if (!configFile.exists()) {
+          // Create the empty configuration file if it does not exists
+          project.saveToFile();
+        } else {
+          // If projects exists load configuration
+          MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.OK);
+          box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ProjectExists.Dialog.Header"));
+          box.setMessage(
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.ProjectExists.Dialog.Message"));
+          box.open();
+
+          project.readFromFile();
+        }
 
         refreshProjectsList();
         selectProjectInList(projectName);
@@ -258,9 +308,10 @@ public class ProjectsGuiPlugin {
         if (!localFound) {
           MessageBox box =
               new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-          box.setText("Create local workflow run configuration?");
+          box.setText(
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Header"));
           box.setMessage(
-              "Do you want to have a local workflow run configuration for this project?");
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Message"));
           int anwser = box.open();
           if ((anwser & SWT.YES) != 0) {
             LocalWorkflowRunConfiguration localWorkflowRunConfiguration =
@@ -269,7 +320,8 @@ public class ProjectsGuiPlugin {
             WorkflowRunConfiguration local =
                 new WorkflowRunConfiguration(
                     "local",
-                    "Runs your workflows locally with the standard local Hop workflow engine",
+                    BaseMessages.getString(
+                        PKG, "ProjectGuiPlugin.LocalWFRunConfigDescription.Text"),
                     localWorkflowRunConfiguration);
             wrcSerializer.save(local);
           }
@@ -279,11 +331,11 @@ public class ProjectsGuiPlugin {
         //
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText("Create project lifecycle environment?");
+        box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Header"));
         box.setMessage(
-            "If this project is part of a lifecyle then perhaps you want to add it to a lifecycle environment?"
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message1")
                 + Const.CR
-                + "With it you can manage the specific settings like hostnames and paths for the environment");
+                + BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message2"));
         int anwser = box.open();
         if ((anwser & SWT.YES) != 0) {
 
@@ -292,7 +344,11 @@ public class ProjectsGuiPlugin {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error adding project", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.AddProject.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.AddProject.Error.Dialog.Message"),
+          e);
     }
   }
 
@@ -323,17 +379,15 @@ public class ProjectsGuiPlugin {
 
     MessageBox box =
         new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-    box.setText("Delete?");
+    box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"));
     box.setMessage(
-        "Do you want to delete project '"
-            + projectName
-            + "' from the Hop configuration?"
+        BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Message1", projectName)
             + Const.CR
-            + "Please note that folder '"
-            + projectHome
-            + "' or the project configuration file "
-            + configFilename
-            + " in it are NOT removed or otherwise altered in any way.");
+            + BaseMessages.getString(
+                PKG,
+                "ProjectGuiPlugin.DeleteProject.Dialog.Message2",
+                projectHome,
+                configFilename));
     int anwser = box.open();
     if ((anwser & SWT.YES) != 0) {
       try {
@@ -341,12 +395,17 @@ public class ProjectsGuiPlugin {
         ProjectsConfigSingleton.saveConfig();
 
         refreshProjectsList();
-        selectProjectInList(null);
+        if (StringUtils.isEmpty(config.getDefaultProject())) {
+          selectProjectInList(null);
+        } else {
+          selectProjectInList(config.getDefaultProject());
+        }
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
-            "Error",
-            "Error removing project '" + projectName + "'",
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Header"),
+            BaseMessages.getString(
+                PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
             e);
       }
     }
@@ -392,9 +451,22 @@ public class ProjectsGuiPlugin {
 
         selectEnvironmentInList(environmentName);
       }
+
+      // A refresh of the project and environment is likely needed
+      // Ask the user if this is needed now...
+      //
+      if (dialog.isNeedingEnvironmentRefresh() && askAboutProjectRefresh(hopGui)) {
+        // Refresh the loaded environment
+        //
+        selectEnvironment();
+      }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error editing environment '" + environmentName, e);
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Header"),
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Message", environmentName),
+          e);
     }
   }
 
@@ -404,7 +476,7 @@ public class ProjectsGuiPlugin {
       type = GuiToolbarElementType.COMBO,
       comboValuesMethod = "getEnvironmentsList",
       extraWidth = 200,
-      toolTip = "Select the active environment")
+      toolTip = "i18n::HopGui.Toolbar.EnvironmentsList.Tooltip")
   public void selectEnvironment() {
     HopGui hopGui = HopGui.getInstance();
     Combo envCombo = getEnvironmentsCombo();
@@ -436,7 +508,11 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error changing project to '" + environmentName, e);
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Header"),
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Message", environmentName),
+          e);
     }
   }
 
@@ -479,7 +555,11 @@ public class ProjectsGuiPlugin {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error adding lifecycle environment", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.AddEnvironment.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.AddEnvironment.Error.Dialog.Message"),
+          e);
     }
   }
 
@@ -508,15 +588,15 @@ public class ProjectsGuiPlugin {
 
     MessageBox box =
         new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-    box.setText("Delete?");
+    box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteEnvironment.Dialog.Header"));
     box.setMessage(
-        "Do you want to delete environment '"
-            + environmentName
-            + "' from the Hop configuration?"
+        BaseMessages.getString(
+                PKG, "ProjectGuiPlugin.DeleteEnvironment.Dialog.Message1", environmentName)
             + Const.CR
-            + "Please note that project '"
-            + environment.getProjectName()
-            + "' or any file or folder are NOT removed or otherwise altered in any way.");
+            + BaseMessages.getString(
+                PKG,
+                "ProjectGuiPlugin.DeleteEnvironment.Dialog.Message2",
+                environment.getProjectName()));
     int anwser = box.open();
     if ((anwser & SWT.YES) != 0) {
       try {
@@ -528,8 +608,9 @@ public class ProjectsGuiPlugin {
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
-            "Error",
-            "Error removing environment " + environmentName + "'",
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteEnvironment.Error.Dialog.Header"),
+            BaseMessages.getString(
+                PKG, "ProjectGuiPlugin.DeleteEnvironment.Error.Dialog.Message", environmentName),
             e);
       }
     }
@@ -589,8 +670,7 @@ public class ProjectsGuiPlugin {
       for (PipelineRunConfiguration runConfig : runConfigSerializer.loadAll()) {
         for (VariableValueDescription variableValueDescription :
             runConfig.getConfigurationVariables()) {
-          variables.setVariable(
-              variableValueDescription.getName(), "<see your pipeline run configurations>");
+          variables.setVariable(variableValueDescription.getName(), "");
         }
       }
 
@@ -676,9 +756,8 @@ public class ProjectsGuiPlugin {
             .getMainToolbarWidgets()
             .getWidgetsMap()
             .get(ProjectsGuiPlugin.ID_TOOLBAR_PROJECT_COMBO);
-    if ((control != null) && (control instanceof Combo)) {
-      Combo combo = (Combo) control;
-      return combo;
+    if (control instanceof Combo) {
+      return (Combo) control;
     }
     return null;
   }
@@ -689,9 +768,8 @@ public class ProjectsGuiPlugin {
             .getMainToolbarWidgets()
             .getWidgetsMap()
             .get(ProjectsGuiPlugin.ID_TOOLBAR_ENVIRONMENT_COMBO);
-    if ((control != null) && (control instanceof Combo)) {
-      Combo combo = (Combo) control;
-      return combo;
+    if (control instanceof Combo) {
+      return (Combo) control;
     }
     return null;
   }
@@ -715,12 +793,13 @@ public class ProjectsGuiPlugin {
 
     // Get the list of events from the Audit Manager...
     //
-    List<AuditEvent> projectOpenEvents = AuditManager.findEvents(
-      ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-      ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
-      "open",
-      100,
-      true );
+    List<AuditEvent> projectOpenEvents =
+        AuditManager.findEvents(
+            ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+            ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+            "open",
+            100,
+            true);
 
     for (AuditEvent projectOpenEvent : projectOpenEvents) {
       lastUsedMap.put(projectOpenEvent.getName(), projectOpenEvent.getDate());
@@ -728,15 +807,18 @@ public class ProjectsGuiPlugin {
 
     // Reverse sort by last used date of a project...
     //
-    Collections.sort( names, new Comparator<String>() {
-      @Override public int compare( String name1, String name2 ) {
-        int cmp = -lastUsedMap.get( name1 ).compareTo( lastUsedMap.get( name2 ) );
-        if (cmp==0) {
-          cmp = name1.compareToIgnoreCase( name2 );
-        }
-        return cmp;
-      }
-    } );
+    Collections.sort(
+        names,
+        new Comparator<String>() {
+          @Override
+          public int compare(String name1, String name2) {
+            int cmp = -lastUsedMap.get(name1).compareTo(lastUsedMap.get(name2));
+            if (cmp == 0) {
+              cmp = name1.compareToIgnoreCase(name2);
+            }
+            return cmp;
+          }
+        });
 
     return names;
   }
@@ -757,13 +839,12 @@ public class ProjectsGuiPlugin {
         String projectHome = projectConfig.getProjectHome();
         if (StringUtils.isNotEmpty(projectHome)) {
           combo.setToolTipText(
-              "Project "
-                  + name
-                  + " in '"
-                  + projectHome
-                  + "' configured in '"
-                  + projectConfig.getConfigFilename()
-                  + "'");
+              BaseMessages.getString(
+                  PKG,
+                  "ProjectGuiPlugin.SelectProject.Tooltip",
+                  name,
+                  projectHome,
+                  projectConfig.getConfigFilename()));
         }
       }
     }
@@ -779,8 +860,7 @@ public class ProjectsGuiPlugin {
    */
   public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider)
       throws Exception {
-    List<String> names = ProjectsConfigSingleton.getConfig().listEnvironmentNames();
-    return names;
+    return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
   }
 
   public static void refreshEnvironmentsList() {
@@ -797,12 +877,12 @@ public class ProjectsGuiPlugin {
       LifecycleEnvironment environment = config.findEnvironment(name);
       if (environment != null) {
         combo.setToolTipText(
-            "Environment "
-                + name
-                + " for project '"
-                + environment.getProjectName()
-                + "' has purpose: "
-                + environment.getPurpose());
+            BaseMessages.getString(
+                PKG,
+                "ProjectGuiPlugin.FindEnvironment.Tooltip",
+                name,
+                environment.getProjectName(),
+                environment.getPurpose()));
       }
     }
   }
@@ -830,5 +910,107 @@ public class ProjectsGuiPlugin {
         instance.navigateTo(homeFolder, true);
       }
     }
+  }
+
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_PROJECT_EXPORT,
+      label = "i18n::HopGui.FileMenu.Project.Export.Label",
+      image = "export.svg",
+      parentId = HopGui.ID_MAIN_MENU_FILE,
+      separator = false)
+  public void menuProjectExport() {
+    HopGui hopGui = HopGui.getInstance();
+    Shell shell = hopGui.getShell();
+
+    String zipFilename =
+        BaseDialog.presentFileDialog(
+            true,
+            shell,
+            new String[] {"*.zip", "*.*"},
+            new String[] {"Zip files (*.zip)", "All Files (*.*)"},
+            true);
+    if (zipFilename == null) {
+      return;
+    }
+
+    Combo combo = getProjectsCombo();
+    if (combo == null) {
+      return;
+    }
+    String projectName = combo.getText();
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    String projectHome = projectConfig.getProjectHome();
+
+    try {
+      IRunnableWithProgress op =
+          monitor -> {
+            try {
+              monitor.setTaskName(
+                  BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Taskname.Text"));
+              FileOutputStream fos = new FileOutputStream(zipFilename);
+              ZipOutputStream zos = new ZipOutputStream(fos);
+              File projectDirectory = new File(projectHome);
+              zipFile(projectDirectory, projectDirectory.getName(), zos);
+              zos.close();
+              fos.close();
+            } catch (Exception e) {
+              throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
+            }
+          };
+
+      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+      pmd.run(false, op);
+
+      GuiResource.getInstance().toClipboard(zipFilename);
+
+      MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message1", zipFilename)
+              + Const.CR
+              + BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message2"));
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Error.Dialog.Message"),
+          e);
+    }
+  }
+
+  public void zipFile(File fileToZip, String filename, ZipOutputStream zipOutputStream)
+      throws IOException {
+    if (fileToZip.isHidden()) {
+      return;
+    }
+    if (fileToZip.isDirectory()) {
+      if (filename.endsWith("/")) {
+        zipOutputStream.putNextEntry(new ZipEntry(filename));
+        zipOutputStream.closeEntry();
+      } else {
+        zipOutputStream.putNextEntry(new ZipEntry(filename + "/"));
+        zipOutputStream.closeEntry();
+      }
+      File[] children = fileToZip.listFiles();
+      for (File childFile : children) {
+        zipFile(childFile, filename + "/" + childFile.getName(), zipOutputStream);
+      }
+      return;
+    }
+    FileInputStream fis = new FileInputStream(fileToZip);
+    ZipEntry zipEntry = new ZipEntry(filename);
+    zipOutputStream.putNextEntry(zipEntry);
+    byte[] bytes = new byte[1024];
+    int length;
+    while ((length = fis.read(bytes)) >= 0) {
+      zipOutputStream.write(bytes, 0, length);
+    }
+    fis.close();
   }
 }

@@ -17,15 +17,6 @@
 #
 #
 
-
-####################################################################### 
-# "PROJECT_STARTUP_JOB"
-# path to Kettle job from within volume
-#
-# "KETTLE_LOG_LEVEL"
-# values are [Basic / Debug] 
-#######################################################################
-
 set -Eeuo pipefail
 
 BASENAME="${0##*/}"
@@ -45,42 +36,61 @@ write_server_config() {
     HOP_SERVER_PASS=${HOP_SERVER_PASS:-cluster}
     HOP_SERVER_MASTER=${HOP_SERVER_MASTER:-Y}
 
-    log "Writing a hop-server config file to /tmp/hopserver.xml"
+    HOP_SERVER_XML=/tmp/hop-server.xml
 
-    echo "<slave_config><slaveserver><name>master</name><hostname>0.0.0.0</hostname><port>8080</port><master>${HOP_SERVER_MASTER}</master><username>${HOP_SERVER_USER}</username><password>${HOP_SERVER_PASS}</password></slaveserver></slave_config>" > /tmp/hopserver.xml
+    log "Writing a hop-server config file to "${HOP_SERVER_XML}
+
+    echo "<hop-server-config>" > ${HOP_SERVER_XML}
+    echo "  <hop-server>" >> ${HOP_SERVER_XML}
+    echo "    <name>Hop Server</name>" >> ${HOP_SERVER_XML}
+    echo "    <hostname>0.0.0.0</hostname>" >> ${HOP_SERVER_XML}
+    echo "    <port>${HOP_SERVER_PORT}</port>" >> ${HOP_SERVER_XML}
+    echo "    <username>${HOP_SERVER_USER}</username>" >> ${HOP_SERVER_XML}
+    echo "    <password>${HOP_SERVER_PASS}</password>" >> ${HOP_SERVER_XML}
+    echo "  </hop-server>" >> ${HOP_SERVER_XML}
+    echo "</hop-server-config>" >> ${HOP_SERVER_XML}
+
 }
 
 # retrieve files from volume
 # ... done via Dockerfile via specifying a volume ... 
 
-
-log "Registering project config with Hop"
-log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_DIRECTORY}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
-
-${DEPLOYMENT_PATH}/hop/hop-conf.sh \
---project=${HOP_PROJECT_NAME} \
---project-create \
---project-home="${HOP_PROJECT_DIRECTORY}" \
---project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
-
-log "Registering environment config with Hop"
-log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
-
-${DEPLOYMENT_PATH}/hop/hop-conf.sh \
---environment=${HOP_ENVIRONMENT_NAME} \
---environment-create \
---environment-project=${HOP_PROJECT_NAME} \
---environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+# allow customisation
+# e.g. to fetch hop project files from S3 or github
+if test -f "${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"; then
+  echo "Sourcing custom entry point extension: ${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"
+  source ${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}
+fi
 
 if [ -z "${HOP_FILE_PATH}" ]
 then
+
     write_server_config
-    log "Starting a hop-server on port 8080"
-    ${DEPLOYMENT_PATH}/hop/hop-server.sh /tmp/hopserver.xml
+    log "Starting a hop-server on port "${HOP_SERVER_PORT}
+    ${DEPLOYMENT_PATH}/hop/hop-server.sh /tmp/hop-server.xml
+
 else
-    
-    log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
-    ${DEPLOYMENT_PATH}/hop/hop-run.sh \
+
+  log "Registering project config with Hop"
+  log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_DIRECTORY}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
+
+  ${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+  --project=${HOP_PROJECT_NAME} \
+  --project-create \
+  --project-home="${HOP_PROJECT_DIRECTORY}" \
+  --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+
+  log "Registering environment config with Hop"
+  log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
+
+  ${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+  --environment=${HOP_ENVIRONMENT_NAME} \
+  --environment-create \
+  --environment-project=${HOP_PROJECT_NAME} \
+  --environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+
+  log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
+  ${DEPLOYMENT_PATH}/hop/hop-run.sh \
     --file=${HOP_FILE_PATH} \
     --project=${HOP_PROJECT_NAME} \
     --environment=${HOP_ENVIRONMENT_NAME} \

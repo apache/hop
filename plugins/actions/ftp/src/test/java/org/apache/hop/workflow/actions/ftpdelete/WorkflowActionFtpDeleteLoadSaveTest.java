@@ -17,11 +17,9 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
-import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -29,7 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionFtpDeleteLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFtpDelete> {
+public class WorkflowActionFtpDeleteLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFtpDelete> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -39,19 +38,39 @@ public class WorkflowActionFtpDeleteLoadSaveTest extends WorkflowActionLoadSaveT
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "protocol", "serverName", "port", "userName", "password",
-      "ftpDirectory", "wildcard", "timeout", "activeConnection", "useProxy", "proxyHost", "proxyPort",
-      "proxyUsername", "proxyPassword", "usePublicKey", "keyFilename", "keyFilePass", "limitSuccess",
-      "successCondition", "copyPrevious", "FtpsConnectionType", "socksProxyHost", "socksProxyPort",
-      "socksProxyUsername", "socksProxyPassword" } );
+    return Arrays.asList(
+        new String[] {
+          "protocol",
+          "serverName",
+          "serverPort",
+          "userName",
+          "password",
+          "remoteDirectory",
+          "wildcard",
+          "timeout",
+          "activeConnection",
+          "useProxy",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword",
+          "usePublicKey",
+          "keyFilename",
+          "keyFilePass",
+          "limitSuccess",
+          "successCondition",
+          "copyPrevious",
+          "socksProxyHost",
+          "socksProxyPort",
+          "socksProxyUsername",
+          "socksProxyPassword"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "FtpsConnectionType", new IntLoadSaveValidator( FtpsConnection.connectionTypeCode.length ) );
-
+    Map<String, IFieldLoadSaveValidator<?>> validators =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
     return validators;
   }
-
 }

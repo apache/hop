@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,9 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * Base class for test metadata injection.
- */
+/** Base class for test metadata injection. */
 @Ignore
 public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?>> {
   protected BeanInjectionInfo<Meta> info;
@@ -54,173 +52,171 @@ public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?
   protected Set<String> nonTestedProperties;
   protected IHopMetadataProvider metadataProvider;
 
-  protected void setup( Meta meta ) throws Exception {
+  protected void setup(Meta meta) throws Exception {
     HopClientEnvironment.init();
 
     this.meta = meta;
     this.metadataProvider = new MemoryMetadataProvider();
-    info = new BeanInjectionInfo( meta.getClass() );
-    injector = new BeanInjector( info );
-    nonTestedProperties = new HashSet<>( info.getProperties().keySet() );
+    info = new BeanInjectionInfo(meta.getClass());
+    injector = new BeanInjector(info, metadataProvider);
+    nonTestedProperties = new HashSet<>(info.getProperties().keySet());
+    for (BeanInjectionInfo.Group group : info.getGroups()) {
+      List<BeanInjectionInfo.Property> properties = group.getProperties();
+      for (BeanInjectionInfo.Property property : properties) {
+        nonTestedProperties.add(property.getKey());
+      }
+    }
   }
 
   @After
   public void after() {
-    assertTrue( "Some properties where not tested: " + nonTestedProperties, nonTestedProperties.isEmpty() );
+    assertTrue(
+        "Some properties where not tested: " + nonTestedProperties, nonTestedProperties.isEmpty());
   }
 
-  protected List<RowMetaAndData> setValue( IValueMeta valueMeta, Object... values ) {
+  protected List<RowMetaAndData> setValue(IValueMeta valueMeta, Object... values) {
     RowMeta rowsMeta = new RowMeta();
-    rowsMeta.addValueMeta( valueMeta );
+    rowsMeta.addValueMeta(valueMeta);
     List<RowMetaAndData> rows = new ArrayList<>();
-    if ( values != null ) {
-      for ( Object v : values ) {
-        rows.add( new RowMetaAndData( rowsMeta, v ) );
+    if (values != null) {
+      for (Object v : values) {
+        rows.add(new RowMetaAndData(rowsMeta, v));
       }
     }
     return rows;
   }
 
-  protected void skipPropertyTest( String propertyName ) {
-    nonTestedProperties.remove( propertyName );
+  protected void skipPropertyTest(String propertyName) {
+    nonTestedProperties.remove(propertyName);
   }
 
-  /**
-   * Check boolean property.
-   */
-  protected void check( String propertyName, IBooleanGetter getter ) throws HopException {
-    IValueMeta valueMetaString = new ValueMetaString( "f" );
+  /** Check boolean property. */
+  protected void check(String propertyName, IBooleanGetter getter) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "Y" ), "f" );
-    assertEquals( true, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "Y"), "f");
+    assertEquals(true, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "N" ), "f" );
-    assertEquals( false, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "N"), "f");
+    assertEquals(false, getter.get());
 
-    IValueMeta valueMetaBoolean = new ValueMetaBoolean( "f" );
+    IValueMeta valueMetaBoolean = new ValueMetaBoolean("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaBoolean, true ), "f" );
-    assertEquals( true, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaBoolean, true), "f");
+    assertEquals(true, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaBoolean, false ), "f" );
-    assertEquals( false, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaBoolean, false), "f");
+    assertEquals(false, getter.get());
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  /**
-   * Check string property.
-   */
-  protected void check( String propertyName, IStringGetter getter, String... values ) throws HopException {
-    IValueMeta valueMeta = new ValueMetaString( "f" );
+  /** Check string property. */
+  protected void check(String propertyName, IStringGetter getter, String... values)
+      throws HopException {
+    IValueMeta valueMeta = new ValueMetaString("f");
 
-    if ( values.length == 0 ) {
-      values = new String[] { "v", "v2", null };
+    if (values.length == 0) {
+      values = new String[] {"v", "v2", null};
     }
 
     String correctValue = null;
-    for ( String v : values ) {
-      injector.setProperty( meta, propertyName, setValue( valueMeta, v ), "f" );
-      if ( v != null ) {
+    for (String v : values) {
+      injector.setProperty(meta, propertyName, setValue(valueMeta, v), "f");
+      if (v != null) {
         // only not-null values injected
         correctValue = v;
       }
-      assertEquals( correctValue, getter.get() );
+      assertEquals(correctValue, getter.get());
     }
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  /**
-   * Check enum property.
-   */
-  protected void check( String propertyName, IEnumGetter getter, Class<?> enumType ) throws HopException {
-    IValueMeta valueMeta = new ValueMetaString( "f" );
+  /** Check enum property. */
+  protected void check(String propertyName, IEnumGetter getter, Class<?> enumType)
+      throws HopException {
+    IValueMeta valueMeta = new ValueMetaString("f");
 
     Object[] values = enumType.getEnumConstants();
 
-    for ( Object v : values ) {
-      injector.setProperty( meta, propertyName, setValue( valueMeta, v ), "f" );
-      assertEquals( v, getter.get() );
+    for (Object v : values) {
+      injector.setProperty(meta, propertyName, setValue(valueMeta, v), "f");
+      assertEquals(v, getter.get());
     }
 
     try {
-      injector.setProperty( meta, propertyName, setValue( valueMeta, "###" ), "f" );
-      fail( "Should be passed to enum" );
-    } catch ( HopException ex ) {
+      injector.setProperty(meta, propertyName, setValue(valueMeta, "###"), "f");
+      fail("Should be passed to enum");
+    } catch (HopException ex) {
     }
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  /**
-   * Check int property.
-   */
-  protected void check( String propertyName, IIntGetter getter ) throws HopException {
-    IValueMeta valueMetaString = new ValueMetaString( "f" );
+  /** Check int property. */
+  protected void check(String propertyName, IIntGetter getter) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "1" ), "f" );
-    assertEquals( 1, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "1"), "f");
+    assertEquals(1, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "45" ), "f" );
-    assertEquals( 45, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "45"), "f");
+    assertEquals(45, getter.get());
 
-    IValueMeta valueMetaInteger = new ValueMetaInteger( "f" );
+    IValueMeta valueMetaInteger = new ValueMetaInteger("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaInteger, 1234L ), "f" );
-    assertEquals( 1234, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaInteger, 1234L), "f");
+    assertEquals(1234, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaInteger, (long) Integer.MAX_VALUE ), "f" );
-    assertEquals( Integer.MAX_VALUE, getter.get() );
+    injector.setProperty(
+        meta, propertyName, setValue(valueMetaInteger, (long) Integer.MAX_VALUE), "f");
+    assertEquals(Integer.MAX_VALUE, getter.get());
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  /**
-   * Check string-to-int property.
-   */
-  protected void checkStringToInt( String propertyName, IIntGetter getter, String[] codes, int[] ids )
-    throws HopException {
-    if ( codes.length != ids.length ) {
-      throw new RuntimeException( "Wrong codes/ids sizes" );
+  /** Check string-to-int property. */
+  protected void checkStringToInt(String propertyName, IIntGetter getter, String[] codes, int[] ids)
+      throws HopException {
+    if (codes.length != ids.length) {
+      throw new RuntimeException("Wrong codes/ids sizes");
     }
-    IValueMeta valueMetaString = new ValueMetaString( "f" );
+    IValueMeta valueMetaString = new ValueMetaString("f");
 
-    for ( int i = 0; i < codes.length; i++ ) {
-      injector.setProperty( meta, propertyName, setValue( valueMetaString, codes[ i ] ), "f" );
-      assertEquals( ids[ i ], getter.get() );
+    for (int i = 0; i < codes.length; i++) {
+      injector.setProperty(meta, propertyName, setValue(valueMetaString, codes[i]), "f");
+      assertEquals(ids[i], getter.get());
     }
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  /**
-   * Check long property.
-   */
-  protected void check( String propertyName, ILongGetter getter ) throws HopException {
-    IValueMeta valueMetaString = new ValueMetaString( "f" );
+  /** Check long property. */
+  protected void check(String propertyName, ILongGetter getter) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "1" ), "f" );
-    assertEquals( 1, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "1"), "f");
+    assertEquals(1, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaString, "45" ), "f" );
-    assertEquals( 45, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaString, "45"), "f");
+    assertEquals(45, getter.get());
 
-    IValueMeta valueMetaInteger = new ValueMetaInteger( "f" );
+    IValueMeta valueMetaInteger = new ValueMetaInteger("f");
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaInteger, 1234L ), "f" );
-    assertEquals( 1234, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaInteger, 1234L), "f");
+    assertEquals(1234, getter.get());
 
-    injector.setProperty( meta, propertyName, setValue( valueMetaInteger, Long.MAX_VALUE ), "f" );
-    assertEquals( Long.MAX_VALUE, getter.get() );
+    injector.setProperty(meta, propertyName, setValue(valueMetaInteger, Long.MAX_VALUE), "f");
+    assertEquals(Long.MAX_VALUE, getter.get());
 
-    skipPropertyTest( propertyName );
+    skipPropertyTest(propertyName);
   }
 
-  public static int[] getTypeCodes( String[] typeNames ) {
-    int[] typeCodes = new int[ typeNames.length ];
-    for ( int i = 0; i < typeNames.length; i++ ) {
-      typeCodes[ i ] = ValueMetaBase.getType( typeNames[ i ] );
+  public static int[] getTypeCodes(String[] typeNames) {
+    int[] typeCodes = new int[typeNames.length];
+    for (int i = 0; i < typeNames.length; i++) {
+      typeCodes[i] = ValueMetaBase.getType(typeNames[i]);
     }
     return typeCodes;
   }

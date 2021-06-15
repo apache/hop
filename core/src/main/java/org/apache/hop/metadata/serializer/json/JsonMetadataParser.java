@@ -20,6 +20,7 @@ package org.apache.hop.metadata.serializer.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -277,7 +278,8 @@ public class JsonMetadataParser<T extends IHopMetadata> {
         } else if ( String.class.equals( fieldType ) ) {
           String fieldStringValue = (String) fieldValue;
           if ( metadataProperty.password() ) {
-            fieldStringValue = metadataProvider.getTwoWayPasswordEncoder().encode( fieldStringValue );
+            ITwoWayPasswordEncoder passwordEncoder = metadataProvider.getTwoWayPasswordEncoder();
+            fieldStringValue = passwordEncoder.encode( fieldStringValue, true );
           }
           jObject.put( key, fieldStringValue );
         } else if ( int.class.equals( fieldType ) || Integer.class.equals( fieldType ) ) {

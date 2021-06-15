@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
     image = "DeleteResultFilenames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/actions/deleteresultfilenames.html")
+        "https://hop.apache.org/manual/latest/workflow/actions/deleteresultfilenames.html")
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class; // For Translator
 
@@ -220,7 +220,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     return getIt;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

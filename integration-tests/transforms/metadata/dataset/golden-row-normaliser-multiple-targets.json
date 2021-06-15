@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-row-normaliser-multiple-targets.csv",
+  "name": "golden-row-normaliser-multiple-targets",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "countryCode"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "language"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "name"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "capital"
+    }
+  ],
+  "folder_name": ""
+}

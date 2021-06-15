@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         next =
             data.getDb()
                 .getNextSequenceValue(
-                    data.realSchemaName, data.realSequenceName, meta.getValuename());
+                    data.realSchemaName, data.realSequenceName, meta.getValueName());
       } catch (HopDatabaseException dbe) {
         throw new HopTransformException(
             BaseMessages.getString(
@@ -88,7 +88,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
     } else {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "AddSequence.Exception.CouldNotFindNextValueForSequence")
-              + meta.getValuename());
+              + meta.getValueName());
     }
   }
 
@@ -148,7 +148,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
       data.realSchemaName = resolve(meta.getSchemaName());
       data.realSequenceName = resolve(meta.getSequenceName());
       if (meta.isDatabaseUsed()) {
-        Database db = new Database(this, this, meta.getDatabaseMeta() );
+        Database db = new Database(this, this, meta.getDatabaseMeta());
         data.setDb(db);
         try {
           data.getDb().connect(getPartitionId());
@@ -214,10 +214,11 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         if (!Utils.isEmpty(realCounterName)) {
           data.setLookup("@@sequence:" + realCounterName);
         } else {
-          data.setLookup("@@sequence:" + meta.getValuename());
+          data.setLookup("@@sequence:" + meta.getValueName());
         }
 
-        // We need to synchronize over the whole pipeline to make sure that we always get the same counter
+        // We need to synchronize over the whole pipeline to make sure that we always get the same
+        // counter
         // regardless of the number of transform copies asking for it.
         //
         synchronized (getPipeline()) {

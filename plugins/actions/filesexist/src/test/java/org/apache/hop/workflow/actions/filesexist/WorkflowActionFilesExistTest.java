@@ -67,7 +67,6 @@ public class WorkflowActionFilesExistTest {
 
   @Test
   public void testSetNrErrorsNewBehaviorFalseResult() throws Exception {
-    // this tests fix for PDI-10270
     action.setArguments( new String[] { "nonExistingFile.ext" } );
 
     Result res = action.execute( new Result(), 0 );
@@ -78,7 +77,7 @@ public class WorkflowActionFilesExistTest {
 
   @Test
   public void testSetNrErrorsOldBehaviorFalseResult() throws Exception {
-    // this tests backward compatibility settings for PDI-10270
+    // this tests backward compatibility settings
     action.setArguments( new String[] { "nonExistingFile1.ext", "nonExistingFile2.ext" } );
 
     action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );

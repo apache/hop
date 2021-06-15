@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,15 +70,12 @@ public class EnterSelectionDialog extends Dialog {
   private Button wbUseConstant;
 
   private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
 
   public Shell getShell() {
     return shell;
   }
-
-  private SelectionAdapter lsDef;
 
   private String[] choices;
   private String selection;
@@ -104,6 +102,8 @@ public class EnterSelectionDialog extends Dialog {
   private String filterString = null;
   private Pattern pattern = null;
   private Text searchText = null;
+  private boolean addNoneOption;
+  private boolean noneClicked;
 
   /**
    * Create a new dialog allow someone to pick one value out of a list of values
@@ -177,7 +177,6 @@ public class EnterSelectionDialog extends Dialog {
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(
@@ -253,7 +252,6 @@ public class EnterSelectionDialog extends Dialog {
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
       fdlSelection.top = new FormAttachment(treeTb, 10);
-      wlSelection.setLayoutData(fdlSelection);
     } else {
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
@@ -261,8 +259,8 @@ public class EnterSelectionDialog extends Dialog {
       props.setLook(wlSelection);
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
-      wlSelection.setLayoutData(fdlSelection);
     }
+    wlSelection.setLayoutData(fdlSelection);
 
     int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL;
     if (multi) {
@@ -285,6 +283,8 @@ public class EnterSelectionDialog extends Dialog {
       props.setLook(wSelection);
     }
 
+    ArrayList<Button> buttons = new ArrayList<>();
+
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
     if (viewOnly) {
@@ -292,21 +292,29 @@ public class EnterSelectionDialog extends Dialog {
     } else {
       wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     }
-    lsOk = e -> ok();
-    wOk.addListener(SWT.Selection, lsOk);
+    wOk.addListener(SWT.Selection, e -> ok());
+    buttons.add(wOk);
 
-    Button[] buttons = new Button[] {wOk};
+    if (addNoneOption) {
+      Button wNone = new Button(shell, SWT.PUSH);
+      wNone.setText(BaseMessages.getString(PKG, "EnterSelectionDialog.Button.None.Label"));
+      wNone.addListener(
+          SWT.Selection,
+          e -> {
+            noneClicked = true;
+            cancel();
+          });
+      buttons.add(wNone);
+    }
 
     if (!viewOnly) {
       wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-      lsCancel = e -> cancel();
-      wCancel.addListener(SWT.Selection, lsCancel);
-
-      buttons = new Button[] {wOk, wCancel};
+      wCancel.addListener(SWT.Selection, e -> cancel());
+      buttons.add(wCancel);
     }
 
-    BaseTransformDialog.positionBottomRightButtons(shell, buttons, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
 
     Control nextControl = wOk;
 
@@ -351,14 +359,6 @@ public class EnterSelectionDialog extends Dialog {
     wSelection.setLayoutData(fdSelection);
 
     // Add listeners
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wSelection.addSelectionListener(lsDef);
     wSelection.addKeyListener(
         new KeyAdapter() {
           public void keyPressed(KeyEvent e) {
@@ -367,31 +367,13 @@ public class EnterSelectionDialog extends Dialog {
             }
           }
         });
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     getData();
 
-    if (shellWidth == 0 || shellHeight == 0) {
-      BaseTransformDialog.setSize(shell);
-    } else {
-      shell.setSize(shellWidth, shellHeight);
-    }
+    wSelection.setFocus();
 
-    wOk.setFocus();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return selection;
   }
 
@@ -402,7 +384,6 @@ public class EnterSelectionDialog extends Dialog {
 
   public String openRepoDialog() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell =
         new Shell(
@@ -436,8 +417,6 @@ public class EnterSelectionDialog extends Dialog {
       wSelection.add(choices[i]);
     }
 
-    int width = (Const.isOSX() ? 75 : 70);
-
     Label separator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
     FormData fdSeparator = new FormData();
     fdSeparator.top = new FormAttachment(wSelection, 35);
@@ -466,30 +445,6 @@ public class EnterSelectionDialog extends Dialog {
           }
         });
 
-    wCancel = new Button(shell, SWT.PUSH);
-    FormData fd_wCancel = new FormData();
-    fd_wCancel.top = new FormAttachment(separator, 12);
-    fd_wCancel.right = new FormAttachment(100, -10);
-    fd_wCancel.bottom = new FormAttachment(100, -10);
-    fd_wCancel.width = width;
-    wCancel.setLayoutData(fd_wCancel);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel").trim());
-
-    lsCancel = e -> cancel();
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd_wOk = new FormData();
-    fd_wOk.top = new FormAttachment(separator, 12);
-    fd_wOk.right = new FormAttachment(wCancel, -5);
-    fd_wOk.bottom = new FormAttachment(100, -10);
-    fd_wOk.width = width;
-    wOk.setLayoutData(fd_wOk);
-
-    lsOk = e -> ok();
-    wOk.addListener(SWT.Selection, lsOk);
-
     fdSelection = new FormData();
     fdSelection.left = new FormAttachment(0, 10);
     fdSelection.right = new FormAttachment(100, -10);
@@ -497,13 +452,6 @@ public class EnterSelectionDialog extends Dialog {
     fdSelection.bottom = new FormAttachment(separator, -12);
     wSelection.setLayoutData(fdSelection);
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wSelection.addSelectionListener(lsDef);
     wSelection.addKeyListener(
         new KeyAdapter() {
           public void keyPressed(KeyEvent e) {
@@ -513,27 +461,12 @@ public class EnterSelectionDialog extends Dialog {
           }
         });
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
     wOk.setFocus();
-    shell.pack();
-    shell.open();
 
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return selection;
   }
 
@@ -545,7 +478,7 @@ public class EnterSelectionDialog extends Dialog {
   public void getData() {}
 
   private void cancel() {
-    selection = currentValue;
+    selection = null;
     dispose();
   }
 
@@ -687,5 +620,33 @@ public class EnterSelectionDialog extends Dialog {
     /*
      * selectedNrs = new int[] {}; if (selectedNrs!=null){ wSelection.select(selectedNrs); wSelection.showSelection(); }
      */
+  }
+
+  /**
+   * Gets addNoneOption
+   *
+   * @return value of addNoneOption
+   */
+  public boolean isAddNoneOption() {
+    return addNoneOption;
+  }
+
+  /** @param addNoneOption The addNoneOption to set */
+  public void setAddNoneOption(boolean addNoneOption) {
+    this.addNoneOption = addNoneOption;
+  }
+
+  /**
+   * Gets noneClicked
+   *
+   * @return value of noneClicked
+   */
+  public boolean isNoneClicked() {
+    return noneClicked;
+  }
+
+  /** @param noneClicked The noneClicked to set */
+  public void setNoneClicked(boolean noneClicked) {
+    this.noneClicked = noneClicked;
   }
 }

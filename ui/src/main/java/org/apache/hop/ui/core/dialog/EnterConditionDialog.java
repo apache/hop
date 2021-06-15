@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -74,6 +73,8 @@ public class EnterConditionDialog extends Dialog {
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
+    int margin = props.getMargin() * 2;
+
     shell.setLayout(formLayout);
 
     // Condition widget
@@ -87,41 +88,21 @@ public class EnterConditionDialog extends Dialog {
     // Buttons
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
+    wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     FormData fdCond = new FormData();
-
-    int margin = props.getMargin() * 2;
-
     fdCond.left = new FormAttachment(0, 0); // To the right of the label
     fdCond.top = new FormAttachment(0, 0);
     fdCond.right = new FormAttachment(100, 0);
-    fdCond.bottom = new FormAttachment(100, -50);
+    fdCond.bottom = new FormAttachment(wOk, -2 * margin);
     wCond.setLayoutData(fdCond);
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());
 
-    // Add listeners
-    wCancel.addListener(
-        SWT.Selection,
-        e -> {
-          condition = null;
-          dispose();
-        });
-
-    wOk.addListener(SWT.Selection, e -> handleOK());
-
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    Display display = parent.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return condition;
   }
 
@@ -134,11 +115,16 @@ public class EnterConditionDialog extends Dialog {
     shell.dispose();
   }
 
-  public void handleOK() {
+  public void ok() {
     if (wCond.getLevel() > 0) {
       wCond.goUp();
     } else {
       dispose();
     }
+  }
+
+  public void cancel() {
+    condition = null;
+    dispose();
   }
 }

@@ -6,24 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,6 +27,7 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
@@ -61,6 +45,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetField;
@@ -81,6 +66,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.testing.EditRowsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
@@ -97,6 +83,15 @@ import java.util.Map;
 public class TestingGuiPlugin {
   protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
+  public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
+      "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TESTS_CREATE =
+      "HopGuiPipelineGraph-ToolBar-20020-unit-tests-create";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TEST_DETACH =
+      "HopGuiPipelineGraph-ToolBar-20030-unit-test-detach";
+  public static final String ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE =
+      "HopGuiPipelineGraph-ToolBar-20050-unit-tests-delete";
+
   public static final String ID_TOOLBAR_UNIT_TESTS_LABEL =
       "HopGuiPipelineGraph-ToolBar-20000-unit-tests-label";
   public static final String ID_TOOLBAR_UNIT_TESTS_COMBO =
@@ -104,11 +99,7 @@ public class TestingGuiPlugin {
 
   private static TestingGuiPlugin instance = null;
 
-  private Map<PipelineMeta, PipelineUnitTest> activeTests;
-
-  public TestingGuiPlugin() {
-    activeTests = new HashMap<>();
-  }
+  public TestingGuiPlugin() {}
 
   public static TestingGuiPlugin getInstance() {
     if (instance == null) {
@@ -145,11 +136,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20200-define-input-data-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Set input data set",
-      tooltip =
-          "For the active unit test it defines which data to use instead of the output of the transform",
+      name = "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Tooltip",
       image = "set-input-dataset.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void setInputDataSet(HopGuiPipelineTransformContext context) {
     HopGui hopGui = HopGui.getInstance();
@@ -161,7 +151,7 @@ public class TestingGuiPlugin {
     if (checkTestPresent(hopGui, pipelineMeta)) {
       return;
     }
-    PipelineUnitTest unitTest = activeTests.get(pipelineMeta);
+    PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
 
     try {
 
@@ -172,8 +162,9 @@ public class TestingGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
-              "Select the set",
-              "Select the data set to edit...");
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Header"),
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Message"));
       String setName = esd.open();
       if (setName != null) {
         DataSet dataSet = setSerializer.load(setName);
@@ -186,7 +177,12 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error retrieving the list of data set groups", e);
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Message"),
+          e);
     }
   }
 
@@ -290,10 +286,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20210-clear-input-data-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Clear input data set",
-      tooltip = "Remove a defined input data set from this transform unit test",
+      name = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Message",
       image = "clear-input-dataset.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void clearInputDataSet(HopGuiPipelineTransformContext context) {
     HopGui hopGui = ((HopGui) HopGui.getInstance());
@@ -318,13 +314,19 @@ public class TestingGuiPlugin {
 
       context.getPipelineGraph().updateGui();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error saving unit test", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Message"),
+          e);
     }
   }
 
   private boolean checkTestPresent(HopGui hopGui, PipelineMeta pipelineMeta) {
 
-    PipelineUnitTest activeTest = activeTests.get(pipelineMeta);
+    PipelineUnitTest activeTest = getCurrentUnitTest(pipelineMeta);
     if (activeTest != null) {
       return false;
     }
@@ -333,8 +335,10 @@ public class TestingGuiPlugin {
     // Show a warning
     //
     MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-    box.setMessage("Please create a test-case first by left clicking on the test icon.");
-    box.setText("First create a test-case");
+    box.setMessage(
+        BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Message"));
+    box.setText(
+        BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Header"));
     box.open();
 
     return true;
@@ -345,11 +349,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20220-define-golden-data-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Set golden data set",
-      tooltip =
-          "The input to this transform is taken and compared to the golden data set you are selecting.\nThe transform itself is not executed during testing.",
+      name = "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Tooltip",
       image = "set-golden-dataset.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void setGoldenDataSet(HopGuiPipelineTransformContext context) {
     PipelineMeta sourcePipelineMeta = context.getPipelineMeta();
@@ -362,7 +365,7 @@ public class TestingGuiPlugin {
     if (checkTestPresent(hopGui, sourcePipelineMeta)) {
       return;
     }
-    PipelineUnitTest unitTest = activeTests.get(sourcePipelineMeta);
+    PipelineUnitTest unitTest = getCurrentUnitTest(sourcePipelineMeta);
 
     try {
       // Create a copy and modify the pipeline
@@ -379,8 +382,9 @@ public class TestingGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
-              "Select the golden data set",
-              "Select the golden data set...");
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Header"),
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Message"));
       String setName = esd.open();
       if (setName != null) {
         DataSet dataSet = setSerializer.load(setName);
@@ -393,7 +397,12 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error retrieving the list of data set groups", e);
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Message"),
+          e);
     }
   }
 
@@ -494,10 +503,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20240-clear-golden-data-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Clear golden data set",
-      tooltip = "Remove a defined input data set from this transform unit test",
+      name = "i18n::TestingGuiPlugin.ContextAction.ClearGoldenDataset.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.ClearGoldenDataset.Tooltip",
       image = "clear-golden-dataset.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void clearGoldenDataSet(HopGuiPipelineTransformContext context) {
     HopGui hopGui = HopGui.getInstance();
@@ -520,7 +529,13 @@ public class TestingGuiPlugin {
 
       saveUnitTest(variables, hopGui.getMetadataProvider(), currentUnitTest, pipelineMeta);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error saving unit test", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Message"),
+          e);
     }
     pipelineMeta.setChanged();
     context.getPipelineGraph().updateGui();
@@ -531,10 +546,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20400-clear-golden-data-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Create data set",
-      tooltip = "Create an empty dataset with the output fields of this transform ",
-      image = "dataset.svg",
-      category = "Unit testing",
+      name = "i18n::TestingGuiPlugin.ContextAction.CreateDataset.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.CreateDataset.Tooltip",
+      image = "create-dataset.svg",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void createDataSetFromTransform(HopGuiPipelineTransformContext context) {
     HopGui hopGui = HopGui.getInstance();
@@ -576,19 +591,24 @@ public class TestingGuiPlugin {
         //
         MessageBox box =
             new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
-        box.setText("Use this data set?");
+        box.setText(
+            BaseMessages.getString(
+                PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Header"));
         box.setMessage(
-            "Do you want to use the new data set called '"
-                + dataSet.getName()
-                + "' on transform '"
-                + transformMeta.getName()
-                + "'?"
+            BaseMessages.getString(
+                    PKG,
+                    "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Message",
+                    dataSet.getName(),
+                    transformMeta.getName())
                 + Const.CR
-                + "Yes: as an input data set"
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer1")
                 + Const.CR
-                + "No: as a golden data set"
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer2")
                 + Const.CR
-                + "Cancel: not using it at this time"
+                + BaseMessages.getString(
+                    PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Answer3")
                 + Const.CR);
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
@@ -603,7 +623,11 @@ public class TestingGuiPlugin {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error creating a new data set", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Message"),
+          e);
     }
   }
 
@@ -616,10 +640,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20500-write-transform-data-to-set",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Create,
-      name = "Write rows to data set",
-      tooltip = "Run the current pipeline and write the data to a data set",
-      image = "dataset.svg",
-      category = "Unit testing",
+      name = "i18n::TestingGuiPlugin.ContextAction.Run.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.Run.Tooltip",
+      image = "write-to-dataset.svg",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void writeTransformDataToDataSet(HopGuiPipelineTransformContext context) {
     HopGui hopGui = HopGui.getInstance();
@@ -631,8 +655,12 @@ public class TestingGuiPlugin {
 
     if (pipelineMeta.hasChanged()) {
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-      box.setText("Save pipeline");
-      box.setMessage("Please save your pipeline first.");
+      box.setText(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Message"));
       box.open();
       return;
     }
@@ -648,8 +676,8 @@ public class TestingGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               setNames.toArray(new String[setNames.size()]),
-              "Select the set",
-              "Select the data set to write rows to...");
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item1"),
+              BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item2"));
       String setName = esd.open();
       if (setName == null) {
         return;
@@ -696,7 +724,11 @@ public class TestingGuiPlugin {
       context.getPipelineGraph().start();
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error creating a new data set", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Message"),
+          e);
     }
   }
 
@@ -713,8 +745,8 @@ public class TestingGuiPlugin {
   /** Clear the current unit test from the active pipeline... */
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20030-unit-test-detach",
-      toolTip = "Detach the unit test from this pipeline",
+      id = ID_TOOLBAR_ITEM_UNIT_TEST_DETACH,
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Detach.Tooltip",
       image = "Test_tube_icon_detach.svg")
   public void detachUnitTest() {
     HopGui hopGui = HopGui.getInstance();
@@ -731,8 +763,10 @@ public class TestingGuiPlugin {
 
       // Remove
       //
-      activeTests.remove(pipelineMeta);
-      pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
+      Map<String, Object> stateMap = getStateMap(pipelineMeta);
+      if (stateMap != null) {
+        stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+      }
 
       // Clear the combo box
       //
@@ -745,14 +779,18 @@ public class TestingGuiPlugin {
       //
       pipelineGraph.updateGui();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error detaching unit test", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Message"),
+          e);
     }
   }
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit",
-      toolTip = "Edit the selected unit test",
+      id = ID_TOOLBAR_ITEM_UNIT_TEST_EDIT,
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Edit.Tooltip",
       image = "Test_tube_icon_edit.svg",
       separator = true)
   public void editUnitTest() {
@@ -775,8 +813,8 @@ public class TestingGuiPlugin {
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20020-unit-tests-create",
-      toolTip = "Create a new unit test for this pipeline",
+      id = ID_TOOLBAR_ITEM_UNIT_TESTS_CREATE,
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Create.Tooltip",
       image = "Test_tube_icon_create.svg",
       separator = true)
   public void createUnitTest() {
@@ -789,7 +827,7 @@ public class TestingGuiPlugin {
     MetadataManager<PipelineUnitTest> manager =
         new MetadataManager<>(
             hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
-    PipelineUnitTest test = manager.newMetadataWithEditor();
+    PipelineUnitTest test = manager.newMetadata();
     if (test != null) {
       // Activate the test
       refreshUnitTestsList();
@@ -799,8 +837,8 @@ public class TestingGuiPlugin {
 
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = "HopGuiPipelineGraph-ToolBar-20050-unit-tests-delete",
-      toolTip = "Delete the active unit test",
+      id = ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE,
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Delete.Tooltip",
       image = "Test_tube_icon_delete.svg",
       separator = true)
   public void deleteUnitTest() {
@@ -828,8 +866,14 @@ public class TestingGuiPlugin {
       }
 
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-      box.setMessage("Are you sure you want to delete test '" + pipelineUnitTest.getName() + "'?");
-      box.setText("Confirm unit test removal");
+      box.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Message",
+              pipelineUnitTest.getName()));
+      box.setText(
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.Delete.Confirmation.Header"));
       int answer = box.open();
       if ((answer & SWT.YES) == 0) {
         return;
@@ -845,7 +889,11 @@ public class TestingGuiPlugin {
 
       refreshUnitTestsList();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error deleting test", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Message"),
+          e);
     }
   }
 
@@ -883,8 +931,8 @@ public class TestingGuiPlugin {
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = ID_TOOLBAR_UNIT_TESTS_LABEL,
       type = GuiToolbarElementType.LABEL,
-      label = "Unit test:",
-      toolTip = "Click here to edit the active unit test",
+      label = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Label",
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Tooltip",
       separator = true)
   public void editPipelineUnitTest() {
     HopGui hopGui = HopGui.getInstance();
@@ -903,7 +951,11 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error editing active unit test '" + unitTestName, e);
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Message", unitTestName),
+          e);
     }
   }
 
@@ -936,26 +988,33 @@ public class TestingGuiPlugin {
    *
    * @param log
    * @param metadataProvider
+   * @param instanceId instance ID of the GuiToolbarWidgets instance
    * @return
    * @throws Exception
    */
-  public List<String> getUnitTestsList(ILogChannel log, IHopMetadataProvider metadataProvider)
-      throws Exception {
+  public List<String> getUnitTestsList(
+      ILogChannel log, IHopMetadataProvider metadataProvider, String instanceId) throws Exception {
 
     // Grab the relevant variables
     //
-    IVariables variables;
-    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
-    if (pipelineGraph != null) {
-      variables = pipelineGraph.getVariables();
-    } else {
-      variables = HopGui.getInstance().getVariables(); // Fallback, throw error?
+    Object guiPluginObject =
+        GuiRegistry.getInstance()
+            .findGuiPluginObject(
+                HopGui.getInstance().getId(), HopGuiPipelineGraph.class.getName(), instanceId);
+    if (guiPluginObject == null) {
+      return Collections.emptyList();
     }
+    if (!(guiPluginObject instanceof HopGuiPipelineGraph)) {
+      return Collections.emptyList();
+    }
+
+    HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) guiPluginObject;
+    IVariables variables = pipelineGraph.getVariables();
 
     // Get the active pipeline, match it...
     //
     List<String> names;
-    PipelineMeta pipelineMeta = getActivePipelineMeta();
+    PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
         metadataProvider.getSerializer(PipelineUnitTest.class);
     if (pipelineMeta == null) {
@@ -979,7 +1038,7 @@ public class TestingGuiPlugin {
       type = GuiToolbarElementType.COMBO,
       comboValuesMethod = "getUnitTestsList",
       extraWidth = 200,
-      toolTip = "Select the active environment")
+      toolTip = "i18n::TestingGuiPlugin.ToolbarElement.GetUnitTestList.Tooltip")
   public void selectUnitTest() {
 
     HopGui hopGui = HopGui.getInstance();
@@ -1002,7 +1061,9 @@ public class TestingGuiPlugin {
       if (testName != null) {
         PipelineUnitTest unitTest = testSerializer.load(testName);
         if (unitTest == null) {
-          throw new HopException("Unit test '" + testName + "' could not be found (deleted)?");
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Exception", testName));
         }
 
         selectUnitTest(pipelineMeta, unitTest);
@@ -1012,27 +1073,54 @@ public class TestingGuiPlugin {
         hopGui.getActiveFileTypeHandler().updateGui();
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error selecting a new pipeline unit test", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Header"),
+          BaseMessages.getString(
+              PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Message"),
+          e);
     }
   }
 
   public static final void selectUnitTest(PipelineMeta pipelineMeta, PipelineUnitTest unitTest) {
-    getInstance().getActiveTests().put(pipelineMeta, unitTest);
+    Map<String, Object> stateMap = getStateMap(pipelineMeta);
+    if (stateMap == null) {
+      // Can't select since we don't find the tab
+    }
+    stateMap.put(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST, unitTest);
     selectUnitTestInList(unitTest.getName());
   }
 
+  public static final Map<String, Object> getStateMap(PipelineMeta pipelineMeta) {
+    for (TabItemHandler item : HopGui.getDataOrchestrationPerspective().getItems()) {
+      if (item.getTypeHandler().getSubject().equals(pipelineMeta)) {
+        HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) item.getTypeHandler();
+        return pipelineGraph.getStateMap();
+      }
+    }
+    return null;
+  }
+
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
-    return getInstance().getActiveTests().get(pipelineMeta);
+    Map<String, Object> stateMap = getStateMap(pipelineMeta);
+    if (stateMap == null) {
+      return null;
+    }
+
+    PipelineUnitTest test =
+        (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    return test;
   }
 
   @GuiContextAction(
       id = "pipeline-graph-transform-20800-enable-tweak-remove-transform",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Remove from test",
-      tooltip = "When this unit test is run, do not include this transform",
+      name = "i18n::TestingGuiPlugin.ContextAction.RemoveFromTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.RemoveFromTest.Tooltip",
       image = "Test_tube_icon.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void enableTweakRemoveTransformInUnitTest(HopGuiPipelineTransformContext context) {
     IVariables variables = context.getPipelineGraph().getVariables();
@@ -1044,10 +1132,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20810-disable-tweak-remove-transform",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Include in test",
-      tooltip = "Run the current pipeline and write the data to a data set",
+      name = "i18n::TestingGuiPlugin.ContextAction.IncludeInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.IncludeInTest.Tooltip",
       image = "Test_tube_icon.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakRemoveTransformInUnitTest(HopGuiPipelineTransformContext context) {
     tweakRemoveTransformInUnitTest(
@@ -1070,10 +1158,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20820-enable-tweak-bypass-transform",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Bypass in test",
-      tooltip = "When this unit test is run, bypass this transform (replace with a dummy)",
+      name = "i18n::TestingGuiPlugin.ContextAction.BypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BypassInTest.Tooltip",
       image = "Test_tube_icon.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void enableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
     tweakBypassTransformInUnitTest(
@@ -1087,10 +1175,10 @@ public class TestingGuiPlugin {
       id = "pipeline-graph-transform-20830-disable-tweak-bypass-transform",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Remove bypass in test",
-      tooltip = "Do not bypass this transform in the current pipeline during testing",
+      name = "i18n::TestingGuiPlugin.ContextAction.RemoveBypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.RemoveBypassInTest.Tooltip",
       image = "Test_tube_icon.svg",
-      category = "Unit testing",
+      category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
     tweakBypassTransformInUnitTest(
@@ -1142,11 +1230,12 @@ public class TestingGuiPlugin {
     } catch (Exception exception) {
       new ErrorDialog(
           hopGui.getShell(),
-          "Error",
-          "Error tweaking pipeline unit test on transform '"
-              + transformMeta.getName()
-              + "' with operation "
-              + tweak.name(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.TweakUnitTestTransform.Error.Header"),
+          BaseMessages.getString(
+              PKG,
+              "TestingGuiPlugin.TweakUnitTestTransform.Error.Message",
+              transformMeta.getName(),
+              tweak.name()),
           exception);
     }
   }
@@ -1190,7 +1279,11 @@ public class TestingGuiPlugin {
       }
       return null;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error listing/deleting unit test(s)", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Message"),
+          e);
       return null;
     }
   }
@@ -1224,7 +1317,10 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Error", "Error opening unit test pipeline", e);
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Header"),
+          BaseMessages.getString(PKG, "TestingGuiPlugin.OpenUnitTestPipeline.Error.Message"),
+          e);
     }
   }
 
@@ -1247,7 +1343,7 @@ public class TestingGuiPlugin {
   }
 
   public static List<PipelineUnitTest> findPipelineUnitTest(
-    IVariables variables, PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider ) {
+      IVariables variables, PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider) {
     List<PipelineUnitTest> tests = new ArrayList<>();
 
     try {
@@ -1276,19 +1372,5 @@ public class TestingGuiPlugin {
           exception);
     }
     return tests;
-  }
-
-  /**
-   * Gets activeTests
-   *
-   * @return value of activeTests
-   */
-  public Map<PipelineMeta, PipelineUnitTest> getActiveTests() {
-    return activeTests;
-  }
-
-  /** @param activeTests The activeTests to set */
-  public void setActiveTests(Map<PipelineMeta, PipelineUnitTest> activeTests) {
-    this.activeTests = activeTests;
   }
 }

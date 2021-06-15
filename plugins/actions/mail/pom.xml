@@ -20,26 +20,26 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-actions</artifactId>
-    <version>0.70-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-actions</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>hop-action-mail</artifactId>
-  <packaging>jar</packaging>
+    <artifactId>hop-action-mail</artifactId>
+    <packaging>jar</packaging>
 
-  <name>Hop Plugins Actions Mail</name>
+    <name>Hop Plugins Actions Mail</name>
 
-  <dependencies>
-    <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.7</version>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+    </dependencies>
 
 </project>

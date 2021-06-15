@@ -39,8 +39,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Test for PDI-3499
- *
  * @author Pavel Sakun
  * @see InsertUpdate
  */

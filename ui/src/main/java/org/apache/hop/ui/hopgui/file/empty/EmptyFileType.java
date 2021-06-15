@@ -24,6 +24,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Properties;
 
 public class EmptyFileType implements IHopFileType {
   @Override public String getName() {
-    return null;
+    return "-";
   }
   
   @Override public String getDefaultFileExtension() {
@@ -73,5 +74,9 @@ public class EmptyFileType implements IHopFileType {
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
+  }
+
+  @Override public String getFileTypeImage() {
+    return "ui/images/file.svg";
   }
 }

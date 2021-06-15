@@ -22,6 +22,8 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -42,23 +44,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Contains the meta-data for the Formula transform: calculates ad-hoc formula's Powered by
- * "libformula"
- *
- * <p>Created on 22-feb-2007
- */
+@InjectionSupported(
+  localizationPrefix = "Janino.Injection.",
+  groups = {"FORMULA",})
 @Transform(
     id = "Janino",
     image = "janino.svg",
     name = "i18n::BaseTransform.TypeLongDesc.Janino",
     description = "i18n::BaseTransform.TypeTooltipDesc.Janino",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/janino.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/userdefinedjavaexpression.html")
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   /** The formula calculations to be performed */
+  @InjectionDeep
   private JaninoMetaFunction[] formula;
 
   public JaninoMeta() {

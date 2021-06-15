@@ -29,7 +29,7 @@
   <parent>
     <artifactId>hop-assemblies</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -309,7 +309,7 @@
       <executions>
       <execution>
         <id>copy-libs</id>
-        <phase>generate-resources</phase>
+        <phase>prepare-package</phase>
         <goals>
           <goal>copy-dependencies</goal>
         </goals>

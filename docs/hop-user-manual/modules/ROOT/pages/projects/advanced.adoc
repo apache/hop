@@ -1,0 +1,118 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ProjectAdvanced]]
+:imagesdir: ../../../assets/images
+:page-pagination:
+:page-pagination-no-next:
+:openvar: ${
+:closevar: }
+
+
+= Advanced project and environment management
+
+== Configuration files
+
+=== Global Project Configuration
+
+The 2 main things that define a project are its name and its home folder.
+Projects and environments as such are defined in the central Hop configuration file `hop-config.json`.
+By default this file lives in the `config/` folder of your Hop client distribution.  You can change that folder by setting the `HOP_CONFIG_FOLDER` environment variable on your system.
+
+In `hop-config.json`, you'll find a `"projectsConfig"` section. By default it contains the following:
+
+[source,json]
+----
+{
+  "projectsConfig" : {
+    "enabled" : true,
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : null,
+    "projectConfigurations" : [ {
+      "projectName" : "default",
+      "projectHome" : "config/projects/default",
+      "configFilename" : "project-config.json"
+    }, {
+      "projectName" : "samples",
+      "projectHome" : "config/projects/samples",
+      "configFilename" : "project-config.json"
+    } ],
+    "lifecycleEnvironments" : [ ],
+    "projectLifecycles" : [ ]
+  }
+}
+----
+
+As you can see the standard Hop client distribution defines 2 projects: default and samples.
+
+=== Project Configuration
+
+Every project has extra metadata and settings stored in a project configuration file called ```project-config.json```.  For the samples project this would be ```config/projects/samples/project-config.json```.
+Let's take a look at it:
+
+[source,json]
+----
+{
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "parentProjectName" : "default",
+  "config" : {
+    "variables" : [ ]
+  }
+}
+----
+
+==== Variables
+
+You can define variables on a project level as well.  This makes it handy to reference things like input and output folders which are not sensitive to being checked into version control.
+
+==== Parent projects
+
+As you can see from the project configuration file (`parentProjectName`), a project can have a parent from which it will inherit all the metadata objects as well as all the variables that are defined in it.
+
+=== Environment configuration
+
+Hop enviroments and their home folders are stored in the hop configuration file 'hop-config.json'. That file lives by default in the *config* folder of the Hop installation. System property `HOP_CONFIG_FOLDER` can also be used to point to a different folder
+
+[source,json]
+{
+ "environmentConfig" : {
+  "enabled" : true,
+  "openingLastEnvironmentAtStartup" : true,
+  "environmentConfigFilename" : "environment.json",
+  "environmentFolders" : {
+   "Project 1 - DEV" : "/projects/one/dev/",
+   "Project 1 - UAT" : "/projects/one/uat/",
+   "Project 1 - PRD" : "/projects/one/prd/",
+   "Project 2 - DEV" : "/projects/two/dev/",
+   "Project 2 - UAT" : "/projects/two/uat/",
+   "Project 2 - PRD" : "/projects/two/prd/",
+  }
+}
+
+
+== Command Line Project Configuration
+
+In addition to the Hop Gui and configuration files, all aspects of and operations on projects and environments can be managed through the Hop Conf command line tool.
+
+include::../hop-tools/hop-conf/hop-conf-projects.adoc[]
+

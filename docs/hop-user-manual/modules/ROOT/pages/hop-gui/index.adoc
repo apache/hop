@@ -1,0 +1,31 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopGui]]
+
+= Hop Gui
+
+This page covers a number of topics that are very specific to working with Hop Gui.
+
+Refer to the corresponding chapters in the left-hand menu to learn more about creating and managing your Hop work.
+
+Covered here are
+
+* xref:hop-gui/file-dialog.adoc[File Dialog]: the versatile Hop file browser and chooser dialog.
+* xref:hop-gui/perspectives.adoc[Perspectives]: the various perspectives in the Hop Gui
+* xref:hop-gui/hop-gui-git.adoc[Working with git]: Manage files in the git version control system
+* xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.
+* xref:hop-gui/hop-web.adoc[Hop Web (Experimental)]: a web version of Hop Gui that is not yet 100% ready for daily use, but getting closer every day

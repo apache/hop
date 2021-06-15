@@ -1,0 +1,41 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+version: '2.4'
+services:
+  integration_test_neo4j:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    links:
+      - neo4j
+
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474"
+      - "7687"
+    environment:
+      - NEO4J_AUTH=neo4j/abcd
+    healthcheck:
+      test: perl -MIO::Socket::INET -e 'exit(! defined( IO::Socket::INET->new("localhost:7687")))'
+      interval: 10s
+      timeout: 10s
+      retries: 5

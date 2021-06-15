@@ -1,0 +1,45 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "character",
+          "data_set_field": "character"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "movie",
+          "data_set_field": "movie"
+        },
+        {
+          "transform_field": "movieNr",
+          "data_set_field": "movieNr"
+        },
+        {
+          "transform_field": "movies",
+          "data_set_field": "movies"
+        }
+      ],
+      "field_order": [
+        "id",
+        "movieNr"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-split-field-to-rows-basic"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0019-split-field-to-rows-basic UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0019-split-field-to-rows-basic.hpl",
+  "test_type": "UNIT_TEST"
+}

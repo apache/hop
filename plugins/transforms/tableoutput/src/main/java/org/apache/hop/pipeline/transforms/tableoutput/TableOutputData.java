@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,22 +45,19 @@ public class TableOutputData extends BaseTransformData implements ITransformData
   public int[] valuenrs; // Stream valuename nrs to prevent searches.
 
   /**
-   * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in case we have more then
-   * one, it's convenient to have this.
+   * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in
+   * case we have more then one, it's convenient to have this.
    */
   public Map<String, PreparedStatement> preparedStatements;
 
   public int indexOfPartitioningField;
 
-  /**
-   * Cache of the data formatter object
-   */
+  /** Cache of the data formatter object */
   public SimpleDateFormat dateFormater;
 
-  /**
-   * Use batch mode or not?
-   */
+  /** Use batch mode or not? */
   public boolean batchMode;
+
   public int indexOfTableNameField;
 
   public List<Object[]> batchBuffer;

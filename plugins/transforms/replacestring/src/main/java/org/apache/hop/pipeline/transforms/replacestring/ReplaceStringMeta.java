@@ -57,7 +57,7 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
     name = "i18n::BaseTransform.TypeLongDesc.ReplaceString",
     description = "i18n::BaseTransform.TypeTooltipDesc.ReplaceString",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/replacestring.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/replacestring.html")
 public class ReplaceStringMeta extends BaseTransformMeta
     implements ITransformMeta<ReplaceString, ReplaceStringData> {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
@@ -402,7 +402,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
         // We have a new field
         valueMeta = new ValueMetaString(fieldName);
         valueMeta.setOrigin(name);
-        // set encoding to new field from source field http://jira.pentaho.com/browse/PDI-11839
+        // set encoding to new field from source field
         IValueMeta sourceField = inputRowMeta.searchValueMeta(fieldInStream[i]);
         if (sourceField != null) {
           valueMeta.setStringEncoding(sourceField.getStringEncoding());

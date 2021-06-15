@@ -71,13 +71,13 @@ public class SqlScriptParser {
             case '/':
               if ( nextCh == '*' ) {
                 mode = MODE.BLOCK_COMMENT;
-                i++;
+                i = i + 1;
               }
               break;
             case '-':
               if ( nextCh == '-' ) {
                 mode = MODE.LINE_COMMENT;
-                i++;
+                i = i + 1;
               }
               break;
             case '\'':
@@ -98,7 +98,7 @@ public class SqlScriptParser {
           if ( ch == '*' ) {
             if ( nextCh == '/' ) {
               mode = MODE.SQL;
-              i++;
+              i = i + 1;
             }
           }
           break;
@@ -113,7 +113,7 @@ public class SqlScriptParser {
              * The user is hard-coding a backslash into the string.
              * Pass the hard-coded backslash through, and skip over the real backslash on the next loop
              */
-            i++;
+            i = i + 1;
           } else if ( ch == '\\' && nextCh == currentStringChar && usingBackslashAsEscapeCharForQuotation ) {
             /*
              * The user is hard-coding a quote character into the string.
@@ -122,7 +122,6 @@ public class SqlScriptParser {
 
             /*
              * usingBackslashAsEscapeCharForQuotation
-             * PDI-16224.
              *
              * ANSI standards specify that using the backslash character (\) to escape single (' ') or double (" ")
              * quotation marks is invalid. For example, the following attempt to find a quotation mark does not conform to ANSI standards:
@@ -130,7 +129,7 @@ public class SqlScriptParser {
              * In any way a construction '\'|| is correct for Oracle but for others DBs (ex. MySQl) isn't correct.
              *
              */
-            i++;
+            i = i + 1;
           } else if ( ch == currentStringChar ) {
             mode = MODE.SQL;
           }
@@ -173,14 +172,14 @@ public class SqlScriptParser {
             case '/':
               if ( nextCh == '*' && nextPlusOneCh != '+' ) {
                 mode = MODE.BLOCK_COMMENT;
-                i++;
+                i = i + 1;
                 ch = 0;
               }
               break;
             case '-':
               if ( nextCh == '-' ) {
                 mode = MODE.LINE_COMMENT;
-                i++;
+                i = i + 1;
                 ch = 0;
               }
               break;
@@ -195,7 +194,7 @@ public class SqlScriptParser {
           if ( ch == '*' ) {
             if ( nextCh == '/' ) {
               mode = MODE.SQL;
-              i++;
+              i = i + 1;
             }
           }
           ch = 0;
@@ -216,7 +215,6 @@ public class SqlScriptParser {
 
             /*
              * usingBackslashAsEscapeCharForQuotation
-             * PDI-16224.
              *
              * ANSI standards specify that using the backslash character (\) to escape single (' ') or double (" ")
              * quotation marks is invalid. For example, the following attempt to find a quotation mark does not conform to ANSI standards:

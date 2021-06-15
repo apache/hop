@@ -58,9 +58,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
             id = "resultStreaming",
             order = "10",
             parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-            type = GuiElementType.CHECKBOX,
-            i18nPackage = "org.apache.hop.ui.core.database",
-            label = "DatabaseDialog.label.MySQLStreamResults"
+            type = GuiElementType.CHECKBOX,          
+            label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.MySQLStreamResults"
     )
     private boolean resultStreaming;
 

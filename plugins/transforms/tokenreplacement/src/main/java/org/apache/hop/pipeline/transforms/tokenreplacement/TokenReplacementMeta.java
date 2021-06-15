@@ -53,7 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.TokenReplacement",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/tokenreplacement.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/tokenreplacement.html")
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})
@@ -74,7 +74,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
   public static final String OUTPUT_FILENAME_FIELD = "output_filename_field";
   public static final String APPEND_OUTPUT_FILENAME = "append_output_filename";
   public static final String CREATE_PARENT_FOLDER = "create_parent_folder";
-  public static final String INCLUDE_STEP_NR_IN_OUTPUT_FILENAME =
+  public static final String INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME =
       "include_transform_nr_in_output_filename";
   public static final String INCLUDE_PART_NR_IN_OUTPUT_FILENAME =
       "include_part_nr_in_output_filename";
@@ -157,7 +157,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
   @Injection(name = "OUTPUT_SPLIT_EVERY")
   private int splitEvery;
 
-  @Injection(name = "OUTPUT_INCLUDE_STEPNR")
+  @Injection(name = "OUTPUT_INCLUDE_TRANSFORMNR")
   private boolean includeTransformNrInOutputFileName;
 
   @Injection(name = "OUTPUT_INCLUDE_PARTNR")
@@ -464,7 +464,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
           "Y"
               .equalsIgnoreCase(
                   Const.NVL(
-                      XmlHandler.getTagValue(transformNode, INCLUDE_STEP_NR_IN_OUTPUT_FILENAME),
+                      XmlHandler.getTagValue(transformNode, INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME ),
                       ""));
       includePartNrInOutputFileName =
           "Y"
@@ -548,7 +548,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     return new TokenReplacementData();
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder(800);
 
     retval.append("    " + XmlHandler.addTagValue(INPUT_TYPE, inputType));
@@ -572,7 +572,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     retval.append(
         "    "
             + XmlHandler.addTagValue(
-                INCLUDE_STEP_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
+          INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
     retval.append(
         "    "
             + XmlHandler.addTagValue(

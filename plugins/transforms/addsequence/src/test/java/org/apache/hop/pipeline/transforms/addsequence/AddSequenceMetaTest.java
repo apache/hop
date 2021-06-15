@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,18 +42,33 @@ public class AddSequenceMetaTest {
 
   @Test
   public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList( "valuename", "useDatabase", "databaseMeta", "schemaName", "sequenceName",
-      "useCounter", "counterName", "startAt", "incrementBy", "maxValue" );
+    List<String> attributes =
+        Arrays.asList(
+            "valueName",
+            "databaseUsed",
+            "databaseMeta",
+            "schemaName",
+            "sequenceName",
+            "counterUsed",
+            "counterName",
+            "startAt",
+            "incrementBy",
+            "maxValue");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
-    getterMap.put( "useDatabase", "isDatabaseUsed" );
-    getterMap.put( "useCounter", "isCounterUsed" );
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<>();
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( AddSequenceMeta.class, attributes, getterMap, setterMap, fieldValidators, typeValidators );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(
+            AddSequenceMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldValidators,
+            typeValidators);
     loadSaveTester.testSerialization();
   }
 }

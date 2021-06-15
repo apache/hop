@@ -31,6 +31,7 @@ import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 
 import java.awt.geom.Rectangle2D;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,9 +72,11 @@ public class SvgCache {
       String parser = XMLResourceDescriptor.getXMLParserClassName();
       SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory( parser );
       InputStream svgStream = svgFile.getClassLoader().getResourceAsStream( svgFile.getFilename() );
-
       if ( svgStream == null ) {
-        throw new HopException( "Unable to find file '" + svgFile.getFilename() + "'" );
+
+        // Retry on the regular filesystem...
+        //
+        svgStream = new FileInputStream( svgFile.getFilename() );
       }
       SVGDocument svgDocument = factory.createSVGDocument( svgFile.getFilename(), svgStream );
       SVGSVGElement elSVG = svgDocument.getRootElement();

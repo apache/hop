@@ -49,7 +49,7 @@ import java.util.List;
   description = "i18n::ActionFilesExist.Description",
   image = "FilesExist.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/filesexist.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filesexist.html"
 )
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFilesExist.class; // For Translator
@@ -149,7 +149,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     int missingfiles = 0;
     int nrErrors = 0;
 
-    // see PDI-10270 for details
     boolean oldBehavior =
       "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
 
@@ -203,7 +202,7 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,15 @@ package org.apache.hop.pipeline.transforms.append;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -55,16 +56,18 @@ import java.util.List;
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/append.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/append.html")
 @InjectionSupported(localizationPrefix = "AppendMeta.Injection.")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 
   private static final Class<?> PKG = Append.class; // For Translator
 
   @Injection(name = "HEAD_TRANSFORM")
+  @HopMetadataProperty(key = "head_name")
   public String headTransformName;
 
   @Injection(name = "TAIL_TRANSFORM")
+  @HopMetadataProperty(key = "tail_name")
   public String tailTransformName;
 
   public AppendMeta() {
@@ -72,59 +75,27 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
+  public String getXml() throws HopException {
 
-  public Object clone() {
-    AppendMeta retval = (AppendMeta) super.clone();
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    headTransformName = infoStreams.get(0).getTransformName();
+    tailTransformName = infoStreams.get(1).getTransformName();
 
-    return retval;
+    return super.getXml();
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    retval.append(XmlHandler.addTagValue("head_name", infoStreams.get(0).getTransformName()));
-    retval.append(XmlHandler.addTagValue("tail_name", infoStreams.get(1).getTransformName()));
-
-    return retval.toString();
+  public void convertIOMetaToTransformNames() {
+    List<IStream> streams = getTransformIOMeta().getInfoStreams();
+    headTransformName = streams.get(0).getTransformName();
+    tailTransformName = streams.get(1).getTransformName();
   }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      IStream headStream = infoStreams.get(0);
-      IStream tailStream = infoStreams.get(1);
-      headStream.setSubject(XmlHandler.getTagValue(transformNode, "head_name"));
-      tailStream.setSubject(XmlHandler.getTagValue(transformNode, "tail_name"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "AppendMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
-  }
-
-  public void setDefault() {}
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    ITransformIOMeta ioMeta = getTransformIOMeta();
-    List<IStream> infoStreams = ioMeta.getInfoStreams();
-    for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
-    }
-  }
-
-  public boolean chosesTargetTransforms() {
-    return false;
-  }
-
-  public String[] getTargetTransforms() {
-    return null;
+    List<IStream> streams = getTransformIOMeta().getInfoStreams();
+    streams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, headTransformName));
+    streams.get(1).setTransformMeta(TransformMeta.findTransform(transforms, tailTransformName));
   }
 
   public void getFields(
@@ -205,20 +176,24 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
 
       ioMeta = new TransformIOMeta(true, true, false, false, false, false);
 
-      ioMeta.addStream(
+      IStream headStream =
           new Stream(
               StreamType.INFO,
               null,
               BaseMessages.getString(PKG, "AppendMeta.InfoStream.FirstStream.Description"),
               StreamIcon.INFO,
-              null));
-      ioMeta.addStream(
+              null);
+      ioMeta.addStream(headStream);
+
+      IStream tailStream =
           new Stream(
               StreamType.INFO,
               null,
               BaseMessages.getString(PKG, "AppendMeta.InfoStream.SecondStream.Description"),
               StreamIcon.INFO,
-              null));
+              null);
+      ioMeta.addStream(tailStream);
+
       setTransformIOMeta(ioMeta);
     }
 
@@ -233,5 +208,33 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
     return new PipelineType[] {
       PipelineType.Normal,
     };
+  }
+
+  /**
+   * Gets headTransformName
+   *
+   * @return value of headTransformName
+   */
+  public String getHeadTransformName() {
+    return headTransformName;
+  }
+
+  /** @param headTransformName The headTransformName to set */
+  public void setHeadTransformName(String headTransformName) {
+    this.headTransformName = headTransformName;
+  }
+
+  /**
+   * Gets tailTransformName
+   *
+   * @return value of tailTransformName
+   */
+  public String getTailTransformName() {
+    return tailTransformName;
+  }
+
+  /** @param tailTransformName The tailTransformName to set */
+  public void setTailTransformName(String tailTransformName) {
+    this.tailTransformName = tailTransformName;
   }
 }

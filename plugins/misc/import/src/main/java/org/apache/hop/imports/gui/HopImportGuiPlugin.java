@@ -42,8 +42,8 @@ public class HopImportGuiPlugin {
     @GuiMenuElement(
             root = HopGui.ID_MAIN_MENU,
             id = ID_MAIN_MENU_FILE_IMPORT,
-            label = "Import from Kettle/PDI",
-//            image = "kettle-logo.svg",
+            label = "i18n::HopGuiImport.Menu.Item",
+            image = "kettle-logo.svg",
             parentId = HopGui.ID_MAIN_MENU_FILE,
             separator = true
     )

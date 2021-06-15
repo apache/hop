@@ -49,7 +49,7 @@ import java.util.List;
     name = "i18n::ClosureGenerator.Name",
     description = "i18n::ClosureGenerator.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/closure.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/closure.html")
 public class ClosureGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 

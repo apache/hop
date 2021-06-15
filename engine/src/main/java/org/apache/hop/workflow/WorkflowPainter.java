@@ -53,10 +53,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   private List<ActionResult> actionResults;
 
   public WorkflowPainter( IGc gc, IVariables variables, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
-                          IScrollBar vert, WorkflowHopMeta candidate, Point drop_candidate, Rectangle selrect,
+                          IScrollBar vert, WorkflowHopMeta candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
                           String noteFontName, int noteFontHeight, double zoomFactor, boolean drawingEditIcons ) {
-    super( gc, variables, workflowMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconSize, lineWidth, gridSize,
+    super( gc, variables, workflowMeta, area, hori, vert, selrect, areaOwners, iconSize, lineWidth, gridSize,
       noteFontName, noteFontHeight, zoomFactor, drawingEditIcons );
     this.workflowMeta = workflowMeta;
 
@@ -77,13 +77,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     // First clear the image in the background color
     gc.setBackground( EColor.BACKGROUND );
     gc.fillRectangle( 0, 0, area.x, area.y );
-
-    if ( hori != null ) {
-      hori.setThumb( thumb.x );
-    }
-    if ( vert != null ) {
-      vert.setThumb( thumb.y );
-    }
 
     // Draw the pipeline onto the image
     //
@@ -175,13 +168,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         + n.y - 5 );
     }
 
-    if ( dropCandidate != null ) {
-      gc.setLineStyle( ELineStyle.SOLID );
-      gc.setForeground( EColor.BLACK );
-      Point screen = real2screen( dropCandidate.x, dropCandidate.y );
-      gc.drawRectangle( screen.x, screen.y, iconSize, iconSize );
-    }
-
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterEnd.id, this );
     } catch ( HopException e ) {
@@ -246,7 +232,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
       gc.drawImage( EImage.EDIT, xPos - 6, yPos-2, magnification );
 
-      gc.setBackground(240, 240, 240);
+      gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
         xPos - 8,
         yPos - 2,
@@ -317,7 +303,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setAlpha( alpha );
   }
 
-  private ActionResult findActionResult( ActionMeta actionCopy ) {
+  private ActionResult findActionResult( ActionMeta actionMeta ) {
     if ( actionResults == null ) {
       return null;
     }
@@ -326,8 +312,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     while ( iterator.hasNext() ) {
       ActionResult actionResult = iterator.next();
 
-      if ( actionResult.getActionName().equals( actionCopy.getName() )
-        && actionResult.getActionNr() == actionCopy.getNr() ) {
+      if ( actionResult.getActionName().equals( actionMeta.getName() ) ) {
         return actionResult;
       }
     }

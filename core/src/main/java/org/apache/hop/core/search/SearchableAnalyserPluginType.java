@@ -18,17 +18,19 @@
 package org.apache.hop.core.search;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginAnnotationType;
+import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnalyserPlugin> implements IPluginType<SearchableAnalyserPlugin> {
+@PluginMainClassType( ISearchableAnalyser.class )
+@PluginAnnotationType( SearchableAnalyserPlugin.class )
+public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnalyserPlugin> {
 
   private static SearchableAnalyserPluginType pluginType;
 
   private SearchableAnalyserPluginType() {
     super( SearchableAnalyserPlugin.class, "SEARCH_ANALYSER", "SearchAnalyser" );
-    populateFolders( "search-analysers" );
   }
 
   public static SearchableAnalyserPluginType getInstance() {

@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
     description = "End repeated execution of a workflow or a transformation",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "endrepeat.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/repeat-end.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/repeat-end.html")
 public class EndRepeat extends ActionBase implements IAction, Cloneable {
 
   public EndRepeat(String name, String description) {
@@ -70,7 +70,7 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
     return (EndRepeat) super.clone();
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

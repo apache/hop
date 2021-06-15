@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>neo4j-output-dynamic-labels-validation</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2019/08/06 18:28:33.119</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2019/08/06 18:28:33.119</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>countries</from>
+      <to>build cypher</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>build cypher</from>
+      <to>Neo4j Cypher</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Neo4j Cypher</from>
+      <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>VALIDATE</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Neo4j Cypher</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher/>
+    <batch_size/>
+    <read_only>Y</read_only>
+    <nr_retries_on_error/>
+    <retry>Y</retry>
+    <cypher_from_field>Y</cypher_from_field>
+    <cypher_field>cypher</cypher_field>
+    <unwind>N</unwind>
+    <unwind_map/>
+    <returning_graph>N</returning_graph>
+    <return_graph_field/>
+    <mappings/>
+    <returns>
+      <return>
+        <name>countryLabel</name>
+        <type>String</type>
+        <source_type>String</source_type>
+      </return>
+      <return>
+        <name>countryId</name>
+        <type>Integer</type>
+        <source_type>Integer</source_type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>528</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>countryLabel</name>
+        <rename>country</rename>
+      </field>
+      <field>
+        <name>countryId</name>
+        <rename>id</rename>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>VALIDATE</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>880</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>build cypher</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>
+
+var cypher = "MATCH(n:`"+COUNTRY+"`) RETURN labels(n)[0] as countryLabel, n.id as countryId";</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>cypher</name>
+        <rename>cypher</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>countries</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>COUNTRY</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>id</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>Australia</item>
+        <item>100000001</item>
+      </line>
+      <line>
+        <item>Austria</item>
+        <item>100000002</item>
+      </line>
+      <line>
+        <item>Belgium</item>
+        <item>100000003</item>
+      </line>
+      <line>
+        <item>Canada</item>
+        <item>100000004</item>
+      </line>
+      <line>
+        <item>Denmark</item>
+        <item>100000005</item>
+      </line>
+      <line>
+        <item>Finland</item>
+        <item>100000006</item>
+      </line>
+      <line>
+        <item>France</item>
+        <item>100000007</item>
+      </line>
+      <line>
+        <item>Germany</item>
+        <item>100000008</item>
+      </line>
+      <line>
+        <item>Ireland</item>
+        <item>100000009</item>
+      </line>
+      <line>
+        <item>Italy</item>
+        <item>100000010</item>
+      </line>
+      <line>
+        <item>Japan</item>
+        <item>100000011</item>
+      </line>
+      <line>
+        <item>Norway</item>
+        <item>100000012</item>
+      </line>
+      <line>
+        <item>Philippines</item>
+        <item>100000013</item>
+      </line>
+      <line>
+        <item>Singapore</item>
+        <item>100000014</item>
+      </line>
+      <line>
+        <item>Spain</item>
+        <item>100000015</item>
+      </line>
+      <line>
+        <item>Sweden</item>
+        <item>100000016</item>
+      </line>
+      <line>
+        <item>Switzerland</item>
+        <item>100000017</item>
+      </line>
+      <line>
+        <item>UK</item>
+        <item>100000018</item>
+      </line>
+      <line>
+        <item>United States</item>
+        <item>100000019</item>
+      </line>
+      <line>
+        <item>USA</item>
+        <item>100000020</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>161</xloc>
+      <yloc>113</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

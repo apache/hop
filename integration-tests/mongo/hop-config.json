@@ -1,0 +1,295 @@
+{
+  "variables": [
+    {
+      "name": "HOP_LICENSE_HEADER_FILE",
+      "value": "${PROJECT_HOME}/../asf-header.txt",
+      "description": "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    },
+    {
+      "name": "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION",
+      "value": "N",
+      "description": "System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to \"Y\", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string."
+    },
+    {
+      "name": "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE",
+      "value": "N",
+      "description": "System wide flag to ignore timezone while writing date/timestamp value to the database."
+    },
+    {
+      "name": "HOP_LOG_SIZE_LIMIT",
+      "value": "0",
+      "description": "The log size limit for all pipelines and workflows that don't have the \"log size limit\" property set in their respective properties."
+    },
+    {
+      "name": "HOP_EMPTY_STRING_DIFFERS_FROM_NULL",
+      "value": "N",
+      "description": "NULL vs Empty String. If this setting is set to Y, an empty string and null are different. Otherwise they are not."
+    },
+    {
+      "name": "HOP_MAX_LOG_SIZE_IN_LINES",
+      "value": "0",
+      "description": "The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)"
+    },
+    {
+      "name": "HOP_MAX_LOG_TIMEOUT_IN_MINUTES",
+      "value": "1440",
+      "description": "The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)"
+    },
+    {
+      "name": "HOP_MAX_WORKFLOW_TRACKER_SIZE",
+      "value": "5000",
+      "description": "The maximum number of workflow trackers kept in memory"
+    },
+    {
+      "name": "HOP_MAX_ACTIONS_LOGGED",
+      "value": "5000",
+      "description": "The maximum number of action results kept in memory for logging purposes."
+    },
+    {
+      "name": "HOP_MAX_LOGGING_REGISTRY_SIZE",
+      "value": "10000",
+      "description": "The maximum number of logging registry entries kept in memory for logging purposes."
+    },
+    {
+      "name": "HOP_LOG_TAB_REFRESH_DELAY",
+      "value": "1000",
+      "description": "The hop log tab refresh delay."
+    },
+    {
+      "name": "HOP_LOG_TAB_REFRESH_PERIOD",
+      "value": "1000",
+      "description": "The hop log tab refresh period."
+    },
+    {
+      "name": "HOP_PLUGIN_CLASSES",
+      "value": null,
+      "description": "A comma delimited list of classes to scan for plugin annotations"
+    },
+    {
+      "name": "HOP_PLUGIN_PACKAGES",
+      "value": null,
+      "description": "A comma delimited list of packages to scan for plugin annotations (warning: slow!!)"
+    },
+    {
+      "name": "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT",
+      "value": "0",
+      "description": "The maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)"
+    },
+    {
+      "name": "HOP_ROWSET_GET_TIMEOUT",
+      "value": "50",
+      "description": "The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a difference for extremely short lived pipelines."
+    },
+    {
+      "name": "HOP_ROWSET_PUT_TIMEOUT",
+      "value": "50",
+      "description": "The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived pipelines."
+    },
+    {
+      "name": "HOP_CORE_TRANSFORMS_FILE",
+      "value": null,
+      "description": "The name of the project variable that will contain the alternative location of the hop-transforms.xml file. You can use this to customize the list of available internal transforms outside of the codebase."
+    },
+    {
+      "name": "HOP_CORE_WORKFLOW_ACTIONS_FILE",
+      "value": null,
+      "description": "The name of the project variable that will contain the alternative location of the hop-workflow-actions.xml file."
+    },
+    {
+      "name": "HOP_SERVER_OBJECT_TIMEOUT_MINUTES",
+      "value": "1440",
+      "description": "This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day)."
+    },
+    {
+      "name": "HOP_PIPELINE_PAN_JVM_EXIT_CODE",
+      "value": null,
+      "description": "Set this variable to an integer that will be returned as the Pan JVM exit code."
+    },
+    {
+      "name": "HOP_DISABLE_CONSOLE_LOGGING",
+      "value": "N",
+      "description": "Set this variable to Y to disable standard Hop logging to the console. (stdout)"
+    },
+    {
+      "name": "HOP_REDIRECT_STDERR",
+      "value": "N",
+      "description": "Set this variable to Y to redirect stderr to Hop logging."
+    },
+    {
+      "name": "HOP_REDIRECT_STDOUT",
+      "value": "N",
+      "description": "Set this variable to Y to redirect stdout to Hop logging."
+    },
+    {
+      "name": "HOP_DEFAULT_NUMBER_FORMAT",
+      "value": null,
+      "description": "The name of the variable containing an alternative default number format"
+    },
+    {
+      "name": "HOP_DEFAULT_BIGNUMBER_FORMAT",
+      "value": null,
+      "description": "The name of the variable containing an alternative default bignumber format"
+    },
+    {
+      "name": "HOP_DEFAULT_INTEGER_FORMAT",
+      "value": null,
+      "description": "The name of the variable containing an alternative default integer format"
+    },
+    {
+      "name": "HOP_DEFAULT_DATE_FORMAT",
+      "value": null,
+      "description": "The name of the variable containing an alternative default date format"
+    },
+    {
+      "name": "HOP_DEFAULT_TIMESTAMP_FORMAT",
+      "value": null,
+      "description": "The name of the variable containing an alternative default timestamp format"
+    },
+    {
+      "name": "HOP_DEFAULT_SERVLET_ENCODING",
+      "value": null,
+      "description": "Defines the default encoding for servlets, leave it empty to use Java default encoding"
+    },
+    {
+      "name": "HOP_FAIL_ON_LOGGING_ERROR",
+      "value": "N",
+      "description": "Set this variable to Y when you want the workflow/pipeline fail with an error when the related logging process (e.g. to a database) fails."
+    },
+    {
+      "name": "HOP_AGGREGATION_MIN_NULL_IS_VALUED",
+      "value": "N",
+      "description": "Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO."
+    },
+    {
+      "name": "HOP_AGGREGATION_ALL_NULLS_ARE_ZERO",
+      "value": "N",
+      "description": "Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL."
+    },
+    {
+      "name": "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER",
+      "value": "N",
+      "description": "Set this variable to Y for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not."
+    },
+    {
+      "name": "HOP_PASSWORD_ENCODER_PLUGIN",
+      "value": "Hop",
+      "description": "Specifies the password encoder plugin to use by ID (Hop is the default)."
+    },
+    {
+      "name": "HOP_SYSTEM_HOSTNAME",
+      "value": null,
+      "description": "You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed."
+    },
+    {
+      "name": "HOP_SERVER_JETTY_ACCEPTORS",
+      "value": null,
+      "description": "A variable to configure jetty option: acceptors for Carte"
+    },
+    {
+      "name": "HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE",
+      "value": null,
+      "description": "A variable to configure jetty option: acceptQueueSize for Carte"
+    },
+    {
+      "name": "HOP_SERVER_JETTY_RES_MAX_IDLE_TIME",
+      "value": null,
+      "description": "A variable to configure jetty option: lowResourcesMaxIdleTime for Carte"
+    },
+    {
+      "name": "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL",
+      "value": "N",
+      "description": "Set this variable to Y for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical."
+    },
+    {
+      "name": "HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE",
+      "value": "false",
+      "description": "Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks."
+    },
+    {
+      "name": "HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES",
+      "value": "false",
+      "description": "Set this variable to TRUE to allow your pipeline to pass 'null' fields and/or empty types."
+    },
+    {
+      "name": "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT",
+      "value": "false",
+      "description": "Set this variable to false to preserve global log variables defined in pipeline / workflow Properties -> Log panel. Changing it to true will clear it when export pipeline / workflow."
+    },
+    {
+      "name": "HOP_FILE_OUTPUT_MAX_STREAM_COUNT",
+      "value": "1024",
+      "description": "This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded"
+    },
+    {
+      "name": "HOP_FILE_OUTPUT_MAX_STREAM_LIFE",
+      "value": "0",
+      "description": "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform."
+    },
+    {
+      "name": "HOP_USE_NATIVE_FILE_DIALOG",
+      "value": "N",
+      "description": "Set this value to Y if you want to use the system file open/save dialog when browsing files"
+    },
+    {
+      "name": "HOP_AUTO_CREATE_CONFIG",
+      "value": "Y",
+      "description": "Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing"
+    }
+  ],
+  "LocaleDefault": "en_BE",
+  "guiProperties": {
+    "FontFixedSize": "13",
+    "MaxUndo": "100",
+    "DarkMode": "Y",
+    "FontNoteSize": "13",
+    "ShowOSLook": "Y",
+    "FontFixedStyle": "0",
+    "FontNoteName": ".AppleSystemUIFont",
+    "FontFixedName": "Monospaced",
+    "FontGraphStyle": "0",
+    "FontDefaultSize": "13",
+    "GraphColorR": "255",
+    "FontGraphSize": "13",
+    "IconSize": "32",
+    "BackgroundColorB": "255",
+    "FontNoteStyle": "0",
+    "FontGraphName": ".AppleSystemUIFont",
+    "FontDefaultName": ".AppleSystemUIFont",
+    "GraphColorG": "255",
+    "UseGlobalFileBookmarks": "Y",
+    "FontDefaultStyle": "0",
+    "GraphColorB": "255",
+    "BackgroundColorR": "255",
+    "BackgroundColorG": "255",
+    "WorkflowDialogStyle": "RESIZE,MAX,MIN",
+    "LineWidth": "1",
+    "ContextDialogShowCategories": "Y"
+  },
+  "projectsConfig": {
+    "enabled": true,
+    "projectMandatory": true,
+    "environmentMandatory": true,
+    "defaultProject": "default",
+    "defaultEnvironment": null,
+    "standardParentProject": "default",
+    "standardProjectsFolder": null,
+    "projectConfigurations": [
+      {
+        "projectName": "default",
+        "projectHome": "${HOP_CONFIG_FOLDER}",
+        "configFilename": "project-config.json"
+      }
+    ],
+    "lifecycleEnvironments": [
+      {
+        "name": "dev",
+        "purpose": "Testing",
+        "projectName": "default",
+        "configurationFiles": [
+          "${PROJECT_HOME}/dev-env-config.json"
+        ]
+      }
+    ],
+    "projectLifecycles": []
+  }
+}

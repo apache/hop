@@ -52,7 +52,7 @@ import java.util.Map;
     name = "i18n::CubeOutput.Name",
     description = "i18n::CubeOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/cubeoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cubeoutput.html")
 public class CubeOutputMeta extends BaseTransformMeta
     implements ITransformMeta<CubeOutput, CubeOutputData> {
 

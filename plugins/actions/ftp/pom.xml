@@ -26,54 +26,24 @@
 	<parent>
 		<groupId>org.apache.hop</groupId>
 		<artifactId>hop-plugins-actions</artifactId>
-		<version>0.70-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>hop-action-ftp</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Hop Plugins Actions Get/Put/Delete a file with FTP/FTPS/SFTP</name>
+	<name>Hop Plugins Actions Get/Put/Delete a file with FTP/SFTP</name>
 
 	<properties>
-		<edtftpj.version>2.1.0</edtftpj.version>
-		<trilead-ssh2.version>build213</trilead-ssh2.version>
-		<ftp4che.version>0.7.1</ftp4che.version>
+		<commons-net-version>3.7.2</commons-net-version>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.enterprisedt</groupId>
-			<artifactId>edtftpj</artifactId>
-			<version>${edtftpj.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>${commons-net-version}</version>
 		</dependency>
-		<dependency>
-			<groupId>trilead-ssh2</groupId>
-			<artifactId>trilead-ssh2</artifactId>
-			<version>${trilead-ssh2.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>ftp4che</groupId>
-			<artifactId>ftp4che</artifactId>
-			<version>${ftp4che.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>		
 	</dependencies>
 		
 </project>

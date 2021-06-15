@@ -116,6 +116,6 @@ public class BaseTransformMetaCloningTest {
     assertEquals( stream.getStreamType(), clonedStream.getStreamType() );
     assertEquals( refTransformName, clonedStream.getTransformName() );
 
-    assertSame( refTransformMeta, clonedStream.getTransformMeta() ); // PDI-15799
+    assertSame( refTransformMeta, clonedStream.getTransformMeta() );
   }
 }

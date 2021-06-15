@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,14 +29,14 @@ public class CheckSumMetaInjectionTest extends BaseMetadataInjectionTest<CheckSu
 
   @Before
   public void setup() throws Exception {
-    setup( new CheckSumMeta() );
+    setup(new CheckSumMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "RESULT_FIELD", () -> meta.getResultFieldName() );
-    check( "TYPE", () -> meta.getCheckSumType() );
-    check( "RESULT_TYPE", () -> meta.getResultType() );
-    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
+    check("RESULT_FIELD", () -> meta.getResultFieldName());
+    check("TYPE", () -> meta.getCheckSumType(), CheckSumMeta.CheckSumType.class);
+    check("RESULT_TYPE", () -> meta.getResultType(), CheckSumMeta.ResultType.class);
+    check("FIELD_NAME", () -> meta.getFields().get(0).getName());
   }
 }

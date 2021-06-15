@@ -26,7 +26,7 @@ public interface ILogExceptionBehaviour {
    * When exception during logging is raised, depending on item settings we will throw exception up, or just put a log
    * record on this event.
    * <p>
-   * Different behaviors are created in backward compatibility with existing code. See PDI-9790.
+   * Different behaviors are created in backward compatibility with existing code.
    *
    * @param packageClass
    * @param key

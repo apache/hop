@@ -1,0 +1,38 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[Index]]
+:imagesdir: ../assets/images
+
+= Hop User Manual
+
+The Apache Hop (Incubating) User Manual contains all the information you need to develop and deploy data solutions with Apache Hop.
+
+We've listed a number of starting points that might find useful to you. Check the full list of topics on the left hand side.
+If you're a developer and want to extend Hop, want to build new functionality or want to fix a bug you found, check the http://hop.apache.org/dev-manual/latest/[developer documentation]
+
+TIP: Hop treats documentation as any other part of software that can have bugs or missing features. If you find any incorrect information or are missing a crucial piece of documentation, please http://hop.apache.org/community/contribution-guides/jira-guide/[create a JIRA ticket].
+
+[%noheader, width="90%", frame=none,grid=none]
+|====
+|image:icons/developer.svg[width="50px"]|Check the http://hop.apache.org/community/contribution-guides/documentation-contribution-guide/[documentation contribution guide] if you'd like to help us improve the Hop documentation.
+|image:icons/play.svg[width="50px"]|The xref:getting-started/index.adoc[Getting Started Guide] will help you to get started with Hop in no time
+|image:icons/logo_icon.svg[width="50px"]|Check the xref:hop-gui/index.adoc[Hop Gui] guide for information about how to develop, run, test, debug and deploy Hop pipelines
+|image:icons/workflow.svg[width="50px"]|xref:workflow/workflows.adoc[Workflows] are Hop's tool to orchestrate workflows and pipelines, perform environment validations, error handling and much more with the available xref:workflow/actions.adoc[actions]
+|image:icons/pipeline.svg[width="50px"]|xref:pipeline/pipelines.adoc[Pipelines] are Hop's work horse: read from sources, write to targets and perform just about any manipulation on your data through hundreds of xref:pipeline/transforms.adoc[transforms].
+|image:icons/database.svg[width="50px"]|Check the list of supported xref:database/databases.adoc[databases]
+|image:icons/beam-logo.svg[width="50px"]|Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Run Configurations] if you want to find out more about running your Hop pipelines on Apache Spark, Apache Flink or Google Dataflow over Apache Beam.
+|====

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -26,15 +27,14 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -43,10 +43,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Transform(
     id = "DBLookup",
@@ -55,7 +56,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.DatabaseLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/databaselookup.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/databaselookup.html")
 public class DatabaseLookupMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 
@@ -77,345 +78,48 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   public static final int CONDITION_IS_NULL = 8;
   public static final int CONDITION_IS_NOT_NULL = 9;
 
-  /** what's the lookup schema name? */
-  private String schemaName;
-
-  /** what's the lookup table? */
-  private String tableName;
-
   /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.Connection")
   private DatabaseMeta databaseMeta;
 
-  /** which field in input stream to compare with? */
-  private String[] streamKeyField1;
-
-  /** Extra field for between... */
-  private String[] streamKeyField2;
-
-  /** Comparator: =, <>, BETWEEN, ... */
-  private String[] keyCondition;
-
-  /** field in table */
-  private String[] tableKeyField;
-
-  /** return these field values after lookup */
-  private String[] returnValueField;
-
-  /** new name for value ... */
-  private String[] returnValueNewName;
-
-  /** default value in case not found... */
-  private String[] returnValueDefault;
-
-  /** type of default value */
-  private int[] returnValueDefaultType;
-
-  /** order by clause... */
-  private String orderByClause;
-
   /** ICache values we look up --> faster */
+  @HopMetadataProperty(
+      key = "cache",
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.Cache")
   private boolean cached;
 
   /** Limit the cache size to this! */
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.CacheSize")
   private int cacheSize;
 
   /** Flag to make it load all data into the cache at startup */
+  @HopMetadataProperty(
+      key = "cache_load_all",
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.CacheLoadAll")
   private boolean loadingAllDataInCache;
 
-  /** Have the lookup fail if multiple results were found, renders the orderByClause useless */
-  private boolean failingOnMultipleResults;
-
-  /** Have the lookup eat the incoming row when nothing gets found */
-  private boolean eatingRowOnLookupFailure;
+  @HopMetadataProperty(key = "lookup")
+  private Lookup lookup;
 
   public DatabaseLookupMeta() {
-    super(); // allocate BaseTransformMeta
+    lookup = new Lookup();
   }
 
-  /** @return Returns the cached. */
-  public boolean isCached() {
-    return cached;
+  public DatabaseLookupMeta(DatabaseLookupMeta m) {
+    this.databaseMeta = m.databaseMeta;
+    this.cached = m.cached;
+    this.cacheSize = m.cacheSize;
+    this.loadingAllDataInCache = m.loadingAllDataInCache;
+    this.lookup = new Lookup(m.lookup);
   }
 
-  /** @param cached The cached to set. */
-  public void setCached(boolean cached) {
-    this.cached = cached;
-  }
-
-  /** @return Returns the cacheSize. */
-  public int getCacheSize() {
-    return cacheSize;
-  }
-
-  /** @param cacheSize The cacheSize to set. */
-  public void setCacheSize(int cacheSize) {
-    this.cacheSize = cacheSize;
-  }
-
-  /** @return Returns the database. */
-  @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  @Override
-  public String getTableName() {
-    return tableName;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
-  /** @return Returns the keyCondition. */
-  public String[] getKeyCondition() {
-    return keyCondition;
-  }
-
-  /** @param keyCondition The keyCondition to set. */
-  public void setKeyCondition(String[] keyCondition) {
-    this.keyCondition = keyCondition;
-  }
-
-  /** @return Returns the orderByClause. */
-  public String getOrderByClause() {
-    return orderByClause;
-  }
-
-  /** @param orderByClause The orderByClause to set. */
-  public void setOrderByClause(String orderByClause) {
-    this.orderByClause = orderByClause;
-  }
-
-  /** @return Returns the returnValueDefault. */
-  public String[] getReturnValueDefault() {
-    return returnValueDefault;
-  }
-
-  /** @param returnValueDefault The returnValueDefault to set. */
-  public void setReturnValueDefault(String[] returnValueDefault) {
-    this.returnValueDefault = returnValueDefault;
-  }
-
-  /** @return Returns the returnValueDefaultType. */
-  public int[] getReturnValueDefaultType() {
-    return returnValueDefaultType;
-  }
-
-  /** @param returnValueDefaultType The returnValueDefaultType to set. */
-  public void setReturnValueDefaultType(int[] returnValueDefaultType) {
-    this.returnValueDefaultType = returnValueDefaultType;
-  }
-
-  /** @return Returns the returnValueField. */
-  public String[] getReturnValueField() {
-    return returnValueField;
-  }
-
-  /** @param returnValueField The returnValueField to set. */
-  public void setReturnValueField(String[] returnValueField) {
-    this.returnValueField = returnValueField;
-  }
-
-  /** @return Returns the returnValueNewName. */
-  public String[] getReturnValueNewName() {
-    return returnValueNewName;
-  }
-
-  /** @param returnValueNewName The returnValueNewName to set. */
-  public void setReturnValueNewName(String[] returnValueNewName) {
-    this.returnValueNewName = returnValueNewName;
-  }
-
-  /** @return Returns the streamKeyField1. */
-  public String[] getStreamKeyField1() {
-    return streamKeyField1;
-  }
-
-  /** @param streamKeyField1 The streamKeyField1 to set. */
-  public void setStreamKeyField1(String[] streamKeyField1) {
-    this.streamKeyField1 = streamKeyField1;
-  }
-
-  /** @return Returns the streamKeyField2. */
-  public String[] getStreamKeyField2() {
-    return streamKeyField2;
-  }
-
-  /** @param streamKeyField2 The streamKeyField2 to set. */
-  public void setStreamKeyField2(String[] streamKeyField2) {
-    this.streamKeyField2 = streamKeyField2;
-  }
-
-  /** @return Returns the tableKeyField. */
-  public String[] getTableKeyField() {
-    return tableKeyField;
-  }
-
-  /** @param tableKeyField The tableKeyField to set. */
-  public void setTableKeyField(String[] tableKeyField) {
-    this.tableKeyField = tableKeyField;
-  }
-
-  /** @param tableName The table name to set. */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /** @return Returns the failOnMultipleResults. */
-  public boolean isFailingOnMultipleResults() {
-    return failingOnMultipleResults;
-  }
-
-  /** @param failOnMultipleResults The failOnMultipleResults to set. */
-  public void setFailingOnMultipleResults(boolean failOnMultipleResults) {
-    this.failingOnMultipleResults = failOnMultipleResults;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    streamKeyField1 = null;
-    returnValueField = null;
-
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrkeys, int nrvalues) {
-    streamKeyField1 = new String[nrkeys];
-    tableKeyField = new String[nrkeys];
-    keyCondition = new String[nrkeys];
-    streamKeyField2 = new String[nrkeys];
-    returnValueField = new String[nrvalues];
-    returnValueNewName = new String[nrvalues];
-    returnValueDefault = new String[nrvalues];
-    returnValueDefaultType = new int[nrvalues];
-  }
-
-  @Override
-  public Object clone() {
-    DatabaseLookupMeta retval = (DatabaseLookupMeta) super.clone();
-
-    int nrkeys = streamKeyField1.length;
-    int nrvalues = returnValueField.length;
-
-    retval.allocate(nrkeys, nrvalues);
-
-    System.arraycopy(streamKeyField1, 0, retval.streamKeyField1, 0, nrkeys);
-    System.arraycopy(tableKeyField, 0, retval.tableKeyField, 0, nrkeys);
-    System.arraycopy(keyCondition, 0, retval.keyCondition, 0, nrkeys);
-    System.arraycopy(streamKeyField2, 0, retval.streamKeyField2, 0, nrkeys);
-
-    System.arraycopy(returnValueField, 0, retval.returnValueField, 0, nrvalues);
-    System.arraycopy(returnValueNewName, 0, retval.returnValueNewName, 0, nrvalues);
-    System.arraycopy(returnValueDefault, 0, retval.returnValueDefault, 0, nrvalues);
-    System.arraycopy(returnValueDefaultType, 0, retval.returnValueDefaultType, 0, nrvalues);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String dtype;
-      String csize;
-
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      cached = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "cache"));
-      loadingAllDataInCache =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "cache_load_all"));
-      csize = XmlHandler.getTagValue(transformNode, "cache_size");
-      cacheSize = Const.toInt(csize, 0);
-      schemaName = XmlHandler.getTagValue(transformNode, "lookup", "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "lookup", "table");
-
-      Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
-
-      int nrkeys = XmlHandler.countNodes(lookup, "key");
-      int nrvalues = XmlHandler.countNodes(lookup, "value");
-
-      allocate(nrkeys, nrvalues);
-
-      for (int i = 0; i < nrkeys; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(lookup, "key", i);
-
-        streamKeyField1[i] = XmlHandler.getTagValue(knode, "name");
-        tableKeyField[i] = XmlHandler.getTagValue(knode, "field");
-        keyCondition[i] = XmlHandler.getTagValue(knode, "condition");
-        if (keyCondition[i] == null) {
-          keyCondition[i] = "=";
-        }
-        streamKeyField2[i] = XmlHandler.getTagValue(knode, "name2");
-      }
-
-      for (int i = 0; i < nrvalues; i++) {
-        Node vnode = XmlHandler.getSubNodeByNr(lookup, "value", i);
-
-        returnValueField[i] = XmlHandler.getTagValue(vnode, "name");
-        returnValueNewName[i] = XmlHandler.getTagValue(vnode, "rename");
-        if (returnValueNewName[i] == null) {
-          returnValueNewName[i] = returnValueField[i]; // default: the same name!
-        }
-        returnValueDefault[i] = XmlHandler.getTagValue(vnode, "default");
-        dtype = XmlHandler.getTagValue(vnode, "type");
-        returnValueDefaultType[i] = ValueMetaFactory.getIdForValueMeta(dtype);
-        if (returnValueDefaultType[i] < 0) {
-          // logError("unknown default value type: "+dtype+" for value "+value[i]+", default to
-          // type: String!");
-          returnValueDefaultType[i] = IValueMeta.TYPE_STRING;
-        }
-      }
-      orderByClause = XmlHandler.getTagValue(lookup, "orderby"); // Optional, can by null
-      failingOnMultipleResults =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(lookup, "fail_on_multiple"));
-      eatingRowOnLookupFailure =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(lookup, "eat_row_on_failure"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.ERROR0001.UnableToLoadTransformFromXML"),
-          e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    streamKeyField1 = null;
-    returnValueField = null;
-    databaseMeta = null;
-    cached = false;
-    cacheSize = 0;
-    schemaName = "";
-    tableName = BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.TableName");
-
-    int nrkeys = 0;
-    int nrvalues = 0;
-
-    allocate(nrkeys, nrvalues);
-
-    for (int i = 0; i < nrkeys; i++) {
-      tableKeyField[i] = BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.KeyFieldPrefix");
-      keyCondition[i] = BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.KeyCondition");
-      streamKeyField1[i] =
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.KeyStreamField1");
-      streamKeyField2[i] =
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.KeyStreamField2");
-    }
-
-    for (int i = 0; i < nrvalues; i++) {
-      returnValueField[i] =
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.ReturnFieldPrefix") + i;
-      returnValueNewName[i] =
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.ReturnNewNamePrefix") + i;
-      returnValueDefault[i] =
-          BaseMessages.getString(PKG, "DatabaseLookupMeta.Default.ReturnDefaultValuePrefix") + i;
-      returnValueDefaultType[i] = IValueMeta.TYPE_STRING;
-    }
-
-    orderByClause = "";
-    failingOnMultipleResults = false;
-    eatingRowOnLookupFailure = false;
+  public DatabaseLookupMeta clone() {
+    return new DatabaseLookupMeta(this);
   }
 
   @Override
@@ -428,11 +132,13 @@ public class DatabaseLookupMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     if (Utils.isEmpty(info) || info[0] == null) { // null or length 0 : no info from database
-      for (int i = 0; i < getReturnValueNewName().length; i++) {
+
+      for (ReturnValue returnValue : lookup.getReturnValues()) {
         try {
           IValueMeta v =
               ValueMetaFactory.createValueMeta(
-                  getReturnValueNewName()[i], getReturnValueDefaultType()[i]);
+                      !Utils.isEmpty(returnValue.getNewName()) ? returnValue.getNewName() : returnValue.getTableField(),
+                  ValueMetaFactory.getIdForValueMeta(returnValue.getDefaultType()));
           v.setOrigin(name);
           row.addValueMeta(v);
         } catch (Exception e) {
@@ -440,66 +146,17 @@ public class DatabaseLookupMeta extends BaseTransformMeta
         }
       }
     } else {
-      for (int i = 0; i < returnValueNewName.length; i++) {
-        IValueMeta v = info[0].searchValueMeta(returnValueField[i]);
+
+      for (ReturnValue returnValue : lookup.getReturnValues()) {
+        IValueMeta v = info[0].searchValueMeta(returnValue.getTableField());
         if (v != null) {
-          IValueMeta copy = v.clone(); // avoid renaming other value meta - PDI-9844
-          copy.setName(returnValueNewName[i]);
+          IValueMeta copy = v.clone(); // avoid renaming other value meta
+          copy.setName(!Utils.isEmpty(returnValue.getNewName()) ? returnValue.getNewName() : returnValue.getTableField());
           copy.setOrigin(name);
           row.addValueMeta(copy);
         }
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    ").append(XmlHandler.addTagValue("cache", cached));
-    retval.append("    ").append(XmlHandler.addTagValue("cache_load_all", loadingAllDataInCache));
-    retval.append("    ").append(XmlHandler.addTagValue("cache_size", cacheSize));
-    retval.append("    <lookup>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("      ").append(XmlHandler.addTagValue("table", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("orderby", orderByClause));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("fail_on_multiple", failingOnMultipleResults));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("eat_row_on_failure", eatingRowOnLookupFailure));
-
-    for (int i = 0; i < streamKeyField1.length; i++) {
-      retval.append("      <key>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", streamKeyField1[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", tableKeyField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("condition", keyCondition[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name2", streamKeyField2[i]));
-      retval.append("      </key>").append(Const.CR);
-    }
-
-    for (int i = 0; i < returnValueField.length; i++) {
-      retval.append("      <value>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", returnValueField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("rename", returnValueNewName[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("default", returnValueDefault[i]));
-      retval
-          .append("        ")
-          .append(
-              XmlHandler.addTagValue(
-                  "type", ValueMetaFactory.getValueMetaName(returnValueDefaultType[i])));
-      retval.append("      </value>").append(Const.CR);
-    }
-
-    retval.append("    </lookup>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -517,28 +174,31 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
         db.connect();
 
-        if (!Utils.isEmpty(tableName)) {
+        List<KeyField> keyFields = lookup.getKeyFields();
+        if (!Utils.isEmpty(lookup.getTableName())) {
           boolean first = true;
           boolean errorFound = false;
           errorMessage = "";
 
           String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+              databaseMeta.getQuotedSchemaTableCombination(
+                  variables, lookup.getSchemaName(), lookup.getTableName());
           IRowMeta r = db.getTableFields(schemaTable);
 
           if (r != null) {
             // Check the keys used to do the lookup...
+            for (int i = 0; i < keyFields.size(); i++) {
+              KeyField keyField = keyFields.get(i);
+              String luField = keyField.getTableField();
+              ;
 
-            for (int i = 0; i < tableKeyField.length; i++) {
-              String lufield = tableKeyField[i];
-
-              IValueMeta v = r.searchValueMeta(lufield);
+              IValueMeta v = r.searchValueMeta(luField);
               if (v == null) {
                 if (first) {
                   first = false;
@@ -548,7 +208,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage += "\t\t" + luField + Const.CR;
               }
             }
             if (errorFound) {
@@ -564,11 +224,12 @@ public class DatabaseLookupMeta extends BaseTransformMeta
             remarks.add(cr);
 
             // Also check the returned values!
+            List<ReturnValue> returnValues = lookup.getReturnValues();
+            for (int i = 0; i < returnValues.size(); i++) {
+              ReturnValue returnValue = returnValues.get(i);
+              String luField = returnValue.getTableField();
 
-            for (int i = 0; i < returnValueField.length; i++) {
-              String lufield = returnValueField[i];
-
-              IValueMeta v = r.searchValueMeta(lufield);
+              IValueMeta v = r.searchValueMeta(luField);
               if (v == null) {
                 if (first) {
                   first = false;
@@ -578,7 +239,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage += "\t\t" + luField + Const.CR;
               }
             }
             if (errorFound) {
@@ -607,8 +268,10 @@ public class DatabaseLookupMeta extends BaseTransformMeta
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < streamKeyField1.length; i++) {
-            IValueMeta v = prev.searchValueMeta(streamKeyField1[i]);
+          for (int i = 0; i < keyFields.size(); i++) {
+            KeyField keyField = keyFields.get(i);
+
+            IValueMeta v = prev.searchValueMeta(keyField.getStreamField1());
             if (v == null) {
               if (first) {
                 first = false;
@@ -618,7 +281,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + streamKeyField1[i] + Const.CR;
+              errorMessage += "\t\t" + keyField.getStreamField1() + Const.CR;
             }
           }
           if (errorFound) {
@@ -678,14 +341,14 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   public IRowMeta getTableFields(IVariables variables) {
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
         db.connect();
-        String realTableName = variables.resolve(tableName);
         String schemaTable =
-            databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, realTableName);
+            databaseMeta.getQuotedSchemaTableCombination(
+                variables, lookup.getSchemaName(), lookup.getTableName());
         fields = db.getTableFields(schemaTable);
 
       } catch (HopDatabaseException dbe) {
@@ -726,17 +389,20 @@ public class DatabaseLookupMeta extends BaseTransformMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider) {
     // The keys are read-only...
-    for (int i = 0; i < streamKeyField1.length; i++) {
-      IValueMeta v = prev.searchValueMeta(streamKeyField1[i]);
+    List<KeyField> keyFields = lookup.getKeyFields();
+    for (int i = 0; i < keyFields.size(); i++) {
+      KeyField keyField = keyFields.get(i);
+
+      IValueMeta v = prev.searchValueMeta(keyField.getStreamField1());
       DatabaseImpact ii =
           new DatabaseImpact(
               DatabaseImpact.TYPE_IMPACT_READ,
               pipelineMeta.getName(),
               transforminfo.getName(),
               databaseMeta.getDatabaseName(),
-              tableName,
-              tableKeyField[i],
-              streamKeyField1[i],
+              lookup.getTableName(),
+              keyField.getTableField(),
+              keyField.getStreamField1(),
               v != null ? v.getOrigin() : "?",
               "",
               BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.Key"));
@@ -744,21 +410,68 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     }
 
     // The Return fields are read-only too...
-    for (int i = 0; i < returnValueField.length; i++) {
+    List<ReturnValue> returnValues = lookup.getReturnValues();
+    for (int i = 0; i < returnValues.size(); i++) {
+      ReturnValue returnValue = returnValues.get(i);
       DatabaseImpact ii =
           new DatabaseImpact(
               DatabaseImpact.TYPE_IMPACT_READ,
               pipelineMeta.getName(),
               transforminfo.getName(),
               databaseMeta.getDatabaseName(),
-              tableName,
-              returnValueField[i],
+              lookup.getTableName(),
+              returnValue.getTableField(),
               "",
               "",
               "",
               BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.ReturnValue"));
       impact.add(ii);
     }
+  }
+
+  @Override
+  public String getTableName() {
+    return lookup.getTableName();
+  }
+
+  @Override
+  public String getSchemaName() {
+    return lookup.getSchemaName();
+  }
+
+  @Override
+  public List<String> getDatabaseFields() {
+    Set<String> fields = new HashSet<>();
+    for (KeyField keyField : lookup.getKeyFields()) {
+      if (StringUtils.isNotEmpty(keyField.getTableField())) {
+        fields.add(keyField.getTableField());
+      }
+    }
+    for (ReturnValue returnValue : lookup.getReturnValues()) {
+      if (StringUtils.isNotEmpty(returnValue.getTableField())) {
+        fields.add(returnValue.getTableField());
+      }
+    }
+    return new ArrayList<>(fields);
+  }
+
+  @Override
+  public List<String> getStreamFields() {
+    Set<String> fields = new HashSet<>();
+    for (KeyField keyField : lookup.getKeyFields()) {
+      if (StringUtils.isNotEmpty(keyField.getStreamField1())) {
+        fields.add(keyField.getStreamField1());
+      }
+      if (StringUtils.isNotEmpty(keyField.getStreamField2())) {
+        fields.add(keyField.getStreamField2());
+      }
+    }
+    for (ReturnValue returnValue : lookup.getReturnValues()) {
+      if (StringUtils.isNotEmpty(returnValue.getNewName())) {
+        fields.add(returnValue.getNewName());
+      }
+    }
+    return new ArrayList<>(fields);
   }
 
   @Override
@@ -770,30 +483,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     }
   }
 
-  /** @return Returns the eatingRowOnLookupFailure. */
-  public boolean isEatingRowOnLookupFailure() {
-    return eatingRowOnLookupFailure;
-  }
-
-  /** @param eatingRowOnLookupFailure The eatingRowOnLookupFailure to set. */
-  public void setEatingRowOnLookupFailure(boolean eatingRowOnLookupFailure) {
-    this.eatingRowOnLookupFailure = eatingRowOnLookupFailure;
-  }
-
-  /** @return the schemaName */
-  @Override
-  public String getSchemaName() {
-    return schemaName;
-  }
-
   @Override
   public String getMissingDatabaseConnectionInformationMessage() {
     return null;
-  }
-
-  /** @param schemaName the schemaName to set */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
   }
 
   @Override
@@ -801,28 +493,79 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     return true;
   }
 
-  /** @return the loadingAllDataInCache */
+  @Override
+  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
+    return (RowMeta) ((DatabaseLookupData) transformData).returnMeta;
+  }
+
+  /**
+   * Gets databaseMeta
+   *
+   * @return value of databaseMeta
+   */
+  @Override
+  public DatabaseMeta getDatabaseMeta() {
+    return databaseMeta;
+  }
+
+  /** @param databaseMeta The databaseMeta to set */
+  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
+    this.databaseMeta = databaseMeta;
+  }
+
+  /**
+   * Gets cached
+   *
+   * @return value of cached
+   */
+  public boolean isCached() {
+    return cached;
+  }
+
+  /** @param cached The cached to set */
+  public void setCached(boolean cached) {
+    this.cached = cached;
+  }
+
+  /**
+   * Gets cacheSize
+   *
+   * @return value of cacheSize
+   */
+  public int getCacheSize() {
+    return cacheSize;
+  }
+
+  /** @param cacheSize The cacheSize to set */
+  public void setCacheSize(int cacheSize) {
+    this.cacheSize = cacheSize;
+  }
+
+  /**
+   * Gets loadingAllDataInCache
+   *
+   * @return value of loadingAllDataInCache
+   */
   public boolean isLoadingAllDataInCache() {
     return loadingAllDataInCache;
   }
 
-  /** @param loadingAllDataInCache the loadingAllDataInCache to set */
+  /** @param loadingAllDataInCache The loadingAllDataInCache to set */
   public void setLoadingAllDataInCache(boolean loadingAllDataInCache) {
     this.loadingAllDataInCache = loadingAllDataInCache;
   }
 
-  @Override
-  public RowMeta getRowMeta( IVariables variables, ITransformData transformData ) {
-    return (RowMeta) ((DatabaseLookupData) transformData).returnMeta;
+  /**
+   * Gets lookup
+   *
+   * @return value of lookup
+   */
+  public Lookup getLookup() {
+    return lookup;
   }
 
-  @Override
-  public List<String> getDatabaseFields() {
-    return Arrays.asList(returnValueField);
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-    return Arrays.asList(returnValueNewName);
+  /** @param lookup The lookup to set */
+  public void setLookup(Lookup lookup) {
+    this.lookup = lookup;
   }
 }

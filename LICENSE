@@ -199,28 +199,3 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
-    =======================================================================================
-    Eclipse Public License 1.0 (EPL) For details, see licenses/LICENSE-EPL10
-    =======================================================================================
-    plugins/transforms/userdefinedjavaclass/src/main/java/org/apache/hop/pipeline/transforms/userdefinedjavaclass/UserDefinedJavaClassHighlight.java
-    plugins/transforms/javascript/src/main/java/org/apache/hop/pipeline/transforms/javascript/ScriptValuesHighlight.java
-    plugins/transforms/salesforce/src/main/java/org/apache/hop/pipeline/transforms/salesforce/SOQLValuesHighlight.java
-    ui/src/main/java/org/apache/hop/ui/hopgui/shared/Sleak.java
-    ui/src/main/java/org/apache/hop/ui/pipeline/transforms/tableinput/SqlValuesHighlight.java
-    ui/src/main/java/org/apache/hop/ui/util/ImageUtil.java
-
-    =======================================================================================
-    GNU Lesser General Public License Version 2.1 (LGPL 2.1) For details, see licenses/LICENSE-LGPL21
-    =======================================================================================
-    plugins/actions/ftp/src/main/java/org/apache/hop/workflow/actions/ftpput/FtpClient.java
-
-    =======================================================================================
-    Creative Commons Attribution-Share Alike 4.0 International For details, see licenses/LICENSE-CC-BY-SA
-    =======================================================================================
-    plugins/misc/testing/src/main/resources/Test_tube_icon.svg (Original location: https://commons.wikimedia.org/wiki/File:Test_tube_icon.svg, Created By: Townie: https://commons.wikimedia.org/wiki/User:Townie)
-    plugins/misc/testing/src/main/resources/Test_tube_icon_create.svg (Derived work from Test_tube_icon.svg)
-    plugins/misc/testing/src/main/resources/Test_tube_icon_delete.svg (Derived work from Test_tube_icon.svg)
-    plugins/misc/testing/src/main/resources/Test_tube_icon_detach.svg (Derived work from Test_tube_icon.svg)
-    plugins/misc/testing/src/main/resources/Test_tube_icon_edit.svg (Derived work from Test_tube_icon.svg)
-    plugins/misc/testing/src/main/resources/test_tube_icon_run.svg (Derived work from Test_tube_icon.svg)

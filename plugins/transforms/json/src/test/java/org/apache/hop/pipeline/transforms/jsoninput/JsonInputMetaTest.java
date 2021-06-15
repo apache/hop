@@ -129,7 +129,7 @@ public class JsonInputMetaTest {
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", true, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 
-  // Loading transform meta from the transform xml that was created before PDI-17060 fix. In this case xml contains no
+  // Loading transform meta from the transform xml that was created before. In this case xml contains no
   // DefaultPathLeafToNull node at all.
   // For backward compatibility in this case we think that the option is set to default value - Y.
   @Test

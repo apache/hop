@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-assemblies</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Assemblies</name>
@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -41,10 +41,11 @@
   <modules>
     <module>plugins</module>
     <module>static</module>
-    <module>demo</module>
     <module>lib</module>
     <module>client</module>
+    <module>web</module>
     <module>core</module>
     <module>debug</module>
+    <module>samples</module>
   </modules>
 </project>

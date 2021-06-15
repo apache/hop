@@ -72,50 +72,50 @@ public class ColumnInfo {
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname The column name
-   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param columnName The column name
+   * @param columnType The column type (see: COLUMN_TYPE_...)
    */
-  public ColumnInfo( String colname, int coltype ) {
-    name = colname;
-    type = coltype;
+  public ColumnInfo( String columnName, int columnType ) {
+    this.name = columnName;
+    this.type = columnType;
     comboValues = null;
     numeric = false;
     tooltip = null;
     alignment = SWT.LEFT;
     readonly = false;
     hidingNegativeValues = false;
-    valueMeta = new ValueMetaString( colname );
+    valueMeta = new ValueMetaString( columnName );
   }
 
   /**
    * Creates a column info class for use with the TableView class. The type of column info to be created is :
    * COLUMN_TYPE_CCOMBO
    *
-   * @param colname The column name
-   * @param coltype The column type (see: COLUMN_TYPE_...)
-   * @param combo   The choices in the combo box
+   * @param columnName The column name
+   * @param columnType The column type (see: COLUMN_TYPE_...)
+   * @param comboValues   The choices in the comboValues box
    */
-  public ColumnInfo( String colname, int coltype, String[] combo ) {
-    this( colname, coltype );
-    comboValues = combo;
+  public ColumnInfo( String columnName, int columnType, String...comboValues ) {
+    this( columnName, columnType );
+    this.comboValues = comboValues;
     numeric = false;
     tooltip = null;
     alignment = SWT.LEFT;
     readonly = false;
     hidingNegativeValues = false;
-    valueMeta = new ValueMetaString( colname );
+    valueMeta = new ValueMetaString( columnName );
   }
 
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname The column name
-   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param columnName The column name
+   * @param columnType The column type (see: COLUMN_TYPE_...)
    * @param numeric true if the column type is numeric. Use setValueType() to specify the type of numeric:
    *                IValueMeta.TYPE_INTEGER is the default.
    */
-  public ColumnInfo( String colname, int coltype, boolean numeric ) {
-    this( colname, coltype );
+  public ColumnInfo( String columnName, int columnType, boolean numeric ) {
+    this( columnName, columnType );
     this.comboValues = null;
     this.numeric = numeric;
     this.tooltip = null;
@@ -123,9 +123,9 @@ public class ColumnInfo {
     this.readonly = false;
     this.hidingNegativeValues = false;
     if ( numeric ) {
-      valueMeta = new ValueMetaInteger( colname );
+      valueMeta = new ValueMetaInteger( columnName );
     } else {
-      valueMeta = new ValueMetaString( colname );
+      valueMeta = new ValueMetaString( columnName );
     }
   }
 

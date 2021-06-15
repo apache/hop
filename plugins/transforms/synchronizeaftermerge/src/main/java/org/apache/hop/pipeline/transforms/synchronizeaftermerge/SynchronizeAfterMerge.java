@@ -427,7 +427,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
 
         if ( data.specialErrorHandling && data.supportsSavepoints ) {
           if ( data.savepoint != null || !data.lookupFailure ) {
-            // do this when savepoint was set, and this is not lookup failure PDI-10878
+            // do this when savepoint was set, and this is not lookup failure
             data.db.rollback( data.savepoint );
             if ( data.releaseSavepoint ) {
               data.db.releaseSavepoint( data.savepoint );
@@ -850,7 +850,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
         data.commitSize = Integer.parseInt( resolve( meta.getCommitSize() ) );
         data.batchMode = data.commitSize > 0 && meta.useBatchUpdate();
 
-        // Batch updates are not supported on PostgreSQL (and look-a-likes) together with error handling (PDI-366)
+        // Batch updates are not supported on PostgreSQL (and look-a-likes) together with error handling
         //
         data.specialErrorHandling =
           getTransformMeta().isDoingErrorHandling() && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();

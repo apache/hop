@@ -37,7 +37,6 @@ import java.util.Date;
 public class ActionResult implements Cloneable, Comparator<ActionResult>, Comparable<ActionResult> {
   private Result result;
   private String actionName;
-  private int actionNr;
 
   private String comment;
   private String reason;
@@ -59,7 +58,7 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
    * Creates a new action result...
    */
   public ActionResult( Result result, String logChannelId, String comment, String reason, String actionName,
-                       int actionNr, String actionFilename ) {
+                       String actionFilename ) {
     this();
     if ( result != null ) {
       // lightClone doesn't bother cloning all the rows.
@@ -73,23 +72,7 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     this.comment = comment;
     this.reason = reason;
     this.actionName = actionName;
-    this.actionNr = actionNr;
     this.actionFilename = actionFilename;
-  }
-
-  /**
-   * @param result
-   * @param comment
-   * @param reason
-   * @param actionMeta
-   * @deprecated use {@link #ActionResult(Result, String, String, String, String, int, String)}
-   */
-  @Deprecated
-  public ActionResult( Result result, String comment, String reason, ActionMeta actionMeta ) {
-
-    this( result, actionMeta.getAction().getLogChannel().getLogChannelId(), comment, reason, actionMeta != null ? actionMeta
-      .getName() : null, actionMeta != null ? actionMeta.getNr() : 0, actionMeta == null ? null : ( actionMeta.getAction() != null ? actionMeta
-      .getAction().getFilename() : null ) );
   }
 
   @Override
@@ -191,20 +174,6 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     this.actionFilename = actionFilename;
   }
 
-  /**
-   * @return the actionNr
-   */
-  public int getActionNr() {
-    return actionNr;
-  }
-
-  /**
-   * @param actionNr the actionNr to set
-   */
-  public void setActionNr( int actionNr ) {
-    this.actionNr = actionNr;
-  }
-
   @Override
   public int compare( ActionResult one, ActionResult two ) {
     if ( one == null && two != null ) {
@@ -226,11 +195,7 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
       return 0;
     }
 
-    int cmp = one.getActionName().compareTo( two.getActionName() );
-    if ( cmp != 0 ) {
-      return cmp;
-    }
-    return Integer.valueOf( one.getActionNr() ).compareTo( Integer.valueOf( two.getActionNr() ) );
+    return one.getActionName().compareTo( two.getActionName() );
   }
 
   @Override

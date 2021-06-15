@@ -62,7 +62,7 @@ import java.util.List;
   description = "i18n::ActionSQL.Description",
   image = "sql.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sql.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/sql.html"
 )
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class; // For Translator
@@ -197,19 +197,19 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
 
         if ( sqlfromfile ) {
           if ( sqlfilename == null ) {
-            throw new HopDatabaseException( BaseMessages.getString( PKG, "JobSQL.NoSQLFileSpecified" ) );
+            throw new HopDatabaseException( BaseMessages.getString( PKG, "ActionSQL.NoSQLFileSpecified" ) );
           }
 
           try {
             String realfilename = resolve( sqlfilename );
             sqlFile = HopVfs.getFileObject( realfilename );
             if ( !sqlFile.exists() ) {
-              logError( BaseMessages.getString( PKG, "JobSQL.SQLFileNotExist", realfilename ) );
+              logError( BaseMessages.getString( PKG, "ActionSQL.SQLFileNotExist", realfilename ) );
               throw new HopDatabaseException( BaseMessages.getString(
-                PKG, "JobSQL.SQLFileNotExist", realfilename ) );
+                PKG, "ActionSQL.SQLFileNotExist", realfilename ) );
             }
             if ( isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "JobSQL.SQLFileExists", realfilename ) );
+              logDetailed( BaseMessages.getString( PKG, "ActionSQL.SQLFileExists", realfilename ) );
             }
 
             InputStream IS = HopVfs.getInputStream( sqlFile );
@@ -233,7 +233,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
               IS.close();
             }
           } catch ( Exception e ) {
-            throw new HopDatabaseException( BaseMessages.getString( PKG, "JobSQL.ErrorRunningSQLfromFile" ), e );
+            throw new HopDatabaseException( BaseMessages.getString( PKG, "ActionSQL.ErrorRunningSQLfromFile" ), e );
           }
 
         } else {
@@ -245,7 +245,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
             theSql = resolve( theSql );
           }
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobSQL.Log.SQlStatement", theSql ) );
+            logDetailed( BaseMessages.getString( PKG, "ActionSQL.Log.SQlStatement", theSql ) );
           }
           if ( sendOneStatement ) {
             db.execStatement( theSql );
@@ -255,7 +255,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         }
       } catch ( HopDatabaseException je ) {
         result.setNrErrors( 1 );
-        logError( BaseMessages.getString( PKG, "JobSQL.ErrorRunAction", je.getMessage() ) );
+        logError( BaseMessages.getString( PKG, "ActionSQL.ErrorRunAction", je.getMessage() ) );
       } finally {
         db.disconnect();
         if ( sqlFile != null ) {
@@ -268,7 +268,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
       }
     } else {
       result.setNrErrors( 1 );
-      logError( BaseMessages.getString( PKG, "JobSQL.NoDatabaseConnection" ) );
+      logError( BaseMessages.getString( PKG, "ActionSQL.NoDatabaseConnection" ) );
     }
 
     if ( result.getNrErrors() == 0 ) {
@@ -280,7 +280,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

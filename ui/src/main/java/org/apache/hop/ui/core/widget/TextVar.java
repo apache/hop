@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
@@ -148,7 +149,9 @@ public class TextVar extends Composite {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    PropsUi.getInstance().setLook(this);
+    PropsUi props = PropsUi.getInstance();
+
+    props.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -160,20 +163,21 @@ public class TextVar extends Composite {
 
     // Add the variable $ image on the top right of the control
     //
-    Label wlImage = new Label(this, SWT.NONE);
-    wlImage.setImage(GuiResource.getInstance().getImageVariable());
-    wlImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
+    Label wImage = new Label(this, SWT.NONE);
+    props.setLook(wImage);
+    wImage.setImage(GuiResource.getInstance().getImageVariable());
+    wImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
     fdlImage.top = new FormAttachment(0, 0);
     fdlImage.right = new FormAttachment(100, 0);
-    wlImage.setLayoutData(fdlImage);
+    wImage.setLayoutData(fdlImage);
 
     // add a text field on it...
     wText = new Text(this, flags);
     FormData fdText = new FormData();
     fdText.top = new FormAttachment(0, 0);
     fdText.left = new FormAttachment(0, 0);
-    fdText.right = new FormAttachment(wlImage, 0);
+    fdText.right = new FormAttachment(wImage, 0);
     fdText.bottom = new FormAttachment(100, 0);
     wText.setLayoutData(fdText);
 
@@ -299,7 +303,9 @@ public class TextVar extends Composite {
   }
 
   public void showSelection() {
-    wText.showSelection();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      wText.showSelection();
+    }
   }
 
   public void setVariables(IVariables vars) {

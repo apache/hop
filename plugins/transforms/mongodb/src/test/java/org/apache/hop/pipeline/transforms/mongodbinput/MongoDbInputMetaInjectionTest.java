@@ -43,23 +43,10 @@ public class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTest<Mon
 
   @Test
   public void test() throws Exception {
-    check("HOSTNAME", () -> meta.getHostnames());
+    check("CONNECTION", () -> meta.getConnectionName());
     check("JSON_FIELD", () -> meta.getFieldsName());
     check("JSON_QUERY", () -> meta.getJsonQuery());
-    check("PORT", () -> meta.getPort());
-    check("DATABASE_NAME", () -> meta.getDbName());
     check("COLLECTION", () -> meta.getCollection());
-    check("AUTH_DATABASE", () -> meta.getAuthenticationDatabaseName());
-    check("AUTH_USERNAME", () -> meta.getAuthenticationUser());
-    check("AUTH_PASSWORD", () -> meta.getAuthenticationPassword());
-    check("AUTH_MECHANISM", () -> meta.getAuthenticationMechanism());
-    check("AUTH_KERBEROS", () -> meta.getUseKerberosAuthentication());
-    check("TIMEOUT_CONNECTION", () -> meta.getConnectTimeout());
-    check("TIMEOUT_SOCKET", () -> meta.getSocketTimeout());
-    check("USE_SSL_SOCKET_FACTORY", () -> meta.isUseSSLSocketFactory());
-    check("READ_PREFERENCE", () -> meta.getReadPreference());
-    check("USE_ALL_REPLICA_SET_MEMBERS", () -> meta.getUseAllReplicaSetMembers());
-    check("TAG_SET", () -> meta.getReadPrefTagSets().get(0));
     check("JSON_OUTPUT_FIELD", () -> meta.getJsonFieldName());
     check("AGG_PIPELINE", () -> meta.isQueryIsPipeline());
     check("OUTPUT_JSON", () -> meta.isOutputJson());

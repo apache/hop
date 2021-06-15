@@ -1,0 +1,48 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopPipelineEditor]]
+:imagesdir: ../assets/images
+
+= Toolbar
+
+Let's walk through the top toolbar:
+
+image::getting-started/getting-started-pipeline-toolbar.png[Hop - Pipeline Toolbar, align="left"]
+
+[width="85%", cols="15%,5%,80%", options="header"]
+|===
+|Action|Icon|Description
+|run|image:getting-started/icons/run.svg[Run, 25px, align="bottom"]|start the execution of the pipeline
+|pause|image:getting-started/icons/pause.svg[Pause, 25px, align="bottom"]|pause the execution of the pipeline
+|stop|image:getting-started/icons/stop.svg[Stop, 25px, align="bottom"]|stop the  execution of the pipeline
+|||
+|preview|image:getting-started/icons/view.svg[Preview, 25px, align="bottom"]|preview the pipeline
+|debug|image:getting-started/icons/debug.svg[Debug, 25px, align="bottom"]|debug the pipeline
+|print|image:getting-started/icons/print.png[Print, 25px, align="bottom"]|print the pipeline
+|||
+|undo|image:getting-started/icons/Antu_edit-undo.svg[Undo, 25px, align="bottom"]|undo an operation
+|redo|image:getting-started/icons/Antu_edit-redo.svg[Redo, 25px, align="bottom"]|redo an operation
+|||
+|align|image:getting-started/icons/snap-to-grid.svg[Snap To Grid, 25px, align="bottom"]|align the specified (selected) transforms to the specified grid size
+|align left|image:getting-started/icons/align-left.svg[Align Left, 25px, align="bottom"]|align the selected transforms with left-most selected transform in the selection
+|align right|image:getting-started/icons/align-right.svg[Align Right, 25px, align="bottom"]|align the selected transforms with right-most selected transform in the selection
+|align top|image:getting-started/icons/align-top.svg[Align Top, 25px, align="bottom"]|align the selected transforms with top-most selected transform in the selection
+|align bottom|image:getting-started/icons/align-bottom.svg[Align Bottom, 25px, align="bottom"]|align the selected transforms with bottom-most selected transform in the selection
+|||
+|distribute horizontally|image:getting-started/icons/distribute-horizontally.svg[Distribute Horizontally, 25px, align="bottom"]|Distribute the selected transforms evenly between the left-most and right-most transform in your selection
+|distribute vertically|image:getting-started/icons/distribute-vertically.svg[Distribute Vertically, 25px, align="bottom"]|Distribute the selected transforms evenly between the top-most and bottom-most transform in your selection
+|===

@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -74,8 +74,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
-import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
-import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -388,7 +386,7 @@ public class PipelineMeta extends AbstractMeta
       for (TransformMeta transform : transforms) {
         pipelineMeta.addTransform((TransformMeta) transform.clone());
       }
-      // PDI-15799: Transform references are original yet. Set them to the clones.
+      // Transform references are original yet. Set them to the clones.
       for (TransformMeta transform : pipelineMeta.getTransforms()) {
         final ITransformMeta transformMetaInterface = transform.getTransform();
         if (transformMetaInterface != null) {
@@ -1417,7 +1415,6 @@ public class PipelineMeta extends AbstractMeta
   public IRowMeta getTransformFields(
       IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
       throws HopTransformException {
-    setMetaStoreOnMappingTransforms();
     return getTransformFields(variables, transformMeta, null, monitor);
   }
 
@@ -1533,7 +1530,8 @@ public class PipelineMeta extends AbstractMeta
    * @return A row containing the fields (w/ origin) entering the transform
    * @throws HopTransformException the hop transform exception
    */
-  public IRowMeta getPrevTransformFields(IVariables variables, String transformName) throws HopTransformException {
+  public IRowMeta getPrevTransformFields(IVariables variables, String transformName)
+      throws HopTransformException {
     return getPrevTransformFields(variables, findTransform(transformName));
   }
 
@@ -1703,14 +1701,13 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    setMetaStoreOnMappingTransforms();
-
     // Go get the fields...
     //
     IRowMeta before = row.clone();
     IRowMeta[] clonedInfo = cloneRowMetaInterfaces(infoRowMeta);
     if (!isSomethingDifferentInRow(before, row)) {
-      iTransformMeta.getFields(before, name, clonedInfo, nextTransform, variables, metadataProvider);
+      iTransformMeta.getFields(
+          before, name, clonedInfo, nextTransform, variables, metadataProvider);
       // pass the clone object to prevent from spoiling data by other transforms
       row = before;
     }
@@ -1776,24 +1773,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Set the MetaStore on the Mapping transform. That way the mapping transform can determine the
-   * output fields for metadata referencing mappings... This is the exception to the rule so we
-   * don't pass this through the getFields() method. TODO: figure out a way to make this more
-   * generic.
-   */
-  private void setMetaStoreOnMappingTransforms() {
-
-    for (TransformMeta transform : transforms) {
-      if (transform.getTransform() instanceof WorkflowExecutorMeta) {
-        ((WorkflowExecutorMeta) transform.getTransform()).setMetadataProvider(metadataProvider);
-      }
-      if (transform.getTransform() instanceof PipelineExecutorMeta) {
-        ((PipelineExecutorMeta) transform.getTransform()).setMetadataProvider(metadataProvider);
-      }
-    }
-  }
-
-  /**
    * Checks if the pipeline is using the specified partition schema.
    *
    * @param partitionSchema the partition schema
@@ -1839,32 +1818,15 @@ public class PipelineMeta extends AbstractMeta
    *
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
-   * @see IXml#getXml()
+   * @see IXml#getXml(IVariables)
+   * @param variables
    */
   @Override
-  public String getXml() throws HopException {
-    return getXml(true, true, true, true);
-  }
-
-  /**
-   * Gets the XML representation of this pipeline, including or excluding transform, database, hop
-   * server, cluster, or partition information as specified by the parameters
-   *
-   * @param includeTransforms whether to include transform data
-   * @param includeNamedParameters whether to include named parameters data
-   * @param includeNotePads whether to include notepads data
-   * @param includeAttributeGroups whether to include attributes map data
-   * @return the XML representation of this pipeline
-   * @throws HopException if any errors occur during generation of the XML
-   */
-  public String getXml(
-      boolean includeTransforms,
-      boolean includeNamedParameters,
-      boolean includeNotePads,
-      boolean includeAttributeGroups)
-      throws HopException {
+  public String getXml(IVariables variables) throws HopException {
 
     StringBuilder xml = new StringBuilder(800);
+
+    xml.append(XmlHandler.getLicenseHeader(variables));
 
     xml.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
 
@@ -1884,21 +1846,18 @@ public class PipelineMeta extends AbstractMeta
       xml.append("    ").append(XmlHandler.addTagValue("pipeline_status", pipelineStatus));
     }
 
-    if (includeNamedParameters) {
-      xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
-      String[] parameters = listParameters();
-      for (int idx = 0; idx < parameters.length; idx++) {
-        xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
-        xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
-        xml.append("        ")
-            .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
-        xml.append("        ")
-            .append(
-                XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
-        xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
-      }
-      xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
+    xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
+    String[] parameters = listParameters();
+    for (int idx = 0; idx < parameters.length; idx++) {
+      xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
+      xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append("        ")
+          .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
+      xml.append("        ")
+          .append(XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
+      xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
     }
+    xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
 
     // Performance monitoring
     //
@@ -1932,52 +1891,43 @@ public class PipelineMeta extends AbstractMeta
 
     xml.append("  ").append(XmlHandler.closeTag(XML_TAG_INFO)).append(Const.CR);
 
-    if (includeNotePads) {
-      xml.append("  ").append(XmlHandler.openTag(XML_TAG_NOTEPADS)).append(Const.CR);
-      if (notes != null) {
-        for (int i = 0; i < nrNotes(); i++) {
-          NotePadMeta ni = getNote(i);
-          xml.append(ni.getXml());
-        }
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_NOTEPADS)).append(Const.CR);
+    if (notes != null) {
+      for (int i = 0; i < nrNotes(); i++) {
+        NotePadMeta ni = getNote(i);
+        xml.append(ni.getXml());
       }
-      xml.append("  ").append(XmlHandler.closeTag(XML_TAG_NOTEPADS)).append(Const.CR);
+    }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_NOTEPADS)).append(Const.CR);
+
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_ORDER)).append(Const.CR);
+    for (int i = 0; i < nrPipelineHops(); i++) {
+      PipelineHopMeta pipelineHopMeta = getPipelineHop(i);
+      xml.append(pipelineHopMeta.getXml());
+    }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ORDER)).append(Const.CR);
+
+    /* The transforms... */
+    for (int i = 0; i < nrTransforms(); i++) {
+      TransformMeta transformMeta = getTransform(i);
+      xml.append(transformMeta.getXml());
     }
 
-    if (includeTransforms) {
-      xml.append("  ").append(XmlHandler.openTag(XML_TAG_ORDER)).append(Const.CR);
-      for (int i = 0; i < nrPipelineHops(); i++) {
-        PipelineHopMeta pipelineHopMeta = getPipelineHop(i);
-        xml.append(pipelineHopMeta.getXml());
-      }
-      xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ORDER)).append(Const.CR);
+    /* The error handling metadata on the transforms */
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_TRANSFORM_ERROR_HANDLING)).append(Const.CR);
+    for (int i = 0; i < nrTransforms(); i++) {
+      TransformMeta transformMeta = getTransform(i);
 
-      /* The transforms... */
-      for (int i = 0; i < nrTransforms(); i++) {
-        TransformMeta transformMeta = getTransform(i);
-        xml.append(transformMeta.getXml());
+      if (transformMeta.getTransformErrorMeta() != null) {
+        xml.append(transformMeta.getTransformErrorMeta().getXml());
       }
-
-      /* The error handling metadata on the transforms */
-      xml.append("  ")
-          .append(XmlHandler.openTag(XML_TAG_TRANSFORM_ERROR_HANDLING))
-          .append(Const.CR);
-      for (int i = 0; i < nrTransforms(); i++) {
-        TransformMeta transformMeta = getTransform(i);
-
-        if (transformMeta.getTransformErrorMeta() != null) {
-          xml.append(transformMeta.getTransformErrorMeta().getXml());
-        }
-      }
-      xml.append("  ")
-          .append(XmlHandler.closeTag(XML_TAG_TRANSFORM_ERROR_HANDLING))
-          .append(Const.CR);
     }
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_TRANSFORM_ERROR_HANDLING)).append(Const.CR);
 
     // Also store the attribute groups
     //
-    if (includeAttributeGroups) {
-      xml.append(AttributesUtil.getAttributesXml(attributesMap));
-    }
+    xml.append(AttributesUtil.getAttributesXml(attributesMap));
+
     xml.append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
 
     return XmlFormatter.format(xml.toString());
@@ -1990,7 +1940,8 @@ public class PipelineMeta extends AbstractMeta
    * @param metadataProvider the metadata store to reference (or null if there is none)
    * @param setInternalVariables true if you want to set the internal variables based on this
    *     pipeline information
-   * @param parentVariableSpace the parent variable variables to use during PipelineMeta construction
+   * @param parentVariableSpace the parent variable variables to use during PipelineMeta
+   *     construction
    * @throws HopXmlException if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the
    *     exception in that case)
@@ -2118,8 +2069,7 @@ public class PipelineMeta extends AbstractMeta
         // Clear the pipeline
         clear();
 
-        // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX:
-        // PDI-8890
+        // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX.
         //
         setFilename(filename);
 
@@ -2293,7 +2243,7 @@ public class PipelineMeta extends AbstractMeta
         throw new HopXmlException(e);
       } finally {
         ExtensionPointHandler.callExtensionPoint(
-            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this );
+            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this);
       }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!
@@ -3014,7 +2964,8 @@ public class PipelineMeta extends AbstractMeta
    * @param monitor a progress monitor listener to be updated as the pipeline is analyzed
    * @throws HopTransformException if any errors occur during analysis
    */
-  public void analyseImpact(IVariables variables, List<DatabaseImpact> impact, IProgressMonitor monitor)
+  public void analyseImpact(
+      IVariables variables, List<DatabaseImpact> impact, IProgressMonitor monitor)
       throws HopTransformException {
     if (monitor != null) {
       monitor.beginTask(
@@ -3042,8 +2993,8 @@ public class PipelineMeta extends AbstractMeta
         infoRowMeta = iTransformMeta.getTableFields(variables);
       }
 
-      iTransformMeta.analyseImpact( variables,
-          impact, this, transformMeta, prev, null, null, infoRowMeta, metadataProvider);
+      iTransformMeta.analyseImpact(
+          variables, impact, this, transformMeta, prev, null, null, infoRowMeta, metadataProvider);
 
       if (monitor != null) {
         monitor.worked(1);
@@ -3076,23 +3027,23 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
+   * Builds a list of all the Sql statements that this pipeline needs in order to work properly.
    *
    * @param variables the variables to resolve variable expressions with
    * @return An ArrayList of SqlStatement objects.
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public List<SqlStatement> getSqlStatements(IVariables variables) throws HopTransformException {
     return getSqlStatements(variables, null);
   }
 
   /**
-   * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
+   * Builds a list of all the Sql statements that this pipeline needs in order to work properly.
    *
    * @param variables the variables to resolve variable expressions with
-   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
+   * @param monitor a progress monitor listener to be updated as the Sql statements are generated
    * @return An ArrayList of SqlStatement objects.
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public List<SqlStatement> getSqlStatements(IVariables variables, IProgressMonitor monitor)
       throws HopTransformException {
@@ -3133,10 +3084,10 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get the SQL statements (needed to run this pipeline) as a single String.
+   * Get the Sql statements (needed to run this pipeline) as a single String.
    *
-   * @return the SQL statements needed to run this pipeline
-   * @throws HopTransformException if any errors occur during SQL statement generation
+   * @return the Sql statements needed to run this pipeline
+   * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public String getSqlStatementsString(IVariables variables) throws HopTransformException {
     String sql = "";
@@ -3156,7 +3107,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param remarks The remarks list to add to.
    * @param only_selected true to check only the selected transforms, false for all transforms
-   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
+   * @param monitor a progress monitor listener to be updated as the Sql statements are generated
    */
   public void checkTransforms(
       List<ICheckResult> remarks,
@@ -3180,8 +3131,10 @@ public class PipelineMeta extends AbstractMeta
       }
 
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(), variables,
-        HopExtensionPoint.BeforeCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
+          getLogChannel(),
+          variables,
+          HopExtensionPoint.BeforeCheckTransforms.id,
+          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
 
       boolean stop_checking = false;
 
@@ -3255,15 +3208,19 @@ public class PipelineMeta extends AbstractMeta
 
           // Check transform specific info...
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(), variables,
-            HopExtensionPoint.BeforeCheckTransform.id, new CheckTransformsExtension(
-                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
+              getLogChannel(),
+              variables,
+              HopExtensionPoint.BeforeCheckTransform.id,
+              new CheckTransformsExtension(
+                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
               remarks, this, prev, input, output, info, variables, metadataProvider);
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(), variables,
-            HopExtensionPoint.AfterCheckTransform.id, new CheckTransformsExtension(
-                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
+              getLogChannel(),
+              variables,
+              HopExtensionPoint.AfterCheckTransform.id,
+              new CheckTransformsExtension(
+                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
 
           // See if illegal characters etc. were used in field-names...
           if (prev != null) {
@@ -3396,8 +3353,10 @@ public class PipelineMeta extends AbstractMeta
         monitor.worked(1);
       }
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(), variables,
-        HopExtensionPoint.AfterCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
+          getLogChannel(),
+          variables,
+          HopExtensionPoint.AfterCheckTransforms.id,
+          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
     } catch (Exception e) {
       log.logError(Const.getStackTracker(e));
       throw new RuntimeException(e);
@@ -3646,7 +3605,8 @@ public class PipelineMeta extends AbstractMeta
    * @param monitor the monitor
    * @throws HopRowException in case we detect a row mixing violation
    */
-  public void checkRowMixingStatically(IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
+  public void checkRowMixingStatically(
+      IVariables variables, TransformMeta transformMeta, IProgressMonitor monitor)
       throws HopRowException {
     List<TransformMeta> prevTransforms = findPreviousTransforms(transformMeta);
     int nrPrevious = prevTransforms.size();
@@ -3657,7 +3617,8 @@ public class PipelineMeta extends AbstractMeta
         TransformMeta previousTransform = prevTransforms.get(i);
         try {
           IRowMeta row =
-              getTransformFields(variables, previousTransform, monitor); // Throws HopTransformException
+              getTransformFields(
+                  variables, previousTransform, monitor); // Throws HopTransformException
           if (referenceRow == null) {
             referenceRow = row;
           } else if (!transformMeta.getTransform().excludeFromRowLayoutVerification()) {
@@ -3834,7 +3795,8 @@ public class PipelineMeta extends AbstractMeta
   public List<ResourceReference> getResourceDependencies(IVariables variables) {
     return transforms.stream()
         .flatMap(
-            (TransformMeta transformMeta) -> transformMeta.getResourceDependencies(variables).stream())
+            (TransformMeta transformMeta) ->
+                transformMeta.getResourceDependencies(variables).stream())
         .collect(Collectors.toList());
   }
 
@@ -3864,10 +3826,9 @@ public class PipelineMeta extends AbstractMeta
       String baseName;
       String originalPath;
       String fullname;
-      String extension = "ktr";
+      String extension = "hpl";
       if (StringUtils.isNotEmpty(getFilename())) {
-        FileObject fileObject =
-            HopVfs.getFileObject(variables.resolve(getFilename()));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(getFilename()));
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();
@@ -3880,7 +3841,11 @@ public class PipelineMeta extends AbstractMeta
           // If we do this once, it will be plenty :-)
           //
           PipelineMeta pipelineMeta = (PipelineMeta) this.realClone(false);
-          // pipelineMeta.copyVariablesFrom(variables);
+
+          // Set an appropriate name
+          //
+          pipelineMeta.setNameSynchronizedWithFilename(false);
+          pipelineMeta.setName(getName());
 
           // Add used resources, modify pipelineMeta accordingly
           // Go through the list of transforms, etc.
@@ -3900,20 +3865,9 @@ public class PipelineMeta extends AbstractMeta
           //
           pipelineMeta.setFilename(exportFileName);
 
-          // Set a number of parameters for all the data files referenced so far...
-          //
-          Map<String, String> directoryMap = iResourceNaming.getDirectoryMap();
-          if (directoryMap != null) {
-            for (String directory : directoryMap.keySet()) {
-              String parameterName = directoryMap.get(directory);
-              pipelineMeta.addParameterDefinition(
-                  parameterName, directory, "Data file path discovered during export");
-            }
-          }
-
           // At the end, add ourselves to the map...
           //
-          String pipelineMetaContent = pipelineMeta.getXml();
+          String pipelineMetaContent = pipelineMeta.getXml(variables);
 
           definition = new ResourceDefinition(exportFileName, pipelineMetaContent);
 
@@ -4070,31 +4024,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setPipelineType(PipelineType pipelineType) {
     this.pipelineType = pipelineType;
-  }
-
-  /**
-   * Utility method to write the XML of this pipeline to a file, mostly for testing purposes.
-   *
-   * @param filename The filename to save to
-   * @throws HopXmlException in case something goes wrong.
-   */
-  public void writeXml(String filename) throws HopXmlException {
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(filename);
-      fos.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
-      fos.write(getXml().getBytes(Const.XML_ENCODING));
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to save to XML file '" + filename + "'", e);
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          throw new HopXmlException("Unable to close file '" + filename + "'", e);
-        }
-      }
-    }
   }
 
   @Override

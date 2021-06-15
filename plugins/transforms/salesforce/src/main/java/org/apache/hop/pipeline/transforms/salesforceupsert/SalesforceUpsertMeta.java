@@ -46,7 +46,7 @@ import java.util.List;
     description = "i18n::SalesforceUpsert.TypeTooltipDesc.SalesforceUpsert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFU.svg",
-    documentationUrl = "Products/Salesforce_Upsert" )
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforceupsert.html" )
 public class SalesforceUpsertMeta extends SalesforceTransformMeta<SalesforceUpsert,SalesforceUpsertData> {
   private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 

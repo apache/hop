@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionDosToUnix.Description",
     image = "DosToUnix.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/dostounix.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dostounix.html")
 public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
@@ -259,7 +259,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     } catch (HopXmlException xe) {
 
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "JobDosToUnix.Error.Exception.UnableLoadXML"), xe);
+          BaseMessages.getString(PKG, "ActionDosToUnix.Error.Exception.UnableLoadXML"), xe);
     }
   }
 
@@ -300,7 +300,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+                    PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
           result.setEntryNr(nrAllErrors);
@@ -334,7 +334,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+                    PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
           result.setEntryNr(nrAllErrors);
@@ -346,7 +346,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolder[i], vwildcard[i]));
+                  PKG, "ActionDosToUnix.Log.ProcessingRow", vSourceFileFolder[i], vwildcard[i]));
         }
 
         processFileFolder(
@@ -371,10 +371,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private void displayResults() {
     if (isDetailed()) {
       logDetailed("=======================================");
-      logDetailed(BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.Errors", nrErrors));
-      logDetailed(BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.ErrorFiles", nrErrorFiles));
+      logDetailed(BaseMessages.getString(PKG, "ActionDosToUnix.Log.Info.Errors", nrErrors));
+      logDetailed(BaseMessages.getString(PKG, "ActionDosToUnix.Log.Info.ErrorFiles", nrErrorFiles));
       logDetailed(
-          BaseMessages.getString(PKG, "JobDosToUnix.Log.Info.FilesProcessed", nrProcessedFiles));
+          BaseMessages.getString(PKG, "ActionDosToUnix.Log.Info.FilesProcessed", nrProcessedFiles));
       logDetailed("=======================================");
     }
   }
@@ -458,11 +458,11 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         if (toUnix) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Log.ConvertingFileToUnix", source.getAbsolutePath()));
+                  PKG, "ActionDosToUnix.Log.ConvertingFileToUnix", source.getAbsolutePath()));
         } else {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Log.ConvertingFileToDos", source.getAbsolutePath()));
+                  PKG, "ActionDosToUnix.Log.ConvertingFileToDos", source.getAbsolutePath()));
         }
       }
       File tempFile = new File(tempFolder, source.getName() + ".tmp");
@@ -470,7 +470,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       if (isDebug()) {
         logDebug(
             BaseMessages.getString(
-                PKG, "JobDosToUnix.Log.CreatingTempFile", tempFile.getAbsolutePath()));
+                PKG, "ActionDosToUnix.Log.CreatingTempFile", tempFile.getAbsolutePath()));
       }
 
       final int FOUR_KB = 4 * 1024;
@@ -486,7 +486,8 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       }
 
       if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "JobDosToUnix.Log.DeletingSourceFile", localfilename));
+        logDebug(
+            BaseMessages.getString(PKG, "ActionDosToUnix.Log.DeletingSourceFile", localfilename));
       }
       if (isDebug()) {
         logDebug(
@@ -502,7 +503,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
-              PKG, "JobDosToUnix.Log.ErrorConvertingFile", file.toString(), e.getMessage()));
+              PKG, "ActionDosToUnix.Log.ErrorConvertingFile", file.toString(), e.getMessage()));
     }
 
     return retval;
@@ -522,7 +523,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     String realSourceFilefoldername = resolve(sourcefilefoldername);
     if (Utils.isEmpty(realSourceFilefoldername)) {
       logError(
-          BaseMessages.getString(PKG, "JobDosToUnix.log.FileFolderEmpty", sourcefilefoldername));
+          BaseMessages.getString(PKG, "ActionDosToUnix.log.FileFolderEmpty", sourcefilefoldername));
       // Update Errors
       updateErrors();
 
@@ -537,7 +538,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Log.FileExists", sourcefilefolder.toString()));
+                  PKG, "ActionDosToUnix.Log.FileExists", sourcefilefolder.toString()));
         }
         if (sourcefilefolder.getType() == FileType.FILE) {
           entrystatus = convertOneFile(sourcefilefolder, convertion, result, parentWorkflow);
@@ -582,7 +583,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
                 if (!successConditionBrokenExit) {
                   logError(
                       BaseMessages.getString(
-                          PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+                          PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
                   successConditionBrokenExit = true;
                 }
                 return false;
@@ -609,14 +610,14 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         } else {
           logError(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Error.UnknowFileFormat", sourcefilefolder.toString()));
+                  PKG, "ActionDosToUnix.Error.UnknowFileFormat", sourcefilefolder.toString()));
           // Update Errors
           updateErrors();
         }
       } else {
         logError(
             BaseMessages.getString(
-                PKG, "JobDosToUnix.Error.SourceFileNotExists", realSourceFilefoldername));
+                PKG, "ActionDosToUnix.Error.SourceFileNotExists", realSourceFilefoldername));
         // Update Errors
         updateErrors();
       }
@@ -679,7 +680,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
       if (!retval) {
         logError(
-            BaseMessages.getString(PKG, "JobDosToUnix.Error.FileNotConverted", file.toString()));
+            BaseMessages.getString(PKG, "ActionDosToUnix.Error.FileNotConverted", file.toString()));
         // Update Bad files number
         updateBadFormed();
         if (resultFilenames.equals(ADD_ALL_FILENAMES)
@@ -691,7 +692,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           logDetailed("---------------------------");
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobDosToUnix.Error.FileConverted", file, convertToUnix ? "UNIX" : "DOS"));
+                  PKG,
+                  "ActionDosToUnix.Error.FileConverted",
+                  file,
+                  convertToUnix ? "UNIX" : "DOS"));
         }
         // Update processed files number
         updateProcessedFormed();
@@ -730,7 +734,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "JobDosToUnix.Log.FileAddedToResultFilesName", fileaddentry));
+                PKG, "ActionDosToUnix.Log.FileAddedToResultFilesName", fileaddentry));
       }
 
     } catch (Exception e) {
@@ -798,7 +802,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,7 +54,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.JoinRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.JoinRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/joinrows.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/joinrows.html")
 public class JoinRowsMeta extends BaseTransformMeta
     implements ITransformMeta<JoinRows, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
@@ -197,26 +197,26 @@ public class JoinRowsMeta extends BaseTransformMeta
 
   @Override
   public String getXml() throws HopException {
-    StringBuilder retval = new StringBuilder(300);
+    StringBuilder xml = new StringBuilder(300);
 
-    retval.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    retval.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    retval.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
+    xml.append("      ").append(XmlHandler.addTagValue("directory", directory));
+    xml.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
+    xml.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
 
     if (mainTransformName == null) {
       mainTransformName = getLookupTransformName();
     }
-    retval.append("      ").append(XmlHandler.addTagValue("main", mainTransformName));
+    xml.append("      ").append(XmlHandler.addTagValue("main", mainTransformName));
 
-    retval.append("    <compare>").append(Const.CR);
+    xml.append("    <compare>").append(Const.CR);
 
     if (condition != null) {
-      retval.append(condition.getXml());
+      xml.append(condition.getXml());
     }
 
-    retval.append("    </compare>").append(Const.CR);
+    xml.append("    </compare>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   @Override

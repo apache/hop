@@ -1,0 +1,93 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[MetadataPlugins-MetadataPlugins]]
+= Metadata plugins
+
+Writing metadata plugins is easy in Hop.  Any Plain Old Java Object can be used as a starting point.
+
+== @HopMetadata Annotation
+
+This annotation signals to the Metadata plugin type that there is something worth looking at.  The class which carries this annotation will contain the metadata.
+
+Here are the attributes of the @HopMetadata annotation:
+
+* key : this uniquely identifies the plugin and will be the name of the folder in which the metadata resides when serialising to JSON (see below)
+* name : a human-readable name
+* description : an extended description
+* image : the path to an image which helps identify the metadata in the Hop GUI
+
+The class with this annotation will be found either because it lives in the ```plugins/``` folder of Hop or if it's an internal class and is described in the file ```engine/src/main/resources/hop-metadata-plugins.xml```
+
+Example: https://github.com/apache/incubator-hop/blob/f8f2ad2d0bc0cfd143ae90cc32e73b6c9e1cda78/engine/src/main/java/org/apache/hop/partition/PartitionSchema.java#L47[PartitionSchema.java]
+
+== Metadata Properties
+
+All properties you want to have as part of the shared Hop Metadata should get the ```*@HopMetadataProperty*``` annotation.
+All top level classes flagged with @HopMetadata should have a ```name``` property of type ```String```.
+
+Here are the *@HopMetadataProperty* attributes:
+
+* key : optional key if you want it to be different from the name of the field
+* password: set this to true if you want the String field to be encoded using the TwoWayPasswordEncoder of the IHopMetadataProvider interface.
+* storeWithName: if you want to store a reference to another shared metadata object, you can set this to true, otherwise all the properties of the object will be stored.
+
+Here are the supported data types:
+
+* enum : any enum is serialized using its name
+* String : also see the password attribute above.
+* Integer / int
+* Long / long
+* Boolean / boolean
+* java.util.Date
+* java.util.Map<String,String>
+* java.util.List<T> : with T any of the data types listed here.
+* POJO : Any class with more @HopMetadataProperty annotations in it.
+
+
+== An Editor class to edit the metadata
+
+You also want to have a way to edit the metadata in the GUI.  This can be done by extending the class `MetadataEditor<IHopMetadata>`.
+
+Example: https://github.com/apache/incubator-hop/blob/master/ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java[PartitionSchemaEditor.java]
+
+The path to the Editor class will be found automatically by looking at the name of the metadata plugin class and then simply by appending Editor to it.
+If you prefer to keep metadata and GUI code separate the Hop GUI will also look in package `org.apache.hop.ui` instead of `org.apache.hop`
+
+Working examples:
+
+* `org.apache.hop.path.to.MyMetadata`  -> `org.apache.hop.path.to.MyMetadataEditor`
+* `org.apache.hop.partition.PartitionSchema`  -> `org.apache.hop.ui.partition.PartitionSchemaEditor`
+
+=== Some methods explained
+
+* createControl() : create the various controls on the given parent Composite.  The composite has a FormLayout set.
+* setWidgetsContent(): Using the metadata object (or getMetadata()) you can set the content on the created controls.
+* getWidgetsContent(): Grab the values of the various controls and modify the metadata
+* save(): verify settings, grab metadata and call super.save()
+* setFocus(): sets the focus on the metadata dialog or tab.  Choose the control to set the focus to (usually the name).
+* createButtonsForButtonBar(): if you want to add buttons at the bottom to do things like testing, viewing, ... you can use this method
+
+== Metadata serialisation
+
+As mentioned above, the key or ID the @HopMetadata plugin is used as a top level folder to store objects in.
+For the serialisation to JSON most simple data types are supported. However we suggest you use the KISS principle.
+If you want to serialize interfaces (for example like IDatabase used by DatabaseMeta) you might want to flag the interface with the @HopMetadataObject annotation.
+This annotation allows you to specify an object factory for those classes.  Such an object factory implements interface ```IHopMetadataObjectFactory``` with the 2 following methods:
+
+* ```public Object createObject( String id, Object parentObject ) throws HopException``` -> Creates an object using an ID.  The parent object is often another metadata object.  You can use it to check if it implements IVariables so you can inherit variables from there.
+* ```public String getObjectId( Object object ) throws HopException``` -> Retrieves the object ID from the given object. We recommend that you check the instance of the object until the factory interface supports generics. (TODO)
+

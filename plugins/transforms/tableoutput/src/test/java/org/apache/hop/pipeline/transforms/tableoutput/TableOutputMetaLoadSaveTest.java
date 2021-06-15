@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,41 +44,66 @@ public class TableOutputMetaLoadSaveTest implements IInitializer<ITransformMeta>
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "databaseMeta", "schemaName", "tableName", "commitSize", "truncateTable", "ignoreErrors", "useBatchUpdate",
-        "partitioningEnabled", "partitioningField", "partitioningDaily", "partitioningMonthly", "tableNameInField", "tableNameField",
-        "tableNameInTable", "returningGeneratedKeys", "generatedKeyField", "specifyFields", "fieldStream", "fieldDatabase" );
+        Arrays.asList(
+            "databaseMeta",
+            "schemaName",
+            "tableName",
+            "commitSize",
+            "truncateTable",
+            "ignoreErrors",
+            "useBatchUpdate",
+            "partitioningEnabled",
+            "partitioningField",
+            "partitioningDaily",
+            "partitioningMonthly",
+            "tableNameInField",
+            "tableNameField",
+            "tableNameInTable",
+            "returningGeneratedKeys",
+            "generatedKeyField",
+            "specifyFields",
+            "fieldStream",
+            "fieldDatabase");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "truncateTable", "truncateTable" );
-        put( "ignoreErrors", "ignoreErrors" );
-        put( "useBatchUpdate", "useBatchUpdate" );
-        put( "specifyFields", "specifyFields" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("truncateTable", "truncateTable");
+            put("ignoreErrors", "ignoreErrors");
+            put("useBatchUpdate", "useBatchUpdate");
+            put("specifyFields", "specifyFields");
+          }
+        };
     Map<String, String> setterMap = new HashMap<>();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldDatabase", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("fieldStream", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("fieldDatabase", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof TableOutputMeta ) {
-      ( (TableOutputMeta) someMeta ).allocate( 5 );
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof TableOutputMeta) {
+      ((TableOutputMeta) someMeta).allocate(5);
     }
   }
 
@@ -86,5 +111,4 @@ public class TableOutputMetaLoadSaveTest implements IInitializer<ITransformMeta>
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

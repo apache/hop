@@ -1,0 +1,65 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "X",
+          "data_set_field": "X"
+        },
+        {
+          "transform_field": "Y",
+          "data_set_field": "Y"
+        },
+        {
+          "transform_field": "yLag1",
+          "data_set_field": "yLag1"
+        },
+        {
+          "transform_field": "yLag2",
+          "data_set_field": "yLag2"
+        },
+        {
+          "transform_field": "yLag3",
+          "data_set_field": "yLag3"
+        },
+        {
+          "transform_field": "yLag4",
+          "data_set_field": "yLag4"
+        },
+        {
+          "transform_field": "yLead1",
+          "data_set_field": "yLead1"
+        },
+        {
+          "transform_field": "yLead2",
+          "data_set_field": "yLead2"
+        },
+        {
+          "transform_field": "yLead3",
+          "data_set_field": "yLead3"
+        },
+        {
+          "transform_field": "yLead4",
+          "data_set_field": "yLead4"
+        }
+      ],
+      "field_order": [
+        "X",
+        "Y"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-analytic-query-parent"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-analytic-query-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0008-analytic-query-parent.hpl",
+  "test_type": "UNIT_TEST"
+}

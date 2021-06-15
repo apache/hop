@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
-import org.apache.commons.collections.iterators.ArrayIterator;
+import org.apache.commons.collections4.iterators.ArrayIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -592,7 +592,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
                 Header next = Header.class.cast( en.nextElement() );
                 headers.add( next.getValue() );
               }
-              // [PDI-6532] if there is no matching headers return empty String
+              // if there is no matching headers return empty String
               r[ index ] = headers.isEmpty() ? "" : StringUtils.join( headers, ";" );
               break;
             case MailInputField.COLUMN_BODY_CONTENT_TYPE:

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -39,22 +40,35 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
@@ -455,5 +469,64 @@ public abstract class BaseDialog extends Dialog {
 
   public void setButtons(final Map<String, Listener> buttons) {
     this.buttons = buttons;
+  }
+
+  public static void defaultShellHandling(
+      Shell shell, Consumer<Void> okConsumer, Consumer<Void> cancelConsumer) {
+
+    // If the shell is closed, cancel the dialog
+    //
+    shell.addListener(SWT.Close, e -> cancelConsumer.accept(null));
+
+    // Check for enter being pressed in text input fields
+    //
+    addDefaultListeners(shell, okConsumer);
+
+    // Set the size as well...
+    //
+    BaseTransformDialog.setSize(shell);
+
+    // Open the shell
+    //
+    shell.open();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
+    }
+  }
+
+  public static void addDefaultListeners(Composite composite, Consumer<Void> okConsumer) {
+    if (composite == null || composite.isDisposed()) {
+      return;
+    }
+
+    for (Control control : composite.getChildren()) {
+      // Some of these are composites so check first
+      //
+      if ((control instanceof Text)
+          || (control instanceof Combo)
+          || (control instanceof CCombo)
+          || (control instanceof TextVar)
+          || (control instanceof ComboVar)
+          || (control instanceof List)) {
+        control.addListener(SWT.DefaultSelection, e -> okConsumer.accept(null));
+      } else if (control instanceof Composite) {
+        // Check all children
+        //
+        addDefaultListeners((Composite) control, okConsumer);
+      }
+    }
+  }
+
+  public static final int openMessageBox(Shell parent, String title, String message, int flags) {
+    MessageBox box = new MessageBox(parent, flags);
+    box.setText(title);
+    box.setMessage(message);
+    return box.open();
   }
 }

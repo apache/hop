@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,10 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -43,8 +45,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -83,8 +83,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
   private TextVar wSchemaname;
 
-  public ActionColumnsExistDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public ActionColumnsExistDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (ActionColumnsExist) action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionColumnsExist.Name.Default"));
@@ -94,7 +95,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   @Override
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -112,6 +112,14 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, (Event e) -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -204,6 +212,15 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdTablename.right = new FormAttachment(wbTable, -margin);
     wTablename.setLayoutData(fdTablename);
 
+    Label wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wTablename, 3 * margin);
+    wlFields.setLayoutData(fdlFields);
+
     // Get columns button
     Button wbGetColumns = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbGetColumns);
@@ -212,7 +229,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionColumnsExist.GetColums.Tooltip"));
     FormData fdbGetColumns = new FormData();
     fdbGetColumns.right = new FormAttachment(100, 0);
-    fdbGetColumns.top = new FormAttachment(wTablename, 38);
+    fdbGetColumns.top = new FormAttachment(wlFields, margin);
     wbGetColumns.setLayoutData(fdbGetColumns);
 
     // Buttons to the right of the screen...
@@ -224,17 +241,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         BaseMessages.getString(PKG, "ActionColumnsExist.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
+    fdbdFilename.left = new FormAttachment(wbGetColumns, 0, SWT.LEFT);
     fdbdFilename.top = new FormAttachment(wbGetColumns, margin);
     wbdFilename.setLayoutData(fdbdFilename);
-
-    Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Label"));
-    props.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wTablename, 3 * margin);
-    wlFields.setLayoutData(fdlFields);
 
     int rows =
         action.getArguments() == null
@@ -268,77 +277,26 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbGetColumns, -margin);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...
-    wbdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
+    wbdFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFields.getSelectionIndices();
+          wFields.remove(idx);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     // Delete files from the list of files...
-    wbGetColumns.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent arg0) {
-            getListColumns();
-          }
-        });
-
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    FormData fd = new FormData();
-    fd.right = new FormAttachment(50, -10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wOk.setLayoutData(fd);
-
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    fd = new FormData();
-    fd.left = new FormAttachment(50, 10);
-    fd.bottom = new FormAttachment(100, 0);
-    fd.width = 100;
-    wCancel.setLayoutData(fd);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wName.addSelectionListener(lsDef);
-    wTablename.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wbGetColumns.addListener(SWT.Selection, e -> getListColumns());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    props.setDialogSize(shell, "ActionColumnsExistDialogSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return action;
   }
 
@@ -449,7 +407,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (!Utils.isEmpty(wTablename.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, variables, databaseMeta );
+        Database database = new Database(loggingObject, variables, databaseMeta);
         try {
           database.connect();
           IRowMeta row =
@@ -492,7 +450,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     }
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta );
+      Database database = new Database(loggingObject, variables, databaseMeta);
       try {
         database.connect();
         String[] schemas = database.getSchemas();

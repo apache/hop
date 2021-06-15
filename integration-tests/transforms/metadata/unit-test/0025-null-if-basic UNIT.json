@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "boolD",
+          "data_set_field": "boolD"
+        },
+        {
+          "transform_field": "intB",
+          "data_set_field": "intB"
+        },
+        {
+          "transform_field": "numC",
+          "data_set_field": "numC"
+        },
+        {
+          "transform_field": "strA",
+          "data_set_field": "strA"
+        }
+      ],
+      "field_order": [
+        "strA",
+        "intB",
+        "numC",
+        "boolD"
+      ],
+      "transform_name": "Preview",
+      "data_set_name": "golden-null-if-basic"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0025-null-if-basic UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0025-null-if-basic.hpl",
+  "test_type": "UNIT_TEST"
+}

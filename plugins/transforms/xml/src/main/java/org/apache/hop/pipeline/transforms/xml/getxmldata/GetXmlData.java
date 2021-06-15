@@ -734,7 +734,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         if ( meta.isuseToken() ) {
           // See if user use Token inside path field
           // The syntax is : @_Fieldname-
-          // PDI will search for Fieldname value and replace it
+          // Apache Hop will search for Fieldname value and replace it
           // Fieldname must be defined before the current node
           XPathValue = substituteToken( XPathValue, outputRowData );
           if ( isDetailed() ) {

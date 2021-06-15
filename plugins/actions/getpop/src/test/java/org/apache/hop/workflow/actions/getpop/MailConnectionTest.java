@@ -46,7 +46,7 @@ public class MailConnectionTest {
   }
 
   /**
-   * PDI-7426 Test {@link MailConnection#openFolder(String, boolean, boolean)} method. tests that folders are opened
+   * Test {@link MailConnection#openFolder(String, boolean, boolean)} method. tests that folders are opened
    * recursively
    *
    * @throws HopException
@@ -60,7 +60,7 @@ public class MailConnectionTest {
   }
 
   /**
-   * PDI-7426 Test {@link MailConnection#setDestinationFolder(String, boolean)} method.
+   * Test {@link MailConnection#setDestinationFolder(String, boolean)} method.
    *
    * @throws HopException
    * @throws MessagingException
@@ -73,7 +73,7 @@ public class MailConnectionTest {
   }
 
   /**
-   * PDI-17713 Test {@link MailConnection#findValidTarget(String, String) }
+   * Test {@link MailConnection#findValidTarget(String, String) }
    * <p>
    * Note - this test case relies on the ability to create temporary files
    * of zero-byte size in the java.io.tmpdir folder.
@@ -148,7 +148,7 @@ public class MailConnectionTest {
   }
 
   /**
-   * PDI-7426 Test {@link MailConnection#folderExists(String)} method.
+   * Test {@link MailConnection#folderExists(String)} method.
    */
   @Test
   public void folderExistsTest() {

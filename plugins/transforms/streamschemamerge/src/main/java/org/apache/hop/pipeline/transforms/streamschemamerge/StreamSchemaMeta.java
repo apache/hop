@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n::StreamSchemaTransform.Category",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/streamschemamerge.html")
+        "https://hop.apache.org/manual/latest/pipeline/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
@@ -129,7 +129,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    * transform meta object. Be sure to create proper deep copies if the transform configuration is stored in
    * modifiable objects.
    *
-   * <p>See org.pentaho.di.trans.transforms.rowgenerator.RowGeneratorMeta.clone() for an example on
+   * <p>See RowGeneratorMeta.clone() for an example on
    * creating a deep copy.
    *
    * @return a deep copy of this
@@ -244,7 +244,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
       }
       inputRowMeta.mergeRowMeta(base);
     } catch (HopPluginException e) {
-      throw new HopTransformException("Kettle plugin exception trying to resolve fields");
+      throw new HopTransformException("Hop plugin exception trying to resolve fields");
     }
   }
 
@@ -314,7 +314,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
   */
 
   /**
-   * Called by PDI to get a new instance of the transform implementation. A standard implementation
+   * Called by Apache Hop to get a new instance of the transform implementation. A standard implementation
    * passing the arguments to the constructor of the transform class is recommended.
    *
    * @param transformMeta description of the transform

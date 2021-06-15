@@ -1,11 +1,17 @@
 {
   "projectsConfig": {
     "enabled": true,
-    "openingLastProjectAtStartup": true,
+    "projectMandatory": true,
+    "defaultProject": "default",
+    "standardParentProject": "default",
     "projectConfigurations": [
       {
-        "projectName": "beam-demo",
-        "projectHome": "demo/beam",
+        "projectName": "default",
+        "projectHome": "config/projects/default",
+        "configFilename": "project-config.json"
+      }, {
+        "projectName": "samples",
+        "projectHome": "config/projects/samples",
         "configFilename": "project-config.json"
       }
     ]

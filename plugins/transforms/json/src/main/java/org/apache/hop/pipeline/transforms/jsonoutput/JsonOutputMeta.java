@@ -51,7 +51,7 @@ import java.util.List;
     description = "i18n::JsonOutput.description",
     categoryDescription = "i18n::JsonOutput.category",
     keywords = {"json", "javascript", "object", "notation"},
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsonoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
@@ -96,7 +96,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
   private boolean fileAppended;
 
-  /** Flag to indicate whether or not to create JSON structures compatible with pre PDI-4.3.0 */
+  /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */

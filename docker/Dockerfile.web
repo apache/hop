@@ -1,0 +1,33 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+FROM tomcat:jdk8
+LABEL maintainer="Apache Hop Team"
+ENV JAVA_OPTS="-Xms1024m -Xmx2048m -DHOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config"
+
+# Cleanup and create folder
+RUN rm -rf webapps/* \
+    && mkdir ${CATALINA_HOME}/webapps/ROOT
+
+# Copy resources
+
+COPY ./assemblies/web/target/webapp/ ${CATALINA_HOME}/webapps/ROOT/
+COPY ./assemblies/plugins/dist/target/plugins ${CATALINA_HOME}/plugins
+
+# Fix hop-config.json
+RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/ROOT/config/hop-config.json

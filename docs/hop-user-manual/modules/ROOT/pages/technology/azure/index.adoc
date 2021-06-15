@@ -1,0 +1,37 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/azure/
+:language: en_US
+
+= Azure
+
+From https://en.wikipedia.org/wiki/Microsoft_Azure[Wikipedia]:
+
+Microsoft Azure, commonly referred to as Azure (/ˈæʒər/), is a cloud computing service created by Microsoft for building, testing, deploying, and managing applications and services through Microsoft-managed data centers. It provides software as a service (SaaS), platform as a service (PaaS) and infrastructure as a service (IaaS) and supports many different programming languages, tools, and frameworks, including both Microsoft-specific and third-party software and systems.
+
+Hop supports Azure through a number of metadata types:
+
+== Pipeline Transforms
+
+* xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]: listens indefinitely to an Event Hub on the Microsoft Azure cloud platform.
+* xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs Writer]: allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
+
+== VFS
+
+Apache xref:vfs.adoc[VFS Support] in Hop allows you to directly read from a multitude of file systems and protocols, including Azure:
+
+* xref:vfs/azure-blob-storage-vfs.adoc[Azure Blog Storage]: read from and write data directly in Azure Blob Storage

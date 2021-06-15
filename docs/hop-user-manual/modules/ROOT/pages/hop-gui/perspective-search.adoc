@@ -1,0 +1,30 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+
+== Search Perspective
+
+Icon: image:icons/search.svg[width="24px"]
+
+Description::
+The Search perspective allows you to search through all metadata in your Hop projects. This not only includes workflows and actions, pipelines and transforms, but any other metadata type known to Hop.
+
+The search options are the location (all objects in Hop Gui or only the current project), and whether the search string is case sensitive (default: case insensitive) or the search string is a regular expression (default: false).
+
+The result table shows the type, name, filename, location, matching text and description. Use the 'Open' button at the bottom of the perspective to jump directly to the selected metadata object (e.g. open a transform in a pipeline).
+
+TIP: The xref:hop-tools/hop-search.adoc[hop-search] tool provides the same functionality as the Search Perspective through the command line instead of in a GUI.

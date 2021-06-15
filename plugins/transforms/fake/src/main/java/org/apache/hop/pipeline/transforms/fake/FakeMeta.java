@@ -44,7 +44,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.Fake",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"fake", "data", "generator", "synthetic"}, // TODO : i18n
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fake.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/fake.html")
 public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, FakeData> {
 
   private String locale;

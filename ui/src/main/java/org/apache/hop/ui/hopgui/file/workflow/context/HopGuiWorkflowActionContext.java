@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,13 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
@@ -86,10 +88,17 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
                 "action-open-referenced-" + objectDescription,
                 GuiActionType.Info,
                 "open: " + objectDescription,
-                "This opens up the file referenced in the action",
+                "This opens up the file referenced in the action."
+                    + Const.CR
+                    + "You can hit key 'z' with the cursor over an Action icon or use CTRL+SHIFT+Click",
                 "ui/images/open.svg",
                 (shiftAction, controlAction, t) ->
-                    openReferencedObject(action, objectDescription, index));
+                    openReferencedObject(
+                        workflowMeta,
+                        workflowGraph.getVariables(),
+                        action,
+                        objectDescription,
+                        index));
         openReferencedAction.setCategory("Basic");
         openReferencedAction.setCategoryOrder("1");
         actions.add(openReferencedAction);
@@ -108,14 +117,18 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return actions;
   }
 
-  private void openReferencedObject(IAction action, String objectDescription, int index) {
+  public static final void openReferencedObject(
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IAction action,
+      String objectDescription,
+      int index) {
     HopGui hopGui = HopGui.getInstance();
     try {
       IHasFilename hasFilename =
-          action.loadReferencedObject(
-              index, workflowMeta.getMetadataProvider(), workflowGraph.getVariables());
+          action.loadReferencedObject(index, workflowMeta.getMetadataProvider(), variables);
       if (hasFilename != null) {
-        String filename = workflowGraph.getVariables().resolve(hasFilename.getFilename());
+        String filename = variables.resolve(hasFilename.getFilename());
 
         // Is this object already loaded?
         //

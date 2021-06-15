@@ -114,7 +114,7 @@ public class HopGuiPipelineGridDelegate {
 
     // First, see if we need to add the extra view...
     //
-    if (pipelineGraph.extraViewComposite == null || pipelineGraph.extraViewComposite.isDisposed()) {
+    if (pipelineGraph.extraViewTabFolder == null || pipelineGraph.extraViewTabFolder.isDisposed()) {
       pipelineGraph.addExtraView();
     } else {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
@@ -282,8 +282,7 @@ public class HopGuiPipelineGridDelegate {
 
     toolbar =
         new ToolBar(
-            pipelineGridComposite,
-            SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL);
+            pipelineGridComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -300,8 +299,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
-      toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowOnlyActiveTransforms",
       image = "ui/images/show.svg")
   public void showHideInactive() {
     hideInactiveTransforms = !hideInactiveTransforms;
@@ -320,8 +318,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
-      toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
-      i18nPackageClass = HopGui.class,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowOnlySelectedTransforms",
       image = "ui/images/show-all.svg")
   public void showHideSelected() {
     showSelectedTransforms = !showSelectedTransforms;
@@ -387,7 +384,7 @@ public class HopGuiPipelineGridDelegate {
       copyColumn.setAlignment(SWT.RIGHT);
       columns.add(copyColumn);
 
-      List<IEngineMetric> usedMetrics = new ArrayList(engineMetrics.getMetricsList());
+      List<IEngineMetric> usedMetrics = new ArrayList<>(engineMetrics.getMetricsList());
       Collections.sort(
           usedMetrics, (o1, o2) -> o1.getDisplayPriority().compareTo(o2.getDisplayPriority()));
 

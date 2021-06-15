@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.DescribedVariable;
@@ -46,6 +47,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -89,12 +91,10 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
-import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -164,6 +164,8 @@ public class HopGui
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
   public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
   public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
+  public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE =
+      "40030-menu-tools-database-clearcache";
 
   public static final String ID_MAIN_MENU_HELP_PARENT_ID = "90000-menu-help";
   public static final String ID_MAIN_MENU_HELP_ABOUT = "90009-menu-help-about";
@@ -278,6 +280,12 @@ public class HopGui
 
   public static void main(String[] arguments) {
     try {
+
+      /*
+            System.out.println("Sleeping for 10s for debugging");
+            Thread.sleep(10000);
+      */
+
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();
@@ -337,7 +345,7 @@ public class HopGui
     addPerspectivesToolbar();
     addMainPerspectivesComposite();
 
-    handleFileCapabilities(new EmptyFileType(), false, false);
+    handleFileCapabilities(new EmptyFileType(), false, false, false);
 
     loadPerspectives();
 
@@ -347,31 +355,38 @@ public class HopGui
 
     BaseTransformDialog.setSize(shell);
 
-    // Open the Hop GUI shell and wait until it's closed
+    // Open the Hop GUI shell
     //
-    // shell.pack();
     shell.open();
     if (EnvironmentUtils.getInstance().isWeb()) {
       shell.setMaximized(true);
     }
 
-    openingLastFiles = true; // TODO: make this configurable.
+    display.asyncExec(
+        () -> {
+          openingLastFiles = true;
 
-    try {
-      ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.HopGuiStart.id, this);
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          "Error",
-          "Error calling extension point '" + HopExtensionPoint.HopGuiStart.id + "'",
-          e);
-    }
-    // Open the previously used files. Extension points can disable this
-    //
-    if (openingLastFiles) {
-      auditDelegate.openLastFiles();
-    }
+          // Here the projects plugin opens up the last project/environment.
+          // It sets openingLastFiles to false so the block below is not executed.
+          //
+          try {
+            ExtensionPointHandler.callExtensionPoint(
+                log, variables, HopExtensionPoint.HopGuiStart.id, this);
+          } catch (Exception e) {
+            new ErrorDialog(
+                shell,
+                "Error",
+                "Error calling extension point '" + HopExtensionPoint.HopGuiStart.id + "'",
+                e);
+          }
+
+          // Open the previously used files. Extension points can disable this
+          //
+          if (openingLastFiles) {
+            auditDelegate.openLastFiles();
+          }
+        });
+
     // On RAP, return here otherwise UIThread doesn't get terminated properly.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;
@@ -379,6 +394,8 @@ public class HopGui
     boolean retry = true;
     while (retry) {
       try {
+        // Wait until the Hop GUI is closed/disposed/killed
+        //
         while (!shell.isDisposed()) {
           if (!display.readAndDispatch()) {
             display.sleep();
@@ -426,7 +443,7 @@ public class HopGui
         // Create a toolbar item
         //
         ToolItem item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-        item.setToolTipText(Const.NVL(perspectivePlugin.getName(), perspective.getId()));
+        item.setToolTipText(Const.NVL(TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass), perspective.getId()));
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
@@ -457,21 +474,7 @@ public class HopGui
   private static Display setupDisplay() {
     // Bootstrap Hop
     //
-    Display display;
-    if (System.getProperties().containsKey("SLEAK")) {
-      DeviceData data = new DeviceData();
-      data.tracking = true;
-      display = new Display(data);
-      Sleak sleak = new Sleak();
-      Shell sleakShell = new Shell(display);
-      sleakShell.setText("S-Leak");
-      org.eclipse.swt.graphics.Point size = sleakShell.getSize();
-      sleakShell.setSize(size.x / 2, size.y / 2);
-      sleak.create(sleakShell);
-      sleakShell.open();
-    } else {
-      display = new Display();
-    }
+    Display display = new Display();
     return display;
   }
 
@@ -592,6 +595,8 @@ public class HopGui
       id = ID_MAIN_TOOLBAR_SAVE_AS,
       image = "ui/images/save-as.svg",
       toolTip = "i18n::HopGui.Menu.File.SaveAs")
+  @GuiKeyboardShortcut(control = true, shift=true, key = 's')
+  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 's')  
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
@@ -624,8 +629,8 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_CLOSE_ALL,
       label = "i18n::HopGui.Menu.File.Close.All",
       parentId = ID_MAIN_MENU_FILE)
-  @GuiKeyboardShortcut(control = true, shift=true, key = 'w')
-  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 'w')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'w')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'w')
   public void menuFileCloseAll() {
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
@@ -922,6 +927,16 @@ public class HopGui
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE,
+      label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
+      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
+      separator = true)
+  public void menuToolsDatabaseClearCache() {
+    DbCache.getInstance().clear(null);
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_HELP_PARENT_ID,
       label = "i18n::HopGui.Menu.Help",
       parentId = ID_MAIN_MENU)
@@ -1037,12 +1052,13 @@ public class HopGui
    *
    * @param fileType The type of file to handle giving you its capabilities to take into account
    *     from {@link IHopFileType} or set by a plugin
+   * @param changed set this to true if the file content has changed
    * @param running set this to true if the current file is running
    * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities(IHopFileType<?> fileType, boolean running, boolean paused) {
+  public void handleFileCapabilities(IHopFileType fileType, boolean changed, boolean running, boolean paused) {
 
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE);
+    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
     mainMenuWidgets.enableMenuItem(
@@ -1088,7 +1104,7 @@ public class HopGui
         getActivePerspective().hasNavigationNextFile());
 
     mainToolbarWidgets.enableToolbarItem(
-        fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE);
+        fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainToolbarWidgets.enableToolbarItem(
         fileType, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
   }
@@ -1454,6 +1470,20 @@ public class HopGui
       return true;
     }
     return false;
+  }
+
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_UP)
+  public void previousPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showPreviousPerspective( perspective );
+  }
+
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_DOWN)
+  public void nextPerspective() {
+    IHopPerspective perspective = getActivePerspective();
+    getPerspectiveManager().showNextPerspective( perspective );
   }
 
   /**

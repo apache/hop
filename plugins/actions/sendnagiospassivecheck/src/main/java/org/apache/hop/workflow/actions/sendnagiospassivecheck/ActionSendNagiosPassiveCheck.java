@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,15 +53,14 @@ import java.util.List;
  * @author Samatar
  * @since 01-10-2011
  */
-
 @Action(
-  id = "SEND_NAGIOS_PASSIVE_CHECK",
-  name = "i18n::ActionSendNagiosPassiveCheck.Name",
-  description = "i18n::ActionSendNagiosPassiveCheck.Description",
-  image = "SendNagiosPassiveCheck.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sendnagiospassivecheck.html"
-)
+    id = "SEND_NAGIOS_PASSIVE_CHECK",
+    name = "i18n::ActionSendNagiosPassiveCheck.Name",
+    description = "i18n::ActionSendNagiosPassiveCheck.Description",
+    image = "SendNagiosPassiveCheck.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/workflow/actions/sendnagiospassivecheck.html")
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
 
@@ -78,49 +77,48 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
 
   private String password;
 
-  /**
-   * Default responseTimeOut to 1000 milliseconds
-   */
+  /** Default responseTimeOut to 1000 milliseconds */
   private static int DEFAULT_RESPONSE_TIME_OUT = 10000; // ms
 
-  /**
-   * Default connection responseTimeOut to 5000 milliseconds
-   */
+  /** Default connection responseTimeOut to 5000 milliseconds */
   public static int DEFAULT_CONNECTION_TIME_OUT = 5000; // ms
 
-  /**
-   * Default port
-   */
+  /** Default port */
   public static int DEFAULT_PORT = 5667;
 
-  public static final String[] encryptionModeDesc = new String[] {
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.None" ),
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.TripleDES" ),
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.XOR" ) };
-  public static final String[] encryptionModeCode = new String[] { "none", "tripledes", "xor" };
+  public static final String[] encryptionModeDesc =
+      new String[] {
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.None"),
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.TripleDES"),
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.XOR")
+      };
+  public static final String[] encryptionModeCode = new String[] {"none", "tripledes", "xor"};
 
   public static final int ENCRYPTION_MODE_NONE = 0;
   public static final int ENCRYPTION_MODE_TRIPLEDES = 1;
   public static final int ENCRYPTION_MODE_XOR = 2;
 
-  public static final String[] levelTypeDesc = new String[] {
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.LevelType.Unknown" ),
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.OK" ),
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.Warning" ),
-    BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.Critical" ) };
-  public static final String[] levelTypeCode = new String[] { "unknown", "ok", "warning", "critical" };
+  public static final String[] levelTypeDesc =
+      new String[] {
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.LevelType.Unknown"),
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.OK"),
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Warning"),
+        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Critical")
+      };
+  public static final String[] levelTypeCode =
+      new String[] {"unknown", "ok", "warning", "critical"};
 
   public static final int LEVEL_TYPE_UNKNOWN = 0;
   public static final int LEVEL_TYPE_OK = 1;
   public static final int LEVEL_TYPE_WARNING = 2;
   public static final int LEVEL_TYPE_CRITICAL = 3;
 
-  public ActionSendNagiosPassiveCheck(String n ) {
-    super( n, "" );
+  public ActionSendNagiosPassiveCheck(String n) {
+    super(n, "");
     port = "" + DEFAULT_PORT;
     serverName = null;
-    connectionTimeOut = String.valueOf( DEFAULT_CONNECTION_TIME_OUT );
-    responseTimeOut = String.valueOf( DEFAULT_RESPONSE_TIME_OUT );
+    connectionTimeOut = String.valueOf(DEFAULT_CONNECTION_TIME_OUT);
+    responseTimeOut = String.valueOf(DEFAULT_RESPONSE_TIME_OUT);
     message = null;
     senderServerName = null;
     senderServiceName = null;
@@ -130,7 +128,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   }
 
   public ActionSendNagiosPassiveCheck() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -138,184 +136,170 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return je;
   }
 
-  public static int getEncryptionModeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getEncryptionModeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < encryptionModeDesc.length; i++ ) {
-      if ( encryptionModeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < encryptionModeDesc.length; i++) {
+      if (encryptionModeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getEncryptionModeByCode( tt );
+    return getEncryptionModeByCode(tt);
   }
 
-  public static String getEncryptionModeDesc( int i ) {
-    if ( i < 0 || i >= encryptionModeDesc.length ) {
-      return encryptionModeDesc[ 0 ];
+  public static String getEncryptionModeDesc(int i) {
+    if (i < 0 || i >= encryptionModeDesc.length) {
+      return encryptionModeDesc[0];
     }
-    return encryptionModeDesc[ i ];
+    return encryptionModeDesc[i];
   }
 
-  public static String getLevelDesc( int i ) {
-    if ( i < 0 || i >= levelTypeDesc.length ) {
-      return levelTypeDesc[ 0 ];
+  public static String getLevelDesc(int i) {
+    if (i < 0 || i >= levelTypeDesc.length) {
+      return levelTypeDesc[0];
     }
-    return levelTypeDesc[ i ];
+    return levelTypeDesc[i];
   }
 
-  public static int getLevelByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getLevelByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < levelTypeDesc.length; i++ ) {
-      if ( levelTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < levelTypeDesc.length; i++) {
+      if (levelTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getEncryptionModeByCode( tt );
+    return getEncryptionModeByCode(tt);
   }
 
-  private static String getEncryptionModeCode( int i ) {
-    if ( i < 0 || i >= encryptionModeCode.length ) {
-      return encryptionModeCode[ 0 ];
+  private static String getEncryptionModeCode(int i) {
+    if (i < 0 || i >= encryptionModeCode.length) {
+      return encryptionModeCode[0];
     }
-    return encryptionModeCode[ i ];
+    return encryptionModeCode[i];
   }
 
-  private String getLevelCode( int i ) {
-    if ( i < 0 || i >= levelTypeCode.length ) {
-      return levelTypeCode[ 0 ];
+  private String getLevelCode(int i) {
+    if (i < 0 || i >= levelTypeCode.length) {
+      return levelTypeCode[0];
     }
-    return levelTypeCode[ i ];
+    return levelTypeCode[i];
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder retval = new StringBuilder(200);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "password", password ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "responseTimeOut", responseTimeOut ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "connectionTimeOut", connectionTimeOut ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("port", port));
+    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
+    retval.append("      ").append(XmlHandler.addTagValue("password", password));
+    retval.append("      ").append(XmlHandler.addTagValue("responseTimeOut", responseTimeOut));
+    retval.append("      ").append(XmlHandler.addTagValue("connectionTimeOut", connectionTimeOut));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "senderServerName", senderServerName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "senderServiceName", senderServiceName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "message", message ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "encryptionMode", getEncryptionModeCode( encryptionMode ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "level", getLevelCode( level ) ) );
+    retval.append("      ").append(XmlHandler.addTagValue("senderServerName", senderServerName));
+    retval.append("      ").append(XmlHandler.addTagValue("senderServiceName", senderServiceName));
+    retval.append("      ").append(XmlHandler.addTagValue("message", message));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("encryptionMode", getEncryptionModeCode(encryptionMode)));
+    retval.append("      ").append(XmlHandler.addTagValue("level", getLevelCode(level)));
 
     return retval.toString();
   }
 
-  private static int getEncryptionModeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getEncryptionModeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < encryptionModeCode.length; i++ ) {
-      if ( encryptionModeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < encryptionModeCode.length; i++) {
+      if (encryptionModeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  private static int getLevelByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getLevelByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < levelTypeCode.length; i++ ) {
-      if ( levelTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < levelTypeCode.length; i++) {
+      if (levelTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      port = XmlHandler.getTagValue( entrynode, "port" );
-      serverName = XmlHandler.getTagValue( entrynode, "servername" );
-      responseTimeOut = XmlHandler.getTagValue( entrynode, "responseTimeOut" );
-      connectionTimeOut = XmlHandler.getTagValue( entrynode, "connectionTimeOut" );
-      password = XmlHandler.getTagValue( entrynode, "password" );
+      super.loadXml(entrynode);
+      port = XmlHandler.getTagValue(entrynode, "port");
+      serverName = XmlHandler.getTagValue(entrynode, "servername");
+      responseTimeOut = XmlHandler.getTagValue(entrynode, "responseTimeOut");
+      connectionTimeOut = XmlHandler.getTagValue(entrynode, "connectionTimeOut");
+      password = XmlHandler.getTagValue(entrynode, "password");
 
-      senderServerName = XmlHandler.getTagValue( entrynode, "senderServerName" );
-      senderServiceName = XmlHandler.getTagValue( entrynode, "senderServiceName" );
-      message = XmlHandler.getTagValue( entrynode, "message" );
+      senderServerName = XmlHandler.getTagValue(entrynode, "senderServerName");
+      senderServiceName = XmlHandler.getTagValue(entrynode, "senderServiceName");
+      message = XmlHandler.getTagValue(entrynode, "message");
 
-      encryptionMode = getEncryptionModeByCode( XmlHandler.getTagValue( entrynode, "encryptionMode" ) );
-      level = getLevelByCode( XmlHandler.getTagValue( entrynode, "level" ) );
+      encryptionMode = getEncryptionModeByCode(XmlHandler.getTagValue(entrynode, "encryptionMode"));
+      level = getLevelByCode(XmlHandler.getTagValue(entrynode, "level"));
 
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( "Unable to load action of type 'SendNagiosPassiveCheck' from XML node", xe );
+    } catch (HopXmlException xe) {
+      throw new HopXmlException(
+          "Unable to load action of type 'SendNagiosPassiveCheck' from XML node", xe);
     }
   }
 
-  /**
-   * @return Returns the serverName.
-   */
+  /** @return Returns the serverName. */
   public String getServerName() {
     return serverName;
   }
 
-  /**
-   * @param serverName The serverName to set.
-   */
-  public void setServerName( String serverName ) {
+  /** @param serverName The serverName to set. */
+  public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /**
-   * @return Returns the senderServerName.
-   */
+  /** @return Returns the senderServerName. */
   public String getSenderServerName() {
     return senderServerName;
   }
 
-  /**
-   * @param senderServerName The senderServerName to set.
-   */
-  public void setSenderServerName( String senderServerName ) {
+  /** @param senderServerName The senderServerName to set. */
+  public void setSenderServerName(String senderServerName) {
     this.senderServerName = senderServerName;
   }
 
-  /**
-   * @return Returns the senderServiceName.
-   */
+  /** @return Returns the senderServiceName. */
   public String getSenderServiceName() {
     return senderServiceName;
   }
 
-  /**
-   * @param senderServiceName The senderServiceName to set.
-   */
-  public void setSenderServiceName( String senderServiceName ) {
+  /** @param senderServiceName The senderServiceName to set. */
+  public void setSenderServiceName(String senderServiceName) {
     this.senderServiceName = senderServiceName;
   }
 
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return Returns the password.
-   */
+  /** @return Returns the password. */
   public String getPassword() {
     return password;
   }
@@ -324,7 +308,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return encryptionMode;
   }
 
-  public void setEncryptionMode( int encryptionModein ) {
+  public void setEncryptionMode(int encryptionModein) {
     this.encryptionMode = encryptionModein;
   }
 
@@ -332,99 +316,84 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return level;
   }
 
-  public void setLevel( int levelMode ) {
+  public void setLevel(int levelMode) {
     this.level = levelMode;
   }
 
-  /**
-   * @param message The message to set.
-   */
-  public void setMessage( String message ) {
+  /** @param message The message to set. */
+  public void setMessage(String message) {
     this.message = message;
   }
 
-  /**
-   * @return Returns the comString.
-   */
+  /** @return Returns the comString. */
   public String getMessage() {
     return message;
   }
 
-  /**
-   * @return Returns the port.
-   */
+  /** @return Returns the port. */
   public String getPort() {
     return port;
   }
 
-  /**
-   * @param port The port to set.
-   */
-  public void setPort( String port ) {
+  /** @param port The port to set. */
+  public void setPort(String port) {
     this.port = port;
   }
 
-  /**
-   * @param responseTimeOut The responseTimeOut to set.
-   */
-  public void setResponseTimeOut( String responseTimeOut ) {
+  /** @param responseTimeOut The responseTimeOut to set. */
+  public void setResponseTimeOut(String responseTimeOut) {
     this.responseTimeOut = responseTimeOut;
   }
 
-  /**
-   * @return Returns the responseTimeOut.
-   */
+  /** @return Returns the responseTimeOut. */
   public String getResponseTimeOut() {
     return responseTimeOut;
   }
 
-  /**
-   * @param connectionTimeOut The connectionTimeOut to set.
-   */
-  public void setConnectionTimeOut( String connectionTimeOut ) {
+  /** @param connectionTimeOut The connectionTimeOut to set. */
+  public void setConnectionTimeOut(String connectionTimeOut) {
     this.connectionTimeOut = connectionTimeOut;
   }
 
-  /**
-   * @return Returns the connectionTimeOut.
-   */
+  /** @return Returns the connectionTimeOut. */
   public String getConnectionTimeOut() {
     return connectionTimeOut;
   }
 
-  public Result execute( Result previousResult, int nr ) {
-    log.logBasic( BaseMessages.getString( PKG, "ActionSendNagiosPassiveCheck.Started", serverName ) );
+  public Result execute(Result previousResult, int nr) {
+    log.logBasic(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Started", serverName));
 
     Result result = previousResult;
-    result.setNrErrors( 1 );
-    result.setResult( false );
+    result.setNrErrors(1);
+    result.setResult(false);
 
     // Target
-    String realServername = resolve( serverName );
-    String realPassword = Utils.resolvePassword( variables, password );
-    int realPort = Const.toInt( resolve( port ), DEFAULT_PORT );
-    int realResponseTimeOut = Const.toInt( resolve( responseTimeOut ), DEFAULT_RESPONSE_TIME_OUT );
+    String realServername = resolve(serverName);
+    String realPassword = Utils.resolvePassword(getVariables(), password);
+    int realPort = Const.toInt(resolve(port), DEFAULT_PORT);
+    int realResponseTimeOut = Const.toInt(resolve(responseTimeOut), DEFAULT_RESPONSE_TIME_OUT);
     int realConnectionTimeOut =
-      Const.toInt( resolve( connectionTimeOut ), DEFAULT_CONNECTION_TIME_OUT );
+        Const.toInt(resolve(connectionTimeOut), DEFAULT_CONNECTION_TIME_OUT);
 
     // Sender
-    String realSenderServerName = resolve( senderServerName );
-    String realSenderServiceName = resolve( senderServiceName );
+    String realSenderServerName = resolve(senderServerName);
+    String realSenderServiceName = resolve(senderServiceName);
 
     try {
-      if ( Utils.isEmpty( realServername ) ) {
-        throw new HopException( BaseMessages.getString(
-          PKG, "JobSendNagiosPassiveCheck.Error.TargetServerMissing" ) );
+      if (Utils.isEmpty(realServername)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Error.TargetServerMissing"));
       }
 
-      String realMessageString = resolve( message );
+      String realMessageString = resolve(message);
 
-      if ( Utils.isEmpty( realMessageString ) ) {
-        throw new HopException( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Error.MessageMissing" ) );
+      if (Utils.isEmpty(realMessageString)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Error.MessageMissing"));
       }
 
       Level level = Level.UNKNOWN;
-      switch ( getLevel() ) {
+      switch (getLevel()) {
         case LEVEL_TYPE_OK:
           level = Level.OK;
           break;
@@ -438,7 +407,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
           break;
       }
       Encryption encr = Encryption.NONE;
-      switch ( getEncryptionMode() ) {
+      switch (getEncryptionMode()) {
         case ENCRYPTION_MODE_TRIPLEDES:
           encr = Encryption.TRIPLE_DES;
           break;
@@ -451,13 +420,13 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
 
       // settings
       NagiosSettingsBuilder ns = new NagiosSettingsBuilder();
-      ns.withNagiosHost( realServername );
-      ns.withPort( realPort );
-      ns.withConnectionTimeout( realConnectionTimeOut );
-      ns.withResponseTimeout( realResponseTimeOut );
-      ns.withEncryption( encr );
-      if ( !Utils.isEmpty( realPassword ) ) {
-        ns.withPassword( realPassword );
+      ns.withNagiosHost(realServername);
+      ns.withPort(realPort);
+      ns.withConnectionTimeout(realConnectionTimeOut);
+      ns.withResponseTimeout(realResponseTimeOut);
+      ns.withEncryption(encr);
+      if (!Utils.isEmpty(realPassword)) {
+        ns.withPassword(realPassword);
       } else {
         ns.withNoPassword();
       }
@@ -467,50 +436,59 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
 
       // sender
       MessagePayloadBuilder pb = new MessagePayloadBuilder();
-      if ( !Utils.isEmpty( realSenderServerName ) ) {
-        pb.withHostname( realSenderServerName );
+      if (!Utils.isEmpty(realSenderServerName)) {
+        pb.withHostname(realSenderServerName);
       }
-      pb.withLevel( level );
-      if ( !Utils.isEmpty( realSenderServiceName ) ) {
-        pb.withServiceName( realSenderServiceName );
+      pb.withLevel(level);
+      if (!Utils.isEmpty(realSenderServiceName)) {
+        pb.withServiceName(realSenderServiceName);
       }
-      pb.withMessage( realMessageString );
+      pb.withMessage(realMessageString);
       MessagePayload payload = pb.create();
 
-      NagiosPassiveCheckSender sender = new NagiosPassiveCheckSender( settings );
+      NagiosPassiveCheckSender sender = new NagiosPassiveCheckSender(settings);
 
-      sender.send( payload );
+      sender.send(payload);
 
-      result.setNrErrors( 0 );
-      result.setResult( true );
+      result.setNrErrors(0);
+      result.setResult(true);
 
-    } catch ( Exception e ) {
-      log.logError( BaseMessages.getString( PKG, "ActionSendNagiosPassiveCheck.ErrorGetting", e.toString() ) );
+    } catch (Exception e) {
+      log.logError(
+          BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ErrorGetting", e.toString()));
     }
 
     return result;
   }
 
-  public boolean evaluates() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = resolve( serverName );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(serverName)) {
+      String realServername = resolve(serverName);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "serverName", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "serverName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
-
 }

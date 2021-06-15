@@ -144,7 +144,7 @@ public class DatabaseTest {
 
 
   /**
-   * PDI-11363. when using getLookup calls there is no need to make attempt to retrieve row set metadata for every call.
+   * When using getLookup calls there is no need to make attempt to retrieve row set metadata for every call.
    * That may bring performance penalty depends on jdbc driver implementation. For some drivers that penalty can be huge
    * (postgres).
    * <p/>
@@ -711,7 +711,7 @@ public class DatabaseTest {
     when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
 
     when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getIDatabase() ).thenReturn( new GenericDatabaseMeta() );  // MySQL specific ?
+    when( meta.getIDatabase() ).thenReturn( new NoneDatabaseMeta() );  // MySQL specific ?
     when( conn.prepareStatement( sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY ) ).thenReturn( ps );
     when( ps.getMetaData() ).thenReturn( rsMetaData );
 
@@ -733,7 +733,7 @@ public class DatabaseTest {
     when( ps.executeQuery() ).thenReturn( rs );
 
     when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getIDatabase() ).thenReturn( new GenericDatabaseMeta() ); // MySQL specific ?
+    when( meta.getIDatabase() ).thenReturn( new NoneDatabaseMeta() ); // MySQL specific ?
     when( conn.prepareStatement( sql ) ).thenReturn( ps );
     when( rs.getMetaData() ).thenReturn( rsMetaData );
 

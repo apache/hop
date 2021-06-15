@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ import java.util.List;
     description = "i18n::ActionColumnsExist.Description",
     image = "ColumnsExist.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/columnsexist.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/columnsexist.html")
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
   private String schemaname;
@@ -90,28 +90,27 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
+    StringBuilder xml = new StringBuilder(200);
 
-    retval.append(super.getXml());
+    xml.append(super.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval
-        .append("      ")
+    xml.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
+    xml.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
+    xml.append("      ")
         .append(
             XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
-    retval.append("      <fields>").append(Const.CR);
+    xml.append("      <fields>").append(Const.CR);
     if (arguments != null) {
       for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("        </field>").append(Const.CR);
+        xml.append("        <field>").append(Const.CR);
+        xml.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
+        xml.append("        </field>").append(Const.CR);
       }
     }
-    retval.append("      </fields>").append(Const.CR);
+    xml.append("      </fields>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
@@ -175,7 +174,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -210,7 +209,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
         db.connect();
 
         if (db.checkTableExists(realSchemaname, realTablename)) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTablename));
           }
@@ -219,7 +218,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
             String realColumnname = resolve(arguments[i]);
 
             if (db.checkColumnExists(realSchemaname, realTablename, realColumnname)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTablename));
@@ -258,7 +257,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
     result.setEntryNr(nrnotexistcolums);
     result.setNrLinesWritten(nrexistcolums);
-    // result is true only if all columns found (PDI-15801)
+    // result is true only if all columns found
     if (nrexistcolums == arguments.length) {
       result.setNrErrors(0);
       result.setResult(true);
@@ -267,7 +266,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   Database getNewDatabaseFromMeta() {
-    return new Database(this, this, connection );
+    return new Database(this, this, connection);
   }
 
   @Override

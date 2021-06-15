@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.NumberRange",
     description = "i18n::BaseTransform.TypeTooltipDesc.NumberRange",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/numberrange.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/numberrange.html")
 public class NumberRangeMeta extends BaseTransformMeta
     implements ITransformMeta<NumberRange, NumberRangeData> {
 

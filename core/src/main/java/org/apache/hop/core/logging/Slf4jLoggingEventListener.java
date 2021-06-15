@@ -41,7 +41,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
   @VisibleForTesting Logger diLogger = LoggerFactory.getLogger( "org.apache.hop" );
 
   @VisibleForTesting Function<String, ILoggingObject> logObjProvider =
-    ( objId ) -> LoggingRegistry.getInstance().getLoggingObject( objId );
+      objId -> LoggingRegistry.getInstance().getLoggingObject( objId );
 
   private static final String SEPARATOR = "/";
 

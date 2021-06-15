@@ -14,26 +14,25 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-transforms</artifactId>
-  <version>0.70-SNAPSHOT</version>
-    <modules>
-    </modules>
-    <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <modules>
+  </modules>
+  <packaging>pom</packaging>
 
   <name>Hop Plugins Transforms</name>
 
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -53,7 +52,7 @@
         </property>
       </activation>
       <modules>
-       <module>addsequence</module>
+        <module>addsequence</module>
       </modules>
     </profile>
 
@@ -76,6 +75,7 @@
         <module>checksum</module>
         <module>clonerow</module>
         <module>closure</module>
+        <module>coalesce</module>
         <module>columnexists</module>
         <module>combinationlookup</module>
         <module>concatfields</module>
@@ -93,10 +93,10 @@
         <module>detectemptystream</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
+        <module>dropbox</module>
         <module>dynamicsqlrow</module>
         <module>edi2xml</module>
         <module>excelinput</module>
-        <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
@@ -117,6 +117,7 @@
         <module>getsubfolders</module>
         <module>gettablenames</module>
         <module>getvariable</module>
+        <module>groupby</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
@@ -127,7 +128,6 @@
         <module>json</module>
         <module>kafka</module>
         <module>ldap</module>
-        <module>ldifinput</module>
         <module>loadfileinput</module>
         <module>mail</module>
         <module>mailinput</module>
@@ -137,11 +137,15 @@
         <module>mergejoin</module>
         <module>mergerows</module>
         <module>metainject</module>
+        <module>metastructure</module>
+        <module>monetdbbulkloader</module>
         <module>mongodb</module>
+        <module>mqtt</module>
         <module>multimerge</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
+        <module>pipelineexecutor</module>
         <module>pgbulkloader</module>
         <module>pgp</module>
         <module>processfiles</module>
@@ -157,6 +161,7 @@
         <module>rowstoresult</module>
         <module>samplerows</module>
         <module>salesforce</module>
+        <module>sasinput</module>
         <module>selectvalues</module>
         <module>setvalueconstant</module>
         <module>setvaluefield</module>
@@ -164,6 +169,7 @@
         <module>sort</module>
         <module>sortedmerge</module>
         <module>splitfieldtorows</module>
+        <module>splunk</module>
         <module>sql</module>
         <module>sqlfileoutput</module>
         <module>ssh</module>
@@ -173,10 +179,10 @@
         <module>stringoperations</module>
         <module>switchcase</module>
         <module>synchronizeaftermerge</module>
-        <module>syslog</module>
         <module>systemdata</module>
         <module>tablecompare</module>
         <module>tableexists</module>
+        <module>tableinput</module>
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
@@ -187,6 +193,7 @@
         <module>valuemapper</module>
         <module>webserviceavailable</module>
         <module>webservices</module>
+        <module>workflowexecutor</module>
         <module>writetolog</module>
         <module>xml</module>
         <module>yamlinput</module>
@@ -211,7 +218,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui</artifactId>
-      <version>0.70-SNAPSHOT</version>
+      <version>1.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

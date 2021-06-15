@@ -28,6 +28,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IInputFileMeta;
 import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -57,6 +60,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@InjectionSupported(
+    localizationPrefix = "CsvInputMeta.Injection.",
+    groups = {"INPUT_FIELDS"})
 @Transform(
     id = "CSVInput",
     image = "textfileinput.svg",
@@ -71,7 +77,7 @@ import java.util.Map;
       "tsv read",
       "text read",
     },
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/csvinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/csvinput.html")
 public class CsvInputMeta extends BaseTransformMeta
     implements ITransformMeta<CsvInput, CsvInputData>,
         IInputFileMeta<CsvInput, CsvInputData>,
@@ -79,31 +85,45 @@ public class CsvInputMeta extends BaseTransformMeta
 
   private static final Class<?> PKG = CsvInput.class; // For Translator
 
+  @Injection(name = "FILENAME")
   private String filename;
 
+  @Injection(name = "FILENAME_FIELD")
   private String filenameField;
 
+  @Injection(name = "INCLUDE_FILENAME")
   private boolean includingFilename;
 
+  @Injection(name = "ROW_NUMBER_FIELDNAME")
   private String rowNumField;
 
+  @Injection(name = "HEADER_PRESENT")
   private boolean headerPresent;
 
+  @Injection(name = "DELIMITER")
   private String delimiter;
+
+  @Injection(name = "ENCLOSURE")
   private String enclosure;
 
+  @Injection(name = "BUFFER_SIZE")
   private String bufferSize;
 
+  @Injection(name = "LAZY_CONVERSION")
   private boolean lazyConversionActive;
 
-  private TextFileInputField[] inputFields;
+  @InjectionDeep private TextFileInputField[] inputFields;
 
+  @Injection(name = "ADD_RESULT")
   private boolean isaddresult;
 
+  @Injection(name = "RUNNING_IN_PARALLEL")
   private boolean runningInParallel;
 
+  @Injection(name = "FILE_ENCODING")
   private String encoding;
 
+  @Injection(name = "NEWLINES_IN_FIELDS")
   private boolean newlinePossibleInFields;
 
   public CsvInputMeta() {

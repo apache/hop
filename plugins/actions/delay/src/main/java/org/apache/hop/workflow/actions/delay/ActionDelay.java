@@ -47,7 +47,7 @@ import java.util.List;
     description = "i18n::ActionDelay.Description",
     image = "Delay.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/delay.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/delay.html")
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDelay.class; // For Translator
 
@@ -194,7 +194,7 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

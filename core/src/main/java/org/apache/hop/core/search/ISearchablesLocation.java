@@ -18,6 +18,8 @@
 package org.apache.hop.core.search;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.Iterator;
 
@@ -26,5 +28,5 @@ import java.util.Iterator;
  */
 public interface ISearchablesLocation {
   String getLocationDescription();
-  Iterator<ISearchable> getSearchables() throws HopException;
+  Iterator<ISearchable> getSearchables( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
 }

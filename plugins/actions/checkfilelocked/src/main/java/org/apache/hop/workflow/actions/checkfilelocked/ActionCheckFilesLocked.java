@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionCheckFilesLocked.Description",
     image = "CheckFilesLocked.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/checkfilelocked.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/checkfilelocked.html")
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator
 
@@ -103,24 +103,24 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
+    StringBuilder xml = new StringBuilder(300);
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    xml.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
 
-    retval.append("      <fields>").append(Const.CR);
+    xml.append("      <fields>").append(Const.CR);
     if (arguments != null) {
       for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
-        retval.append("        </field>").append(Const.CR);
+        xml.append("        <field>").append(Const.CR);
+        xml.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
+        xml.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
+        xml.append("        </field>").append(Const.CR);
       }
     }
-    retval.append("      </fields>").append(Const.CR);
+    xml.append("      </fields>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
@@ -283,11 +283,11 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       LockFile locked = new LockFile(filename);
       if (locked.isLocked()) {
         oneFileLocked = true;
-        logError(BaseMessages.getString(PKG, "JobCheckFilesLocked.Log.FileLocked", filename));
+        logError(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Log.FileLocked", filename));
       } else {
         if (isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "JobCheckFilesLocked.Log.FileNotLocked", filename));
+              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Log.FileNotLocked", filename));
         }
       }
     }
@@ -350,7 +350,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
 
       } catch (Exception e) {
         logError(
-            BaseMessages.getString(PKG, "JobCheckFilesLocked.Error.Exception.ProcessError"),
+            BaseMessages.getString(PKG, "ActionCheckFilesLocked.Error.Exception.ProcessError"),
             BaseMessages.getString(
                 PKG,
                 "JobCheckFilesLocked.Error.Exception.Process",
@@ -406,7 +406,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     this.argFromPrevious = argFromPrevious;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

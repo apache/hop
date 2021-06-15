@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import java.util.Objects;
+
 public class SourceTransformField {
 
   private String transformName;
@@ -46,7 +48,8 @@ public class SourceTransformField {
 
   @Override
   public int hashCode() {
-    return transformName.hashCode() ^ field.hashCode();
+    // transformName can be null if using has constant value
+    return Objects.hash(transformName, field);
   }
 
   /**

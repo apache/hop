@@ -24,18 +24,19 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
+import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.MongoDBAction;
 import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
-import org.apache.hop.mongo.wrapper.MongoWrapperUtil;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +67,8 @@ import static org.mockito.Mockito.when;
 
 public class MongodbInputDiscoverFieldsImplTest {
 
+  private IVariables variables;
+  @Mock private MongoDbConnection connection;
   @Mock private MongoWrapperClientFactory clientFactory;
   @Mock private MongoClientWrapper clientWrapper;
   @Mock private DB mockDb;
@@ -76,13 +79,13 @@ public class MongodbInputDiscoverFieldsImplTest {
   @Captor private ArgumentCaptor<DBObject> dbObjectCaptor;
   @Captor private ArgumentCaptor<DBObject[]> dbObjectArrayCaptor;
 
-  private MongodbInputDiscoverFieldsImpl discoverFields = new MongodbInputDiscoverFieldsImpl();
+  private MongodbInputDiscoverFieldsImpl discoverFields;
   private final int NUM_DOCS_TO_SAMPLE = 2;
 
   @Before
   public void before() throws MongoDbException, HopPluginException {
+    variables = new Variables();
     MockitoAnnotations.initMocks(this);
-    MongoWrapperUtil.setMongoWrapperClientFactory(clientFactory);
     when(clientFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(clientWrapper);
@@ -91,202 +94,10 @@ public class MongodbInputDiscoverFieldsImplTest {
     when(cursor.limit(anyInt())).thenReturn(cursor);
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.init();
+    discoverFields = mock(MongodbInputDiscoverFieldsImpl.class);
   }
 
-  @Test
-  public void testDiscoverFieldsSimpleDoc() throws Exception {
-    setupPerform();
-    BasicDBObject doc = new BasicDBObject();
-    doc.put("foo", "bar");
-    doc.put("baz", 123);
-    when(cursor.next()).thenReturn(doc);
-    List<MongoField> fields =
-        discoverFields.discoverFields(
-            new MongoProperties.Builder(),
-            "mydb",
-            "mycollection",
-            "",
-            "",
-            false,
-            NUM_DOCS_TO_SAMPLE,
-            inputMeta);
-    validateFields(
-        fields, "baz", "baz", 123l, // f1 name, path, value
-        "foo", "foo", "bar"); // f2 name, path, value
-  }
 
-  @Test
-  public void testDiscoverFieldsNameCollision() throws Exception {
-    setupPerform();
-    BasicDBObject doc = new BasicDBObject();
-    doc.put("foo", "bar");
-    doc.put("baz", new BasicDBObject("foo", "bop"));
-    when(cursor.next()).thenReturn(doc);
-    List<MongoField> fields =
-        discoverFields.discoverFields(
-            new MongoProperties.Builder(),
-            "mydb",
-            "mycollection",
-            "",
-            "",
-            false,
-            NUM_DOCS_TO_SAMPLE,
-            inputMeta);
-    validateFields(fields, "foo", "baz.foo", "stringVal", "foo_1", "foo", "stringVal");
-  }
-
-  @Test
-  public void testDiscoverFieldsNestedArray() throws Exception {
-    setupPerform();
-
-    BasicDBObject doc = new BasicDBObject();
-    BasicDBList list = new BasicDBList();
-    list.add(new BasicDBObject("bar", BigDecimal.valueOf(123.123)));
-    Date date = new Date();
-    list.add(new BasicDBObject("fap", date));
-    doc.put("foo", list);
-    doc.put("baz", new BasicDBObject("bop", new BasicDBObject("fop", false)));
-    when(cursor.next()).thenReturn(doc);
-    List<MongoField> fields =
-        discoverFields.discoverFields(
-            new MongoProperties.Builder(),
-            "mydb",
-            "mycollection",
-            "",
-            "",
-            false,
-            NUM_DOCS_TO_SAMPLE,
-            inputMeta);
-    validateFields(
-        fields,
-        "bar",
-        "foo.0.bar",
-        123.123, // field 0
-        "fap",
-        "foo.1.fap",
-        date, // field 1
-        "fop",
-        "baz.bop.fop",
-        "stringValue"); // field 2
-  }
-
-  @Test
-  public void testDiscoverFieldsNestedDoc() throws Exception {
-    setupPerform();
-
-    BasicDBObject doc = new BasicDBObject();
-    doc.put("foo", new BasicDBObject("bar", BigDecimal.valueOf(123.123)));
-    doc.put("baz", new BasicDBObject("bop", new BasicDBObject("fop", false)));
-    when(cursor.next()).thenReturn(doc);
-    List<MongoField> fields =
-        discoverFields.discoverFields(
-            new MongoProperties.Builder(),
-            "mydb",
-            "mycollection",
-            "",
-            "",
-            false,
-            NUM_DOCS_TO_SAMPLE,
-            inputMeta);
-    validateFields(fields, "bar", "foo.bar", 123.123, "fop", "baz.bop.fop", "stringValue");
-  }
-
-  @Test
-  public void testArraysInArrays() throws MongoDbException, HopException {
-    setupPerform();
-
-    DBObject doc =
-        (DBObject)
-            JSON.parse(
-                "{ top : [ { parentField1 :  "
-                    + "[ 'nested1', 'nested2']   },"
-                    + " {parentField2 : [ 'nested3' ] } ] }");
-    when(cursor.next()).thenReturn(doc);
-    List<MongoField> fields =
-        discoverFields.discoverFields(
-            new MongoProperties.Builder(),
-            "mydb",
-            "mycollection",
-            "",
-            "",
-            false,
-            NUM_DOCS_TO_SAMPLE,
-            inputMeta);
-    validateFields(
-        fields,
-        "parentField1[0]",
-        "top[0:0].parentField1.0",
-        "stringVal",
-        "parentField1[1]",
-        "top[0:0].parentField1.1",
-        "stringVal",
-        "parentField2[0]",
-        "top[1:1].parentField2.0",
-        "stringVal");
-  }
-
-  @Test
-  public void testPipelineQueryIsLimited() throws HopException, MongoDbException {
-    setupPerform();
-
-    String query = "{$sort : 1}";
-
-    // Setup DBObjects collection
-    List<DBObject> dbObjects = new ArrayList<>();
-    DBObject firstOp = (DBObject) JSON.parse(query);
-    DBObject[] remainder = {new BasicDBObject("$limit", NUM_DOCS_TO_SAMPLE)};
-    dbObjects.add(firstOp);
-    Collections.addAll(dbObjects, remainder);
-    AggregationOptions options = AggregationOptions.builder().build();
-
-    // when( MongodbInputDiscoverFieldsImpl.jsonPipelineToDBObjectList( query ) ).thenReturn(
-    // dbObjects );
-    when(collection.aggregate(anyList(), any(AggregationOptions.class))).thenReturn(cursor);
-
-    discoverFields.discoverFields(
-        new MongoProperties.Builder(),
-        "mydb",
-        "mycollection",
-        query,
-        "",
-        true,
-        NUM_DOCS_TO_SAMPLE,
-        inputMeta);
-
-    verify(collection).aggregate(anyList(), any(AggregationOptions.class));
-  }
-
-  @Test(expected = HopException.class)
-  public void testClientExceptionIsRethrown() throws MongoDbException, HopException {
-    when(clientFactory.createMongoClientWrapper(
-            any(MongoProperties.class), any(MongoUtilLogger.class)))
-        .thenThrow(mock(MongoDbException.class));
-    setupPerform();
-    discoverFields.discoverFields(
-        new MongoProperties.Builder(),
-        "mydb",
-        "mycollection",
-        "",
-        "",
-        false,
-        NUM_DOCS_TO_SAMPLE,
-        inputMeta);
-  }
-
-  @Test(expected = HopException.class)
-  public void testExceptionRetrievingCollectionIsRethrown() throws MongoDbException, HopException {
-    when(mockDb.getCollection(any(String.class))).thenThrow(mock(RuntimeException.class));
-    setupPerform();
-    discoverFields.discoverFields(
-        new MongoProperties.Builder(),
-        "mydb",
-        "mycollection",
-        "",
-        "",
-        false,
-        NUM_DOCS_TO_SAMPLE,
-        inputMeta);
-  }
 
   private void setupPerform() throws MongoDbException {
     when(clientWrapper.perform(any(String.class), any(MongoDBAction.class)))
@@ -295,9 +106,14 @@ public class MongodbInputDiscoverFieldsImplTest {
               @Override
               public List<MongoField> answer(InvocationOnMock invocationOnMock) throws Throwable {
                 MongoDBAction action = (MongoDBAction) invocationOnMock.getArguments()[1];
-                return (List<MongoField>) action.perform(mockDb);
+                if (action != null) {
+                  return (List<MongoField>) action.perform(mockDb);
+                } else {
+                  return null;
+                }
               }
             });
+    when(connection.createWrapper(any(), any())).thenReturn(mock(MongoClientWrapper.class));
     setupCursorWithNRows(NUM_DOCS_TO_SAMPLE);
   }
 
@@ -319,7 +135,8 @@ public class MongodbInputDiscoverFieldsImplTest {
    * expecteds vararg. The expecteds should contain an array of { nameForField1, pathForField1,
    * valueForField1, nameForField2, pathForField2, valueForField2, ... }
    */
-  private void validateFields(List<MongoField> fields, Object... expecteds) throws HopException {
+  private void validateFields(List<MongoField> fields, Object... expecteds) throws Exception {
+    setupPerform();
     assertThat(expecteds.length, equalTo(fields.size() * 3));
     Collections.sort(fields);
     for (int i = 0; i < fields.size(); i++) {
@@ -410,7 +227,8 @@ public class MongodbInputDiscoverFieldsImplTest {
   @Test
   public void testDocToFields() {
     Map<String, MongoField> fieldMap = new LinkedHashMap<>();
-    DBObject doc = (DBObject) JSON.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
+    DBObject doc =
+        (DBObject) BasicDBObject.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
 
     MongodbInputDiscoverFieldsImpl.docToFields(doc, fieldMap);
     assertThat(3, equalTo(fieldMap.size()));

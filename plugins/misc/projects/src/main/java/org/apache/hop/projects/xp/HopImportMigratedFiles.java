@@ -71,7 +71,6 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                 String filename = filesIterator.next();
                 DOMSource domSource = filesMap.get(filename);
 
-
                 // copy any non-Hop files as is
                 if(domSource == null){
                     InputStream is = null;
@@ -79,7 +78,13 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                     try{
                         File sourceFile = new File(filename);
                         if(!sourceFile.isDirectory()){
-                            String outFilename = filename.replaceAll(inputFolder, projectConfig.getProjectHome());
+                            String outFilename = "";
+                            if(System.getProperty("os.name").contains("Windows")){
+                                outFilename = filename.replaceAll("\\\\", "/")
+                                        .replaceAll(inputFolder.replaceAll("\\\\", "/"), projectConfig.getProjectHome().replaceAll("\\\\", "/"));
+                            }else{
+                                outFilename = filename.replaceAll(inputFolder, projectConfig.getProjectHome());
+                            }
                             File projectFile = new File(outFilename);
                             String folderName = projectFile.getParent();
                             Files.createDirectories(Paths.get(folderName));
@@ -101,12 +106,15 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
                     String folderName = outFile.getParent();
                     Files.createDirectories(Paths.get(folderName));
                     StreamResult streamResult = new StreamResult(new File(outFilename));
-                    transformer.transform(domSource, streamResult);
+                    try {
+                        transformer.transform(domSource, streamResult);
+                    } catch(TransformerException e) {
+                        iLogChannel.logError("Error transforming '" + filename + " to Hop.");
+                        e.printStackTrace();
+                    }
                 }
             }
         }catch(TransformerConfigurationException e) {
-            e.printStackTrace();
-        }catch(TransformerException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

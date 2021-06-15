@@ -1,0 +1,160 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[integration-testing]]
+= Integration Testing
+
+The Apache Hop team has created an integration testing framework that is being used to test key components of the software.
+The integration tests run as a daily build on Jenkins and can be found https://ci-builds.apache.org/job/Hop/job/Hop-integration-tests/[here].
+
+
+== Adding tests to an existing project
+
+There are two possible scenarios that you can follow, the first is adding a test to one of the existing projects containing tests. The second scenario is creating a new project.
+
+First start by creating a local clone of the Apache Hop repository, instruction to do this can be found xref:setup-dev-environment.adoc[here].
+
+. Open the Hop gui and add one of the integration testing projects to your gui
++
+In this example we will be opening the `transforms` project and add an extra test in this project.
+When the UI asks to add an environment or lifecycle press no, using this is not supported 
++
+image::integration-tests-001.png[]
+
+. naming convention inside the project
++
+when taking a look inside the project you will see a distinct naming pattern is used.
+each test consists of one workflow and one or more pipelines to execute the test.
++
+The workflow *must* always start with `main-` followed by number and a logical explanation of what the test is checking. the pipelines linked to the workflow start with the same number the workflow uses to make a clear distinction which pipelines are linked to which test.
++
+image::integration-tests-002.png[]
++
+The workflows themselves can be straightforward, the exit code (success/abort) is used to determine if the workflow has passed or failed.
++
+note:: You can also make an integration test to test something that must fail. Then you simply link the false hop to a success and the true hop to an abort action.
++
+image::integration-tests-003.png[]
++
+image::integration-tests-004.png[]
++
+. create a unit test
++
+Now you can add your own workflow to the project folder. Make sure you have a Jira ticket you can refer to when creating a pull request.
+
+
+== Adding a new project
+
+You can also add a new project to the integration test folder. Give the project a meaningful name that explains the subject you will be testing.
+
+important:: the project should have a workflow engine named `local`
+
+== Running tests locally
+
+You can also run the integration tests on your local system.
+
+There are 2 ways the integration tests can be run oin your local system
+
+=== Docker Compose
+
+The entire test suite is available as a docker compose script to use this use following commands.
+This include all services available and needed for the tests.
+
+TIP: You need version 1.27.0 or higher of docker-compose
+
+. Clean build HOP
++
+----
+cd incubator-hop
+mvn clean install
+----
++
+. Run the Docker Compose script
++
+----
+cd integration-tests/scripts
+./run-tests-docker.sh 
+
+# Optionally you can run a single project by adding the PROJECT_NAME variable to the script
+
+./run-tests-docker.sh  PROJECT_NAME=database
+----
++
+. Surefire Reports
++
+We generate xml reports that can be used by Jenkins to generate reports. these result reports can be found in the `integration-tests/surefire-reports` folder.
+
+=== Testing script
+
+A script is also provided to run the test without using Docker. This script is also used inside the automated test suite but can be used in a stand alone mode.
+
+This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`. Be sure to export the needed system variables for the script to find the correct paths to run the tests. You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
+
+
+== Special checks
+
+In some cases you want to check the logs to see if a specific value is present to mark your test as passed or failed. The script used in `main-0001-static-partitioning` can be helpful.
+
+
+Code used in JavaScript Action in the workflow:
+
+[source,java]
+----
+var txt = previous_result.getLogText();
+
+
+var ok = true;
+
+var expectedVariables = [ 
+   "partitioned.0 - Internal.Transform.Partition.ID = P1",
+   "partitioned.1 - Internal.Transform.Partition.ID = P2",
+   "partitioned.2 - Internal.Transform.Partition.ID = P3"
+ ];
+
+for (var i = 0 ; i<expectedVariables.length ; i++) {
+  var expectedVariable = expectedVariables[i];
+  if ( !txt.contains(expectedVariable)) {
+    ok = false;
+    log.logError("Expected variable expression '"+expectedVariable+"' was not logged at least once");
+  }
+}
+
+var expectedValues = [ 
+   "partitioned.1 - id = 1",
+   "partitioned.2 - id = 2",
+   "partitioned.0 - id = 3",
+   "partitioned.1 - id = 4",
+   "partitioned.2 - id = 5",
+   "partitioned.0 - id = 6",
+   "partitioned.1 - id = 7",
+   "partitioned.2 - id = 8",
+   "partitioned.0 - id = 9",
+   "partitioned.1 - id = 10",
+ ];
+
+for (var i = 0 ; i<expectedValues.length ; i++) {
+  var expectedValue = expectedValues[i];
+  if ( !txt.contains(expectedValue)) {
+    ok = false;
+    log.logError("Value logged as '"+expectedValue+"' was not logged at least once");
+  }
+}
+
+
+ok;
+----
+
+This script reads the log returned by the previous pipeline and parses it to search for values.

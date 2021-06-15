@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.70-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-webservices</artifactId>
@@ -48,9 +48,9 @@
 
     <repositories>
         <repository>
-            <id>geomajas</id>
-            <url>http://maven.geomajas.org/</url>
-            <name>Geomajas</name>
+            <id>EBIPublic</id>
+            <url>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/public/</url>
+            <name>EBIPublic Repository</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>

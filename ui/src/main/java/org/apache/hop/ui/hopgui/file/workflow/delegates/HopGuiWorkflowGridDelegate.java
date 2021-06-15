@@ -78,7 +78,7 @@ public class HopGuiWorkflowGridDelegate {
 
     // First, see if we need to add the extra view...
     //
-    if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
+    if ( workflowGraph.extraViewTabFolder == null || workflowGraph.extraViewTabFolder.isDisposed() ) {
       workflowGraph.addExtraView();
     } else {
       if ( workflowGridTab != null && !workflowGridTab.isDisposed() ) {
@@ -165,7 +165,7 @@ public class HopGuiWorkflowGridDelegate {
     };
     tim.schedule( timtask, 10L, 2000L ); // refresh every 2 seconds...
 
-    workflowGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( disposeEvent -> tim.cancel() );
+    workflowGraph.workflowLogDelegate.getWorkflowLogTab().addDisposeListener( disposeEvent -> tim.cancel() );
 
   }
 

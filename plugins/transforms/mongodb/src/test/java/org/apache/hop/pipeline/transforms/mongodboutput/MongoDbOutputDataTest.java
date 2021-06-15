@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mongodboutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -42,12 +41,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -96,13 +97,13 @@ public class MongoDbOutputDataTest {
         .createIndex(captorIndexes.capture(), captorOptions.capture());
 
     MongoIndex index = new MongoIndex();
-    index.m_pathToFields = "FirstName:1";
-    index.m_drop = false;
-    index.m_sparse = false;
-    index.m_unique = false;
+    index.pathToFields = "FirstName:1";
+    index.drop = false;
+    index.sparse = false;
+    index.unique = false;
 
     // Test with all options false
-    data.applyIndexes(Arrays.asList(index), log, false);
+    data.applyIndexes(Collections.singletonList(index), log, false);
     BasicDBObject createdIndex = captorIndexes.getValue();
     BasicDBObject createdOptions = captorOptions.getValue();
 
@@ -110,16 +111,16 @@ public class MongoDbOutputDataTest {
     assertTrue(createdIndex.containsField("FirstName"));
     assertEquals("1", createdIndex.getString("FirstName"));
     assertTrue(createdOptions.containsField("background"));
-    assertEquals(true, createdOptions.getBoolean("background"));
+    assertTrue(createdOptions.getBoolean("background"));
     assertTrue(createdOptions.containsField("sparse"));
-    assertEquals(false, createdOptions.getBoolean("sparse"));
+    assertFalse(createdOptions.getBoolean("sparse"));
     assertTrue(createdOptions.containsField("unique"));
-    assertEquals(false, createdOptions.getBoolean("unique"));
+    assertFalse(createdOptions.getBoolean("unique"));
 
     // Test with only "sparse" true
-    index.m_sparse = true;
-    index.m_unique = false;
-    data.applyIndexes(Arrays.asList(index), log, false);
+    index.sparse = true;
+    index.unique = false;
+    data.applyIndexes(Collections.singletonList(index), log, false);
     createdIndex = captorIndexes.getValue();
     createdOptions = captorOptions.getValue();
 
@@ -127,16 +128,16 @@ public class MongoDbOutputDataTest {
     assertTrue(createdIndex.containsField("FirstName"));
     assertEquals("1", createdIndex.getString("FirstName"));
     assertTrue(createdOptions.containsField("background"));
-    assertEquals(true, createdOptions.getBoolean("background"));
+    assertTrue(createdOptions.getBoolean("background"));
     assertTrue(createdOptions.containsField("sparse"));
-    assertEquals(true, createdOptions.getBoolean("sparse"));
+    assertTrue(createdOptions.getBoolean("sparse"));
     assertTrue(createdOptions.containsField("unique"));
-    assertEquals(false, createdOptions.getBoolean("unique"));
+    assertFalse(createdOptions.getBoolean("unique"));
 
     // Test with only "unique" true
-    index.m_sparse = false;
-    index.m_unique = true;
-    data.applyIndexes(Arrays.asList(index), log, false);
+    index.sparse = false;
+    index.unique = true;
+    data.applyIndexes(Collections.singletonList(index), log, false);
     createdIndex = captorIndexes.getValue();
     createdOptions = captorOptions.getValue();
 
@@ -144,16 +145,16 @@ public class MongoDbOutputDataTest {
     assertTrue(createdIndex.containsField("FirstName"));
     assertEquals("1", createdIndex.getString("FirstName"));
     assertTrue(createdOptions.containsField("background"));
-    assertEquals(true, createdOptions.getBoolean("background"));
+    assertTrue(createdOptions.getBoolean("background"));
     assertTrue(createdOptions.containsField("sparse"));
-    assertEquals(false, createdOptions.getBoolean("sparse"));
+    assertFalse(createdOptions.getBoolean("sparse"));
     assertTrue(createdOptions.containsField("unique"));
-    assertEquals(true, createdOptions.getBoolean("unique"));
+    assertTrue(createdOptions.getBoolean("unique"));
 
     // Test with "sparse" and "unique" true
-    index.m_sparse = true;
-    index.m_unique = true;
-    data.applyIndexes(Arrays.asList(index), log, false);
+    index.sparse = true;
+    index.unique = true;
+    data.applyIndexes(Collections.singletonList(index), log, false);
     createdIndex = captorIndexes.getValue();
     createdOptions = captorOptions.getValue();
 
@@ -161,11 +162,11 @@ public class MongoDbOutputDataTest {
     assertTrue(createdIndex.containsField("FirstName"));
     assertEquals("1", createdIndex.getString("FirstName"));
     assertTrue(createdOptions.containsField("background"));
-    assertEquals(true, createdOptions.getBoolean("background"));
+    assertTrue(createdOptions.getBoolean("background"));
     assertTrue(createdOptions.containsField("sparse"));
-    assertEquals(true, createdOptions.getBoolean("sparse"));
+    assertTrue(createdOptions.getBoolean("sparse"));
     assertTrue(createdOptions.containsField("unique"));
-    assertEquals(true, createdOptions.getBoolean("unique"));
+    assertTrue(createdOptions.getBoolean("unique"));
   }
 
   @Test
@@ -182,20 +183,20 @@ public class MongoDbOutputDataTest {
         .createIndex(captorIndexes.capture(), any(BasicDBObject.class));
 
     MongoIndex index = new MongoIndex();
-    index.m_pathToFields = "FirstName:1";
-    index.m_drop = false;
-    index.m_sparse = false;
-    index.m_unique = false;
+    index.pathToFields = "FirstName:1";
+    index.drop = false;
+    index.sparse = false;
+    index.unique = false;
 
-    data.applyIndexes(Arrays.asList(index), log, false);
+    data.applyIndexes(Collections.singletonList(index), log, false);
     BasicDBObject createdIndex = captorIndexes.getValue();
     assertEquals(1, createdIndex.size());
     assertTrue(createdIndex.containsField("FirstName"));
     assertEquals("1", createdIndex.getString("FirstName"));
 
     // Test multiple fields
-    index.m_pathToFields = "FirstName:1,LastName:-1,Street:1";
-    data.applyIndexes(Arrays.asList(index), log, false);
+    index.pathToFields = "FirstName:1,LastName:-1,Street:1";
+    data.applyIndexes(Collections.singletonList(index), log, false);
     createdIndex = captorIndexes.getValue();
     assertEquals(3, createdIndex.size());
     assertTrue(createdIndex.containsField("FirstName"));
@@ -211,10 +212,10 @@ public class MongoDbOutputDataTest {
     // validates setting, initializing, and getting of MongoFields.
     MongoDbOutputMeta.MongoField field1 = new MongoDbOutputMeta.MongoField();
     MongoDbOutputMeta.MongoField field2 = new MongoDbOutputMeta.MongoField();
-    field1.m_incomingFieldName = "field1";
-    field1.m_mongoDocPath = "parent.field1";
-    field2.m_incomingFieldName = "field2";
-    field2.m_mongoDocPath = "parent.field2";
+    field1.incomingFieldName = "field1";
+    field1.mongoDocPath = "parent.field1";
+    field2.incomingFieldName = "field2";
+    field2.mongoDocPath = "parent.field2";
 
     MongoDbOutputData data = new MongoDbOutputData();
     data.setMongoFields(Arrays.asList(field1, field2));
@@ -222,17 +223,17 @@ public class MongoDbOutputDataTest {
 
     List<MongoDbOutputMeta.MongoField> fields = data.getMongoFields();
     assertThat(fields.size(), equalTo(2));
-    assertThat(fields.get(0).m_incomingFieldName, equalTo("field1"));
-    assertThat(fields.get(1).m_incomingFieldName, equalTo("field2"));
-    assertThat(fields.get(0).m_pathList, equalTo(Arrays.asList("parent", "field1")));
-    assertThat(fields.get(1).m_pathList, equalTo(Arrays.asList("parent", "field2")));
+    assertThat(fields.get(0).incomingFieldName, equalTo("field1"));
+    assertThat(fields.get(1).incomingFieldName, equalTo("field2"));
+    assertThat(fields.get(0).pathList, equalTo(Arrays.asList("parent", "field1")));
+    assertThat(fields.get(1).pathList, equalTo(Arrays.asList("parent", "field2")));
   }
 
   @Test
   public void testGetQueryObjectWithIncomingJson() throws HopException {
     MongoDbOutputMeta.MongoField field1 = new MongoDbOutputMeta.MongoField();
-    field1.m_JSON = true;
-    field1.m_updateMatchField = true;
+    field1.inputJson = true;
+    field1.updateMatchField = true;
     when(rowMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
     String query = "{ foo : 'bar' }";
     when(valueMeta.getString(any(Object[].class))).thenReturn(query);
@@ -241,7 +242,11 @@ public class MongoDbOutputDataTest {
     when(valueMeta.isString()).thenReturn(false);
     try {
       MongoDbOutputData.getQueryObject(
-          Arrays.asList(field1), rowMeta, row, variables, MongoDbOutputData.MongoTopLevel.RECORD);
+          Collections.singletonList(field1),
+          rowMeta,
+          row,
+          variables,
+          MongoDbOutputData.MongoTopLevel.RECORD);
       fail("expected an exception, can't construct query from non-string.");
     } catch (Exception e) {
       assertThat(e, instanceOf(HopException.class));
@@ -250,8 +255,12 @@ public class MongoDbOutputDataTest {
     when(valueMeta.isString()).thenReturn(true);
     assertThat(
         MongoDbOutputData.getQueryObject(
-            Arrays.asList(field1), rowMeta, row, variables, MongoDbOutputData.MongoTopLevel.RECORD),
-        equalTo((DBObject) JSON.parse(query)));
+            Collections.singletonList(field1),
+            rowMeta,
+            row,
+            variables,
+            MongoDbOutputData.MongoTopLevel.RECORD),
+        equalTo((DBObject) BasicDBObject.parse(query)));
   }
 
   @Test

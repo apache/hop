@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -36,8 +37,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-import static org.apache.hop.core.util.StringUtil.isEmpty;
-
 /** Meta data for the abort transform. */
 @Transform(
     id = "Abort",
@@ -45,7 +44,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
     description = "i18n::Abort.Description",
     image = "abort.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/abort.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/abort.html")
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 
   private static final Class<?> PKG = AbortMeta.class; // For Translator
@@ -57,15 +56,29 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   /** Threshold to abort. */
+  @HopMetadataProperty(
+      key = "row_threshold",
+      injectionKeyDescription = "AbortDialog.Options.RowThreshold.Label")
   private String rowThreshold;
 
   /** Message to put in log when aborting. */
+  @HopMetadataProperty(injectionKeyDescription = "AbortDialog.Logging.AbortMessage.Tooltip")
   private String message;
 
   /** Always log rows. */
+  @HopMetadataProperty(
+      key = "always_log_rows",
+      injectionKeyDescription = "AbortDialog.Logging.AlwaysLogRows.Label")
   private boolean alwaysLogRows;
 
+  @HopMetadataProperty(
+      key = "abort_option",
+      injectionKeyDescription = "AbortMeta.Injection.AbortOption")
   private AbortOption abortOption;
+
+  public AbortMeta() {
+    abortOption = AbortOption.ABORT;
+  }
 
   @Override
   public void getFields(
@@ -117,12 +130,6 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
   public void setDefault() {
     rowThreshold = "0";
     message = "";
@@ -131,70 +138,19 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
 
-    retval.append("      ").append(XmlHandler.addTagValue("row_threshold", rowThreshold));
-    retval.append("      ").append(XmlHandler.addTagValue("message", message));
-    retval.append("      ").append(XmlHandler.addTagValue("always_log_rows", alwaysLogRows));
-    retval.append("      ").append(XmlHandler.addTagValue("abort_option", abortOption.toString()));
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      rowThreshold = XmlHandler.getTagValue(transformNode, "row_threshold");
-      message = XmlHandler.getTagValue(transformNode, "message");
-      alwaysLogRows =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "always_log_rows"));
-      String abortOptionString = XmlHandler.getTagValue(transformNode, "abort_option");
-      if (!isEmpty(abortOptionString)) {
-        abortOption = AbortOption.valueOf(abortOptionString);
-      } else {
-        // Backwards compatibility
-        String awe = XmlHandler.getTagValue(transformNode, "abort_with_error");
-        if (awe == null) {
-          awe = "Y"; // existing pipelines will have to maintain backward compatibility with yes
-        }
-        abortOption = "Y".equalsIgnoreCase(awe) ? AbortOption.ABORT_WITH_ERROR : AbortOption.ABORT;
+    // Backward compatible code
+    //
+    if (abortOption == null) {
+      String awe = XmlHandler.getTagValue(transformNode, "abort_with_error");
+      if (awe == null) {
+        awe = "Y"; // existing pipelines will have to maintain backward compatibility with yes
       }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "AbortMeta.Exception.UnableToLoadTransformMetaFromXML"), e);
+      abortOption = "Y".equalsIgnoreCase(awe) ? AbortOption.ABORT_WITH_ERROR : AbortOption.ABORT;
     }
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public String getRowThreshold() {
-    return rowThreshold;
-  }
-
-  public void setRowThreshold(String rowThreshold) {
-    this.rowThreshold = rowThreshold;
-  }
-
-  public boolean isAlwaysLogRows() {
-    return alwaysLogRows;
-  }
-
-  public void setAlwaysLogRows(boolean alwaysLogRows) {
-    this.alwaysLogRows = alwaysLogRows;
-  }
-
-  public AbortOption getAbortOption() {
-    return abortOption;
-  }
-
-  public void setAbortOption(AbortOption abortOption) {
-    this.abortOption = abortOption;
   }
 
   public boolean isAbortWithError() {
@@ -207,5 +163,61 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
 
   public boolean isSafeStop() {
     return abortOption == AbortOption.SAFE_STOP;
+  }
+
+  /**
+   * Gets rowThreshold
+   *
+   * @return value of rowThreshold
+   */
+  public String getRowThreshold() {
+    return rowThreshold;
+  }
+
+  /** @param rowThreshold The rowThreshold to set */
+  public void setRowThreshold(String rowThreshold) {
+    this.rowThreshold = rowThreshold;
+  }
+
+  /**
+   * Gets message
+   *
+   * @return value of message
+   */
+  public String getMessage() {
+    return message;
+  }
+
+  /** @param message The message to set */
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  /**
+   * Gets alwaysLogRows
+   *
+   * @return value of alwaysLogRows
+   */
+  public boolean isAlwaysLogRows() {
+    return alwaysLogRows;
+  }
+
+  /** @param alwaysLogRows The alwaysLogRows to set */
+  public void setAlwaysLogRows(boolean alwaysLogRows) {
+    this.alwaysLogRows = alwaysLogRows;
+  }
+
+  /**
+   * Gets abortOption
+   *
+   * @return value of abortOption
+   */
+  public AbortOption getAbortOption() {
+    return abortOption;
+  }
+
+  /** @param abortOption The abortOption to set */
+  public void setAbortOption(AbortOption abortOption) {
+    this.abortOption = abortOption;
   }
 }

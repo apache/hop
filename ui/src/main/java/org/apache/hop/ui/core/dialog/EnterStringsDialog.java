@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,11 +53,7 @@ import org.eclipse.swt.widgets.TableItem;
 public class EnterStringsDialog extends Dialog {
   private static final Class<?> PKG = EnterStringsDialog.class; // For Translator
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private RowMetaAndData strings;
@@ -87,7 +83,6 @@ public class EnterStringsDialog extends Dialog {
 
   public RowMetaAndData open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     props.setLook(shell);
@@ -101,18 +96,28 @@ public class EnterStringsDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+
     // Message line
-    wlFields = new Label(shell, SWT.NONE);
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(message);
     props.setLook(wlFields);
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsRows = strings.getRowMeta().size();
+    int nrRows = strings.getRowMeta().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "EnterStringsDialog.StringName.Label"),
@@ -131,57 +136,27 @@ public class EnterStringsDialog extends Dialog {
             Variables.getADefaultVariableSpace(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            nrRows,
             null,
             props);
     wFields.setReadonly(readOnly);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, 30);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
-
-    // Add listeners
-    lsOk = e -> ok();
-    lsCancel = e -> cancel();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
-
-    BaseTransformDialog.setSize(shell);
 
     if (shellImage != null) {
       shell.setImage(shellImage);
     }
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return strings;
   }
 

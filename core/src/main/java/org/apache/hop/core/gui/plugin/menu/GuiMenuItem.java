@@ -37,8 +37,6 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
 
   private String toolTip;
 
-  private String i18nPackage;
-
   private GuiMenuElementType type;
 
   private String image;
@@ -66,14 +64,13 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
     this.image = guiElement.image();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage(), guiPluginClassName );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.listenerMethod = guiPluginMethod.getName();
     this.listenerClassName = guiPluginClassName; // Ask the classloader for the class
     this.singleTon = true; // Always a singleton for now
-    this.label = calculateI18n( i18nPackage, guiElement.label(), guiPluginMethod.getDeclaringClass() );
-    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip(), guiPluginMethod.getDeclaringClass() );
+    this.label = getTranslation(guiElement.label(), guiPluginMethod.getDeclaringClass().getPackage().getName(), guiPluginMethod.getDeclaringClass() );
+    this.toolTip = getTranslation(guiElement.toolTip(), guiPluginMethod.getDeclaringClass().getPackage().getName(), guiPluginMethod.getDeclaringClass() );
     this.classLoader = classLoader;
   }
 
@@ -180,22 +177,6 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
    */
   public void setToolTip( String toolTip ) {
     this.toolTip = toolTip;
-  }
-
-  /**
-   * Gets i18nPackage
-   *
-   * @return value of i18nPackage
-   */
-  public String getI18nPackage() {
-    return i18nPackage;
-  }
-
-  /**
-   * @param i18nPackage The i18nPackage to set
-   */
-  public void setI18nPackage( String i18nPackage ) {
-    this.i18nPackage = i18nPackage;
   }
 
   /**

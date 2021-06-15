@@ -59,7 +59,7 @@ import java.util.List;
   description = "i18n::ActionWaitForSQL.Description",
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforsql.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforsql.html"
 )
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
@@ -257,7 +257,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -414,7 +414,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
     if ( result.getResult() ) {
       // Remove error count set at the beginning of the method
-      // PDI-15437
+      //
       result.setNrErrors( 0 );
     }
 

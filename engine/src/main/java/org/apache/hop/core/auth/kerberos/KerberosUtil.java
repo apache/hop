@@ -39,10 +39,10 @@ public class KerberosUtil {
   /**
    * A Login Configuration that is pre-configured based on our static configuration.
    */
-  public static class PentahoLoginConfiguration extends Configuration {
+  public static class HopLoginConfiguration extends Configuration {
     private AppConfigurationEntry[] entries;
 
-    public PentahoLoginConfiguration( AppConfigurationEntry[] entries ) {
+    public HopLoginConfiguration( AppConfigurationEntry[] entries ) {
       if ( entries == null ) {
         throw new NullPointerException( "AppConfigurationEntry[] is required" );
       }
@@ -58,7 +58,7 @@ public class KerberosUtil {
   /**
    * The application name to use when creating login contexts.
    */
-  public static final String KERBEROS_APP_NAME = "pentaho";
+  public static final String KERBEROS_APP_NAME = "Apache Hop";
 
   /**
    * The environment property to set to enable JAAS debugging for the LoginConfiguration created by this utility.
@@ -133,7 +133,7 @@ public class KerberosUtil {
       new AppConfigurationEntry( Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, keytabConfig );
     AppConfigurationEntry[] configEntries = new AppConfigurationEntry[] { config };
     Subject subject = new Subject();
-    return new LoginContext( KERBEROS_APP_NAME, subject, null, new PentahoLoginConfiguration( configEntries ) );
+    return new LoginContext( KERBEROS_APP_NAME, subject, null, new HopLoginConfiguration( configEntries ) );
   }
 
   public LoginContext getLoginContextFromUsernamePassword( final String principal, final String password ) throws LoginException {
@@ -156,7 +156,7 @@ public class KerberosUtil {
           }
         }
       }
-    }, new PentahoLoginConfiguration( appConfigurationEntries ) );
+    }, new HopLoginConfiguration( appConfigurationEntries ) );
   }
 
   public LoginContext getLoginContextFromKerberosCache( String principal ) throws LoginException {
@@ -165,7 +165,7 @@ public class KerberosUtil {
     AppConfigurationEntry[] appConfigurationEntries =
       new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
         LoginModuleControlFlag.REQUIRED, opts ) };
-    return new LoginContext( KERBEROS_APP_NAME, new Subject(), null, new PentahoLoginConfiguration(
+    return new LoginContext( KERBEROS_APP_NAME, new Subject(), null, new HopLoginConfiguration(
       appConfigurationEntries ) );
   }
 }

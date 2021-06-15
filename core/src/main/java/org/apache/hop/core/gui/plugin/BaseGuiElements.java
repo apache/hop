@@ -24,10 +24,8 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class BaseGuiElements {
 
-  protected String calculateI18n( String i18nPackage, String string, Class<?> resourceClass ) {
-    if ( StringUtils.isEmpty( i18nPackage ) ) {
-      return string;
-    }
+  protected String getTranslation(String string, String i18nPackage, Class<?> resourceClass ) {
+
     if ( StringUtils.isEmpty( string ) ) {
       return null;
     }
@@ -47,22 +45,6 @@ public class BaseGuiElements {
       return string;
     }
     return translation;
-  }
-
-  protected String calculateI18nPackage( Class<?> i18nPackageClass, String i18nPackage, String guiPluginClass ) {
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      return i18nPackage;
-    }
-    if ( Void.class.equals( i18nPackageClass ) ) {
-
-      int lastDotIndex = guiPluginClass.lastIndexOf( "." );
-      if (lastDotIndex<0) {
-        return null;
-      } else {
-        return guiPluginClass.substring( 0, lastDotIndex );
-      }
-    }
-    return i18nPackageClass.getPackage().getName();
   }
 
   protected String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {

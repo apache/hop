@@ -212,7 +212,7 @@ public class KafkaConsumerInput
     //
     config.put(
         ConsumerConfig.GROUP_ID_CONFIG,
-        variables.resolve(Const.NVL(meta.getConsumerGroup(), "kettle")));
+        variables.resolve(Const.NVL(meta.getConsumerGroup(), "Apache Hop")));
     config.put(
         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
         variables.resolve(meta.getDirectBootstrapServers()));

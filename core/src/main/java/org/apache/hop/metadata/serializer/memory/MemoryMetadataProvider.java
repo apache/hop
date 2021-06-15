@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.serializer.memory;
 
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -33,24 +34,26 @@ import java.util.Map;
 
 public class MemoryMetadataProvider extends BaseMetadataProvider implements IHopMetadataProvider {
 
+  public static final String DEFAULT_DESCRIPTION = "In memory metadata";
+
   private Map<String, IHopMetadataSerializer<IHopMetadata>> serializerMap;
   private ITwoWayPasswordEncoder twoWayPasswordEncoder;
 
   public MemoryMetadataProvider() {
-    super( Variables.getADefaultVariableSpace() );
+    super( Variables.getADefaultVariableSpace(), DEFAULT_DESCRIPTION );
     this.serializerMap = new HashMap<>();
-    this.twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    twoWayPasswordEncoder = Encr.getEncoder();
+    if (twoWayPasswordEncoder==null) {
+      twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    }
   }
 
   public MemoryMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, IVariables variables ) {
-    super(variables);
+    super(variables, DEFAULT_DESCRIPTION);
     this.serializerMap = new HashMap<>();
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
   }
 
-  @Override public String getDescription() {
-    return "In memory metadata";
-  }
 
   @Override public <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer( Class<T> managedClass ) throws HopException {
     IHopMetadataSerializer<IHopMetadata> serializer = serializerMap.get( managedClass.getName() );

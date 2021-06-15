@@ -50,7 +50,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ExecSqlRow",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecSqlRow",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/execsqlrow.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/execsqlrow.html")
 @InjectionSupported(localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS")
 public class ExecSqlRowMeta extends BaseTransformMeta
     implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {

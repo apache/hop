@@ -1,0 +1,40 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "crc32",
+          "data_set_field": "crc32"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "mod",
+          "data_set_field": "mod"
+        },
+        {
+          "transform_field": "sha384",
+          "data_set_field": "sha384"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-add-checksum-parent"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-add-checksum-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0007-add-checksum-parent.hpl",
+  "test_type": "UNIT_TEST"
+}

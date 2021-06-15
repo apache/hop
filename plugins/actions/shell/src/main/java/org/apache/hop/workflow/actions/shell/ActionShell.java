@@ -72,7 +72,7 @@ import java.util.Map;
     description = "i18n::ActionShell.Description",
     image = "shell.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/shell.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class; // For Translator
 
@@ -407,7 +407,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       List<String> cmds = new ArrayList<>();
 
       if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "JobShell.RunningOn", Const.getSystemOs()));
+        logBasic(BaseMessages.getString(PKG, "ActionShell.RunningOn", Const.getSystemOs()));
       }
 
       if (insertScript) {
@@ -520,7 +520,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         command.append(it.next());
       }
       if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "JobShell.ExecCommand", command.toString()));
+        logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", command.toString()));
       }
 
       // Build the environment variable list...
@@ -554,7 +554,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
       proc.waitFor();
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobShell.CommandFinished", command.toString()));
+        logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", command.toString()));
       }
 
       // What's the exit status?
@@ -563,7 +563,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JobShell.ExitStatus", resolve(getFilename()), "" + result.getExitStatus()));
+                  PKG, "ActionShell.ExitStatus", resolve(getFilename()), "" + result.getExitStatus()));
         }
 
         result.setNrErrors(1);
@@ -581,19 +581,19 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     } catch (IOException ioe) {
       logError(
           BaseMessages.getString(
-              PKG, "JobShell.ErrorRunningShell", resolve(getFilename()), ioe.toString()),
+              PKG, "ActionShell.ErrorRunningShell", resolve(getFilename()), ioe.toString()),
           ioe);
       result.setNrErrors(1);
     } catch (InterruptedException ie) {
       logError(
           BaseMessages.getString(
-              PKG, "JobShell.Shellinterupted", resolve(getFilename()), ie.toString()),
+              PKG, "ActionShell.Shellinterupted", resolve(getFilename()), ie.toString()),
           ie);
       result.setNrErrors(1);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
-              PKG, "JobShell.UnexpectedError", resolve(getFilename()), e.toString()),
+              PKG, "ActionShell.UnexpectedError", resolve(getFilename()), e.toString()),
           e);
       result.setNrErrors(1);
     } finally {
@@ -604,7 +604,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           tempFile.delete();
         } catch (Exception e) {
           BaseMessages.getString(
-              PKG, "JobShell.UnexpectedError", tempFile.toString(), e.toString());
+              PKG, "ActionShell.UnexpectedError", tempFile.toString(), e.toString());
         }
       }
     }
@@ -659,13 +659,13 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   @VisibleForTesting
   String replaceWinEOL(String input) {
     String result = input;
-    // replace Windows's EOL if it's contained ( see PDI-12176 )
+    // replace Windows's EOL if it's contained
     result = result.replaceAll("\\r\\n?", "\n");
 
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

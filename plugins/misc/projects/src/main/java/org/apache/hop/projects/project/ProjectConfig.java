@@ -26,15 +26,12 @@ import java.util.Objects;
 
 public class ProjectConfig {
 
-  public static final String DEFAULT_PROJECT_CONFIG_FILENAME = "project-config.json";
-
   protected String projectName;
   protected String projectHome;
   protected String configFilename;
 
   public ProjectConfig() {
     super();
-    this.configFilename = DEFAULT_PROJECT_CONFIG_FILENAME;
   }
 
   public ProjectConfig( String projectName, String projectHome, String configFilename ) {
@@ -69,7 +66,7 @@ public class ProjectConfig {
     String actualHomeFolder = variables.resolve( getProjectHome() );
     File actualHome = new File( actualHomeFolder );
     if (!actualHome.exists()) {
-      throw new HopException("Project home folder '"+actualHomeFolder+"' does not exist");
+      throw new HopException("Project home folder '" + actualHomeFolder + "' does not exist");
     }
     String actualConfigFilename = variables.resolve( getConfigFilename() );
     String fullFilename = FilenameUtils.concat( actualHome.getAbsolutePath(), actualConfigFilename );

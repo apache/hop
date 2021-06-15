@@ -1,0 +1,64 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/cassandra/
+:language: en_US
+
+= Cassandra Connection
+
+== Description
+
+Connections can be created and edited using the logo (click on it to edit), and the drop down menu (arrow down) which you can find on the right of every connection line on the various Cassandra action or transform dialogs.
+
+They can also be managed with the metadata perspective in the Hop GUI. Finally, please note that Cassandra Connections are serialized as JSON in the Hop metadata folder under
+
+`metadata/cassandra-connection/`
+
+== The Options
+
+|===
+|Option |Description
+
+|Hostname
+|Specify the host name(s) for the connection to the Cassandra server
+
+|Port
+|Specify the port number for the connection to the Cassandra server
+
+|Username
+|Specify the username of the target keyspace and/or table authentication details
+
+|Password
+|Specify the password of the target keyspace and/or table authentication details
+
+|Socket Timeout
+|Set an optional connection timeout period, specified in milliseconds.
+
+|Keyspace
+|Specify the keyspace (database) name. You can use the `Select Keyspace` button to select a keyspace.  You can use the `Execute CQL` button to create one.  For example:
+`CREATE KEYSPACE IF NOT EXISTS hop
+WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3} ;`
+
+|Schema hostname
+|For writes only: Specify the host name for the connection to the Cassandra schema (leave blank if not different from hostname)
+
+|Schema port
+|For writes only: Specify the port for the connection to the Cassandra schema (leave blank if not different from port)
+
+|Use compression
+|Select if you want the text of each BATCH INSERT statement compressed (with GZIP) before transmitting it to the node.
+
+|===

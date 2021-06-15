@@ -24,7 +24,6 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
@@ -492,22 +491,25 @@ public class PluginRegistry {
   public static synchronized void init( boolean keepCache ) throws HopPluginException {
     final PluginRegistry registry = getInstance();
 
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START );
     for ( final IPluginType pluginType : pluginTypes ) {
-      log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START, pluginType.getName() );
       registry.registerType( pluginType );
-      log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_STOP, pluginType.getName() );
     }
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP );
 
     // Clear the jar file cache so that we don't waste memory...
     //
     if ( !keepCache ) {
-      JarFileCache.getInstance().clear();
+      JarCache.getInstance().clear();
     }
   }
 
   public void registerType( IPluginType pluginType ) throws HopPluginException {
+
+    // Don't register the same type twice...
+    //
+    if (pluginMap.get( pluginType.getClass() )!=null) {
+      return;
+    }
+
     registerPluginType( pluginType.getClass() );
 
     // Search plugins for this type...
@@ -696,6 +698,7 @@ public class PluginRegistry {
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ImageFile.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Category.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Keywords.Label" ) ) );
+    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.DocumentationUrl.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ClassName.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Libraries.Label" ) ) );
 
@@ -722,6 +725,7 @@ public class PluginRegistry {
       row[ rowIndex++ ] = Const.NVL( plugin.getImageFile(), "" );
       row[ rowIndex++ ] = Const.NVL( plugin.getCategory(), "" );
       row[ rowIndex++ ] = String.join( ",", plugin.getKeywords() );
+      row[ rowIndex++ ] = Const.NVL( plugin.getDocumentationUrl(), "" );
       row[ rowIndex++ ] = plugin.getClassMap().values().toString();
       row[ rowIndex++ ] = String.join( ",", plugin.getLibraries() );
 
@@ -978,7 +982,7 @@ public class PluginRegistry {
       inverseClassLoaderLookup.clear();
       parentClassloaderPatternMap.clear();
       listeners.clear();
-      JarFileCache.getInstance().clear();
+      JarCache.getInstance().clear();
     } finally {
       lock.writeLock().unlock();
     }

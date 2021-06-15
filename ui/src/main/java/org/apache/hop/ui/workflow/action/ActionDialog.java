@@ -29,7 +29,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -83,10 +82,10 @@ public class ActionDialog extends Dialog {
    * @param parent   the parent shell
    * @param workflowMeta  the workflow metadata object
    */
-  public ActionDialog( Shell parent, WorkflowMeta workflowMeta ) {
+  public ActionDialog( Shell parent, WorkflowMeta workflowMeta, IVariables variables ) {
     super( parent, SWT.NONE );
     this.props = PropsUi.getInstance();
-    this.variables = HopGui.getInstance().getVariables();
+    this.variables = variables;
 
     this.workflowMeta = workflowMeta;
   }

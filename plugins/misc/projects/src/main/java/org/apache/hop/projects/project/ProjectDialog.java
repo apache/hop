@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.projects.config.ProjectsConfig;
+import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -37,18 +40,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 public class ProjectDialog extends Dialog {
   private static final Class<?> PKG = ProjectDialog.class; // For Translator
@@ -63,6 +59,7 @@ public class ProjectDialog extends Dialog {
 
   private Text wName;
   private TextVar wHome;
+  private ComboVar wParentProject;
   private TextVar wConfigFile;
   private Text wDescription;
   private Text wCompany;
@@ -74,62 +71,72 @@ public class ProjectDialog extends Dialog {
   private Button wEnforceHomeExecution;
   private TableView wVariables;
 
-  private int margin;
-  private int middle;
+  private final IVariables variables;
 
-  private IVariables variables;
+  private boolean needingProjectRefresh;
 
-  private boolean variablesChanged;
-
-  private String originalName;
+  private final String originalName;
+  private final Boolean editMode;
 
   public ProjectDialog(
-      Shell parent, Project project, ProjectConfig projectConfig, IVariables variables) {
+      Shell parent,
+      Project project,
+      ProjectConfig projectConfig,
+      IVariables variables,
+      Boolean editMode) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 
     this.project = project;
     this.projectConfig = projectConfig;
+    this.editMode = editMode;
 
     props = PropsUi.getInstance();
 
     this.variables = new Variables();
     this.variables.initializeFrom(null);
     this.originalName = projectConfig.getProjectName();
-    project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
+    try {
+      project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
+    } catch (Exception e) {
+      new ErrorDialog(
+          parent,
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Message"),
+          e);
+    }
   }
 
   public String open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(shell);
 
-    margin = Const.MARGIN + 2;
-    middle = Const.MIDDLE_PCT;
+    int margin = Const.MARGIN + 2;
+    int middle = Const.MIDDLE_PCT;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText("Project dialog");
+    shell.setText(BaseMessages.getString(PKG, "ProjectDialog.Shell.Name"));
 
     // Buttons go at the bottom of the dialog
     //
-    Button wOK = new Button(shell, SWT.PUSH);
-    wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOK.addListener(SWT.Selection, event -> ok());
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, event -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, event -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOK, wCancel}, margin * 3, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin * 3, null);
 
     Label wlName = new Label(shell, SWT.RIGHT);
     props.setLook(wlName);
-    wlName.setText("Name ");
+    wlName.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectName"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
@@ -146,7 +153,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlHome = new Label(shell, SWT.RIGHT);
     props.setLook(wlHome);
-    wlHome.setText("Home folder ");
+    wlHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.HomeFolder"));
     FormData fdlHome = new FormData();
     fdlHome.left = new FormAttachment(0, 0);
     fdlHome.right = new FormAttachment(middle, 0);
@@ -154,7 +161,7 @@ public class ProjectDialog extends Dialog {
     wlHome.setLayoutData(fdlHome);
     Button wbHome = new Button(shell, SWT.PUSH);
     props.setLook(wbHome);
-    wbHome.setText("Browse...");
+    wbHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
     FormData fdbHome = new FormData();
     fdbHome.right = new FormAttachment(100, 0);
     fdbHome.top = new FormAttachment(wlHome, 0, SWT.CENTER);
@@ -171,24 +178,49 @@ public class ProjectDialog extends Dialog {
 
     Label wlConfigFile = new Label(shell, SWT.RIGHT);
     props.setLook(wlConfigFile);
-    wlConfigFile.setText("Configuration file (relative path) ");
+    wlConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ConfigurationFile"));
     FormData fdlConfigFile = new FormData();
     fdlConfigFile.left = new FormAttachment(0, 0);
     fdlConfigFile.right = new FormAttachment(middle, 0);
     fdlConfigFile.top = new FormAttachment(lastControl, margin);
     wlConfigFile.setLayoutData(fdlConfigFile);
+    Button wbConfigFile = new Button(shell, SWT.PUSH);
+    props.setLook(wbConfigFile);
+    wbConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
+    FormData fdbConfigFile = new FormData();
+    fdbConfigFile.right = new FormAttachment(100, 0);
+    fdbConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
+    wbConfigFile.setLayoutData(fdbConfigFile);
+    wbConfigFile.addListener(SWT.Selection, this::browseConfigFolder);
     wConfigFile = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wConfigFile);
     FormData fdConfigFile = new FormData();
     fdConfigFile.left = new FormAttachment(middle, margin);
-    fdConfigFile.right = new FormAttachment(100, 0);
+    fdConfigFile.right = new FormAttachment(wbConfigFile, -margin);
     fdConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
     wConfigFile.setLayoutData(fdConfigFile);
     lastControl = wConfigFile;
 
+    Label wlParentProject = new Label(shell, SWT.RIGHT);
+    props.setLook(wlParentProject);
+    wlParentProject.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ParentProject"));
+    FormData fdlParentProject = new FormData();
+    fdlParentProject.left = new FormAttachment(0, 0);
+    fdlParentProject.right = new FormAttachment(middle, 0);
+    fdlParentProject.top = new FormAttachment(lastControl, margin);
+    wlParentProject.setLayoutData(fdlParentProject);
+    wParentProject = new ComboVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    props.setLook(wParentProject);
+    FormData fdParentProject = new FormData();
+    fdParentProject.left = new FormAttachment(middle, margin);
+    fdParentProject.right = new FormAttachment(100, 0);
+    fdParentProject.top = new FormAttachment(wlParentProject, 0, SWT.CENTER);
+    wParentProject.setLayoutData(fdParentProject);
+    lastControl = wParentProject;
+
     Label wlDescription = new Label(shell, SWT.RIGHT);
     props.setLook(wlDescription);
-    wlDescription.setText("Description ");
+    wlDescription.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Description"));
     FormData fdlDescription = new FormData();
     fdlDescription.left = new FormAttachment(0, 0);
     fdlDescription.right = new FormAttachment(middle, 0);
@@ -205,7 +237,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlCompany = new Label(shell, SWT.RIGHT);
     props.setLook(wlCompany);
-    wlCompany.setText("Company ");
+    wlCompany.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Company"));
     FormData fdlCompany = new FormData();
     fdlCompany.left = new FormAttachment(0, 0);
     fdlCompany.right = new FormAttachment(middle, 0);
@@ -222,7 +254,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDepartment = new Label(shell, SWT.RIGHT);
     props.setLook(wlDepartment);
-    wlDepartment.setText("Department ");
+    wlDepartment.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Department"));
     FormData fdlDepartment = new FormData();
     fdlDepartment.left = new FormAttachment(0, 0);
     fdlDepartment.right = new FormAttachment(middle, 0);
@@ -239,7 +271,8 @@ public class ProjectDialog extends Dialog {
 
     Label wlMetadataBaseFolder = new Label(shell, SWT.RIGHT);
     props.setLook(wlMetadataBaseFolder);
-    wlMetadataBaseFolder.setText("Metadata base folder (HOP_METADATA_FOLDER)");
+    wlMetadataBaseFolder.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.MetadataBaseFolder"));
     FormData fdlMetadataBaseFolder = new FormData();
     fdlMetadataBaseFolder.left = new FormAttachment(0, 0);
     fdlMetadataBaseFolder.right = new FormAttachment(middle, 0);
@@ -257,7 +290,8 @@ public class ProjectDialog extends Dialog {
 
     Label wlUnitTestsBasePath = new Label(shell, SWT.RIGHT);
     props.setLook(wlUnitTestsBasePath);
-    wlUnitTestsBasePath.setText("Unit tests base path (HOP_UNIT_TESTS_FOLDER) ");
+    wlUnitTestsBasePath.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.UnitTestBaseFolder"));
     FormData fdlUnitTestsBasePath = new FormData();
     fdlUnitTestsBasePath.left = new FormAttachment(0, 0);
     fdlUnitTestsBasePath.right = new FormAttachment(middle, 0);
@@ -275,7 +309,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDataSetCsvFolder = new Label(shell, SWT.RIGHT);
     props.setLook(wlDataSetCsvFolder);
-    wlDataSetCsvFolder.setText("Data Sets CSV Folder (HOP_DATASETS_FOLDER)");
+    wlDataSetCsvFolder.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.DatasetCSVFolder"));
     FormData fdlDataSetCsvFolder = new FormData();
     fdlDataSetCsvFolder.left = new FormAttachment(0, 0);
     fdlDataSetCsvFolder.right = new FormAttachment(middle, 0);
@@ -293,7 +327,8 @@ public class ProjectDialog extends Dialog {
 
     Label wlEnforceHomeExecution = new Label(shell, SWT.RIGHT);
     props.setLook(wlEnforceHomeExecution);
-    wlEnforceHomeExecution.setText("Enforce executions in project home? ");
+    wlEnforceHomeExecution.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.EnforceExecutionInHome"));
     FormData fdlEnforceHomeExecution = new FormData();
     fdlEnforceHomeExecution.left = new FormAttachment(0, 0);
     fdlEnforceHomeExecution.right = new FormAttachment(middle, 0);
@@ -306,23 +341,35 @@ public class ProjectDialog extends Dialog {
     fdEnforceHomeExecution.right = new FormAttachment(100, 0);
     fdEnforceHomeExecution.top = new FormAttachment(wlEnforceHomeExecution, 0, SWT.CENTER);
     wEnforceHomeExecution.setLayoutData(fdEnforceHomeExecution);
-    lastControl = wEnforceHomeExecution;
+    lastControl = wlEnforceHomeExecution;
 
     Label wlVariables = new Label(shell, SWT.LEFT);
     props.setLook(wlVariables);
-    wlVariables.setText("Project variables to set : ");
+    wlVariables.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Group.Label.ProjectVariablesToSet"));
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment(0, 0);
     fdlVariables.right = new FormAttachment(100, 0);
-    fdlVariables.top = new FormAttachment(lastControl, margin);
+    fdlVariables.top = new FormAttachment(lastControl, 2 * margin);
     wlVariables.setLayoutData(fdlVariables);
 
     ColumnInfo[] columnInfo =
         new ColumnInfo[] {
-          new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
           new ColumnInfo(
-              "Description (optional information)", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableName"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableValue"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableDescription"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
         };
     columnInfo[0].setUsingVariables(true);
     columnInfo[1].setUsingVariables(true);
@@ -341,35 +388,18 @@ public class ProjectDialog extends Dialog {
     fdVariables.left = new FormAttachment(0, 0);
     fdVariables.right = new FormAttachment(100, 0);
     fdVariables.top = new FormAttachment(wlVariables, margin);
-    fdVariables.bottom = new FormAttachment(wOK, -margin * 2);
+    fdVariables.bottom = new FormAttachment(wOk, -margin * 2);
     wVariables.setLayoutData(fdVariables);
-    wVariables.addModifyListener(
-        e -> {
-          variablesChanged = true;
-        });
-    // lastControl = wVariables;
+    wVariables.addModifyListener(e -> needingProjectRefresh = true);
 
-    // When enter is hit, close the dialog
+    // See if we need a project refresh/reload
     //
-    wDescription.addListener(SWT.DefaultSelection, (e) -> ok());
-    wCompany.addListener(SWT.DefaultSelection, (e) -> ok());
-    wDepartment.addListener(SWT.DefaultSelection, (e) -> ok());
-    wMetadataBaseFolder.addListener(SWT.DefaultSelection, (e) -> ok());
-    wUnitTestsBasePath.addListener(SWT.DefaultSelection, (e) -> ok());
-    wDataSetCsvFolder.addListener(SWT.DefaultSelection, (e) -> ok());
-
-    // Set the shell size, based upon previous time...
-    BaseTransformDialog.setSize(shell);
+    wParentProject.addModifyListener(e -> needingProjectRefresh = true);
+    wHome.addModifyListener(e -> needingProjectRefresh = true);
 
     getData();
 
-    shell.open();
-
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return returnValue;
   }
@@ -385,6 +415,42 @@ public class ProjectDialog extends Dialog {
     }
   }
 
+  private void browseConfigFolder(Event event) {
+    // Set the root of the possible path to config file to project's root
+    String rootPath = wHome.getText();
+    wConfigFile.setText(rootPath);
+    String configFile =
+        BaseDialog.presentFileDialog(
+            shell,
+            wConfigFile,
+            variables,
+            new String[] {"*.json", "*.*"},
+            new String[] {
+              BaseMessages.getString(PKG, "ProjectDialog.FileList.PrjFiles.Text"),
+              BaseMessages.getString(PKG, "ProjectDialog.FileList.AllFiles.Text")
+            },
+            true);
+
+    // Set the name to the base folder if the name is empty
+    //
+    if (configFile != null) {
+      String relativeConfigFile = null;
+      if (!configFile.startsWith(rootPath)) {
+        MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK);
+        box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.WrongConfigPath.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.WrongConfigPath.Dialog.Message"));
+        box.open();
+      } else {
+        // Calculate relative path to existing config file
+        String tmpConfigFile = StringUtils.difference(rootPath, configFile);
+        relativeConfigFile =
+            (tmpConfigFile.startsWith(File.separator) ? tmpConfigFile.substring(1) : tmpConfigFile);
+      }
+      wConfigFile.setText(Const.NVL(relativeConfigFile, ""));
+    }
+  }
+
   private void updateIVariables() {
     Project env = new Project();
     ProjectConfig pc = new ProjectConfig();
@@ -392,7 +458,11 @@ public class ProjectDialog extends Dialog {
       getInfo(env, pc);
       env.modifyVariables(variables, pc, Collections.emptyList(), null);
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "There is a configuration error in the project:", e);
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Message"),
+          e);
     }
   }
 
@@ -417,18 +487,33 @@ public class ProjectDialog extends Dialog {
       if (StringUtils.isEmpty(projectName)) {
         throw new HopException("Please give your new project a name");
       }
-      if (StringUtils.isNotEmpty(originalName)) {
-        if (!projectName.equals(originalName)) {
-          wName.setText(originalName);
-          throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
+
+      // Check if project name is unique otherwise force the user to change it!
+      if (Boolean.FALSE.equals(editMode)) {
+        ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
+        List<String> prjs = prjsCfg.listProjectConfigNames();
+        for (String prj : prjs) {
+          if (projectName.equals(prj)) {
+            throw new HopException(
+                "Project '" + projectName + "' already exists. Project name must be unique!");
+          }
         }
+      }
+
+      if (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName)) {
+        wName.setText(originalName);
+        throw new HopException("Sorry, renaming project '" + originalName + "' is not supported");
       }
 
       getInfo(project, projectConfig);
       returnValue = projectConfig.getProjectName();
       dispose();
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "There is a configuration error in the project:", e);
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Message"),
+          e);
     }
   }
 
@@ -464,6 +549,24 @@ public class ProjectDialog extends Dialog {
     }
     wVariables.setRowNums();
     wVariables.optWidth(true);
+
+    // Parent project...
+    //
+    try {
+      wParentProject.setText(Const.NVL(project.getParentProjectName(), ""));
+
+      List<String> names = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+      if (projectConfig.getProjectName() != null) {
+        names.remove(projectConfig.getProjectName());
+      }
+      wParentProject.setItems(names.toArray(new String[0]));
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectList.Error.Dialog.Header"),
+          BaseMessages.getString(PKG, "ProjectDialog.ProjectList.Error.Dialog.Message"),
+          e);
+    }
   }
 
   private void getInfo(Project project, ProjectConfig projectConfig) throws HopException {
@@ -472,6 +575,7 @@ public class ProjectDialog extends Dialog {
     projectConfig.setProjectHome(wHome.getText());
     projectConfig.setConfigFilename(wConfigFile.getText());
 
+    project.setParentProjectName(wParentProject.getText());
     project.setDescription(wDescription.getText());
     project.setCompany(wCompany.getText());
     project.setDepartment(wDepartment.getText());
@@ -497,6 +601,10 @@ public class ProjectDialog extends Dialog {
         && StringUtils.isNotEmpty(projectConfig.configFilename)) {
       project.setConfigFilename(projectConfig.getActualProjectConfigFilename(variables));
     }
+
+    // Check for infinite loops
+    //
+    project.verifyProjectsChain(projectConfig.getProjectName(), variables);
   }
 
   /**
@@ -504,12 +612,12 @@ public class ProjectDialog extends Dialog {
    *
    * @return value of variablesChanged
    */
-  public boolean isVariablesChanged() {
-    return variablesChanged;
+  public boolean isNeedingProjectRefresh() {
+    return needingProjectRefresh;
   }
 
-  /** @param variablesChanged The variablesChanged to set */
-  public void setVariablesChanged(boolean variablesChanged) {
-    this.variablesChanged = variablesChanged;
+  /** @param needingProjectRefresh The variablesChanged to set */
+  public void setNeedingProjectRefresh(boolean needingProjectRefresh) {
+    this.needingProjectRefresh = needingProjectRefresh;
   }
 }

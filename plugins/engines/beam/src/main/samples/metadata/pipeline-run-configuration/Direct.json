@@ -1,0 +1,34 @@
+{
+  "engineRunConfiguration": {
+    "BeamDirectPipelineEngine": {
+      "tempLocation": "file:///tmp",
+      "streamingHopTransformsBufferSize": "",
+      "number_of_workers": "4",
+      "fatJar": "",
+      "userAgent": "Hop",
+      "streamingHopTransformsFlushInterval": "",
+      "transformPluginClasses": "",
+      "pluginsToStage": "",
+      "xpPluginClasses": ""
+    }
+  },
+  "configurationVariables": [
+    {
+      "name": "DATA_INPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/input/customers-noheader-1k.txt"
+    },
+    {
+      "name": "STATE_INPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/input/state-data.txt"
+    },
+    {
+      "name": "DATA_OUTPUT",
+      "description": "",
+      "value": "${PROJECT_HOME}/beam/output/"
+    }
+  ],
+  "name": "Direct",
+  "description": ""
+}

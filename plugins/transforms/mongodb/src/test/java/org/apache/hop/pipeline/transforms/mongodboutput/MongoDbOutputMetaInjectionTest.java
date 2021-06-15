@@ -57,42 +57,42 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
         "TRUNCATE",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.m_truncate;
+            return meta.truncate;
           }
         });
     check(
         "UPDATE",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.m_update;
+            return meta.update;
           }
         });
     check(
         "UPSERT",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.m_upsert;
+            return meta.upsert;
           }
         });
     check(
         "MULTI",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.m_multi;
+            return meta.multi;
           }
         });
     check(
         "MODIFIER_UPDATE",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.m_modifierUpdate;
+            return meta.modifierUpdate;
           }
         });
     check(
         "BATCH_INSERT_SIZE",
         new IStringGetter() {
           public String get() {
-            return meta.m_batchInsertSize;
+            return meta.batchInsertSize;
           }
         });
     check(
@@ -110,24 +110,10 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
           }
         });
     check(
-        "HOSTNAME",
+        "CONNECTION",
         new IStringGetter() {
           public String get() {
-            return meta.getHostnames();
-          }
-        });
-    check(
-        "PORT",
-        new IStringGetter() {
-          public String get() {
-            return meta.getPort();
-          }
-        });
-    check(
-        "DATABASE_NAME",
-        new IStringGetter() {
-          public String get() {
-            return meta.getDbName();
+            return meta.getConnectionName();
           }
         });
     check(
@@ -138,115 +124,45 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
           }
         });
     check(
-        "AUTH_DATABASE",
-        new IStringGetter() {
-          public String get() {
-            return meta.getAuthenticationDatabaseName();
-          }
-        });
-    check(
-        "AUTH_USERNAME",
-        new IStringGetter() {
-          public String get() {
-            return meta.getAuthenticationUser();
-          }
-        });
-    check(
-        "AUTH_PASSWORD",
-        new IStringGetter() {
-          public String get() {
-            return meta.getAuthenticationPassword();
-          }
-        });
-    check(
-        "AUTH_MECHANISM",
-        new IStringGetter() {
-          public String get() {
-            return meta.getAuthenticationMechanism();
-          }
-        });
-    check(
-        "AUTH_KERBEROS",
-        new IBooleanGetter() {
-          public boolean get() {
-            return meta.getUseKerberosAuthentication();
-          }
-        });
-    check(
-        "TIMEOUT_CONNECTION",
-        new IStringGetter() {
-          public String get() {
-            return meta.getConnectTimeout();
-          }
-        });
-    check(
-        "TIMEOUT_SOCKET",
-        new IStringGetter() {
-          public String get() {
-            return meta.getSocketTimeout();
-          }
-        });
-    check(
-        "USE_SSL_SOCKET_FACTORY",
-        new IBooleanGetter() {
-          public boolean get() {
-            return meta.isUseSSLSocketFactory();
-          }
-        });
-    check(
-        "READ_PREFERENCE",
-        new IStringGetter() {
-          public String get() {
-            return meta.getReadPreference();
-          }
-        });
-    check(
-        "USE_ALL_REPLICA_SET_MEMBERS",
-        new IBooleanGetter() {
-          public boolean get() {
-            return meta.getUseAllReplicaSetMembers();
-          }
-        });
-    check(
         "INCOMING_FIELD_NAME",
         new IStringGetter() {
           public String get() {
-            return meta.getMongoFields().get(0).m_incomingFieldName;
+            return meta.getMongoFields().get(0).incomingFieldName;
           }
         });
     check(
         "MONGO_DOCUMENT_PATH",
         new IStringGetter() {
           public String get() {
-            return meta.getMongoFields().get(0).m_mongoDocPath;
+            return meta.getMongoFields().get(0).mongoDocPath;
           }
         });
     check(
         "INCOMING_AS_MONGO",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoFields().get(0).m_useIncomingFieldNameAsMongoFieldName;
+            return meta.getMongoFields().get(0).useIncomingFieldNameAsMongoFieldName;
           }
         });
     check(
         "UPDATE_MATCH_FIELD",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoFields().get(0).m_updateMatchField;
+            return meta.getMongoFields().get(0).updateMatchField;
           }
         });
     check(
         "MODIFIER_OPERATION",
         new IStringGetter() {
           public String get() {
-            return meta.getMongoFields().get(0).m_modifierUpdateOperation;
+            return meta.getMongoFields().get(0).modifierUpdateOperation;
           }
         });
     check(
         "MODIFIER_POLICY",
         new IStringGetter() {
           public String get() {
-            return meta.getMongoFields().get(0).m_modifierOperationApplyPolicy;
+            return meta.getMongoFields().get(0).modifierOperationApplyPolicy;
           }
         });
     check(
@@ -260,42 +176,35 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
         "JSON",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoFields().get(0).m_JSON;
+            return meta.getMongoFields().get(0).inputJson;
           }
         });
     check(
         "INDEX_FIELD",
         new IStringGetter() {
           public String get() {
-            return meta.getMongoIndexes().get(0).m_pathToFields;
+            return meta.getMongoIndexes().get(0).pathToFields;
           }
         });
     check(
         "DROP",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoIndexes().get(0).m_drop;
+            return meta.getMongoIndexes().get(0).drop;
           }
         });
     check(
         "UNIQUE",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoIndexes().get(0).m_unique;
+            return meta.getMongoIndexes().get(0).unique;
           }
         });
     check(
         "SPARSE",
         new IBooleanGetter() {
           public boolean get() {
-            return meta.getMongoIndexes().get(0).m_sparse;
-          }
-        });
-    check(
-        "TAG_SET",
-        new IStringGetter() {
-          public String get() {
-            return meta.getReadPrefTagSets().get(0);
+            return meta.getMongoIndexes().get(0).sparse;
           }
         });
   }

@@ -1,10 +1,12 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- ******************************************************************************/
+ */
 
 package org.apache.hop.databases.snowflake;
 
@@ -42,10 +44,16 @@ import java.util.Map;
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-	// TODO: Manage all attributes in plugin when HOP-67 is fixed
-	@HopMetadataProperty
-	@GuiWidgetElement(id =  "warehouse", order = "02B", i18nPackage = "org.apache.hop.ui.core.database", label = "DatabaseDialog.label.Warehouse", type = GuiElementType.TEXT, variables = true, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
-	private String warehouse;
+  // TODO: Manage all attributes in plugin when HOP-67 is fixed
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = "warehouse",
+      order = "02B",
+      label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.Warehouse",
+      type = GuiElementType.TEXT,
+      variables = true,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  private String warehouse;
 
 	public String getWarehouse() {
 		return warehouse;

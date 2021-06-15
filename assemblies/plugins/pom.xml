@@ -29,16 +29,18 @@
   <parent>
     <artifactId>hop-assemblies</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <modules>
-    <module>databases</module>
-    <module>transforms</module>
     <module>actions</module>
-    <module>vfs</module>
-    <module>misc</module>
+    <module>databases</module>
     <module>engines</module>
+    <module>misc</module>
+    <module>vfs</module>
+    <module>tech</module>
+    <module>transforms</module>
+    <module>valuetypes</module>
     <module>dist</module>
   </modules>
 

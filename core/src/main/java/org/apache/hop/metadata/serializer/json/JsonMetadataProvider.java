@@ -18,6 +18,7 @@
 package org.apache.hop.metadata.serializer.json;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -33,22 +34,30 @@ import java.io.File;
 
 public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMetadataProvider {
 
+  public static final String DEFAULT_DESCRIPTION = "JSON metadata";
   private ITwoWayPasswordEncoder twoWayPasswordEncoder;
   private String baseFolder;
 
   public JsonMetadataProvider() {
-    super( Variables.getADefaultVariableSpace() );
-    twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    super( Variables.getADefaultVariableSpace(), DEFAULT_DESCRIPTION );
+    twoWayPasswordEncoder = Encr.getEncoder();
+    if (twoWayPasswordEncoder==null) {
+      twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
+    }
     baseFolder="metadata";
   }
 
   public JsonMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, String baseFolder, IVariables variables ) {
-    super(variables);
+    super(variables, DEFAULT_DESCRIPTION+" in folder "+baseFolder);
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
     this.baseFolder = baseFolder;
   }
 
   @Override public String getDescription() {
+    return calculateDescription();
+  }
+
+  private String calculateDescription() {
     return "JSON metadata in folder "+baseFolder;
   }
 
@@ -108,5 +117,6 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
    */
   public void setBaseFolder( String baseFolder ) {
     this.baseFolder = baseFolder;
+    setDescription( calculateDescription() );
   }
 }

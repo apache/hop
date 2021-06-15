@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,9 @@ package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -39,57 +41,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BlockUntilTransformsFinishMetaTest implements IInitializer<BlockUntilTransformsFinishMeta> {
-  LoadSaveTester<BlockUntilTransformsFinishMeta> loadSaveTester;
-  Class<BlockUntilTransformsFinishMeta> testMetaClass = BlockUntilTransformsFinishMeta.class;
-
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Before
-  public void setUpLoadSave() throws Exception {
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "transformName", "transformCopyNr" );
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "transformName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "transformCopyNr", stringArrayLoadSaveValidator );
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-      new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify( BlockUntilTransformsFinishMeta someMeta ) {
-    if ( someMeta instanceof BlockUntilTransformsFinishMeta ) {
-      ( (BlockUntilTransformsFinishMeta) someMeta ).allocate( 5 );
-    }
-  }
+public class BlockUntilTransformsFinishMetaTest {
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
-
-  @Test
-  public void cloneTest() throws Exception {
+  public void testXmlRoundTrip() throws Exception {
     BlockUntilTransformsFinishMeta meta = new BlockUntilTransformsFinishMeta();
-    meta.allocate( 2 );
-    meta.setTransformName( new String[] { "transform1", "transform2" } );
-    meta.setTransformCopyNr( new String[] { "copy1", "copy2" } );
-    BlockUntilTransformsFinishMeta aClone = (BlockUntilTransformsFinishMeta) meta.clone();
-    assertFalse( aClone == meta );
-    assertTrue( Arrays.equals( meta.getTransformName(), aClone.getTransformName() ) );
-    assertTrue( Arrays.equals( meta.getTransformCopyNr(), aClone.getTransformCopyNr() ) );
-    assertEquals( meta.getXml(), aClone.getXml() );
+    meta.getBlockingTransforms().add(new BlockingTransform("A", "0"));
+    meta.getBlockingTransforms().add(new BlockingTransform("B", "1"));
+    meta.getBlockingTransforms().add(new BlockingTransform("C", "2"));
+    String xml = meta.getXml();
+
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + xml
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    BlockUntilTransformsFinishMeta meta2 = new BlockUntilTransformsFinishMeta();
+    meta2.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
   }
 }

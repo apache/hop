@@ -20,19 +20,16 @@ package org.apache.hop.workflow.engine;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
 @PluginMainClassType( IWorkflowEngine.class )
 @PluginAnnotationType( WorkflowEnginePlugin.class )
-public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugin> implements IPluginType<WorkflowEnginePlugin> {
+public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugin> {
 
   private WorkflowEnginePluginType() {
     super( WorkflowEnginePlugin.class, "HOP_WORKFLOW_ENGINES", "Hop Workflow Engines" );
-
-    pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
 
   private static WorkflowEnginePluginType pluginType;

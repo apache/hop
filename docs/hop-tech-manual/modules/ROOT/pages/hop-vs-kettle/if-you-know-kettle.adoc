@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[IfYouKnowKettle]]
+:imagesdir: ../assets/images
+:page-pagination:
+
+= If You Know Kettle (Pentaho Data Integration)
+
+== Why Hop?
+
+With Hop, we want to allow data engineers to be able to deliver high quality work, deliver that work fast and integrated with bleeding edge technology.
+
+We want Hop to be completely open source, and are eager to hear your feedback on our https://chat.project-hop.org[chat] and just as eager to see your bug tickets and feature request in https://jira.project-hop.org[our JIRA].
+
+As an open source first project, we'll start the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process soon, and aim to become and ASF https://projects.apache.org/[top level project] as soon as possible.
+
+Check our https://hop.apache.org/docs/qa/[Q&A] for more information on why Hop was created and what the project is all about.
+
+== Concepts
+
+A couple of things have been renamed to align Apache Hop (Incubating) with modern data processing platforms.
+
+**_A lot_** has changed behind the scenes, but don't worry, if you're familiar with Kettle/PDI, you'll feel right at home immediately.
+
+[width="85%", cols="20%, 20%, 60%", options="header"]
+|===
+|Kettle|Hop|Difference
+|Spoon|Hop Gui|Spoon has been abandoned. Hop Gui was written from scratch. Check the https://hop.apache.org/manual/latest/getting-started.html[Getting Started guide] or the https://hop.apache.org/manual/latest/hop-gui/index.html[Hop Gui docs] to find out more.
+|Transformation|Pipeline|No conceptual changes. You'll develop pipelines just like you would develop a transformation, but a pipeline in Hop can run on different runtimes
+|Job|Workflow|No conceptual changes. You'll develop a workflow just like you would develop a job, but a workflow in Hop can run on different runtimes
+|Step|Transform|No conceptual changes. The underlying code has changed and the dialogs have been updated, but you'll feel right at home.
+|Job Entry|Action|No conceptual changes. The underlying code has changed and the dialogs have been updated, but you'll feel right at home.
+|Metastore|Metadata|All metadata objects in Hop are stored as metadata. This happens behind the scenes. Except for increased usability, as a Hop developer, you'll hardly notice.
+|Carte|Hop Server|Again, smooth sailing. A lot has changed behind the scenes, but you'll hardly notice. Check the https://hop.apache.org/manual/latest/hop-server/index.html[docs]
+|Pan/Kitchen/(Maitre)|Hop Run|Kitchen and Pan depended on the Spoon GUI code. With the rewrite of Spoon to Hop Gui, we've recreated the command line tools. We believe this now is more consistent while providing more options and being easier to use at the same time. Check the https://hop.apache.org/manual/latest/hop-run/index.html[docs]
+|JNDI|gone|jndi in Kettle/PDI is based on an open source project that hasn't been updated in about a decade. As there was no reason to keep this functionality in Hop, it was abandoned.
+|Repositories|gone|Code repositories belong in a VCS these days. We've abandoned the file and database (and PDI EE repositories) repositories, but implemented Git integration instead.
+|-|Projects, Environments, Run Config|The https://github.com/mattcasters/kettle-environment[Kettle Environments Plugin] has been integrated and significantly extended. Hop now has integrated functionality to support your projects, environments and run configurations. Check the https://hop.apache.org/manual/latest/hop-gui/environments/environments.html[docs].
+|-|Hop Config|This is a new command line tool to configure your projects, environments and run configurations.
+|===
+
+== Apache Beam
+
+https://beam.apache.org[Apache Beam] has been deeply integrated in Hop. Beam allows us to run pipelines directly on
+
+* https://spark.apache.org[Apache Spark]
+* https://flink.apache.org[Apache Flink]
+* https://cloud.google.com/dataflow[Google Dataflow]

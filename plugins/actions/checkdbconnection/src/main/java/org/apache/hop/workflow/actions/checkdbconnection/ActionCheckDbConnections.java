@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,7 +54,7 @@ import java.util.List;
     image = "CheckDbConnection.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/actions/checkdbconnection.html")
+        "https://hop.apache.org/manual/latest/workflow/actions/checkdbconnection.html")
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator
 
@@ -173,27 +173,25 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(120);
-    retval.append(super.getXml());
-    retval.append("      <connections>").append(Const.CR);
+    StringBuilder xml = new StringBuilder(120);
+    xml.append(super.getXml());
+    xml.append("      <connections>").append(Const.CR);
     if (connections != null) {
       for (int i = 0; i < connections.length; i++) {
-        retval.append("        <connection>").append(Const.CR);
-        retval
-            .append("          ")
+        xml.append("        <connection>").append(Const.CR);
+        xml.append("          ")
             .append(
                 XmlHandler.addTagValue(
                     "name", connections[i] == null ? null : connections[i].getName()));
-        retval.append("          ").append(XmlHandler.addTagValue("waitfor", waitfors[i]));
-        retval
-            .append("          ")
+        xml.append("          ").append(XmlHandler.addTagValue("waitfor", waitfors[i]));
+        xml.append("          ")
             .append(XmlHandler.addTagValue("waittime", getWaitTimeCode(waittimes[i])));
-        retval.append("        </connection>").append(Const.CR);
+        xml.append("        </connection>").append(Const.CR);
       }
     }
-    retval.append("      </connections>").append(Const.CR);
+    xml.append("      </connections>").append(Const.CR);
 
-    return retval.toString();
+    return xml.toString();
   }
 
   @Override
@@ -234,7 +232,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
     if (connections != null) {
       for (int i = 0; i < connections.length && !parentWorkflow.isStopped(); i++) {
-        Database db = new Database(this, this, connections[i] );
+        Database db = new Database(this, this, connections[i]);
         try {
           db.connect();
 
@@ -361,7 +359,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

@@ -31,12 +31,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IConfigOptions.class )
 @PluginAnnotationType( ConfigPlugin.class )
-public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IPluginType<ConfigPlugin> {
+public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
   private static ConfigPluginType pluginType;
 
   private ConfigPluginType() {
     super( ConfigPlugin.class, "CONFIG", "Configuration" );
-    populateFolders( "configs" );
   }
 
   public static ConfigPluginType getInstance() {
@@ -52,7 +51,7 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IP
 
   @Override
   protected String extractCategory( ConfigPlugin annotation ) {
-    return "";
+    return annotation.category();
   }
 
   @Override
@@ -67,7 +66,7 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IP
 
   @Override
   protected String extractName( ConfigPlugin annotation ) {
-    return annotation.guiPluginId();
+    return null;
   }
 
   @Override

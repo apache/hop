@@ -1,0 +1,61 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+
+= Hop File Dialog
+
+The Hop File Dialog is a versatile tool you'll use often while working in Hop Gui.
+
+This dialog offers a lot more than basically selecting and saving files. Among other things, it enables you to work with VFS file sytems directly, provides file/folder information, lets you bookmark files and folders.
+
+The list below walks you through the options that are at your disposal in the Hop File Dialog.
+
+TIP: if you prefer your operating system's native file dialog instead of the Hop dialog, change variable `HOP_USE_NATIVE_FILE_DIALOG` to `Y` in `Tools -> Edit Config Variables`.
+
+{nbsp} +
+
+image:hop-gui/file-dialog.png[width="65%"]
+
+. **Main Toolbar**
+.. image:icons/home.svg[width="25px"] Navigate to the user home folder
+.. image:icons/project.svg[width="25px"]Navigate to the project home folder
+.. image:icons/navigate-up.svg[width="25px"]Navigate to the parent folder
+.. image:icons/navigate-back.svg[width="25px"]Navigate to the previous path from your history
+.. image:icons/navigate-forward.svg[width="25px"]Navigate to the next path from your history
+.. image:icons/refresh.svg[width="25px"]Refresh
+. **File path**. Displays the current file path. The file path can be used to directly enter (copy/paste) your desired path. This not only works with local files, you can also use all supported xref:vfs.adoc[VFS file systems].
+. **File extensions**. This list is populated from plugins, so there may be differences in the file types you have available. By default, this list includes:
+.. Workflows
+.. Pipelines
+.. CSV files
+.. JSON files
+.. Log files
+.. Markdown files
+.. SAS 7 BDAT files
+.. SVG files
+.. TXT files
+.. XML files
+. **Bookmarks**: Bookmark your favorite files and folders for easy and fast access. Tools -> Options contains an option to specify whether you want or don't want global bookmarks in the file dialog (global by defaul).
+.. image:icons/bookmark-add.svg[width="25px"]Add the selected file or folder as a bookmark
+.. image:icons/delete.svg[width="25px"]Remove the selected bookmark
+. **File/folder browser**: Browse your current file system, create folders and toggle hidden files and folders.
+.. image:icons/folder-add.svg[width="25px"]Create folder
+.. image:icons/preview.svg[width="25px"]Show or hide hidden files and directories
+. **File/folder information**
+.. file and folder name
+.. last modified date
+.. Readable, writable, executable flags

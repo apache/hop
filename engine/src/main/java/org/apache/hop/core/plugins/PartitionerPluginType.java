@@ -18,7 +18,6 @@
 package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.annotations.PartitionerPlugin;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.pipeline.IPartitioner;
 
 import java.util.Map;
@@ -30,13 +29,12 @@ import java.util.Map;
  */
 @PluginMainClassType( IPartitioner.class )
 @PluginAnnotationType( PartitionerPlugin.class )
-public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> implements IPluginType<PartitionerPlugin> {
+public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> {
 
   private static PartitionerPluginType pluginType;
 
   private PartitionerPluginType() {
     super( PartitionerPlugin.class, "PARTITIONER", "Partitioner" );
-    populateFolders( "transforms" );
   }
 
   public static PartitionerPluginType getInstance() {

@@ -26,7 +26,7 @@ import java.util.List;
   id = "PartitionSchemaSearchableAnalyser",
   name = "Search in partition schema metadata"
 )
-public class PartitionSchemaSearchableAnalyser extends BaseSearchableAnalyser<PartitionSchema> implements ISearchableAnalyser<PartitionSchema> {
+public class PartitionSchemaSearchableAnalyser extends BaseMetadataSearchableAnalyser<PartitionSchema> implements ISearchableAnalyser<PartitionSchema> {
 
   @Override public Class<PartitionSchema> getSearchableClass() {
     return PartitionSchema.class;
@@ -34,11 +34,12 @@ public class PartitionSchemaSearchableAnalyser extends BaseSearchableAnalyser<Pa
 
   @Override public List<ISearchResult> search( ISearchable<PartitionSchema> searchable, ISearchQuery searchQuery ) {
     PartitionSchema partitionSchema = searchable.getSearchableObject();
+    String component = getMetadataComponent();
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Partition schema name", partitionSchema.getName(), null );
-    matchProperty( searchable, results, searchQuery, "Partition schema number of partitions", partitionSchema.getNumberOfPartitions(), null );
+    matchProperty( searchable, results, searchQuery, "Partition schema name", partitionSchema.getName(), component );
+    matchProperty( searchable, results, searchQuery, "Partition schema number of partitions", partitionSchema.getNumberOfPartitions(), component );
     return results;
   }
 }

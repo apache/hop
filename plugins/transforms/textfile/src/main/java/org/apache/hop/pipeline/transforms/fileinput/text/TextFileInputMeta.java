@@ -71,7 +71,9 @@ import java.util.Map;
     image = "textfileinput.svg",
     name = "i18n::BaseTransform.TypeLongDesc.TextFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileInput",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/textfileinput.html"
+)
 @InjectionSupported(
     localizationPrefix = "TextFileInput.Injection.",
     groups = {"FILENAME_LINES", "FIELDS", "FILTERS"})

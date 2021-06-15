@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,6 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -44,8 +43,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,8 +51,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -152,15 +147,15 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
-  public LdapOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
+  public LdapOutputDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (LdapOutputMeta) in;
     inputFields = new HashMap<>();
   }
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -437,7 +432,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
-        new PasswordTextVar( variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassword.setToolTipText(BaseMessages.getString(PKG, "LdapOutputDialog.Password.Tooltip"));
     props.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
@@ -519,11 +514,9 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     // Listen to the Browse... button
 
     wbbFilename.addListener(
-        SWT.Selection,
-        e -> BaseDialog.presentDirectoryDialog(shell, wTrustStorePath, variables));
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wTrustStorePath, variables));
 
-    wTrustStorePath =
-        new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTrustStorePath = new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePath);
     wTrustStorePath.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.TrustStorePath.Tooltip"));
@@ -545,7 +538,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
     wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
-        new PasswordTextVar( variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTrustStorePassword);
     wTrustStorePassword.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.TrustStorePassword.Tooltip"));
@@ -678,8 +671,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlMultiValuedSeparator.top = new FormAttachment(wOperation, margin);
     fdlMultiValuedSeparator.right = new FormAttachment(middle, -margin);
     wlMultiValuedSeparator.setLayoutData(fdlMultiValuedSeparator);
-    wMultiValuedSeparator =
-        new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMultiValuedSeparator = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMultiValuedSeparator);
     wMultiValuedSeparator.setToolTipText(
         BaseMessages.getString(PKG, "LdapOutputDialog.MultiValuedSeparator.Tooltip"));
@@ -1048,27 +1040,8 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wTest.addListener(SWT.Selection, e -> test());
     wGetLU.addListener(SWT.Selection, e -> getUpdate());
 
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wTransformName.addSelectionListener(lsDef);
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     wTabFolder.setSelection(0);
 
-    // Set the shell size, based upon previous time...
-    setSize();
     getData(input);
     useAuthentication();
     setProtocol();
@@ -1076,12 +1049,8 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     updateOperation();
     input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -1098,8 +1067,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       if (wUsingAuthentication.getSelection()) {
         connection.connect(
             variables.resolve(meta.getUserName()),
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(meta.getPassword())));
+            Encr.decryptPasswordOptionallyEncrypted(variables.resolve(meta.getPassword())));
       } else {
         connection.connect();
       }
@@ -1406,8 +1374,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       if (wUsingAuthentication.getSelection()) {
         String username = variables.resolve(wUserName.getText());
         String password =
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(wPassword.getText()));
+            Encr.decryptPasswordOptionallyEncrypted(variables.resolve(wPassword.getText()));
         connection.connect(username, password);
       } else {
         connection.connect();
@@ -1474,8 +1441,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     String[] inputNames = new String[sourceFields.size()];
     for (int i = 0; i < sourceFields.size(); i++) {
       IValueMeta value = sourceFields.getValueMeta(i);
-      inputNames[i] =
-          value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[i] = value.getName();
     }
 
     // Create the existing mapping list...
@@ -1531,12 +1497,12 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       message +=
           BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      Window.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
-              shell,
-              BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+
+      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO);
+      box.setText(
+          BaseMessages.getString(PKG, "LdapOutputDialog.DoMapping.SomeFieldsNotFoundTitle"));
+      box.setMessage(message);
+      boolean goOn = ((box.open()) & SWT.YES) != 0;
       if (!goOn) {
         return;
       }

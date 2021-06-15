@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -51,40 +53,38 @@ public class RowGeneratorUnitTest {
   @Before
   public void setUp() throws HopException {
     // add variable to row generator transform
-    ITransformMeta transformMetaInterface = spy( new RowGeneratorMeta() );
+    ITransformMeta transformMetaInterface = spy(new RowGeneratorMeta());
     RowGeneratorMeta meta = (RowGeneratorMeta) transformMetaInterface;
-    meta.setRowLimit( "${ROW_LIMIT}" );
-    String[] strings = {};
-    when( meta.getFieldName() ).thenReturn( strings );
+    meta.setRowLimit("${ROW_LIMIT}");
+    List<GeneratorField> fields = new ArrayList<>();
+    when(meta.getFields()).thenReturn(fields);
 
     TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setTransform( transformMetaInterface );
-    transformMeta.setName( "ROW_TRANSFORM_META" );
+    transformMeta.setTransform(transformMetaInterface);
+    transformMeta.setName("ROW_TRANSFORM_META");
     RowGeneratorData data = (RowGeneratorData) transformMeta.getTransform().getTransformData();
 
+    PipelineMeta pipelineMeta = spy(new PipelineMeta());
+    when(pipelineMeta.findTransform(anyString())).thenReturn(transformMeta);
 
-    PipelineMeta pipelineMeta = spy( new PipelineMeta() );
-    when( pipelineMeta.findTransform( anyString() ) ).thenReturn( transformMeta );
-
-    Pipeline pipeline = spy( new LocalPipelineEngine( pipelineMeta ) );
+    Pipeline pipeline = spy(new LocalPipelineEngine(pipelineMeta));
 
     // add variable to pipeline variable variables
     Map<String, String> map = new HashMap<>();
-    map.put( "ROW_LIMIT", "1440" );
-    pipeline.setVariables( map );
+    map.put("ROW_LIMIT", "1440");
+    pipeline.setVariables(map);
 
-    when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
+    when(pipeline.getLogChannelId()).thenReturn("ROW_LIMIT");
 
-    //prepare row generator, substitutes variable by value from pipeline variable variables
-    rowGenerator = spy( new RowGenerator( transformMeta, meta, data, 0, pipelineMeta, pipeline ) );
-    rowGenerator.initializeFrom( pipeline );
+    // prepare row generator, substitutes variable by value from pipeline variable variables
+    rowGenerator = spy(new RowGenerator(transformMeta, meta, data, 0, pipelineMeta, pipeline));
+    rowGenerator.initializeFrom(pipeline);
     rowGenerator.init();
   }
 
   @Test
   public void testReadRowLimitAsPipelineVar() throws HopException {
     long rowLimit = rowGenerator.getData().rowLimit;
-    assertEquals( rowLimit, 1440 );
+    assertEquals(rowLimit, 1440);
   }
-
 }

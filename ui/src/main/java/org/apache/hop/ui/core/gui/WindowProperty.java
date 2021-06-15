@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.core.gui;
 
-import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -182,7 +181,8 @@ public class WindowProperty {
     shell.setBounds(shellSize);
 
     Rectangle entireClientArea = shell.getDisplay().getClientArea();
-    Rectangle resizedRect = Geometry.copy(shellSize);
+    Rectangle resizedRect =
+        new Rectangle(shellSize.x, shellSize.y, shellSize.width, shellSize.height);
     constrainRectangleToContainer(resizedRect, entireClientArea);
 
     // If the persisted size/location doesn't perfectly fit
@@ -208,21 +208,29 @@ public class WindowProperty {
   }
 
   /**
-   * @param constrainee
+   * @param child
    * @param container
    */
-  private void constrainRectangleToContainer(Rectangle constrainee, Rectangle container) {
-    Point originalSize = Geometry.getSize(constrainee);
-    Point containerSize = Geometry.getSize(container);
-    Point oversize = Geometry.subtract(originalSize, containerSize);
+  private void constrainRectangleToContainer(Rectangle child, Rectangle container) {
+    Point originalSize = new Point(child.width, child.height);
+    Point containerSize = new Point(container.width, container.height);
+    Point oversize = new Point(originalSize.x - containerSize.x, originalSize.y - containerSize.y);
     if (oversize.x > 0) {
-      constrainee.width = originalSize.x - oversize.x;
+      child.width = originalSize.x - oversize.x;
     }
     if (oversize.y > 0) {
-      constrainee.height = originalSize.y - oversize.y;
+      child.height = originalSize.y - oversize.y;
     }
     // Detect if the dialog was positioned outside the container
-    Geometry.moveInside(constrainee, container);
+    // If so, center the child in the container...
+    //
+    if (child.x < container.x
+        || child.y < container.y
+        || child.x + child.width > container.x + container.width
+        || child.y + child.height > container.y + container.height) {
+      child.x = (container.width - child.width) / 2;
+      child.y = (container.height - child.height) / 2;
+    }
   }
 
   /**

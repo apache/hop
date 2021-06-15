@@ -1,0 +1,2 @@
+intA,intB,intC,datA,datB,datC,dateAPlusBDays,yearOfDateA,monthOfDateA,dayOfYearOfDateA,dayOfMonthOfDateA,dayOfWeekOfDateA,weekOfYearOfDateA,iso8601WeekOfYearOfDateA,iso8601YearOfDateA,removeTimeFromDateA,dateAMinusBInDays,quartOfDateA
+1,2,3,1961-04-12T12:34:56,1969-06-20T20:17:40,2021-05-06T17:27:34,1961/04/13 12:34:56.000,1961,4,102,12,4,15,15,1961,1961/04/12 00:00:00.000,-2991,2

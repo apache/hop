@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,7 +53,7 @@ import com.ibm.as400.access.CommandCall;
     description = "i18n::ActionAs400Command.Description",
     image = "as400command.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/as400command.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/as400command.html")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class; // For Translator
 
@@ -229,7 +229,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -292,8 +292,8 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
                 PKG, "ActionAs400Command.Log.CommandFailed", serverString, commandString));
 
         // Get the command results
-        for (AS400Message message : command.getMessageList()) {          
-          logError(message.getID()+':'+message.getText());
+        for (AS400Message message : command.getMessageList()) {
+          logError(message.getID() + ':' + message.getText());
           logError(message.getHelp());
         }
         result.setNrErrors(1);
@@ -303,7 +303,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
       logError(
           BaseMessages.getString(
               PKG, "ActionAs400Command.Log.CommandFailed", serverString, commandString),
-          e);      
+          e);
       result.setNrErrors(1);
       result.setResult(false);
     } finally {
@@ -339,7 +339,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
       final String proxyHost,
       final String proxyPort)
       throws Exception {
-    
+
     // Create proxy server
     String proxyServer =
         this.getProxyServer(variables.resolve(proxyHost), variables.resolve(proxyPort));

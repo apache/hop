@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,34 +33,42 @@ public class CalculatorMetaFunctionTest {
   public void testEquals() {
     CalculatorMetaFunction meta1 = new CalculatorMetaFunction();
     CalculatorMetaFunction meta2 = (CalculatorMetaFunction) meta1.clone();
-    assertNotSame( meta1, meta2 );
+    assertNotSame(meta1, meta2);
 
-    assertFalse( meta1.equals( null ) );
-    assertFalse( meta1.equals( new Object() ) );
-    assertTrue( meta1.equals( meta2 ) );
+    assertFalse(meta1.equals(null));
+    assertFalse(meta1.equals(new Object()));
+    assertTrue(meta1.equals(meta2));
 
-    meta2.setCalcType( CalculatorMetaFunction.CALC_ADD_DAYS );
-    assertFalse( meta1.equals( meta2 ) );
+    meta2.setCalcType(CalculatorMetaFunction.CalculationType.ADD_DAYS);
+    assertFalse(meta1.equals(meta2));
   }
 
   @Test
-  public void testGetCalcFunctionLongDesc() {
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( Integer.MIN_VALUE ) );
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( Integer.MAX_VALUE ) );
-    assertNull( CalculatorMetaFunction.getCalcFunctionLongDesc( CalculatorMetaFunction.calcLongDesc.length ) );
-  }
-
-  @Test
-  public void testGetCalcFunctionDefaultResultType() {
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MIN_VALUE ) );
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MAX_VALUE ) );
-    assertEquals( IValueMeta.TYPE_NONE,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( -1 ) );
-    assertEquals( IValueMeta.TYPE_STRING,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_CONSTANT ) );
-    assertEquals( IValueMeta.TYPE_NUMBER,
-      CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_ADD ) );
+  public void testXmlSerialization() throws Exception {
+    CalculatorMetaFunction function =
+        new CalculatorMetaFunction(
+            "copyA",
+            CalculatorMetaFunction.CalculationType.COPY_OF_FIELD,
+            "A",
+            null,
+            null,
+            "String",
+            100,
+            -1,
+            null,
+            null,
+            null,
+            null,
+            false);
+    String xml = XmlMetadataUtil.serializeObjectToXml(function);
+    assertEquals(
+        "<calc_type>COPY_FIELD</calc_type>\n"
+            + "<field_a>A</field_a>\n"
+            + "<field_name>copyA</field_name>\n"
+            + "<remove>N</remove>\n"
+            + "<value_length>100</value_length>\n"
+            + "<value_precision>-1</value_precision>\n"
+            + "<value_type>String</value_type>\n",
+        xml);
   }
 }

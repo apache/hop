@@ -1,11 +1,12 @@
 /*
- * Hop : The Hop Orchestration Platform
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,16 +20,19 @@ package org.apache.hop.git.model;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.git.dialog.MergeBranchDialog;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
+import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PushCommand;
@@ -37,6 +41,7 @@ import org.eclipse.jgit.api.RemoteRemoveCommand;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -88,19 +93,19 @@ import org.eclipse.jgit.util.SystemReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UIGit extends VCS implements IVCS {
+public class UIGit extends VCS {
 
   static {
     /**
@@ -116,15 +121,9 @@ public class UIGit extends VCS implements IVCS {
   private Git git;
   private CredentialsProvider credentialsProvider;
 
-  @Override
-  public String getType() {
-    return IVCS.GIT;
-  }
-
   /* (non-Javadoc)
    * @see org.apache.hop.git.spoon.model.VCS#getDirectory()
    */
-  @Override
   public String getDirectory() {
     return directory;
   }
@@ -139,12 +138,8 @@ public class UIGit extends VCS implements IVCS {
     this.git = git;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getAuthorName(java.lang.String)
-   */
-  @Override
   public String getAuthorName(String commitId) {
-    if (commitId.equals(IVCS.WORKINGTREE)) {
+    if (commitId.equals(VCS.WORKINGTREE)) {
       Config config = git.getRepository().getConfig();
       return config.get(UserConfig.KEY).getAuthorName()
           + " <"
@@ -162,12 +157,8 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getCommitMessage(java.lang.String)
-   */
-  @Override
   public String getCommitMessage(String commitId) {
-    if (commitId.equals(IVCS.WORKINGTREE)) {
+    if (commitId.equals(VCS.WORKINGTREE)) {
       try {
         String merge_msg = git.getRepository().readMergeCommitMsg();
         return merge_msg == null ? "" : merge_msg;
@@ -180,10 +171,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getCommitId(java.lang.String)
-   */
-  @Override
   public String getCommitId(String revstr) {
     ObjectId id = null;
     try {
@@ -204,15 +191,10 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public String getParentCommitId(String revstr) {
     return getCommitId(revstr + "~");
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getBranch()
-   */
-  @Override
   public String getBranch() {
     try {
       Ref head = git.getRepository().exactRef(Constants.HEAD);
@@ -227,18 +209,10 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getLocalBranches()
-   */
-  @Override
   public List<String> getLocalBranches() {
     return getBranches(null);
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getBranches()
-   */
-  @Override
   public List<String> getBranches() {
     return getBranches(ListMode.ALL);
   }
@@ -261,10 +235,6 @@ public class UIGit extends VCS implements IVCS {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getRemote()
-   */
-  @Override
   public String getRemote() {
     try {
       StoredConfig config = git.getRepository().getConfig();
@@ -275,10 +245,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#addRemote(java.lang.String)
-   */
-  @Override
   public void addRemote(String value) {
     // Make sure you have only one URI for push
     removeRemote();
@@ -300,10 +266,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#removeRemote()
-   */
-  @Override
   public void removeRemote() {
     RemoteRemoveCommand cmd = git.remoteRemove();
     cmd.setName(Constants.DEFAULT_REMOTE_NAME);
@@ -314,21 +276,13 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#hasRemote()
-   */
-  @Override
   public boolean hasRemote() {
     StoredConfig config = git.getRepository().getConfig();
     Set<String> remotes = config.getSubsections(ConfigConstants.CONFIG_REMOTE_SECTION);
     return remotes.contains(Constants.DEFAULT_REMOTE_NAME);
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#commit(java.lang.String, java.lang.String)
-   */
-  @Override
-  public boolean commit(String authorName, String message) {
+  public boolean commit(String authorName, String message) throws HopException {
     PersonIdent author = RawParseUtils.parsePersonIdent(authorName);
     // Set the local time
     PersonIdent author2 =
@@ -341,25 +295,28 @@ public class UIGit extends VCS implements IVCS {
       git.commit().setAuthor(author2).setMessage(message).call();
       return true;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
-      return false;
+      throw new HopException("Error in git commit", e);
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getRevisions()
-   */
-  @Override
   public List<ObjectRevision> getRevisions() {
+    return getRevisions(null);
+  }
+
+  public List<ObjectRevision> getRevisions(String path) {
     List<ObjectRevision> revisions = new ArrayList<>();
     try {
       if (!isClean()
           || git.getRepository().getRepositoryState() == RepositoryState.MERGING_RESOLVED) {
         GitObjectRevision rev =
-            new GitObjectRevision(WORKINGTREE, "*", new Date(), " // " + IVCS.WORKINGTREE);
+            new GitObjectRevision(WORKINGTREE, "*", new Date(), " // " + VCS.WORKINGTREE);
         revisions.add(rev);
       }
-      Iterable<RevCommit> iterable = git.log().call();
+      LogCommand logCommand = git.log();
+      if (path != null && !".".equals(path)) {
+        logCommand = logCommand.addPath(path);
+      }
+      Iterable<RevCommit> iterable = logCommand.call();
       for (RevCommit commit : iterable) {
         GitObjectRevision rev =
             new GitObjectRevision(
@@ -375,15 +332,20 @@ public class UIGit extends VCS implements IVCS {
     return revisions;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getUnstagedFiles()
-   */
-  @Override
   public List<UIFile> getUnstagedFiles() {
+    return getUnstagedFiles(null);
+  }
+
+  public List<UIFile> getUnstagedFiles(String path) {
     List<UIFile> files = new ArrayList<>();
     Status status = null;
     try {
-      status = git.status().call();
+      StatusCommand statusCommand = git.status();
+      if (path != null && !".".equals(path)) {
+        statusCommand = statusCommand.addPath(path);
+      }
+
+      status = statusCommand.call();
     } catch (Exception e) {
       e.printStackTrace();
       return files;
@@ -415,10 +377,6 @@ public class UIGit extends VCS implements IVCS {
     return files;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getStagedFiles()
-   */
-  @Override
   public List<UIFile> getStagedFiles() {
     List<UIFile> files = new ArrayList<>();
     Status status = null;
@@ -449,10 +407,6 @@ public class UIGit extends VCS implements IVCS {
     return files;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getStagedFiles(java.lang.String, java.lang.String)
-   */
-  @Override
   public List<UIFile> getStagedFiles(String oldCommitId, String newCommitId) {
     List<UIFile> files = new ArrayList<>();
     try {
@@ -477,10 +431,6 @@ public class UIGit extends VCS implements IVCS {
     return files;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#hasStagedFiles()
-   */
-  @Override
   public boolean hasStagedFiles() {
     if (git.getRepository().getRepositoryState() == RepositoryState.SAFE) {
       return !getStagedFiles().isEmpty();
@@ -489,58 +439,38 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#initRepo(java.lang.String)
-   */
-  @Override
   public void initRepo(String baseDirectory) throws Exception {
     git = Git.init().setDirectory(new File(baseDirectory)).call();
     directory = baseDirectory;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#openRepo(java.lang.String)
-   */
-  @Override
   public void openRepo(String baseDirectory) throws Exception {
     git = Git.open(new File(baseDirectory));
     directory = baseDirectory;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#closeRepo()
-   */
-  @Override
   public void closeRepo() {
     git.close();
     git = null;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#add(java.lang.String)
-   */
-  @Override
-  public void add(String filepattern) {
+  public void add(String filePattern) throws HopException {
     try {
-      if (filepattern.endsWith(".ours") || filepattern.endsWith(".theirs")) {
+      if (filePattern.endsWith(".ours") || filePattern.endsWith(".theirs")) {
         FileUtils.rename(
-            new File(directory, filepattern),
-            new File(directory, FilenameUtils.removeExtension(filepattern)),
+            new File(directory, filePattern),
+            new File(directory, FilenameUtils.removeExtension(filePattern)),
             StandardCopyOption.REPLACE_EXISTING);
-        filepattern = FilenameUtils.removeExtension(filepattern);
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filepattern + ".ours"));
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filepattern + ".theirs"));
+        filePattern = FilenameUtils.removeExtension(filePattern);
+        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filePattern + ".ours"));
+        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filePattern + ".theirs"));
       }
-      git.add().addFilepattern(filepattern).call();
+      git.add().addFilepattern(filePattern).call();
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      throw new HopException("Error adding '" + filePattern + "'to git", e);
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#rm(java.lang.String)
-   */
-  @Override
   public void rm(String filepattern) {
     try {
       git.rm().addFilepattern(filepattern).call();
@@ -550,7 +480,6 @@ public class UIGit extends VCS implements IVCS {
   }
 
   /** Reset to a commit (mixed) */
-  @Override
   public void reset(String name) {
     try {
       git.reset().setRef(name).call();
@@ -560,7 +489,6 @@ public class UIGit extends VCS implements IVCS {
   }
 
   /** Reset a file to HEAD (mixed) */
-  @Override
   public void resetPath(String path) {
     try {
       git.reset().addPath(path).call();
@@ -574,7 +502,6 @@ public class UIGit extends VCS implements IVCS {
     git.reset().setMode(ResetType.HARD).call();
   }
 
-  @Override
   public boolean rollback(String name) {
     if (hasUncommittedChanges()) {
       showMessageBox(
@@ -604,20 +531,13 @@ public class UIGit extends VCS implements IVCS {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#pull()
-   */
-  @Override
-  public boolean pull() {
+  public boolean pull() throws HopException {
     if (hasUncommittedChanges()) {
-      showMessageBox(
-          BaseMessages.getString(PKG, "Dialog.Error"),
-          BaseMessages.getString(PKG, "Git.Dialog.UncommittedChanges.Message"));
-      return false;
+      throw new HopException(
+          "You have uncommitted changes. Please commit work before pulling changes.");
     }
     if (!hasRemote()) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Please setup a remote");
-      return false;
+      throw new HopException("There is no remote set up to pull from. Please set this up first.");
     }
 
     try {
@@ -634,33 +554,27 @@ public class UIGit extends VCS implements IVCS {
           return pull();
         }
       } else {
-        showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+        throw new HopException("There was an error doing a git pull", e);
       }
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      throw new HopException("There was an error doing a git pull", e);
     }
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#push()
-   */
-  @Override
-  public boolean push() {
+  public boolean push() throws HopException {
     return push("default");
   }
 
-  @Override
-  public boolean push(String type) {
+  public boolean push(String type) throws HopException {
     if (!hasRemote()) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), "Please setup a remote");
-      return false;
+      throw new HopException("There is no remote set up to push to. Please set this up.");
     }
     String name = null;
     List<String> names;
     EnterSelectionDialog esd;
     switch (type) {
-      case IVCS.TYPE_BRANCH:
+      case VCS.TYPE_BRANCH:
         names = getLocalBranches();
         esd =
             getEnterSelectionDialog(
@@ -672,7 +586,7 @@ public class UIGit extends VCS implements IVCS {
           return false;
         }
         break;
-      case IVCS.TYPE_TAG:
+      case VCS.TYPE_TAG:
         names = getTags();
         esd =
             getEnterSelectionDialog(
@@ -703,10 +617,10 @@ public class UIGit extends VCS implements IVCS {
           return push(type);
         }
       } else {
-        showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+        throw new HopException("There was an error doing a git push", e);
       }
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      throw new HopException("There was an error doing a git push", e);
     }
     return false;
   }
@@ -739,18 +653,10 @@ public class UIGit extends VCS implements IVCS {
         });
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#diff(java.lang.String, java.lang.String)
-   */
-  @Override
   public String diff(String oldCommitId, String newCommitId) throws Exception {
     return diff(oldCommitId, newCommitId, null);
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#diff(java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
   public String diff(String oldCommitId, String newCommitId, String file) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
@@ -764,20 +670,15 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#open(java.lang.String, java.lang.String)
-   */
-  @Override
-  public InputStream open(String file, String commitId) {
+  public InputStream open(String file, String commitId) throws HopException {
     if (commitId.equals(WORKINGTREE)) {
       String baseDirectory = getDirectory();
       String filePath = baseDirectory + Const.FILE_SEPARATOR + file;
       try {
-        return new FileInputStream(new File(filePath));
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        return HopVfs.getInputStream(filePath);
+      } catch (HopFileException e) {
+        throw new HopException("Unable to find working tree file '" + filePath + "'", e);
       }
-      return null;
     }
     RevCommit commit = resolve(commitId);
     RevTree tree = commit.getTree();
@@ -789,15 +690,18 @@ public class UIGit extends VCS implements IVCS {
       ObjectLoader loader = git.getRepository().open(tw.getObjectId(0));
       return loader.openStream();
     } catch (MissingObjectException e) {
-      e.printStackTrace();
+      throw new HopException(
+          "Unable to find file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (IncorrectObjectTypeException e) {
-      e.printStackTrace();
+      throw new HopException(
+          "Incorrect object type error for file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (CorruptObjectException e) {
-      e.printStackTrace();
+      throw new HopException(
+          "Corrupt object error for file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new HopException(
+          "Error reading git file '" + file + "' for commit ID '" + commitId + "", e);
     }
-    return null;
   }
 
   public boolean cloneRepo(String directory, String uri) {
@@ -825,10 +729,6 @@ public class UIGit extends VCS implements IVCS {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.IVCS#checkout(java.lang.String)
-   */
-  @Override
   public void checkout(String name) {
     try {
       git.checkout().setName(name).call();
@@ -837,23 +737,17 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public void checkoutBranch(String name) {
     checkout(name);
   }
 
-  @Override
   public void checkoutTag(String name) {
     checkout(name);
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.IVCS#revertFile(java.lang.String)
-   */
-  @Override
-  public void revertPath(String path) {
+  public void revertPath(String path) throws HopException {
     try {
-      // Delete added files
+      // Revert files to HEAD state
       Status status = git.status().addPath(path).call();
       if (status.getUntracked().size() != 0 || status.getAdded().size() != 0) {
         resetPath(path);
@@ -870,18 +764,43 @@ public class UIGit extends VCS implements IVCS {
       org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".ours"));
       org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".theirs"));
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      throw new HopException("Git: error reverting path '" + path + "'", e);
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.IVCS#createBranch(java.lang.String)
+  /**
+   * Get the list of files which will be reverted.
+   *
+   * @param path The path to revert
+   * @return The list of affected files
    */
-  @Override
+  public List<String> getRevertPathFiles(String path) throws HopException {
+    try {
+      Set<String> files = new HashSet<>();
+      StatusCommand statusCommand = git.status();
+      if (path != null && !".".equals(path)) {
+        statusCommand = statusCommand.addPath(path);
+      }
+
+      // Get files to be reverted to HEAD state
+      //
+      Status status = statusCommand.call();
+      files.addAll(status.getUntracked());
+      files.addAll(status.getAdded());
+      files.addAll(status.getMissing());
+      files.addAll(status.getChanged());
+      files.addAll(status.getUncommittedChanges());
+
+      return new ArrayList<>(files);
+    } catch (Exception e) {
+      throw new HopException("Git: error reverting path files for '" + path + "'", e);
+    }
+  }
+
   public boolean createBranch(String value) {
     try {
       git.branchCreate().setName(value).call();
-      checkoutBranch(getExpandedName(value, IVCS.TYPE_BRANCH));
+      checkoutBranch(getExpandedName(value, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
@@ -889,14 +808,10 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.IVCS#deleteBranch(java.lang.String, boolean)
-   */
-  @Override
   public boolean deleteBranch(String name, boolean force) {
     try {
       git.branchDelete()
-          .setBranchNames(getExpandedName(name, IVCS.TYPE_BRANCH))
+          .setBranchNames(getExpandedName(name, VCS.TYPE_BRANCH))
           .setForce(force)
           .call();
       return true;
@@ -906,55 +821,32 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  private boolean mergeBranch(String value, String mergeStrategy) {
+  private boolean mergeBranch(String value, String mergeStrategy) throws HopException {
     try {
       ObjectId obj = git.getRepository().resolve(value);
       MergeResult result =
           git.merge().include(obj).setStrategy(MergeStrategy.get(mergeStrategy)).call();
       if (result.getMergeStatus().isSuccessful()) {
-        showMessageBox(
-            BaseMessages.getString(PKG, "Dialog.Success"),
-            BaseMessages.getString(PKG, "Dialog.Success"));
         return true;
       } else {
+        // TODO: get rid of message box
+        //
         showMessageBox(
             BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
         if (result.getMergeStatus() == MergeStatus.CONFLICTING) {
-          result
-              .getConflicts()
-              .keySet()
-              .forEach(
-                  path -> {
-                    checkout(path, Constants.HEAD, ".ours");
-                    checkout(path, getExpandedName(value, IVCS.TYPE_BRANCH), ".theirs");
-                  });
+          Map<String, int[][]> conflicts = result.getConflicts();
+          for (String path : conflicts.keySet()) {
+            checkout(path, Constants.HEAD, ".ours");
+            checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), ".theirs");
+          }
           return true;
         }
       }
-    } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
-    }
-    return false;
-  }
-
-  @Override
-  public boolean merge() {
-    if (hasUncommittedChanges()) {
-      showMessageBox(
-          BaseMessages.getString(PKG, "Dialog.Error"),
-          BaseMessages.getString(PKG, "Git.Dialog.UncommittedChanges.Message"));
       return false;
+    } catch (Exception e) {
+      throw new HopException(
+          "Error merging branch '" + value + "' with strategy '" + mergeStrategy + "'", e);
     }
-    MergeBranchDialog dialog = new MergeBranchDialog(shell);
-    List<String> branches = getBranches();
-    branches.remove(getBranch());
-    dialog.setBranches(branches);
-    if (dialog.open() == Window.OK) {
-      String branch = dialog.getSelectedBranch();
-      String mergeStrategy = dialog.getSelectedMergeStrategy();
-      return mergeBranch(branch, mergeStrategy);
-    }
-    return false;
   }
 
   private boolean hasUncommittedChanges() {
@@ -966,14 +858,21 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  private void checkout(String path, String commitId, String postfix) {
+  private void checkout(String path, String commitId, String postfix) throws HopException {
     InputStream stream = open(path, commitId);
     File file = new File(directory + Const.FILE_SEPARATOR + path + postfix);
     try {
       org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, file);
       stream.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new HopException(
+          "Error checking out file '"
+              + path
+              + "' for commit ID '"
+              + commitId
+              + "' and postfix "
+              + postfix,
+          e);
     }
   }
 
@@ -1008,7 +907,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public String getShortenedName(String name, String type) {
     if (name.length() == Constants.OBJECT_ID_STRING_LENGTH) {
       return name.substring(0, 7);
@@ -1017,7 +915,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public boolean isClean() {
     try {
       return git.status().call().isClean();
@@ -1027,7 +924,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public List<String> getTags() {
     try {
       return git.tagList().call().stream()
@@ -1039,7 +935,6 @@ public class UIGit extends VCS implements IVCS {
     return null;
   }
 
-  @Override
   public boolean createTag(String name) {
     try {
       git.tag().setName(name).call();
@@ -1050,10 +945,9 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public boolean deleteTag(String name) {
     try {
-      git.tagDelete().setTags(getExpandedName(name, IVCS.TYPE_TAG)).call();
+      git.tagDelete().setTags(getExpandedName(name, VCS.TYPE_TAG)).call();
       return true;
     } catch (GitAPIException e) {
       showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
@@ -1061,7 +955,6 @@ public class UIGit extends VCS implements IVCS {
     }
   }
 
-  @Override
   public String getExpandedName(String name, String type) {
     switch (type) {
       case TYPE_TAG:
@@ -1086,7 +979,7 @@ public class UIGit extends VCS implements IVCS {
     credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
   }
 
-  private RevCommit resolve(String commitId) {
+  public RevCommit resolve(String commitId) {
     ObjectId id = null;
     try {
       id = git.getRepository().resolve(commitId);
@@ -1114,5 +1007,23 @@ public class UIGit extends VCS implements IVCS {
   @VisibleForTesting
   EnterSelectionDialog getEnterSelectionDialog(String[] choices, String shellText, String message) {
     return new EnterSelectionDialog(shell, choices, shellText, message);
+  }
+
+  public Set<String> getIgnored(String path) {
+    try {
+      StatusCommand statusCommand = git.status();
+      if (path != null && !".".equals(path)) {
+        statusCommand = statusCommand.addPath(path);
+      }
+      Status status = statusCommand.call();
+      return status.getIgnoredNotInIndex();
+    } catch (GitAPIException e) {
+      LogChannel.UI.logError("Error getting list of files ignored by git", e);
+      return new HashSet<>();
+    }
+  }
+
+  public Git getGit() {
+    return git;
   }
 }

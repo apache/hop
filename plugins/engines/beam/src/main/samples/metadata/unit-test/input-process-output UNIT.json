@@ -1,0 +1,94 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "input-process-output",
+      "data_set_name": "input-process-output-golden"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Customers",
+      "data_set_name": "customers-input"
+    }
+  ],
+  "name": "input-process-output UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./beam/pipelines/input-process-output.hpl",
+  "test_type": "UNIT_TEST"
+}

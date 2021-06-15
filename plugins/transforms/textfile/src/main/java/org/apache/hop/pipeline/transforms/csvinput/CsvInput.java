@@ -346,7 +346,7 @@ public class CsvInput
 
           // evaluate whether there is a need to skip a row
           if ( needToSkipRow() ) {
-            // PDI-16589 - when reading in parallel, the previous code would introduce additional rows and / or invalid data in the output.
+            // when reading in parallel, the previous code would introduce additional rows and / or invalid data in the output.
             // in parallel mode we don't support new lines inside field data so it's safe to fast forward until we find a new line.
             // when a newline is found we need to check for an additional new line character, while in unix systems it's just a single '\n',
             // on windows systems, it's a sequence of '\r' and '\n'. finally we set the start of the buffer to the end buffer position.
@@ -740,7 +740,7 @@ public class CsvInput
         }
 
         // OK, move on to the next field...
-        // PDI-8187: Before we increment, we should check to see if the while condition is about to fail.
+        // Before we increment, we should check to see if the while condition is about to fail.
         // this will prevent the endBuffer from being incremented twice (once by this block and once in the
         // do-while loop below) and possibly skipping a newline character. This can occur if there is an
         // empty column at the end of the row (see the Jira case for details)
@@ -828,7 +828,7 @@ public class CsvInput
   public boolean init() {
 
     if ( super.init() ) {
-      // PDI-10242 see if a variable is used as encoding value
+      // see if a variable is used as encoding value
       String realEncoding = resolve( meta.getEncoding() );
       data.preferredBufferSize = Integer.parseInt( resolve( meta.getBufferSize() ) );
 
@@ -853,7 +853,7 @@ public class CsvInput
 
       data.encodingType = EncodingType.guessEncodingType( realEncoding );
 
-      // PDI-2489 - set the delimiter byte value to the code point of the
+      // set the delimiter byte value to the code point of the
       // character as represented in the input file's encoding
       try {
         data.delimiter = data.encodingType.getBytes( resolve( meta.getDelimiter() ), realEncoding );

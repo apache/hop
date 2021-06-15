@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "A",
+          "data_set_field": "A"
+        },
+        {
+          "transform_field": "B",
+          "data_set_field": "B"
+        },
+        {
+          "transform_field": "C",
+          "data_set_field": "C"
+        },
+        {
+          "transform_field": "D",
+          "data_set_field": "D"
+        },
+        {
+          "transform_field": "E",
+          "data_set_field": "E"
+        }
+      ],
+      "field_order": [
+        "A"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-generator"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0013-row-generator UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0013-row-generator.hpl",
+  "test_type": "UNIT_TEST"
+}

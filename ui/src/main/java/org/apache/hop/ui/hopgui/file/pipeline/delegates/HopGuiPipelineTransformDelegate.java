@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
@@ -158,6 +159,7 @@ public class HopGuiPipelineTransformDelegate {
           getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       if (dialog != null) {
         dialog.setMetadataProvider(hopGui.getMetadataProvider());
+        transformMeta.getTransform().convertIOMetaToTransformNames();
         transformName = dialog.open();
       }
 
@@ -165,6 +167,20 @@ public class HopGuiPipelineTransformDelegate {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
         transformMeta.getTransform().resetTransformIoMeta();
+
+        // For backward compatibility: set the subjects to the names of the transforms
+        // This prevents UI data loss.
+        //
+        for (IStream infoStream :
+            transformMeta.getTransform().getTransformIOMeta().getInfoStreams()) {
+          if (infoStream.getTransformMeta() != null) {
+            infoStream.setSubject(infoStream.getTransformMeta().getName());
+          }
+        }
+
+        // Re-search the metadata
+        //
+        transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
         //
         // See if the new name the user enter, doesn't collide with
@@ -204,11 +220,12 @@ public class HopGuiPipelineTransformDelegate {
         // Backup the situation for undo/redo
         //
         TransformMeta after = (TransformMeta) transformMeta.clone();
-        /**
-         * TODO: Create new Undo/Redo system hopGui.addUndoChange( pipelineMeta, new TransformMeta[]
-         * { before }, new TransformMeta[] { after }, new int[] { pipelineMeta .indexOfTransform(
-         * transformMeta ) } );
-         */
+
+        hopGui.undoDelegate.addUndoChange(
+            pipelineMeta,
+            new TransformMeta[] {before},
+            new TransformMeta[] {after},
+            new int[] {pipelineMeta.indexOfTransform(transformMeta)});
       }
       pipelineGraph.redraw(); // name is displayed on the graph too.
 
@@ -298,7 +315,6 @@ public class HopGuiPipelineTransformDelegate {
               mb.open();
             }
             PropsUi.setLocation(transformMeta, location.x, location.y);
-            transformMeta.setLocation(location.x, location.y);
             pipelineMeta.addTransform(transformMeta);
             hopGui.undoDelegate.addUndoNew(
                 pipelineMeta,
@@ -317,6 +333,7 @@ public class HopGuiPipelineTransformDelegate {
           } else {
             return null; // Cancel pressed in dialog.
           }
+          pipelineGraph.adjustScrolling();
           pipelineGraph.updateGui();
         }
       } catch (HopException e) {

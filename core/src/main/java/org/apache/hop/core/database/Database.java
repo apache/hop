@@ -20,14 +20,7 @@ package org.apache.hop.core.database;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Counter;
-import org.apache.hop.core.Counters;
-import org.apache.hop.core.DbCache;
-import org.apache.hop.core.DbCacheEntry;
-import org.apache.hop.core.IProgressMonitor;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
@@ -36,31 +29,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.row.value.ValueMetaBinary;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaInternetAddress;
-import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -71,30 +47,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.BatchUpdateException;
-import java.sql.Blob;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.ParameterMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.sql.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Database handles the process of connecting to, reading from, writing to and updating databases.
@@ -175,11 +130,12 @@ public class Database implements IVariables, ILoggingObject {
 
   /**
    * Construct a new Database Connection
-   *  @param parentObject The parent
+   *
+   * @param parentObject The parent
    * @param variables
    * @param databaseMeta The Database Connection Info to construct the connection with.
    */
-  public Database( ILoggingObject parentObject, IVariables variables, DatabaseMeta databaseMeta ) {
+  public Database(ILoggingObject parentObject, IVariables variables, DatabaseMeta databaseMeta) {
     this.parentLoggingObject = parentObject;
     this.variables = variables;
     this.databaseMeta = databaseMeta;
@@ -307,7 +263,8 @@ public class Database implements IVariables, ILoggingObject {
       }
 
       try {
-        ExtensionPointHandler.callExtensionPoint(log, this, HopExtensionPoint.DatabaseConnected.id, this );
+        ExtensionPointHandler.callExtensionPoint(
+            log, this, HopExtensionPoint.DatabaseConnected.id, this);
       } catch (HopException e) {
         throw new HopDatabaseException(e);
       }
@@ -388,7 +345,7 @@ public class Database implements IVariables, ILoggingObject {
             .getPlugin(DatabasePluginType.class, databaseMeta.getIDatabase());
 
     try {
-      synchronized ( DriverManager.class) {
+      synchronized (DriverManager.class) {
         ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
         Class<?> driverClass = classLoader.loadClass(classname);
 
@@ -429,8 +386,7 @@ public class Database implements IVariables, ILoggingObject {
 
       String username = resolve(databaseMeta.getUsername());
       String password =
-          Encr.decryptPasswordOptionallyEncrypted(
-              resolve(databaseMeta.getPassword()));
+          Encr.decryptPasswordOptionallyEncrypted(resolve(databaseMeta.getPassword()));
 
       Properties properties = databaseMeta.getConnectionProperties(this);
 
@@ -559,7 +515,7 @@ public class Database implements IVariables, ILoggingObject {
     }
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, this, HopExtensionPoint.DatabaseDisconnected.id, this );
+          log, this, HopExtensionPoint.DatabaseDisconnected.id, this);
     } catch (HopException e) {
       log.logError("Error disconnecting from database:" + Const.CR + e.getMessage());
       log.logError(Const.getStackTracker(e));
@@ -721,6 +677,7 @@ public class Database implements IVariables, ILoggingObject {
    * @param force
    * @throws HopDatabaseException
    * @throws SQLException
+   * @deprecated
    */
   @Deprecated
   private void commitInternal(boolean force) throws HopDatabaseException, SQLException {
@@ -1494,7 +1451,8 @@ public class Database implements IVariables, ILoggingObject {
 
         if (!Const.onlySpaces(stat)) {
           String sql = Const.trim(stat);
-          if (sql.toUpperCase().startsWith("SELECT")) {
+          if (sql.toUpperCase().startsWith("SELECT")
+              && !sql.toUpperCase().matches("(?is)^(select\\s.*\\sinto\\s).*")) {
             // A Query
             if (log.isDetailed()) {
               log.logDetailed("launch SELECT statement: " + Const.CR + sql);
@@ -1721,7 +1679,7 @@ public class Database implements IVariables, ILoggingObject {
     if (databaseMeta.isStreamingResults() && getDatabaseMetaData().getDriverMajorVersion() == 3) {
       ps.setFetchSize(Integer.MIN_VALUE);
     } else if (fs <= getMaxRows) {
-      // PDI-11373 do not set fetch size more than max rows can returns
+      // do not set fetch size more than max rows can returns
       ps.setFetchSize(fs);
     }
   }
@@ -1757,6 +1715,7 @@ public class Database implements IVariables, ILoggingObject {
    * @return true if the table exists, false if it doesn't.
    * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
+
   public boolean checkTableExists(String tableName) throws HopDatabaseException {
     try {
       if (log.isDebug()) {
@@ -2283,7 +2242,7 @@ public class Database implements IVariables, ILoggingObject {
         IValueMeta valueMeta = null;
         for (IValueMeta valueMetaClass : valueMetaPluginClasses) {
           try {
-            IValueMeta v = valueMetaClass.getMetadataPreview( this, databaseMeta, rm );
+            IValueMeta v = valueMetaClass.getMetadataPreview(this, databaseMeta, rm);
             if (v != null) {
               valueMeta = v;
               break;
@@ -2514,7 +2473,6 @@ public class Database implements IVariables, ILoggingObject {
           ResultSet r = ps.executeQuery();
           try {
             //
-            // See PDI-14893
             // If we're in this private fallback method, it's because the databasemeta returns false
             // for
             // supportsPreparedStatementMetadataRetrieval() or because we got an exception trying to
@@ -2625,8 +2583,8 @@ public class Database implements IVariables, ILoggingObject {
     IValueMeta valueMeta = null;
     for (IValueMeta valueMetaClass : valueMetaPluginClasses) {
       IValueMeta v =
-          valueMetaClass.getValueFromSqlType( this,
-            databaseMeta, name, rm, i, ignoreLength, lazyConversion );
+          valueMetaClass.getValueFromSqlType(
+              this, databaseMeta, name, rm, i, ignoreLength, lazyConversion);
       if (v != null) {
         valueMeta = v;
         break;
@@ -3576,8 +3534,7 @@ public class Database implements IVariables, ILoggingObject {
     return par;
   }
 
-  public synchronized Long getNextValue(
-    String schemaName, String tableName, String valKey )
+  public synchronized Long getNextValue(String schemaName, String tableName, String valKey)
       throws HopDatabaseException {
     Long nextValue = null;
 
@@ -3587,7 +3544,7 @@ public class Database implements IVariables, ILoggingObject {
 
     // Try to find the previous sequence value...
     //
-    Counter counter = Counters.getInstance().getCounter( lookup );
+    Counter counter = Counters.getInstance().getCounter(lookup);
     if (counter == null) {
       RowMetaAndData rmad =
           getOneRow("SELECT MAX(" + databaseMeta.quoteField(valKey) + ") FROM " + schemaTable);
@@ -3611,7 +3568,7 @@ public class Database implements IVariables, ILoggingObject {
         counter = new Counter(previous + 1, 1);
         nextValue = Long.valueOf(counter.getAndNext());
 
-        Counters.getInstance().setCounter( lookup, counter );
+        Counters.getInstance().setCounter(lookup, counter);
       } else {
         throw new HopDatabaseException("Couldn't find maximum key value from table " + schemaTable);
       }
@@ -4338,22 +4295,22 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void copyFrom( IVariables variables) {
+  public void copyFrom(IVariables variables) {
     variables.copyFrom(variables);
   }
 
   @Override
-  public String resolve( String aString) {
+  public String resolve(String aString) {
     return variables.resolve(aString);
   }
 
   @Override
-  public String[] resolve( String[] aString) {
+  public String[] resolve(String[] aString) {
     return variables.resolve(aString);
   }
 
   @Override
-  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData)
+  public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
       throws HopValueException {
     return variables.resolve(aString, rowMeta, rowData);
   }
@@ -4364,7 +4321,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void setParentVariables( IVariables parent) {
+  public void setParentVariables(IVariables parent) {
     variables.setParentVariables(parent);
   }
 
@@ -4379,7 +4336,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public boolean getVariableBoolean( String variableName, boolean defaultValue) {
+  public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
       String value = resolve(variableName);
       if (!Utils.isEmpty(value)) {
@@ -4390,7 +4347,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void initializeFrom( IVariables parent) {
+  public void initializeFrom(IVariables parent) {
     variables.initializeFrom(parent);
   }
 
@@ -4405,13 +4362,13 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void shareWith( IVariables variables) {
+  public void shareWith(IVariables variables) {
     this.variables = variables;
   }
 
   @Override
-  public void setVariables( Map<String, String> map ) {
-    variables.setVariables( map );
+  public void setVariables(Map<String, String> map) {
+    variables.setVariables(map);
   }
 
   public RowMetaAndData callProcedure(
@@ -4954,8 +4911,7 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  // Checks to see if the HOP_COMPATIBILITY_USE_JDBC_METADATA is set.  See PDI-17980 for more
-  // details.
+  // Checks to see if the HOP_COMPATIBILITY_USE_JDBC_METADATA is set.
   private boolean useJdbcMeta() {
     String useJdbcMeta =
         this.variables.getVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");

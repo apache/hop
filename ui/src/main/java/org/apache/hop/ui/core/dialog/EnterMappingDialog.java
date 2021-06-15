@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -27,8 +29,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
@@ -55,7 +56,7 @@ public class EnterMappingDialog extends Dialog {
   public class GuessPair {
     private int _srcIndex = -1;
     private int _targetIndex = -1;
-    private boolean _found = false;
+    private boolean _found;
 
     public GuessPair(int src) {
       _srcIndex = src;
@@ -84,10 +85,6 @@ public class EnterMappingDialog extends Dialog {
     }
   }
 
-  public static final String STRING_ORIGIN_SEPARATOR = "            (";
-
-  public static final String STRING_SFORCE_EXTERNALID_SEPARATOR = "/";
-
   private List wSource;
 
   private List wTarget;
@@ -101,11 +98,14 @@ public class EnterMappingDialog extends Dialog {
 
   private Shell shell;
 
-  private String[] sourceList;
+  private final String[] sourceList;
 
-  private String[] targetList;
+  private final String[] targetList;
 
-  private PropsUi props;
+  private final PropsUi props;
+
+  private String sourceSeparator;
+  private String targetSeparator;
 
   private java.util.List<SourceToTargetMapping> mappings;
 
@@ -144,8 +144,6 @@ public class EnterMappingDialog extends Dialog {
 
   public java.util.List<SourceToTargetMapping> open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
-
     shell =
         new Shell(
             parent,
@@ -163,7 +161,6 @@ public class EnterMappingDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     int margin = props.getMargin();
-    int buttonSpace = 90;
 
     // Some buttons at the bottom
     //
@@ -189,13 +186,7 @@ public class EnterMappingDialog extends Dialog {
     fdSourceHide.right = new FormAttachment(25, 0);
     fdSourceHide.bottom = new FormAttachment(wOk, -2 * margin);
     wSourceHide.setLayoutData(fdSourceHide);
-    wSourceHide.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            refreshMappings();
-          }
-        });
+    wSourceHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Hide used target fields?
     wTargetHide = new Button(shell, SWT.CHECK);
@@ -207,13 +198,7 @@ public class EnterMappingDialog extends Dialog {
     fdTargetHide.right = new FormAttachment(50, 0);
     fdTargetHide.bottom = new FormAttachment(wOk, -2 * margin);
     wTargetHide.setLayoutData(fdTargetHide);
-    wTargetHide.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            refreshMappings();
-          }
-        });
+    wTargetHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Automatic source selection
     wSourceAuto = new Button(shell, SWT.CHECK);
@@ -224,7 +209,7 @@ public class EnterMappingDialog extends Dialog {
     FormData fdSourceAuto = new FormData();
     fdSourceAuto.left = new FormAttachment(0, 0);
     fdSourceAuto.right = new FormAttachment(25, 0);
-    fdSourceAuto.bottom = new FormAttachment(wSourceHide, -2 * margin);
+    fdSourceAuto.bottom = new FormAttachment(wSourceHide, -margin);
     wSourceAuto.setLayoutData(fdSourceAuto);
 
     // Automatic target selection
@@ -236,7 +221,7 @@ public class EnterMappingDialog extends Dialog {
     FormData fdTargetAuto = new FormData();
     fdTargetAuto.left = new FormAttachment(25, margin * 2);
     fdTargetAuto.right = new FormAttachment(50, 0);
-    fdTargetAuto.bottom = new FormAttachment(wTargetHide, -2 * margin);
+    fdTargetAuto.bottom = new FormAttachment(wTargetHide, -margin);
     wTargetAuto.setLayoutData(fdTargetAuto);
 
     // Source table
@@ -257,7 +242,7 @@ public class EnterMappingDialog extends Dialog {
     fdSource.left = new FormAttachment(0, 0);
     fdSource.right = new FormAttachment(25, 0);
     fdSource.top = new FormAttachment(wlSource, margin);
-    fdSource.bottom = new FormAttachment(wSourceAuto, -2 * margin);
+    fdSource.bottom = new FormAttachment(wSourceAuto, -margin);
     wSource.setLayoutData(fdSource);
 
     // Target table
@@ -277,7 +262,7 @@ public class EnterMappingDialog extends Dialog {
     fdTarget.left = new FormAttachment(wSource, margin * 2);
     fdTarget.right = new FormAttachment(50, 0);
     fdTarget.top = new FormAttachment(wlTarget, margin);
-    fdTarget.bottom = new FormAttachment(wTargetAuto, -2 * margin);
+    fdTarget.bottom = new FormAttachment(wTargetAuto, -margin);
     wTarget.setLayoutData(fdTarget);
 
     // Delete mapping button
@@ -308,15 +293,15 @@ public class EnterMappingDialog extends Dialog {
     fdlResult.top = new FormAttachment(0, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new List(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    for (int i = 0; i < targetList.length; i++) {
-      wResult.add(targetList[i]);
+    for (String s : targetList) {
+      wResult.add(s);
     }
     props.setLook(wResult);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(wDelete, margin * 2);
     fdResult.right = new FormAttachment(100, 0);
     fdResult.top = new FormAttachment(wlResult, margin);
-    fdResult.bottom = new FormAttachment(wOk, -50);
+    fdResult.bottom = new FormAttachment(wSource, 0, SWT.BOTTOM);
     wResult.setLayoutData(fdResult);
 
     wSource.addListener(
@@ -337,25 +322,29 @@ public class EnterMappingDialog extends Dialog {
         });
     wTarget.addListener(SWT.DefaultSelection, event -> add());
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
 
+    // Set the size as well...
+    //
     BaseTransformDialog.setSize(shell);
 
+    // Shell closed?
+    //
+    shell.addListener(SWT.Close, e -> cancel());
+
+    // Open the shell
+    //
     shell.open();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
+
     return mappings;
   }
 
@@ -385,13 +374,12 @@ public class EnterMappingDialog extends Dialog {
     refreshMappings();
   }
 
-  private boolean findTarget() {
+  private void findTarget() {
     int sourceIndex = wSource.getSelectionIndex();
     GuessPair p = findTargetPair(sourceIndex);
     if (p.getFound()) {
       wTarget.setSelection(p.getTargetIndex());
     }
-    return p.getFound();
   }
 
   private GuessPair findTargetPair(int sourceIndex) {
@@ -404,38 +392,53 @@ public class EnterMappingDialog extends Dialog {
     }
 
     // Skip everything after the bracket...
-    String sourceStr = wSource.getItem(sourceIndex).toUpperCase();
-
-    int indexOfBracket = sourceStr.indexOf(EnterMappingDialog.STRING_ORIGIN_SEPARATOR);
-    String sourceString = sourceStr;
-    if (indexOfBracket >= 0) {
-      sourceString = sourceStr.substring(0, indexOfBracket);
+    String sourceString = wSource.getItem(sourceIndex).toUpperCase();
+    String sourceValue = sourceString.toLowerCase();
+    if (StringUtils.isNotEmpty(sourceSeparator)) {
+      int index = sourceValue.indexOf(sourceSeparator);
+      if (index >= 0) {
+        sourceValue = sourceValue.substring(index + sourceSeparator.length());
+      }
     }
-    int length = sourceString.length();
-    boolean first = true;
 
-    boolean found = false;
-    while (!found && (length >= ((int) (sourceString.length() * 0.85)) || first)) {
-      first = false;
+    int minDistance = Integer.MAX_VALUE;
+    int minTarget = -1;
 
-      for (int i = 0; i < wTarget.getItemCount() && !found; i++) {
-        String test = wTarget.getItem(i).toUpperCase();
-        // Clean up field names in the form of OBJECT:LOOKUPFIELD/OBJECTNAME
-        if (test.contains(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR)) {
-          String[] tmp = test.split(EnterMappingDialog.STRING_SFORCE_EXTERNALID_SEPARATOR);
-          test = tmp[tmp.length - 1];
-          if (test.endsWith("__R")) {
-            test = test.substring(0, test.length() - 3) + "__C";
-          }
-        }
-        if (test.indexOf(sourceString.substring(0, length)) >= 0) {
-          result.setSrcIndex(sourceIndex);
-          result.setTargetIndex(i);
-          found = true;
+    for (int i = 0; i < wTarget.getItemCount(); i++) {
+      String targetString = wTarget.getItem(i);
+      String targetValue = targetString.toLowerCase();
+      // Only consider the part after the first target separator...
+      //
+      if (StringUtils.isNotEmpty(targetSeparator)) {
+        int index = targetValue.indexOf(targetSeparator);
+        if (index >= 0) {
+          targetValue = targetValue.substring(index + targetSeparator.length());
         }
       }
-      length--;
+
+      // Compare source and target values...
+      //
+      if (sourceValue.equals(targetValue)) {
+        minDistance = 0;
+        minTarget = i;
+        break; // we found an exact match
+      }
+
+      // Compare sourceValue and targetValue using a distance
+      //
+      int distance =
+          Utils.getDamerauLevenshteinDistance(sourceValue.toLowerCase(), targetValue.toLowerCase());
+      if (distance < minDistance) {
+        minDistance = distance;
+        minTarget = i;
+      }
     }
+
+    if (minTarget >= 0) {
+      result.setTargetIndex(minTarget);
+      result._found = true; // always make a guess
+    }
+
     return result;
   }
 
@@ -486,12 +489,14 @@ public class EnterMappingDialog extends Dialog {
   private void refreshMappings() {
     // Refresh the results...
     wResult.removeAll();
+
+    // Sort the mappings by result string
+    //
+    Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+
     for (int i = 0; i < mappings.size(); i++) {
       SourceToTargetMapping mapping = mappings.get(i);
-      String mappingString =
-          sourceList[mapping.getSourcePosition()]
-              + " --> "
-              + targetList[mapping.getTargetPosition()];
+      String mappingString = getMappingResultString(mapping);
       wResult.add(mappingString);
     }
 
@@ -532,6 +537,12 @@ public class EnterMappingDialog extends Dialog {
     }
   }
 
+  private String getMappingResultString(SourceToTargetMapping mapping) {
+    return sourceList[mapping.getSourcePosition()]
+        + " --> "
+        + targetList[mapping.getTargetPosition()];
+  }
+
   private void delete() {
     String[] result = wResult.getSelection();
     for (int i = result.length - 1; i >= 0; i--) {
@@ -559,5 +570,33 @@ public class EnterMappingDialog extends Dialog {
 
   private void ok() {
     dispose();
+  }
+
+  /**
+   * Gets sourceSeparator
+   *
+   * @return value of sourceSeparator
+   */
+  public String getSourceSeparator() {
+    return sourceSeparator;
+  }
+
+  /** @param sourceSeparator The sourceSeparator to set */
+  public void setSourceSeparator(String sourceSeparator) {
+    this.sourceSeparator = sourceSeparator;
+  }
+
+  /**
+   * Gets targetSeparator
+   *
+   * @return value of targetSeparator
+   */
+  public String getTargetSeparator() {
+    return targetSeparator;
+  }
+
+  /** @param targetSeparator The targetSeparator to set */
+  public void setTargetSeparator(String targetSeparator) {
+    this.targetSeparator = targetSeparator;
   }
 }

@@ -19,7 +19,7 @@ package org.apache.hop.core.gui.plugin.action;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
-
+import org.apache.hop.core.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -111,11 +111,14 @@ public class GuiAction {
     }
     return true;
   }
-
+  
   public boolean containsFilterString( String filter ) {
     if ( filter == null ) {
       return false;
     }
+
+    filter = StringUtil.removeDiacriticalMarks(filter);
+  
     if ( matchesString( name, filter ) ) {
       return true;
     }
@@ -140,6 +143,9 @@ public class GuiAction {
     if ( StringUtils.isEmpty( string ) ) {
       return false;
     }
+
+    string = StringUtil.removeDiacriticalMarks(string);
+
     // TODO: consider some fuzzy matching algorithm
     // TODO: Do a Levenshtein distance on the filter string across all valid string indexes 0..
     return string.toUpperCase().contains( filter.toUpperCase() );

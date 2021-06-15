@@ -1,0 +1,35 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+=== Settings
+
+Enter the insert process settings in the following transform options:
+
+[options="header", width="90%"]
+|===
+|Option|Description
+|Time out|Specify the timeout interval in milliseconds before the transform times out.
+|Use compression|Select to compress (.gzip) data when connecting between Hop and Salesforce.
+|Rollback all changes on|Revert changes unless all records are processed successfully. When you select this option, records without errors are inserted, while records with errors are marked as failed in the insertion results. The default behavior is to allow partial success of insertion.
+|Batch Size|Indicate the maximum number of records to collect before the insert is committed.
+|Module a| Select the module (table) in which you want to insert records. +
+
+NOTE: This list will be populated upon successfully authenticating to Salesforce using the Test Connection button.
+
+|===

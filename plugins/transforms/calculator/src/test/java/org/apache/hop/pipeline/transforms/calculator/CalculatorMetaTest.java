@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,114 +16,67 @@
  */
 package org.apache.hop.pipeline.transforms.calculator;
 
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-public class CalculatorMetaTest implements IInitializer<CalculatorMeta> {
-
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  LoadSaveTester<CalculatorMeta> loadSaveTester;
-  Class<CalculatorMeta> testMetaClass = CalculatorMeta.class;
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
-
-  @Before
-  public void setUpLoadSave() throws Exception {
-    List<String> attributes = Arrays.asList( "Calculation" );
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-    IFieldLoadSaveValidator<CalculatorMetaFunction[]> calculationMetaFunctionArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new CalculatorMetaFunctionLoadSaveValidator(), 5 );
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "Calculation", calculationMetaFunctionArrayLoadSaveValidator );
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify( CalculatorMeta someMeta ) {
-    someMeta.allocate( 5 );
-  }
+public class CalculatorMetaTest {
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
-
-  @Test
-  public void testGetTransformData() {
+  public void testXmlRoundTrip() throws Exception {
     CalculatorMeta meta = new CalculatorMeta();
-    assertTrue( meta.getTransformData() instanceof CalculatorData );
-  }
-
-  @Test
-  public void testSetDefault() {
-    CalculatorMeta meta = new CalculatorMeta();
-    meta.setDefault();
-    assertNotNull( meta.getCalculation() );
-    assertEquals( 0, meta.getCalculation().length );
-    assertTrue( meta.isFailIfNoFile() );
-  }
-
-  public class CalculatorMetaFunctionLoadSaveValidator implements IFieldLoadSaveValidator<CalculatorMetaFunction> {
-    final Random rand = new Random();
-
-    @Override
-    public CalculatorMetaFunction getTestObject() {
-      CalculatorMetaFunction rtn = new CalculatorMetaFunction();
-      rtn.setCalcType( rand.nextInt( CalculatorMetaFunction.calcDesc.length ) );
-      rtn.setConversionMask( UUID.randomUUID().toString() );
-      rtn.setCurrencySymbol( UUID.randomUUID().toString() );
-      rtn.setDecimalSymbol( UUID.randomUUID().toString() );
-      rtn.setFieldA( UUID.randomUUID().toString() );
-      rtn.setFieldB( UUID.randomUUID().toString() );
-      rtn.setFieldC( UUID.randomUUID().toString() );
-      rtn.setFieldName( UUID.randomUUID().toString() );
-      rtn.setGroupingSymbol( UUID.randomUUID().toString() );
-      rtn.setValueLength( rand.nextInt( 50 ) );
-      rtn.setValuePrecision( rand.nextInt( 9 ) );
-      rtn.setValueType( rand.nextInt( 7 ) + 1 );
-      rtn.setRemovedFromResult( rand.nextBoolean() );
-      return rtn;
+    meta.setFailIfNoFile(true);
+    for (int i = 0; i < 100; i++) {
+      meta.getFunctions().add(generateTestFunction());
     }
 
-    @Override
-    public boolean validateTestObject( CalculatorMetaFunction testObject, Object actual ) {
-      if ( !( actual instanceof CalculatorMetaFunction ) ) {
-        return false;
-      }
-      CalculatorMetaFunction actualInput = (CalculatorMetaFunction) actual;
-      return ( testObject.getXml().equals( actualInput.getXml() ) );
+    String xml = meta.getXml();
+    Assert.assertNotNull(xml);
+
+    // Re-load it into a new meta
+    //
+    CalculatorMeta meta2 = new CalculatorMeta();
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + xml
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    meta2.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
+
+    // Verify the functions...
+    Assert.assertEquals(meta.isFailIfNoFile(), meta2.isFailIfNoFile());
+    Assert.assertEquals(meta.getFunctions().size(), meta2.getFunctions().size());
+    for (int i = 0; i < meta.getFunctions().size(); i++) {
+      CalculatorMetaFunction function = meta.getFunctions().get(i);
+      CalculatorMetaFunction function2 = meta2.getFunctions().get(i);
+      Assert.assertEquals(function, function2);
     }
+  }
+
+  private static final Random rand = new Random();
+
+  private static CalculatorMetaFunction generateTestFunction() {
+    CalculatorMetaFunction.CalculationType[] types =
+        CalculatorMetaFunction.CalculationType.values();
+    String[] valueTypes = {"String", "Number", "Date", "Integer", "Boolean"};
+
+    CalculatorMetaFunction rtn = new CalculatorMetaFunction();
+    rtn.setCalcType(types[Math.abs(rand.nextInt(types.length))]);
+    rtn.setConversionMask(UUID.randomUUID().toString());
+    rtn.setCurrencySymbol(UUID.randomUUID().toString());
+    rtn.setDecimalSymbol(UUID.randomUUID().toString());
+    rtn.setFieldA(UUID.randomUUID().toString());
+    rtn.setFieldB(UUID.randomUUID().toString());
+    rtn.setFieldC(UUID.randomUUID().toString());
+    rtn.setFieldName(UUID.randomUUID().toString());
+    rtn.setGroupingSymbol(UUID.randomUUID().toString());
+    rtn.setValueLength(rand.nextInt(50));
+    rtn.setValuePrecision(rand.nextInt(9));
+    rtn.setValueType(valueTypes[Math.abs(rand.nextInt(valueTypes.length))]);
+    rtn.setRemovedFromResult(rand.nextBoolean());
+    return rtn;
   }
 }

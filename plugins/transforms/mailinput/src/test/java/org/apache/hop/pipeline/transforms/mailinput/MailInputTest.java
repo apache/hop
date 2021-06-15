@@ -45,7 +45,7 @@ public class MailInputTest {
   }
 
   /**
-   * PDI-10909 Check that imap retrieve ... first will be applied.
+   * Check that imap retrieve ... first will be applied.
    */
   @Test
   @Ignore
@@ -65,7 +65,7 @@ public class MailInputTest {
   }
 
   /**
-   * PDI-10909 Check that pop3 retrieve ... first will be applied.
+   * Check that pop3 retrieve ... first will be applied.
    */
   @Test
   @Ignore
@@ -85,7 +85,7 @@ public class MailInputTest {
   }
 
   /**
-   * PDI-10909 Check that Limit value overrides retrieve ... first if any.
+   * Check that Limit value overrides retrieve ... first if any.
    */
   @Test
   @Ignore

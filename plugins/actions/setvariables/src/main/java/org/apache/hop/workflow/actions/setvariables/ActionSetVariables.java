@@ -62,7 +62,7 @@ import java.util.Properties;
     description = "i18n::ActionSetVariables.Description",
     image = "SetVariables.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/setvariables.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/setvariables.html")
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 
@@ -255,7 +255,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
             if (value != null) {
               System.setProperty(varname, value);
             } else {
-              System.clearProperty(varname); // PDI-17536
+              System.clearProperty(varname);
             }
             setVariable(varname, value);
             IWorkflowEngine<WorkflowMeta> parentWorkflowTraverse = parentWorkflow;
@@ -346,7 +346,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     this.replaceVars = replaceVars;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

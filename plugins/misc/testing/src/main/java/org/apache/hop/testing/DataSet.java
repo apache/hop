@@ -41,7 +41,8 @@ import java.util.List;
   key = "dataset",
   name = "Data Set",
   description = "This defines a data set, a static pre-defined collection of rows",
-  image = "dataset.svg"
+  image = "dataset.svg",
+  documentationUrl="https://hop.apache.org/manual/latest/metadata-types/data-set.html"
 )
 public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata {
 
@@ -61,6 +62,7 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public DataSet() {
     fields = new ArrayList<>();
+    baseFilename = "data-set-filename.csv";
   }
 
   public DataSet( String name, String description, String folderName, String baseFilename, List<DataSetField> fields ) {

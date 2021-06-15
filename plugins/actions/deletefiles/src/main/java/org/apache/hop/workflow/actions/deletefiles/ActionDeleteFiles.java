@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionDeleteFiles.Description",
     image = "DeleteFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/deletefiles.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/deletefiles.html")
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 
   private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
@@ -182,7 +182,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         // Relative paths are permitted, and providing an empty path means deleting all files inside
         // a root pdi-folder.
         // It is much more likely to be a mistake than a desirable action, so we don't delete
-        // anything (see PDI-15181)
+        // anything
         if (log.isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.NoPathProvided"));
         }
@@ -229,7 +229,9 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         if (resultRow.size() < 2) {
           logError(
               BaseMessages.getString(
-                  PKG, "JobDeleteFiles.Error.InvalidNumberOfRowsFromPrevMeta", resultRow.size()));
+                  PKG,
+                  "ActionDeleteFiles.Error.InvalidNumberOfRowsFromPrevMeta",
+                  resultRow.size()));
           return pathToMaskMap;
         }
         String pathToFile = resultRow.getString(0, null);
@@ -371,7 +373,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         }
       } catch (Exception e) {
         log.logError(
-            BaseMessages.getString(PKG, "JobDeleteFiles.Error.Exception.DeleteProcessError"),
+            BaseMessages.getString(PKG, "ActionDeleteFiles.Error.Exception.DeleteProcessError"),
             BaseMessages.getString(
                 PKG,
                 "JobDeleteFiles.Error.Exception.DeleteProcess",
@@ -413,7 +415,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::Denormaliser.Name",
     description = "i18n::Denormaliser.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/denormaliser.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rowdenormaliser.html")
 public class DenormaliserMeta extends BaseTransformMeta
     implements ITransformMeta<Denormaliser, DenormaliserData> {
   private static final Class<?> PKG = DenormaliserMeta.class; // For Translator

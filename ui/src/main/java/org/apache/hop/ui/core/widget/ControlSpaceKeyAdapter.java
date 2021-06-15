@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,11 +26,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -44,6 +41,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -93,7 +91,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   /**
-   * PDI-1284 in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
+   * in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
    * Ctrl-ALT-SPACE instead.
    *
    * @param e
@@ -144,12 +142,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
       props.setLook(list);
       list.setItems(getVariableNames(variables));
-      final DefaultToolTip toolTip = new DefaultToolTip(list, ToolTip.RECREATE, true);
-      toolTip.setImage(GuiResource.getInstance().getImageVariable());
-      toolTip.setHideOnMouseDown(true);
-      toolTip.setRespectMonitorBounds(true);
-      toolTip.setRespectDisplayBounds(true);
-      toolTip.setPopupDelay(350);
+      final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
+      toolTip.setAutoHide(true);
 
       list.addSelectionListener(
           new SelectionAdapter() {
@@ -174,8 +168,10 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
                 message += BaseMessages.getString(PKG, "TextVar.InternalVariable.Message");
               }
               toolTip.setText(message);
-              toolTip.hide();
-              toolTip.show(new Point(shellBounds.width, 0));
+              toolTip.setVisible(false);
+              toolTip.setLocation(
+                  shell.getLocation().x, shell.getLocation().y + shellBounds.height);
+              toolTip.setVisible(true);
             }
           });
 
@@ -230,8 +226,6 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
             extra); // We can't know the location of the cursor yet. All we can do is overwrite.
       } else if (control instanceof StyledTextComp) {
         ((StyledTextComp) control).insert(extra);
-      } else if (control instanceof StyledText) {
-        ((StyledText) control).insert(extra);
       }
     }
     if (!shell.isDisposed()) {
@@ -266,33 +260,48 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
     // The Hop system settings variables
     //
-    Set<String> hopSystemSettings = new HashSet( Arrays.asList( Const.HOP_SYSTEM_SETTING_VARIABLES ) );
+    Set<String> hopSystemSettings = new HashSet(Arrays.asList(Const.HOP_SYSTEM_SETTING_VARIABLES));
 
     Map<String, String> pluginsPrefixesMap = new HashMap<>();
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI,
-        variables,
-        HopExtensionPoint.HopGuiGetControlSpaceSortOrderPrefix.name(),
-        pluginsPrefixesMap
-        );
-    } catch ( Exception e ) {
-      LogChannel.UI.logError( "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI,
+          variables,
+          HopExtensionPoint.HopGuiGetControlSpaceSortOrderPrefix.name(),
+          pluginsPrefixesMap);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
     }
 
     Arrays.sort(
         variableNames,
         (var1, var2) -> {
-          String str1 = addPrefix(var1, systemProperties, hopVariablesSet, deprecatedSet, hopSystemSettings, pluginsPrefixesMap);
-          String str2 = addPrefix(var2, systemProperties, hopVariablesSet, deprecatedSet, hopSystemSettings, pluginsPrefixesMap);
+          String str1 =
+              addPrefix(
+                  var1,
+                  systemProperties,
+                  hopVariablesSet,
+                  deprecatedSet,
+                  hopSystemSettings,
+                  pluginsPrefixesMap);
+          String str2 =
+              addPrefix(
+                  var2,
+                  systemProperties,
+                  hopVariablesSet,
+                  deprecatedSet,
+                  hopSystemSettings,
+                  pluginsPrefixesMap);
           return str1.compareTo(str2);
         });
     return variableNames;
   }
 
   /**
-   * Get a prefix to steer sorting of variables.
-   * Please note that variables can appear in multiple sets so we check back to front.
+   * Get a prefix to steer sorting of variables. Please note that variables can appear in multiple
+   * sets so we check back to front.
    *
    * @param variableName The variable name to prefix
    * @param systemProperties
@@ -300,9 +309,13 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
    * @param deprecatedSet
    * @return a prefixed variable name
    */
-  private static String addPrefix( String variableName, Properties systemProperties,
-                                   Set<String> hopVariablesSet, Set<String> deprecatedSet,
-                                   Set<String> hopSystemSettings, Map<String,String> pluginsPrefixesMap) {
+  private static String addPrefix(
+      String variableName,
+      Properties systemProperties,
+      Set<String> hopVariablesSet,
+      Set<String> deprecatedSet,
+      Set<String> hopSystemSettings,
+      Map<String, String> pluginsPrefixesMap) {
     String prefix = "300_";
     String systemValue = systemProperties.getProperty(variableName);
     if (systemValue != null) {
@@ -313,18 +326,18 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       prefix = "800_";
     }
     if (hopSystemSettings.contains(variableName)) {
-      prefix = "700_" ;
+      prefix = "700_";
     }
     if (deprecatedSet.contains(variableName)) {
-      prefix = "600_" ;
+      prefix = "600_";
     }
-    if (variableName.startsWith( Const.INTERNAL_VARIABLE_PREFIX )) {
-      prefix = "500_" ;
+    if (variableName.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
+      prefix = "500_";
     }
     // Finally allow plugins to override a sort order...
     //
     String pluginPrefix = pluginsPrefixesMap.get(variableName);
-    if (pluginPrefix!=null) {
+    if (pluginPrefix != null) {
       prefix = pluginPrefix;
     }
     return prefix;

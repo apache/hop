@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.xp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -40,6 +41,11 @@ public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopG
   @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiDirectoryDialogExtension ext ) throws HopException {
     String projectName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(projectName)) {
+      return;
+    }
+    // Keep the proposed filter path...
+    //
+    if ( ext.directoryDialog!=null && StringUtils.isNotEmpty( ext.directoryDialog.getFilterPath() )) {
       return;
     }
     try {

@@ -62,7 +62,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.MergeRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.MergeRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mergerows.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta
     implements ITransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator

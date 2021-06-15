@@ -25,6 +25,7 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -53,7 +54,9 @@ import java.util.Properties;
   description = "The workflow file information for the Hop GUI",
   image="ui/images/workflow.svg"
 )
-public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
+public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase implements IHopFileType {
+
+  public static final Class<?> PKG = HopWorkflowFileType.class; //i18n
 
   public static final String WORKFLOW_FILE_TYPE_DESCRIPTION = "Workflow";
 
@@ -152,7 +155,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Create the empty pipeline
       //
       WorkflowMeta workflowMeta = new WorkflowMeta();
-      workflowMeta.setName( "New workflow" );
+      workflowMeta.setName(BaseMessages.getString(PKG, "HopWorkflowFileType.New.Text"));
 
       // Pass the MetaStore for reference lookups
       //
@@ -199,14 +202,17 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
     List<IGuiContextHandler> handlers = new ArrayList<>();
 
-    GuiAction newAction = new GuiAction( ACTION_ID_NEW_WORKFLOW, GuiActionType.Create, "Workflow",
-      "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
+    GuiAction newAction = new GuiAction( ACTION_ID_NEW_WORKFLOW, GuiActionType.Create
+            , BaseMessages.getString(PKG, "HopWorkflowFileType.GuiAction.Workflow.Name")
+            , BaseMessages.getString(PKG, "HopWorkflowFileType.GuiAction.Workflow.Tooltip"),
       "ui/images/workflow.svg",
       ( shiftClicked, controlClicked, parameters ) -> {
         try {
           HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
         } catch ( Exception e ) {
-          new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
+          new ErrorDialog( hopGui.getShell()
+                  , BaseMessages.getString(PKG, "HopWorkflowFileType.ErrorDialog.NewWorkflowCreation.Header")
+                  , BaseMessages.getString(PKG, "HopWorkflowFileType.ErrorDialog.NewWorkflowCreation.Message"), e );
         }
       } );
     newAction.setCategory( "File" );
@@ -215,5 +221,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     handlers.add( new GuiContextHandler( ACTION_ID_NEW_WORKFLOW, Arrays.asList( newAction ) ) );
 
     return handlers;
+  }
+
+  @Override public String getFileTypeImage() {
+    return "ui/images/workflow.svg";
   }
 }

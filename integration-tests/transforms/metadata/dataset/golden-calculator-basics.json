@@ -1,0 +1,216 @@
+{
+  "base_filename": "golden-calculator-basics.csv",
+  "name": "golden-calculator-basics",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intA"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intB"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intC"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 3,
+      "field_format": "#.000;-#.000",
+      "field_name": "numA"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 3,
+      "field_format": "#.000;-#.000",
+      "field_name": "numB"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 3,
+      "field_format": "#.000;-#.000",
+      "field_name": "numC"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "strA"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "strB"
+    },
+    {
+      "field_comment": "CONSTANT",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "constStr"
+    },
+    {
+      "field_comment": "CONSTANT",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "constInt"
+    },
+    {
+      "field_comment": "ADD",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intAPlusB"
+    },
+    {
+      "field_comment": "ADD",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numAPlusB"
+    },
+    {
+      "field_comment": "ADD",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "strAPlusB"
+    },
+    {
+      "field_comment": "SUBTRACT",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intCMinusB"
+    },
+    {
+      "field_comment": "SUBTRACT",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numCMinusB"
+    },
+    {
+      "field_comment": "MULTIPLY",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intATimesB"
+    },
+    {
+      "field_comment": "MULTIPLY",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numATimesB"
+    },
+    {
+      "field_comment": "DIVIDE",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "intCDivA"
+    },
+    {
+      "field_comment": "DIVIDE",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numADivB"
+    },
+    {
+      "field_comment": "SQUARE",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intA*A"
+    },
+    {
+      "field_comment": "SQUARE",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numA*A"
+    },
+    {
+      "field_comment": "SQUARE_ROOT",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intSqrt(a)"
+    },
+    {
+      "field_comment": "SQUARE_ROOT",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numSqrt(a)"
+    },
+    {
+      "field_comment": "PERCENT_1",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intPctAofB"
+    },
+    {
+      "field_comment": "PERCENT_1",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "numPctAofB"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 3,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "copyOfNumA"
+    }
+  ],
+  "folder_name": ""
+}

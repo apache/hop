@@ -39,8 +39,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "10",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.RowSetSize.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RowSetSize.Label"
   )
   @HopMetadataProperty(key="rowset_size")
   protected String rowSetSize;
@@ -50,8 +49,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "20",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SafeModeEnabled.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.SafeModeEnabled.Label"
   )
   @HopMetadataProperty(key="safe_mode")
   protected boolean safeModeEnabled;
@@ -61,8 +59,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "30",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.GatheringMetrics.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.GatheringMetrics.Label"
   )
   @HopMetadataProperty(key="gather_metrics")
   protected boolean gatheringMetrics;
@@ -72,8 +69,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "40",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SortTransformsTopologically.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.SortTransformsTopologically.Label"
   )
   @HopMetadataProperty(key="topo_sort")
   protected boolean sortingTransformsTopologically;
@@ -86,8 +82,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "50",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.FeedbackShown.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.FeedbackShown.Label"
   )
   @HopMetadataProperty(key="show_feedback")
   protected boolean feedbackShown;
@@ -100,8 +95,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "60",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.FeedbackSize.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.FeedbackSize.Label"
   )
   @HopMetadataProperty(key="feedback_size")
   protected String feedbackSize;
@@ -114,8 +108,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "70",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SampleTypeInGui.Label",
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.SampleTypeInGui.Label",
     comboValuesMethod = "getSampleTypes"
   )
   @HopMetadataProperty(key="sample_type_in_gui")
@@ -129,8 +122,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     order = "80",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SampleSize.Label"
+    label = "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.SampleSize.Label"
   )
   @HopMetadataProperty(key="sample_size")
   protected String sampleSize;

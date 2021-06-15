@@ -65,15 +65,15 @@ import java.util.regex.Pattern;
   description = "i18n::ActionPGPEncryptFiles.Description",
   image = "PGPEncryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpencryptfiles.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpencryptfiles.html"
 )
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
   public static final String[] actionTypeDesc = new String[] {
-    BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Encrypt.Label" ),
-    BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Sign.Label" ),
-    BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.SignAndEncrypt.Label" ), };
+    BaseMessages.getString( PKG, "ActionPGPEncryptFiles.ActionsType.Encrypt.Label" ),
+    BaseMessages.getString( PKG, "ActionPGPEncryptFiles.ActionsType.Sign.Label" ),
+    BaseMessages.getString( PKG, "ActionPGPEncryptFiles.ActionsType.SignAndEncrypt.Label" ), };
   public static final String[] actionTypeCodes = new String[] { "encrypt", "sign", "signandencrypt" };
   public static final int ACTION_TYPE_ENCRYPT = 0;
   public static final int ACTION_TYPE_SIGN = 1;
@@ -287,7 +287,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     } catch ( HopXmlException xe ) {
 
       throw new HopXmlException( BaseMessages.getString(
-        PKG, "JobPGPEncryptFiles.Error.Exception.UnableLoadXML" ), xe );
+        PKG, "ActionPGPEncryptFiles.Error.Exception.UnableLoadXML" ), xe );
     }
   }
 
@@ -321,7 +321,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       if ( includeSubFolders ) {
         if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.IncludeSubFoldersOn" ) );
+          logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.IncludeSubFoldersOn" ) );
         }
       }
 
@@ -334,7 +334,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       if ( ifFileExists.equals( "move_file" ) ) {
         if ( Utils.isEmpty( MoveToFolder ) ) {
-          logError( toString(), BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error.MoveToFolderMissing" ) );
+          logError( toString(), BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Error.MoveToFolderMissing" ) );
           return result;
         }
         FileObject folder = null;
@@ -343,22 +343,22 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           if ( !folder.exists() ) {
             if ( isDetailed() ) {
               logDetailed( BaseMessages
-                .getString( PKG, "JobPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
+                .getString( PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
             }
             if ( createMoveToFolder ) {
               folder.createFolder();
             } else {
-              logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
+              logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
               return result;
             }
           }
           if ( !folder.getType().equals( FileType.FOLDER ) ) {
-            logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error.NotFolder", MoveToFolder ) );
+            logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Error.NotFolder", MoveToFolder ) );
             return result;
           }
         } catch ( Exception e ) {
           logError( BaseMessages.getString(
-            PKG, "JobPGPEncryptFiles.Log.Error.GettingMoveToFolder", MoveToFolder, e.getMessage() ) );
+            PKG, "ActionPGPEncryptFiles.Log.Error.GettingMoveToFolder", MoveToFolder, e.getMessage() ) );
           return result;
         } finally {
           if ( folder != null ) {
@@ -374,7 +374,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       if ( argFromPrevious ) {
         if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.ArgFromPrevious.Found", ( rows != null
+          logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.ArgFromPrevious.Found", ( rows != null
             ? rows.size() : 0 )
             + "" ) );
         }
@@ -384,7 +384,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           // Success condition broken?
           if ( successConditionBroken ) {
             if ( !successConditionBrokenExit ) {
-              logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.SuccessConditionbroken", ""
+              logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.SuccessConditionbroken", ""
                 + nrErrors ) );
               successConditionBrokenExit = true;
             }
@@ -405,7 +405,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           if ( !Utils.isEmpty( vSourceFileFolderPrevious ) && !Utils.isEmpty( vDestinationFileFolderPrevious ) ) {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPEncryptFiles.Log.ProcessingRow", vSourceFileFolderPrevious,
+                PKG, "ActionPGPEncryptFiles.Log.ProcessingRow", vSourceFileFolderPrevious,
                 vDestinationFileFolderPrevious, vWildcardPrevious ) );
             }
 
@@ -419,7 +419,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPEncryptFiles.Log.IgnoringRow", vSourceFileFolder[ iteration ],
+                PKG, "ActionPGPEncryptFiles.Log.IgnoringRow", vSourceFileFolder[ iteration ],
                 vDestinationFileFolder[ iteration ], vwildcard[ iteration ] ) );
             }
           }
@@ -429,7 +429,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           // Success condition broken?
           if ( successConditionBroken ) {
             if ( !successConditionBrokenExit ) {
-              logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.SuccessConditionbroken", ""
+              logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.SuccessConditionbroken", ""
                 + nrErrors ) );
               successConditionBrokenExit = true;
             }
@@ -442,7 +442,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             // ok we can process this file/folder
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPEncryptFiles.Log.ProcessingRow", vSourceFileFolder[ i ], vDestinationFileFolder[ i ],
+                PKG, "ActionPGPEncryptFiles.Log.ProcessingRow", vSourceFileFolder[ i ], vDestinationFileFolder[ i ],
                 vwildcard[ i ] ) );
             }
 
@@ -455,7 +455,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPEncryptFiles.Log.IgnoringRow", vSourceFileFolder[ i ], vDestinationFileFolder[ i ],
+                PKG, "ActionPGPEncryptFiles.Log.IgnoringRow", vSourceFileFolder[ i ], vDestinationFileFolder[ i ],
                 vwildcard[ i ] ) );
             }
           }
@@ -464,7 +464,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
     } catch ( Exception e ) {
       updateErrors();
-      logError( BaseMessages.getString( "JobPGPEncryptFiles.Error", e.getMessage() ) );
+      logError( BaseMessages.getString( "ActionPGPEncryptFiles.Error", e.getMessage() ) );
     } finally {
       if ( sourceFileFolder != null ) {
         sourceFileFolder = null;
@@ -488,8 +488,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   private void displayResults() {
     if ( isDetailed() ) {
       logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Info.FilesInError", "" + nrErrors ) );
-      logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Info.FilesInSuccess", "" + nrSuccess ) );
+      logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Info.FilesInError", "" + nrErrors ) );
+      logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Info.FilesInSuccess", "" + nrSuccess ) );
       logDetailed( "=======================================" );
     }
   }
@@ -554,7 +554,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
-        // PDI will create it
+        // Apache Hop will create it
         if ( createDestinationFolder( destinationfilefolder ) ) {
 
           // Basic Tests
@@ -562,8 +562,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             // Source is a folder, destination is a file
             // WARNING !!! CAN NOT MOVE FOLDER TO FILE !!!
 
-            logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Forbidden" ), BaseMessages.getString(
-              PKG, "JobPGPEncryptFiles.Log.CanNotMoveFolderToFile", realSourceFilefoldername,
+            logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Forbidden" ), BaseMessages.getString(
+              PKG, "ActionPGPEncryptFiles.Log.CanNotMoveFolderToFile", realSourceFilefoldername,
               realDestinationFilefoldername ) );
 
             // Update Errors
@@ -579,7 +579,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 shortfilename = getDestinationFilename( sourcefilefolder.getName().getBaseName() );
               } catch ( Exception e ) {
                 logError( BaseMessages.getString(
-                  PKG, "JobPGPEncryptFiles.Error.GettingFilename", sourcefilefolder.getName().getBaseName(), e
+                  PKG, "ActionPGPEncryptFiles.Error.GettingFilename", sourcefilefolder.getName().getBaseName(), e
                     .toString() ) );
                 return entrystatus;
               }
@@ -605,7 +605,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 shortfilename = getDestinationFilename( destinationfile.getName().getBaseName() );
               } catch ( Exception e ) {
                 logError( BaseMessages.getString(
-                  PKG, "JobPGPEncryptFiles.Error.GettingFilename", sourcefilefolder.getName().getBaseName(), e
+                  PKG, "ActionPGPEncryptFiles.Error.GettingFilename", sourcefilefolder.getName().getBaseName(), e
                     .toString() ) );
                 return entrystatus;
               }
@@ -623,7 +623,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               // Both source and destination are folders
               if ( isDetailed() ) {
                 logDetailed( "  " );
-                logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FetchFolder", sourcefilefolder
+                logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FetchFolder", sourcefilefolder
                   .toString() ) );
               }
 
@@ -659,7 +659,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                   // Success condition broken?
                   if ( successConditionBroken ) {
                     if ( !successConditionBrokenExit ) {
-                      logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.SuccessConditionbroken", ""
+                      logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.SuccessConditionbroken", ""
                         + nrErrors ) );
                       successConditionBrokenExit = true;
                     }
@@ -683,15 +683,15 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         } else {
           // Destination Folder or Parent folder is missing
           logError( BaseMessages.getString(
-            PKG, "JobPGPEncryptFiles.Error.DestinationFolderNotFound", realDestinationFilefoldername ) );
+            PKG, "ActionPGPEncryptFiles.Error.DestinationFolderNotFound", realDestinationFilefoldername ) );
         }
       } else {
         logError( BaseMessages.getString(
-          PKG, "JobPGPEncryptFiles.Error.SourceFileNotExists", realSourceFilefoldername ) );
+          PKG, "ActionPGPEncryptFiles.Error.SourceFileNotExists", realSourceFilefoldername ) );
       }
     } catch ( Exception e ) {
       logError( BaseMessages.getString(
-        PKG, "JobPGPEncryptFiles.Error.Exception.MoveProcess", realSourceFilefoldername.toString(),
+        PKG, "ActionPGPEncryptFiles.Error.Exception.MoveProcess", realSourceFilefoldername.toString(),
         destinationfilefolder.toString(), e.getMessage() ) );
       // Update Errors
       updateErrors();
@@ -734,7 +734,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
         doJob( actionType, sourcefilename, userID, destinationfilename );
         if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileEncrypted", sourcefilename
+          logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileEncrypted", sourcefilename
             .getName().toString(), destinationfilename.getName().toString() ) );
         }
 
@@ -747,13 +747,13 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       } else {
         if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileExists", destinationfilename
+          logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileExists", destinationfilename
             .toString() ) );
         }
         if ( ifFileExists.equals( "overwrite_file" ) ) {
           doJob( actionType, sourcefilename, userID, destinationfilename );
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileOverwrite", destinationfilename
+            logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileOverwrite", destinationfilename
               .getName().toString() ) );
           }
 
@@ -771,7 +771,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           try {
             shortFilename = getMoveDestinationFilename( shortFilename, "ddMMyyyy_HHmmssSSS" );
           } catch ( Exception e ) {
-            logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.GettingFilename", shortFilename ), e );
+            logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.GettingFilename", shortFilename ), e );
             return retval;
           }
 
@@ -782,7 +782,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           doJob( actionType, sourcefilename, userID, destinationfilename );
           if ( isDetailed() ) {
             logDetailed( toString(), BaseMessages.getString(
-              PKG, "JobPGPEncryptFiles.Log.FileEncrypted", sourcefilename.getName().toString(), destinationfile
+              PKG, "ActionPGPEncryptFiles.Log.FileEncrypted", sourcefilename.getName().toString(), destinationfile
                 .getName().toString() ) );
           }
 
@@ -795,7 +795,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         } else if ( ifFileExists.equals( "delete_file" ) ) {
           destinationfilename.delete();
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileDeleted", destinationfilename
+            logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileDeleted", destinationfilename
               .getName().toString() ) );
           }
         } else if ( ifFileExists.equals( "move_file" ) ) {
@@ -804,7 +804,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           try {
             shortFilename = getMoveDestinationFilename( shortFilename, null );
           } catch ( Exception e ) {
-            logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.GettingFilename", shortFilename ), e );
+            logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.GettingFilename", shortFilename ), e );
             return retval;
           }
 
@@ -813,7 +813,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           if ( !destinationfile.exists() ) {
             sourcefilename.moveTo( destinationfile );
             if ( isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileEncrypted", sourcefilename
+              logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileEncrypted", sourcefilename
                 .getName().toString(), destinationfile.getName().toString() ) );
             }
 
@@ -826,7 +826,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             if ( ifMovedFileExists.equals( "overwrite_file" ) ) {
               sourcefilename.moveTo( destinationfile );
               if ( isDetailed() ) {
-                logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileOverwrite", destinationfile
+                logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileOverwrite", destinationfile
                   .getName().toString() ) );
               }
 
@@ -849,7 +849,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               sourcefilename.moveTo( destinationfile );
               if ( isDetailed() ) {
-                logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileEncrypted", destinationfile
+                logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileEncrypted", destinationfile
                   .getName().toString() ) );
               }
 
@@ -873,7 +873,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       }
     } catch ( Exception e ) {
       updateErrors();
-      logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.Exception.MoveProcessError", sourcefilename
+      logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.Exception.MoveProcessError", sourcefilename
         .toString(), destinationfilename.toString(), e.getMessage() ) );
     } finally {
       if ( destinationfile != null ) {
@@ -902,7 +902,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         try {
           shortfilename = getDestinationFilename( sourceshortfilename );
         } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.GettingFilename", Currentfile
+          logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.GettingFilename", Currentfile
             .getName().getBaseName(), e.toString() ) );
           return entrystatus;
         }
@@ -958,7 +958,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       entrystatus = true;
 
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error", e.toString() ) );
+      logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.Error", e.toString() ) );
     } finally {
       if ( filename != null ) {
         try {
@@ -1002,11 +1002,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       if ( isDebug() ) {
         logDebug( " ------ " );
-        logDebug( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileAddedToResultFilesName", fileaddentry ) );
+        logDebug( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FileAddedToResultFilesName", fileaddentry ) );
       }
 
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.AddingToFilenameResult" ), fileaddentry
+      logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Error.AddingToFilenameResult" ), fileaddentry
         + "" + e.getMessage() );
     }
   }
@@ -1023,23 +1023,23 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       if ( !folder.exists() ) {
         if ( createDestinationFolder ) {
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FolderNotExist", folder
+            logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FolderNotExist", folder
               .getName().toString() ) );
           }
           folder.createFolder();
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FolderWasCreated", folder
+            logDetailed( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FolderWasCreated", folder
               .getName().toString() ) );
           }
         } else {
-          logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FolderNotExist", folder
+          logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.FolderNotExist", folder
             .getName().toString() ) );
           return false;
         }
       }
       return true;
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.CanNotCreateParentFolder", folder
+      logError( BaseMessages.getString( PKG, "ActionPGPEncryptFiles.Log.CanNotCreateParentFolder", folder
         .getName().toString() ), e );
 
     } finally {
@@ -1352,7 +1352,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     }
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

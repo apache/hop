@@ -42,7 +42,7 @@ import java.util.List;
     name = "i18n::ActionStart.Name",
     description = "i18n::ActionStart.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/start.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/start.html")
 public class ActionStart extends ActionBase implements Cloneable, IAction {
 
   /** Action unique identifier" */
@@ -92,19 +92,19 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
-      super.loadXml(entrynode);
-      repeat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "repeat"));
+      super.loadXml(actionNode);
+      repeat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, "repeat"));
       setSchedulerType(
-          Const.toInt(XmlHandler.getTagValue(entrynode, "schedulerType"), NOSCHEDULING));
-      setIntervalSeconds(Const.toInt(XmlHandler.getTagValue(entrynode, "intervalSeconds"), 0));
-      setIntervalMinutes(Const.toInt(XmlHandler.getTagValue(entrynode, "intervalMinutes"), 0));
-      setHour(Const.toInt(XmlHandler.getTagValue(entrynode, "hour"), 0));
-      setMinutes(Const.toInt(XmlHandler.getTagValue(entrynode, "minutes"), 0));
-      setWeekDay(Const.toInt(XmlHandler.getTagValue(entrynode, "weekDay"), 0));
-      setDayOfMonth(Const.toInt(XmlHandler.getTagValue(entrynode, "dayOfMonth"), 0));
+          Const.toInt(XmlHandler.getTagValue(actionNode, "schedulerType"), NOSCHEDULING));
+      setIntervalSeconds(Const.toInt(XmlHandler.getTagValue(actionNode, "intervalSeconds"), 0));
+      setIntervalMinutes(Const.toInt(XmlHandler.getTagValue(actionNode, "intervalMinutes"), 0));
+      setHour(Const.toInt(XmlHandler.getTagValue(actionNode, "hour"), 0));
+      setMinutes(Const.toInt(XmlHandler.getTagValue(actionNode, "minutes"), 0));
+      setWeekDay(Const.toInt(XmlHandler.getTagValue(actionNode, "weekDay"), 0));
+      setDayOfMonth(Const.toInt(XmlHandler.getTagValue(actionNode, "dayOfMonth"), 0));
     } catch (HopException e) {
       throw new HopXmlException("Unable to load action of type 'special' from XML node", e);
     }
@@ -113,33 +113,29 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   public Result execute(Result previousResult, int nr) throws HopWorkflowException {
     Result result = previousResult;
 
-    if (isStart()) {
-      try {
-        long sleepTime = getNextExecutionTime();
-        if (sleepTime > 0) {
-          parentWorkflow
-              .getLogChannel()
-              .logBasic(
-                  parentWorkflow.getWorkflowName(),
-                  "Sleeping: "
-                      + (sleepTime / 1000 / 60)
-                      + " minutes (sleep time="
-                      + sleepTime
-                      + ")");
-          long totalSleep = 0L;
-          while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
-            Thread.sleep(1000L);
-            totalSleep += 1000L;
-          }
+    try {
+      long sleepTime = getNextExecutionTime();
+      if (sleepTime > 0) {
+        parentWorkflow
+            .getLogChannel()
+            .logBasic(
+                parentWorkflow.getWorkflowName(),
+                "Sleeping: "
+                    + (sleepTime / 1000 / 60)
+                    + " minutes (sleep time="
+                    + sleepTime
+                    + ")");
+        long totalSleep = 0L;
+        while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
+          Thread.sleep(1000L);
+          totalSleep += 1000L;
         }
-      } catch (InterruptedException e) {
-        throw new HopWorkflowException(e);
       }
-      result = previousResult;
-      result.setResult(true);
-    } else if (isDummy()) {
-      result = previousResult;
+    } catch (InterruptedException e) {
+      throw new HopWorkflowException(e);
     }
+    result = previousResult;
+    result.setResult(true);
     return result;
   }
 

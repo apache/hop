@@ -48,7 +48,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Delay",
     description = "i18n::BaseTransform.TypeTooltipDesc.Delay",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delay.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/delay.html")
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
   private static final Class<?> PKG = DelayMeta.class; // For Translator
 
@@ -57,7 +57,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
   public static String DEFAULT_SCALE_TIME = "seconds";
 
   // before 3.1.1 it was "millisecond","second","minute","hour"-->
-  // keep compatibility see PDI-1850, PDI-1532
+  // keep compatibility
   public String[] ScaleTimeCode = {"milliseconds", "seconds", "minutes", "hours"};
 
   public DelayMeta() {
@@ -130,9 +130,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
       scaletime = XmlHandler.getTagValue(transformNode, "scaletime");
       // set all unknown values to seconds
       setScaleTimeCode(
-          getScaleTimeCode()); // compatibility reasons for pipelines before 3.1.1, see PDI-1850,
-      // PDI-1532
-
+          getScaleTimeCode()); // compatibility reasons for pipelines
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "DelayMeta.Exception.UnableToReadTransformMeta"), e);

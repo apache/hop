@@ -58,7 +58,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.LoadFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.LoadFileInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/loadfileinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/loadfileinput.html")
 public class LoadFileInputMeta extends BaseTransformMeta
     implements ITransformMeta<LoadFileInput, LoadFileInputData> {
   private static final String INCLUDE = "include";

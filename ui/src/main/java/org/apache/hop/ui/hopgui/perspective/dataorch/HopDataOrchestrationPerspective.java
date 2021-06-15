@@ -29,8 +29,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -49,6 +52,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -66,13 +70,14 @@ import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
   id = "100-HopDataOrchestrationPerspective",
-  name = "Data Orchestration",
+  name = "i18n::DataOrchestrationPerspective.Name",
   image = "ui/images/data_orch.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
-@GuiPlugin (description="Hop Data Orchestration Perspective GUI" )
+@GuiPlugin (description="i18n::DataOrchestrationPerspective.GuiPlugin.Description" )
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
+  private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
@@ -107,13 +112,16 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return "data-orch";
   }
 
+  @GuiKeyboardShortcut( control = true, shift = true, key = 'd')
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'd')
   @Override public void activate() {
 	  hopGui.setActivePerspective(this);
   }
 
   @Override
   public void perspectiveActivated() {
-      HopGui.getInstance().handleFileCapabilities(getActiveFileTypeHandler().getFileType(), false, false);
+    IHopFileTypeHandler handler = getActiveFileTypeHandler();
+    HopGui.getInstance().handleFileCapabilities( handler.getFileType(), handler.hasChanged(), false, false);
   }
 	
   @Override public boolean isActive() {
@@ -168,7 +176,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Create menu item
     MenuItem miClose = new MenuItem(menu, SWT.NONE);
-    miClose.setText("Close");
+    miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
     miClose.addListener( SWT.Selection, (event) -> {    	
       if ( activeItem!=null ) {    	  
     	  activeItem.getTypeHandler().close();
@@ -176,7 +184,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
             
     MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
-    miCloseOthers.setText("Close Others");
+    miCloseOthers.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
     miCloseOthers.addListener( SWT.Selection, (event) -> {
     	TabItemHandler currentItem = activeItem; 
      	items.forEach((item) -> {
@@ -189,7 +197,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
         
     MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
-    miCloseAll.setText("Close All");
+    miCloseAll.setText( BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
     miCloseAll.addListener( SWT.Selection, (event) -> {    	   
     	items.forEach((item) -> {
 			// FIXME: Works only if you activate the item
@@ -201,6 +209,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     // Support reorder tab item
     new TabFolderReorder( tabFolder );
 
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle( this );
   }
 
   private void handleTabMenuDetectEvent( Event event ) {  
@@ -311,7 +320,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       // If all tab are closed
       //
       if ( tabFolder.getItemCount()==0 ) {    	  
-    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false );
+    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false, false );
       }
     }
   }
@@ -377,6 +386,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     } catch ( Exception e ) {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new pipeline tab", e );
     }
+
+    pipelineGraph.adjustScrolling();
 
     pipelineGraph.setFocus();
 

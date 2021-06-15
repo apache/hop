@@ -77,26 +77,26 @@ public class ValueMetaTest {
     val1.setStringEncoding( "UTF8" );
 
     // No truncating or padding!!!
-    byte[] b1 = val1.getBinary( "PDI123" );
-    assertTrue( byteCompare( b1, new byte[] { 'P', 'D', 'I', '1', '2', '3' } ) );
+    byte[] b1 = val1.getBinary( "HOP123" );
+    assertTrue( byteCompare( b1, new byte[] { 'H', 'O', 'P', '1', '2', '3' } ) );
 
-    byte[] b2 = val1.getBinary( "PDI" );
-    assertTrue( byteCompare( b2, new byte[] { 'P', 'D', 'I' } ) );
+    byte[] b2 = val1.getBinary( "HOP" );
+    assertTrue( byteCompare( b2, new byte[] { 'H', 'O', 'P' } ) );
 
-    byte[] b3 = val1.getBinary( "PDI123456" );
-    assertTrue( byteCompare( b3, new byte[] { 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
+    byte[] b3 = val1.getBinary( "HOP123456" );
+    assertTrue( byteCompare( b3, new byte[] { 'H', 'O', 'P', '1', '2', '3', '4', '5', '6' } ) );
 
     ValueMetaString val2 = new ValueMetaString( "STR2" );
     val2.setLength( 1 );
 
-    byte[] b4 = val2.getBinary( "PDI123" );
-    assertTrue( byteCompare( b4, new byte[] { 'P', 'D', 'I', '1', '2', '3' } ) );
+    byte[] b4 = val2.getBinary( "HOP123" );
+    assertTrue( byteCompare( b4, new byte[] { 'H', 'O', 'P', '1', '2', '3' } ) );
 
-    byte[] b5 = val2.getBinary( "PDI" );
-    assertTrue( byteCompare( b5, new byte[] { 'P', 'D', 'I' } ) );
+    byte[] b5 = val2.getBinary( "HOP" );
+    assertTrue( byteCompare( b5, new byte[] { 'H', 'O', 'P' } ) );
 
-    byte[] b6 = val2.getBinary( "PDI123456" );
-    assertTrue( byteCompare( b6, new byte[] { 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
+    byte[] b6 = val2.getBinary( "HOP123456" );
+    assertTrue( byteCompare( b6, new byte[] { 'H', 'O', 'P', '1', '2', '3', '4', '5', '6' } ) );
   }
 
   @Test
@@ -111,14 +111,14 @@ public class ValueMetaTest {
     val2.setLength( 6 );
     val2.setStringEncoding( "UTF8" );
 
-    String str1 = val2.getString( val1.getBinary( "PDI123" ) );
-    assertTrue( "PDI123".equals( str1 ) );
+    String str1 = val2.getString( val1.getBinary( "Apache Hop 123" ) );
+    assertTrue( "Apache Hop 123".equals( str1 ) );
 
-    String str2 = val2.getString( val1.getBinary( "PDI" ) );
-    assertTrue( "PDI".equals( str2 ) );
+    String str2 = val2.getString( val1.getBinary( "Apache Hop" ) );
+    assertTrue( "Apache Hop".equals( str2 ) );
 
-    String str3 = val2.getString( val1.getBinary( "PDI123456" ) );
-    assertTrue( "PDI123456".equals( str3 ) );
+    String str3 = val2.getString( val1.getBinary( "ApacheHop123456" ) );
+    assertTrue( "ApacheHop123456".equals( str3 ) );
   }
 
   @Test

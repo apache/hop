@@ -47,15 +47,15 @@ public class LabelTextVar extends Composite {
   }
 
   public LabelTextVar( IVariables variables, Composite composite, String labelText, String toolTipText, boolean passwordField ) {
-    this( variables, composite, SWT.NONE, labelText, toolTipText, passwordField );
+    this( variables, composite, SWT.NONE, labelText, toolTipText, passwordField, true );
   }
 
   public LabelTextVar( IVariables variables, Composite composite, int flags, String labelText, String toolTipText ) {
-    this( variables, composite, flags, labelText, toolTipText, false );
+    this( variables, composite, flags, labelText, toolTipText, false, true );
   }
 
   public LabelTextVar( IVariables variables, Composite composite, int flags, String labelText, String toolTipText,
-                       boolean passwordField ) {
+                       boolean passwordField, boolean rightAligned ) {
     super( composite, SWT.NONE );
     props.setLook( this );
 
@@ -81,7 +81,11 @@ public class LabelTextVar extends Composite {
       wText = new TextVar( variables, this, textFlags, toolTipText );
     }
     FormData fdText = new FormData();
-    fdText.left = new FormAttachment( middle, margin );
+    if (rightAligned) {
+      fdText.left = new FormAttachment(middle, margin);
+    } else {
+      fdText.left = new FormAttachment(middle, 0);
+    }
     fdText.right = new FormAttachment( 100, 0 );
     wText.setLayoutData( fdText );
     wText.getTextWidget().setToolTipText( toolTipText );
@@ -90,8 +94,12 @@ public class LabelTextVar extends Composite {
     props.setLook( wLabel );
     wLabel.setText( labelText );
     FormData fdLabel = new FormData();
-    fdLabel.left = new FormAttachment( 0, 0 );
-    fdLabel.right = new FormAttachment( middle, 0 );
+    fdLabel.left = new FormAttachment(0, 0);
+    if (rightAligned) {
+      fdLabel.right = new FormAttachment(middle, 0);
+    } else {
+      fdLabel.right = new FormAttachment(middle, -margin);
+    }
     fdLabel.top = new FormAttachment( wText, 0, SWT.CENTER );
     wLabel.setLayoutData( fdLabel );
     wLabel.setToolTipText( toolTipText );

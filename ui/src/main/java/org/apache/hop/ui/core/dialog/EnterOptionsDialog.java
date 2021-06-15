@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,15 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
-import org.apache.hop.core.gui.plugin.GuiPluginType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -71,6 +72,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -121,6 +123,8 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button wOriginalLook;
 
+  private Button wDarkMode;
+
   private Button wShowCanvasGrid;
 
   private Button wUseCache;
@@ -150,21 +154,27 @@ public class EnterOptionsDialog extends Dialog {
   private Button wHelpTip;
 
   private Button wbUseDoubleClick;
-  
+
   private Button wbUseGlobalFileBookmarks;
 
   private Button wAutoCollapse;
 
-  /** @deprecated Use CT without <i>props</i> parameter instead */
-  @Deprecated
-  public EnterOptionsDialog(Shell parent, PropsUi props) {
-    super(parent, SWT.NONE);
-    this.props = props;
+  private class PluginWidgetContents {
+    public GuiCompositeWidgets compositeWidgets;
+    public Object sourceData;
+
+    public PluginWidgetContents(GuiCompositeWidgets compositeWidgets, Object sourceData) {
+      this.compositeWidgets = compositeWidgets;
+      this.sourceData = sourceData;
+    }
   }
+
+  private List<PluginWidgetContents> pluginWidgetContentsList;
 
   public EnterOptionsDialog(Shell parent) {
     super(parent, SWT.NONE);
     props = PropsUi.getInstance();
+    pluginWidgetContentsList = new ArrayList<>();
   }
 
   public Props open() {
@@ -214,42 +224,13 @@ public class EnterOptionsDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    Listener lsCancel = e -> cancel();
-    Listener lsOk = e -> ok();
-
-    wOk.addListener(SWT.Selection, lsOk);
-    wCancel.addListener(SWT.Selection, lsCancel);
-
-    SelectionAdapter lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wIconSize.addSelectionListener(lsDef);
-    wLineWidth.addSelectionListener(lsDef);
-    wMiddlePct.addSelectionListener(lsDef);
-    wDefaultPreview.addSelectionListener(lsDef);
-    wGridSize.addSelectionListener(lsDef);
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wTabFolder.setSelection(0);
 
-    BaseTransformDialog.setSize(shell);
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
     return props;
   }
 
@@ -806,6 +787,24 @@ public class EnterOptionsDialog extends Dialog {
     fdOriginalLook.right = new FormAttachment(100, 0);
     wOriginalLook.setLayoutData(fdOriginalLook);
 
+    // Show original look
+    Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
+    wlDarkMode.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.DarkMode.Label"));
+    props.setLook(wlDarkMode);
+    FormData fdlDarkMode = new FormData();
+    fdlDarkMode.left = new FormAttachment(0, 0);
+    fdlDarkMode.top = new FormAttachment(wlOriginalLook, 2 * margin);
+    fdlDarkMode.right = new FormAttachment(middle, -margin);
+    wlDarkMode.setLayoutData(fdlDarkMode);
+    wDarkMode = new Button(wLookComp, SWT.CHECK);
+    wDarkMode.setSelection(props.isDarkMode());
+    props.setLook(wDarkMode);
+    FormData fdDarkMode = new FormData();
+    fdDarkMode.left = new FormAttachment(middle, 0);
+    fdDarkMode.top = new FormAttachment(wlDarkMode, 0, SWT.CENTER);
+    fdDarkMode.right = new FormAttachment(100, 0);
+    wDarkMode.setLayoutData(fdDarkMode);
+
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
     wlDefaultLocale.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.DefaultLocale.Label"));
@@ -813,7 +812,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlDefaultLocale = new FormData();
     fdlDefaultLocale.left = new FormAttachment(0, 0);
     fdlDefaultLocale.right = new FormAttachment(middle, -margin);
-    fdlDefaultLocale.top = new FormAttachment(wOriginalLook, margin);
+    fdlDefaultLocale.top = new FormAttachment(wlDarkMode, 2 * margin);
     wlDefaultLocale.setLayoutData(fdlDefaultLocale);
     wDefaultLocale = new Combo(wLookComp, SWT.SINGLE | SWT.READ_ONLY | SWT.LEFT | SWT.BORDER);
     wDefaultLocale.setItems(GlobalMessages.localeDescr);
@@ -1157,7 +1156,7 @@ public class EnterOptionsDialog extends Dialog {
     // Use global file bookmarks?
     Label wlUseGlobalFileBookmarks = new Label(wGeneralComp, SWT.RIGHT);
     wlUseGlobalFileBookmarks.setText(
-      BaseMessages.getString(PKG, "EnterOptionsDialog.UseGlobalFileBookmarks.Label"));
+        BaseMessages.getString(PKG, "EnterOptionsDialog.UseGlobalFileBookmarks.Label"));
     props.setLook(wlUseGlobalFileBookmarks);
     FormData fdlUseGlobalFileBookmarks = new FormData();
     fdlUseGlobalFileBookmarks.left = new FormAttachment(0, 0);
@@ -1209,24 +1208,24 @@ public class EnterOptionsDialog extends Dialog {
 
     List<IPlugin> configPlugins = pluginRegistry.getPlugins(ConfigPluginType.class);
     for (IPlugin configPlugin : configPlugins) {
-      String guiPluginId = configPlugin.getName(); // Mapped like that in ConfigPluginType
-      if (StringUtils.isEmpty(guiPluginId)) {
-        continue;
-      }
-      IPlugin guiPlugin = pluginRegistry.findPluginWithId(GuiPluginType.class, guiPluginId);
-      if (guiPlugin != null) {
-        // Load the instance
-        //
-        try {
-          Object emptySourceData = pluginRegistry.loadClass(guiPlugin);
+      try {
+        Object emptySourceData = pluginRegistry.loadClass(configPlugin);
+        GuiPlugin annotation = emptySourceData.getClass().getAnnotation(GuiPlugin.class);
+        if (annotation != null) {
+
+          // Load the instance
+          //
           Method method = emptySourceData.getClass().getMethod("getInstance");
-          Object sourceData = method.invoke(null, null);
+          Object sourceData = method.invoke(null, (Object[]) null);
 
           // This config plugin is also a GUI plugin
           // Add a tab
           //
           CTabItem wPluginTab = new CTabItem(wTabFolder, SWT.NONE);
-          wPluginTab.setText(Const.NVL(guiPlugin.getDescription(), ""));
+          wPluginTab.setText(
+              Const.NVL(
+                  TranslateUtil.translate(annotation.description(), emptySourceData.getClass()),
+                  ""));
 
           ScrolledComposite sOtherComp =
               new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -1238,8 +1237,10 @@ public class EnterOptionsDialog extends Dialog {
 
           GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(hopGui.getVariables(), 20);
           compositeWidgets.createCompositeWidgets(
-              sourceData, null, wPluginsComp, guiPlugin.getIds()[0], null);
-          compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, guiPlugin.getIds()[0]);
+              sourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
+          compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
+
+          pluginWidgetContentsList.add(new PluginWidgetContents(compositeWidgets, sourceData));
 
           wPluginsComp.pack();
 
@@ -1252,21 +1253,22 @@ public class EnterOptionsDialog extends Dialog {
           sOtherComp.setMinHeight(bounds.height);
 
           wPluginTab.setControl(sOtherComp);
-
-        } catch (Exception e) {
-          new ErrorDialog(
-              shell,
-              "Error",
-              "Error handling configuration options for GUI plugin " + guiPluginId,
-              e);
         }
+
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            "Error",
+            "Error handling configuration options for config / GUI plugin "
+                + configPlugin.getIds()[0],
+            e);
       }
+
+      // ///////////////////////////////////////////////////////////
+      // / END OF PLUGINS TAB
+      // ///////////////////////////////////////////////////////////
+
     }
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF PLUGINS TAB
-    // ///////////////////////////////////////////////////////////
-
   }
 
   /**
@@ -1380,11 +1382,12 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setOSLookShown(wOriginalLook.getSelection());
+    props.setDarkMode(wDarkMode.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
     props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
-    props.setUseGlobalFileBookmarks( wbUseGlobalFileBookmarks.getSelection() );
+    props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {
@@ -1395,6 +1398,15 @@ public class EnterOptionsDialog extends Dialog {
 
     String defaultLocale = GlobalMessages.localeCodes[defaultLocaleIndex];
     LanguageChoice.getInstance().setDefaultLocale(EnvUtil.createLocale(defaultLocale));
+
+    // Persist the plugin configuration options as well...
+    //
+    for (PluginWidgetContents contents : pluginWidgetContentsList) {
+      if (contents.sourceData instanceof IGuiPluginCompositeWidgetsListener) {
+        ((IGuiPluginCompositeWidgetsListener) contents.sourceData)
+            .persistContents(contents.compositeWidgets);
+      }
+    }
 
     if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_WARNING_PARAMETER, "Y"))) {
       MessageDialogWithToggle md =

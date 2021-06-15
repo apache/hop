@@ -136,7 +136,7 @@ public class HopServerSingleton {
 
                     // pipelineMap.deallocateServerSocketPorts(entry);
 
-                    log.logMinimal( "Cleaned up pipeline "
+                    log.logBasic( "Cleaned up pipeline "
                       + entry.getName() + " with id " + entry.getId() + " from " + pipeline.getExecutionStartDate()
                       + ", diff=" + diffInMinutes );
                   }
@@ -163,7 +163,7 @@ public class HopServerSingleton {
 
                     workflowMap.removeWorkflow( entry );
 
-                    log.logMinimal( "Cleaned up workflow "
+                    log.logBasic( "Cleaned up workflow "
                       + entry.getName() + " with id " + entry.getId() + " from " + workflow.getExecutionStartDate() );
                   }
                 }

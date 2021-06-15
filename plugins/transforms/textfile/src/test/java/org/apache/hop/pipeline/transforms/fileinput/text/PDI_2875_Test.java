@@ -35,9 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test case for PDI-2875
- *
+/***
  * @author Pavel Sakun
  */
 public class PDI_2875_Test {

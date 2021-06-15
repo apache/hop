@@ -1,0 +1,24 @@
+{
+  "base_filename": "cypher-housenr-returns.csv",
+  "name": "cypher-houesnr-returns",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "housenr"
+    }
+  ],
+  "folder_name": ""
+}

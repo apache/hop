@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ProjectMetadata]]
+:imagesdir: ../../../assets/images
+:page-pagination:
+:openvar: ${
+:closevar: }
+
+= Project Metadata
+
+A project's metadata typically contains a number of database connections (relational or NoSQL), logging configurations and so on. This metadata is stored on a project level and is available through the metadata perspective.
+
+The way metadata typically is handled is:
+
+* metadata objects (connections, logging, ...) are defined on a project level. E.g. a `CRM` database connection is created in the project, using a number of variables for hostname (`{openvar}CRM_HOST{closevar}`) and database name (`{openvar}CRM_DBNAME{closevar}`), with corresponding variables for the port, username, password and so on.
+* the metadata object _configuration_ is defined on an environment level, where a number of variable _values_ are created the contain the ip address for `{openvar}CRM_HOST{closevar}` etc.
+
+A project's metadata is stored in `{openvar}PROJECT_HOME{closevar}/metadata`, but can be overruled by setting the project's `metadata base folder {openvar}HOP_METADATA_FOLDER{closevar}` property in the project configuration dialog or directly in the `project-config.json` file.
+
+A basic project metadata folder will look similar to the one below:
+
+[source,bash]
+---
+.
+├── cassandra-connection
+├── dataset
+├── file-definition
+├── git
+├── mongodb-connection
+├── neo4j-connection
+├── neo4j-graph-model
+├── partition
+├── pipeline-log
+├── pipeline-probe
+├── pipeline-run-configuration
+│   ├── local.json
+│   └── Spark.json
+├── rdbms
+│   └── crm.json
+├── server
+├── splunk
+├── unit-test
+├── web-service
+├── workflow-log
+└── workflow-run-configuration
+    └── local.json
+18 directories, 4 files
+---

@@ -17,8 +17,8 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.FunctorException;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.FunctorException;
 import org.apache.hop.core.exception.HopException;
 import org.w3c.dom.Node;
 

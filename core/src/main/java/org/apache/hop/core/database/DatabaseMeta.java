@@ -64,7 +64,9 @@ import java.util.concurrent.Future;
     key = "rdbms",
     name = "Relational Database Connection",
     description = "This contains all the metadata needed to connect to a relational database",
-    image = "ui/images/database.svg")
+    image = "ui/images/database.svg",
+    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html"
+)
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class; // For Translator
 
@@ -176,7 +178,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** Set default values for an Generic database. */
   public void setDefault() {
-    setValues("", "GENERIC", "Native", "", "", "", "", "");
+    setValues("", "NONE", "Native", "", "", "", "", "");
   }
 
   /** Add a list of common options for some databases. */
@@ -1075,7 +1077,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
 
     if ((((BaseDatabaseMeta) getIDatabase()).requiresName()
-        && !(getIDatabase() instanceof GenericDatabaseMeta))) {
+        && !(getIDatabase().getPluginId() == "GENERIC"))) {
       if (getDatabaseName() == null || getDatabaseName().length() == 0) {
         remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
       }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,8 @@ public class SimpleResourceNaming implements IResourceNaming {
 
   /**
    * The fileSystemPrefix would be appropriate for something like:
-   * <p>
-   * zip://somefile.zip! or somefilesystem://export/folder/
+   *
+   * <p>zip://somefile.zip! or somefilesystem://export/folder/
    */
   private String fileSystemPrefix;
 
@@ -47,37 +47,40 @@ public class SimpleResourceNaming implements IResourceNaming {
     parameterNr = 0;
   }
 
-  public SimpleResourceNaming( String fileSystemPrefix ) {
+  public SimpleResourceNaming(String fileSystemPrefix) {
     super();
     this.fileSystemPrefix = fileSystemPrefix;
   }
 
-  public String nameResource( FileObject fileObject, IVariables variables, boolean includeFileName ) throws FileSystemException {
-    if ( includeFileName ) {
-      return handleDataFile( fileObject.getName().getBaseName(), fileObject.getParent().getURL().toString(), "" );
+  public String nameResource(FileObject fileObject, IVariables variables, boolean includeFileName)
+      throws FileSystemException {
+    if (includeFileName) {
+      return handleDataFile(
+          fileObject.getName().getBaseName(), fileObject.getParent().getURL().toString(), "");
     } else {
-      return handleDataFile( "", fileObject.getURL().toString(), "" );
+      return handleDataFile("", fileObject.getURL().toString(), "");
     }
   }
 
-  public String nameResource( String prefix, String originalFilePath, String extension, FileNamingType namingType ) {
-    switch ( namingType ) {
+  public String nameResource(
+      String prefix, String originalFilePath, String extension, FileNamingType namingType) {
+    switch (namingType) {
       case DATA_FILE:
-        return handleDataFile( prefix, originalFilePath, extension );
+        return handleDataFile(prefix, originalFilePath, extension);
 
       case SHELL_SCRIPT:
-        return handleScript( prefix, originalFilePath, extension );
+        return handleScript(prefix, originalFilePath, extension);
 
       case PIPELINE:
-      case JOB:
-        return handlePipelineOrJob( prefix, originalFilePath, extension );
+      case WORKFLOW:
+        return handlePipelineOrJob(prefix, originalFilePath, extension);
 
       default:
-        throw new AssertionError( "Unknown file naming type: " + namingType );
+        throw new AssertionError("Unknown file naming type: " + namingType);
     }
   }
 
-  private String handlePipelineOrJob( String prefix, String originalFilePath, String extension ) {
+  private String handlePipelineOrJob(String prefix, String originalFilePath, String extension) {
     //
     // End result could look like any of the following:
     //
@@ -97,61 +100,63 @@ public class SimpleResourceNaming implements IResourceNaming {
     assert prefix != null;
     assert extension != null;
 
-    String lookup = ( originalFilePath != null ? originalFilePath : "" ) + "/" + prefix + "." + extension;
-    String rtn = namedResources.get( lookup );
-    if ( rtn == null ) {
+    String lookup =
+        (originalFilePath != null ? originalFilePath : "") + "/" + prefix + "." + extension;
+    String rtn = namedResources.get(lookup);
+    if (rtn == null) {
       // Never generated a name for this... Generate a new file name
       String fixedPath = null;
-      if ( useOriginalPathInTargetName ) {
-        fixedPath = fixPath( originalFilePath );
+      if (useOriginalPathInTargetName) {
+        fixedPath = fixPath(originalFilePath);
       }
 
       rtn =
-        ( fileSystemPrefix != null ? fileSystemPrefix : "" )
-          + ( fixedPath != null ? fixedPath + ( fixedPath.endsWith( "/" ) ? "" : "/" ) : "" )
-          + fixFileName( prefix, extension );
+          (fileSystemPrefix != null ? fileSystemPrefix : "")
+              + (fixedPath != null ? fixedPath + (fixedPath.endsWith("/") ? "" : "/") : "")
+              + fixFileName(prefix, extension);
 
-      String ext = ( extension.charAt( 0 ) == '.' ? extension : "." + extension );
+      String ext = (extension.charAt(0) == '.' ? extension : "." + extension);
 
-      String uniqueId = this.getFileNameUniqueIdentifier( rtn, extension );
-      rtn += ( uniqueId != null ? "_" + uniqueId : "" );
+      String uniqueId = this.getFileNameUniqueIdentifier(rtn, extension);
+      rtn += (uniqueId != null ? "_" + uniqueId : "");
       rtn += ext;
 
-      namedResources.put( lookup, rtn ); // Keep track of already generated object names...
+      namedResources.put(lookup, rtn); // Keep track of already generated object names...
     }
     return rtn;
   }
 
-  private String handleScript( String prefix, String originalFilePath, String extension ) {
+  private String handleScript(String prefix, String originalFilePath, String extension) {
     // TODO Auto-generated method stub
     return null;
   }
 
   /**
-   * We have a data file and we need to create a reference to this (relative/absolute) path name. The cleanest way to do
-   * this is by calculating the absolute filename. Then we put the path to the file in a parameter that we remember.
-   * <p>
-   * FILE_LOCATION_01, FILE_LOCATION_02, etc.
-   * <p>
-   * We keep a unique list of parameters this way.
+   * We have a data file and we need to create a reference to this (relative/absolute) path name.
+   * The cleanest way to do this is by calculating the absolute filename. Then we put the path to
+   * the file in a parameter that we remember.
    *
-   * @param prefix           the name of the file (foo.csv)
+   * <p>FILE_LOCATION_01, FILE_LOCATION_02, etc.
+   *
+   * <p>We keep a unique list of parameters this way.
+   *
+   * @param prefix the name of the file (foo.csv)
    * @param originalFilePath directory in which the file lives (file://path/to/foo/bar/)
-   * @param extension        ignored (null)
+   * @param extension ignored (null)
    * @return the new filename including the created parameter...
    */
-  private String handleDataFile( String prefix, String originalFilePath, String extension ) {
+  private String handleDataFile(String prefix, String originalFilePath, String extension) {
 
     // See if we find the path in the directory map that we have...
     //
-    String parameter = directoryMap.get( originalFilePath );
-    if ( parameter == null ) {
+    String parameter = directoryMap.get(originalFilePath);
+    if (parameter == null) {
 
-      parameter = createNewParameterName( originalFilePath );
+      parameter = createNewParameterName(originalFilePath);
 
       // Add it to the map...
       //
-      directoryMap.put( originalFilePath, parameter );
+      directoryMap.put(originalFilePath, parameter);
     }
 
     return "${" + parameter + "}/" + prefix;
@@ -163,12 +168,12 @@ public class SimpleResourceNaming implements IResourceNaming {
    * @param originalFilePath
    * @return the new parameter name
    */
-  private String createNewParameterName( String originalFilePath ) {
+  private String createNewParameterName(String originalFilePath) {
     parameterNr++;
     return "DATA_PATH_" + parameterNr;
   }
 
-  protected String getFileNameUniqueIdentifier( String filename, String extension ) {
+  protected String getFileNameUniqueIdentifier(String filename, String extension) {
     //
     // This implementation assumes that the file name will be sufficiently
     // unique.
@@ -176,68 +181,72 @@ public class SimpleResourceNaming implements IResourceNaming {
     return null;
   }
 
-  protected String fixPath( String originalPathName ) {
+  protected String fixPath(String originalPathName) {
     // This should convert all of the following into foo\bar or foo/bar
     // D:\foo\bar
     // /foo/bar
     // \\server\share\foo\bar
     //
-    String rtn = originalPathName.substring( getPrefixLength( originalPathName ) );
+    String rtn = originalPathName.substring(getPrefixLength(originalPathName));
     // Now, rtn has either either foo/bar or foo\bar. So, convert the \ to /
     // and return.
-    return rtn.replace( '\\', '/' );
+    return rtn.replace('\\', '/');
   }
 
-  private int getPrefixLength( String fileName ) {
-    if ( fileName.charAt( 1 ) == ':' ) { // Handle D:\foo\bar\
+  private int getPrefixLength(String fileName) {
+    if (fileName.charAt(1) == ':') { // Handle D:\foo\bar\
       return 3;
-    } else if ( fileName.charAt( 0 ) == '\\' && fileName.charAt( 1 ) == '\\' ) { // Handle \\server\sharename\foo\bar
+    } else if (fileName.charAt(0) == '\\'
+        && fileName.charAt(1) == '\\') { // Handle \\server\sharename\foo\bar
       int start = 0;
       int slashesFound = 0;
-      for ( int i = 2; i < fileName.length(); i++ ) {
-        if ( fileName.charAt( i ) == '\\' ) {
+      for (int i = 2; i < fileName.length(); i++) {
+        if (fileName.charAt(i) == '\\') {
           slashesFound++;
         }
-        if ( slashesFound == 2 ) {
+        if (slashesFound == 2) {
           start = i + 1;
           break;
         }
       }
       return start;
-    } else if ( fileName.charAt( 0 ) == '/' ) { // handle /foo/bar
+    } else if (fileName.charAt(0) == '/') { // handle /foo/bar
       return 1;
     }
     return 0;
   }
 
   /**
-   * This method turns a friendly name which could contain all manner of invalid characters for a file name into one
-   * that's more conducive to being a file name.
+   * This method turns a friendly name which could contain all manner of invalid characters for a
+   * file name into one that's more conducive to being a file name.
    *
-   * @param name      The name to fix up.
-   * @param extension the requested extension to see if we don't end up with 2 extensions (export of XML to XML)
+   * @param name The name to fix up.
+   * @param extension the requested extension to see if we don't end up with 2 extensions (export of
+   *     XML to XML)
    * @return
    */
-  protected String fixFileName( String name, String extension ) {
+  protected String fixFileName(String name, String extension) {
     int length = name.length();
-    if ( name.endsWith( "." + extension ) ) {
+    if (name.endsWith("." + extension)) {
       length -= 1 + extension.length();
-    } else if ( name.endsWith( extension ) ) {
+    } else if (name.endsWith(extension)) {
       length -= extension.length();
     }
 
-    StringBuilder buff = new StringBuilder( length );
+    StringBuilder buff = new StringBuilder(length);
     char ch;
-    for ( int i = 0; i < length; i++ ) {
-      ch = name.charAt( i );
-      if ( ch == ' ' ) {
-        buff.append( ch );
+    for (int i = 0; i < length; i++) {
+      ch = name.charAt(i);
+      if (ch == ' ') {
+        buff.append(ch);
       } else {
-        if ( ( ch <= '/' )
-          || ( ch >= ':' && ch <= '?' ) || ( ch >= '[' && ch <= '`' ) || ( ch >= '{' && ch <= '~' ) ) {
-          buff.append( '_' );
+        if ((ch <= '/')
+            || (ch >= ':' && ch <= '?')
+            || (ch >= '[' && ch <= '`')
+            || (ch >= '{' && ch <= '~')) {
+          buff.append('_');
         } else {
-          buff.append( ch );
+          buff.append(ch);
         }
       }
     }
@@ -248,7 +257,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     return this.fileSystemPrefix;
   }
 
-  public void setFileSystemPrefix( String value ) {
+  public void setFileSystemPrefix(String value) {
     this.fileSystemPrefix = value;
   }
 
@@ -256,21 +265,17 @@ public class SimpleResourceNaming implements IResourceNaming {
     return this.useOriginalPathInTargetName;
   }
 
-  public void setUseOriginalPathInTargetName( boolean value ) {
+  public void setUseOriginalPathInTargetName(boolean value) {
     this.useOriginalPathInTargetName = value;
   }
 
-  /**
-   * @return the directoryMap
-   */
+  /** @return the directoryMap */
   public Map<String, String> getDirectoryMap() {
     return directoryMap;
   }
 
-  /**
-   * @param directoryMap the directoryMap to set
-   */
-  public void setDirectoryMap( Map<String, String> directoryMap ) {
+  /** @param directoryMap the directoryMap to set */
+  public void setDirectoryMap(Map<String, String> directoryMap) {
     this.directoryMap = directoryMap;
   }
 }

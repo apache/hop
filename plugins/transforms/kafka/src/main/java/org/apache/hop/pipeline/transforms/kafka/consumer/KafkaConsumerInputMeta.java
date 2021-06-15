@@ -60,7 +60,9 @@ import java.util.stream.IntStream;
     name = "i18n::KafkaConsumer.TypeLongDesc",
     description = "i18n::KafkaConsumer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-    keywords = "kafka,consumer,input")
+    keywords = "kafka,consumer,input",
+    documentationUrl = "http://hop.apache.org/manual/latest/pipeline/transforms/kafkaconsumer.html"
+)
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
@@ -283,7 +285,8 @@ public class KafkaConsumerInputMeta
         rowMeta.addValueMeta(v);
       } catch (Exception e) {
         throw new HopTransformException(
-            BaseMessages.getString(PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field.getOutputName()),
+            BaseMessages.getString(
+                PKG, "KafkaConsumerInputMeta.UnableToCreateValueType", field.getOutputName()),
             e);
       }
     }

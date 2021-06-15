@@ -19,11 +19,17 @@
 #
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_NAME="$1"
+
+echo "The Project Name = ${PROJECT_NAME}"
 
 if [ -z "${HOP_LOCATION}" ]; then
     HOP_LOCATION=/opt/hop
 fi
 
+if [ -z "${SUREFIRE_REPORT}" ]; then
+  SUREFIRE_REPORT="true"
+fi
 
 # Get database parameters
 if [ -z "${POSTGRES_HOST}" ]; then
@@ -46,6 +52,9 @@ if [ -z "${POSTGRES_PASSWORD}" ]; then
     POSTGRES_PASSWORD=hop_password
 fi
 
+if [ -z "${PROJECT_NAME}" ]; then
+    PROJECT_NAME="*"
+fi
 
 #set global variables
 SPACER="==========================================="
@@ -58,26 +67,24 @@ mkdir -p "${TMP_FOLDER}"
 #cleanup Temp
 export TMP_TESTCASES="${TMP_FOLDER}"/testcases.xml
 rm -f "${TMP_TESTCASES}"
-rm -rf "${CURRENT_DIR}"/../surefire-reports
-mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 
-# Set up auditing and conf folders
+# Set up auditing
 # Start with a new blank slate every time
 # This means it's not needed to delete a project
 #
-export HOP_CONFIG_FOLDER="${TMP_FOLDER}"/config
-rm -rf "${HOP_CONFIG_FOLDER}"
-mkdir -p "${HOP_CONFIG_FOLDER}"
 export HOP_AUDIT_FOLDER="${TMP_FOLDER}"/audit
 rm -rf "${HOP_AUDIT_FOLDER}"
 mkdir -p "${HOP_AUDIT_FOLDER}"
 
+# Store current HOP_CONFIG_FOLDER
+TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
+
 #Loop over project folders
-for d in "${CURRENT_DIR}"/../*/ ; do
+for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
     #cleanup project testcases
     rm -f "${TMP_TESTCASES}"
 
-    if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] ; then
+    if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
 
         #set test variables
         start_time=$SECONDS
@@ -96,18 +103,20 @@ for d in "${CURRENT_DIR}"/../*/ ; do
         test_counter=$((test_counter+1))
 
         # Create New Project
-        $HOP_LOCATION/hop-conf.sh -pc -p ${PROJECT_NAME} -ph "$(readlink -f $d)"
+        export HOP_CONFIG_FOLDER="$d"
 
-        # Find main hwf files 
+        # Find main hwf files in the test sub-folder
+        #
         # TODO: add hpl support when result is returned correctly
-        for f in $d/main*.hwf ; do
+        #
+        find $d -name 'main*.hwf' | sort | while read f ; do
 
             #cleanup temp files
             rm -f /tmp/test_output
             rm -f /tmp/test_output_err
 
             #set file and test name
-            hop_file="$(readlink -f $f)"
+            hop_file="$(realpath $f)"
             test_name=$(basename $f)
             test_name=${test_name//'main_'/}
             test_name=${test_name//'main-'/}
@@ -123,8 +132,8 @@ for d in "${CURRENT_DIR}"/../*/ ; do
 
             #Run Test
             $HOP_LOCATION/hop-run.sh \
-                -j ${PROJECT_NAME} \
                 -r "local" \
+                -e "dev" \
                 -p POSTGRES_HOST=${POSTGRES_HOST} \
                 -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
                 -p POSTGRES_PORT=${POSTGRES_PORT} \
@@ -189,16 +198,22 @@ for d in "${CURRENT_DIR}"/../*/ ; do
         echo "Total duration: $total_duration"
 
         #create final report
-        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        cat ${TMP_TESTCASES} >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        echo "</testsuite>" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+        if [ "${SUREFIRE_REPORT}" == "true" ]
+        then 
 
+          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          cat ${TMP_TESTCASES} >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          echo "</testsuite>" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+
+        fi
     fi
 done
 
 # Cleanup config and audit folders
 #
-rm -rf "${HOP_CONFIG_FOLDER}"
 rm -rf "${HOP_AUDIT_FOLDER}"
 rm -rf "${TMP_FOLDER}"
+
+# Set back to old config folder
+export HOP_CONFIG_FOLDER="${TMP_CONFIG_FOLDER}"

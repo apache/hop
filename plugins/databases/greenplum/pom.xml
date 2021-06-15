@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-databases-greenplum</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
@@ -39,11 +39,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.pivotal</groupId>
-      <artifactId>greenplum-jdbc</artifactId>
-      <version>${greenplum.version}</version>
-    </dependency>
   </dependencies>
 
   <packaging>jar</packaging>
@@ -53,7 +48,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-databases</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -99,11 +94,4 @@
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>pivotal</id>
-      <name>Pivotal Repository</name>
-      <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
-    </repository>
-  </repositories>
 </project>

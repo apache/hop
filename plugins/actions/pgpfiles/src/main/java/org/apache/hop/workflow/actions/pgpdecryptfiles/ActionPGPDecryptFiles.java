@@ -67,7 +67,7 @@ import java.util.regex.Pattern;
   description = "i18n::ActionPGPDecryptFiles.Description",
   image = "PGPDecryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpdecryptfiles.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpdecryptfiles.html"
 )
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPDecryptFiles.class; // For Translator
@@ -496,7 +496,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
-        // PDI will create it
+        // Apache Hop will create it
         if ( createDestinationFolder( destinationfilefolder ) ) {
 
           // Basic Tests
@@ -1268,7 +1268,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return successCondition;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

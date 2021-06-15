@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 public class AboutDialog extends Dialog {
   private static final Class<?> PKG = AboutDialog.class; // For Translator
 
-  private static final String[] PROPERTIES =  new String[] { "os.name","os.version","os.arch", "java.version", "java.vm.vendor", "java.specification.version","java.class.path","file.encoding","HOP_PLATFORM_RUNTIME","HOP_CONFIG_FOLDER"}; 
+  private static final String[] PROPERTIES =  new String[] { "os.name","os.version","os.arch", "java.version", "java.vm.vendor", "java.specification.version","java.class.path","file.encoding", "HOP_CONFIG_FOLDER", Const.HOP_PLATFORM_RUNTIME, Const.HOP_PLUGIN_BASE_FOLDERS, Const.HOP_SHARED_JDBC_FOLDER}; 
 
   private Shell shell;
 

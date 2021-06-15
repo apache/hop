@@ -72,7 +72,7 @@ import java.util.Properties;
     name = "i18n::ScriptValuesMod.Name",
     description = "i18n::ScriptValuesMod.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/javascript.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/javascript.html")
 @InjectionSupported(
     localizationPrefix = "ScriptValuesMod.Injection.",
     groups = {"FIELDS", "SCRIPTS"})

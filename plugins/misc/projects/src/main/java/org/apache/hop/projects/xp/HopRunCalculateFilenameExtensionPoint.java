@@ -35,15 +35,16 @@ public class HopRunCalculateFilenameExtensionPoint implements IExtensionPoint<Ho
   @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopRun hopRun ) throws HopException {
 
     try {
+      Thread.sleep( 10000 );
       FileObject fileObject = HopVfs.getFileObject( hopRun.getRealFilename() );
       if ( !fileObject.exists() ) {
         // Try to prepend with ${PROJECT_HOME}
         //
-        String alternativeFilename = hopRun.getVariables().resolve( "${PROJECT_HOME}/" + hopRun.getFilename() );
+        String alternativeFilename = variables.resolve( "${PROJECT_HOME}/" + hopRun.getFilename() );
         fileObject = HopVfs.getFileObject( alternativeFilename );
         if ( fileObject.exists() ) {
           hopRun.setRealFilename(alternativeFilename);
-          log.logMinimal( "Relative path filename specified: " + hopRun.getRealFilename() );
+          log.logBasic( "Relative path filename specified: " + hopRun.getRealFilename() );
         }
       }
     } catch ( Exception e ) {

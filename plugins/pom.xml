@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins</artifactId>
-  <version>0.70-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins</name>
@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.70-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <profiles>
@@ -43,11 +43,13 @@
         </property>
       </activation>
       <modules>
-        <module>databases</module>
-        <module>transforms</module>
         <module>actions</module>
-        <module>misc</module>
+        <module>databases</module>
         <module>engines</module>
+        <module>misc</module>
+        <module>tech</module>
+        <module>transforms</module>
+        <module>valuetypes</module>
         <module>vfs</module>
       </modules>
     </profile>

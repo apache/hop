@@ -18,7 +18,6 @@
 package org.apache.hop.core.auth;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -29,12 +28,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IAuthenticationConsumerType.class )
 @PluginAnnotationType( AuthenticationConsumerPlugin.class )
-public class AuthenticationConsumerPluginType extends BasePluginType<AuthenticationConsumerPlugin> implements IPluginType<AuthenticationConsumerPlugin> {
+public class AuthenticationConsumerPluginType extends BasePluginType<AuthenticationConsumerPlugin> {
   protected static AuthenticationConsumerPluginType pluginType = new AuthenticationConsumerPluginType();
 
   private AuthenticationConsumerPluginType() {
     super( AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "Authentication Consumer" );
-    populateFolders( "authentication" );
   }
 
   public static AuthenticationConsumerPluginType getInstance() {

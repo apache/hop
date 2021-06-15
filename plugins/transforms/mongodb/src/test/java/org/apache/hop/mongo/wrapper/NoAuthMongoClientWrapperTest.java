@@ -26,7 +26,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.util.JSON;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -138,7 +137,7 @@ public class NoAuthMongoClientWrapperTest {
 
   @Test
   public void testGetLastErrorMode() throws MongoDbException {
-    DBObject config = (DBObject) JSON.parse(REP_SET_CONFIG);
+    DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     DBCollection dbCollection = Mockito.mock(DBCollection.class);
     Mockito.when(dbCollection.findOne()).thenReturn(config);
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
@@ -151,7 +150,7 @@ public class NoAuthMongoClientWrapperTest {
 
   @Test
   public void testGetAllReplicaSetMemberRecords() {
-    DBObject config = (DBObject) JSON.parse(REP_SET_CONFIG);
+    DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
 
     assertTrue(members != null);
@@ -161,7 +160,7 @@ public class NoAuthMongoClientWrapperTest {
 
   @Test
   public void testSetupAllTags() {
-    DBObject config = (DBObject) JSON.parse(REP_SET_CONFIG);
+    DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
 
     List<String> allTags = noAuthMongoClientWrapper.setupAllTags((BasicDBList) members);
@@ -175,7 +174,7 @@ public class NoAuthMongoClientWrapperTest {
 
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
 
-    DBObject tSet = (DBObject) JSON.parse(TAG_SET);
+    DBObject tSet = (DBObject) BasicDBObject.parse(TAG_SET);
     tagSets.add(tSet);
 
     List<String> satisfy = noAuthMongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);
@@ -200,7 +199,7 @@ public class NoAuthMongoClientWrapperTest {
   public void testGetReplicaSetMembersDoesntSatisfyTagSets() throws MongoDbException {
     setupMockedReplSet();
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
-    DBObject tSet = (DBObject) JSON.parse(TAG_SET2);
+    DBObject tSet = (DBObject) BasicDBObject.parse(TAG_SET2);
     tagSets.add(tSet);
     List<String> satisfy = noAuthMongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);
     // no replica set members have the "use : ops" tag in their tag sets
@@ -211,7 +210,7 @@ public class NoAuthMongoClientWrapperTest {
   public void testGetReplicaSetMembersThatSatisfyTagSetsThrowsOnDbError() throws MongoDbException {
     setupMockedReplSet();
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
-    DBObject tSet = (DBObject) JSON.parse(TAG_SET);
+    DBObject tSet = (DBObject) BasicDBObject.parse(TAG_SET);
     tagSets.add(tSet);
     Mockito.doThrow(runtimeException)
         .when(mockMongoClient)
@@ -557,7 +556,7 @@ public class NoAuthMongoClientWrapperTest {
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
     Mockito.when(mockDB.getCollection(NoAuthMongoClientWrapper.REPL_SET_COLLECTION))
         .thenReturn(collection);
-    DBObject config = (DBObject) JSON.parse(REP_SET_CONFIG);
+    DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
     DBObject basicDBObject = new BasicDBObject(NoAuthMongoClientWrapper.REPL_SET_MEMBERS, members);
     Mockito.when(collection.findOne()).thenReturn(basicDBObject);

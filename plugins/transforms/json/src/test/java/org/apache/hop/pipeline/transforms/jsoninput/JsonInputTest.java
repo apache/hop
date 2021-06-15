@@ -430,7 +430,6 @@ public class JsonInputTest {
     Assert.assertEquals( 5, jsonInput.getLinesWritten() );
   }
 
-  // There are tests for PDI-17060 below
   @Test
   public void testDefaultLeafToNullChangedToFalse_NoNullInOutput() throws Exception {
     JsonInputField id = new JsonInputField( "id" );
@@ -601,7 +600,7 @@ public class JsonInputTest {
   }
 
   /**
-   * PDI-10384 Huge numbers causing exception in JSON input transform<br>
+   * Huge numbers causing exception in JSON input transform<br>
    */
   @Test
   public void testLargeDoubles() throws Exception {
@@ -997,9 +996,6 @@ public class JsonInputTest {
     }
   }
 
-  /**
-   * PDI-13859
-   */
   @Test
   public void testBracketEscape() throws Exception {
     String input = "{\"a\":1,\"b(1)\":2}";

@@ -1,0 +1,119 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "id2"
+      ],
+      "transform_name": "Verify Inner",
+      "data_set_name": "golden-merge-join-inner"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "id2"
+      ],
+      "transform_name": "Verify Left Outer",
+      "data_set_name": "golden-merge-join-left-outer"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "id2"
+      ],
+      "transform_name": "Verify Right Outer",
+      "data_set_name": "golden-merge-join-right-outer"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "id2"
+      ],
+      "transform_name": "Verify Full Outer",
+      "data_set_name": "golden-merge-join-full-outer"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0014-merge-join UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0014-merge-join.hpl",
+  "test_type": "UNIT_TEST"
+}

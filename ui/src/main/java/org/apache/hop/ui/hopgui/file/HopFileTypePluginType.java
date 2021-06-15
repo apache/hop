@@ -20,17 +20,14 @@ package org.apache.hop.ui.hopgui.file;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
 @PluginMainClassType( IHopFileType.class )
 @PluginAnnotationType( HopFileTypePlugin.class )
-public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> implements IPluginType<HopFileTypePlugin> {
+public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> {
 
   private HopFileTypePluginType() {
     super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type" );
-
-    pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
 
   private static HopFileTypePluginType pluginType;

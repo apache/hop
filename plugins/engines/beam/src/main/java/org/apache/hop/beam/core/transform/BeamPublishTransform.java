@@ -54,9 +54,6 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
   private static final Logger LOG = LoggerFactory.getLogger( BeamPublishTransform.class );
 
   private transient IRowMeta rowMeta;
-  private transient Counter initCounter;
-  private transient Counter readCounter;
-  private transient Counter outputCounter;
   private transient Counter errorCounter;
   private transient int fieldIndex;
 
@@ -88,9 +85,9 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
 
         rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-        initCounter = Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName );
-        readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
-        outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
+        Counter initCounter = Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName );
+        Counter readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+        Counter outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
         errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
         fieldIndex = rowMeta.indexOfValue( messageField );

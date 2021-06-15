@@ -65,17 +65,6 @@ public @interface GuiToolbarElement {
   String toolTip() default "";
 
   /**
-   * The class name of the i18n package class for the label and tooltip
-   */
-  Class<?> i18nPackageClass() default Void.class;
-
-  /**
-   * The name of the i18n package class for the label and tooltip
-   */
-  String i18nPackage() default "";
-
-
-  /**
    * The image filename of the GUI Element, usually an SVG icon.
    *
    * @return The image for the toolbar icon

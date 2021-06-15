@@ -30,6 +30,11 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
+            <outputDirectory>lib</outputDirectory>
+            <filtered>true</filtered>
+        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -45,14 +50,6 @@
             <includes>
                 <include>org.apache.hop:hop-databases-exasol4:jar</include>
             </includes>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.exasol:exasol-jdbc:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>

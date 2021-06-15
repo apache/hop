@@ -1016,7 +1016,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             putrow = true;
           }
 
-          // Possible fix for bug PDI-1121 - paged layout header and line count off by 1
+          // Possible fix for bug - paged layout header and line count off by 1
           // We need to reset these BEFORE the next header line is read, so that it
           // is treated as a header ... obviously, only if there is no footer, and we are
           // done reading data.

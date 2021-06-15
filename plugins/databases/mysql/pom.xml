@@ -23,7 +23,7 @@
 	<parent>
 		<artifactId>hop-plugins-databases</artifactId>
 		<groupId>org.apache.hop</groupId>
-		<version>0.70-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 

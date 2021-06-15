@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,24 @@
 
 package org.apache.hop.beam.transforms.io;
 
+import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.core.transform.BeamInputTransform;
+import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metadata.FileDefinition;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
@@ -36,91 +44,140 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
+import java.util.List;
+import java.util.Map;
+
 @Transform(
-        id = "BeamInput",
-        name = "Beam Input",
-        description = "Describes a Beam Input",
-        image = "beam-input.svg",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beaminput.html"
-)
-public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<BeamInput, BeamInputData> {
+    id = "BeamInput",
+    name = "Beam Input",
+    description = "Describes a Beam Input",
+    image = "beam-input.svg",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beaminput.html")
+public class BeamInputMeta extends BaseTransformMeta
+    implements ITransformMeta<BeamInput, BeamInputData>, IBeamPipelineTransformHandler {
 
-  public static final String INPUT_LOCATION = "input_location";
-  public static final String FILE_DESCRIPTION_NAME = "file_description_name";
-
+  @HopMetadataProperty(key = "input_location")
   private String inputLocation;
 
+  @HopMetadataProperty(key = "file_description_name")
   private String fileDefinitionName;
 
-  public BeamInputMeta() {
-    super();
+  public BeamInputMeta() {}
+
+  @Override
+  public BeamInput createTransform(
+      TransformMeta transformMeta,
+      BeamInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new BeamInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  @Override public void setDefault() {
-  }
-
-  @Override public BeamInput createTransform( TransformMeta transformMeta, BeamInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new BeamInput( transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override public BeamInputData getTransformData() {
+  @Override
+  public BeamInputData getTransformData() {
     return new BeamInputData();
   }
 
-  @Override public String getDialogClassName() {
+  @Override
+  public String getDialogClassName() {
     return BeamInputDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
-    throws HopTransformException {
+  @Override
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
-    if (metadataProvider!=null) {
-      FileDefinition fileDefinition = loadFileDefinition( metadataProvider );
+    if (metadataProvider != null) {
+      FileDefinition fileDefinition = loadFileDefinition(metadataProvider);
 
       try {
         inputRowMeta.clear();
-        inputRowMeta.addRowMeta( fileDefinition.getRowMeta() );
-      } catch ( HopPluginException e ) {
-        throw new HopTransformException( "Unable to get row layout of file definition '" + fileDefinition.getName() + "'", e );
+        inputRowMeta.addRowMeta(fileDefinition.getRowMeta());
+      } catch (HopPluginException e) {
+        throw new HopTransformException(
+            "Unable to get row layout of file definition '" + fileDefinition.getName() + "'", e);
       }
     }
   }
 
-  public FileDefinition loadFileDefinition( IHopMetadataProvider metadataProvider) throws HopTransformException {
-    if (StringUtils.isEmpty( fileDefinitionName )) {
+  public FileDefinition loadFileDefinition(IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    if (StringUtils.isEmpty(fileDefinitionName)) {
       throw new HopTransformException("No file description name provided");
     }
     FileDefinition fileDefinition;
     try {
-      IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
-      fileDefinition = serializer.load( fileDefinitionName );
-    } catch(Exception e) {
-      throw new HopTransformException( "Unable to load file description '"+ fileDefinitionName +"' from the metadata", e );
+      IHopMetadataSerializer<FileDefinition> serializer =
+          metadataProvider.getSerializer(FileDefinition.class);
+      fileDefinition = serializer.load(fileDefinitionName);
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "Unable to load file description '" + fileDefinitionName + "' from the metadata", e);
     }
-    if (fileDefinition==null) {
-      throw new HopTransformException("Unable to find file definition '"+ fileDefinitionName +"' in the metadata");
+    if (fileDefinition == null) {
+      throw new HopTransformException(
+          "Unable to find file definition '" + fileDefinitionName + "' in the metadata");
     }
 
     return fileDefinition;
   }
 
-  @Override public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer(  );
-
-    xml.append( XmlHandler.addTagValue( INPUT_LOCATION, inputLocation ) );
-    xml.append( XmlHandler.addTagValue( FILE_DESCRIPTION_NAME, fileDefinitionName ) );
-
-    return xml.toString();
+  @Override
+  public boolean isInput() {
+    return true;
   }
 
-  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-
-    inputLocation = XmlHandler.getTagValue( transformNode, INPUT_LOCATION );
-    fileDefinitionName = XmlHandler.getTagValue( transformNode, FILE_DESCRIPTION_NAME );
-
+  @Override
+  public boolean isOutput() {
+    return false;
   }
 
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      org.apache.beam.sdk.Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input)
+      throws HopException {
+    // Input handling
+    //
+    FileDefinition inputFileDefinition = loadFileDefinition(metadataProvider);
+    IRowMeta fileRowMeta = inputFileDefinition.getRowMeta();
+
+    // Apply the PBegin to HopRow transform:
+    //
+    String fileInputLocation = variables.resolve(inputLocation);
+
+    BeamInputTransform beamInputTransform =
+        new BeamInputTransform(
+            transformMeta.getName(),
+            transformMeta.getName(),
+            fileInputLocation,
+            variables.resolve(inputFileDefinition.getSeparator()),
+            JsonRowMeta.toJson(fileRowMeta),
+            transformPluginClasses,
+            xpPluginClasses);
+    PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
+    transformCollectionMap.put(transformMeta.getName(), afterInput);
+    log.logBasic("Handled transform (INPUT) : " + transformMeta.getName());
+  }
 
   /**
    * Gets inputLocation
@@ -131,10 +188,8 @@ public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<B
     return inputLocation;
   }
 
-  /**
-   * @param inputLocation The inputLocation to set
-   */
-  public void setInputLocation( String inputLocation ) {
+  /** @param inputLocation The inputLocation to set */
+  public void setInputLocation(String inputLocation) {
     this.inputLocation = inputLocation;
   }
 
@@ -147,11 +202,8 @@ public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<B
     return fileDefinitionName;
   }
 
-  /**
-   * @param fileDefinitionName The fileDescriptionName to set
-   */
-  public void setFileDefinitionName( String fileDefinitionName ) {
+  /** @param fileDefinitionName The fileDescriptionName to set */
+  public void setFileDefinitionName(String fileDefinitionName) {
     this.fileDefinitionName = fileDefinitionName;
   }
-
 }

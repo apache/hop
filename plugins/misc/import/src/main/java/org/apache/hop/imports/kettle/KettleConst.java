@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,85 +17,132 @@
 
 package org.apache.hop.imports.kettle;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class KettleConst {
 
-    public static final Map<String, String> kettleElementReplacements = Stream.of(new Object[][]{
-            // transformations
-            {"transformation", "pipeline"},
-            {"trans_type", "pipeline_type"},
-            {"trans_version", "pipeline_version"},
-            {"trans_status", "pipeline_status"},
-            {"step", "transform"},
-            {"step_error_handling", "transform_error_handling"},
-            {"capture_step_performance","capture_transform_performance"},
-            {"step_performance_capturing_size_limit", "transform_performance_capturing_size_limit"},
-            {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
-            // jobs
-            {"job", "workflow"},
-            {"job_version", "workflow_version"},
-            {"entries","actions"},
-            {"entry","action"},
-            {"source_step", "source_transform"},
-            {"target_step", "target_transform"}
-    }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
+  public static final Map<String, String> kettleElementReplacements =
+      Stream.of(
+              new Object[][] {
+                // transformations
+                {"transformation", "pipeline"},
+                {"trans_type", "pipeline_type"},
+                {"trans_version", "pipeline_version"},
+                {"trans_status", "pipeline_status"},
+                {"step", "transform"},
+                {"step_error_handling", "transform_error_handling"},
+                {"capture_step_performance", "capture_transform_performance"},
+                {
+                  "step_performance_capturing_size_limit",
+                  "transform_performance_capturing_size_limit"
+                },
+                {"target_step_name", "target_transform_name"},
+                {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
+                // jobs
+                {"job", "workflow"},
+                {"job_version", "workflow_version"},
+                {"entries", "actions"},
+                {"entry", "action"},
+                {"source_step", "source_transform"},
+                {"target_step", "target_transform"},
+                {"step1", "transform1"},
+                {"step2", "transform2"},
+                {"accept_stepname", "accept_transform_name"},
+                {"steps", "transforms"},
+                {"default_target_step", "default_target_transform"},
+                {"input_step", "input_transform"},
+                {"output_step", "output_transform"},
+                // UDJC
+                {"info_steps", "info_transforms"},
+                {"info_step", "info_transform"},
+                {"target_steps", "target_transforms"},
+                {"step_tag", "transform_tag"},
+                {"step_name", "transform_name"},
+                {"step_description", "transform_description"},
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
-    public static final Map<String, String> kettleElementsToRemove = Stream.of(new Object[][]{
-            {"size_rowset", ""},
-            {"sleep_time_empty", ""},
-            {"sleep_time_full",""},
-            {"unique_connections",""},
-            {"feedback_shown",""},
-            {"feedback_size",""},
-            {"using_thread_priorities",""},
-            {"shared_objects_file",""},
-            {"dependencies",""},
-            {"partitionschemas",""},
-            {"slaveservers",""},
-            {"remotesteps",""},
-            {"clusterschemas",""},
-            {"maxdate",""},
-            {"log", ""},
-            {"connection", "pipeline"},
-            {"slave-step-copy-partition-distribution", ""},
-            {"slave_transformation", ""},
-            {"trans_object_id", ""},
-            {"job_object_id", ""},
-            {"specification_method", ""},
-            {"job-log-table", ""},
-            {"jobentry-log-table", ""},
-            {"channel-log-table", ""},
-            {"checkpoint-log-table", ""}
-    }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
+  public static final Map<String, String> kettleElementsToRemove =
+      Stream.of(
+              new Object[][] {
+                {"size_rowset", ""},
+                {"sleep_time_empty", ""},
+                {"sleep_time_full", ""},
+                {"unique_connections", ""},
+                {"feedback_shown", ""},
+                {"feedback_size", ""},
+                {"using_thread_priorities", ""},
+                {"shared_objects_file", ""},
+                {"dependencies", ""},
+                {"partitionschemas", ""},
+                {"slaveservers", ""},
+                {"remotesteps", ""},
+                {"clusterschemas", ""},
+                {"maxdate", ""},
+                {"log", ""},
+                {"connection", "workflow,pipeline"},
+                {"slave-step-copy-partition-distribution", ""},
+                {"slave_transformation", ""},
+                {"trans_object_id", ""},
+                {"job_object_id", ""},
+                {"specification_method", ""},
+                {"job-log-table", ""},
+                {"jobentry-log-table", ""},
+                {"channel-log-table", ""},
+                {"checkpoint-log-table", ""}
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
-    public static final Map<String, String> kettleReplaceContent = Stream.of(new Object[][]{
-            {"JOB", "WORKFLOW"},
-            {"TRANS", "PIPELINE"},
-            {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
-            {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"}
-    }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
+  public static final Map<String, String> kettleReplaceContent =
+      Stream.of(
+              new Object[][] {
+                {"JOB", "WORKFLOW"},
+                {"TRANS", "PIPELINE"},
+                {"PARENT_JOB", "PARENT_WORKFLOW"},
+                {"GP_JOB", "GP_WORKFLOW"},
+                {"ROOT_JOB", "ROOT_WORKFLOW"},
+                {"BlockingStep", "BlockingTransform"},
+                {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
+                {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
+                {"StepMetastructure", "TransformMetaStructure"},
+                {"Pentaho local", "local"},
+                {"JobExecutor", "WorkflowExecutor"},
+                {"execution_result_target_step", "execution_result_target_transform"},
+                {"TransExecutor", "PipelineExecutor"},
+                {"Mapping", "SimpleMapping"},
+                // Text File Input deprecated
+                {"TextFileInput", "TextFileInput2"},
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
-    public static final Map<String, String> kettleReplaceInContent = Stream.of(new Object[][]{
-            {".kjb", ".hwf"},
-            {".ktr", ".hpl"},
-            {"Internal.Job", "Internal.Workflow"},
-            {"Internal.Transformation", "Internal.Pipeline"},
-            {"Filename.Directory", "Filename.Folder"},
-            {"Repository.Directory", "Repository.Folder"},
-            {"Current.Directory", "Current.Folder"}
-    }).collect(Collectors.toMap(data -> (String)data[0], data -> (String)data[1]));
+  public static final Map<String, String> kettleReplaceInContent =
+      Stream.of(
+              new Object[][] {
+                {".kjb", ".hwf"},
+                {".ktr", ".hpl"},
+                {"Internal.Job", "Internal.Workflow"},
+                {"Internal.Transformation", "Internal.Pipeline"},
+                {"Filename.Directory", "Filename.Folder"},
+                {"Repository.Directory", "Repository.Folder"},
+                {"Current.Directory", "Current.Folder"},
+                {"Internal.Job.Filename.Name", "Internal.Workflow.Filename.Name"},
+                {"Internal.Entry.Current.Directory", "Internal.Entry.Current.Folder"},
+                {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"}
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
-    public static final HashMap<String, String> replacements = new HashMap<String, String>();
+  public static final HashMap<String, String> replacements = new HashMap<String, String>();
 
-    public static final List<String> repositoryTypes = Arrays.asList(new String[]{"JOB", "TRANS"});
+  public static final List<String> repositoryTypes = Arrays.asList("JOB", "TRANS");
 
-    public static final List<String> jobTypes = Arrays.asList(new String[]{"JOB"});
+  public static final List<String> jobTypes = Arrays.asList("JOB");
 
-    public static final List<String> transTypes = Arrays.asList(new String[]{"TRANS"});
+  public static final List<String> transTypes = Arrays.asList("TRANS");
 
-    public KettleConst(){
-    }
+  public KettleConst() {}
 }

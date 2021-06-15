@@ -57,7 +57,7 @@ import java.util.Map;
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
     categoryDescription = "i18n::XSDValidator.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xsdvalidator.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
@@ -420,7 +420,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
    * @param definitions
    * @param resourceNamingInterface The repository to optionally load other resources from (to be
    *     converted to XML)
-   * @param metadataProvider the metadataProvider in which non-kettle metadata could reside.
+   * @param metadataProvider the metadataProvider in which non-Hop metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources(

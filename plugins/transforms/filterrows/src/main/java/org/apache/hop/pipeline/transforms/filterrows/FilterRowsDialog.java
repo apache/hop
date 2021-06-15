@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -57,21 +58,20 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
   private Condition backupCondition;
 
-  public FilterRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
-    super( parent, variables, (BaseTransformMeta) in, tr, sname );
+  public FilterRowsDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, tr, sname);
     input = (FilterRowsMeta) in;
 
     condition = (Condition) input.getCondition().clone();
-
   }
 
   public String open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
-    props.setLook( shell );
-    setShellImage( shell, input );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
+    props.setLook(shell);
+    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
@@ -81,166 +81,141 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "FilterRowsDialog.Shell.Title" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // TransformName line
-    wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "FilterRowsDialog.TransformName.Label" ) );
-    props.setLook( wlTransformName );
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "FilterRowsDialog.TransformName.Label"));
+    props.setLook(wlTransformName);
     fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment( middle, -margin );
-    fdlTransformName.top = new FormAttachment( 0, margin );
-    wlTransformName.setLayoutData( fdlTransformName );
-    wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTransformName.setText( transformName );
-    props.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    props.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment( middle, 0 );
-    fdTransformName.top = new FormAttachment( 0, margin );
-    fdTransformName.right = new FormAttachment( 100, 0 );
-    wTransformName.setLayoutData( fdTransformName );
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
 
     // Send 'True' data to...
     Label wlTrueTo = new Label(shell, SWT.RIGHT);
-    wlTrueTo.setText( BaseMessages.getString( PKG, "FilterRowsDialog.SendTrueTo.Label" ) );
+    wlTrueTo.setText(BaseMessages.getString(PKG, "FilterRowsDialog.SendTrueTo.Label"));
     props.setLook(wlTrueTo);
     FormData fdlTrueTo = new FormData();
-    fdlTrueTo.left = new FormAttachment( 0, 0 );
-    fdlTrueTo.right = new FormAttachment( middle, -margin );
-    fdlTrueTo.top = new FormAttachment( wTransformName, margin );
+    fdlTrueTo.left = new FormAttachment(0, 0);
+    fdlTrueTo.right = new FormAttachment(middle, -margin);
+    fdlTrueTo.top = new FormAttachment(wTransformName, margin);
     wlTrueTo.setLayoutData(fdlTrueTo);
-    wTrueTo = new CCombo( shell, SWT.BORDER );
-    props.setLook( wTrueTo );
+    wTrueTo = new CCombo(shell, SWT.BORDER);
+    props.setLook(wTrueTo);
 
-    TransformMeta transforminfo = pipelineMeta.findTransform( transformName );
-    if ( transforminfo != null ) {
-      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
+    TransformMeta transforminfo = pipelineMeta.findTransform(transformName);
+    if (transforminfo != null) {
+      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transforminfo);
       for (TransformMeta transformMeta : nextTransforms) {
         wTrueTo.add(transformMeta.getName());
       }
     }
 
-    wTrueTo.addModifyListener( lsMod );
+    wTrueTo.addModifyListener(lsMod);
     FormData fdTrueTo = new FormData();
-    fdTrueTo.left = new FormAttachment( middle, 0 );
-    fdTrueTo.top = new FormAttachment( wTransformName, margin );
-    fdTrueTo.right = new FormAttachment( 100, 0 );
+    fdTrueTo.left = new FormAttachment(middle, 0);
+    fdTrueTo.top = new FormAttachment(wTransformName, margin);
+    fdTrueTo.right = new FormAttachment(100, 0);
     wTrueTo.setLayoutData(fdTrueTo);
 
     // Send 'False' data to...
     Label wlFalseTo = new Label(shell, SWT.RIGHT);
-    wlFalseTo.setText( BaseMessages.getString( PKG, "FilterRowsDialog.SendFalseTo.Label" ) );
+    wlFalseTo.setText(BaseMessages.getString(PKG, "FilterRowsDialog.SendFalseTo.Label"));
     props.setLook(wlFalseTo);
     FormData fdlFalseTo = new FormData();
-    fdlFalseTo.left = new FormAttachment( 0, 0 );
-    fdlFalseTo.right = new FormAttachment( middle, -margin );
-    fdlFalseTo.top = new FormAttachment( wTrueTo, margin );
+    fdlFalseTo.left = new FormAttachment(0, 0);
+    fdlFalseTo.right = new FormAttachment(middle, -margin);
+    fdlFalseTo.top = new FormAttachment(wTrueTo, margin);
     wlFalseTo.setLayoutData(fdlFalseTo);
-    wFalseTo = new CCombo( shell, SWT.BORDER );
-    props.setLook( wFalseTo );
+    wFalseTo = new CCombo(shell, SWT.BORDER);
+    props.setLook(wFalseTo);
 
-    transforminfo = pipelineMeta.findTransform( transformName );
-    if ( transforminfo != null ) {
-      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
+    transforminfo = pipelineMeta.findTransform(transformName);
+    if (transforminfo != null) {
+      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transforminfo);
       for (TransformMeta transformMeta : nextTransforms) {
         wFalseTo.add(transformMeta.getName());
       }
     }
 
-    wFalseTo.addModifyListener( lsMod );
+    wFalseTo.addModifyListener(lsMod);
     FormData fdFalseFrom = new FormData();
-    fdFalseFrom.left = new FormAttachment( middle, 0 );
-    fdFalseFrom.top = new FormAttachment( wTrueTo, margin );
-    fdFalseFrom.right = new FormAttachment( 100, 0 );
+    fdFalseFrom.left = new FormAttachment(middle, 0);
+    fdFalseFrom.top = new FormAttachment(wTrueTo, margin);
+    fdFalseFrom.right = new FormAttachment(100, 0);
     wFalseTo.setLayoutData(fdFalseFrom);
 
     Label wlCondition = new Label(shell, SWT.NONE);
-    wlCondition.setText( BaseMessages.getString( PKG, "FilterRowsDialog.Condition.Label" ) );
+    wlCondition.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Condition.Label"));
     props.setLook(wlCondition);
     FormData fdlCondition = new FormData();
-    fdlCondition.left = new FormAttachment( 0, 0 );
-    fdlCondition.top = new FormAttachment( wFalseTo, margin );
+    fdlCondition.left = new FormAttachment(0, 0);
+    fdlCondition.top = new FormAttachment(wFalseTo, margin);
     wlCondition.setLayoutData(fdlCondition);
 
     IRowMeta inputfields = null;
     try {
-      inputfields = pipelineMeta.getPrevTransformFields( variables, transformName );
-    } catch ( HopException ke ) {
+      inputfields = pipelineMeta.getPrevTransformFields(variables, transformName);
+    } catch (HopException ke) {
       inputfields = new RowMeta();
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "FilterRowsDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-        .getString( PKG, "FilterRowsDialog.FailedToGetFields.DialogMessage" ), ke );
+          shell,
+          BaseMessages.getString(PKG, "FilterRowsDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "FilterRowsDialog.FailedToGetFields.DialogMessage"),
+          ke);
     }
 
     // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    wCondition = new ConditionEditor( shell, SWT.BORDER, condition, inputfields );
+    wCondition = new ConditionEditor(shell, SWT.BORDER, condition, inputfields);
 
     FormData fdCondition = new FormData();
-    fdCondition.left = new FormAttachment( 0, 0 );
-    fdCondition.top = new FormAttachment(wlCondition, margin );
-    fdCondition.right = new FormAttachment( 100, 0 );
-    fdCondition.bottom = new FormAttachment( wOk, -2 * margin );
+    fdCondition.left = new FormAttachment(0, 0);
+    fdCondition.top = new FormAttachment(wlCondition, margin);
+    fdCondition.right = new FormAttachment(100, 0);
+    fdCondition.bottom = new FormAttachment(wOk, -2 * margin);
     wCondition.setLayoutData(fdCondition);
-    wCondition.addModifyListener( lsMod );
+    wCondition.addModifyListener(lsMod);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
-      }
-    };
-
-    wTransformName.addSelectionListener( lsDef );
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    // Set the shell size, based upon previous time...
-    setSize();
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
     getData();
-    input.setChanged( backupChanged );
+    input.setChanged(backupChanged);
 
-    shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
 
-    wTrueTo.setText( Const.NVL( targetStreams.get( 0 ).getTransformName(), "" ) );
-    wFalseTo.setText( Const.NVL( targetStreams.get( 1 ).getTransformName(), "" ) );
+    wTrueTo.setText(Const.NVL(targetStreams.get(0).getTransformName(), ""));
+    wFalseTo.setText(Const.NVL(targetStreams.get(1).getTransformName(), ""));
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -248,39 +223,39 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
   private void cancel() {
     transformName = null;
-    input.setChanged( backupChanged );
+    input.setChanged(backupChanged);
     // Also change the condition back to what it was...
-    input.setCondition( backupCondition );
+    input.setCondition(backupCondition);
     dispose();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( wTransformName.getText() ) ) {
+    if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
 
-    if ( wCondition.getLevel() > 0 ) {
+    if (wCondition.getLevel() > 0) {
       wCondition.goUp();
     } else {
       String trueTransformName = wTrueTo.getText();
-      if ( trueTransformName.length() == 0 ) {
+      if (trueTransformName.length() == 0) {
         trueTransformName = null;
       }
       String falseTransformName = wFalseTo.getText();
-      if ( falseTransformName.length() == 0 ) {
+      if (falseTransformName.length() == 0) {
         falseTransformName = null;
       }
 
       List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
 
-      targetStreams.get( 0 ).setTransformMeta( pipelineMeta.findTransform( trueTransformName ) );
-      targetStreams.get( 1 ).setTransformMeta( pipelineMeta.findTransform( falseTransformName ) );
+      targetStreams.get(0).setTransformMeta(pipelineMeta.findTransform(trueTransformName));
+      targetStreams.get(1).setTransformMeta(pipelineMeta.findTransform(falseTransformName));
 
-      input.setTrueTransformName( trueTransformName );
-      input.setFalseTransformName( falseTransformName );
+      input.setTrueTransformName(trueTransformName);
+      input.setFalseTransformName(falseTransformName);
 
       transformName = wTransformName.getText(); // return value
-      input.setCondition( condition );
+      input.setCondition(condition);
 
       dispose();
     }

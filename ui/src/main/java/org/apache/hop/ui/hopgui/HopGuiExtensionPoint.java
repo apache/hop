@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,16 +21,36 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public enum HopGuiExtensionPoint {
+  HopGuiFileOpenDialog(
+      "Allows you to modify the file open dialog before it's shown. If you want to show your own, set doIt to false",
+      HopGuiFileDialogExtension.class),
+  HopGuiFileOpenedDialog(
+      "Allows you to modify the file open dialog after a file is selected.",
+      HopGuiFileOpenedExtension.class),
+  HopGuiFileSaveDialog(
+      "Allows you to modify the file save dialog before it's shown. If you want to show your own, set doIt to false",
+      HopGuiFileDialogExtension.class),
+  HopGuiNewPipelineTab("Determine the tab name of a pipeline", HopGuiPipelineGraph.class),
 
-  HopGuiFileOpenDialog( "Allows you to modify the file open dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
-  HopGuiFileOpenedDialog( "Allows you to modify the file open dialog after a file is selected.", HopGuiFileOpenedExtension.class ),
-  HopGuiFileSaveDialog( "Allows you to modify the file save dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
-  HopGuiNewPipelineTab( "Determine the tab name of a pipeline", HopGuiPipelineGraph.class ),
+  HopGuiFileDirectoryDialog(
+      "Called before a DirectoryDialog is presented", HopGuiFileDialogExtension.class),
+  HopGuiDirectorySelected(
+      "Called after a folder is selected in the DirectoryDialog",
+      HopGuiDirectorySelectedExtension.class),
 
-  HopGuiFileDirectoryDialog( "Called before a DirectoryDialog is presented", HopGuiFileDialogExtension.class ),
-  HopGuiDirectorySelected( "Called after a folder is selected in the DirectoryDialog", HopGuiDirectorySelectedExtension.class ),
+  HopGuiDetermineExplorerRoot(
+      "Determine the root folder of the explorer perspective",
+      ExplorerPerspective.DetermineRootFolderExtension.class),
+
+  HopGuiWorkflowClipboardFilePaste(
+      "A filename is pasted into a workflow", HopGuiWorkflowClipboardExtension.class),
+
+  HopGuiPipelineFinished("A pipeline finished in the GUI", HopGuiPipelineFinishedExtension.class),
   ;
 
   public String id;
@@ -39,8 +59,7 @@ public enum HopGuiExtensionPoint {
 
   public Class<?> providedClass;
 
-
-  HopGuiExtensionPoint( String description, Class<?> providedClass ) {
+  HopGuiExtensionPoint(String description, Class<?> providedClass) {
     this.id = name();
     this.description = description;
     this.providedClass = providedClass;

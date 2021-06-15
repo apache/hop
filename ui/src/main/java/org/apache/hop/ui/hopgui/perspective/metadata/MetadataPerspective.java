@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +17,16 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -45,9 +43,9 @@ import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.core.widget.TreeToolTipSupport;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -80,15 +78,20 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
-    name = "Metadata",
+    name = "i18n::MetadataPerspective.Name",
     description = "The Hop Metatada Perspective",
-    image = "ui/images/metadata.svg"
-)
-@GuiPlugin(description="This perspective allows you to see and edit all available metadata")
+    image = "ui/images/metadata.svg")
+@GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective {
 
+  public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
@@ -131,6 +134,8 @@ public class MetadataPerspective implements IHopPerspective {
     return "metadata-perspective";
   }
 
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'm')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'm')
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -144,9 +149,11 @@ public class MetadataPerspective implements IHopPerspective {
     // If all editor are closed
     //
     if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false);
+      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
     } else {
-      HopGui.getInstance().handleFileCapabilities(metadataFileType, false, false);
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      boolean changed = handler != null ? handler.hasChanged() : false;
+      HopGui.getInstance().handleFileCapabilities(metadataFileType, changed, false, false);
     }
   }
 
@@ -190,21 +197,23 @@ public class MetadataPerspective implements IHopPerspective {
 
     // refresh the metadata when it changes.
     //
-    hopGui.getEventsHandler().addEventListener(
-      getClass().getName(),
-      e->refresh(),
-      HopGuiEvents.MetadataChanged.name()
-    );
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
+    HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
-    return new MetadataManager<>(HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+    return new MetadataManager<>(
+        HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
   }
 
   protected void createTree(Composite parent) {
+    PropsUi props = PropsUi.getInstance();
 
     // Create composite
     //
@@ -226,6 +235,7 @@ public class MetadataPerspective implements IHopPerspective {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
+    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -243,9 +253,9 @@ public class MetadataPerspective implements IHopPerspective {
           TreeItem treeItem = tree.getSelection()[0];
           if (treeItem != null) {
             if (treeItem.getParentItem() == null) {
-        	onNewMetadata();
+              onNewMetadata();
             } else {
-        	onEditMetadata();
+              onEditMetadata();
             }
           }
         });
@@ -305,9 +315,6 @@ public class MetadataPerspective implements IHopPerspective {
     treeEditor = new TreeEditor(tree);
     treeEditor.horizontalAlignment = SWT.LEFT;
     treeEditor.grabHorizontal = true;
-
-    // Add on first level tooltip with metatada description
-    new TreeToolTipSupport(tree);
 
     // Remember tree node expanded/Collapsed
     TreeMemory.addTreeListener(tree, METADATA_PERSPECTIVE_TREE);
@@ -444,7 +451,8 @@ public class MetadataPerspective implements IHopPerspective {
 
         editor.setFocus();
 
-        HopGui.getInstance().handleFileCapabilities(metadataFileType, false, false);
+        HopGui.getInstance()
+            .handleFileCapabilities(metadataFileType, editor.hasChanged(), false, false);
       }
     }
   }
@@ -459,12 +467,12 @@ public class MetadataPerspective implements IHopPerspective {
 
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-      MetadataEditor<?> editor = getActiveEditor();
-      if ( editor!=null ) {
-	  return editor;
-      }
-      
-      return new EmptyHopFileTypeHandler();
+    MetadataEditor<?> editor = getActiveEditor();
+    if (editor != null) {
+      return editor;
+    }
+
+    return new EmptyHopFileTypeHandler();
   }
 
   @Override
@@ -489,7 +497,7 @@ public class MetadataPerspective implements IHopPerspective {
       // If all editor are closed
       //
       if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false);
+        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
     } else {
       // Ignore event if canceled
@@ -505,13 +513,11 @@ public class MetadataPerspective implements IHopPerspective {
     TreeItem treeItem = tree.getSelection()[0];
     if (treeItem != null) {
       String objectKey;
-      if ( treeItem.getParentItem()==null ) {
-	  objectKey = (String) treeItem.getData();
+      if (treeItem.getParentItem() == null) {
+        objectKey = (String) treeItem.getData();
+      } else {
+        objectKey = (String) treeItem.getParentItem().getData();
       }
-      else {
-	  objectKey = (String) treeItem.getParentItem().getData(); 
-      }
-	  
 
       try {
         IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
@@ -522,7 +528,11 @@ public class MetadataPerspective implements IHopPerspective {
 
         manager.newMetadataWithEditor();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error create metadata", e);
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header"),
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"),
+            e);
       }
     }
   }
@@ -549,19 +559,19 @@ public class MetadataPerspective implements IHopPerspective {
           new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
         }
       }
-      
+
       this.updateSelection();
     }
   }
 
   @GuiToolbarElement(
-	      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-	      id = TOOLBAR_ITEM_EDIT,
-	      toolTip = "Edit",
-	      image = "ui/images/edit.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Edit.Tooltip",
+      image = "ui/images/edit.svg")
   public void onRenameMetadata() {
 
-    if ( tree.getSelectionCount() < 1) {
+    if (tree.getSelectionCount() < 1) {
       return;
     }
 
@@ -590,7 +600,13 @@ public class MetadataPerspective implements IHopPerspective {
                       text.dispose();
                     }
                   } catch (Exception e) {
-                    new ErrorDialog(getShell(), "Error", "Error rename metadata", e);
+                    new ErrorDialog(
+                        getShell(),
+                        BaseMessages.getString(
+                            PKG, "MetadataPerspective.EditMetadata.Error.Header"),
+                        BaseMessages.getString(
+                            PKG, "MetadataPerspective.EditMetadata.Error.Message"),
+                        e);
                   }
                 }
                 break;
@@ -608,7 +624,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
-      toolTip = "Delete",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg")
   public void onDeleteMetadata() {
 
@@ -636,7 +652,7 @@ public class MetadataPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DUPLICATE,
-      toolTip = "Create a copy",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.CreateCopy.Tooltip",
       image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
 
@@ -667,7 +683,11 @@ public class MetadataPerspective implements IHopPerspective {
         }
         refresh();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error duplicating metadata", e);
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Header"),
+            BaseMessages.getString(PKG, "MetadataPerspective.DuplicateMetadata.Error.Message"),
+            e);
       }
     }
   }
@@ -681,7 +701,7 @@ public class MetadataPerspective implements IHopPerspective {
     for (CTabItem item : tabFolder.getItems()) {
       if (editor.equals(item.getData())) {
         item.setText(editor.getTitle());
-        if (editor.isChanged()) item.setFont(GuiResource.getInstance().getFontBold());
+        if (editor.hasChanged()) item.setFont(GuiResource.getInstance().getFontBold());
         else item.setFont(tabFolder.getFont());
         break;
       }
@@ -690,12 +710,29 @@ public class MetadataPerspective implements IHopPerspective {
     // Update TreeItem
     //
     this.refresh();
+
+    // Update HOP GUI menu and toolbar...
+    //
+    updateGui();
+  }
+
+  public void updateGui() {
+    if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
+      return;
+    }
+    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+    hopGui
+        .getDisplay()
+        .asyncExec(
+            () ->
+                hopGui.handleFileCapabilities(
+                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
   }
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
-      toolTip = "Refresh",
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
   public void refresh() {
     try {
@@ -706,6 +743,15 @@ public class MetadataPerspective implements IHopPerspective {
       //
       IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
       List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+      // Sort by name
+      Collections.sort(
+          metadataClasses,
+          (cl1, cl2) -> {
+            HopMetadata a1 = HopMetadataUtil.getHopMetadataAnnotation(cl1);
+            HopMetadata a2 = HopMetadataUtil.getHopMetadataAnnotation(cl2);
+            return a1.name().compareTo(a2.name());
+          });
+
       for (Class<IHopMetadata> metadataClass : metadataClasses) {
         HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
         Image image =
@@ -735,7 +781,7 @@ public class MetadataPerspective implements IHopPerspective {
           item.setText(0, Const.NVL(name, ""));
           MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
           if (editor != null) {
-            if (editor.isChanged()) {
+            if (editor.hasChanged()) {
               item.setFont(GuiResource.getInstance().getFontBold());
             }
           }
@@ -747,7 +793,11 @@ public class MetadataPerspective implements IHopPerspective {
 
       tree.setRedraw(true);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error refreshing metadata tree", e);
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Header"),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"),
+          e);
     }
   }
 
@@ -794,7 +844,7 @@ public class MetadataPerspective implements IHopPerspective {
         // If all editor are closed
         //
         if (tabFolder.getItemCount() == 0) {
-          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false);
+          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
         }
       }
     }

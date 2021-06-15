@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::ColumnExists.Name",
     description = "i18n::ColumnExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/columnexists.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/columnexists.html")
 public class ColumnExistsMeta extends BaseTransformMeta
     implements ITransformMeta<ColumnExists, ColumnExistsData> {
 

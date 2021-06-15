@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
@@ -70,10 +71,8 @@ public class HopGuiPipelineLogDelegate {
 
   private HopGuiLogBrowser logBrowser;
 
-  /**
-   * @param hopGui
-   */
-  public HopGuiPipelineLogDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+  /** @param hopGui */
+  public HopGuiPipelineLogDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
   }
@@ -81,58 +80,66 @@ public class HopGuiPipelineLogDelegate {
   public void addPipelineLog() {
     // First, see if we need to add the extra view...
     //
-    if ( pipelineGraph.extraViewComposite == null || pipelineGraph.extraViewComposite.isDisposed() ) {
+    if (pipelineGraph.extraViewTabFolder == null || pipelineGraph.extraViewTabFolder.isDisposed()) {
       pipelineGraph.addExtraView();
     } else {
-      if ( pipelineLogTab != null && !pipelineLogTab.isDisposed() ) {
+      if (pipelineLogTab != null && !pipelineLogTab.isDisposed()) {
         // just set this one active and get out...
         //
-        pipelineGraph.extraViewTabFolder.setSelection( pipelineLogTab );
+        pipelineGraph.extraViewTabFolder.setSelection(pipelineLogTab);
         return;
       }
     }
 
     // Add a pipelineLogTab : display the logging...
     //
-    pipelineLogTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelineLogTab.setImage( GuiResource.getInstance().getImageShowLog() );
-    pipelineLogTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.LogTab.Name" ) );
+    pipelineLogTab = new CTabItem(pipelineGraph.extraViewTabFolder, SWT.NONE);
+    pipelineLogTab.setImage(GuiResource.getInstance().getImageShowLog());
+    pipelineLogTab.setText(BaseMessages.getString(PKG, "HopGui.PipelineGraph.LogTab.Name"));
 
-    pipelineLogComposite = new Composite( pipelineGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS );
-    pipelineLogComposite.setLayout( new FormLayout() );
+    pipelineLogComposite =
+        new Composite(pipelineGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS);
+    pipelineLogComposite.setLayout(new FormLayout());
 
     addToolBar();
 
     FormData fd = new FormData();
-    fd.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fd.top = new FormAttachment( 0, 0 );
-    fd.right = new FormAttachment( 100, 0 );
-    toolbar.setLayoutData( fd );
+    fd.left = new FormAttachment(0, 0); // First one in the left top corner
+    fd.top = new FormAttachment(0, 0);
+    fd.right = new FormAttachment(100, 0);
+    toolbar.setLayoutData(fd);
 
-    pipelineLogText = new Text( pipelineLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
-    hopGui.getProps().setLook( pipelineLogText );
+    pipelineLogText =
+        new Text(pipelineLogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    hopGui.getProps().setLook(pipelineLogText);
     FormData fdText = new FormData();
-    fdText.left = new FormAttachment( 0, 0 );
-    fdText.right = new FormAttachment( 100, 0 );
-    fdText.top = new FormAttachment( toolbar, 0 );
-    fdText.bottom = new FormAttachment( 100, 0 );
-    pipelineLogText.setLayoutData( fdText );
+    fdText.left = new FormAttachment(0, 0);
+    fdText.right = new FormAttachment(100, 0);
+    fdText.top = new FormAttachment(toolbar, 0);
+    fdText.bottom = new FormAttachment(100, 0);
+    pipelineLogText.setLayoutData(fdText);
+    // add a CR to avoid fontStyle from getting lost on macos HOP-2583
+    if (OsHelper.isMac()) {
+      pipelineLogText.setText(Const.CR);
+    }
 
-    logBrowser = new HopGuiLogBrowser( pipelineLogText, pipelineGraph );
+    logBrowser = new HopGuiLogBrowser(pipelineLogText, pipelineGraph);
     logBrowser.installLogSniffer();
 
-    // If the pipeline is closed, we should dispose of all the logging information in the buffer and registry for
+    // If the pipeline is closed, we should dispose of all the logging information in the buffer and
+    // registry for
     // this pipeline
     //
-    pipelineGraph.addDisposeListener( event -> {
-      if ( pipelineGraph.pipeline != null ) {
-        HopLogStore.discardLines( pipelineGraph.pipeline.getLogChannelId(), true );
-      }
-    } );
+    pipelineGraph.addDisposeListener(
+        event -> {
+          if (pipelineGraph.pipeline != null) {
+            HopLogStore.discardLines(pipelineGraph.pipeline.getLogChannelId(), true);
+          }
+        });
 
-    pipelineLogTab.setControl( pipelineLogComposite );
+    pipelineLogTab.setControl(pipelineLogComposite);
 
-    pipelineGraph.extraViewTabFolder.setSelection( pipelineLogTab );
+    pipelineGraph.extraViewTabFolder.setSelection(pipelineLogTab);
   }
 
   /**
@@ -142,7 +149,7 @@ public class HopGuiPipelineLogDelegate {
    */
   public static HopGuiPipelineLogDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
+    if (fileTypeHandler instanceof HopGuiPipelineGraph) {
       HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
       return graph.pipelineLogDelegate;
     }
@@ -150,22 +157,24 @@ public class HopGuiPipelineLogDelegate {
   }
 
   private void addToolBar() {
-    toolbar = new ToolBar( pipelineLogComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+    toolbar =
+        new ToolBar(
+            pipelineLogComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
-    fdToolBar.left = new FormAttachment( 0, 0 );
-    fdToolBar.top = new FormAttachment( 0, 0 );
-    fdToolBar.right = new FormAttachment( 100, 0 );
-    toolbar.setLayoutData( fdToolBar );
-    hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
+    fdToolBar.left = new FormAttachment(0, 0);
+    fdToolBar.top = new FormAttachment(0, 0);
+    fdToolBar.right = new FormAttachment(100, 0);
+    toolbar.setLayoutData(fdToolBar);
+    hopGui.getProps().setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.registerGuiPluginObject( this );
-    toolBarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     toolbar.pack();
   }
 
   public void showLogView() {
-    if ( pipelineLogTab == null || pipelineLogTab.isDisposed() ) {
+    if (pipelineLogTab == null || pipelineLogTab.isDisposed()) {
       addPipelineLog();
     } else {
       pipelineLogTab.dispose();
@@ -177,44 +186,43 @@ public class HopGuiPipelineLogDelegate {
   }
 
   @GuiToolbarElement(
-    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
-    // label = "PipelineLog.Button.ClearLog",
-    toolTip = "PipelineLog.Button.ClearLog",
-    i18nPackageClass = HopGui.class,
-    image = "ui/images/delete.svg"
-  )
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
+      // label = "PipelineLog.Button.ClearLog",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ClearLog",
+      image = "ui/images/delete.svg")
   public void clearLog() {
-    if ( pipelineLogText != null && !pipelineLogText.isDisposed() ) {
-      pipelineLogText.setText( "" );
+    if (pipelineLogText != null && !pipelineLogText.isDisposed()) {
+      // add a CR to avoid fontStyle from getting lost on macos HOP-2583
+      if (OsHelper.isMac()) {
+        pipelineLogText.setText(Const.CR);
+      } else {
+        pipelineLogText.setText("");
+      }
     }
     Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
-    if ( transformLogMap != null ) {
+    if (transformLogMap != null) {
       transformLogMap.clear();
-      pipelineGraph.getDisplay().asyncExec( () -> pipelineGraph.redraw() );
+      pipelineGraph.getDisplay().asyncExec(() -> pipelineGraph.redraw());
     }
   }
 
   @GuiToolbarElement(
-    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ICON_LOG_SETTINGS,
-    // label = "PipelineLog.Button.LogSettings",
-    toolTip = "PipelineLog.Button.LogSettings",
-    i18nPackageClass = HopGui.class,
-    image = "ui/images/settings.svg"
-  )
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_LOG_SETTINGS,
+      // label = "PipelineLog.Button.LogSettings",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.LogSettings",
+      image = "ui/images/settings.svg")
   public void showLogSettings() {
     // TODO: implement or rethink
   }
 
   @GuiToolbarElement(
-    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ICON_SHOW_ERROR_LINES,
-    // label = "PipelineLog.Button.ShowErrorLines",
-    toolTip = "PipelineLog.Button.ShowErrorLines",
-    i18nPackageClass = HopGui.class,
-    image = "ui/images/filter.svg"
-  )
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_SHOW_ERROR_LINES,
+      // label = "PipelineLog.Button.ShowErrorLines",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ShowErrorLines",
+      image = "ui/images/filter.svg")
   public void showErrors() {
     String all = pipelineLogText.getText();
     ArrayList<String> err = new ArrayList<>();
@@ -223,16 +231,18 @@ public class HopGuiPipelineLogDelegate {
     int startpos = 0;
     int crlen = Const.CR.length();
 
-    while ( i < all.length() - crlen ) {
-      if ( all.substring( i, i + crlen ).equalsIgnoreCase( Const.CR ) ) {
-        String line = all.substring( startpos, i );
+    while (i < all.length() - crlen) {
+      if (all.substring(i, i + crlen).equalsIgnoreCase(Const.CR)) {
+        String line = all.substring(startpos, i);
         String uLine = line.toUpperCase();
-        if ( uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.ERROR" ) ) >= 0
-          || uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.EXCEPTION" ) ) >= 0
-          || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated transforms a.s.o.
-          uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated transforms a.s.o.
+        if (uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.ERROR")) >= 0
+            || uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION")) >= 0
+            || uLine.indexOf("ERROR") >= 0
+            || // i18n for compatibilty to non translated transforms a.s.o.
+            uLine.indexOf("EXCEPTION")
+                >= 0 // i18n for compatibilty to non translated transforms a.s.o.
         ) {
-          err.add( line );
+          err.add(line);
         }
         // New start of line
         startpos = i + crlen;
@@ -240,71 +250,70 @@ public class HopGuiPipelineLogDelegate {
 
       i++;
     }
-    String line = all.substring( startpos );
+    String line = all.substring(startpos);
     String uLine = line.toUpperCase();
-    if ( uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.ERROR2" ) ) >= 0
-      || uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.EXCEPTION2" ) ) >= 0
-      || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated transforms a.s.o.
-      uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated transforms a.s.o.
+    if (uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.ERROR2")) >= 0
+        || uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION2")) >= 0
+        || uLine.indexOf("ERROR") >= 0
+        || // i18n for compatibilty to non translated transforms a.s.o.
+        uLine.indexOf("EXCEPTION") >= 0 // i18n for compatibilty to non translated transforms a.s.o.
     ) {
-      err.add( line );
+      err.add(line);
     }
 
-    if ( err.size() > 0 ) {
-      String[] err_lines = new String[ err.size() ];
-      for ( i = 0; i < err_lines.length; i++ ) {
-        err_lines[ i ] = err.get( i );
+    if (err.size() > 0) {
+      String[] err_lines = new String[err.size()];
+      for (i = 0; i < err_lines.length; i++) {
+        err_lines[i] = err.get(i);
       }
 
-      EnterSelectionDialog esd = new EnterSelectionDialog( pipelineGraph.getShell(), err_lines,
-        BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorLines.Title" ),
-        BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorLines.Message" ) );
+      EnterSelectionDialog esd =
+          new EnterSelectionDialog(
+              pipelineGraph.getShell(),
+              err_lines,
+              BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorLines.Title"),
+              BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorLines.Message"));
       line = esd.open();
-      if ( line != null ) {
+      if (line != null) {
         PipelineMeta pipelineMeta = pipelineGraph.getManagedObject();
-        for ( i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
-          TransformMeta transformMeta = pipelineMeta.getTransform( i );
-          if ( line.indexOf( transformMeta.getName() ) >= 0 ) {
-            pipelineGraph.editTransform( pipelineMeta, transformMeta );
+        for (i = 0; i < pipelineMeta.nrTransforms(); i++) {
+          TransformMeta transformMeta = pipelineMeta.getTransform(i);
+          if (line.indexOf(transformMeta.getName()) >= 0) {
+            pipelineGraph.editTransform(pipelineMeta, transformMeta);
           }
         }
       }
     }
   }
 
-  /**
-   * @return the pipelineLogTab
-   */
+  /** @return the pipelineLogTab */
   public CTabItem getPipelineLogTab() {
     return pipelineLogTab;
   }
 
   public String getLoggingText() {
-    if ( pipelineLogText != null && !pipelineLogText.isDisposed() ) {
+    if (pipelineLogText != null && !pipelineLogText.isDisposed()) {
       return pipelineLogText.getText();
     } else {
       return null;
     }
-
   }
 
   @GuiToolbarElement(
-    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
-    // label = "WorkflowLog.Button.Pause",
-    toolTip = "WorkflowLog.Button.Pause",
-    i18nPackageClass = HopGui.class,
-    image = "ui/images/pause.svg",
-    separator = true
-  )
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
+      // label = "WorkflowLog.Button.Pause",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.Pause",
+      image = "ui/images/pause.svg",
+      separator = true)
   public void pauseLog() {
-    ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ICON_LOG_PAUSE_RESUME );
-    if ( logBrowser.isPaused() ) {
-      logBrowser.setPaused( false );
-      item.setImage( GuiResource.getInstance().getImageRun() );
+    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ICON_LOG_PAUSE_RESUME);
+    if (logBrowser.isPaused()) {
+      logBrowser.setPaused(false);
+      item.setImage(GuiResource.getInstance().getImageRun());
     } else {
-      logBrowser.setPaused( true );
-      item.setImage( GuiResource.getInstance().getImagePause() );
+      logBrowser.setPaused(true);
+      item.setImage(GuiResource.getInstance().getImagePause());
     }
   }
 
@@ -313,12 +322,14 @@ public class HopGuiPipelineLogDelegate {
   }
 
   public boolean hasSelectedText() {
-    return pipelineLogText != null && !pipelineLogText.isDisposed() && StringUtils.isNotEmpty( pipelineLogText.getSelectionText() );
+    return pipelineLogText != null
+        && !pipelineLogText.isDisposed()
+        && StringUtils.isNotEmpty(pipelineLogText.getSelectionText());
   }
 
   public void copySelected() {
-    if ( hasSelectedText() ) {
-      pipelineGraph.pipelineClipboardDelegate.toClipboard( pipelineLogText.getSelectionText() );
+    if (hasSelectedText()) {
+      pipelineGraph.pipelineClipboardDelegate.toClipboard(pipelineLogText.getSelectionText());
     }
   }
 }

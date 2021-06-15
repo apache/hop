@@ -1,0 +1,152 @@
+{
+  "base_filename": "golden-calculator-dates.csv",
+  "name": "golden-calculator-dates",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intA"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intB"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "intC"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy-MM-dd\u0027T\u0027HH:mm:ss",
+      "field_name": "datA"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy-MM-dd\u0027T\u0027HH:mm:ss",
+      "field_name": "datB"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy-MM-dd\u0027T\u0027HH:mm:ss",
+      "field_name": "datC"
+    },
+    {
+      "field_comment": "ADD_DAYS",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS",
+      "field_name": "dateAPlusBDays"
+    },
+    {
+      "field_comment": "YEAR_OF_DATE",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "yearOfDateA"
+    },
+    {
+      "field_comment": "MONTH_OF_DATE",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "monthOfDateA"
+    },
+    {
+      "field_comment": "DAY_OF_YEAR",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "dayOfYearOfDateA"
+    },
+    {
+      "field_comment": "DAY_OF_MONTH",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "dayOfMonthOfDateA"
+    },
+    {
+      "field_comment": "DAY_OF_WEEK",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "dayOfWeekOfDateA"
+    },
+    {
+      "field_comment": "WEEK_OF_YEAR",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "weekOfYearOfDateA"
+    },
+    {
+      "field_comment": "WEEK_OF_YEAR_ISO8601",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "iso8601WeekOfYearOfDateA"
+    },
+    {
+      "field_comment": "YEAR_OF_DATE_ISO8601",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "iso8601YearOfDateA"
+    },
+    {
+      "field_comment": "REMOVE_TIME_FROM_DATE",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS",
+      "field_name": "removeTimeFromDateA"
+    },
+    {
+      "field_comment": "DATE_DIFF",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "dateAMinusBInDays"
+    },
+    {
+      "field_comment": "QUARTER_OF_DATE",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "quartOfDateA"
+    }
+  ],
+  "folder_name": ""
+}

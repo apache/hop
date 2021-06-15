@@ -42,7 +42,8 @@ import java.util.List;
   name = "i18n::BaseTransform.TypeLongDesc.MappingOuptut",
   description = "i18n::BaseTransform.TypeTooltipDesc.MappingOutput",
   image = "MPO.svg",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
+  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mapping-output.html"
 )
 public class MappingOutputMeta extends BaseTransformMeta implements ITransformMeta<MappingOutput, MappingOutputData> {
 

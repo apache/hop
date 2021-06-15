@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ import java.util.List;
     description = "i18n::ActionPing.Description",
     image = "Ping.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ping.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ping.html")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class; // For Translator
 
@@ -192,7 +192,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
 
     if (Utils.isEmpty(hostname)) {
       // No Host was specified
-      logError(BaseMessages.getString(PKG, "JobPing.SpecifyHost.Label"));
+      logError(BaseMessages.getString(PKG, "ActionPing.SpecifyHost.Label"));
       return result;
     }
 
@@ -203,13 +203,13 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         if (status) {
           if (log.isDetailed()) {
             log.logDetailed(
-                BaseMessages.getString(PKG, "JobPing.SystemPing"),
-                BaseMessages.getString(PKG, "JobPing.OK.Label", hostname));
+                BaseMessages.getString(PKG, "ActionPing.SystemPing"),
+                BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
           }
         } else {
           log.logError(
-              BaseMessages.getString(PKG, "JobPing.SystemPing"),
-              BaseMessages.getString(PKG, "JobPing.NOK.Label", hostname));
+              BaseMessages.getString(PKG, "ActionPing.SystemPing"),
+              BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
         }
       }
       if ((ipingtype == iclassicPing) || (ipingtype == ibothPings && !status)) {
@@ -218,31 +218,32 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         if (status) {
           if (log.isDetailed()) {
             log.logDetailed(
-                BaseMessages.getString(PKG, "JobPing.ClassicPing"),
-                BaseMessages.getString(PKG, "JobPing.OK.Label", hostname));
+                BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
+                BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
           }
         } else {
           log.logError(
-              BaseMessages.getString(PKG, "JobPing.ClassicPing"),
-              BaseMessages.getString(PKG, "JobPing.NOK.Label", hostname));
+              BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
+              BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
         }
       }
     } catch (Exception ex) {
-      logError(BaseMessages.getString(PKG, "JobPing.Error.Label") + ex.getMessage());
+      logError(BaseMessages.getString(PKG, "ActionPing.Error.Label") + ex.getMessage());
     }
     if (status) {
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobPing.OK.Label", hostname));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
       }
       result.setNrErrors(0);
       result.setResult(true);
     } else {
-      logError(BaseMessages.getString(PKG, "JobPing.NOK.Label", hostname));
+      logError(BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
     }
     return result;
   }
 
-  public boolean evaluates() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -253,18 +254,19 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     try {
       address = InetAddress.getByName(hostname);
       if (address == null) {
-        logError(BaseMessages.getString(PKG, "JobPing.CanNotGetAddress", hostname));
+        logError(BaseMessages.getString(PKG, "ActionPing.CanNotGetAddress", hostname));
         return retval;
       }
 
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobPing.HostName", address.getHostName()));
-        logDetailed(BaseMessages.getString(PKG, "JobPing.HostAddress", address.getHostAddress()));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.HostName", address.getHostName()));
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionPing.HostAddress", address.getHostAddress()));
       }
 
       retval = address.isReachable(timeout);
     } catch (Exception e) {
-      logError(BaseMessages.getString(PKG, "JobPing.ErrorSystemPing", hostname, e.getMessage()));
+      logError(BaseMessages.getString(PKG, "ActionPing.ErrorSystemPing", hostname, e.getMessage()));
     }
     return retval;
   }
@@ -281,17 +283,17 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
       }
 
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobPing.NbrPackets.Label", "" + nrpackets));
-        logDetailed(BaseMessages.getString(PKG, "JobPing.ExecClassicPing.Label", CmdPing));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.NbrPackets.Label", "" + nrpackets));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.ExecClassicPing.Label", CmdPing));
       }
       Process processPing = Runtime.getRuntime().exec(CmdPing);
       try {
         processPing.waitFor();
       } catch (InterruptedException e) {
-        logDetailed(BaseMessages.getString(PKG, "JobPing.ClassicPingInterrupted"));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.ClassicPingInterrupted"));
       }
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JobPing.Gettingresponse.Label", hostname));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.Gettingresponse.Label", hostname));
       }
       // Get ping response
       BufferedReader br = new BufferedReader(new InputStreamReader(processPing.getInputStream()));
@@ -307,7 +309,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         retval = true;
       }
     } catch (IOException ex) {
-      logError(BaseMessages.getString(PKG, "JobPing.Error.Label") + ex.getMessage());
+      logError(BaseMessages.getString(PKG, "ActionPing.Error.Label") + ex.getMessage());
     }
     return retval;
   }

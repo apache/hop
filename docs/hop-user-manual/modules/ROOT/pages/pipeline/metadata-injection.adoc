@@ -1,0 +1,34 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[MetadataInjection]]
+:imagesdir: ../assets/images
+
+= Metadata Injection
+
+Metadata injection inserts data from various sources into a pipeline at runtime to reduce repetitive tasks.
+
+For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file. If you have more than one supplier, you would need to run this simple pipeline for each supplier. Yet, with metadata injection, you can expand this simple repetitive pipeline by inserting metadata from another pipeline that contains the ETL Metadata Injection transform. This transform coordinates the data values from the various inputs through the metadata you define. This process reduces the need for you to adjust and run the repetitive pipeline for each specific input.
+
+The repetitive pipeline is known as the template pipeline. The template pipeline is called by the ETL Metadata Injection transform. You will create a pipeline to prepare what common values you want to use as metadata and inject these specific values through the ETL Metadata Injection transform.
+
+We recommend the following basic procedure for using this transform to inject metadata:
+
+1. Optimize your data for injection, such as preparing folder structures and inputs.
+
+2. Develop pipelines for the repetitive process (the template pipeline), for metadata injection through the ETL Metadata Injection transform, and for handling multiple inputs.
+
+The metadata is injected into the template pipeline through any transform that supports metadata injection.

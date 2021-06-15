@@ -33,13 +33,12 @@ import java.util.Map;
 
 @PluginMainClassType( IValueMeta.class )
 @PluginAnnotationType( ValueMetaPlugin.class )
-public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> implements IPluginType<ValueMetaPlugin> {
+public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> {
 
   private static ValueMetaPluginType valueMetaPluginType;
 
   private ValueMetaPluginType() {
     super( ValueMetaPlugin.class, "VALUEMETA", "ValueMeta" );
-    populateFolders( "valuemeta" );
   }
 
   public static ValueMetaPluginType getInstance() {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -38,7 +36,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -51,16 +48,14 @@ import org.eclipse.swt.widgets.Text;
 public class EnterTextDialog extends Dialog {
   private static final Class<?> PKG = EnterTextDialog.class; // For Translator
 
-  private String title, message;
+  private final String title;
+  private final String message;
 
-  private Label wlDesc;
   private Text wDesc;
-  private FormData fdlDesc, fdDesc;
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
-  private Shell parent, shell;
-  private SelectionAdapter lsDef;
-  private PropsUi props;
+  private Button wOk;
+  private final Shell parent;
+  private Shell shell;
+  private final PropsUi props;
   private String text;
   private boolean fixed;
   private boolean readonly, modal, singleLine;
@@ -113,8 +108,6 @@ public class EnterTextDialog extends Dialog {
   }
 
   public String open() {
-    Display display = parent.getDisplay();
-
     modal |=
         Const.isLinux(); // On Linux, this dialog seems to behave strangely except when shown modal
 
@@ -138,11 +131,27 @@ public class EnterTextDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Some buttons at the bottom
+    if (!readonly) {
+      wOk = new Button(shell, SWT.PUSH);
+      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+      wOk.addListener(SWT.Selection, e -> ok());
+      Button wCancel = new Button(shell, SWT.PUSH);
+      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.addListener(SWT.Selection, e -> cancel());
+      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+    } else {
+      wOk = new Button(shell, SWT.PUSH);
+      wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
+      wOk.addListener(SWT.Selection, e -> ok());
+      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, margin, null);
+    }
+
     // From transform line
-    wlDesc = new Label(shell, SWT.NONE);
+    Label wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
     props.setLook(wlDesc);
-    fdlDesc = new FormData();
+    FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
     wlDesc.setLayoutData(fdlDesc);
@@ -159,47 +168,14 @@ public class EnterTextDialog extends Dialog {
     } else {
       props.setLook(wDesc);
     }
-    fdDesc = new FormData();
+    FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, 0);
-    fdDesc.bottom = new FormAttachment(100, -50);
+    fdDesc.bottom = new FormAttachment(wOk, -2 * margin);
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(!readonly);
-
-    // Some buttons
-    if (!readonly) {
-      wOk = new Button(shell, SWT.PUSH);
-      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-      wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-      // Add listeners
-      lsCancel = e -> cancel();
-      lsOk = e -> ok();
-
-      wOk.addListener(SWT.Selection, lsOk);
-      wCancel.addListener(SWT.Selection, lsCancel);
-    } else {
-      wOk = new Button(shell, SWT.PUSH);
-      wOk.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, margin, null);
-
-      // Add listeners
-      lsOk = e -> ok();
-      wOk.addListener(SWT.Selection, lsOk);
-    }
-
-    lsDef =
-        new SelectionAdapter() {
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-    wDesc.addSelectionListener(lsDef);
+    wDesc.addListener(SWT.DefaultSelection, e -> ok());
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -212,14 +188,23 @@ public class EnterTextDialog extends Dialog {
     origText = text;
     getData();
 
+    // Set the size as well...
+    //
     BaseTransformDialog.setSize(shell);
 
+    // Open the shell
+    //
     shell.open();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
+
     return text;
   }
 

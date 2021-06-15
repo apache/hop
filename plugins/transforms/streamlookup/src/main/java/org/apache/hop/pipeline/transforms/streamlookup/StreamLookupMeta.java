@@ -55,7 +55,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.StreamLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.StreamLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/streamlookup.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/streamlookup.html")
 public class StreamLookupMeta extends BaseTransformMeta
     implements ITransformMeta<StreamLookup, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
@@ -661,7 +661,6 @@ public class StreamLookupMeta extends BaseTransformMeta
       return;
     }
     int nrFields = value.length;
-    // PDI-16110
     if (valueDefaultType.length < nrFields) {
       int[] newValueDefaultType = new int[nrFields];
       System.arraycopy(valueDefaultType, 0, newValueDefaultType, 0, valueDefaultType.length);

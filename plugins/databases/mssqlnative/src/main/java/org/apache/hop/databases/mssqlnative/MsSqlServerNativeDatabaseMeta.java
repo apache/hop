@@ -49,8 +49,7 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta imple
             order = "21",
             parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
             type = GuiElementType.CHECKBOX,
-            i18nPackage = "org.apache.hop.ui.core.database",
-            label = "DatabaseDialog.label.UseIntegratedSecurity"
+            label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.UseIntegratedSecurity"
     )
     @HopMetadataProperty
     private boolean usingIntegratedSecurity;
@@ -65,11 +64,15 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta imple
     }
 
     @Override
-    public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget) {
+    public void widgetModified( GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId ) {
         enableField(compositeWidgets);
     }
 
-    private void enableField(GuiCompositeWidgets compositeWidgets) {
+    @Override public void persistContents( GuiCompositeWidgets compositeWidgets ) {
+
+    }
+
+    private void enableField( GuiCompositeWidgets compositeWidgets) {
         List<Control> controls = new ArrayList<>();
         String[] ids = new String[]{
                 BaseDatabaseMeta.ID_USERNAME_LABEL,

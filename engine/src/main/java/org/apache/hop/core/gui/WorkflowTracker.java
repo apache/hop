@@ -83,7 +83,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   }
 
   /**
-   * Creates a jobtracker with a single result (maxChildren children are kept)
+   * Creates a workflow tracker with a single result (maxChildren children are kept)
    *
    * @param workflowMeta the workflow metadata to keep track of
    * @param result  the action result to track.
@@ -94,7 +94,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   }
 
   /**
-   * Creates a jobtracker with a single result
+   * Creates a workflow tracker with a single result
    *
    * @param workflowMeta     the workflow metadata to keep track of
    * @param maxChildren The maximum number of children to keep track of
@@ -206,8 +206,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
         WorkflowTracker tracker = it.previous();
         ActionResult result = tracker.getActionResult();
         if ( result != null ) {
-          if ( actionMeta.getName().equals( result.getActionName() )
-            && actionMeta.getNr() == result.getActionNr() ) {
+          if ( actionMeta.getName().equals( result.getActionName() ) ) {
             return tracker;
           }
         }

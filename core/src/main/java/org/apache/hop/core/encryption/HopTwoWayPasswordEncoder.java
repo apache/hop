@@ -41,7 +41,6 @@ import java.util.List;
   description = "Hop Password Encoder"
 )
 public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
-  private static final HopTwoWayPasswordEncoder instance = new HopTwoWayPasswordEncoder();
   private static final int RADIX = 16;
   private String Seed;
   /**
@@ -51,12 +50,8 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   public static final String PASSWORD_ENCRYPTED_PREFIX = "Encrypted ";
 
   public HopTwoWayPasswordEncoder() {
-    String envSeed = Const.NVL( EnvUtil.getSystemProperty( Const.HOP_TWO_WAY_PASSWORD_ENCODER_SEED ), "0933910847463829827159347601486730416058" ); // Solve for PDI-16512
+    String envSeed = Const.NVL( EnvUtil.getSystemProperty( Const.HOP_TWO_WAY_PASSWORD_ENCODER_SEED ), "0933910847463829827159347601486730416058" );
     Seed = envSeed;
-  }
-
-  private static HopTwoWayPasswordEncoder getInstance() {
-    return instance;
   }
 
   @Override
@@ -165,78 +160,15 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
    * @return The encrypted password or the
    */
   protected final String encryptPasswordIfNotUsingVariablesInternal( String password ) {
-    String encrPassword = "";
+    String encryptedPassword = "";
     List<String> varList = new ArrayList<>();
     StringUtil.getUsedVariables( password, varList, true );
     if ( varList.isEmpty() ) {
-      encrPassword = PASSWORD_ENCRYPTED_PREFIX + HopTwoWayPasswordEncoder.encryptPassword( password );
+      encryptedPassword = PASSWORD_ENCRYPTED_PREFIX + encryptPasswordInternal( password );
     } else {
-      encrPassword = password;
+      encryptedPassword = password;
     }
 
-    return encrPassword;
+    return encryptedPassword;
   }
-
-
-  /**
-   * Decrypts a password if it contains the prefix "Encrypted "
-   *
-   * @param password The encrypted password
-   * @return The decrypted password or the original value if the password doesn't start with "Encrypted "
-   */
-  protected final String decryptPasswordOptionallyEncryptedInternal( String password ) {
-    if ( !Utils.isEmpty( password ) && password.startsWith( PASSWORD_ENCRYPTED_PREFIX ) ) {
-      return HopTwoWayPasswordEncoder.decryptPassword( password.substring( PASSWORD_ENCRYPTED_PREFIX.length() ) );
-    }
-    return password;
-  }
-
-  // Old Static Methods - should be deprecated
-
-
-  /**
-   * Encrypt the password, but only if the password doesn't contain any variables.
-   *
-   * @param password The password to encrypt
-   * @return The encrypted password or the
-   * @deprecated - Use the instance method through Encr instead of this directly
-   */
-  public static final String encryptPasswordIfNotUsingVariables( String password ) {
-    return getInstance().encryptPasswordIfNotUsingVariablesInternal( password );
-  }
-
-  /**
-   * Decrypts a password if it contains the prefix "Encrypted "
-   *
-   * @param password The encrypted password
-   * @return The decrypted password or the original value if the password doesn't start with "Encrypted "
-   * @deprecated - Use the instance method through Encr instead of this directly
-   */
-  public static final String decryptPasswordOptionallyEncrypted( String password ) {
-    return getInstance().decryptPasswordOptionallyEncryptedInternal( password );
-  }
-
-  /**
-   * Deprecared - use the instance method instead
-   *
-   * @param password
-   * @return encrypted password
-   * @deprecated - use the instance method through Encr instead of this directly
-   */
-  public static final String encryptPassword( String password ) {
-    return getInstance().encryptPasswordInternal( password );
-  }
-
-  /**
-   * Deprecated - use Encr instead of this directly
-   *
-   * @param encrypted
-   * @return decrypted password
-   * @deprecated
-   */
-  public static final String decryptPassword( String encrypted ) {
-    return getInstance().decryptPasswordInternal( encrypted );
-  }
-
-
 }

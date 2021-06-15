@@ -28,3 +28,13 @@ Hop Server/
 Relational Database Connection/
 \.temp-beam-*/
 integration-tests/surefire-reports
+integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
+**/*.json.old
+yarn-error.log
+
+docs/content
+docs/public
+docs/resources
+docs/node_modules
+docs/.pnp
+docs/.pnp.js

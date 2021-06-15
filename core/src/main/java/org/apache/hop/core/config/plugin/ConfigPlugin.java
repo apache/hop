@@ -32,8 +32,12 @@ import java.lang.annotation.Target;
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )
 public @interface ConfigPlugin {
-  String id();
-  String guiPluginId() default "";
-  String description() default "";
+  String CATEGORY_CONFIG = "config";
+  String CATEGORY_RUN = "run";
+  String CATEGORY_SEARCH = "search";
+  String CATEGORY_IMPORT = "import";
 
+  String id();
+  String description() default "";
+  String category() default CATEGORY_CONFIG;
 }

@@ -59,7 +59,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected List<AreaOwner> areaOwners;
 
   protected Point offset;
-  protected Point dropCandidate;
   protected int iconSize;
   protected int miniIconSize;
   protected int gridSize;
@@ -81,7 +80,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected Hop candidate;
 
   public BasePainter( IGc gc, IVariables variables, Object subject, Point area, IScrollBar hori,
-                      IScrollBar vert, Point dropCandidate, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
+                      IScrollBar vert, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
                       int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor, boolean drawingEditIcons ) {
     this.gc = gc;
     this.variables = variables;
@@ -91,7 +90,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.vert = vert;
 
     this.selectionRectangle = selectionRectangle;
-    this.dropCandidate = dropCandidate;
 
     this.areaOwners = areaOwners;
     areaOwners.clear(); // clear it before we start filling it up again.
@@ -277,7 +275,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     gc.setLineStyle( ELineStyle.DASHDOT );
     gc.setLineWidth( lineWidth );
     gc.setForeground( EColor.GRAY );
-    // PDI-2619: SWT on Windows doesn't cater for negative rect.width/height so handle here.
+    // SWT on Windows doesn't cater for negative rect.width/height so handle here.
     Point s = real2screen( rect.x, rect.y );
     if ( rect.width < 0 ) {
       s.x = s.x + rect.width;
@@ -354,14 +352,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public void setOffset( Point offset ) {
     this.offset = offset;
-  }
-
-  public Point getDropCandidate() {
-    return dropCandidate;
-  }
-
-  public void setDropCandidate( Point dropCandidate ) {
-    this.dropCandidate = dropCandidate;
   }
 
   public int getIconSize() {

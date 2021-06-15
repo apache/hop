@@ -23,6 +23,7 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaString;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -189,6 +190,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     this.type = type;
   }
 
+  @Injection( name = "FIELD_TYPE", group = "INPUT_FIELDS" )
+  public void setType( String value ) {
+    this.type = ValueMetaFactory.getIdForValueMeta( value );
+  }
+
   public boolean isIgnored() {
     return ignore;
   }
@@ -231,6 +237,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
 
   public void setTrimType( int trimtype ) {
     this.trimtype = trimtype;
+  }
+
+  @Injection( name = "FIELD_TRIM_TYPE", group = "INPUT_FIELDS" )
+  public void setTrimType( String value ) {
+    this.trimtype = ValueMetaString.getTrimTypeByCode( value );
   }
 
   public String getGroupSymbol() {

@@ -1,0 +1,7 @@
+X,Y,yLead1,yLead2,yLead3,yLead4,yLead5,yLead6,yLead7,yLag1,yLag2,yLag3,yLag4,yLag5,yLag6,yLag7
+aaa,1,2,3,3,5,6,,,,,,,,,
+aaa,2,3,4,4,6,,,,1,,,,,,
+aaa,3,4,5,5,,,,,2,1,,,,,
+bbb,4,5,6,6,,,,,3,2,1,,,,
+bbb,5,6,,,,,,,4,3,2,1,,,
+bbb,6,,,,,,,,5,4,3,2,1,,

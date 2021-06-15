@@ -1,0 +1,47 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+
+= Pipeline Probe
+
+== Description
+
+image:icons/probe.svg[]
+
+Allows to stream output rows of a pipeline to another pipeline.
+
+A pipeline log streams data from a running pipeline to another pipeline. This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
+
+== Related Plugins
+
+* Pipeline Probe
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Name||The name to be used for this pipeline probe
+|Enabled|true|
+|Pipeline executed to capture logging||the pipeline to process the data for this pipeline probe
+|Capture output of the following transforms||list of pipelines and transforms to capture logging for
+|===
+
+== Samples
+
+None

@@ -1,0 +1,97 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[PromotingARelease]]
+= Promoting a release
+
+After the voting process has ended and the vote passed, following steps need to be taken to promote and create all release artifacts.
+
+== Renaming and moving the source code
+
+The first step is to move the source code from the staging to the release folder in SVN, as the release candidate has been approved it will be renamed to the official release artifact.
+
+Checkout or update your svn repository pointing to the staging area
+
+[source,bash]
+----
+# Checkout
+svn co https://dist.apache.org/repos/dist/dev/incubator/hop hop_release
+
+# Update
+svn update
+----
+
+Checkout the release area
+[source,bash]
+----
+svn co https://dist.apache.org/repos/dist/release/incubator/hop/ hop_public_release
+
+----
+
+Create a new folder in the hop_public_release location with the version number and copy the artifacts
+
+[source,bash]
+----
+cd hop_public_release
+svn mkdir X.XX
+cp ../hop_release/apache-hop-X.XX-incubating-rcX/* X.XX 
+----
+
+Remove the rc from the files and fix the link in the sha512 file
+[source,bash]
+----
+
+#Rename Files
+mv apache-hop-X.XX-incubating-rcX.tar.gz apache-hop-X.XX-incubating.tar.gz
+mv apache-hop-X.XX-incubating-rcX.tar.gz.asc apache-hop-X.XX-incubating.tar.gz.asc
+mv apache-hop-X.XX-incubating-rcX.tar.gz.sha512 apache-hop-X.XX-incubating.tar.gz.sha512
+
+#Remove rcx from sha512
+vi apache-hop-X.XX-incubating.tar.gz.sha512
+#Remove rcx and save
+----
+
+Test if both key and sha512 still work
+
+[source,bash]
+----
+gpg --verify apache-hop-X.XX-incubating.tar.gz.asc
+sha512sum -c apache-hop-X.XX-incubating.tar.gz.sha512
+----
+
+== Creating Dockerhub Artifacts
+
+To create the docker images you can use the build used to create the client, go to the folder with the code and do following steps
+
+[source,bash]
+----
+unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/
+unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
+unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/
+
+# Create image (make sure to add correct version)
+docker build . -f docker/Dockerfile -t docker.io/apache/incubator-hop:X.XX -t docker.io/apache/incubator-hop:latest
+
+# Push to dockerhub
+docker image push --all-tags docker.io/apache/incubator-hop
+
+# Create Hop Web
+docker build . -f docker/Dockerfile.web -t docker.io/apache/incubator-hop-web:X.XX -t docker.io/apache/incubator-hop-web:latest
+
+# Push to dockerhub
+docker image push --all-tags docker.io/apache/incubator-hop-web
+
+----

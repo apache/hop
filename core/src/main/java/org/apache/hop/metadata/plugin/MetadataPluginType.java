@@ -19,7 +19,6 @@ package org.apache.hop.metadata.plugin;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -32,12 +31,11 @@ import java.util.Map;
  */
 @PluginMainClassType( IHopMetadata.class )
 @PluginAnnotationType( HopMetadata.class )
-public class MetadataPluginType extends BasePluginType<HopMetadata> implements IPluginType<HopMetadata> {
+public class MetadataPluginType extends BasePluginType<HopMetadata> {
   private static MetadataPluginType pluginType;
 
   private MetadataPluginType() {
     super( HopMetadata.class, "METADATA", "Metadata" );
-    populateFolders( "metadata" );
   }
 
   public static MetadataPluginType getInstance() {
@@ -92,7 +90,7 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> implements I
 
   @Override
   protected String extractDocumentationUrl( HopMetadata annotation ) {
-    return null;
+    return annotation.documentationUrl();
   }
 
   @Override

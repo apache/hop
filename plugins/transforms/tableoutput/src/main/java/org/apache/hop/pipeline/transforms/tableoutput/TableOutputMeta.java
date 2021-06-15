@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TableOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TableOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/tableoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/tableoutput.html")
 public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
@@ -453,7 +453,7 @@ public class TableOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -778,7 +778,7 @@ public class TableOutputMeta extends BaseTransformMeta
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
@@ -817,7 +817,7 @@ public class TableOutputMeta extends BaseTransformMeta
     String realSchemaName = variables.resolve(schemaName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -866,7 +866,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   @Override
-  public RowMeta getRowMeta( IVariables variables, ITransformData transformData ) {
+  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     return (RowMeta) ((TableOutputData) transformData).insertRowMeta;
   }
 

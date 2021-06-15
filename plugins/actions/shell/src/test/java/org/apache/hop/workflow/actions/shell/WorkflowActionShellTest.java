@@ -42,7 +42,7 @@ public class WorkflowActionShellTest {
    */
   @Test
   public void replaceWinEOLtest() {
-    // string is shell content from PDI-12176
+    // string is shell content
     String content = "#!/bin/bash\r\n"
       + "\r\n"
       + "echo `date` > /home/project-hop/test_output/output.txt";

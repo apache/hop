@@ -67,6 +67,8 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
           DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( realConfigFilename );
           configFile.readFromFile();
           HopGui.editConfigFile( HopGui.getInstance().getShell(), realConfigFilename, configFile, searchResult.getComponent() );
+
+          // TODO: if you change the file you want to refresh the project & environment
         }
       }
     };

@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -172,7 +171,6 @@ public class MessagesStore extends ChangedFlag {
    * directories in the order that they are specified.
    *
    * @param alternativeSourceFolders
-   * @param directories              the source directories to try and map the messages files against.
    * @return the filename that was found.
    */
   public String getLoadFilename( List<String> alternativeSourceFolders ) throws FileNotFoundException {

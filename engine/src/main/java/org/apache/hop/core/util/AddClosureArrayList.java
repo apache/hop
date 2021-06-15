@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections.Closure;
+import org.apache.commons.collections4.Closure;
 
 import java.util.ArrayList;
 

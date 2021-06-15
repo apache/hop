@@ -60,7 +60,7 @@ import java.util.Locale;
     name = "i18n::BaseTransform.TypeLongDesc.SortRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.SortRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/sort.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sort.html")
 public class SortRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
@@ -357,7 +357,7 @@ public class SortRowsMeta extends BaseTransformMeta
         }
         // Also see if lazy conversion is active on these key fields.
         // If so we want to automatically convert them to the normal storage type.
-        // This will improve performance, see also: PDI-346
+        // This will improve performance
         //
         valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
         valueMeta.setStorageMetadata(null);

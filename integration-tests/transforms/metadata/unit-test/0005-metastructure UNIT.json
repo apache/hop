@@ -1,0 +1,63 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Comments",
+        "Type",
+        "Length",
+        "Precision",
+        "Origin",
+        "count"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-metadata-structure"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-metastructure UNIT",
+  "description": "Verifies the output of the metadata structure transform",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0005-metastructure.hpl",
+  "test_type": "UNIT_TEST"
+}

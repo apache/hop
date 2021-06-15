@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class PipelinePreviewFactory {
-  public static final PipelineMeta generatePreviewPipeline( IVariables parent, IHopMetadataProvider metadataProvider, ITransformMeta oneMeta,
+  public static final PipelineMeta generatePreviewPipeline( IHopMetadataProvider metadataProvider, ITransformMeta oneMeta,
                                                             String oneTransformName ) {
     PluginRegistry registry = PluginRegistry.getInstance();
 
@@ -38,7 +38,7 @@ public class PipelinePreviewFactory {
 
     // The following operation resets the internal variables!
     //
-    previewMeta.setName( parent == null ? "Preview pipeline" : parent.toString() );
+    previewMeta.setName( "Preview pipeline for " + oneTransformName );
 
     // At it to the first transform.
     TransformMeta one = new TransformMeta( registry.getPluginId( TransformPluginType.class, oneMeta ), oneTransformName, oneMeta );

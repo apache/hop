@@ -34,11 +34,12 @@ public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSup
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "port",
+    return Arrays.asList( new String[] {
+      "serverPort",
       "serverName",
       "userName",
       "password",
-      "ftpDirectory",
+      "remoteDirectory",
       "targetDirectory",
       "wildcard",
       "binaryMode",
@@ -49,12 +50,12 @@ public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSup
       "controlEncoding",
       "moveFiles",
       "moveToDirectory",
-      "dateInFilename",
-      "timeInFilename",
+      "addDate",
+      "addTime",
       "specifyFormat",
-      "date_time_format",
+      "dateTimeFormat",
       "addDateBeforeExtension",
-      "addToResult",
+      "addResult",
       "createMoveFolder",
       "proxyHost",
       "proxyPort",
@@ -64,9 +65,9 @@ public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSup
       "socksProxyPort",
       "socksProxyUsername",
       "socksProxyPassword",
-      "SifFileExists",
-      "limit",
-      "success_condition" } );
+      "stringIfFileExists",
+      "nrLimit",
+      "successCondition" } );
   }
 
 }

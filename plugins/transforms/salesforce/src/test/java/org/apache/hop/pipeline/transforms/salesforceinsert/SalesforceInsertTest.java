@@ -203,7 +203,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testWriteToSalesForcePentahoIntegerValue() throws Exception {
+  public void testWriteToSalesForceHopIntegerValue() throws Exception {
     SalesforceInsertMeta meta = generateSalesforceInsertMeta( new String[] { ACCOUNT_ID }, new Boolean[] { false } );
     SalesforceInsertData data = generateSalesforceInsertData();
     SalesforceInsert sfInputTransform = new SalesforceInsert( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );

@@ -50,7 +50,7 @@ import java.util.List;
     description = "i18n::CloneRow.Description",
     image = "clonerow.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/clonerow.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/clonerow.html")
 public class CloneRowMeta extends BaseTransformMeta
     implements ITransformMeta<CloneRow, CloneRowData> {
 

@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
   description = "i18n::ActionGetPOP.Description",
   image = "GetPOP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/getpop.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/getpop.html"
 )
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
@@ -582,7 +582,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
    * in case of param returns null.
    */
   public String getRealPassword( String password ) {
-    return Utils.resolvePassword( variables, password );
+    return Utils.resolvePassword( getVariables(), password );
   }
 
   public String getAttachmentFolder() {
@@ -1035,7 +1035,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
                   // save message content in the file
                   mailConn.saveMessageContentToFile( localfilenameMessage, realOutputFolder );
-                  // PDI-10942 explicitly set message as read
+                  // explicitly set message as read
                   mailConn.getMessage().setFlag( Flag.SEEN, true );
 
                   if ( isDetailed() ) {
@@ -1090,7 +1090,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

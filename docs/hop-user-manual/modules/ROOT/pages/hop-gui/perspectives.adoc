@@ -1,0 +1,35 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+= Hop Gui Perspectives
+:imagesdir: ../assets/images
+
+Hop comes with a number of perspectives built in.
+
+Change the current perspectives by clicking on the icon in the left hand toolbar, or through the corresponding keyboard shortcut.
+Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to cycle through perspectives.
+
+include::perspective-data-orchestration.adoc[]
+
+include::perspective-metadata.adoc[]
+
+include::perspective-file-explorer.adoc[]
+
+include::perspective-search.adoc[]
+
+include::perspective-plugin.adoc[]
+
+include::perspective-neo4j.adoc[]

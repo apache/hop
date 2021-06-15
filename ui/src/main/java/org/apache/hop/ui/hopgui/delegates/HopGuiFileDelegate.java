@@ -94,7 +94,7 @@ public class HopGuiFileDelegate {
   public IHopFileTypeHandler fileOpen(String filename) throws Exception {
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-    IHopFileType<?> hopFile = fileRegistry.findHopFileType(filename);
+    IHopFileType hopFile = fileRegistry.findHopFileType(filename);
     if (hopFile == null) {
       throw new HopException(
           "We looked at "
@@ -105,7 +105,7 @@ public class HopGuiFileDelegate {
     }
 
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
-    hopGui.handleFileCapabilities(hopFile, false, false);
+    hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
 
     return fileTypeHandler;
   }
@@ -122,7 +122,7 @@ public class HopGuiFileDelegate {
   public String fileSaveAs() {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
-      IHopFileType<?> fileType = typeHandler.getFileType();
+      IHopFileType fileType = typeHandler.getFileType();
       if (!fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS)) {
         return null;
       }
@@ -152,7 +152,7 @@ public class HopGuiFileDelegate {
   public void fileSave() {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
-      IHopFileType<?> fileType = typeHandler.getFileType();
+      IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_SAVE)) {
         if (StringUtils.isEmpty(typeHandler.getFilename())) {
           // Ask for the filename: saveAs
@@ -171,7 +171,7 @@ public class HopGuiFileDelegate {
     try {
       IHopPerspective perspective = hopGui.getActivePerspective();
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
-      IHopFileType<?> fileType = typeHandler.getFileType();
+      IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
         perspective.remove(typeHandler);
       }

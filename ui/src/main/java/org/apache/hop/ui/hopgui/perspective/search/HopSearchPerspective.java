@@ -27,6 +27,7 @@ import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -61,13 +62,15 @@ import java.util.List;
 import java.util.Map;
 
 @HopPerspectivePlugin(
-  id = "300-HopSearchPerspective",
-  name = "Search",
+  id = "400-HopSearchPerspective",
+  name = "i18n::HopSearchPerspective.Name",
   description = "The Hop Search Perspective",
   image = "ui/images/search.svg"
 )
-@GuiPlugin(description="Hop Search Perspective GUI")
+@GuiPlugin(description="i18n::HopSearchPerspective.GuiPlugin.Description")
 public class HopSearchPerspective implements IHopPerspective {
+
+  private static final Class<?> PKG = HopSearchPerspective.class; // For Translator
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";
 
@@ -100,7 +103,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     hopGui.setActivePerspective( this );
   }
-  
+
   @Override public void perspectiveActivated() {
 	    wSearchString.setFocus();
 
@@ -188,7 +191,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     Label wlInfo = new Label( composite, SWT.LEFT );
     props.setLook( wlInfo );
-    wlInfo.setText( "Select the location to search in and the search string. Then hit the 'Search' button." );
+    wlInfo.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Header.Description.Text"));
     wlInfo.setFont( GuiResource.getInstance().getFontBold() );
     FormData fdInfo = new FormData();
     fdInfo.left = new FormAttachment( 0, 0 );
@@ -210,7 +213,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     Label wlLocations = new Label( composite, SWT.LEFT );
     props.setLook( wlLocations );
-    wlLocations.setText( "Location:" );
+    wlLocations.setText( BaseMessages.getString(PKG, "HopSearchPerspective.Label.Location") );
     FormData fdlLocations = new FormData();
     fdlLocations.left = new FormAttachment( 0, 0 );
     fdlLocations.top = new FormAttachment( lastControl, margin );
@@ -230,7 +233,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     Label wlSearchString = new Label( composite, SWT.LEFT );
     props.setLook( wlSearchString );
-    wlSearchString.setText( "Search string:      " );
+    wlSearchString.setText( BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Description"));
     FormData fdlSearchString = new FormData();
     fdlSearchString.left = new FormAttachment( 0, 0 );
     fdlSearchString.top = new FormAttachment( lastControl, margin );
@@ -238,7 +241,7 @@ public class HopSearchPerspective implements IHopPerspective {
 
     wCaseSensitive = new Button(composite, SWT.CHECK);
     props.setLook( wCaseSensitive );
-    wCaseSensitive.setText("Case sensitive?     ");
+    wCaseSensitive.setText(BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option1.Label"));
     FormData fdCaseSensitive = new FormData();
     fdCaseSensitive.left = new FormAttachment(wlSearchString, margin*2);
     fdCaseSensitive.top = new FormAttachment(lastControl, margin);
@@ -246,7 +249,7 @@ public class HopSearchPerspective implements IHopPerspective {
 
     wRegEx = new Button(composite, SWT.CHECK);
     props.setLook( wRegEx );
-    wRegEx.setText("Regular expression?     ");
+    wRegEx.setText( BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option2.Label"));
     FormData fdRegEx = new FormData();
     fdRegEx.left = new FormAttachment(wCaseSensitive, margin*2);
     fdRegEx.top = new FormAttachment(lastControl, margin);
@@ -266,7 +269,7 @@ public class HopSearchPerspective implements IHopPerspective {
 
     Button wbSearch = new Button( composite, SWT.PUSH );
     props.setLook( wbSearch );
-    wbSearch.setText( "  Search  " );
+    wbSearch.setText( BaseMessages.getString(PKG, "HopSearchPerspective.Search.Button.Label") );
     FormData fdbSearch = new FormData();
     fdbSearch.left = new FormAttachment( 0, 0 );
     fdbSearch.top = new FormAttachment( lastControl, margin );
@@ -276,26 +279,27 @@ public class HopSearchPerspective implements IHopPerspective {
 
     Button wbOpen = new Button( composite, SWT.PUSH );
     props.setLook( wbOpen );
-    wbOpen.setText( "    Open    " );
+    wbOpen.setText( BaseMessages.getString(PKG, "HopSearchPerspective.Open.Button.Label") );
     FormData fdbOpen = new FormData();
     fdbOpen.left = new FormAttachment( 50, 0 );
     fdbOpen.bottom = new FormAttachment( 100, -margin );
     wbOpen.setLayoutData( fdbOpen );
     wbOpen.addListener( SWT.Selection, this::open );
+    wbOpen.setEnabled( false );
 
 
     // A table with the search results...
     //
     ColumnInfo[] resultsColumns = {
-      new ColumnInfo( "Type", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( "Name", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( "File", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( "Location", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( "Matching text", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( "Description", ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Type.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Name.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.File.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Location.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.MatchText.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Description.Field"), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
     };
 
-    wResults = new TableView( hopGui.getVariables(), composite, SWT.V_SCROLL | SWT.V_SCROLL | SWT.SINGLE, resultsColumns, 0, null, props );
+    wResults = new TableView( hopGui.getVariables(), composite, SWT.V_SCROLL | SWT.V_SCROLL | SWT.MULTI, resultsColumns, 0, null, props );
     props.setLook( wResults );
     wResults.setReadonly( true );
     FormData fdResults = new FormData();
@@ -304,6 +308,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdResults.top = new FormAttachment( lastControl, margin );
     fdResults.bottom = new FormAttachment( wbOpen, -2*margin );
     wResults.setLayoutData( fdResults );
+    wResults.table.addListener( SWT.Selection, e-> wbOpen.setEnabled( wResults.getSelectionIndices().length==1 ) );
     wResults.table.addListener( SWT.DefaultSelection, this::open );
   }
 
@@ -363,7 +368,8 @@ public class HopSearchPerspective implements IHopPerspective {
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_LOCATION, searchablesLocation.getLocationDescription() );
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_STRING, wSearchString.getText() );
 
-      Iterator<ISearchable> iterator = searchablesLocation.getSearchables();
+      Iterator<ISearchable> iterator =
+          searchablesLocation.getSearchables(hopGui.getMetadataProvider(), hopGui.getVariables() );
       while ( iterator.hasNext() ) {
         // Load the next object
         //

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hop.ui.pipeline.transform;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -32,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.DialogBoxWithButtons;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -51,7 +51,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.util.HelpUtils;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -67,6 +66,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -85,7 +85,7 @@ public class BaseTransformDialog extends Dialog {
       new SimpleLoggingObject("Transform dialog", LoggingObjectType.TRANSFORM_DIALOG, null);
 
   /** The variable bindings for this dialog. */
-  protected static IVariables variables;
+  protected IVariables variables;
 
   /** The transform name. */
   protected String transformName;
@@ -105,17 +105,11 @@ public class BaseTransformDialog extends Dialog {
   /** FormData for the common dialog buttons. */
   protected FormData fdOk, fdGet, fdPreview, fdSql, fdCreate, fdCancel;
 
-  /** Listeners for the common dialog buttons. */
-  protected Listener lsOk, lsGet, lsPreview, lsSql, lsCreate, lsCancel;
-
   /** The metadata for the associated pipeline. */
   protected PipelineMeta pipelineMeta;
 
-  /** A reference to the shell. */
+  /** A reference to the parent shell. */
   protected Shell shell;
-
-  /** A listener adapter for default widget selection. */
-  protected SelectionAdapter lsDef;
 
   /** A listener for dialog resizing. */
   protected Listener lsResize;
@@ -232,7 +226,6 @@ public class BaseTransformDialog extends Dialog {
     setShellImage(shell);
 
     if (transformMeta.isDeprecated()) {
-
       addDeprecation();
     }
   }
@@ -254,8 +247,7 @@ public class BaseTransformDialog extends Dialog {
             if (!transformMeta.isDeprecated() || deprecation) {
               return;
             }
-            String deprecated =
-                BaseMessages.getString(PKG, "BaseTransform.Category.Deprecated").toLowerCase();
+            String deprecated = BaseMessages.getString(PKG, "System.Deprecated").toLowerCase();
             shell.setText(shell.getText() + " (" + deprecated + ")");
             deprecation = true;
           }
@@ -264,8 +256,7 @@ public class BaseTransformDialog extends Dialog {
 
   /** Dispose this dialog. */
   public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
@@ -304,11 +295,6 @@ public class BaseTransformDialog extends Dialog {
       Composite composite, Button[] buttons, int margin, Control lastControl) {
     // call positionBottomButtons method the system button alignment
     positionBottomButtons(composite, buttons, margin, buttonAlignment, lastControl);
-  }
-
-  public static final void positionBottomRightButtons(
-      Composite composite, Button[] buttons, int margin, Control lastControl) {
-    positionBottomButtons(composite, buttons, margin, BUTTON_ALIGNMENT_RIGHT, lastControl);
   }
 
   public static final void positionBottomButtons(
@@ -546,10 +532,12 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Gets the modify listener tooltip text.
    *
+   * @param variables
    * @param textField the text field
    * @return the modify listener tooltip text
    */
-  public static final ModifyListener getModifyListenerTooltipText(final TextVar textField) {
+  public static final ModifyListener getModifyListenerTooltipText(
+      IVariables variables, final TextVar textField) {
     return e -> {
       // maybe replace this with extra arguments
       textField.setToolTipText(variables.resolve(textField.getText()));
@@ -569,15 +557,15 @@ public class BaseTransformDialog extends Dialog {
       Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod) {
 
     final MetaSelectionLine<DatabaseMeta> wConnection =
-      new MetaSelectionLine<>(
-        variables,
-        metadataProvider,
-        DatabaseMeta.class,
-        parent,
-        SWT.NONE,
-        BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
-        "Select the relational database connection to use" // TODO : i18n
-      );
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            DatabaseMeta.class,
+            parent,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
+            "Select the relational database connection to use" // TODO : i18n
+            );
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
   }
@@ -734,6 +722,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Gets unused fields from previous transforms and inserts them as rows into a table view.
    *
+   * @param variables
    * @param pipelineMeta the pipeline metadata
    * @param transformMeta the transform metadata
    * @param tableView the table view
@@ -745,6 +734,7 @@ public class BaseTransformDialog extends Dialog {
    * @param listener a listener for tables insert events
    */
   public static final void getFieldsFromPrevious(
+      IVariables variables,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
       TableView tableView,
@@ -899,7 +889,7 @@ public class BaseTransformDialog extends Dialog {
     if (keys.size() > 0) {
       // Ask what we should do with the existing data in the transform.
       //
-      MessageDialog getFieldsChoiceDialog =
+      DialogBoxWithButtons getFieldsChoiceDialog =
           getFieldsChoiceDialogProvider.provide(tableView.getShell(), keys.size(), row.size());
 
       int idx = getFieldsChoiceDialog.open();
@@ -962,39 +952,40 @@ public class BaseTransformDialog extends Dialog {
     }
   }
 
-  static MessageDialog getFieldsChoiceDialog(Shell shell, int existingFields, int newFields) {
-    MessageDialog messageDialog =
-        new MessageDialog(
+  static DialogBoxWithButtons getFieldsChoiceDialog(
+      Shell shell, int existingFields, int newFields) {
+    DialogBoxWithButtons messageDialog =
+        new DialogBoxWithButtons(
             shell,
             BaseMessages.getString(PKG, "BaseTransformDialog.GetFieldsChoice.Title"), // "Warning!"
-            null,
             BaseMessages.getString(
                 PKG,
                 "BaseTransformDialog.GetFieldsChoice.Message",
                 "" + existingFields,
                 "" + newFields),
-            SWT.ICON_WARNING,
             new String[] {
               BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Add"),
               BaseMessages.getString(PKG, "BaseTransformDialog.ClearAndAdd"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Cancel"),
-            },
-            0);
-    MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
+            });
     return messageDialog;
   }
 
   /**
    * Gets fields from previous transforms and populate a ComboVar.
    *
+   * @param variables
    * @param comboVar the Combo Box (with Variables) to populate
    * @param pipelineMeta the pipeline metadata
    * @param transformMeta the transform metadata
    */
   public static final void getFieldsFromPrevious(
-      ComboVar comboVar, PipelineMeta pipelineMeta, TransformMeta transformMeta) {
-    String selectedField = null;
+      IVariables variables,
+      ComboVar comboVar,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta) {
+    String selectedField;
     int indexField = -1;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformMeta);
@@ -1021,38 +1012,6 @@ public class BaseTransformDialog extends Dialog {
           BaseMessages.getString(
               PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogMessage"),
           ke);
-    }
-  }
-
-  /**
-   * Create a new field mapping between source and target transforms.
-   *
-   * @param shell the shell of the parent window
-   * @param sourceFields the source fields
-   * @param targetFields the target fields
-   * @param fieldMapping the list of source to target mappings to default to (can be empty but not
-   *     null)
-   * @throws HopException in case something goes wrong during the field mapping
-   */
-  public static final void generateFieldMapping(
-      Shell shell,
-      IRowMeta sourceFields,
-      IRowMeta targetFields,
-      List<SourceToTargetMapping> fieldMapping)
-      throws HopException {
-    // Build the mapping: let the user decide!!
-    String[] source = sourceFields.getFieldNames();
-    for (int i = 0; i < source.length; i++) {
-      IValueMeta v = sourceFields.getValueMeta(i);
-      source[i] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
-    }
-    String[] target = targetFields.getFieldNames();
-
-    EnterMappingDialog dialog = new EnterMappingDialog(shell, source, target, fieldMapping);
-    List<SourceToTargetMapping> newMapping = dialog.open();
-    if (newMapping != null) {
-      fieldMapping.clear();
-      fieldMapping.addAll(newMapping);
     }
   }
 
@@ -1247,7 +1206,7 @@ public class BaseTransformDialog extends Dialog {
   }
 
   public interface IFieldsChoiceDialogProvider {
-    MessageDialog provide(Shell shell, int existingFields, int newFields);
+    DialogBoxWithButtons provide(Shell shell, int existingFields, int newFields);
   }
 
   /**
@@ -1257,5 +1216,23 @@ public class BaseTransformDialog extends Dialog {
    */
   public IVariables getVariables() {
     return variables;
+  }
+
+  protected void replaceNameWithBaseFilename(String filename) {
+    // Ask to set the name to the base filename...
+    //
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText("Change name?");
+    box.setMessage("Do you want to change the name of the action to match the filename?");
+    int answer = box.open();
+    if ((answer & SWT.YES) != 0) {
+      try {
+        String baseName = HopVfs.getFileObject(variables.resolve(filename)).getName().getBaseName();
+        wTransformName.setText(baseName);
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell, "Error", "Error extracting name from filename '" + filename + "'", e);
+      }
+    }
   }
 }

@@ -209,11 +209,11 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
       String[] retval = new String[ nr ];
 
       int i = 0;
-      for ( int step = 0; step < copies; step++ ) {
+      for ( int copy = 0; copy < copies; copy++ ) {
         for ( int part = 0; part < parts; part++ ) {
           for ( int split = 0; split < splits; split++ ) {
             retval[ i ] = buildFilename(
-              realFileName, realExtension, step + "", getPartPrefix() + part, split + "", now, false, showSamples );
+              realFileName, realExtension, copy + "", getPartPrefix() + part, split + "", now, false, showSamples );
             i++;
           }
         }
@@ -224,7 +224,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
 
       return retval;
     } else {
-      return new String[] { buildFilename( realFileName, realExtension, "<step>", "<partition>", "<split>", now, false,
+      return new String[] { buildFilename( realFileName, realExtension, "<transform>", "<partition>", "<split>", now, false,
         showSamples ) };
     }
   }

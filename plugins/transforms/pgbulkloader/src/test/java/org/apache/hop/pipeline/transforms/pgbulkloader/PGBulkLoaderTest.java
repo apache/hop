@@ -160,7 +160,7 @@ public class PGBulkLoaderTest {
   }
 
   /**
-   * [PDI-17481] Testing the ability that if no connection is specified, we will mark it as a fail and log the
+   * Testing the ability that if no connection is specified, we will mark it as a fail and log the
    * appropriate reason to the user by throwing a HopException.
    */
   @Test

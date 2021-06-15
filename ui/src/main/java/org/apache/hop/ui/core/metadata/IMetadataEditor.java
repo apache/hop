@@ -18,47 +18,62 @@
 package org.apache.hop.ui.core.metadata;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 
-public interface IMetadataEditor {
+public interface IMetadataEditor<T extends IHopMetadata> {
+
+  T getMetadata();
+
+  void setMetadata(T metadata);
 
   /** 
    * Return the title of the editor
    * 
    * @return The title of this editor */
-  public String getTitle();
+  String getTitle();
 
   /**
    * Returns the title image of this editor
    *
    * @return
    */
-  public Image getTitleImage();
+  Image getTitleImage();
 
   /**
    * Returns the title tool tip text of this editor
    *
    * @return
    */
-  public String getTitleToolTip();
+  String getTitleToolTip();
 
-  public void createControl(Composite _parent);
+  void createControl( Composite _parent );
 
   /**
    * Returns whether the contents of this editor have changed since the last save operation.
    *
    * @return
    */
-  public boolean isChanged();
+  boolean hasChanged();
+
+  /**
+   * Flag the editor as changed
+   */
+  void setChanged();
+
+  /**
+   * Clear the changed flag
+   */
+  void resetChanged();
 
   /** Save the editor input */
-  public void save() throws HopException;
+  void save() throws HopException;
 
   /** Save the editor input to file after asking for a filename */
-  public void saveAs(String filename) throws HopException;
+  void saveAs( String filename ) throws HopException;
 
-  public boolean setFocus();
+  boolean setFocus();
 
-  public void dispose();
+  void dispose();
 }

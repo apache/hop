@@ -469,7 +469,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         String comment = data.inputRowMeta.getValueMeta( data.commentfieldnrs[ fieldNr ] ).getString( row[ data.commentfieldnrs[ fieldNr ] ] );
         if ( !Utils.isEmpty( comment ) ) {
           String author = data.commentauthorfieldnrs[ fieldNr ] >= 0
-            ? data.inputRowMeta.getValueMeta( data.commentauthorfieldnrs[ fieldNr ] ).getString( row[ data.commentauthorfieldnrs[ fieldNr ] ] ) : "Hop PDI";
+            ? data.inputRowMeta.getValueMeta( data.commentauthorfieldnrs[ fieldNr ] ).getString( row[ data.commentauthorfieldnrs[ fieldNr ] ] ) : "Apache Hop";
           cell.setCellComment( createCellComment( author, comment ) );
         }
       }

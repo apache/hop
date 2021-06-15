@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.GenericDatabaseMeta;
+import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -26,10 +26,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class SynchronizeAfterMergeTest {
 
@@ -46,7 +43,7 @@ public class SynchronizeAfterMergeTest {
     SynchronizeAfterMergeData sdi = mock( SynchronizeAfterMergeData.class );
 
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    doReturn( mock( GenericDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( NoneDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
 
     doReturn( dbMeta ).when( smi ).getDatabaseMeta();
     doReturn( "${commit.size}" ).when( smi ).getCommitSize();

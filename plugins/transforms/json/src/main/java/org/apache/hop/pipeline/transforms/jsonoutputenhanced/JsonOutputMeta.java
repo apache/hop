@@ -47,12 +47,11 @@ import java.util.List;
 
 @Transform(id = "EnhancedJsonOutput",
         image = "JSO.svg",
-        name = "EnhancedJsonOutput.name",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.jsonoutput.enhanced",
-        description = "EnhancedJsonOutput.description",
-        categoryDescription = "EnhancedJsonOutput.category",
+        name = "i18n::EnhancedJsonOutput.name",
+        description = "i18n::EnhancedJsonOutput.description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
         keywords = { "json", "javascript", "object", "notation" },
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsonoutput.html")
+        documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/enhancedjsonoutput.html")
 @InjectionSupported(localizationPrefix = "JsonOutput.Injection.", groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
     private static Class<?> PKG = JsonOutputMeta.class;

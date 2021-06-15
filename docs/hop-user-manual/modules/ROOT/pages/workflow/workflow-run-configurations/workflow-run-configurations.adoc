@@ -1,0 +1,52 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[WorkflowRunConfigurations]]
+:imagesdir: ../assets/images
+= Workflow Run Configurations
+
+== Description
+
+Run configurations decouple the design and execution phases of Hop workflow development.
+A workflow is a definition of _how_ data is processed, a run configurations defines _where_ the workflow is executed.
+Hop supports a number of different runtime engines, each of which will be described in more detail in this section.
+Each run configuration comes with its own set of parameters and configuration options, all of which are stored as Hop Metadata.
+
+== Choosing a Run Configuration
+
+When starting a new transformation click **New** next to 'Workflow run configuration'.
+All run configurations have a name, description and an engine type, each engine type has its own set of configuration options.
+
+Once created, run configurations are available from the 'Pipeline run configuration' list and are ready to use.
+
+image:hop-gui/workflow/workflow-run-configuration.png[Workflow Run configuration,65%,align="left"]
+
+== Options
+
+The tab contains the name, description and the dropdown list for the workflow engine types.
+
+[width="90%",options="header",cols="1,4"]
+|===
+|Option|Description
+|Name|The name you want to use for this workflow run configuration.
+|Description|A description you want to use for this workflow run configuration (optional).
+|Engine type
+a|
+The available engine types are:
+
+* Local workflow engine*: this configuration runs pipelines on your machine
+* xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow engine]: this configuration runs workflows on a Hop Server using a defined Run Configuration.
+|===

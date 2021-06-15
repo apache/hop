@@ -17,6 +17,9 @@
 #
 #
 
+### THIS SCRIPT IS NOT USED ANY MORE
+# just left here in case we ever need it again
+
 # Script used to fetch the latest snapshot version of project hop
 
 set -ex

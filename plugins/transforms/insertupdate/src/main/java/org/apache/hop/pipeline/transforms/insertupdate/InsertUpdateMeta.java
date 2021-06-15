@@ -65,7 +65,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/insertupdate.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta
     implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
@@ -902,7 +902,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
       return;
     }
     int nrFields = keyStream.length;
-    // PDI-16349
     if (keyStream2.length < nrFields) {
       String[] newKeyStream2 = new String[nrFields];
       System.arraycopy(keyStream2, 0, newKeyStream2, 0, keyStream2.length);

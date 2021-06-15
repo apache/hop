@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,22 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
 public class ConfigOption {
 
   public enum Type {
-
-    String, Short, Int, Long, Double, Boolean,
+    String,
+    Short,
+    Int,
+    Long,
+    Double,
+    Boolean,
     ;
 
     public static final Type getTypeFromName(String name) {
       for (Type type : values()) {
-        if (type.name().equalsIgnoreCase( name )) {
+        if (type.name().equalsIgnoreCase(name)) {
           return type;
         }
       }
@@ -35,21 +41,25 @@ public class ConfigOption {
 
     public static final String[] getTypeNames() {
       String[] names = new String[values().length];
-      for (int i=0;i<names.length;i++) {
-        names[ i ] = values()[i].name();
+      for (int i = 0; i < names.length; i++) {
+        names[i] = values()[i].name();
       }
       return names;
     }
   }
 
+  @HopMetadataProperty(key = "parameter")
   private String parameter;
+
+  @HopMetadataProperty(key = "value")
   private String value;
+
+  @HopMetadataProperty(key = "type")
   private Type type;
 
-  public ConfigOption() {
-  }
+  public ConfigOption() {}
 
-  public ConfigOption( String parameter, String value, Type type ) {
+  public ConfigOption(String parameter, String value, Type type) {
     this.parameter = parameter;
     this.value = value;
     this.type = type;
@@ -64,10 +74,8 @@ public class ConfigOption {
     return parameter;
   }
 
-  /**
-   * @param parameter The parameter to set
-   */
-  public void setParameter( String parameter ) {
+  /** @param parameter The parameter to set */
+  public void setParameter(String parameter) {
     this.parameter = parameter;
   }
 
@@ -80,10 +88,8 @@ public class ConfigOption {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 
@@ -96,10 +102,8 @@ public class ConfigOption {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( Type type ) {
+  /** @param type The type to set */
+  public void setType(Type type) {
     this.type = type;
   }
 }

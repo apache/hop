@@ -21,18 +21,23 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -43,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
-    implements IMetadataEditor {
+    implements IMetadataEditor<T> {
 
   private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator
 
@@ -72,7 +77,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     // Initialize editor
     this.setTitle(metadata.getName());
-    this.setTitleToolTip(annotation.name());
+
+    String titleToolTip = annotation.name();
+    if (StringUtils.isNotEmpty(metadata.getMetadataProviderName())) {
+      titleToolTip+= Const.CR+"Source: "+metadata.getMetadataProviderName();
+    }
+    this.setTitleToolTip(titleToolTip);
+
     this.setTitleImage(
         GuiResource.getInstance()
             .getImage(
@@ -95,6 +106,12 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return null;
   }
 
+  protected Button createHelpButton(final Shell shell) {  
+    HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
+    IPlugin plugin =  PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());   
+    return HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
+  }
+  
   public HopGui getHopGui() {
     return hopGui;
   }
@@ -103,8 +120,14 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return manager;
   }
 
+  @Override
   public T getMetadata() {
     return metadata;
+  }
+
+  @Override
+  public void setMetadata(T metadata) {
+    this.metadata = metadata;
   }
 
   public Shell getShell() {
@@ -147,15 +170,17 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   }
 
   @Override
-  public boolean isChanged() {
+  public boolean hasChanged() {
     return isChanged;
   }
 
-  protected void resetChanged() {
+  @Override
+  public void resetChanged() {
     this.isChanged = false;
   }
 
-  protected void setChanged() {
+  @Override
+  public void setChanged() {
     if (this.isChanged == false) {
       this.isChanged = true;
       MetadataPerspective.getInstance().updateEditor(this);
@@ -178,7 +203,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     // Check if the metadata is saved. If not, ask for it to be saved.
     //
-    if (isChanged()) {
+    if ( this.hasChanged()) {
 
       MessageBox messageDialog =
           new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);

@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class MetadataFileTypeHandler implements IHopFileTypeHandler {
 
- private static final IHopFileType<?> fileType = new MetadataFileType();
+ private static final IHopFileType fileType = new MetadataFileType();
 
   public MetadataFileTypeHandler() {
 
@@ -48,7 +48,7 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
   @Override public void setName( String name ) {
   }
 
-  @Override public IHopFileType<?> getFileType() {
+  @Override public IHopFileType getFileType() {
     return fileType;
   }
 

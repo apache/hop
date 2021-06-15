@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,12 +20,16 @@ package org.apache.hop.ui.core.database.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
@@ -33,28 +37,20 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineProfileFactory;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -62,12 +58,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -83,15 +79,21 @@ import java.util.List;
  * @since 18-05-2003
  *     <p>
  */
+@GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
   private static final Class<?> PKG = DatabaseExplorerDialog.class; // For Translator
 
-  private ILogChannel log;
-  private PropsUi props;
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseExplorerDialog-Toolbar";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL = "DatabaseExplorer-ToolBar-10100-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "DatabaseExplorer-ToolBar-10200-CollapseAll";
+
+  private final ILogChannel log;
+  private final PropsUi props;
   private DatabaseMeta dbMeta;
-  private IVariables variables;
-  private DbCache dbcache;
-  private ILoggingObject loggingObject;
+  private final IVariables variables;
+  private final DbCache dbcache;
+  private final ILoggingObject loggingObject;
 
   private static final String STRING_CATALOG =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Catalogs.Label");
@@ -104,20 +106,17 @@ public class DatabaseExplorerDialog extends Dialog {
   private static final String STRING_SYNONYMS =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Synonyms.Label");
 
-  private Shell parent, shell;
+  private final Shell parent;
+  private Shell shell;
   private Tree wTree;
   private TreeItem tiTree;
 
-  private Button wOk;
-  private Button wRefresh;
-  private Button wCancel;
-
   private String tableName;
 
-  private boolean justLook;
+  private final boolean justLook;
   private String selectedSchema;
   private String selectedTable;
-  private List<DatabaseMeta> databases;
+  private final List<DatabaseMeta> databases;
   private boolean splitSchemaAndTable;
   private String schemaName;
   private Composite buttonsComposite;
@@ -130,8 +129,9 @@ public class DatabaseExplorerDialog extends Dialog {
   private Button bSql;
   private String activeSchemaTable;
   private Button bTruncate;
-  private FormData fdExpandAll;
-  private ToolItem expandAll, collapseAll;
+
+  private ToolBar toolBar;
+  private GuiToolbarWidgets toolBarWidgets;
 
   public DatabaseExplorerDialog(
       Shell parent,
@@ -157,7 +157,7 @@ public class DatabaseExplorerDialog extends Dialog {
     this.databases = databases;
     this.justLook = look;
     this.splitSchemaAndTable = splitSchemaAndTable;
-    this.loggingObject = new LoggingObject( "Database Explorer" );
+    this.loggingObject = new LoggingObject("Database Explorer");
 
     selectedSchema = null;
     selectedTable = null;
@@ -192,130 +192,98 @@ public class DatabaseExplorerDialog extends Dialog {
 
     shell.setLayout(formLayout);
 
-    addButtons();
+    int margin = Const.MARGIN;
+
+    // Main buttons at the bottom
+    //
+    List<Button> buttons = new ArrayList<>();
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    buttons.add(wOk);
+
+    Button wRefresh = new Button(shell, SWT.PUSH);
+    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
+    wRefresh.addListener(SWT.Selection, e -> getData());
+    buttons.add(wRefresh);
+
+    if (!justLook) {
+      Button wCancel = new Button(shell, SWT.PUSH);
+      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.addListener(SWT.Selection, e -> cancel());
+      buttons.add(wCancel);
+    }
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
+
+    // Add a toolbar
+    //
+    toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    FormData layoutData = new FormData();
+    layoutData.top = new FormAttachment(0, 0);
+    layoutData.left = new FormAttachment(0, 0);
+    layoutData.right = new FormAttachment(100, 0);
+    toolBar.setLayoutData(layoutData);
+    toolBar.pack();
+    PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+
+    addRightButtons();
     refreshButtons(null);
 
     // Tree
     wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
     props.setLook(wTree);
+    FormData fdTree = new FormData();
+    fdTree.left = new FormAttachment(0, 0); // To the right of the label
+    fdTree.top = new FormAttachment(toolBar, margin);
+    fdTree.right = new FormAttachment(buttonsComposite, -margin);
+    fdTree.bottom = new FormAttachment(wOk, -2 * margin);
+    wTree.setLayoutData(fdTree);
 
     if (!getData()) {
       return false;
     }
 
-    // Buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-
-    wRefresh = new Button(shell, SWT.PUSH);
-    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
-
-    if (!justLook) {
-      wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    }
-
-    FormData fdTree = new FormData();
-
-    int margin = 10;
-
-    fdTree.left = new FormAttachment(0, 0); // To the right of the label
-    fdTree.top = new FormAttachment(0, 0);
-    fdTree.right = new FormAttachment(buttonsComposite, -margin);
-    fdTree.bottom = new FormAttachment(100, -50);
-    wTree.setLayoutData(fdTree);
-
-    if (!justLook) {
-      BaseTransformDialog.positionBottomButtons(
-          shell, new Button[] {wOk, wCancel, wRefresh}, margin, null);
-
-      // Add listeners
-      wCancel.addListener(
-          SWT.Selection,
-          e -> {
-            log.logBasic("SelectTableDialog", "CANCEL SelectTableDialog", null);
-            dbMeta = null;
-            dispose();
-          });
-    } else {
-      BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wRefresh}, margin, null);
-    }
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> handleOK());
-    wRefresh.addListener(SWT.Selection, e -> getData());
-    SelectionAdapter selAdapter =
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            refreshButtons(getSchemaTable());
-          }
-
-          public void widgetDefaultSelected(SelectionEvent e) {
-            openSchema(e);
-          }
-        };
-    wTree.addSelectionListener(selAdapter);
-
-    wTree.addMouseListener(
-        new MouseAdapter() {
-          public void mouseDown(MouseEvent e) {
-            if (e.button == 3) // right click!
-            {
-              setTreeMenu();
-            }
+    wTree.addListener(SWT.Selection, e -> refreshButtons(getSchemaTable()));
+    wTree.addListener(SWT.DefaultSelection, this::openSchema);
+    wTree.addListener(
+        SWT.MouseDown,
+        e -> {
+          if (e.button == 3) // right click!
+          {
+            setTreeMenu();
           }
         });
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          public void shellClosed(ShellEvent e) {
-            dispose();
-          }
-        });
-
-    BaseTransformDialog.setSize(shell, 320, 480, true);
+    shell.addListener(SWT.Close, e -> cancel());
 
     shell.open();
-    Display display = parent.getDisplay();
+
+    // Handle the event loop until we're done with this shell...
+    //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
     }
+
     return tableName != null;
   }
 
-  private void addButtons() {
+  private void cancel() {
+    log.logBasic("SelectTableDialog", "CANCEL SelectTableDialog", null);
+    dbMeta = null;
+    dispose();
+  }
+
+  private void addRightButtons() {
     buttonsComposite = new Composite(shell, SWT.NONE);
     props.setLook(buttonsComposite);
     buttonsComposite.setLayout(new FormLayout());
 
     activeSchemaTable = null;
-
-    ToolBar treeTb = new ToolBar(shell, SWT.HORIZONTAL | SWT.FLAT);
-    expandAll = new ToolItem(treeTb, SWT.PUSH);
-    expandAll.setImage(GuiResource.getInstance().getImageExpandAll());
-    collapseAll = new ToolItem(treeTb, SWT.PUSH);
-    collapseAll.setImage(GuiResource.getInstance().getImageCollapseAll());
-    fdExpandAll = new FormData();
-    fdExpandAll.right = new FormAttachment(100, 0);
-    fdExpandAll.top = new FormAttachment(0, 0);
-    treeTb.setLayoutData(fdExpandAll);
-
-    expandAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent event) {
-            expandAllItems(wTree.getItems(), true);
-          }
-        });
-
-    collapseAll.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent event) {
-            expandAllItems(wTree.getItems(), false);
-          }
-        });
 
     bPrev = new Button(buttonsComposite, SWT.PUSH);
     bPrev.setText(
@@ -452,8 +420,28 @@ public class DatabaseExplorerDialog extends Dialog {
 
     FormData fdComposite = new FormData();
     fdComposite.right = new FormAttachment(100, 0);
-    fdComposite.top = new FormAttachment(0, 20);
+    fdComposite.top = new FormAttachment(0, toolBar.getBounds().height);
     buttonsComposite.setLayoutData(fdComposite);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXPAND_ALL,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.ExpandAll.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/expand-all.svg")
+  public void expandAll() {
+    expandAllItems(wTree.getItems(), true);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COLLAPSE_ALL,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.CollapseAll.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/collapse-all.svg")
+  public void collapseAll() {
+    expandAllItems(wTree.getItems(), false);
   }
 
   private void expandAllItems(TreeItem[] treeitems, boolean expand) {
@@ -503,7 +491,8 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   private boolean getData() {
-    GetDatabaseInfoProgressDialog gdipd = new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
+    GetDatabaseInfoProgressDialog gdipd =
+        new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
     DatabaseMetaInformation dmi = gdipd.open();
     if (dmi != null) {
       // Clear the tree top entry
@@ -623,7 +612,8 @@ public class DatabaseExplorerDialog extends Dialog {
         if (ti != null) {
           wTree.setSelection(new TreeItem[] {ti});
           wTree.showSelection();
-          refreshButtons(dbMeta.getQuotedSchemaTableCombination(variables, selectedSchema, selectedTable));
+          refreshButtons(
+              dbMeta.getQuotedSchemaTableCombination(variables, selectedSchema, selectedTable));
         }
 
         selectedTable = null;
@@ -734,18 +724,6 @@ public class DatabaseExplorerDialog extends Dialog {
             }
           });
 
-      new MenuItem(mTree, SWT.SEPARATOR);
-
-      MenuItem miProfile = new MenuItem(mTree, SWT.PUSH);
-      miProfile.setText(
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ProfileTable", table));
-      miProfile.addSelectionListener(
-          new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-              profileTable(table);
-            }
-          });
-
       wTree.setMenu(mTree);
     } else {
       wTree.setMenu(null);
@@ -785,7 +763,8 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void showTable(String tableName) {
     String sql = dbMeta.getSqlQueryFields(tableName);
-    GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
+    GetQueryFieldsProgressDialog pd =
+        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
     IRowMeta result = pd.open();
     if (result != null) {
       TransformFieldsDialog sfd =
@@ -795,7 +774,8 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showCount(String tableName) {
-    GetTableSizeProgressDialog pd = new GetTableSizeProgressDialog(shell, variables, dbMeta, tableName);
+    GetTableSizeProgressDialog pd =
+        new GetTableSizeProgressDialog(shell, variables, dbMeta, tableName);
     Long size = pd.open();
     if (size != null) {
       MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
@@ -808,12 +788,12 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getDDL(String tableName) {
-    Database db = new Database(loggingObject, variables, dbMeta );
+    Database db = new Database(loggingObject, variables, dbMeta);
     try {
       db.connect();
       IRowMeta r = db.getTableFields(tableName);
       String sql = db.getCreateTableStatement(tableName, r, null, false, null, true);
-      SqlEditor se = new SqlEditor( shell, SWT.NONE, variables, dbMeta, dbcache, sql);
+      SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
       se.open();
     } catch (HopDatabaseException dbe) {
       new ErrorDialog(
@@ -828,7 +808,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void getDDLForOther(String tableName) {
     if (databases != null) {
-      Database database = new Database(loggingObject, variables, dbMeta );
+      Database database = new Database(loggingObject, variables, dbMeta);
       try {
         database.connect();
 
@@ -856,9 +836,10 @@ public class DatabaseExplorerDialog extends Dialog {
         String target = enterSelectionDialog.open();
         if (target != null) {
           DatabaseMeta targetDatabaseMeta = DatabaseMeta.findDatabase(databaseMetaList, target);
-          Database targetDatabase = new Database(loggingObject, variables, targetDatabaseMeta );
+          Database targetDatabase = new Database(loggingObject, variables, targetDatabaseMeta);
 
-          String sql = targetDatabase.getCreateTableStatement(tableName, rowMeta, null, false, null, true);
+          String sql =
+              targetDatabase.getCreateTableStatement(tableName, rowMeta, null, false, null, true);
           SqlEditor sqlEditor = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
           sqlEditor.open();
         }
@@ -886,69 +867,10 @@ public class DatabaseExplorerDialog extends Dialog {
     sqlEditor.open();
   }
 
-  /**
-   * Fire off a pipeline that data profiles the specified table...<br>
-   *
-   * @param tableName
-   */
-  public void profileTable(String tableName) {
-    try {
-      PipelineProfileFactory profileFactory = new PipelineProfileFactory(variables, dbMeta, tableName);
-      PipelineMeta pipelineMeta = profileFactory.generatePipeline(new LoggingObject(tableName));
-      PipelinePreviewProgressDialog progressDialog =
-          new PipelinePreviewProgressDialog(
-              shell,
-              variables,
-              pipelineMeta,
-              new String[] {
-                PipelineProfileFactory.RESULT_TRANSFORM_NAME,
-              },
-              new int[] {
-                25000,
-              });
-      progressDialog.open();
-
-      if (!progressDialog.isCancelled()) {
-        Pipeline pipeline = progressDialog.getPipeline();
-        String loggingText = progressDialog.getLoggingText();
-
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
-
-        PreviewRowsDialog prd =
-            new PreviewRowsDialog(
-                shell,
-                variables,
-                SWT.NONE,
-                PipelineProfileFactory.RESULT_TRANSFORM_NAME,
-                progressDialog.getPreviewRowsMeta(PipelineProfileFactory.RESULT_TRANSFORM_NAME),
-                progressDialog.getPreviewRows(PipelineProfileFactory.RESULT_TRANSFORM_NAME),
-                loggingText);
-        prd.open();
-      }
-
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.UnexpectedProfilingError.Title"),
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.UnexpectedProfilingError.Message"),
-          e);
-    }
-  }
-
   public void getTruncate(String activeSchemaTable) {
     SqlEditor sql =
         new SqlEditor(
-          shell, SWT.NONE, variables, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable);
+            shell, SWT.NONE, variables, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable);
     sql.open();
   }
 
@@ -957,7 +879,7 @@ public class DatabaseExplorerDialog extends Dialog {
     shell.dispose();
   }
 
-  public void handleOK() {
+  public void ok() {
     if (justLook) {
       dispose();
       return;
@@ -998,7 +920,7 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  public void openSchema(SelectionEvent e) {
+  public void openSchema(Event e) {
     TreeItem sel = (TreeItem) e.item;
 
     TreeItem up1 = sel.getParentItem();
@@ -1009,7 +931,7 @@ public class DatabaseExplorerDialog extends Dialog {
         if (up3 != null) {
           tableName = sel.getText();
           if (!justLook) {
-            handleOK();
+            ok();
           } else {
             previewTable(tableName, false);
           }

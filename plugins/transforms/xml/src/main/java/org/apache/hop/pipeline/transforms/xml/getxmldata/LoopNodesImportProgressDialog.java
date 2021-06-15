@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,14 +33,15 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes for an XML file
- * 
+ * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes
+ * for an XML file
+ *
  * @author Samatar
  * @since 07-apr-2010
  */
@@ -63,9 +64,11 @@ public class LoopNodesImportProgressDialog {
   private int nr;
 
   /**
-   * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML file
+   * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML
+   * file
    */
-  public LoopNodesImportProgressDialog(Shell shell, GetXmlDataMeta meta, String filename, String encoding ) {
+  public LoopNodesImportProgressDialog(
+      Shell shell, GetXmlDataMeta meta, String filename, String encoding) {
     this.shell = shell;
     this.meta = meta;
     this.Xpaths = null;
@@ -77,7 +80,8 @@ public class LoopNodesImportProgressDialog {
     this.url = null;
   }
 
-  public LoopNodesImportProgressDialog(Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl ) {
+  public LoopNodesImportProgressDialog(
+      Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl) {
     this.shell = shell;
     this.meta = meta;
     this.Xpaths = null;
@@ -85,7 +89,7 @@ public class LoopNodesImportProgressDialog {
     this.encoding = null;
     this.listpath = new ArrayList<>();
     this.nr = 0;
-    if ( useUrl ) {
+    if (useUrl) {
       this.xml = null;
       this.url = xmlSource;
     } else {
@@ -95,144 +99,174 @@ public class LoopNodesImportProgressDialog {
   }
 
   public String[] open() {
-    IRunnableWithProgress op = monitor -> {
-      try {
-        Xpaths = doScan( monitor );
-      } catch ( Exception e ) {
-        e.printStackTrace();
-        throw new InvocationTargetException( e, BaseMessages.getString( PKG,
-            "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile", filename, e.toString() ) );
-      }
-    };
+    IRunnableWithProgress op =
+        monitor -> {
+          try {
+            Xpaths = doScan(monitor);
+          } catch (Exception e) {
+            e.printStackTrace();
+            throw new InvocationTargetException(
+                e,
+                BaseMessages.getString(
+                    PKG,
+                    "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile",
+                    filename,
+                    e.toString()));
+          }
+        };
 
     try {
-      ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
-      pmd.run( true, true, op );
-    } catch ( InvocationTargetException e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG,
-          "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Title" ), BaseMessages.getString( PKG,
-          "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Message" ), e );
-    } catch ( InterruptedException e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG,
-          "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Title" ), BaseMessages.getString( PKG,
-          "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Message" ), e );
+      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+      pmd.run(true, op);
+    } catch (InvocationTargetException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Title"),
+          BaseMessages.getString(
+              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Message"),
+          e);
+    } catch (InterruptedException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Title"),
+          BaseMessages.getString(
+              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Message"),
+          e);
     }
 
     return Xpaths;
   }
 
-  @SuppressWarnings( "unchecked" )
-  private String[] doScan( IProgressMonitor monitor ) throws Exception {
-    monitor.beginTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile",
-        filename ), 1 );
+  @SuppressWarnings("unchecked")
+  private String[] doScan(IProgressMonitor monitor) throws Exception {
+    monitor.beginTask(
+        BaseMessages.getString(
+            PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
+        1);
 
-    SAXReader reader = XmlParserFactoryProducer.getSAXReader( null );
-    monitor.worked( 1 );
-    if ( monitor.isCanceled() ) {
+    SAXReader reader = XmlParserFactoryProducer.getSAXReader(null);
+    monitor.worked(1);
+    if (monitor.isCanceled()) {
       return null;
     }
     // Validate XML against specified schema?
-    if ( meta.isValidating() ) {
-      reader.setValidation( true );
-      reader.setFeature( "http://apache.org/xml/features/validation/schema", true );
+    if (meta.isValidating()) {
+      reader.setValidation(true);
+      reader.setFeature("http://apache.org/xml/features/validation/schema", true);
     } else {
       // Ignore DTD
-      reader.setEntityResolver( new IgnoreDtdEntityResolver() );
+      reader.setEntityResolver(new IgnoreDtdEntityResolver());
     }
-    monitor.worked( 1 );
-    monitor
-        .beginTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ReadingDocument" ), 1 );
-    if ( monitor.isCanceled() ) {
+    monitor.worked(1);
+    monitor.beginTask(
+        BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ReadingDocument"),
+        1);
+    if (monitor.isCanceled()) {
       return null;
     }
     InputStream is = null;
     try {
       Document document = null;
-      if ( !Utils.isEmpty( filename ) ) {
-        is = HopVfs.getInputStream( filename );
-        document = reader.read( is, encoding );
+      if (!Utils.isEmpty(filename)) {
+        is = HopVfs.getInputStream(filename);
+        document = reader.read(is, encoding);
       } else {
-        if ( !Utils.isEmpty( xml ) ) {
-          document = reader.read( new StringReader( xml ) );
+        if (!Utils.isEmpty(xml)) {
+          document = reader.read(new StringReader(xml));
         } else {
-          document = reader.read( new URL( url ) );
+          document = reader.read(new URL(url));
         }
       }
-      monitor.worked( 1 );
-      monitor.beginTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.DocumentOpened" ),
-          1 );
-      monitor.worked( 1 );
-      monitor.beginTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ReadingNode" ), 1 );
+      monitor.worked(1);
+      monitor.beginTask(
+          BaseMessages.getString(
+              PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.DocumentOpened"),
+          1);
+      monitor.worked(1);
+      monitor.beginTask(
+          BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ReadingNode"),
+          1);
 
-      if ( monitor.isCanceled() ) {
+      if (monitor.isCanceled()) {
         return null;
       }
-      List<Node> nodes = document.selectNodes( document.getRootElement().getName() );
-      monitor.worked( 1 );
-      monitor.subTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes" ) );
+      List<Node> nodes = document.selectNodes(document.getRootElement().getName());
+      monitor.worked(1);
+      monitor.subTask(
+          BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes"));
 
-      if ( monitor.isCanceled() ) {
+      if (monitor.isCanceled()) {
         return null;
       }
-      for ( Node node : nodes ) {
-        if ( monitor.isCanceled() ) {
+      for (Node node : nodes) {
+        if (monitor.isCanceled()) {
           return null;
         }
-        if ( !listpath.contains( node.getPath() ) ) {
+        if (!listpath.contains(node.getPath())) {
           nr++;
-          monitor.subTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
-              String.valueOf( nr ) ) );
-          monitor.subTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.AddingNode", node
-              .getPath() ) );
-          listpath.add( node.getPath() );
-          addLoopXPath( node, monitor );
+          monitor.subTask(
+              BaseMessages.getString(
+                  PKG,
+                  "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
+                  String.valueOf(nr)));
+          monitor.subTask(
+              BaseMessages.getString(
+                  PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.AddingNode", node.getPath()));
+          listpath.add(node.getPath());
+          addLoopXPath(node, monitor);
         }
       }
-      monitor.worked( 1 );
+      monitor.worked(1);
     } finally {
       try {
-        if ( is != null ) {
+        if (is != null) {
           is.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
-    String[] list_xpath = listpath.toArray( new String[listpath.size()] );
+    String[] list_xpath = listpath.toArray(new String[listpath.size()]);
 
-    monitor.setTaskName( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.NodesReturned" ) );
+    monitor.setTaskName(
+        BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.NodesReturned"));
 
     monitor.done();
 
     return list_xpath;
-
   }
 
-  private void addLoopXPath( Node node, IProgressMonitor monitor ) {
+  private void addLoopXPath(Node node, IProgressMonitor monitor) {
     Element ce = (Element) node;
-    monitor.worked( 1 );
+    monitor.worked(1);
     // List child
-    for ( int j = 0; j < ce.nodeCount(); j++ ) {
-      if ( monitor.isCanceled() ) {
+    for (int j = 0; j < ce.nodeCount(); j++) {
+      if (monitor.isCanceled()) {
         return;
       }
-      Node cnode = ce.node( j );
+      Node cnode = ce.node(j);
 
-      if ( !Utils.isEmpty( cnode.getName() ) ) {
+      if (!Utils.isEmpty(cnode.getName())) {
         Element cce = (Element) cnode;
-        if ( !listpath.contains( cnode.getPath() ) ) {
+        if (!listpath.contains(cnode.getPath())) {
           nr++;
-          monitor.subTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
-              String.valueOf( nr ) ) );
-          monitor.subTask( BaseMessages.getString( PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.AddingNode",
-              cnode.getPath() ) );
-          listpath.add( cnode.getPath() );
+          monitor.subTask(
+              BaseMessages.getString(
+                  PKG,
+                  "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
+                  String.valueOf(nr)));
+          monitor.subTask(
+              BaseMessages.getString(
+                  PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.AddingNode", cnode.getPath()));
+          listpath.add(cnode.getPath());
         }
         // let's get child nodes
-        if ( cce.nodeCount() > 1 ) {
-          addLoopXPath( cnode, monitor );
+        if (cce.nodeCount() > 1) {
+          addLoopXPath(cnode, monitor);
         }
       }
     }
   }
-
 }

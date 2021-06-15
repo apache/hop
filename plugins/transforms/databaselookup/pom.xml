@@ -14,23 +14,21 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.70-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-plugins-transforms</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>hop-transform-databaselookup</artifactId>
-    <packaging>jar</packaging>
+  <artifactId>hop-transform-databaselookup</artifactId>
+  <packaging>jar</packaging>
 
-    <name>Hop Plugins Transforms Database Lookup</name>
-
+  <name>Hop Plugins Transforms Database Lookup</name>
 </project>

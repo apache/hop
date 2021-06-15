@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -59,146 +58,154 @@ public class TableOutputTest {
 
   @Before
   public void setUp() throws Exception {
-    databaseMeta = mock( DatabaseMeta.class );
-    doReturn( "" ).when( databaseMeta ).quoteField( anyString() );
+    databaseMeta = mock(DatabaseMeta.class);
+    doReturn("").when(databaseMeta).quoteField(anyString());
 
-    tableOutputMeta = mock( TableOutputMeta.class );
-    doReturn( databaseMeta ).when( tableOutputMeta ).getDatabaseMeta();
+    tableOutputMeta = mock(TableOutputMeta.class);
+    doReturn(databaseMeta).when(tableOutputMeta).getDatabaseMeta();
 
-    transformMeta = mock( TransformMeta.class );
-    doReturn( "transform" ).when( transformMeta ).getName();
-    doReturn( mock( TransformPartitioningMeta.class ) ).when( transformMeta ).getTargetTransformPartitioningMeta();
-    doReturn( tableOutputMeta ).when( transformMeta ).getTransform();
+    transformMeta = mock(TransformMeta.class);
+    doReturn("transform").when(transformMeta).getName();
+    doReturn(mock(TransformPartitioningMeta.class))
+        .when(transformMeta)
+        .getTargetTransformPartitioningMeta();
+    doReturn(tableOutputMeta).when(transformMeta).getTransform();
 
-    db = mock( Database.class );
-    doReturn( mock( Connection.class ) ).when( db ).getConnection();
+    db = mock(Database.class);
+    doReturn(mock(Connection.class)).when(db).getConnection();
 
-    tableOutputData = mock( TableOutputData.class );
+    tableOutputData = mock(TableOutputData.class);
     tableOutputData.db = db;
     tableOutputData.tableName = "sas";
-    tableOutputData.preparedStatements = mock( Map.class );
-    tableOutputData.commitCounterMap = mock( Map.class );
+    tableOutputData.preparedStatements = mock(Map.class);
+    tableOutputData.commitCounterMap = mock(Map.class);
 
-    pipelineMeta = mock( PipelineMeta.class );
-    doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
+    pipelineMeta = mock(PipelineMeta.class);
+    doReturn(transformMeta).when(pipelineMeta).findTransform(anyString());
 
     setupTableOutputSpy();
   }
 
   private void setupTableOutputSpy() throws Exception {
 
-    tableOutput = new TableOutput( transformMeta, tableOutputMeta, tableOutputData, 1, pipelineMeta, spy( new LocalPipelineEngine() ) );
-    tableOutputSpy = spy( tableOutput );
-    doReturn( transformMeta ).when( tableOutputSpy ).getTransformMeta();
-    doReturn( false ).when( tableOutputSpy ).isRowLevel();
-    doReturn( false ).when( tableOutputSpy ).isDebug();
-    doNothing().when( tableOutputSpy ).logDetailed( anyString() );
-
+    tableOutput =
+        new TableOutput(
+            transformMeta,
+            tableOutputMeta,
+            tableOutputData,
+            1,
+            pipelineMeta,
+            spy(new LocalPipelineEngine()));
+    tableOutputSpy = spy(tableOutput);
+    doReturn(transformMeta).when(tableOutputSpy).getTransformMeta();
+    doReturn(false).when(tableOutputSpy).isRowLevel();
+    doReturn(false).when(tableOutputSpy).isDebug();
+    doNothing().when(tableOutputSpy).logDetailed(anyString());
   }
-
 
   @Test
   public void testWriteToTable() throws Exception {
-    tableOutputSpy.writeToTable( mock( IRowMeta.class ), new Object[] {} );
+    tableOutputSpy.writeToTable(mock(IRowMeta.class), new Object[] {});
   }
 
   @Test
   public void testTruncateTableOff() throws Exception {
     tableOutputSpy.truncateTable();
-    verify( db, never() ).truncateTable( anyString(), anyString() );
+    verify(db, never()).truncateTable(anyString(), anyString());
   }
 
   @Test
   public void testTruncateTable_on() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( true );
-    when( tableOutputSpy.getCopy() ).thenReturn( 0 );
+    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputSpy.getCopy()).thenReturn(0);
 
     tableOutputSpy.truncateTable();
-    verify( db ).truncateTable( anyString(), anyString() );
+    verify(db).truncateTable(anyString(), anyString());
   }
 
   @Test
   public void testTruncateTable_on_PartitionId() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( true );
-    when( tableOutputSpy.getCopy() ).thenReturn( 1 );
-    when( tableOutputSpy.getPartitionId() ).thenReturn( "partition id" );
+    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputSpy.getCopy()).thenReturn(1);
+    when(tableOutputSpy.getPartitionId()).thenReturn("partition id");
 
     tableOutputSpy.truncateTable();
-    verify( db ).truncateTable( anyString(), anyString() );
+    verify(db).truncateTable(anyString(), anyString());
   }
 
   @Test
   public void testProcessRow_truncatesIfNoRowsAvailable() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( true );
+    when(tableOutputMeta.truncateTable()).thenReturn(true);
 
-    doReturn( null ).when( tableOutputSpy ).getRow();
+    doReturn(null).when(tableOutputSpy).getRow();
 
     boolean result = tableOutputSpy.processRow();
 
-    assertFalse( result );
-    verify( tableOutputSpy ).truncateTable();
+    assertFalse(result);
+    verify(tableOutputSpy).truncateTable();
   }
 
   @Test
   public void testProcessRow_doesNotTruncateIfNoRowsAvailableAndTruncateIsOff() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( false );
+    when(tableOutputMeta.truncateTable()).thenReturn(false);
 
-    doReturn( null ).when( tableOutputSpy ).getRow();
+    doReturn(null).when(tableOutputSpy).getRow();
 
     boolean result = tableOutputSpy.processRow();
 
-    assertFalse( result );
-    verify( tableOutputSpy, never() ).truncateTable();
+    assertFalse(result);
+    verify(tableOutputSpy, never()).truncateTable();
   }
 
   @Test
   public void testProcessRow_truncatesOnFirstRow() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( true );
+    when(tableOutputMeta.truncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
-    doReturn( row ).when( tableOutputSpy ).getRow();
+    doReturn(row).when(tableOutputSpy).getRow();
 
     try {
       boolean result = tableOutputSpy.processRow();
-    } catch ( NullPointerException npe ) {
+    } catch (NullPointerException npe) {
       // not everything is set up to process an entire row, but we don't need that for this test
     }
-    verify( tableOutputSpy, times( 1 ) ).truncateTable();
+    verify(tableOutputSpy, times(1)).truncateTable();
   }
 
   @Test
   public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
-    when( tableOutputMeta.truncateTable() ).thenReturn( true );
+    when(tableOutputMeta.truncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
-    doReturn( row ).when( tableOutputSpy ).getRow();
+    doReturn(row).when(tableOutputSpy).getRow();
     tableOutputSpy.first = false;
-    doReturn( null ).when( tableOutputSpy ).writeToTable( any( IRowMeta.class ), any( row.getClass() ) );
+    doReturn(null).when(tableOutputSpy).writeToTable(any(IRowMeta.class), any(row.getClass()));
 
     boolean result = tableOutputSpy.processRow();
 
-    assertTrue( result );
-    verify( tableOutputSpy, never() ).truncateTable();
+    assertTrue(result);
+    verify(tableOutputSpy, never()).truncateTable();
   }
 
   @Test
   public void testInit_unsupportedConnection() {
 
-    IDatabase dbInterface = mock( IDatabase.class );
+    IDatabase dbInterface = mock(IDatabase.class);
 
-    doNothing().when( tableOutputSpy ).logError( anyString() );
+    doNothing().when(tableOutputSpy).logError(anyString());
 
-    when( tableOutputMeta.getCommitSize() ).thenReturn( "1" );
-    when( tableOutputMeta.getDatabaseMeta() ).thenReturn( databaseMeta );
-    when( databaseMeta.getIDatabase() ).thenReturn( dbInterface );
+    when(tableOutputMeta.getCommitSize()).thenReturn("1");
+    when(tableOutputMeta.getDatabaseMeta()).thenReturn(databaseMeta);
+    when(databaseMeta.getIDatabase()).thenReturn(dbInterface);
 
     String unsupportedTableOutputMessage = "unsupported exception";
-    when( dbInterface.getUnsupportedTableOutputMessage() ).thenReturn( unsupportedTableOutputMessage );
+    when(dbInterface.getUnsupportedTableOutputMessage()).thenReturn(unsupportedTableOutputMessage);
 
-    //Will cause the Hop Exception
-    when( dbInterface.supportsStandardTableOutput() ).thenReturn( false );
+    // Will cause the Hop Exception
+    when(dbInterface.supportsStandardTableOutput()).thenReturn(false);
 
     tableOutputSpy.init();
 
-    HopException ke = new HopException( unsupportedTableOutputMessage );
-    verify( tableOutputSpy, times( 1 ) ).logError( "An error occurred intialising this transform: " + ke.getMessage() );
+    HopException ke = new HopException(unsupportedTableOutputMessage);
+    verify(tableOutputSpy, times(1))
+        .logError("An error occurred intialising this transform: " + ke.getMessage());
   }
 }

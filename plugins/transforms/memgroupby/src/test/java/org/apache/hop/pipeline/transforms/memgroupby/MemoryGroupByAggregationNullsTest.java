@@ -102,7 +102,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   /**
-   * PDI-10250 - "Group by" transform - Minimum aggregation doesn't work
+   * "Group by" transform - Minimum aggregation doesn't work
    * <p>
    * HOP_AGGREGATION_MIN_NULL_IS_VALUED
    * <p>
@@ -182,7 +182,6 @@ public class MemoryGroupByAggregationNullsTest {
     Assert.assertEquals( "Returns non-null value", bytes, result.agg[ 0 ] );
   }
 
-  // PDI-16150
   @Test
   @Ignore
   public void addToAggregateBinaryData() throws Exception {

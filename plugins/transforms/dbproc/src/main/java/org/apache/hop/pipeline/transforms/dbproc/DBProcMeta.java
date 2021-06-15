@@ -56,7 +56,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.CallDBProcedure",
     description = "i18n::BaseTransform.TypeTooltipDesc.CallDBProcedure",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/dbproc.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/calldbproc.html")
 public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
 
   private static final Class<?> PKG = DBProcMeta.class; // For Translator

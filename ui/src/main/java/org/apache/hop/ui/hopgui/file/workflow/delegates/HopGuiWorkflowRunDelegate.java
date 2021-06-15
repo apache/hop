@@ -52,7 +52,7 @@ public class HopGuiWorkflowRunDelegate {
    * This contains a map between the name of a workflow and the WorkflowMeta object. If the workflow has no
    * name it will be mapped under a number [1], [2] etc.
    */
-  private List<WorkflowMeta> jobMap;
+  private List<WorkflowMeta> workflowMap;
 
   /**
    * @param hopGui
@@ -64,10 +64,10 @@ public class HopGuiWorkflowRunDelegate {
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration();
     workflowExecutionConfiguration.setGatheringMetrics( true );
 
-    jobMap = new ArrayList<>();
+    workflowMap = new ArrayList<>();
   }
 
-  public void executeWorkflow( IVariables variables, WorkflowMeta workflowMeta, String startActionName, int startActionNr ) throws HopException {
+  public void executeWorkflow( IVariables variables, WorkflowMeta workflowMeta, String startActionName ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -82,14 +82,13 @@ public class HopGuiWorkflowRunDelegate {
     executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( workflowMeta, variables );
     executionConfiguration.setStartActionName( startActionName );
-    executionConfiguration.setStartActionNr( startActionNr );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
 
     WorkflowExecutionConfigurationDialog dialog = newWorkflowExecutionConfigurationDialog( executionConfiguration, workflowMeta );
 
     if ( !workflowMeta.isShowDialog() || dialog.open() ) {
 
-      workflowGraph.workflowLogDelegate.addJobLog();
+      workflowGraph.workflowLogDelegate.addWorkflowLog();
 
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, workflowGraph.getVariables(), HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id, executionConfiguration );
 
@@ -176,14 +175,14 @@ public class HopGuiWorkflowRunDelegate {
    *
    * @return value of workflowMap
    */
-  public List<WorkflowMeta> getJobMap() {
-    return jobMap;
+  public List<WorkflowMeta> getWorkflowMap() {
+    return workflowMap;
   }
 
   /**
    * @param jobMap The workflowMap to set
    */
-  public void setJobMap( List<WorkflowMeta> jobMap ) {
-    this.jobMap = jobMap;
+  public void setWorkflowMap( List<WorkflowMeta> jobMap ) {
+    this.workflowMap = jobMap;
   }
 }

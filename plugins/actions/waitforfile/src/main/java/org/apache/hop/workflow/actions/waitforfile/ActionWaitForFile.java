@@ -56,7 +56,7 @@ import java.util.List;
   description = "i18n::ActionWaitForFile.Description",
   image = "WaitForFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforfile.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforfile.html"
 )
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
@@ -192,7 +192,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
             if ( addFilenameToResult && fileObject.getType() == FileType.FILE ) {
               ResultFile resultFile =
                 new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getWorkflowName(), toString() );
-              resultFile.setComment( BaseMessages.getString( PKG, "JobWaitForFile.FilenameAdded" ) );
+              resultFile.setComment( BaseMessages.getString( PKG, "ActionWaitForFile.FilenameAdded" ) );
               result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             }
           } else {
@@ -298,7 +298,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     return result;
   }
 
-  public boolean evaluates() {
+  @Override public boolean isEvaluation() {
     return true;
   }
 

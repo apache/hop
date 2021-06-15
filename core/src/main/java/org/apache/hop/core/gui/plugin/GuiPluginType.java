@@ -29,12 +29,11 @@ import java.util.Map;
  * @author matt
  */
 @PluginAnnotationType( GuiPlugin.class )
-public class GuiPluginType extends BasePluginType<GuiPlugin> implements IPluginType<GuiPlugin> {
+public class GuiPluginType extends BasePluginType<GuiPlugin> {
   private static GuiPluginType pluginType;
 
   private GuiPluginType() {
     super( GuiPlugin.class, "GUI", "GUI" );
-    populateFolders( "gui" );
   }
 
   public static GuiPluginType getInstance() {

@@ -25,7 +25,11 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import java.util.Properties;
 
-public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T> {
+public abstract class HopFileTypeBase implements IHopFileType {
+
+  @Override
+  public abstract String getName();
+
   @Override
   public abstract Properties getCapabilities();
 
@@ -37,10 +41,7 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
     if ( obj == this ) {
       return true;
     }
-    if ( obj.getClass().equals( this.getClass() ) ) {
-      return true; // same class is enough
-    }
-    return false;
+    return obj.getClass().equals( this.getClass() ); // same class is enough
   }
 
   @Override
@@ -51,13 +52,13 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
       } else {
         FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
-        String fileExtension = fileName.getExtension();
+        String fileExtension = fileName.getExtension().toLowerCase();
 
         // No extension
         if ( Utils.isEmpty(fileExtension) ) return false;
         
         // Verify the extension
-        //
+        //        
         for ( String typeExtension : getFilterExtensions() ) {
           if ( typeExtension.toLowerCase().endsWith( fileExtension ) ) {
             return true;
@@ -81,4 +82,6 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
     }
     return "true".equalsIgnoreCase( available.toString() );
   }
+
+
 }

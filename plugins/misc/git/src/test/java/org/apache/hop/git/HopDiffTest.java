@@ -1,17 +1,19 @@
 /*
- * Hop : The Hop Orchestration Platform
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.git;
@@ -31,14 +33,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import static org.apache.hop.git.PdiDiff.ADDED;
-import static org.apache.hop.git.PdiDiff.ATTR_GIT;
-import static org.apache.hop.git.PdiDiff.ATTR_STATUS;
-import static org.apache.hop.git.PdiDiff.CHANGED;
-import static org.apache.hop.git.PdiDiff.REMOVED;
-import static org.apache.hop.git.PdiDiff.UNCHANGED;
-import static org.apache.hop.git.PdiDiff.compareJobEntries;
-import static org.apache.hop.git.PdiDiff.compareTransforms;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.UNCHANGED;
+import static org.apache.hop.git.HopDiff.compareActions;
+import static org.apache.hop.git.HopDiff.compareTransforms;
 import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {
@@ -82,8 +84,8 @@ public class HopDiffTest {
     InputStream xmlStream2 = new FileInputStream( file2 );
     WorkflowMeta jobMeta2 = new WorkflowMeta( xmlStream2, metadataProvider, new Variables());
 
-    jobMeta = compareJobEntries( jobMeta, jobMeta2, true );
-    jobMeta2 = compareJobEntries( jobMeta2, jobMeta, false );
+    jobMeta = compareActions( jobMeta, jobMeta2, true );
+    jobMeta2 = compareActions( jobMeta2, jobMeta, false );
     assertEquals( CHANGED, jobMeta.getAction( 0 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( UNCHANGED, jobMeta.getAction( 1 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( REMOVED, jobMeta.getAction( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
     image = "CopyMoveResultFilenames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/actions/copymoveresultfilenames.html")
+        "https://hop.apache.org/manual/latest/workflow/actions/copymoveresultfilenames.html")
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 
@@ -131,36 +131,32 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder(500); // 358 chars in just tags and spaces alone
+    StringBuilder xml = new StringBuilder(500); // 358 chars in just tags and spaces alone
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    retval.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    retval.append("      ").append(XmlHandler.addTagValue("destination_folder", destinationFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("action", action));
-    retval
-        .append("      ")
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
+    xml.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
+    xml.append("      ").append(XmlHandler.addTagValue("destination_folder", destinationFolder));
+    xml.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    xml.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    xml.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
+    xml.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
+    xml.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    xml.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    xml.append("      ").append(XmlHandler.addTagValue("action", action));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    retval.append("      ").append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
-    retval
-        .append("      ")
+    xml.append("      ").append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("CreateDestinationFolder", createDestinationFolder));
-    retval
-        .append("      ")
+    xml.append("      ")
         .append(XmlHandler.addTagValue("RemovedSourceFilename", removedSourceFilename));
-    retval
-        .append("      ")
+    xml.append("      ")
         .append(XmlHandler.addTagValue("AddDestinationFilename", addDestinationFilename));
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
@@ -372,7 +368,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
       try {
         int size = result.getResultFiles().size();
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.log.FilesFound", "" + size));
@@ -488,13 +484,13 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         } else {
           return false;
         }
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.Log.FolderCreated", folderName));
         }
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionCopyMoveResultFilenames.Log.FolderExists", folderName));
@@ -534,7 +530,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
       if (deleteFile) {
         // delete file
         if (sourcefile.delete()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionCopyMoveResultFilenames.log.DeletedFile", sourcefile.toString()));
@@ -542,7 +538,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
           // Remove source file from result files list
           result.getResultFiles().remove(sourcefile.toString());
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -563,7 +559,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         FileObject destinationfile = HopVfs.getFileObject(destinationFilename);
         boolean filexists = destinationfile.exists();
         if (filexists) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionCopyMoveResultFilenames.Log.FileExists", destinationFilename));
@@ -573,7 +569,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           if (getAction().equals("copy")) {
             // Copy file
             FileUtil.copyContent(sourcefile, destinationfile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -584,7 +580,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           } else {
             // Move file
             sourcefile.moveTo(destinationfile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -596,7 +592,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           if (isRemovedSourceFilename()) {
             // Remove source file from result files list
             result.getResultFiles().remove(sourcefile.toString());
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -613,7 +609,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
                     parentWorkflow.getWorkflowName(),
                     toString());
             result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -683,7 +679,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     return getIt;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

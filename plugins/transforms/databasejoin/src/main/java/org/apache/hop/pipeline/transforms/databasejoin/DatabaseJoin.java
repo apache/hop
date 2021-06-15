@@ -174,7 +174,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
   /**
    * Stop the running query
-   * [PDI-17820] - In the Database Join transform data.isCancelled is checked before synchronization and set after synchronization is completed.
+   * In the Database Join transform data.isCancelled is checked before synchronization and set after synchronization is completed.
    * <p>
    * To cancel a prepared statement we need a valid database connection which we do not have if disposed has already been called
    */

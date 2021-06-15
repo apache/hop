@@ -17,20 +17,34 @@
 
 package org.apache.hop.core;
 
+import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
 import org.apache.batik.bridge.GVTBuilder;
 import org.apache.batik.bridge.UserAgentAdapter;
+import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry;
 import org.apache.batik.ext.awt.image.spi.ImageTagRegistry;
 import org.apache.batik.gvt.GraphicsNode;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.svg.SvgImage;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGSVGElement;
 
 import java.awt.*;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SwtUniversalImageSvg extends SwtUniversalImage {
   private final GraphicsNode svgGraphicsNode;
@@ -39,44 +53,129 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
   static {
     // workaround due to known issue in batik 1.8 - https://issues.apache.org/jira/browse/BATIK-1125
     ImageTagRegistry registry = ImageTagRegistry.getRegistry();
-    registry.register( new PNGRegistryEntry() );
+    registry.register(new PNGRegistryEntry());
   }
 
-  public SwtUniversalImageSvg( SvgImage svg ) {
-    // get GraphicsNode and size from svg document
+  public SwtUniversalImageSvg(SvgImage svg) {
+    this(svg, false);
+  }
+
+  public SwtUniversalImageSvg(SvgImage svg, boolean keepOriginal) {
     UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
-    DocumentLoader documentLoader = new DocumentLoader( userAgentAdapter );
-    BridgeContext ctx = new BridgeContext( userAgentAdapter, documentLoader );
     GVTBuilder builder = new GVTBuilder();
-    svgGraphicsNode = builder.build( ctx, svg.getDocument() );
-    svgGraphicsSize = ctx.getDocumentSize();
+
+    if (!keepOriginal && PropsUi.getInstance().isDarkMode()) {
+      DOMImplementation domImplementation = SVGDOMImplementation.getDOMImplementation();
+      SVGDocument clonedDocument =
+          (SVGDocument) DOMUtilities.deepCloneDocument(svg.getDocument(), domImplementation);
+      SVGSVGElement root = clonedDocument.getRootElement();
+
+      Map<String, String> colorsMap = PropsUi.getInstance().getContrastingColorStrings();
+      List<String> tags =
+          Arrays.asList(
+              "path",
+              "fill",
+              "bordercolor",
+              "fillcolor",
+              "style",
+              "text",
+              "polygon",
+              "rect",
+              "circle",
+              "ellipse",
+              "stop",
+              "tspan",
+              "polyline",
+              "mask");
+
+      contrastColors(root, tags, colorsMap);
+
+      BridgeContext ctx = new BridgeContext(userAgentAdapter);
+      ctx.setDynamic(true);
+
+      svgGraphicsNode = builder.build(ctx, clonedDocument);
+      svgGraphicsSize = ctx.getDocumentSize();
+    } else {
+      // get GraphicsNode and size from svg document
+      DocumentLoader documentLoader = new DocumentLoader(userAgentAdapter);
+      BridgeContext ctx = new BridgeContext(userAgentAdapter, documentLoader);
+      svgGraphicsNode = builder.build(ctx, svg.getDocument());
+      svgGraphicsSize = ctx.getDocumentSize();
+    }
+  }
+
+  private void contrastColors(
+      SVGSVGElement root, List<String> tags, Map<String, String> colorsMap) {
+    for (String tag : tags) {
+
+      NodeList nodeList = root.getElementsByTagName(tag);
+
+      for (int i = 0; i < nodeList.getLength(); i++) {
+        Node node = nodeList.item(i);
+        NamedNodeMap namedNodeMap = node.getAttributes();
+        for (int x = 0; x < namedNodeMap.getLength(); x++) {
+          Node namedNode = namedNodeMap.item(x);
+          String value = namedNode.getNodeValue();
+
+          if (StringUtils.isNotEmpty(value)) {
+            String changedValue = value.toLowerCase();
+
+            Map<String, String> detectedColors = new HashMap<>();
+            for (String oldColor : colorsMap.keySet()) {
+              if (changedValue.contains(oldColor)) {
+                String newColor = colorsMap.get(oldColor);
+                detectedColors.put(oldColor, newColor);
+              }
+            }
+            if (!detectedColors.isEmpty()) {
+              for (String oldColor : detectedColors.keySet()) {
+                String newColor = detectedColors.get(oldColor);
+                changedValue = changedValue.replace(oldColor, newColor);
+              }
+              namedNode.setNodeValue(changedValue);
+            }
+          }
+        }
+      }
+    }
   }
 
   @Override
-  protected Image renderSimple( Device device ) {
-    return renderSimple( device, (int) Math.round( svgGraphicsSize.getWidth() ), (int) Math.round( svgGraphicsSize.getHeight() ) );
+  protected Image renderSimple(Device device) {
+    return renderSimple(
+        device,
+        (int) Math.round(svgGraphicsSize.getWidth()),
+        (int) Math.round(svgGraphicsSize.getHeight()));
   }
 
   @Override
-  protected Image renderSimple( Device device, int width, int height ) {
-    BufferedImage area = SwingUniversalImage.createBitmap( width, height );
-    Graphics2D gc = SwingUniversalImage.createGraphics( area );
-    SwingUniversalImageSvg.render( gc, svgGraphicsNode, svgGraphicsSize, width / 2, height / 2, width, height, 0 );
+  protected Image renderSimple(Device device, int width, int height) {
+    BufferedImage area = SwingUniversalImage.createBitmap(width, height);
+    Graphics2D gc = SwingUniversalImage.createGraphics(area);
+    SwingUniversalImageSvg.render(
+        gc, svgGraphicsNode, svgGraphicsSize, width / 2, height / 2, width, height, 0);
     gc.dispose();
 
-    return swing2swt( device, area );
+    return swing2swt(device, area);
   }
 
   @Override
-  protected Image renderRotated( Device device, int width, int height, double angleRadians ) {
-    BufferedImage doubleArea = SwingUniversalImage.createDoubleBitmap( width, height );
+  protected Image renderRotated(Device device, int width, int height, double angleRadians) {
+    BufferedImage doubleArea = SwingUniversalImage.createDoubleBitmap(width, height);
 
-    Graphics2D gc = SwingUniversalImage.createGraphics( doubleArea );
-    SwingUniversalImageSvg.render( gc, svgGraphicsNode, svgGraphicsSize, doubleArea.getWidth() / 2, doubleArea
-      .getHeight() / 2, width, height, angleRadians );
+    Graphics2D gc = SwingUniversalImage.createGraphics(doubleArea);
+    SwingUniversalImageSvg.render(
+        gc,
+        svgGraphicsNode,
+        svgGraphicsSize,
+        doubleArea.getWidth() / 2,
+        doubleArea.getHeight() / 2,
+        width,
+        height,
+        angleRadians);
 
     gc.dispose();
 
-    return swing2swt( device, doubleArea );
+    return swing2swt(device, doubleArea);
   }
 }

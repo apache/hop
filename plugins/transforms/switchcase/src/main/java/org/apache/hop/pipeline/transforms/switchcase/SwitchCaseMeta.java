@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,22 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.DataTypeConverter;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -45,160 +40,94 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 14-may-2008
- *
- */
-@InjectionSupported(
-    groups = {},
-    localizationPrefix = "SwitchCaseMeta.Injection.")
 @Transform(
     id = "SwitchCase",
     image = "switchcase.svg",
     name = "i18n::BaseTransform.TypeLongDesc.SwitchCase",
     description = "i18n::BaseTransform.TypeTooltipDesc.SwitchCase",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/switchcase.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/switchcase.html")
 public class SwitchCaseMeta extends BaseTransformMeta
     implements ITransformMeta<SwitchCase, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
 
-  private static final String XML_TAG_CASE_VALUES = "cases";
-  private static final String XML_TAG_CASE_VALUE = "case";
-
   /** The field to switch over */
-  @Injection(name = "FIELD_NAME")
-  private String fieldname;
+  @HopMetadataProperty(
+      key = "fieldname",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.FIELD_NAME")
+  private String fieldName;
 
   /** The case value type to help parse numeric and date-time data */
-  @Injection(name = "VALUE_TYPE", converter = DataTypeConverter.class)
-  private int caseValueType;
+  @HopMetadataProperty(
+      key = "case_value_type",
+      injectionKey = "VALUE_TYPE",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.VALUE_TYPE")
+  private String caseValueType;
+
   /** The case value format to help parse numeric and date-time data */
-  @Injection(name = "VALUE_FORMAT")
+  @HopMetadataProperty(
+      key = "case_value_format",
+      injectionKey = "VALUE_FORMAT",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.VALUE_FORMAT")
   private String caseValueFormat;
+
   /** The decimal symbol to help parse numeric data */
-  @Injection(name = "VALUE_DECIMAL")
+  @HopMetadataProperty(
+      key = "case_value_decimal",
+      injectionKey = "VALUE_DECIMAL",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.VALUE_DECIMAL")
   private String caseValueDecimal;
+
   /** The grouping symbol to help parse numeric data */
-  @Injection(name = "VALUE_GROUP")
+  @HopMetadataProperty(
+      key = "case_value_group",
+      injectionKey = "VALUE_GROUP",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.VALUE_GROUP")
   private String caseValueGroup;
 
   /** The targets to switch over */
-  @InjectionDeep(prefix = "SWITCH_CASE_TARGET")
+  @HopMetadataProperty(groupKey = "cases", key = "case")
   private List<SwitchCaseTarget> caseTargets;
 
   /** The default target transform name (only used during serialization) */
-  @Injection(name = "DEFAULT_TARGET_TRANSFORM_NAME")
+  @HopMetadataProperty(
+      key = "default_target_transform",
+      injectionKey = "DEFAULT_TARGET_TRANSFORM_NAME",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.DEFAULT_TARGET_TRANSFORM_NAME")
   private String defaultTargetTransformName;
 
-  /** The default target transform */
-  private TransformMeta defaultTargetTransform;
-
   /** True if the comparison is a String.contains instead of equals */
-  @Injection(name = "CONTAINS")
-  private boolean isContains;
+  @HopMetadataProperty(
+      key = "use_contains",
+      injectionKey = "CONTAINS",
+      injectionKeyDescription = "SwitchCaseMeta.Injection.CONTAINS")
+  private boolean usingContains;
 
   public SwitchCaseMeta() {
-    super(); // allocate BaseTransformMeta
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate() {
     caseTargets = new ArrayList<>();
   }
 
-  public Object clone() {
-    SwitchCaseMeta retval = (SwitchCaseMeta) super.clone();
-    retval.allocate();
-    try {
-      for (int i = 0; i < caseTargets.size(); i++) {
-        retval.caseTargets.add((SwitchCaseTarget) caseTargets.get(i).clone());
-      }
-      return retval;
-    } catch (CloneNotSupportedException ex) {
-      // I hate this design pattern, but most of the other implementations of
-      // clone catch the exception and return null. So, I'm sticking with what is known
-      // MB - PDI-15057
-      return null;
+  public SwitchCaseMeta(SwitchCaseMeta m) {
+    this();
+    this.fieldName = m.fieldName;
+    this.caseValueType = m.caseValueType;
+    this.caseValueFormat = m.caseValueFormat;
+    this.caseValueDecimal = m.caseValueDecimal;
+    this.caseValueGroup = m.caseValueGroup;
+    this.defaultTargetTransformName = m.defaultTargetTransformName;
+    this.usingContains = m.usingContains;
+    for (SwitchCaseTarget target : this.caseTargets) {
+      this.caseTargets.add(new SwitchCaseTarget(target));
     }
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(XmlHandler.addTagValue("fieldname", fieldname));
-    retval.append(XmlHandler.addTagValue("use_contains", isContains));
-    retval.append(
-        XmlHandler.addTagValue("case_value_type", ValueMetaBase.getTypeDesc(caseValueType)));
-    retval.append(XmlHandler.addTagValue("case_value_format", caseValueFormat));
-    retval.append(XmlHandler.addTagValue("case_value_decimal", caseValueDecimal));
-    retval.append(XmlHandler.addTagValue("case_value_group", caseValueGroup));
-    retval.append(
-        XmlHandler.addTagValue(
-            "default_target_transform",
-            defaultTargetTransform != null
-                ? defaultTargetTransform.getName()
-                : defaultTargetTransformName));
-
-    retval.append(XmlHandler.openTag(XML_TAG_CASE_VALUES));
-    for (SwitchCaseTarget target : caseTargets) {
-      retval.append(XmlHandler.openTag(XML_TAG_CASE_VALUE));
-      retval.append(
-          XmlHandler.addTagValue("value", target.caseValue != null ? target.caseValue : ""));
-      retval.append(
-          XmlHandler.addTagValue(
-              "target_transform",
-              target.caseTargetTransform != null
-                  ? target.caseTargetTransform.getName()
-                  : target.caseTargetTransformName));
-      retval.append(XmlHandler.closeTag(XML_TAG_CASE_VALUE));
-    }
-    retval.append(XmlHandler.closeTag(XML_TAG_CASE_VALUES));
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      fieldname = XmlHandler.getTagValue(transformNode, "fieldname");
-      isContains = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_contains"));
-      caseValueType =
-          ValueMetaBase.getType(XmlHandler.getTagValue(transformNode, "case_value_type"));
-      caseValueFormat = XmlHandler.getTagValue(transformNode, "case_value_format");
-      caseValueDecimal = XmlHandler.getTagValue(transformNode, "case_value_decimal");
-      caseValueGroup = XmlHandler.getTagValue(transformNode, "case_value_group");
-
-      defaultTargetTransformName =
-          XmlHandler.getTagValue(transformNode, "default_target_transform");
-
-      Node casesNode = XmlHandler.getSubNode(transformNode, XML_TAG_CASE_VALUES);
-      int nrCases = XmlHandler.countNodes(casesNode, XML_TAG_CASE_VALUE);
-      allocate();
-      for (int i = 0; i < nrCases; i++) {
-        Node caseNode = XmlHandler.getSubNodeByNr(casesNode, XML_TAG_CASE_VALUE, i);
-        SwitchCaseTarget target = new SwitchCaseTarget();
-        target.caseValue = XmlHandler.getTagValue(caseNode, "value");
-        target.caseTargetTransformName = XmlHandler.getTagValue(caseNode, "target_transform");
-        caseTargets.add(target);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "SwitchCaseMeta.Exception..UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  public void setDefault() {
-    allocate();
+  public SwitchCaseMeta clone() {
+    return new SwitchCaseMeta(this);
   }
 
   public void getFields(
@@ -224,12 +153,9 @@ public class SwitchCaseMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    ITransformIOMeta ioMeta = getTransformIOMeta();
-    List<IStream> targetStreams = ioMeta.getTargetStreams();
-    for (IStream stream : targetStreams) {
-      SwitchCaseTarget target = (SwitchCaseTarget) stream.getSubject();
-
-      if (target != null && target.caseTargetTransform == null) {
+    for (SwitchCaseTarget target : caseTargets) {
+      TransformMeta check = pipelineMeta.findTransform(target.getCaseTargetTransformName());
+      if (check == null) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -237,13 +163,13 @@ public class SwitchCaseMeta extends BaseTransformMeta
                     PKG,
                     "SwitchCaseMeta.CheckResult.TargetTransformInvalid",
                     "false",
-                    target.caseTargetTransformName),
+                    target.getCaseTargetTransformName()),
                 transformMeta);
         remarks.add(cr);
       }
     }
 
-    if (Utils.isEmpty(fieldname)) {
+    if (Utils.isEmpty(fieldName)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -283,13 +209,13 @@ public class SwitchCaseMeta extends BaseTransformMeta
   }
 
   /** @return the fieldname */
-  public String getFieldname() {
-    return fieldname;
+  public String getFieldName() {
+    return fieldName;
   }
 
-  /** @param fieldname the fieldname to set */
-  public void setFieldname(String fieldname) {
-    this.fieldname = fieldname;
+  /** @param fieldName the fieldname to set */
+  public void setFieldName(String fieldName) {
+    this.fieldName = fieldName;
   }
 
   /** @return the caseValueFormat */
@@ -323,12 +249,12 @@ public class SwitchCaseMeta extends BaseTransformMeta
   }
 
   /** @return the caseValueType */
-  public int getCaseValueType() {
+  public String getCaseValueType() {
     return caseValueType;
   }
 
   /** @param caseValueType the caseValueType to set */
-  public void setCaseValueType(int caseValueType) {
+  public void setCaseValueType(String caseValueType) {
     this.caseValueType = caseValueType;
   }
 
@@ -342,22 +268,12 @@ public class SwitchCaseMeta extends BaseTransformMeta
     this.defaultTargetTransformName = defaultTargetTransformName;
   }
 
-  /** @return the defaultTargetTransform */
-  public TransformMeta getDefaultTargetTransform() {
-    return defaultTargetTransform;
+  public boolean isUsingContains() {
+    return usingContains;
   }
 
-  /** @param defaultTargetTransform the defaultTargetTransform to set */
-  public void setDefaultTargetTransform(TransformMeta defaultTargetTransform) {
-    this.defaultTargetTransform = defaultTargetTransform;
-  }
-
-  public boolean isContains() {
-    return isContains;
-  }
-
-  public void setContains(boolean isContains) {
-    this.isContains = isContains;
+  public void setUsingContains(boolean isContains) {
+    this.usingContains = isContains;
   }
 
   /** Returns the Input/Output metadata for this transform. */
@@ -373,26 +289,26 @@ public class SwitchCaseMeta extends BaseTransformMeta
         IStream stream =
             new Stream(
                 StreamType.TARGET,
-                target.caseTargetTransform,
+                null,
                 BaseMessages.getString(
                     PKG,
                     "SwitchCaseMeta.TargetStream.CaseTarget.Description",
-                    Const.NVL(target.caseValue, "")),
+                    Const.NVL(target.getCaseValue(), "")),
                 StreamIcon.TARGET,
-                target);
+                target.getCaseTargetTransformName());
         ioMeta.addStream(stream);
       }
 
       // Add the default target transform as a stream
       //
-      if (getDefaultTargetTransform() != null) {
+      if (StringUtils.isNotEmpty(defaultTargetTransformName)) {
         ioMeta.addStream(
             new Stream(
                 StreamType.TARGET,
-                getDefaultTargetTransform(),
+                null,
                 BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
                 StreamIcon.TARGET,
-                null));
+                defaultTargetTransformName));
       }
       setTransformIOMeta(ioMeta);
     }
@@ -403,16 +319,27 @@ public class SwitchCaseMeta extends BaseTransformMeta
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
-    for (IStream stream : targetStreams) {
-      SwitchCaseTarget target = (SwitchCaseTarget) stream.getSubject();
-      if (target != null) {
-        TransformMeta transformMeta =
-            TransformMeta.findTransform(transforms, target.caseTargetTransformName);
-        target.caseTargetTransform = transformMeta;
-      }
+    int index = 0;
+    for (SwitchCaseTarget target : caseTargets) {
+      IStream stream = targetStreams.get(index++);
+
+      TransformMeta transformMeta =
+          TransformMeta.findTransform(transforms, target.getCaseTargetTransformName());
+      stream.setTransformMeta(transformMeta);
     }
-    defaultTargetTransform = TransformMeta.findTransform(transforms, defaultTargetTransformName);
-    resetTransformIoMeta();
+    // Extra one is the default target (if any)...
+    //
+    if (StringUtils.isNotEmpty(defaultTargetTransformName)) {
+      IStream stream = targetStreams.get(index);
+      TransformMeta transformMeta =
+          TransformMeta.findTransform(transforms, defaultTargetTransformName);
+      stream.setTransformMeta(transformMeta);
+    }
+  }
+
+  @Override
+  public void convertIOMetaToTransformNames() {
+    // TODO
   }
 
   private static IStream newDefaultStream =
@@ -433,7 +360,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
   public List<IStream> getOptionalStreams() {
     List<IStream> list = new ArrayList<>();
 
-    if (getDefaultTargetTransform() == null) {
+    if (StringUtils.isEmpty(defaultTargetTransformName)) {
       list.add(newDefaultStream);
     }
     list.add(newCaseTargetStream);
@@ -443,31 +370,48 @@ public class SwitchCaseMeta extends BaseTransformMeta
 
   public void handleStreamSelection(IStream stream) {
     if (stream == newDefaultStream) {
-      setDefaultTargetTransform(stream.getTransformMeta());
-    }
+      defaultTargetTransformName = stream.getTransformMeta().getName();
 
-    if (stream == newCaseTargetStream) {
+      IStream newStream =
+          new Stream(
+              StreamType.TARGET,
+              stream.getTransformMeta(),
+              BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
+              StreamIcon.TARGET,
+              stream.getTransformMeta().getName());
+      getTransformIOMeta().addStream(newStream);
+    } else if (stream == newCaseTargetStream) {
       // Add the target..
       //
       SwitchCaseTarget target = new SwitchCaseTarget();
-      target.caseTargetTransform = stream.getTransformMeta();
-      target.caseValue = stream.getTransformMeta().getName();
+      target.setCaseTargetTransformName(stream.getTransformMeta().getName());
+      target.setCaseValue(stream.getTransformMeta().getName());
       caseTargets.add(target);
-    }
-
-    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
-    for (int i = 0; i < targetStreams.size(); i++) {
-      if (stream == targetStreams.get(i)) {
-        SwitchCaseTarget target = (SwitchCaseTarget) stream.getSubject();
-        if (target == null) { // Default!
-          setDefaultTargetTransform(stream.getTransformMeta());
-        } else {
-          target.caseTargetTransform = stream.getTransformMeta();
+      IStream newStream =
+          new Stream(
+              StreamType.TARGET,
+              stream.getTransformMeta(),
+              BaseMessages.getString(
+                  PKG,
+                  "SwitchCaseMeta.TargetStream.CaseTarget.Description",
+                  Const.NVL(target.getCaseValue(), "")),
+              StreamIcon.TARGET,
+              stream.getTransformMeta().getName());
+      getTransformIOMeta().addStream(newStream);
+    } else {
+      // A target was selected...
+      //
+      List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
+      for (int i = 0; i < targetStreams.size(); i++) {
+        if (stream == targetStreams.get(i)) {
+          if (i < caseTargets.size()) {
+            caseTargets.get(i).setCaseTargetTransformName(stream.getTransformMeta().getName());
+          } else {
+            defaultTargetTransformName = stream.getTransformMeta().getName();
+          }
         }
       }
     }
-
-    resetTransformIoMeta(); // force transformIo to be recreated when it is next needed.
   }
 
   /** @return the caseTargets */

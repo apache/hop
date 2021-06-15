@@ -266,8 +266,6 @@ public class TextFileInputTest {
   }
 
   /**
-   * PDI-14390 Text file input throws NPE if skipping error rows and passing through incoming fieds
-   *
    * @throws Exception
    */
   @Test

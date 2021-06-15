@@ -57,7 +57,7 @@ import java.util.List;
     description = "i18n::ActionTruncateTables.Description",
     image = "TruncateTables.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/truncatetables.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/truncatetables.html")
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
 
@@ -167,7 +167,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

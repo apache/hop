@@ -1,0 +1,56 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/neo4j/
+:language: en_US
+
+= Neo4j
+
+== Description
+
+Neo4j is an open source graph database which you can download from **https://neo4j.com/download-center/[www.neo4j.com/download-center]**
+
+You can use it to represent information with nodes and relationships in a property graph. Neo4j doesn't use indexes which allows it to traverse large graphs really quickly with so-called graph algorithms. For more information on these unique graph algorithms see: https://neo4j.com/docs/graph-data-science/current/algorithms/#algorithms[Neo4j Graph Algorithms]
+
+Hop supports Neo4j through the following metadata objects
+
+== Perspective: Execution lineage
+
+You can use Neo4j to store logging and execution lineage of your workflows and pipelines.
+The way you do this is simply by setting the variable NEO_LOGGING_CONNECTION to the name of the Neo4j Connection where you want the logging and lineage to be written to.
+
+The Neo4j plugin offers a separate perspective to query this logging and lineage information.  For example, it allows you to quickly jump to the place where an error occurred.  This neat trick is performed by asking the database to find the shortest path between and execution node where an error occurred and without children and the "grand parent" node.  The path you get is the exact path that was followed from for example the "grand parent" workflow to the exact transform where an error occurred.
+
+== Metadata Types
+
+* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: create or manage a connection to a Neo4j database
+* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: crearte or manage a Neo4j (sub)graph model
+
+== Workflow Actions
+
+* xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connection]: check a connection to a Neo4j database
+* xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher Script]: execute a Cypher script or query
+
+== Pipeline Transforms
+
+* xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher]: execute a Cypher query on a Neo4j database using parameter info from input fields
+* xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j Generate CSVs]: Generate CSV files for nodes and relationships to be used with neo4j-import
+* xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Log Info]: Queries the Neo4j logging graph for execution info
+* xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j Graph Output]: Writes to a Neo4j graph using an input fields mapping.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j Import]: Runs a Neo4j import command using the provided CSV files
+* xref:pipeline/transforms/neo4j-output.adoc[Neo4j Output]: Write nodes and/or relationships to a Neo4j graph
+* xref:pipeline/transforms/neo4j-split-graph[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
+

@@ -39,7 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.JarFileCache;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.variables.IVariables;
 import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
@@ -75,7 +75,7 @@ public class FatJarBuilder {
     //
     String realTargetJarFile = variables.resolve(targetJarFile);
 
-    JarFileCache cache = JarFileCache.getInstance();
+    JarCache cache = JarCache.getInstance();
     Indexer indexer = new Indexer();
     
     try {
@@ -189,7 +189,7 @@ public class FatJarBuilder {
 
       // Add META-INF/jandex.idx file
       //
-      zipOutputStream.putNextEntry( new ZipEntry( JarFileCache.ANNOTATION_INDEX_LOCATION ) );
+      zipOutputStream.putNextEntry( new ZipEntry( JarCache.ANNOTATION_INDEX_LOCATION ) );
       IndexWriter indexWriter = new IndexWriter(zipOutputStream); 
       indexWriter.write(indexer.complete());      
       zipOutputStream.closeEntry();

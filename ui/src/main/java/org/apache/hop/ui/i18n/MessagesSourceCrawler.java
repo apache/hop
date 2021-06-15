@@ -102,7 +102,10 @@ public class MessagesSourceCrawler {
         Pattern.compile(
             "BaseMessages\\s*.getString\\(\\s*PKG,.*\\);", Pattern.DOTALL | Pattern.MULTILINE);
     doubleQuotePattern = Pattern.compile("\"", Pattern.MULTILINE);
-    i18nStringPattern = Pattern.compile( "\""+Const.I18N_PREFIX+"[a-z\\.0-9]*:[a-zA-Z0-9\\.]*\"", Pattern.DOTALL | Pattern.MULTILINE );
+    i18nStringPattern =
+        Pattern.compile(
+            "\"" + Const.I18N_PREFIX + "[a-z\\.0-9]*:[a-zA-Z0-9\\.]*\"",
+            Pattern.DOTALL | Pattern.MULTILINE);
   }
 
   public MessagesSourceCrawler(ILogChannel log, String rootFolder, BundlesStore bundlesStore)
@@ -153,11 +156,7 @@ public class MessagesSourceCrawler {
     // If not, add one...
     //
     Map<String, List<KeyOccurrence>> packageOccurrences =
-        sourcePackageOccurrences.get(sourceFolder);
-    if (packageOccurrences == null) {
-      packageOccurrences = new HashMap<>();
-      sourcePackageOccurrences.put(sourceFolder, packageOccurrences);
-    }
+        sourcePackageOccurrences.computeIfAbsent(sourceFolder, k -> new HashMap<>());
 
     // Do we have a map entry for the occurrences list in the source folder?
     // If not, add a list for the messages package
@@ -261,7 +260,8 @@ public class MessagesSourceCrawler {
       //
       if (scanPhraseMatcher.start() > 0
           && !Character.isJavaIdentifierPart(javaCode.charAt(scanPhraseMatcher.start() - 1))) {
-        addKeyOccurrence(sourceFolder, javaFile, messagesPackage, expression, scanPhraseMatcher.start());
+        addKeyOccurrence(
+            sourceFolder, javaFile, messagesPackage, expression, scanPhraseMatcher.start());
       }
 
       startIndex = scanPhraseMatcher.start() + 1;
@@ -269,37 +269,49 @@ public class MessagesSourceCrawler {
 
     // Also look for "i18n:package:key" Strings as used in annotations...
     //
-    Matcher i18StringMatcher = i18nStringPattern.matcher( javaCode );
+    Matcher i18StringMatcher = i18nStringPattern.matcher(javaCode);
     startIndex = 0;
     while (i18StringMatcher.find(startIndex)) {
       // We found something like:
       //
       //    "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
       //
-      String expression = javaCode.substring(i18StringMatcher.start()+1, i18StringMatcher.end()-1);
+      String expression =
+          javaCode.substring(i18StringMatcher.start() + 1, i18StringMatcher.end() - 1);
 
-      String[] i18n = expression.split( ":" );
+      String[] i18n = expression.split(":");
       if (i18n.length == 3) {
         String i18nPackage = i18n[1];
-        if ( StringUtils.isEmpty(i18nPackage)) {
+        if (StringUtils.isEmpty(i18nPackage)) {
           i18nPackage = classPackage;
         }
         String i18nKey = i18n[2];
 
-        String actualSourceFolder = sourceFolder;
         // If we have an explicit package in the i18n:package:key expression we assume
         // that the reference is to somewhere else in the source code
         // To cover this scenario we assume a root source tree
         //
-        if (StringUtils.isNotEmpty( i18n[2] )) {
-          actualSourceFolder = rootFolder;
+        if (StringUtils.isNotEmpty(i18n[1])) {
+          i18nPackage = i18n[1];
         }
 
-        KeyOccurrence keyOccurrence = new KeyOccurrence(
-            javaFile, actualSourceFolder, i18nPackage, i18StringMatcher.start(), i18nKey, "", expression);
+        // The source folder is derived from the Java file. It's all we have...
+        //
+        String actualSourceFolder =
+            HopVfs.getFilename(javaFile).replaceAll("\\/src\\/main\\/java.*\\.java", "");
+
+        KeyOccurrence keyOccurrence =
+            new KeyOccurrence(
+                javaFile,
+                actualSourceFolder,
+                i18nPackage,
+                i18StringMatcher.start(),
+                i18nKey,
+                "",
+                expression);
         addKeyOccurrence(keyOccurrence);
       }
-      startIndex=i18StringMatcher.start()+1;
+      startIndex = i18StringMatcher.start() + 1;
     }
   }
 
@@ -418,8 +430,8 @@ public class MessagesSourceCrawler {
     // Let's not keep too much around...
     //
     String shortExpression = expression;
-    if (expression.length()>100) {
-      shortExpression = expression.substring( 0, 100 );
+    if (expression.length() > 100) {
+      shortExpression = expression.substring(0, 100);
     }
 
     // Right after the "Messages.getString(" string is the key, quoted (")
@@ -463,7 +475,7 @@ public class MessagesSourceCrawler {
         }
 
         if (bracketIndex + 1 < expression.length()) {
-          arguments = expression.substring(endKeyIndex + 1, bracketIndex-1);
+          arguments = expression.substring(endKeyIndex + 1, bracketIndex - 1);
         } else {
           arguments = expression.substring(endKeyIndex + 1);
         }
@@ -478,6 +490,8 @@ public class MessagesSourceCrawler {
         System.out.println("Suspect key found: [" + key + "] in file [" + fileObject + "]");
       }
 
+      String moduleSourceFolder = sourceFolder.replaceAll("\\/src\\/main\\/java.*", "");
+
       // OK, add the occurrence to the list...
       //
       // Make sure we pass the System key occurrences to the correct package.
@@ -486,7 +500,13 @@ public class MessagesSourceCrawler {
         String i18nPackage = BaseMessages.class.getPackage().getName();
         KeyOccurrence keyOccurrence =
             new KeyOccurrence(
-                fileObject, sourceFolder, i18nPackage, fileIndex, key, arguments, shortExpression);
+                fileObject,
+                moduleSourceFolder,
+                i18nPackage,
+                fileIndex,
+                key,
+                arguments,
+                shortExpression);
 
         // If we just add this key, we'll get doubles in the i18n package
         //
@@ -505,7 +525,13 @@ public class MessagesSourceCrawler {
         } else {
           KeyOccurrence keyOccurrence =
               new KeyOccurrence(
-                  fileObject, sourceFolder, messagesPackage, fileIndex, key, arguments, shortExpression);
+                  fileObject,
+                  moduleSourceFolder,
+                  messagesPackage,
+                  fileIndex,
+                  key,
+                  arguments,
+                  shortExpression);
           addKeyOccurrence(keyOccurrence);
         }
       }
@@ -714,10 +740,8 @@ public class MessagesSourceCrawler {
     return rootFolder;
   }
 
-  /**
-   * @param rootFolder The rootFolder to set
-   */
-  public void setRootFolder( String rootFolder ) {
+  /** @param rootFolder The rootFolder to set */
+  public void setRootFolder(String rootFolder) {
     this.rootFolder = rootFolder;
   }
 }

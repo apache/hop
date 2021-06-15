@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+= Metadata structure of stream
+
+== Description
+
+This transform produces as output the metadata of the input fields of this transform.
+Before producing this output the transform reads and discards (or eats) all input rows.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Output row count|Include the number of rows eaten by this transform in the output
+|Field for row count|The name of the field containing the number of rows eaten
+|Include position field?|Include the field position in the transform's output
+|Field for position|The name of the field containing position
+|Include field name field?|Include the field name in the transform's output
+|Field for field name|The name of the field containing field's name
+|Include comment field?|Include the field comment in the transform's output
+|Field for comments|The name of the field containing the comment
+|Include type field?|Include the field data type in the transform's output
+|Field for type|The name of the field containing the data type
+|Include length field?|Include the field length in the transform's output
+|Field for length|The name of the field containing the data length
+|Include precision field?|Include the field precision in the transform's output
+|Field for precision|The name of the field containing precision (if value is numeric)
+|Include origin field?|Include the field origin in the transform's output
+|Field for origin|The name of the field containing field's origin
+
+|===

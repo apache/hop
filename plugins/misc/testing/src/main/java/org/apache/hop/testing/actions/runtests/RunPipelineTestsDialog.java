@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,11 @@ package org.apache.hop.testing.actions.runtests;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.testing.PipelineUnitTest;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -63,8 +65,9 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
   private Button wOk, wGet, wCancel;
 
-  public RunPipelineTestsDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
-    super(parent, workflowMeta);
+  public RunPipelineTestsDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
     this.action = (RunPipelineTests) action;
 
     if (this.action.getName() == null) {
@@ -76,7 +79,6 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
   public IAction open() {
 
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     props.setLook(shell);
@@ -158,23 +160,10 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     fdTestNames.top = new FormAttachment(lastControl, margin);
     fdTestNames.bottom = new FormAttachment(wOk, -margin * 2);
     wTestNames.setLayoutData(fdTestNames);
-    lastControl = wTestNames;
-
-    // Detect X or ALT-F4 or something that kills this window...
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-    wName.addListener(SWT.DefaultSelection, e -> ok());
 
     getData();
 
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
   }

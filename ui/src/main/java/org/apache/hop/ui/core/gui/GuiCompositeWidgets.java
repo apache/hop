@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
@@ -157,47 +158,13 @@ public class GuiCompositeWidgets {
       //
       switch (guiElements.getType()) {
         case TEXT:
-          if (guiElements.isVariablesEnabled()) {
-            TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-            props.setLook(textVar);
-            if (guiElements.isPassword()) {
-              textVar.setEchoChar('*');
-            }
-            widgetsMap.put(guiElements.getId(), textVar);
-            addModifyListener(textVar.getTextWidget());
-            control = textVar;
-          } else {
-            Text text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-            props.setLook(text);
-            if (guiElements.isPassword()) {
-              text.setEchoChar('*');
-            }
-            widgetsMap.put(guiElements.getId(), text);
-            addModifyListener(text);
-            control = text;
-          }
+          control = getTextControl(parent, guiElements, props);
           break;
         case CHECKBOX:
-          Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
-          props.setLook(button);
-          widgetsMap.put(guiElements.getId(), button);
-          addModifyListener(button);
-          control = button;
+          control = getCheckboxControl(parent, guiElements, props);
           break;
         case COMBO:
-          if (guiElements.isVariablesEnabled()) {
-            ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-            props.setLook(comboVar);
-            widgetsMap.put(guiElements.getId(), comboVar);
-            comboVar.setItems(getComboItems(sourceObject, guiElements.getGetComboValuesMethod()));
-            control = comboVar;
-          } else {
-            Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-            props.setLook(combo);
-            combo.setItems(getComboItems(sourceObject, guiElements.getGetComboValuesMethod()));
-            widgetsMap.put(guiElements.getId(), combo);
-            control = combo;
-          }
+          control = getComboControl(sourceObject, parent, guiElements, props);
           break;
         default:
           break;
@@ -260,19 +227,110 @@ public class GuiCompositeWidgets {
     return previousControl;
   }
 
+  private Control getComboControl(
+      Object sourceObject, Composite parent, GuiElements guiElements, PropsUi props) {
+    Control control;
+
+    String[] comboItems = getEnumValues(guiElements.getFieldClass());
+    if (comboItems==null) {
+      if (StringUtils.isNotEmpty(guiElements.getGetComboValuesMethod())) {
+        comboItems = getComboItems(sourceObject, guiElements.getGetComboValuesMethod());
+      } else {
+        comboItems = new String[] {};
+      }
+    }
+    if (guiElements.isVariablesEnabled()) {
+      ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+      props.setLook(comboVar);
+      widgetsMap.put(guiElements.getId(), comboVar);
+      comboVar.setItems(comboItems);
+      control = comboVar;
+    } else {
+      Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+      props.setLook(combo);
+      combo.setItems(comboItems);
+      widgetsMap.put(guiElements.getId(), combo);
+      control = combo;
+    }
+    return control;
+  }
+
+  /**
+   * See if the annotated field is an enum. If this is the case we can take the combo values from
+   * the enum names.
+   *
+   * @param fieldClass The field class
+   * @return The list of enum names or null if this is not an enum
+   */
+  private String[] getEnumValues(Class<?> fieldClass) {
+    try {
+      if (fieldClass.isEnum()) {
+        Object[] enumConstants = fieldClass.getEnumConstants();
+        String[] values = new String[enumConstants.length];
+        for (int i=0;i<values.length;i++) {
+          values[i] = enumConstants[i].toString();
+        }
+        return values;
+      } else {
+        // Not an enum
+        return null;
+      }
+    } catch(Exception e) {
+      // This is unexpected, log it!
+      //
+      LogChannel.UI.logError( "Error finding enum values of field class: "+fieldClass.getName(), e );
+      return null;
+    }
+  }
+
+  private Control getCheckboxControl(Composite parent, GuiElements guiElements, PropsUi props) {
+    Control control;
+    Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
+    props.setLook(button);
+    widgetsMap.put(guiElements.getId(), button);
+    addModifyListener(button, guiElements.getId());
+    control = button;
+    return control;
+  }
+
+  private Control getTextControl(Composite parent, GuiElements guiElements, PropsUi props) {
+    Control control;
+    if (guiElements.isVariablesEnabled()) {
+      TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+      props.setLook(textVar);
+      if (guiElements.isPassword()) {
+        textVar.setEchoChar('*');
+      }
+      widgetsMap.put(guiElements.getId(), textVar);
+      addModifyListener(textVar.getTextWidget(), guiElements.getId());
+      control = textVar;
+    } else {
+      Text text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+      props.setLook(text);
+      if (guiElements.isPassword()) {
+        text.setEchoChar('*');
+      }
+      widgetsMap.put(guiElements.getId(), text);
+      addModifyListener(text, guiElements.getId());
+      control = text;
+    }
+    return control;
+  }
+
   /**
    * If a widget changes
    *
    * @param control
+   * @param widgetId
    */
-  private void addModifyListener(final Control control) {
+  private void addModifyListener(final Control control, String widgetId) {
     if (compositeWidgetsListener != null) {
       if (control instanceof Button) {
         control.addListener(
-            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control));
+            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control, widgetId));
       } else {
         control.addListener(
-            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control));
+            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control, widgetId));
       }
     }
   }
@@ -475,9 +533,22 @@ public class GuiCompositeWidgets {
         // Set the value on the source data object
         //
         try {
+          Class<?> fieldClass = guiElements.getFieldClass();
+          if ( fieldClass.isEnum()) {
+            // set enum value
+            //
+            Class<Enum> enumClass = (Class<Enum>) fieldClass;
+
+            // Look up the value as an enum...
+            //
+            if (value!=null) {
+              value = Enum.valueOf( enumClass, value.toString() );
+            }
+          }
           new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
-              .getWriteMethod()
-              .invoke(sourceData, value);
+            .getWriteMethod()
+            .invoke(sourceData, value);
+
         } catch (Exception e) {
           System.err.println(
               "Unable to set value '"
@@ -562,12 +633,12 @@ public class GuiCompositeWidgets {
    *
    * @return value of variables
    */
-  public IVariables getSpace() {
+  public IVariables getVariables() {
     return variables;
   }
 
   /** @param variables The variables to set */
-  public void setSpace(IVariables variables) {
+  public void setVariables(IVariables variables) {
     this.variables = variables;
   }
 

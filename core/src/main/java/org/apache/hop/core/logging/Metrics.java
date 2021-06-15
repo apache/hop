@@ -89,19 +89,6 @@ public class Metrics implements IMetrics {
   public static Metrics METRIC_DATABASE_GET_ROW_MAX_TIME = new Metrics(
     MetricsSnapshotType.MAX, "METRIC_DATABASE_GET_ROW_MAX_TIME", "Get row from DB (max time)" );
 
-  // Plugin registry...
-  //
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION", "Register plugins" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION", "Register plugins" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION",
-    "Register plugins of a certain type" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION",
-    "Register plugins of a certain type" );
-
   // Pipeline
   //
   public static Metrics METRIC_PIPELINE_EXECUTION_START = new Metrics(
@@ -142,15 +129,17 @@ public class Metrics implements IMetrics {
     MetricsSnapshotType.COUNT, "METRIC_LOGGING_REGISTRY_GET_CHILDREN_COUNT",
     "Number of times retrieved log registry children" );
 
-  // Job
+  // Workflow
   //
-  public static Metrics METRIC_JOB_START = new Metrics(
+  public static Metrics METRIC_WORKFLOW_START = new Metrics(
     MetricsSnapshotType.START, "METRIC_JOB_EXECUTION", "Execute a workflow" );
-  public static Metrics METRIC_JOB_STOP = new Metrics(
+  public static Metrics METRIC_WORKFLOW_STOP = new Metrics(
     MetricsSnapshotType.STOP, "METRIC_JOB_EXECUTION", "Execute a workflow" );
-  public static Metrics METRIC_JOBENTRY_START = new Metrics(
+  public static Metrics METRIC_ACTION_START = new Metrics(
+  // TODO: Rename METRIC_JOBENTRY_EXECUTION to METRIC_ACTION_EXECUTION
     MetricsSnapshotType.START, "METRIC_JOBENTRY_EXECUTION", "Execute a action" );
-  public static Metrics METRIC_JOBENTRY_STOP = new Metrics(
+  // TODO: Rename METRIC_JOBENTRY_STOP to METRIC_ACTION_STOP
+  public static Metrics METRIC_ACTION_STOP = new Metrics(
     MetricsSnapshotType.STOP, "METRIC_JOBENTRY_EXECUTION", "Execute a action" );
 
   private String code;

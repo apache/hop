@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +45,7 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,6 +78,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
   private Map<String, RowBuffer> outputRowsMap;
+  private Map<String, Object> stateMap;
 
   public static final String[] magnificationDescriptions =
       new String[] {"1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%"};
@@ -89,7 +91,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IScrollBar hori,
       IScrollBar vert,
       PipelineHopMeta candidate,
-      Point drop_candidate,
       Rectangle selectRectangle,
       List<AreaOwner> areaOwners,
       int iconSize,
@@ -101,7 +102,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       boolean slowTransformIndicatorEnabled,
       double zoomFactor,
       Map<String, RowBuffer> outputRowsMap,
-      boolean drawingEditIcons) {
+      boolean drawingEditIcons,
+      Map<String, Object> stateMap) {
     super(
         gc,
         variables,
@@ -109,7 +111,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         area,
         hori,
         vert,
-        drop_candidate,
         selectRectangle,
         areaOwners,
         iconSize,
@@ -129,6 +130,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     this.outputRowsMap = outputRowsMap;
 
     transformLogMap = null;
+
+    this.stateMap = stateMap;
   }
 
   public PipelinePainter(
@@ -148,8 +151,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       String noteFontName,
       int noteFontHeight,
       double zoomFactor,
-      boolean drawingEditIcons) {
-
+      boolean drawingEditIcons,
+      Map<String, Object> stateMap) {
     this(
         gc,
         variables,
@@ -158,7 +161,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         hori,
         vert,
         candidate,
-        dropCandidate,
         selectionRectangle,
         areaOwners,
         iconSize,
@@ -170,7 +172,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         false,
         zoomFactor,
         new HashMap<>(),
-      drawingEditIcons);
+        drawingEditIcons,
+        stateMap);
   }
 
   private static String[] getPeekTitles() {
@@ -209,19 +212,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     //
     gc.setTransform(translationX, translationY, magnification);
     gc.setAlpha(255);
-    drawPipeline(thumb);
+    drawPipeline();
 
     gc.dispose();
   }
 
-  private void drawPipeline(Point thumb) throws HopException {
+  private void drawPipeline() throws HopException {
     if (gridSize > 1) {
       drawGrid();
-    }
-
-    if (hori != null && vert != null) {
-      hori.setThumb(thumb.x);
-      vert.setThumb(thumb.y);
     }
 
     try {
@@ -346,13 +344,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Point n = noInputTransform.getLocation();
       gc.drawLine(n.x - 5, n.y - 5, n.x + iconSize + 10, n.y + iconSize + 10);
       gc.drawLine(n.x - 5, n.y + iconSize + 5, n.x + iconSize + 5, n.y - 5);
-    }
-
-    if (dropCandidate != null) {
-      gc.setLineStyle(ELineStyle.SOLID);
-      gc.setForeground(EColor.BLACK);
-      Point screen = real2screen(dropCandidate.x, dropCandidate.y);
-      gc.drawRectangle(screen.x, screen.y, iconSize, iconSize);
     }
 
     try {
@@ -804,51 +795,37 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     Point namePosition = getNamePosition(name, screen, iconSize);
 
-    if (transformMeta.isSelected()) {
-      int tmpAlpha = gc.getAlpha();
-      gc.setAlpha(192);
-      gc.setBackground(201, 232, 251);
-      gc.fillRoundRectangle(
-          namePosition.x - 8,
-          namePosition.y - 2,
-          gc.textExtent(name).x + 15,
-          25,
-          BasePainter.CORNER_RADIUS_5 + 15,
-          BasePainter.CORNER_RADIUS_5 + 15);
-      gc.setAlpha(tmpAlpha);
-    }
-
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
     //
     if (isDrawingEditIcons()) {
 
-      Point nameExtent = gc.textExtent( name );
+      Point nameExtent = gc.textExtent(name);
 
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(230);
 
-      gc.drawImage( EImage.EDIT, namePosition.x - 6, namePosition.y-2, magnification );
+      gc.drawImage(EImage.EDIT, namePosition.x - 6, namePosition.y - 2, magnification);
 
-      gc.setBackground(240, 240, 240);
+      gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
-        namePosition.x - 8,
-        namePosition.y - 2,
-        nameExtent.x + 15,
-        nameExtent.y + 8,
-        BasePainter.CORNER_RADIUS_5 + 15,
-        BasePainter.CORNER_RADIUS_5 + 15);
+          namePosition.x - 8,
+          namePosition.y - 2,
+          nameExtent.x + 15,
+          nameExtent.y + 8,
+          BasePainter.CORNER_RADIUS_5 + 15,
+          BasePainter.CORNER_RADIUS_5 + 15);
       gc.setAlpha(tmpAlpha);
 
       areaOwners.add(
-        new AreaOwner(
-          AreaType.TRANSFORM_NAME,
-          namePosition.x - 8,
-          namePosition.y - 2,
-          nameExtent.x+15,
-          nameExtent.y+8,
-          offset,
-          transformMeta,
-          name));
+          new AreaOwner(
+              AreaType.TRANSFORM_NAME,
+              namePosition.x - 8,
+              namePosition.y - 2,
+              nameExtent.x + 15,
+              nameExtent.y + 8,
+              offset,
+              transformMeta,
+              name));
     }
 
     gc.setForeground(EColor.BLACK);
@@ -905,7 +882,20 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     PipelinePainterExtension extension =
         new PipelinePainterExtension(
-            gc, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconSize);
+            gc,
+            areaOwners,
+            pipelineMeta,
+            transformMeta,
+            null,
+            x,
+            y,
+            0,
+            0,
+            0,
+            0,
+            offset,
+            iconSize,
+            stateMap);
     try {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterTransform.id, extension);
@@ -928,8 +918,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point(xpos, ypos);
   }
 
-  private void drawLine(
-      TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean isCandidate)
+  private void drawLine(TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean isCandidate)
       throws HopException {
     int[] line = getLine(fs, ts);
 
@@ -952,19 +941,18 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           color = EColor.HOP_DEFAULT;
           arrow = EImage.ARROW_DEFAULT;
         }
-        
+
         ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
         IStream targetStream = ioMeta.findTargetStream(ts);
-        
+
         if (targetStream != null) {
-          if ( targetStream.getStreamIcon()==StreamIcon.TRUE ) {
+          if (targetStream.getStreamIcon() == StreamIcon.TRUE) {
             color = EColor.HOP_TRUE;
             arrow = EImage.ARROW_TRUE;
-          } 
-          else if ( targetStream.getStreamIcon()==StreamIcon.FALSE ) {
+          } else if (targetStream.getStreamIcon() == StreamIcon.FALSE) {
             color = EColor.HOP_FALSE;
             arrow = EImage.ARROW_FALSE;
-          }             
+          }
         }
       } else {
         color = EColor.GRAY;
@@ -1038,7 +1026,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     gc.drawLine(x1, y1, x2, y2);
 
-
     // What's the distance between the 2 points?
     a = Math.abs(x2 - x1);
     b = Math.abs(y2 - y1);
@@ -1067,7 +1054,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     boolean q4 = Math.toDegrees(angle) >= 270 || Math.toDegrees(angle) < 0;
 
     if (q1 || q3) {
-      gc.drawImage(arrow, mx , my+1, magnification, angle);
+      gc.drawImage(arrow, mx, my + 1, magnification, angle);
     } else if (q2 || q4) {
       gc.drawImage(arrow, mx, my, magnification, angle);
     }
@@ -1220,7 +1207,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             mx,
             my,
             offset,
-            iconSize);
+            iconSize,
+            stateMap);
     try {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterArrow.id, extension);
@@ -1328,5 +1316,19 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   /** @param outputRowsMap The outputRowsMap to set */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  /**
+   * Gets stateMap
+   *
+   * @return value of stateMap
+   */
+  public Map<String, Object> getStateMap() {
+    return stateMap;
+  }
+
+  /** @param stateMap The stateMap to set */
+  public void setStateMap(Map<String, Object> stateMap) {
+    this.stateMap = stateMap;
   }
 }

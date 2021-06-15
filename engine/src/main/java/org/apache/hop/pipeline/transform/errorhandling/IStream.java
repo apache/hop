@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,28 +22,32 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public interface IStream {
 
   enum StreamType {
-    INPUT, OUTPUT, INFO, TARGET, ERROR,
+    INPUT,
+    OUTPUT,
+    INFO,
+    TARGET,
+    ERROR,
   }
 
   String getTransformName();
 
-  void setTransformMeta( TransformMeta transformMeta );
+  void setTransformMeta(TransformMeta transformMeta);
 
   TransformMeta getTransformMeta();
 
   StreamType getStreamType();
 
-  void setStreamType( StreamType streamType );
+  void setStreamType(StreamType streamType);
 
   String getDescription();
 
-  void setDescription( String description );
+  void setDescription(String description);
 
   StreamIcon getStreamIcon();
 
-  void setStreamIcon( StreamIcon streamIcon );
+  void setStreamIcon(StreamIcon streamIcon);
 
-  void setSubject( Object subject );
+  void setSubject(String subject);
 
-  Object getSubject();
+  String getSubject();
 }

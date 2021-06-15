@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FROM openjdk:8-alpine
+FROM ubuntu
 MAINTAINER Apache Hop
 
 # Argument Branch name, used to download correct version
@@ -30,6 +30,8 @@ ARG JENKINS_USER=hop
 ARG JENKINS_GROUP=hop
 ARG JENKINS_UID=1000
 ARG JENKINS_GID=1000
+# Set system properties
+ENV DEBIAN_FRONTEND=noninteractive
 
 # any JRE settings you want to pass on
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
@@ -39,17 +41,39 @@ ENV HOP_OPTIONS=-XX:+AggressiveHeap
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
 
-RUN apk update \
-  && apk add --no-cache bash curl procps \ 
-  && rm -rf /var/cache/apk/* \
+RUN apt-get update \
+  && apt-get install --assume-yes \
+  bash \
+  curl \
+  procps \
+  git \
+  python3-pip \
+  openjdk-8-jre-headless \
+  unzip \
+  ttf-mscorefonts-installer \
+  locales \
   && mkdir ${VOLUME_MOUNT_POINT} \
-  && addgroup -g ${JENKINS_GID} ${JENKINS_GROUP} \
-  && adduser -D -s /bin/bash -h /home/${JENKINS_USER} --uid ${JENKINS_UID} --ingroup ${JENKINS_GROUP} ${JENKINS_USER} \
+  && addgroup -gid ${JENKINS_GID} ${JENKINS_GROUP} \
+  && useradd -m  -d /home/${JENKINS_USER} -u ${JENKINS_UID} -g ${JENKINS_GROUP} ${JENKINS_USER} \
   && chown ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH} \
   && chown ${JENKINS_USER}:${JENKINS_GROUP} ${VOLUME_MOUNT_POINT}
 
-# copy the hop package from the local resources folder to the container image directory
+# Set Locale correctly
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Install parquet-tools from Python
+
+RUN pip3 install parquet-tools
+
+# Copy the hop package from the local resources folder to the container image directory
+
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop-* ${DEPLOYMENT_PATH}/hop.zip
+
+# Unzip and install in correct location
 
 RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
   && rm ${DEPLOYMENT_PATH}/hop.zip \
@@ -60,8 +84,6 @@ RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
 VOLUME ["/files"]
 USER ${JENKINS_USER}
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
-#SET HOP_JAVA_HOME
-ENV HOP_JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []

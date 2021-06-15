@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::ActionCreateFolder.Description",
     image = "CreateFolder.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/createfolder.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/createfolder.html")
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
   private String folderName;
   private boolean failOfFolderExists;
@@ -72,16 +72,16 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     return je;
   }
 
+  @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
+    StringBuilder xml = new StringBuilder(50);
 
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    retval
-        .append("      ")
+    xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
+    xml.append("      ")
         .append(XmlHandler.addTagValue("fail_of_folder_exists", failOfFolderExists));
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
@@ -170,7 +170,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     return result;
   }
 
-  public boolean evaluates() {
+  public boolean isEvaluation() {
     return true;
   }
 

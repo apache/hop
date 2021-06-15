@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,9 @@
 package org.apache.hop.ui.workflow.actions.dummy;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -50,18 +52,19 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
 
   private Text wName;
 
-  public ActionDummyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, workflowMeta );
+  public ActionDummyDialog(
+      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, workflowMeta, variables);
+    ;
     this.action = (ActionDummy) action;
   }
 
   public IAction open() {
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
-    props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, action );    
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    props.setLook(shell);
+    WorkflowDialog.setShellImage(shell, action);
 
     backupChanged = action.hasChanged();
 
@@ -69,77 +72,64 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "ActionDummyDialog.Title" ) );
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "ActionDummyDialog.Title"));
 
     int margin = props.getMargin();
     int middle = props.getMiddlePct();
 
-    Label wlName = new Label( shell, SWT.RIGHT );
-    wlName.setText( BaseMessages.getString( PKG, "ActionDummyDialog.Name.Label" ) );
-    props.setLook( wlName );
+    Label wlName = new Label(shell, SWT.RIGHT);
+    wlName.setText(BaseMessages.getString(PKG, "ActionDummyDialog.Name.Label"));
+    props.setLook(wlName);
     FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment( 0, 0 );
-    fdlName.right = new FormAttachment( middle, -margin );
-    fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
-    wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wName );
-    wName.addModifyListener( e -> action.setChanged() );
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
+    fdlName.top = new FormAttachment(0, margin);
+    wlName.setLayoutData(fdlName);
+    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wName);
+    wName.addModifyListener(e -> action.setChanged());
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment( middle, 0 );
-    fdName.top = new FormAttachment( 0, margin );
-    fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    fdName.left = new FormAttachment(middle, 0);
+    fdName.top = new FormAttachment(0, margin);
+    fdName.right = new FormAttachment(100, 0);
+    wName.setLayoutData(fdName);
 
     // Some buttons
-    Button wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-    
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
-    
-    BaseTransformDialog.setSize( shell, 350, 120, true );
-    
-    shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return action;
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
+    WindowProperty winprop = new WindowProperty(shell);
+    props.setScreen(winprop);
     shell.dispose();
   }
 
-  public void getData() {   
-    wName.setText( action.getName() );
+  public void getData() {
+    wName.setText(action.getName());
   }
 
   private void cancel() {
-    action.setChanged( backupChanged );
+    action.setChanged(backupChanged);
     action = null;
     dispose();
   }
 
-  private void ok() {   
-    action.setName( wName.getText() );
+  private void ok() {
+    action.setName(wName.getText());
     dispose();
   }
 }

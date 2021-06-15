@@ -1,0 +1,99 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+  <id>hop-assemblies-plugins-tech-cassandra</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>tech/cassandra</baseDirectory>
+  <files>
+    <file>
+      <source>${project.basedir}/src/main/resources/version.xml</source>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+
+  <fileSets>
+    <fileSet>
+      <outputDirectory>lib</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>org.apache.hop:hop-plugins-tech-cassandra:jar</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>lib</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <scope>runtime</scope>
+      <includes>
+        <include>com.boundary:high-scale-lib:jar</include>
+        <include>com.carrotsearch:hppc:jar</include>
+        <include>com.datastax.cassandra:cassandra-driver-core:jar</include>
+        <include>com.datastax.cassandra:cassandra-driver-extras:jar</include>
+        <include>com.datastax.oss:java-driver-shaded-guava:jar</include>
+        <include>com.github.ben-manes.caffeine:caffeine:jar</include>
+        <include>com.github.jbellis:jamm:jar</include>
+        <include>com.github.rholder:snowball-stemmer:jar</include>
+        <include>com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:jar</include>
+        <include>com.googlecode.concurrent-trees:concurrent-trees:jar</include>
+        <include>com.googlecode.json-simple:json-simple:jar</include>
+        <include>com.lmax:disruptor:jar</include>
+        <include>com.ning:compress-lzf:jar</include>
+        <include>com.thinkaurelius.thrift:thrift-server:jar</include>
+        <include>de.jflex:jflex:jar</include>
+        <include>io.airlift:airline:jar</include>
+        <include>io.dropwizard.metrics:metrics-core:jar</include>
+        <include>io.dropwizard.metrics:metrics-jvm:jar</include>
+        <include>io.dropwizard.metrics:metrics-logback:jar</include>
+        <include>io.netty:netty-all:jar</include>
+        <include>io.netty:netty-common:jar</include>
+        <include>javax.inject:javax.inject:jar</include>
+        <include>joda-time:joda-time:jar</include>
+        <include>net.java.dev.jna:jna:jar</include>
+        <include>net.jpountz.lz4:lz4:jar</include>
+        <include>org.antlr:ST4:jar</include>
+        <include>org.apache.cassandra:cassandra-all:jar</include>
+        <include>org.apache.cassandra:cassandra-thrift:jar</include>
+        <include>org.apache.commons:commons-lang3:jar</include>
+        <include>org.apache.commons:commons-math3:jar</include>
+        <include>org.apache.thrift:libthrift:jar</include>
+        <include>org.caffinitas.ohc:ohc-core-j8:jar</include>
+        <include>org.caffinitas.ohc:ohc-core:jar</include>
+        <include>org.eclipse.jdt.core.compiler:ecj:jar</include>
+        <include>org.fusesource:sigar:jar</include>
+        <include>org.jctools:jctools-core:jar</include>
+        <include>org.mindrot:jbcrypt:jar</include>
+        <include>org.ow2.asm:asm-analysis:jar</include>
+        <include>org.ow2.asm:asm:jar</include>
+        <include>org.ow2.asm:asm-util:jar</include>
+        <include>org.xerial.snappy:snappy-java:jar</include>
+        <include>org.yaml:snakeyaml:jar</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
