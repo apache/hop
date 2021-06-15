@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hop-plugins-misc-import</artifactId>
-    <version>0.99</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Miscellaneous Import</name>
@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-misc</artifactId>
-        <version>0.99</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>

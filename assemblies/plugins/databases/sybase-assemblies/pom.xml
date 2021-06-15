@@ -25,12 +25,12 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>0.99</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-sybase</artifactId>
-    <version>0.99</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases Sybase</name>
