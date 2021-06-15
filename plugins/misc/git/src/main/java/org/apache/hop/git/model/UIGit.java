@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.git.model;
@@ -25,12 +24,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.git.dialog.MergeBranchDialog;
 import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
@@ -96,8 +93,6 @@ import org.eclipse.jgit.util.SystemReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -472,7 +467,7 @@ public class UIGit extends VCS {
       }
       git.add().addFilepattern(filePattern).call();
     } catch (Exception e) {
-      throw new HopException("Error adding '"+filePattern+"'to git", e);
+      throw new HopException("Error adding '" + filePattern + "'to git", e);
     }
   }
 
@@ -538,7 +533,8 @@ public class UIGit extends VCS {
 
   public boolean pull() throws HopException {
     if (hasUncommittedChanges()) {
-      throw new HopException("You have uncommitted changes. Please commit work before pulling changes.");
+      throw new HopException(
+          "You have uncommitted changes. Please commit work before pulling changes.");
     }
     if (!hasRemote()) {
       throw new HopException("There is no remote set up to pull from. Please set this up first.");
@@ -679,9 +675,9 @@ public class UIGit extends VCS {
       String baseDirectory = getDirectory();
       String filePath = baseDirectory + Const.FILE_SEPARATOR + file;
       try {
-        return HopVfs.getInputStream( filePath );
-      } catch ( HopFileException e) {
-        throw new HopException("Unable to find working tree file '"+filePath+"'", e);
+        return HopVfs.getInputStream(filePath);
+      } catch (HopFileException e) {
+        throw new HopException("Unable to find working tree file '" + filePath + "'", e);
       }
     }
     RevCommit commit = resolve(commitId);
@@ -694,13 +690,17 @@ public class UIGit extends VCS {
       ObjectLoader loader = git.getRepository().open(tw.getObjectId(0));
       return loader.openStream();
     } catch (MissingObjectException e) {
-      throw new HopException("Unable to find file '"+file+"' for commit ID '"+commitId+"", e);
+      throw new HopException(
+          "Unable to find file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (IncorrectObjectTypeException e) {
-      throw new HopException("Incorrect object type error for file '"+file+"' for commit ID '"+commitId+"", e);
+      throw new HopException(
+          "Incorrect object type error for file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (CorruptObjectException e) {
-      throw new HopException("Corrupt object error for file '"+file+"' for commit ID '"+commitId+"", e);
+      throw new HopException(
+          "Corrupt object error for file '" + file + "' for commit ID '" + commitId + "", e);
     } catch (IOException e) {
-      throw new HopException("Error reading git file '"+file+"' for commit ID '"+commitId+"", e);
+      throw new HopException(
+          "Error reading git file '" + file + "' for commit ID '" + commitId + "", e);
     }
   }
 
@@ -764,12 +764,13 @@ public class UIGit extends VCS {
       org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".ours"));
       org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".theirs"));
     } catch (Exception e) {
-      throw new HopException("Git: error reverting path '"+path+"'", e);
+      throw new HopException("Git: error reverting path '" + path + "'", e);
     }
   }
 
   /**
    * Get the list of files which will be reverted.
+   *
    * @param path The path to revert
    * @return The list of affected files
    */
@@ -777,25 +778,24 @@ public class UIGit extends VCS {
     try {
       Set<String> files = new HashSet<>();
       StatusCommand statusCommand = git.status();
-      if (path!=null && !".".equals( path )) {
-        statusCommand = statusCommand.addPath( path );
+      if (path != null && !".".equals(path)) {
+        statusCommand = statusCommand.addPath(path);
       }
 
       // Get files to be reverted to HEAD state
       //
       Status status = statusCommand.call();
-      files.addAll( status.getUntracked() );
-      files.addAll( status.getAdded() );
-      files.addAll( status.getMissing() );
-      files.addAll( status.getChanged() );
-      files.addAll( status.getUncommittedChanges() );
+      files.addAll(status.getUntracked());
+      files.addAll(status.getAdded());
+      files.addAll(status.getMissing());
+      files.addAll(status.getChanged());
+      files.addAll(status.getUncommittedChanges());
 
       return new ArrayList<>(files);
     } catch (Exception e) {
-      throw new HopException("Git: error reverting path files for '"+path+"'", e);
+      throw new HopException("Git: error reverting path files for '" + path + "'", e);
     }
   }
-
 
   public boolean createBranch(String value) {
     try {
@@ -831,7 +831,8 @@ public class UIGit extends VCS {
       } else {
         // TODO: get rid of message box
         //
-        showMessageBox( BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
+        showMessageBox(
+            BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
         if (result.getMergeStatus() == MergeStatus.CONFLICTING) {
           Map<String, int[][]> conflicts = result.getConflicts();
           for (String path : conflicts.keySet()) {
@@ -843,27 +844,9 @@ public class UIGit extends VCS {
       }
       return false;
     } catch (Exception e) {
-      throw new HopException("Error merging branch '"+value+"' with strategy '"+mergeStrategy+"'", e);
+      throw new HopException(
+          "Error merging branch '" + value + "' with strategy '" + mergeStrategy + "'", e);
     }
-  }
-
-  public boolean merge() throws HopException {
-    if (hasUncommittedChanges()) {
-      showMessageBox(
-          BaseMessages.getString(PKG, "Dialog.Error"),
-          BaseMessages.getString(PKG, "Git.Dialog.UncommittedChanges.Message"));
-      return false;
-    }
-    MergeBranchDialog dialog = new MergeBranchDialog(shell);
-    List<String> branches = getBranches();
-    branches.remove(getBranch());
-    dialog.setBranches(branches);
-    if (dialog.open() == Window.OK) {
-      String branch = dialog.getSelectedBranch();
-      String mergeStrategy = dialog.getSelectedMergeStrategy();
-      return mergeBranch(branch, mergeStrategy);
-    }
-    return false;
   }
 
   private boolean hasUncommittedChanges() {
@@ -882,7 +865,14 @@ public class UIGit extends VCS {
       org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, file);
       stream.close();
     } catch (IOException e) {
-      throw new HopException("Error checking out file '"+path+"' for commit ID '"+commitId+"' and postfix "+postfix, e);
+      throw new HopException(
+          "Error checking out file '"
+              + path
+              + "' for commit ID '"
+              + commitId
+              + "' and postfix "
+              + postfix,
+          e);
     }
   }
 

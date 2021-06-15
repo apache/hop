@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class HopServerConfig {
+public class HopServerConfig implements IXml {
   public static final String XML_TAG = "hop-server-config";
 
   public static final String XML_TAG_SEQUENCES = "sequences";
@@ -87,81 +88,81 @@ public class HopServerConfig {
     variables = Variables.getADefaultVariableSpace();
   }
 
-  public HopServerConfig( HopServer hopServer ) {
+  public HopServerConfig(HopServer hopServer) {
     this();
     this.hopServer = hopServer;
   }
 
-  public String getXml() {
+  public String getXml(IVariables variables) {
 
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XmlHandler.openTag( XML_TAG ) );
+    xml.append(XmlHandler.openTag(XML_TAG));
 
-    if ( hopServer != null ) {
-      xml.append( hopServer.getXml() );
+    if (hopServer != null) {
+      xml.append(hopServer.getXml(variables));
     }
 
-    XmlHandler.addTagValue( "joining", joining );
-    XmlHandler.addTagValue( "max_log_lines", maxLogLines );
-    XmlHandler.addTagValue( "max_log_timeout_minutes", maxLogTimeoutMinutes );
-    XmlHandler.addTagValue( "object_timeout_minutes", objectTimeoutMinutes );
-    XmlHandler.addTagValue( XML_METADATA_FOLDER, metadataFolder );
+    XmlHandler.addTagValue("joining", joining);
+    XmlHandler.addTagValue("max_log_lines", maxLogLines);
+    XmlHandler.addTagValue("max_log_timeout_minutes", maxLogTimeoutMinutes);
+    XmlHandler.addTagValue("object_timeout_minutes", objectTimeoutMinutes);
+    XmlHandler.addTagValue(XML_METADATA_FOLDER, metadataFolder);
 
-    xml.append( XmlHandler.openTag( XML_TAG_SEQUENCES ) );
-    for ( HopServerSequence hopServerSequence : hopServerSequences ) {
-      xml.append( XmlHandler.openTag( HopServerSequence.XML_TAG ) );
-      xml.append( hopServerSequence.getXml() );
-      xml.append( XmlHandler.closeTag( HopServerSequence.XML_TAG ) );
+    xml.append(XmlHandler.openTag(XML_TAG_SEQUENCES));
+    for (HopServerSequence hopServerSequence : hopServerSequences) {
+      xml.append(XmlHandler.openTag(HopServerSequence.XML_TAG));
+      xml.append(hopServerSequence.getXml());
+      xml.append(XmlHandler.closeTag(HopServerSequence.XML_TAG));
     }
-    xml.append( XmlHandler.closeTag( XML_TAG_SEQUENCES ) );
+    xml.append(XmlHandler.closeTag(XML_TAG_SEQUENCES));
 
-    if ( autoSequence != null ) {
-      xml.append( XmlHandler.openTag( XML_TAG_AUTOSEQUENCE ) );
-      xml.append( autoSequence.getXml() );
-      xml.append( XmlHandler.addTagValue( XML_TAG_AUTO_CREATE, automaticCreationAllowed ) );
-      xml.append( XmlHandler.closeTag( XML_TAG_AUTOSEQUENCE ) );
+    if (autoSequence != null) {
+      xml.append(XmlHandler.openTag(XML_TAG_AUTOSEQUENCE));
+      xml.append(autoSequence.getXml());
+      xml.append(XmlHandler.addTagValue(XML_TAG_AUTO_CREATE, automaticCreationAllowed));
+      xml.append(XmlHandler.closeTag(XML_TAG_AUTOSEQUENCE));
     }
 
-    xml.append( XmlHandler.closeTag( XML_TAG ) );
+    xml.append(XmlHandler.closeTag(XML_TAG));
 
     return xml.toString();
   }
 
-  public HopServerConfig( ILogChannel log, Node node ) throws HopXmlException {
+  public HopServerConfig(ILogChannel log, Node node) throws HopXmlException {
     this();
-    Node hopServerNode = XmlHandler.getSubNode( node, HopServer.XML_TAG );
-    if ( hopServerNode != null ) {
-      hopServer = new HopServer( hopServerNode );
-      checkNetworkInterfaceSetting( log, hopServerNode, hopServer );
+    Node hopServerNode = XmlHandler.getSubNode(node, HopServer.XML_TAG);
+    if (hopServerNode != null) {
+      hopServer = new HopServer(hopServerNode);
+      checkNetworkInterfaceSetting(log, hopServerNode, hopServer);
     }
 
-    joining = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "joining" ) );
-    maxLogLines = Const.toInt( XmlHandler.getTagValue( node, "max_log_lines" ), 0 );
-    maxLogTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "max_log_timeout_minutes" ), 0 );
-    objectTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "object_timeout_minutes" ), 0 );
-    metadataFolder = XmlHandler.getTagValue( node, XML_METADATA_FOLDER );
+    joining = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "joining"));
+    maxLogLines = Const.toInt(XmlHandler.getTagValue(node, "max_log_lines"), 0);
+    maxLogTimeoutMinutes = Const.toInt(XmlHandler.getTagValue(node, "max_log_timeout_minutes"), 0);
+    objectTimeoutMinutes = Const.toInt(XmlHandler.getTagValue(node, "object_timeout_minutes"), 0);
+    metadataFolder = XmlHandler.getTagValue(node, XML_METADATA_FOLDER);
 
     // Read sequence information
     //
 
     // TODO : read databases back in
     //
-    Node sequencesNode = XmlHandler.getSubNode( node, "sequences" );
-    List<Node> seqNodes = XmlHandler.getNodes( sequencesNode, HopServerSequence.XML_TAG );
-    for ( Node seqNode : seqNodes ) {
-      hopServerSequences.add( new HopServerSequence( seqNode, databases ) );
+    Node sequencesNode = XmlHandler.getSubNode(node, "sequences");
+    List<Node> seqNodes = XmlHandler.getNodes(sequencesNode, HopServerSequence.XML_TAG);
+    for (Node seqNode : seqNodes) {
+      hopServerSequences.add(new HopServerSequence(seqNode, databases));
     }
 
-    Node autoSequenceNode = XmlHandler.getSubNode( node, XML_TAG_AUTOSEQUENCE );
-    if ( autoSequenceNode != null ) {
-      autoSequence = new HopServerSequence( autoSequenceNode, databases );
+    Node autoSequenceNode = XmlHandler.getSubNode(node, XML_TAG_AUTOSEQUENCE);
+    if (autoSequenceNode != null) {
+      autoSequence = new HopServerSequence(autoSequenceNode, databases);
       automaticCreationAllowed =
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( autoSequenceNode, XML_TAG_AUTO_CREATE ) );
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(autoSequenceNode, XML_TAG_AUTO_CREATE));
     }
 
     // Set Jetty Options
-    setUpJettyOptions( node );
+    setUpJettyOptions(node);
   }
 
   /**
@@ -169,12 +170,12 @@ public class HopServerConfig {
    *
    * @param node
    */
-  protected void setUpJettyOptions( Node node ) {
-    Map<String, String> jettyOptions = parseJettyOptions( node );
+  protected void setUpJettyOptions(Node node) {
+    Map<String, String> jettyOptions = parseJettyOptions(node);
 
-    if ( jettyOptions != null && jettyOptions.size() > 0 ) {
-      for ( Entry<String, String> jettyOption : jettyOptions.entrySet() ) {
-        System.setProperty( jettyOption.getKey(), jettyOption.getValue() );
+    if (jettyOptions != null && jettyOptions.size() > 0) {
+      for (Entry<String, String> jettyOption : jettyOptions.entrySet()) {
+        System.setProperty(jettyOption.getKey(), jettyOption.getValue());
       }
     }
   }
@@ -185,32 +186,36 @@ public class HopServerConfig {
    * @param node that contains jetty options nodes
    * @return map of not empty jetty options
    */
-  protected Map<String, String> parseJettyOptions( Node node ) {
+  protected Map<String, String> parseJettyOptions(Node node) {
 
     Map<String, String> jettyOptions = null;
 
-    Node jettyOptionsNode = XmlHandler.getSubNode( node, XML_TAG_JETTY_OPTIONS );
+    Node jettyOptionsNode = XmlHandler.getSubNode(node, XML_TAG_JETTY_OPTIONS);
 
-    if ( jettyOptionsNode != null ) {
+    if (jettyOptionsNode != null) {
 
       jettyOptions = new HashMap<>();
-      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) != null ) {
-        jettyOptions.put( Const.HOP_SERVER_JETTY_ACCEPTORS, XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) );
+      if (XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_ACCEPTORS) != null) {
+        jettyOptions.put(
+            Const.HOP_SERVER_JETTY_ACCEPTORS,
+            XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_ACCEPTORS));
       }
-      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE ) != null ) {
-        jettyOptions.put( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE, XmlHandler.getTagValue( jettyOptionsNode,
-          XML_TAG_ACCEPT_QUEUE_SIZE ) );
+      if (XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE) != null) {
+        jettyOptions.put(
+            Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE,
+            XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE));
       }
-      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME ) != null ) {
-        jettyOptions.put( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME, XmlHandler.getTagValue( jettyOptionsNode,
-          XML_TAG_LOW_RES_MAX_IDLE_TIME ) );
+      if (XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME) != null) {
+        jettyOptions.put(
+            Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME,
+            XmlHandler.getTagValue(jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME));
       }
     }
     return jettyOptions;
   }
 
   public void readAutoSequences() throws HopException {
-    if ( autoSequence == null ) {
+    if (autoSequence == null) {
       return;
     }
 
@@ -219,80 +224,97 @@ public class HopServerConfig {
     try {
       DatabaseMeta databaseMeta = autoSequence.getDatabaseMeta();
       ILoggingObject loggingInterface =
-        new SimpleLoggingObject( "auto-sequence", LoggingObjectType.GENERAL, null );
-      database = new Database( loggingInterface, variables, databaseMeta );
+          new SimpleLoggingObject("auto-sequence", LoggingObjectType.GENERAL, null);
+      database = new Database(loggingInterface, variables, databaseMeta);
       database.connect();
       String schemaTable =
-        databaseMeta.getQuotedSchemaTableCombination( variables, autoSequence.getSchemaName(), autoSequence.getTableName() );
-      String seqField = databaseMeta.quoteField( autoSequence.getSequenceNameField() );
-      String valueField = databaseMeta.quoteField( autoSequence.getValueField() );
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, autoSequence.getSchemaName(), autoSequence.getTableName());
+      String seqField = databaseMeta.quoteField(autoSequence.getSequenceNameField());
+      String valueField = databaseMeta.quoteField(autoSequence.getValueField());
 
       String sql = "SELECT " + seqField + ", " + valueField + " FROM " + schemaTable;
-      List<Object[]> rows = database.getRows( sql, 0 );
+      List<Object[]> rows = database.getRows(sql, 0);
       IRowMeta rowMeta = database.getReturnRowMeta();
-      for ( Object[] row : rows ) {
+      for (Object[] row : rows) {
         // Automatically create a new sequence for each sequence found...
         //
-        String sequenceName = rowMeta.getString( row, seqField, null );
-        if ( !Utils.isEmpty( sequenceName ) ) {
-          Long value = rowMeta.getInteger( row, valueField, null );
-          if ( value != null ) {
+        String sequenceName = rowMeta.getString(row, seqField, null);
+        if (!Utils.isEmpty(sequenceName)) {
+          Long value = rowMeta.getInteger(row, valueField, null);
+          if (value != null) {
             HopServerSequence hopServerSequence =
-              new HopServerSequence( sequenceName, value, databaseMeta, autoSequence.getSchemaName(), autoSequence
-                .getTableName(), autoSequence.getSequenceNameField(), autoSequence.getValueField() );
+                new HopServerSequence(
+                    sequenceName,
+                    value,
+                    databaseMeta,
+                    autoSequence.getSchemaName(),
+                    autoSequence.getTableName(),
+                    autoSequence.getSequenceNameField(),
+                    autoSequence.getValueField());
 
-            hopServerSequences.add( hopServerSequence );
+            hopServerSequences.add(hopServerSequence);
 
-            LogChannel.GENERAL.logBasic( "Automatically created server sequence '"
-              + hopServerSequence.getName() + "' with start value " + hopServerSequence.getStartValue() );
+            LogChannel.GENERAL.logBasic(
+                "Automatically created server sequence '"
+                    + hopServerSequence.getName()
+                    + "' with start value "
+                    + hopServerSequence.getStartValue());
           }
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to automatically configure server sequences", e );
+    } catch (Exception e) {
+      throw new HopException("Unable to automatically configure server sequences", e);
     } finally {
-      if ( database != null ) {
+      if (database != null) {
         database.disconnect();
       }
     }
   }
 
-  private void checkNetworkInterfaceSetting( ILogChannel log, Node serverNode, HopServer hopServer ) {
+  private void checkNetworkInterfaceSetting(ILogChannel log, Node serverNode, HopServer hopServer) {
     // See if we need to grab the network interface to use and then override the host name
     //
-    String networkInterfaceName = XmlHandler.getTagValue( serverNode, "network_interface" );
-    if ( !Utils.isEmpty( networkInterfaceName ) ) {
+    String networkInterfaceName = XmlHandler.getTagValue(serverNode, "network_interface");
+    if (!Utils.isEmpty(networkInterfaceName)) {
       // OK, so let's try to get the IP address for this network interface...
       //
       try {
-        String newHostname = Const.getIPAddress( networkInterfaceName );
-        if ( newHostname != null ) {
-          hopServer.setHostname( newHostname );
+        String newHostname = Const.getIPAddress(networkInterfaceName);
+        if (newHostname != null) {
+          hopServer.setHostname(newHostname);
           // Also change the name of the server...
           //
-          hopServer.setName( hopServer.getName() + "-" + newHostname );
-          log.logBasic( "Hostname for hop server ["
-            + hopServer.getName() + "] is set to [" + newHostname + "], information derived from network "
-            + networkInterfaceName );
+          hopServer.setName(hopServer.getName() + "-" + newHostname);
+          log.logBasic(
+              "Hostname for hop server ["
+                  + hopServer.getName()
+                  + "] is set to ["
+                  + newHostname
+                  + "], information derived from network "
+                  + networkInterfaceName);
         }
-      } catch ( SocketException e ) {
-        log.logError( "Unable to get the IP address for network interface "
-          + networkInterfaceName + " for hop server [" + hopServer.getName() + "]", e );
+      } catch (SocketException e) {
+        log.logError(
+            "Unable to get the IP address for network interface "
+                + networkInterfaceName
+                + " for hop server ["
+                + hopServer.getName()
+                + "]",
+            e);
       }
     }
-
   }
 
-  public HopServerConfig( String hostname, int port, boolean joining ) {
+  public HopServerConfig(String hostname, int port, boolean joining) {
     this();
     this.joining = joining;
-    this.hopServer = new HopServer( hostname + ":" + port, hostname, "" + port, null, null );
+    this.hopServer = new HopServer(hostname + ":" + port, hostname, "" + port, null, null);
   }
-
 
   /**
    * @return the hop server.<br>
-   * The user name and password defined in here are used to contact this server by the masters.
+   *     The user name and password defined in here are used to contact this server by the masters.
    */
   public HopServer getHopServer() {
     return hopServer;
@@ -300,135 +322,105 @@ public class HopServerConfig {
 
   /**
    * @param hopServer the hop server details to set.<br>
-   *                    The user name and password defined in here are used to contact this server by the masters.
+   *     The user name and password defined in here are used to contact this server by the masters.
    */
-  public void setHopServer( HopServer hopServer ) {
+  public void setHopServer(HopServer hopServer) {
     this.hopServer = hopServer;
   }
 
   /**
-   * @return true if the webserver needs to join with the webserver threads (wait/block until finished)
+   * @return true if the webserver needs to join with the webserver threads (wait/block until
+   *     finished)
    */
   public boolean isJoining() {
     return joining;
   }
 
   /**
-   * @param joining Set to true if the webserver needs to join with the webserver threads (wait/block until finished)
+   * @param joining Set to true if the webserver needs to join with the webserver threads
+   *     (wait/block until finished)
    */
-  public void setJoining( boolean joining ) {
+  public void setJoining(boolean joining) {
     this.joining = joining;
   }
 
-  /**
-   * @return the maxLogLines
-   */
+  /** @return the maxLogLines */
   public int getMaxLogLines() {
     return maxLogLines;
   }
 
-  /**
-   * @param maxLogLines the maxLogLines to set
-   */
-  public void setMaxLogLines( int maxLogLines ) {
+  /** @param maxLogLines the maxLogLines to set */
+  public void setMaxLogLines(int maxLogLines) {
     this.maxLogLines = maxLogLines;
   }
 
-  /**
-   * @return the maxLogTimeoutMinutes
-   */
+  /** @return the maxLogTimeoutMinutes */
   public int getMaxLogTimeoutMinutes() {
     return maxLogTimeoutMinutes;
   }
 
-  /**
-   * @param maxLogTimeoutMinutes the maxLogTimeoutMinutes to set
-   */
-  public void setMaxLogTimeoutMinutes( int maxLogTimeoutMinutes ) {
+  /** @param maxLogTimeoutMinutes the maxLogTimeoutMinutes to set */
+  public void setMaxLogTimeoutMinutes(int maxLogTimeoutMinutes) {
     this.maxLogTimeoutMinutes = maxLogTimeoutMinutes;
   }
 
-  /**
-   * @return the objectTimeoutMinutes
-   */
+  /** @return the objectTimeoutMinutes */
   public int getObjectTimeoutMinutes() {
     return objectTimeoutMinutes;
   }
 
-  /**
-   * @param objectTimeoutMinutes the objectTimeoutMinutes to set
-   */
-  public void setObjectTimeoutMinutes( int objectTimeoutMinutes ) {
+  /** @param objectTimeoutMinutes the objectTimeoutMinutes to set */
+  public void setObjectTimeoutMinutes(int objectTimeoutMinutes) {
     this.objectTimeoutMinutes = objectTimeoutMinutes;
   }
 
-  /**
-   * @return the filename
-   */
+  /** @return the filename */
   public String getFilename() {
     return filename;
   }
 
-  /**
-   * @param filename the filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename the filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /**
-   * @return the databases
-   */
+  /** @return the databases */
   public List<DatabaseMeta> getDatabases() {
     return databases;
   }
 
-  /**
-   * @param databases the databases to set
-   */
-  public void setDatabases( List<DatabaseMeta> databases ) {
+  /** @param databases the databases to set */
+  public void setDatabases(List<DatabaseMeta> databases) {
     this.databases = databases;
   }
 
-  /**
-   * @return the hopServerSequences
-   */
+  /** @return the hopServerSequences */
   public List<HopServerSequence> getHopServerSequences() {
     return hopServerSequences;
   }
 
-  /**
-   * @param hopServerSequences the hopServerSequences to set
-   */
-  public void setHopServerSequences( List<HopServerSequence> hopServerSequences ) {
+  /** @param hopServerSequences the hopServerSequences to set */
+  public void setHopServerSequences(List<HopServerSequence> hopServerSequences) {
     this.hopServerSequences = hopServerSequences;
   }
 
-  /**
-   * @return the autoSequence
-   */
+  /** @return the autoSequence */
   public HopServerSequence getAutoSequence() {
     return autoSequence;
   }
 
-  /**
-   * @param autoSequence the autoSequence to set
-   */
-  public void setAutoSequence( HopServerSequence autoSequence ) {
+  /** @param autoSequence the autoSequence to set */
+  public void setAutoSequence(HopServerSequence autoSequence) {
     this.autoSequence = autoSequence;
   }
 
-  /**
-   * @return the automaticCreationAllowed
-   */
+  /** @return the automaticCreationAllowed */
   public boolean isAutomaticCreationAllowed() {
     return automaticCreationAllowed;
   }
 
-  /**
-   * @param automaticCreationAllowed the automaticCreationAllowed to set
-   */
-  public void setAutomaticCreationAllowed( boolean automaticCreationAllowed ) {
+  /** @param automaticCreationAllowed the automaticCreationAllowed to set */
+  public void setAutomaticCreationAllowed(boolean automaticCreationAllowed) {
     this.automaticCreationAllowed = automaticCreationAllowed;
   }
 
@@ -436,7 +428,7 @@ public class HopServerConfig {
     return passwordFile;
   }
 
-  public void setPasswordFile( String passwordFile ) {
+  public void setPasswordFile(String passwordFile) {
     this.passwordFile = passwordFile;
   }
 
@@ -449,10 +441,8 @@ public class HopServerConfig {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables( IVariables variables ) {
+  /** @param variables The variables to set */
+  public void setVariables(IVariables variables) {
     this.variables = variables;
   }
 
@@ -465,10 +455,8 @@ public class HopServerConfig {
     return metadataFolder;
   }
 
-  /**
-   * @param metadataFolder The metadataFolder to set
-   */
-  public void setMetadataFolder( String metadataFolder ) {
+  /** @param metadataFolder The metadataFolder to set */
+  public void setMetadataFolder(String metadataFolder) {
     this.metadataFolder = metadataFolder;
   }
 }

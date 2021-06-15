@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <pipeline>
   <info>
     <name>0029-parquet-input</name>
@@ -16,7 +34,7 @@
     <created_date>2021/06/10 15:15:08.923</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/06/10 15:15:08.923</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -38,106 +56,6 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <transform>
-    <name>Parquet File Input</name>
-    <type>ParquetFileInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <source_field>id</source_field>
-        <target_field>id</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>Integer</target_type>
-      </field>
-      <field>
-        <source_field>name</source_field>
-        <target_field>name</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-      <field>
-        <source_field>firstname</source_field>
-        <target_field>firstname</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-      <field>
-        <source_field>zip</source_field>
-        <target_field>zip</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>Integer</target_type>
-      </field>
-      <field>
-        <source_field>city</source_field>
-        <target_field>city</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-      <field>
-        <source_field>birthdate</source_field>
-        <target_field>birthdate</target_field>
-        <target_format>yyyy/MM/dd</target_format>
-        <target_length/>
-        <target_precision/>
-        <target_type>Date</target_type>
-      </field>
-      <field>
-        <source_field>street</source_field>
-        <target_field>street</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-      <field>
-        <source_field>housenr</source_field>
-        <target_field>housenr</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>Integer</target_type>
-      </field>
-      <field>
-        <source_field>stateCode</source_field>
-        <target_field>stateCode</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-      <field>
-        <source_field>state</source_field>
-        <target_field>state</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
-      </field>
-    </fields>
-    <filename_field>filename</filename_field>
-    <attributes/>
-    <GUI>
-      <xloc>480</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
   <transform>
     <name>${java.io.tmpdir}/customers.parquet.snappy</name>
     <type>GetFileNames</type>
@@ -176,8 +94,8 @@
     </GUI>
   </transform>
   <transform>
-    <name>only filename</name>
-    <type>SelectValues</type>
+    <name>Parquet File Input</name>
+    <type>ParquetFileInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -188,14 +106,61 @@
     </partitioning>
     <fields>
       <field>
-        <name>filename</name>
-        <rename/>
+        <source_field>id</source_field>
+        <target_field>id</target_field>
+        <target_type>Integer</target_type>
       </field>
-      <select_unspecified>N</select_unspecified>
+      <field>
+        <source_field>name</source_field>
+        <target_field>name</target_field>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_field>firstname</source_field>
+        <target_field>firstname</target_field>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_field>zip</source_field>
+        <target_field>zip</target_field>
+        <target_type>Integer</target_type>
+      </field>
+      <field>
+        <source_field>city</source_field>
+        <target_field>city</target_field>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_field>birthdate</source_field>
+        <target_field>birthdate</target_field>
+        <target_format>yyyy/MM/dd</target_format>
+        <target_type>Date</target_type>
+      </field>
+      <field>
+        <source_field>street</source_field>
+        <target_field>street</target_field>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_field>housenr</source_field>
+        <target_field>housenr</target_field>
+        <target_type>Integer</target_type>
+      </field>
+      <field>
+        <source_field>stateCode</source_field>
+        <target_field>stateCode</target_field>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_field>state</source_field>
+        <target_field>state</target_field>
+        <target_type>String</target_type>
+      </field>
     </fields>
+    <filename_field>filename</filename_field>
     <attributes/>
     <GUI>
-      <xloc>336</xloc>
+      <xloc>480</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
@@ -212,7 +177,30 @@
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>608</xloc>
+      <xloc>624</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>only filename</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>filename</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>

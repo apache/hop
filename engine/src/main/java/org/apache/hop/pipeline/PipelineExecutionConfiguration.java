@@ -194,7 +194,8 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     this.logLevel = logLevel;
   }
 
-  public String getXml() {
+  @Override
+  public String getXml(IVariables variables) {
     StringBuilder xml = new StringBuilder(200);
 
     xml.append("  <" + XML_TAG + ">").append(Const.CR);

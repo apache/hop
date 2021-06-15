@@ -21,6 +21,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -34,6 +35,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +76,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
   private Font defaultFont;
 
   protected final String id;
+
+  protected ToolTip toolTip;
 
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
@@ -367,6 +371,13 @@ public abstract class HopGuiAbstractGraph extends Composite {
       }
     }
     canvas.setFocus();
+  }
+
+  protected void showToolTip(org.eclipse.swt.graphics.Point location) {
+    org.eclipse.swt.graphics.Point p = canvas.toDisplay(location);
+
+    toolTip.setLocation(p.x + ConstUi.TOOLTIP_OFFSET, p.y + ConstUi.TOOLTIP_OFFSET);
+    toolTip.setVisible(true);
   }
 
   /**

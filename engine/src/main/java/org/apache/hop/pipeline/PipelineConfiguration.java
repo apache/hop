@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -39,68 +40,67 @@ public class PipelineConfiguration {
    * @param pipelineMeta
    * @param pipelineExecutionConfiguration
    */
-  public PipelineConfiguration( PipelineMeta pipelineMeta, PipelineExecutionConfiguration pipelineExecutionConfiguration, SerializableMetadataProvider metadataProvider ) {
+  public PipelineConfiguration(
+      PipelineMeta pipelineMeta,
+      PipelineExecutionConfiguration pipelineExecutionConfiguration,
+      SerializableMetadataProvider metadataProvider) {
     this.pipelineMeta = pipelineMeta;
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
     this.metadataProvider = metadataProvider;
   }
 
-  public String getXml() throws IOException, HopException, HopException {
-    StringBuilder xml = new StringBuilder( 200 );
+  public String getXml(IVariables variables) throws IOException, HopException, HopException {
+    StringBuilder xml = new StringBuilder(200);
 
-    xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
+    xml.append("<" + XML_TAG + ">").append(Const.CR);
 
-    xml.append( pipelineMeta.getXml() );
-    xml.append( pipelineExecutionConfiguration.getXml() );
+    xml.append(pipelineMeta.getXml(variables));
+    xml.append(pipelineExecutionConfiguration.getXml(variables));
 
     String jsonString = HttpUtil.encodeBase64ZippedString(metadataProvider.toJson());
-    xml.append( XmlHandler.addTagValue( "metastore_json", jsonString));
+    xml.append(XmlHandler.addTagValue("metastore_json", jsonString));
 
-    xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
+    xml.append("</" + XML_TAG + ">").append(Const.CR);
 
     return xml.toString();
   }
 
-  public PipelineConfiguration( Node configNode ) throws HopException, HopException, ParseException, IOException {
-    Node trecNode = XmlHandler.getSubNode( configNode, PipelineExecutionConfiguration.XML_TAG );
-    pipelineExecutionConfiguration = new PipelineExecutionConfiguration( trecNode );
-    String metaStoreJson = HttpUtil.decodeBase64ZippedString(XmlHandler.getTagValue( configNode, "metastore_json" ));
+  public PipelineConfiguration(Node configNode)
+      throws HopException, HopException, ParseException, IOException {
+    Node trecNode = XmlHandler.getSubNode(configNode, PipelineExecutionConfiguration.XML_TAG);
+    pipelineExecutionConfiguration = new PipelineExecutionConfiguration(trecNode);
+    String metaStoreJson =
+        HttpUtil.decodeBase64ZippedString(XmlHandler.getTagValue(configNode, "metastore_json"));
     metadataProvider = new SerializableMetadataProvider(metaStoreJson);
-    Node pipelineNode = XmlHandler.getSubNode( configNode, PipelineMeta.XML_TAG );
-    pipelineMeta = new PipelineMeta( pipelineNode, metadataProvider );
+    Node pipelineNode = XmlHandler.getSubNode(configNode, PipelineMeta.XML_TAG);
+    pipelineMeta = new PipelineMeta(pipelineNode, metadataProvider);
   }
 
-  public static final PipelineConfiguration fromXml(String xml ) throws HopException, HopException, ParseException, IOException {
-    Document document = XmlHandler.loadXmlString( xml );
-    Node configNode = XmlHandler.getSubNode( document, XML_TAG );
-    return new PipelineConfiguration( configNode );
+  public static final PipelineConfiguration fromXml(String xml)
+      throws HopException, HopException, ParseException, IOException {
+    Document document = XmlHandler.loadXmlString(xml);
+    Node configNode = XmlHandler.getSubNode(document, XML_TAG);
+    return new PipelineConfiguration(configNode);
   }
 
-  /**
-   * @return the pipelineExecutionConfiguration
-   */
+  /** @return the pipelineExecutionConfiguration */
   public PipelineExecutionConfiguration getPipelineExecutionConfiguration() {
     return pipelineExecutionConfiguration;
   }
 
-  /**
-   * @param pipelineExecutionConfiguration the pipelineExecutionConfiguration to set
-   */
-  public void setPipelineExecutionConfiguration( PipelineExecutionConfiguration pipelineExecutionConfiguration ) {
+  /** @param pipelineExecutionConfiguration the pipelineExecutionConfiguration to set */
+  public void setPipelineExecutionConfiguration(
+      PipelineExecutionConfiguration pipelineExecutionConfiguration) {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
   }
 
-  /**
-   * @return the pipelineMeta
-   */
+  /** @return the pipelineMeta */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /**
-   * @param pipelineMeta the pipelineMeta to set
-   */
-  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+  /** @param pipelineMeta the pipelineMeta to set */
+  public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
 

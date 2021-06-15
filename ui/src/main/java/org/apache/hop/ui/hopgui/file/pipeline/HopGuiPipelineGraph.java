@@ -24,6 +24,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IEngineMeta;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
@@ -104,11 +105,11 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
@@ -144,10 +145,6 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -181,6 +178,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -271,10 +269,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private final HopDataOrchestrationPerspective perspective;
 
   private final Composite mainComposite;
-
-  private final DefaultToolTip toolTip;
-
-  private final CheckBoxToolTip helpTip;
 
   private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
@@ -515,17 +509,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           100,
         });
 
-    toolTip = new DefaultToolTip(canvas, ToolTip.NO_RECREATE, true);
-    toolTip.setRespectMonitorBounds(true);
-    toolTip.setRespectDisplayBounds(true);
-    toolTip.setPopupDelay(350);
-    toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_SHORT);
-    toolTip.setShift(
-        new org.eclipse.swt.graphics.Point(ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET));
-
-    helpTip = new CheckBoxToolTip(canvas);
-    helpTip.addCheckBoxToolTipListener(
-        enabled -> hopGui.getProps().setShowingHelpToolTips(enabled));
+    toolTip = new ToolTip(getShell(), SWT.BALLOON);
+    toolTip.setAutoHide(true);
 
     iconSize = hopGui.getProps().getIconSize();
 
@@ -1276,11 +1261,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Show a short tooltip
         //
-        toolTip.hide();
-        toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_FLASH);
-        toolTip.setImage(GuiResource.getInstance().getImageInfo());
+        toolTip.setVisible(false);
+        toolTip.setAutoHide(true);
         toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-        toolTip.show(new org.eclipse.swt.graphics.Point(e.x, e.y));
+        showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
 
         return;
       }
@@ -1449,8 +1433,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // disable the tooltip
     //
-    toolTip.hide();
-    toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_SHORT);
+    toolTip.setVisible(false);
 
     Point real = screen2real(e.x, e.y);
 
@@ -1589,9 +1572,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               endHopLocation = null;
             } else {
               noInputTransform = transformMeta;
-              toolTip.setImage(null);
               toolTip.setText("This transform does not accept any input from other transforms");
-              toolTip.show(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
             }
           } else if (endHopTransform != null) {
             if (ioMeta.isOutputProducer()) {
@@ -1599,10 +1581,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               endHopLocation = null;
             } else {
               noInputTransform = transformMeta;
-              toolTip.setImage(null);
               toolTip.setText(
                   "This transform doesn't pass any output to other transforms. (except perhaps for targetted output)");
-              toolTip.show(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
             }
           }
         }
@@ -1661,12 +1642,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     boolean tip = true;
 
-    toolTip.hide();
-    toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_SHORT);
+    toolTip.setVisible(false);
     Point real = screen2real(e.x, e.y);
 
     // Show a tool tip upon mouse-over of an object on the canvas
-    if (tip && !helpTip.isVisible()) {
+    if (tip) {
       setToolTip(real.x, real.y, e.x, e.y);
     }
   }
@@ -1966,21 +1946,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void hideToolTips() {
-    toolTip.hide();
-    helpTip.hide();
-    toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_SHORT);
-  }
-
-  private void showHelpTip(int x, int y, String tipTitle, String tipMessage) {
-
-    helpTip.setTitle(tipTitle);
-    helpTip.setMessage(tipMessage.replaceAll("\n", Const.CR));
-    helpTip.setCheckBoxMessage(
-        BaseMessages.getString(PKG, "PipelineGraph.HelpToolTip.DoNotShowAnyMoreCheckBox.Message"));
-
-    org.eclipse.swt.graphics.Point location = new org.eclipse.swt.graphics.Point(x - 5, y - 5);
-
-    helpTip.show(location);
+    toolTip.setVisible(false);
   }
 
   /**
@@ -2965,7 +2931,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-            toolTip.setHideDelay(TOOLTIP_HIDE_DELAY_LONG);
           }
           break;
         case TRANSFORM_OUTPUT_DATA:
@@ -3014,7 +2979,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     if (newTip == null) {
-      toolTip.hide();
+      toolTip.setVisible(false);
       if (hi != null) { // We clicked on a HOP!
 
         // Set the tooltip for the hop:
@@ -3035,14 +3000,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     ? BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo.Enable")
                     : BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo.Disable"));
         toolTip.setText(newTip);
-        if (hi.isEnabled()) {
-          toolTip.setImage(GuiResource.getInstance().getImageHop());
-        } else {
-          toolTip.setImage(GuiResource.getInstance().getImageDisabledHop());
-        }
-        toolTip.show(new org.eclipse.swt.graphics.Point(screenX, screenY));
-      } else {
-        newTip = null;
+        showToolTip(new org.eclipse.swt.graphics.Point(screenX, screenY));
       }
 
     } else if (!newTip.equalsIgnoreCase(getToolTipText())) {
@@ -3059,10 +3017,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public void showTooltip(String label, Image image, int screenX, int screenY) {
-    toolTip.setImage(image);
     toolTip.setText(label);
-    toolTip.hide();
-    toolTip.show(new org.eclipse.swt.graphics.Point(screenX, screenY));
+    toolTip.setVisible(false);
+    showToolTip(new org.eclipse.swt.graphics.Point(screenX, screenY));
   }
 
   public synchronized AreaOwner getVisibleAreaOwner(int x, int y) {
@@ -3163,7 +3120,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Dump the cancel looker in the background!
       new Thread(run).start();
 
-      pmd.run(true, true, op);
+      pmd.run(true, op);
     } catch (InvocationTargetException e) {
       new ErrorDialog(
           hopShell(),
@@ -3736,7 +3693,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       AuditManager.registerEvent(
           HopNamespace.getNamespace(), "file", pipelineMeta.getFilename(), "save");
 
-      String xml = pipelineMeta.getXml();
+      String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
       try {
         out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Const.XML_ENCODING));

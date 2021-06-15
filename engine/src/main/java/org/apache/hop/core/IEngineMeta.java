@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,14 +30,14 @@ public interface IEngineMeta {
    *
    * @param filename
    */
-  void setFilename( String filename );
+  void setFilename(String filename);
 
   /**
    * Set the name of the engine metadata object
    *
    * @param name
    */
-  void setName( String name );
+  void setName(String name);
 
   /**
    * Gets the name.
@@ -46,14 +46,10 @@ public interface IEngineMeta {
    */
   String getName();
 
-  /**
-   * Builds a name for this. If no name is yet set, create the name from the filename.
-   */
+  /** Builds a name for this. If no name is yet set, create the name from the filename. */
   void nameFromFilename();
 
-  /**
-   * Clears the changed flag of this.
-   */
+  /** Clears the changed flag of this. */
   void clearChanged();
 
   /**
@@ -62,9 +58,9 @@ public interface IEngineMeta {
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
    * @see IXml#getXml()
+   * @param variables
    */
-
-  String getXml() throws HopException;
+  String getXml(IVariables variables) throws HopException;
 
   /**
    * Gets the date the pipeline was created.
@@ -78,7 +74,7 @@ public interface IEngineMeta {
    *
    * @param date The creation date to set
    */
-  void setCreatedDate( Date date );
+  void setCreatedDate(Date date);
 
   /**
    * Returns whether or not the this can be saved.
@@ -99,7 +95,7 @@ public interface IEngineMeta {
    *
    * @param createduser The user to set
    */
-  void setCreatedUser( String createduser );
+  void setCreatedUser(String createduser);
 
   /**
    * Gets the date this was modified.
@@ -113,14 +109,14 @@ public interface IEngineMeta {
    *
    * @param date The modified date to set
    */
-  void setModifiedDate( Date date );
+  void setModifiedDate(Date date);
 
   /**
    * Sets the user who last modified this.
    *
    * @param user The user name to set
    */
-  void setModifiedUser( String user );
+  void setModifiedUser(String user);
 
   /**
    * Gets the user who last modified this.
@@ -138,18 +134,14 @@ public interface IEngineMeta {
 
   /**
    * Sets the internal hop variables on the provided IVariables
+   *
    * @param variables the variables to set the internal Hop variables and values on
    */
-  void setInternalHopVariables( IVariables variables );
+  void setInternalHopVariables(IVariables variables);
 
-  /**
-   * @return true if the name is derived from the filename
-   */
+  /** @return true if the name is derived from the filename */
   boolean isNameSynchronizedWithFilename();
 
-  /**
-   * @param nameSynchronizedWithFilename Set to true if the name is derived from the filename
-   */
-  void setNameSynchronizedWithFilename( boolean nameSynchronizedWithFilename );
-
+  /** @param nameSynchronizedWithFilename Set to true if the name is derived from the filename */
+  void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename);
 }

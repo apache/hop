@@ -180,7 +180,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     this.logLevel = logLevel;
   }
 
-  public String getXml() {
+  public String getXml(IVariables variables) {
     StringBuilder xml = new StringBuilder(160);
 
     xml.append("  <" + XML_TAG + ">").append(Const.CR);

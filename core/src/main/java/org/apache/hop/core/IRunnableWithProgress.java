@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,29 +15,10 @@
  * limitations under the License.
  */
 
-package org.eclipse.jface.window;
+package org.apache.hop.core;
 
-import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Control;
+import java.lang.reflect.InvocationTargetException;
 
-public class DefaultToolTip extends CheckBoxToolTip {
-
-  public DefaultToolTip( Control control ) {
-    super( control );
-  }
-
-  public DefaultToolTip( Control control, int style, boolean manualActivation ) {
-    super( control );
-  }
-
-  public void setBackgroundColor(Color color) {
-    // TODO Auto-generated method stub
-
-  }
-
-  public void setForegroundColor(Color color) {
-    // TODO Auto-generated method stub
-
-  }
+public interface IRunnableWithProgress {
+  void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException;
 }

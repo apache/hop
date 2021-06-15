@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,8 +58,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -964,7 +964,7 @@ public class ProjectsGuiPlugin {
           };
 
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      pmd.run(true, false, op);
+      pmd.run(false, op);
 
       GuiResource.getInstance().toClipboard(zipFilename);
 
