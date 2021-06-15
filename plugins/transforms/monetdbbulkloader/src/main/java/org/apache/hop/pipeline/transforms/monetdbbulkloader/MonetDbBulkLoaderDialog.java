@@ -43,7 +43,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -1110,13 +1109,14 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
           BaseMessages.getString(
                   PKG, "MonetDBBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(
                   PKG, "MonetDBBulkLoaderDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+              message,
+              SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+      boolean goOn = (answer & SWT.OK) != 0;
       if (!goOn) {
         return;
       }

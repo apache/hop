@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,12 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -49,64 +48,60 @@ public class StyledTextComp extends Composite {
   private static final Class<?> PKG = StyledTextComp.class; // For Translator
 
   // Modification for Undo/Redo on Styled Text
-  private Text textWidget;
-  private Menu styledTextPopupmenu;
-  private String strTabName;
-  private Composite xParent;
+  private final Text textWidget;
+  private final Menu styledTextPopupmenu;
+  private final Composite xParent;
   private Image image;
 
-  private IVariables variables;
-  private boolean varsSensitive;
-
-  public StyledTextComp( IVariables variables, Composite parent, int args ) {
+  public StyledTextComp(IVariables variables, Composite parent, int args) {
     this(variables, parent, args, true, false);
   }
 
-  public StyledTextComp(
-    IVariables variables, Composite parent, int args, boolean varsSensitive ) {
+  public StyledTextComp(IVariables variables, Composite parent, int args, boolean varsSensitive) {
     this(variables, parent, args, varsSensitive, false);
   }
 
   public StyledTextComp(
-    IVariables variables,
-    Composite parent,
-    int args,
-    boolean varsSensitive,
-    boolean variableIconOnTop ) {
+      IVariables variables,
+      Composite parent,
+      int args,
+      boolean varsSensitive,
+      boolean variableIconOnTop) {
+
     super(parent, SWT.NONE);
-    this.varsSensitive = varsSensitive;
-    this.variables = variables;
     textWidget = new Text(this, args);
     styledTextPopupmenu = new Menu(parent.getShell(), SWT.POP_UP);
     xParent = parent;
-    this.strTabName = strTabName;
-    // clipboard = new Clipboard(parent.getDisplay());
     this.setLayout(variableIconOnTop ? new FormLayout() : new FillLayout());
     buildingStyledTextMenu();
 
-    if (this.varsSensitive) {
-      textWidget.addKeyListener(new ControlSpaceKeyAdapter(this.variables, textWidget ));
+    if (varsSensitive) {
+      textWidget.addKeyListener(new ControlSpaceKeyAdapter(variables, textWidget));
       image = GuiResource.getInstance().getImageVariable();
       if (variableIconOnTop) {
-        final Label wicon = new Label(this, SWT.RIGHT);
-        PropsUi.getInstance().setLook(wicon);
-        wicon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
-        wicon.setImage(image);
-        wicon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        final Label wIcon = new Label(this, SWT.RIGHT);
+        PropsUi.getInstance().setLook(wIcon);
+        wIcon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
+        wIcon.setImage(image);
+        wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
         textWidget.setLayoutData(
             new FormDataBuilder()
-                .top(new FormAttachment(wicon, 0, 0))
+                .top(new FormAttachment(wIcon, 0, 0))
                 .left()
                 .right(100, 0)
                 .bottom(100, 0)
                 .result());
       } else {
-        ControlDecoration controlDecoration =
-            new ControlDecoration( textWidget, SWT.TOP | SWT.RIGHT);
+        Label controlDecoration = new Label(parent, SWT.NONE);
         controlDecoration.setImage(image);
-        controlDecoration.setDescriptionText(
+        controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
-        PropsUi.getInstance().setLook(controlDecoration.getControl());
+        PropsUi.getInstance().setLook(controlDecoration);
+        controlDecoration.setLayoutData(
+            new FormDataBuilder()
+                .top(new FormAttachment(textWidget, 0, SWT.TOP))
+                .left(new FormAttachment(textWidget, Const.MARGIN, SWT.RIGHT))
+                .result());
       }
     }
   }
@@ -185,7 +180,7 @@ public class StyledTextComp extends Composite {
     textWidget.addMenuDetectListener(
         e -> {
           styledTextPopupmenu.getItem(2).setEnabled(checkPaste());
-          if ( textWidget.getSelectionCount() > 0) {
+          if (textWidget.getSelectionCount() > 0) {
             styledTextPopupmenu.getItem(0).setEnabled(true);
             styledTextPopupmenu.getItem(1).setEnabled(true);
           } else {
@@ -211,7 +206,6 @@ public class StyledTextComp extends Composite {
       return false;
     }
   }
-
 
   public Image getImage() {
     return image;
@@ -243,16 +237,12 @@ public class StyledTextComp extends Composite {
     }
   }
 
-  /**
-   * @return The caret line number, starting from 1.
-   */
+  /** @return The caret line number, starting from 1. */
   public int getLineNumber() {
-    return textWidget.getCaretLineNumber()+1;
+    return textWidget.getCaretLineNumber() + 1;
   }
 
-  /**
-   * @return The caret column number, starting from 1.
-   */
+  /** @return The caret column number, starting from 1. */
   public int getColumnNumber() {
     String text = textWidget.getText();
     if (StringUtils.isEmpty(text)) {
@@ -261,7 +251,9 @@ public class StyledTextComp extends Composite {
 
     int columnNumber = 1;
     int textPosition = textWidget.getCaretPosition();
-    while ( textPosition > 0 && text.charAt( textPosition - 1 ) != '\n' && text.charAt( textPosition - 1 ) != '\r' ) {
+    while (textPosition > 0
+        && text.charAt(textPosition - 1) != '\n'
+        && text.charAt(textPosition - 1) != '\r') {
       textPosition--;
       columnNumber++;
     }

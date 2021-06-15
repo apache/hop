@@ -37,7 +37,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,17 +46,13 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -1605,7 +1600,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
                 return true;
               }
             };
-        getFieldsFromPrevious(r, wFields, 2, new int[] {2}, new int[] {1}, listener);
+        getFieldsFromPrevious(r, wFields, 2, new int[] {2}, new int[] {1}, -1, -1, listener);
       }
     } catch (HopException ke) {
       new ErrorDialog(
@@ -1614,101 +1609,5 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
           ke);
     }
-  }
-
-  public void getFieldsFromPrevious(
-      IRowMeta row,
-      TableView tableView,
-      int keyColumn,
-      int[] nameColumn,
-      int[] tokenNameColumn,
-      ITableItemInsertListener listener) {
-    if (row == null || row.size() == 0) {
-      return; // nothing to do
-    }
-
-    Table table = tableView.table;
-
-    // get a list of all the non-empty keys (names)
-    //
-    List<String> keys = new ArrayList<String>();
-    for (int i = 0; i < table.getItemCount(); i++) {
-      TableItem tableItem = table.getItem(i);
-      String key = tableItem.getText(keyColumn);
-      if (!Utils.isEmpty(key) && keys.indexOf(key) < 0) {
-        keys.add(key);
-      }
-    }
-
-    int choice = 0;
-
-    if (keys.size() > 0) {
-      // Ask what we should do with the existing data in the transform.
-      //
-      MessageDialog md =
-          new MessageDialog(
-              tableView.getShell(),
-              BaseMessages.getString(
-                  PKG, "BaseTransformDialog.GetFieldsChoice.Title"), // "Warning!"
-              null,
-              BaseMessages.getString(
-                  PKG,
-                  "BaseTransformDialog.GetFieldsChoice.Message",
-                  "" + keys.size(),
-                  "" + row.size()),
-              SWT.ICON_WARNING,
-              new String[] {
-                BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
-                BaseMessages.getString(PKG, "BaseTransformDialog.Add"),
-                BaseMessages.getString(PKG, "BaseTransformDialog.ClearAndAdd"),
-                BaseMessages.getString(PKG, "BaseTransformDialog.Cancel"),
-              },
-              0);
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHop());
-      int idx = md.open();
-      choice = idx & 0xFF;
-    }
-
-    if (choice == 3 || choice == 255) {
-      return; // Cancel clicked
-    }
-
-    if (choice == 2) {
-      tableView.clearAll(false);
-    }
-
-    for (int i = 0; i < row.size(); i++) {
-      IValueMeta v = row.getValueMeta(i);
-
-      boolean add = true;
-
-      if (choice == 0) { // hang on, see if it's not yet in the table view
-
-        if (keys.indexOf(v.getName()) >= 0) {
-          add = false;
-        }
-      }
-
-      if (add) {
-        TableItem tableItem = new TableItem(table, SWT.NONE);
-
-        for (int aNameColumn : nameColumn) {
-          tableItem.setText(aNameColumn, Const.NVL(v.getName(), ""));
-        }
-
-        for (int aTokenNameColumn : tokenNameColumn) {
-          tableItem.setText(aTokenNameColumn, Const.NVL(v.getName(), ""));
-        }
-
-        if (listener != null) {
-          if (!listener.tableItemInserted(tableItem, v)) {
-            tableItem.dispose(); // remove it again
-          }
-        }
-      }
-    }
-    tableView.removeEmptyRows();
-    tableView.setRowNums();
-    tableView.optWidth(true);
   }
 }
