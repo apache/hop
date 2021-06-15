@@ -102,7 +102,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     filemasks = new String[nrFields];
   }
 
-  public String getXml(IVariables variables) {
+  public String getXml() {
     StringBuilder xml = new StringBuilder(300);
 
     xml.append(super.getXml());
