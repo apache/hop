@@ -27,6 +27,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -36,24 +37,34 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
-import org.apache.hop.core.variables.IVariables;
+import java.util.Map;
+import java.util.Set;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
@@ -799,10 +810,11 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
    */
   private void generateMappings() {
     if (!bPreviousFieldsLoaded) {
-      MessageDialog.openError(
+      BaseDialog.openMessageBox(
           shell,
           BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading"),
-          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading"));
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading"),
+          SWT.ICON_ERROR | SWT.OK);
       return;
     }
     if ((wRemove.getItemCount() > 0) || (wMeta.getItemCount() > 0)) {
@@ -810,10 +822,11 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
         String[] columns = wRemove.getItem(i);
         for (String column : columns) {
           if (column.length() > 0) {
-            MessageDialog.openError(
+            BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"));
+                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"),
+                SWT.ICON_ERROR | SWT.OK);
             return;
           }
         }
@@ -822,10 +835,11 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
         String[] columns = wMeta.getItem(i);
         for (String col : columns) {
           if (col.length() > 0) {
-            MessageDialog.openError(
+            BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"));
+                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"),
+                SWT.ICON_ERROR | SWT.OK);
             return;
           }
         }
@@ -837,10 +851,11 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     TransformMeta transformMeta = new TransformMeta(transformName, input);
     List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
     if (nextTransforms.size() == 0 || nextTransforms.size() > 1) {
-      MessageDialog.openError(
+      BaseDialog.openMessageBox(
           shell,
           BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransformTitle"),
-          BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransform"));
+          BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransform"),
+          SWT.ICON_ERROR | SWT.OK);
       return;
     }
     TransformMeta outputTransformMeta = nextTransforms.get(0);
@@ -893,15 +908,14 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     }
     // show a confirm dialog if some misconfiguration was found
     if (missingFields.length() > 0) {
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFoundTitle"),
               BaseMessages.getString(
-                  PKG,
-                  "SelectValuesDialog.DoMapping.SomeFieldsNotFound",
-                  missingFields.toString()));
+                  PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFound", missingFields.toString()),
+              SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      boolean goOn = (answer & SWT.YES) != 0;
       if (!goOn) {
         return;
       }

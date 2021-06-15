@@ -44,7 +44,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -847,13 +846,16 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
           BaseMessages.getString(
                   PKG, "SynchronizeAfterMergeDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
+
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(
                   PKG, "SynchronizeAfterMergeDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+              message,
+              SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      boolean goOn = (answer & SWT.YES) != 0;
+
       if (!goOn) {
         return;
       }

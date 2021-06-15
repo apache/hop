@@ -41,7 +41,6 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -49,16 +48,26 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class InsertUpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
@@ -571,12 +580,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       message +=
           BaseMessages.getString(PKG, "InsertUpdateDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "InsertUpdateDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+              message,
+              SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+      boolean goOn = (answer & SWT.OK) != 0;
       if (!goOn) {
         return;
       }

@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -43,16 +44,12 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -60,7 +57,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -1030,16 +1026,13 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
           new MessageDialogWithToggle(
               shell,
               BaseMessages.getString(PKG, "Neo4JOutputDialog.DynamicLabelsWarning.DialogTitle"),
-              null,
-              message.toString() + Const.CR,
-              MessageDialog.WARNING,
+              message + Const.CR,
+              SWT.ICON_WARNING,
               new String[] {
                 BaseMessages.getString(PKG, "Neo4JOutputDialog.DynamicLabelsWarning.Understood")
               },
-              0,
               BaseMessages.getString(PKG, "Neo4JOutputDialog.DynamicLabelsWarning.HideNextTime"),
               "N".equalsIgnoreCase(props.getCustomParameter(STRING_DYNAMIC_LABELS_WARNING, "Y")));
-      MessageDialogWithToggle.setDefaultImage(GuiResource.getInstance().getImageHopUi());
       md.open();
       props.setCustomParameter(STRING_DYNAMIC_LABELS_WARNING, md.getToggleState() ? "N" : "Y");
     }

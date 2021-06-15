@@ -46,14 +46,12 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -69,7 +67,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -928,12 +925,13 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       message +=
           BaseMessages.getString(PKG, "TableOutputDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
-      boolean goOn =
-          MessageDialog.openConfirm(
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "TableOutputDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+              message,
+              SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      boolean goOn = (answer & SWT.YES) != 0;
       if (!goOn) {
         return;
       }
@@ -1028,18 +1026,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   protected void showUnsupportedConnectionMessageBox(IDatabase dbi) {
     String title = BaseMessages.getString(PKG, "TableOutput.UnsupportedConnection.DialogTitle");
     String message = dbi.getUnsupportedTableOutputMessage();
-    String close = BaseMessages.getString(PKG, "System.Button.Close");
-
-    MessageDialog dialog =
-        new MessageDialog(
-            shell,
-            title,
-            GuiResource.getInstance().getImageHopUi(),
-            message,
-            SWT.ICON_WARNING,
-            new String[] {close},
-            0);
-    dialog.open();
+    BaseDialog.openMessageBox(shell, title, message, SWT.ICON_WARNING | SWT.OK);
   }
 
   private void setTableFieldCombo() {

@@ -13,7 +13,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -75,7 +74,6 @@
     </dependencySet>
     <dependencySet>
       <includes>
-        <include>org.eclipse.platform:org.eclipse.jface</include>
         <include>org.apache.hop:hop-ui-rcp</include>
         <include>org.eclipse.jetty:*</include>
         <include>javax.servlet:javax.servlet-api</include>

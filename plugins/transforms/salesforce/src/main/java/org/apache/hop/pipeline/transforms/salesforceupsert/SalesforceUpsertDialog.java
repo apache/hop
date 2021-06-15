@@ -46,19 +46,15 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -66,10 +62,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -963,13 +957,14 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       message +=
           BaseMessages.getString(PKG, "SalesforceUpsertDialog.DoMapping.SomeFieldsNotFoundContinue")
               + Const.CR;
-      MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHop());
-      boolean goOn =
-          MessageDialog.openConfirm(
+      int answer =
+          BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(
                   PKG, "SalesforceUpsertDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              message);
+              message,
+              SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+      boolean goOn = (answer & SWT.OK) != 0;
       if (!goOn) {
         return;
       }

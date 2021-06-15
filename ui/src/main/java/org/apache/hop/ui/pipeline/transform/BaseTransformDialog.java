@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.DialogBoxWithButtons;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -50,9 +51,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.util.HelpUtils;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -62,7 +61,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
@@ -77,7 +75,6 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /** This class provides functionality common to Transform Dialogs. */
 public class BaseTransformDialog extends Dialog {
@@ -298,11 +295,6 @@ public class BaseTransformDialog extends Dialog {
       Composite composite, Button[] buttons, int margin, Control lastControl) {
     // call positionBottomButtons method the system button alignment
     positionBottomButtons(composite, buttons, margin, buttonAlignment, lastControl);
-  }
-
-  public static final void positionBottomRightButtons(
-      Composite composite, Button[] buttons, int margin, Control lastControl) {
-    positionBottomButtons(composite, buttons, margin, BUTTON_ALIGNMENT_RIGHT, lastControl);
   }
 
   public static final void positionBottomButtons(
@@ -897,7 +889,7 @@ public class BaseTransformDialog extends Dialog {
     if (keys.size() > 0) {
       // Ask what we should do with the existing data in the transform.
       //
-      MessageDialog getFieldsChoiceDialog =
+      DialogBoxWithButtons getFieldsChoiceDialog =
           getFieldsChoiceDialogProvider.provide(tableView.getShell(), keys.size(), row.size());
 
       int idx = getFieldsChoiceDialog.open();
@@ -960,26 +952,23 @@ public class BaseTransformDialog extends Dialog {
     }
   }
 
-  static MessageDialog getFieldsChoiceDialog(Shell shell, int existingFields, int newFields) {
-    MessageDialog messageDialog =
-        new MessageDialog(
+  static DialogBoxWithButtons getFieldsChoiceDialog(
+      Shell shell, int existingFields, int newFields) {
+    DialogBoxWithButtons messageDialog =
+        new DialogBoxWithButtons(
             shell,
             BaseMessages.getString(PKG, "BaseTransformDialog.GetFieldsChoice.Title"), // "Warning!"
-            null,
             BaseMessages.getString(
                 PKG,
                 "BaseTransformDialog.GetFieldsChoice.Message",
                 "" + existingFields,
                 "" + newFields),
-            SWT.ICON_WARNING,
             new String[] {
               BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Add"),
               BaseMessages.getString(PKG, "BaseTransformDialog.ClearAndAdd"),
               BaseMessages.getString(PKG, "BaseTransformDialog.Cancel"),
-            },
-            0);
-    MessageDialog.setDefaultImage(GuiResource.getInstance().getImageHopUi());
+            });
     return messageDialog;
   }
 
@@ -1217,7 +1206,7 @@ public class BaseTransformDialog extends Dialog {
   }
 
   public interface IFieldsChoiceDialogProvider {
-    MessageDialog provide(Shell shell, int existingFields, int newFields);
+    DialogBoxWithButtons provide(Shell shell, int existingFields, int newFields);
   }
 
   /**
