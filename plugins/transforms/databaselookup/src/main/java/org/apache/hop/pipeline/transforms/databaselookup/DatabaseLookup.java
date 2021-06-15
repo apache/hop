@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -169,13 +170,27 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
             BaseMessages.getString(PKG, "DatabaseLookup.Log.FoundResultsAfterLookup")
                 + Arrays.toString(add));
       }
+      // Trim field if required
+      String[] trimTypes = data.returnTrimTypes;
+      int[] types = data.returnValueTypes;
 
-      // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
+      for (int i = 0; i < types.length; i++) {
+        // If type is String and trim is required do that
+        IValueMeta returned = data.db.getReturnRowMeta().getValueMeta(i);
+        if (types[i] == IValueMeta.TYPE_STRING && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
+          IValueMeta expected = data.returnMeta.getValueMeta(i);
+          add[i] = expected.convertDataFromString((String) add[i], returned, "", ""
+                  , ValueMetaString.getTrimTypeByCode(trimTypes[i]));
+        } else if (types[i] != IValueMeta.TYPE_STRING
+                && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
+          logBasic("WARNING - TrimType is applied only to String fields - Affected field: " + returned.getName());
+        }
+      }
+        // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
       // In that case, we already know the data type is OK.
       if (!cacheHit) {
         incrementLinesInput();
 
-        int[] types = data.returnValueTypes;
 
         // The assumption here is that the types are in the same order
         // as the returned lookup row, but since we make the lookup row
@@ -343,10 +358,14 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       }
       String[] returnField = new String[returnValues.size()];
       String[] returnRename = new String[returnValues.size()];
+      data.returnTrimTypes = new String[returnValues.size()];
+
       for (int i = 0; i < returnValues.size(); i++) {
         returnField[i] = returnValues.get(i).getTableField();
-        returnRename[i] = returnValues.get(i).getNewName();
+        returnRename[i] = Utils.isEmpty(returnValues.get(i).getNewName()) ? null : returnValues.get(i).getNewName();
+        data.returnTrimTypes[i] = returnValues.get(i).getTrimType();
       }
+
       data.db.setLookup(
           resolve(meta.getSchemaName()),
           resolve(meta.getTableName()),
