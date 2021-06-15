@@ -25,11 +25,11 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies-plugins-actions</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.99</version>
   </parent>
 
   <artifactId>hop-assemblies-plugins-action-ftp</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.99</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Actions Get/Put/Delete a file with FTP/SFTP</name>
   <description></description>

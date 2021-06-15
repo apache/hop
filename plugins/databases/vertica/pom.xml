@@ -23,13 +23,13 @@
     <parent>
         <artifactId>hop-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.99</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-vertica</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.99</version>
 
     <name>Hop Plugins Databases Vertica</name>
 

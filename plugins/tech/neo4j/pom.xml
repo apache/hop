@@ -23,7 +23,7 @@
 
   <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-tech-neo4j</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.99</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Technology Neo4j</name>
@@ -32,7 +32,7 @@
   <parent>
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-tech</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.99</version>
   </parent>
 
   <licenses>
