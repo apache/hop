@@ -47,7 +47,7 @@ Check our [Contribution Guide](http://www.project-hop.org/community/contributing
 
 Required: 
 - [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
-- [Maven](http://maven.apache.org/)
+- [Maven](http://maven.apache.org/) 3.6.3 or higher
 
 Clone Hop to a local repository: 
 
@@ -64,7 +64,7 @@ You can download a source release [here](https://downloads.apache.org/incubator/
 
 Required: 
 - [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
-- [Maven](http://maven.apache.org/)
+- [Maven](http://maven.apache.org/) 3.6.3 or higher
 
 Unzip the archive
 
