@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.action;
 
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
@@ -131,7 +132,7 @@ import java.util.Map;
  * @author Matt Casters
  * @since 18-06-04
  */
-public interface IAction extends IVariables, IHasLogChannel {
+public interface IAction extends IVariables, IHasLogChannel, IExtensionData {
 
   /**
    * Execute the action. The previous result and number of rows are provided to the method for the

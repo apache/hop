@@ -812,10 +812,9 @@ public class Const {
   public static final String I18N_PREFIX = "i18n:";
 
   /**
-   * A variable to configure if the S3 input / output transforms should use the Amazon Default
-   * Credentials Provider Chain even if access credentials are specified within the pipeline.
+   * This is the name of the string used to store the connection group in pipelines and workflows.
    */
-  public static final String HOP_USE_AWS_DEFAULT_CREDENTIALS = "HOP_USE_AWS_DEFAULT_CREDENTIALS";
+  public static final String CONNECTION_GROUP = "CONNECTION_GROUP";
 
   /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal

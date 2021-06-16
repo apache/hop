@@ -151,7 +151,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         Database db = new Database(this, this, meta.getDatabaseMeta());
         data.setDb(db);
         try {
-          data.getDb().connect(getPartitionId());
+          data.getDb().connect();
           if (log.isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "AddSequence.Log.ConnectedDB"));
           }

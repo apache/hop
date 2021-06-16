@@ -279,10 +279,9 @@ public class SqlEditor {
     StringBuilder message = new StringBuilder();
 
     Database db = new Database(loggingObject, variables, databaseMeta);
-    boolean first = true;
 
     try {
-      db.connect(null);
+      db.connect();
       String sqlScript =
           Utils.isEmpty(wScript.getSelectionText())
               ? wScript.getText()

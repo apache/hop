@@ -177,20 +177,27 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       for (int i = 0; i < types.length; i++) {
         // If type is String and trim is required do that
         IValueMeta returned = data.db.getReturnRowMeta().getValueMeta(i);
-        if (types[i] == IValueMeta.TYPE_STRING && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
+        if (types[i] == IValueMeta.TYPE_STRING
+            && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
           IValueMeta expected = data.returnMeta.getValueMeta(i);
-          add[i] = expected.convertDataFromString((String) add[i], returned, "", ""
-                  , ValueMetaString.getTrimTypeByCode(trimTypes[i]));
+          add[i] =
+              expected.convertDataFromString(
+                  (String) add[i],
+                  returned,
+                  "",
+                  "",
+                  ValueMetaString.getTrimTypeByCode(trimTypes[i]));
         } else if (types[i] != IValueMeta.TYPE_STRING
-                && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
-          logBasic("WARNING - TrimType is applied only to String fields - Affected field: " + returned.getName());
+            && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
+          logBasic(
+              "WARNING - TrimType is applied only to String fields - Affected field: "
+                  + returned.getName());
         }
       }
-        // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
+      // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
       // In that case, we already know the data type is OK.
       if (!cacheHit) {
         incrementLinesInput();
-
 
         // The assumption here is that the types are in the same order
         // as the returned lookup row, but since we make the lookup row
@@ -362,7 +369,10 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
       for (int i = 0; i < returnValues.size(); i++) {
         returnField[i] = returnValues.get(i).getTableField();
-        returnRename[i] = Utils.isEmpty(returnValues.get(i).getNewName()) ? null : returnValues.get(i).getNewName();
+        returnRename[i] =
+            Utils.isEmpty(returnValues.get(i).getNewName())
+                ? null
+                : returnValues.get(i).getNewName();
         data.returnTrimTypes[i] = returnValues.get(i).getTrimType();
       }
 
@@ -689,7 +699,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void connectDatabase(Database database) throws HopDatabaseException {
-    database.connect(getPartitionId());
+    database.connect();
 
     database.setCommit(100); // we never get a commit, but it just turns off auto-commit.
 

@@ -25,7 +25,8 @@ image:icons/pipeline_run_config.svg[]
 
 Describes how and with which engine a pipeline is to be executed.
 
-Pipelines can be executed on a variety of runtime engines. Check xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations] for more details.
+Pipelines can be executed on a variety of runtime engines.
+Check xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations] for more details.
 
 == Related Plugins
 
@@ -39,14 +40,15 @@ None/All
 |Name|the name to be used for this pipeline run configuration
 |Description|the description to be used for this pipeline run configuration
 |Engine Type
-a|The available pipeline engines are listed below. Detailed configuration depends on the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[selected engine].
+a|The available pipeline engines are listed below.
+Detailed configuration depends on the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[selected engine].
 
-* Beam Dataflow pipeline engine
-* Beam Direct pipeline engine
-* Beam Flink pipeline engine
-* Beam Spark pipeline engine
-* Hop local pipeline engine
-* Hop remote pipeline engine
+* *xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam DataFlow pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Hop local pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop remote pipeline engine]*
 |===
 
 == Samples

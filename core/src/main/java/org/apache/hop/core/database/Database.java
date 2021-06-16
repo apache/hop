@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core.database;
 
 import org.apache.commons.lang.StringUtils;
@@ -63,7 +63,7 @@ public class Database implements IVariables, ILoggingObject {
 
   private static final Map<String, Set<String>> registeredDrivers = new HashMap<>();
 
-  private DatabaseMeta databaseMeta;
+  private final DatabaseMeta databaseMeta;
 
   private static final String DATA_SERVICES_PLUGIN_ID = "HopThin";
 
@@ -157,6 +157,14 @@ public class Database implements IVariables, ILoggingObject {
 
     opened = copy = 0;
 
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopExtensionPoint.DatabaseCreated.id, this);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Error calling extension point while creating database connection", e);
+    }
+
     if (log.isDetailed()) {
       log.logDetailed("New database connection defined");
     }
@@ -219,20 +227,6 @@ public class Database implements IVariables, ILoggingObject {
    * @throws HopDatabaseException if something went wrong.
    */
   public void connect() throws HopDatabaseException {
-    connect(null);
-  }
-
-  /**
-   * Open the database connection.
-   *
-   * @param partitionId the partition ID in the cluster to connect to.
-   * @throws HopDatabaseException if something went wrong.
-   */
-  public void connect(String partitionId) throws HopDatabaseException {
-    connect(null, partitionId);
-  }
-
-  public synchronized void connect(String group, String partitionId) throws HopDatabaseException {
     try {
 
       log.snap(Metrics.METRIC_DATABASE_CONNECT_START, databaseMeta.getName());
@@ -245,13 +239,12 @@ public class Database implements IVariables, ILoggingObject {
       // So the deal is that if there is another thread using that, we go for
       // it.
       //
-      if (!Utils.isEmpty(group)) {
-        this.connectionGroup = group;
-        this.partitionId = partitionId;
+      if (!Utils.isEmpty(connectionGroup)) {
 
         // Try to find the connection for the group
         Database lookup =
-            DatabaseConnectionMap.getInstance().getOrStoreIfAbsent(group, partitionId, this);
+            DatabaseConnectionMap.getInstance()
+                .getOrStoreIfAbsent(connectionGroup, partitionId, this);
         if (lookup == null) {
           // There was no mapped value before
           lookup = this;
@@ -1715,7 +1708,6 @@ public class Database implements IVariables, ILoggingObject {
    * @return true if the table exists, false if it doesn't.
    * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
-
   public boolean checkTableExists(String tableName) throws HopDatabaseException {
     try {
       if (log.isDebug()) {

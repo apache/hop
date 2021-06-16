@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -39,23 +40,20 @@ import java.util.Map;
 
 /**
  * The interface that any pipeline transform or plugin needs to implement.
- * <p>
- * Created on 12-AUG-2004
+ *
+ * <p>Created on 12-AUG-2004
  *
  * @author Matt
  */
-
 public interface ITransform<Meta extends ITransformMeta, Data extends ITransformData>
-  extends IVariables, IHasLogChannel, IEngineComponent {
+    extends IVariables, IHasLogChannel, IEngineComponent, IExtensionData {
 
-  /**
-   * @return the pipeline that is executing this transform
-   */
+  /** @return the pipeline that is executing this transform */
   IPipelineEngine<PipelineMeta> getPipeline();
 
   /**
-   * Perform the equivalent of processing one row. Typically this means reading a row from input (getRow()) and passing
-   * a row to output (putRow)).
+   * Perform the equivalent of processing one row. Typically this means reading a row from input
+   * (getRow()) and passing a row to output (putRow)).
    *
    * @return false if no more rows can be processed or an error occurred.
    * @throws HopException
@@ -64,44 +62,30 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
 
   /**
    * This method checks if the transform is capable of processing at least one row.
-   * <p>
-   * For example, if a transform has no input records but needs at least one to function, it will return false.
+   *
+   * <p>For example, if a transform has no input records but needs at least one to function, it will
+   * return false.
    *
    * @return true if the transform can process a row.
    */
   boolean canProcessOneRow();
 
-  /**
-   * Initialize and do work where other transforms need to wait for...
-   *
-   */
+  /** Initialize and do work where other transforms need to wait for... */
   boolean init();
 
-  /**
-   * Dispose of this transform: close files, empty logs, etc.
-   *
-   */
+  /** Dispose of this transform: close files, empty logs, etc. */
   void dispose();
 
-  /**
-   * Mark the start time of the transform.
-   */
+  /** Mark the start time of the transform. */
   void markStart();
 
-  /**
-   * Mark the end time of the transform.
-   */
+  /** Mark the end time of the transform. */
   void markStop();
 
-  /**
-   * Stop running operations...
-   *
-   */
+  /** Stop running operations... */
   void stopRunning() throws HopException;
 
-  /**
-   * @return true if the transform is running after having been initialized
-   */
+  /** @return true if the transform is running after having been initialized */
   boolean isRunning();
 
   /**
@@ -109,49 +93,32 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param running the running flag to set
    */
-  void setRunning( boolean running );
+  void setRunning(boolean running);
 
-  /**
-   * @return True if the transform is marked as stopped. Execution should stop immediate.
-   */
+  /** @return True if the transform is marked as stopped. Execution should stop immediate. */
   boolean isStopped();
 
-  /**
-   * @param stopped true if the transform needs to be stopped
-   */
-  void setStopped( boolean stopped );
+  /** @param stopped true if the transform needs to be stopped */
+  void setStopped(boolean stopped);
 
-  /**
-   * @param stopped true if the transform needs to be safe stopped
-   */
-  default void setSafeStopped( boolean stopped ) {
-  }
+  /** @param stopped true if the transform needs to be safe stopped */
+  default void setSafeStopped(boolean stopped) {}
 
-  /**
-   * @return true if transform is safe stopped.
-   */
+  /** @return true if transform is safe stopped. */
   default boolean isSafeStopped() {
     return false;
   }
 
-  /**
-   * @return True if the transform is paused
-   */
+  /** @return True if the transform is paused */
   boolean isPaused();
 
-  /**
-   * Flags all rowsets as stopped/completed/finished.
-   */
+  /** Flags all rowsets as stopped/completed/finished. */
   void stopAll();
 
-  /**
-   * Pause a running transform
-   */
+  /** Pause a running transform */
   void pauseRunning();
 
-  /**
-   * Resume a running transform
-   */
+  /** Resume a running transform */
   void resumeRunning();
 
   /**
@@ -161,14 +128,10 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   String getTransformName();
 
-  /**
-   * @return The transforms copy number (default 0)
-   */
+  /** @return The transforms copy number (default 0) */
   int getCopy();
 
-  /**
-   * @return the type ID of the transform...
-   */
+  /** @return the type ID of the transform... */
   String getTransformPluginId();
 
   /**
@@ -183,41 +146,27 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param errors the number of errors to set
    */
-  void setErrors( long errors );
+  void setErrors(long errors);
 
-  /**
-   * @return Returns the linesInput.
-   */
+  /** @return Returns the linesInput. */
   long getLinesInput();
 
-  /**
-   * @return Returns the linesOutput.
-   */
+  /** @return Returns the linesOutput. */
   long getLinesOutput();
 
-  /**
-   * @return Returns the linesRead.
-   */
+  /** @return Returns the linesRead. */
   long getLinesRead();
 
-  /**
-   * @return Returns the linesWritten.
-   */
+  /** @return Returns the linesWritten. */
   long getLinesWritten();
 
-  /**
-   * @return Returns the linesUpdated.
-   */
+  /** @return Returns the linesUpdated. */
   long getLinesUpdated();
 
-  /**
-   * @param linesRejected transforms the lines rejected by error handling.
-   */
-  void setLinesRejected( long linesRejected );
+  /** @param linesRejected transforms the lines rejected by error handling. */
+  void setLinesRejected(long linesRejected);
 
-  /**
-   * @return Returns the lines rejected by error handling.
-   */
+  /** @return Returns the lines rejected by error handling. */
   long getLinesRejected();
 
   /**
@@ -225,72 +174,56 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param row The row to send to the destinations transforms
    */
-  void putRow( IRowMeta row, Object[] data ) throws HopException;
+  void putRow(IRowMeta row, Object[] data) throws HopException;
 
-  /**
-   * @return a row from the source transform(s).
-   */
+  /** @return a row from the source transform(s). */
   Object[] getRow() throws HopException;
 
-  /**
-   * Signal output done to destination transforms
-   */
+  /** Signal output done to destination transforms */
   void setOutputDone();
 
   /**
-   * Add a rowlistener to the transform allowing you to inspect (or manipulate, be careful) the rows coming in or exiting the
-   * transform.
+   * Add a rowlistener to the transform allowing you to inspect (or manipulate, be careful) the rows
+   * coming in or exiting the transform.
    *
    * @param rowListener the rowlistener to add
    */
-  void addRowListener( IRowListener rowListener );
+  void addRowListener(IRowListener rowListener);
 
   /**
    * Remove a rowlistener from this transform.
    *
    * @param rowListener the rowlistener to remove
    */
-  void removeRowListener( IRowListener rowListener );
+  void removeRowListener(IRowListener rowListener);
 
-  /**
-   * @return a list of the installed RowListeners
-   */
+  /** @return a list of the installed RowListeners */
   List<IRowListener> getRowListeners();
 
-  /**
-   * @return The list of active input rowsets for the transform
-   */
+  /** @return The list of active input rowsets for the transform */
   List<IRowSet> getInputRowSets();
 
-  /**
-   * @return The list of active output rowsets for the transform
-   */
+  /** @return The list of active output rowsets for the transform */
   List<IRowSet> getOutputRowSets();
 
-  /**
-   * @return true if the transform is running partitioned
-   */
+  /** @return true if the transform is running partitioned */
   boolean isPartitioned();
 
-  /**
-   * @param partitionId the partitionID to set
-   */
-  void setPartitionId( String partitionId );
+  /** @param partitionId the partitionID to set */
+  void setPartitionId(String partitionId);
 
-  /**
-   * @return the transforms partition ID
-   */
+  /** @return the transforms partition ID */
   String getPartitionId();
 
-  /**
-   * Cleanup any left-over resources for this transform.
-   */
+  /** Cleanup any left-over resources for this transform. */
   void cleanup();
 
   /**
-   * This method is executed by Pipeline right before the threads start and right after initialization.<br>
+   * This method is executed by Pipeline right before the threads start and right after
+   * initialization.<br>
    * <br>
-   * <b>!!! A plugin implementing this method should make sure to also call <i>super.initBeforeStart();</i> !!!</b>
+   * <b>!!! A plugin implementing this method should make sure to also call
+   * <i>super.initBeforeStart();</i> !!!</b>
    *
    * @throws HopTransformException In case there is an error
    */
@@ -301,78 +234,62 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param transformListener The listener to add to the transform
    */
-  void addTransformFinishedListener( ITransformFinishedListener transformListener );
+  void addTransformFinishedListener(ITransformFinishedListener transformListener);
 
   /**
    * Attach a transform listener to be notified when a transform starts
    *
    * @param transformListener The listener to add to the transform
    */
-  void addTransformStartedListener( ITransformStartedListener transformListener );
+  void addTransformStartedListener(ITransformStartedListener transformListener);
 
-  /**
-   * @return true if the thread is a special mapping transform
-   */
+  /** @return true if the thread is a special mapping transform */
   boolean isMapping();
 
-  /**
-   * @return The metadata for this transform
-   */
+  /** @return The metadata for this transform */
   TransformMeta getTransformMeta();
 
-  /**
-   * @return the logging channel for this transform
-   */
-  @Override ILogChannel getLogChannel();
+  /** @return the logging channel for this transform */
+  @Override
+  ILogChannel getLogChannel();
 
-  /**
-   * @return The total amount of rows in the input buffers
-   */
+  /** @return The total amount of rows in the input buffers */
   int rowsetInputSize();
 
-  /**
-   * @return The total amount of rows in the output buffers
-   */
+  /** @return The total amount of rows in the output buffers */
   int rowsetOutputSize();
 
   /**
-   * @return The number of "processed" lines of a transform. Well, a representable metric for that anyway.
+   * @return The number of "processed" lines of a transform. Well, a representable metric for that
+   *     anyway.
    */
   long getProcessed();
 
-  /**
-   * @return The result files for this transform
-   */
+  /** @return The result files for this transform */
   Map<String, ResultFile> getResultFiles();
 
-  /**
-   * @return the description as in {@link ITransformData}
-   */
+  /** @return the description as in {@link ITransformData} */
   ComponentExecutionStatus getStatus();
 
-  /**
-   * @return The number of ms that this transform has been running
-   */
+  /** @return The number of ms that this transform has been running */
   long getExecutionDuration();
 
   /**
-   * To be used to flag an error output channel of a transform prior to execution for performance reasons.
+   * To be used to flag an error output channel of a transform prior to execution for performance
+   * reasons.
    */
   void identifyErrorOutput();
 
-  /**
-   * @param partitioned true if this transform is partitioned
-   */
-  void setPartitioned( boolean partitioned );
+  /** @param partitioned true if this transform is partitioned */
+  void setPartitioned(boolean partitioned);
+
+  /** @param partitioningMethod The repartitioning method */
+  void setRepartitioning(int partitioningMethod);
 
   /**
-   * @param partitioningMethod The repartitioning method
-   */
-  void setRepartitioning( int partitioningMethod );
-
-  /**
-   * Calling this method will alert the transform that we finished passing a batch of records to the transform. Specifically for
-   * transforms like "Sort Rows" it means that the buffered rows can be sorted and passed on.
+   * Calling this method will alert the transform that we finished passing a batch of records to the
+   * transform. Specifically for transforms like "Sort Rows" it means that the buffered rows can be
+   * sorted and passed on.
    *
    * @throws HopException In case an error occurs during the processing of the batch of rows.
    */
@@ -383,54 +300,40 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param metadataProvider The metadata to use
    */
-  void setMetadataProvider( IHopMetadataProvider metadataProvider );
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 
-  /**
-   * @return The metadata that the transform uses to load external elements from.
-   */
+  /** @return The metadata that the transform uses to load external elements from. */
   IHopMetadataProvider getMetadataProvider();
 
-  /**
-   * @return the index of the active (current) output row set
-   */
+  /** @return the index of the active (current) output row set */
   int getCurrentOutputRowSetNr();
 
-  /**
-   * @param index Sets the index of the active (current) output row set to use.
-   */
-  void setCurrentOutputRowSetNr( int index );
+  /** @param index Sets the index of the active (current) output row set to use. */
+  void setCurrentOutputRowSetNr(int index);
 
-  /**
-   * @return the index of the active (current) input row set
-   */
+  /** @return the index of the active (current) input row set */
   int getCurrentInputRowSetNr();
 
-  /**
-   * @param index Sets the index of the active (current) input row set to use.
-   */
-  void setCurrentInputRowSetNr( int index );
+  /** @param index Sets the index of the active (current) input row set to use. */
+  void setCurrentInputRowSetNr(int index);
 
   default Collection<TransformStatus> subStatuses() {
     return Collections.emptyList();
   }
 
-  default void addRowSetToInputRowSets( IRowSet rowSet ) {
-    getInputRowSets().add( rowSet );
+  default void addRowSetToInputRowSets(IRowSet rowSet) {
+    getInputRowSets().add(rowSet);
   }
 
-  default void addRowSetToOutputRowSets( IRowSet rowSet ) {
-    getOutputRowSets().add( rowSet );
+  default void addRowSetToOutputRowSets(IRowSet rowSet) {
+    getOutputRowSets().add(rowSet);
   }
 
-  /**
-   * @return Returns the transform specific metadata.
-   */
+  /** @return Returns the transform specific metadata. */
   Meta getMeta();
 
-  /**
-   * @param meta The transform specific metadata.
-   */
-  void setMeta( Meta meta );
+  /** @param meta The transform specific metadata. */
+  void setMeta(Meta meta);
 
   /**
    * Get the transform data
@@ -439,12 +342,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Data getData();
 
-  /**
-   * @param data The transform data to set
-   */
-  void setData( Data data );
-
-
+  /** @param data The transform data to set */
+  void setData(Data data);
 
   /**
    * Gets initStartDate
@@ -453,10 +352,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Date getInitStartDate();
 
-  /**
-   * @param initStartDate The initStartDate to set
-   */
-  void setInitStartDate( Date initStartDate );
+  /** @param initStartDate The initStartDate to set */
+  void setInitStartDate(Date initStartDate);
 
   /**
    * Gets executionStartDate
@@ -465,10 +362,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Date getExecutionStartDate();
 
-  /**
-   * @param executionStartDate The executionStartDate to set
-   */
-  void setExecutionStartDate( Date executionStartDate );
+  /** @param executionStartDate The executionStartDate to set */
+  void setExecutionStartDate(Date executionStartDate);
 
   /**
    * Gets firstRowReadDate
@@ -477,10 +372,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Date getFirstRowReadDate();
 
-  /**
-   * @param firstRowReadDate The firstRowReadDate to set
-   */
-  void setFirstRowReadDate( Date firstRowReadDate );
+  /** @param firstRowReadDate The firstRowReadDate to set */
+  void setFirstRowReadDate(Date firstRowReadDate);
 
   /**
    * Gets lastRowWrittenDate
@@ -489,10 +382,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Date getLastRowWrittenDate();
 
-  /**
-   * @param lastRowWrittenDate The lastRowWrittenDate to set
-   */
-  void setLastRowWrittenDate( Date lastRowWrittenDate );
+  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  void setLastRowWrittenDate(Date lastRowWrittenDate);
 
   /**
    * Gets executionEndDate
@@ -501,9 +392,6 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    */
   Date getExecutionEndDate();
 
-  /**
-   * @param executionEndDate The executionEndDate to set
-   */
-  void setExecutionEndDate( Date executionEndDate );
-
+  /** @param executionEndDate The executionEndDate to set */
+  void setExecutionEndDate(Date executionEndDate);
 }

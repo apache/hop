@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.engine;
 
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -44,15 +45,16 @@ import java.util.Map;
  *
  * @param <T> The subject class to execute
  */
-public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILoggingObject, INamedParameters {
+public interface IPipelineEngine<T extends PipelineMeta>
+    extends IVariables, ILoggingObject, INamedParameters, IExtensionData {
 
   T getPipelineMeta();
 
-  void setPipelineMeta( T t );
+  void setPipelineMeta(T t);
 
   String getPluginId();
 
-  void setPluginId( String pluginId );
+  void setPluginId(String pluginId);
 
   /**
    * Ask the engine to generate a default pipeline engine configuration for this engine
@@ -61,12 +63,13 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    */
   IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
 
-  void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration );
+  void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration);
 
   PipelineRunConfiguration getPipelineRunConfiguration();
 
   /**
    * See which operations are supported by the pipeline engine.
+   *
    * @return The engine capabilities
    */
   PipelineEngineCapabilities getEngineCapabilities();
@@ -79,17 +82,15 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
   void execute() throws HopException;
 
   /**
-   * Prepares for execution. This includes setting the parameters as well as preparing
-   * anything needed in terms of resources, threads,....
-   * It runs initialization on all the work that is needed to be done up-front.
+   * Prepares for execution. This includes setting the parameters as well as preparing anything
+   * needed in terms of resources, threads,.... It runs initialization on all the work that is
+   * needed to be done up-front.
    *
    * @throws HopException In case of an initialization error
    */
   void prepareExecution() throws HopException;
 
-  /**
-   * @return true if the engine is preparing execution
-   */
+  /** @return true if the engine is preparing execution */
   boolean isPreparing();
 
   /**
@@ -117,24 +118,21 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * Get the engine metrics for a specific component name and/or copy nr
    *
    * @param componentName the name of the component or null for all components
-   * @param copyNr        The copy nr to select or a negative number for all components
+   * @param copyNr The copy nr to select or a negative number for all components
    * @return The engine metrics for the given
    */
-  EngineMetrics getEngineMetrics( String componentName, int copyNr );
+  EngineMetrics getEngineMetrics(String componentName, int copyNr);
 
   /**
-   * This method performs any cleanup operations on the various sub-components of the engine after execution.
+   * This method performs any cleanup operations on the various sub-components of the engine after
+   * execution.
    */
   void cleanup();
 
-  /**
-   * Wait until the execution is done.
-   */
+  /** Wait until the execution is done. */
   void waitUntilFinished();
 
-  /**
-   * Stops all parts of the execution from running and alerts any registered listeners.
-   */
+  /** Stops all parts of the execution from running and alerts any registered listeners. */
   void stopAll();
 
   /**
@@ -158,19 +156,13 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    */
   boolean isStopped();
 
-  /**
-   * Pauses the execution (all components).
-   */
+  /** Pauses the execution (all components). */
   void pauseExecution();
 
-  /**
-   * Resume the execution (all components).
-   */
+  /** Resume the execution (all components). */
   void resumeExecution();
 
-  /**
-   * @return a number larger than 0 in case of errors
-   */
+  /** @return a number larger than 0 in case of errors */
   int getErrors();
 
   /**
@@ -193,7 +185,8 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param listener
    * @throws HopException
    */
-  void addExecutionStartedListener( IExecutionStartedListener<IPipelineEngine<T>> listener ) throws HopException;
+  void addExecutionStartedListener(IExecutionStartedListener<IPipelineEngine<T>> listener)
+      throws HopException;
 
   void firePipelineExecutionStartedListeners() throws HopException;
 
@@ -203,10 +196,10 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param listener
    * @throws HopException
    */
-  void addExecutionFinishedListener( IExecutionFinishedListener<IPipelineEngine<T>> listener ) throws HopException;
+  void addExecutionFinishedListener(IExecutionFinishedListener<IPipelineEngine<T>> listener)
+      throws HopException;
 
   void firePipelineExecutionFinishedListeners() throws HopException;
-
 
   /**
    * Call the given listener lambda when this pipeline engine has stopped execution.
@@ -214,19 +207,19 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param listener
    * @throws HopException
    */
-  void addExecutionStoppedListener( IExecutionStoppedListener<IPipelineEngine<T>> listener ) throws HopException;
+  void addExecutionStoppedListener(IExecutionStoppedListener<IPipelineEngine<T>> listener)
+      throws HopException;
 
   void firePipelineExecutionStoppedListeners() throws HopException;
-
 
   /**
    * Retrieve the logging text of a particular component in the engine
    *
    * @param componentName The name of the component (transform)
-   * @param copyNr        The copy number if multiple components are running in parallel (0 based).
+   * @param copyNr The copy number if multiple components are running in parallel (0 based).
    * @return The logging text
    */
-  String getComponentLogText( String componentName, int copyNr );
+  String getComponentLogText(String componentName, int copyNr);
 
   /**
    * Get a list of components
@@ -241,16 +234,16 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param name The name of the component to look for (transform)
    * @return The list of components found
    */
-  List<IEngineComponent> getComponentCopies( String name );
+  List<IEngineComponent> getComponentCopies(String name);
 
   /**
    * Find a component by name and copy nr
    *
-   * @param name   The name of the component to look for (transform)
+   * @param name The name of the component to look for (transform)
    * @param copyNr The copy number to match
    * @return The component or null if nothing was found
    */
-  IEngineComponent findComponent( String name, int copyNr );
+  IEngineComponent findComponent(String name, int copyNr);
 
   /**
    * Gets the log channel interface for the pipeline.
@@ -261,6 +254,7 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
 
   /**
    * Sets the log channel. For testing only
+   *
    * @param log
    */
   void setLogChannel(ILogChannel log);
@@ -277,28 +271,28 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    *
    * @param parent the new parent
    */
-  void setParent( ILoggingObject parent );
+  void setParent(ILoggingObject parent);
 
   /**
    * Inform the pipeline that it's being executed as part of a workflow
    *
    * @param parentWorkflow
    */
-  void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow );
+  void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow);
 
   /**
    * Inform the pipeline that it's being executed as part of another pipeline
    *
    * @param parentPipeline
    */
-  void setParentPipeline( IPipelineEngine parentPipeline );
+  void setParentPipeline(IPipelineEngine parentPipeline);
 
   /**
    * Inform the pipeline about a previous execution result in a workflow or pipeline
    *
    * @param previousResult
    */
-  void setPreviousResult( Result previousResult );
+  void setPreviousResult(Result previousResult);
 
   /**
    * Get the result of the execution after it's done, a resume
@@ -307,15 +301,13 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    */
   Result getResult();
 
-
-  void setMetadataProvider( IHopMetadataProvider metadataProvider );
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 
   IHopMetadataProvider getMetadataProvider();
 
-  void setLogLevel( LogLevel logLevel );
+  void setLogLevel(LogLevel logLevel);
 
   LogLevel getLogLevel();
-
 
   /**
    * Temporary until we find a better way to preview/debug
@@ -323,7 +315,7 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param preview
    */
   @Deprecated
-  void setPreview( boolean preview );
+  void setPreview(boolean preview);
 
   /**
    * Temporary until we find a better way to preview/debug
@@ -334,7 +326,7 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
   boolean isPreview();
 
   /**
-   * Retrieve output rows from a component copy.  Pass the rows to the rows received lambda.
+   * Retrieve output rows from a component copy. Pass the rows to the rows received lambda.
    *
    * @param variables
    * @param componentName
@@ -343,7 +335,13 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param rowsReceived
    * @throws HopException
    */
-  void retrieveComponentOutput( IVariables variables, String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException;
+  void retrieveComponentOutput(
+      IVariables variables,
+      String componentName,
+      int copyNr,
+      int nrRows,
+      IPipelineComponentRowsReceived rowsReceived)
+      throws HopException;
 
   /**
    * Determine the pipeline engine which is executing this pipeline engine.
@@ -360,14 +358,16 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
   IWorkflowEngine<WorkflowMeta> getParentWorkflow();
 
   /**
-   * True if the engine is doing extra validations at runtime to detect possible issues with data types and so on.
+   * True if the engine is doing extra validations at runtime to detect possible issues with data
+   * types and so on.
    *
    * @return True if safe mode is enabled.
    */
   boolean isSafeModeEnabled();
 
   /**
-   * For engines that support it we allow the retrieval of a rowset from one transform copy to another
+   * For engines that support it we allow the retrieval of a rowset from one transform copy to
+   * another
    *
    * @param fromTransformName
    * @param fromTransformCopy
@@ -376,7 +376,8 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @return The rowset if one was found.
    * @throws RuntimeException in case the engine doesn't support this operation.
    */
-  IRowSet findRowSet( String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy );
+  IRowSet findRowSet(
+      String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy);
 
   /**
    * True if feedback need to be given every X rows
@@ -401,14 +402,10 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    */
   Result getPreviousResult();
 
-  /**
-   * @return The start date of the pipeline execution
-   */
+  /** @return The start date of the pipeline execution */
   Date getExecutionStartDate();
 
-  /**
-   * @return The end date of the pipeline preparation
-   */
+  /** @return The end date of the pipeline preparation */
   Date getExecutionEndDate();
 
   /**
@@ -417,7 +414,7 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param transformName
    * @param executorPipeline
    */
-  void addActiveSubPipeline( String transformName, IPipelineEngine executorPipeline );
+  void addActiveSubPipeline(String transformName, IPipelineEngine executorPipeline);
 
   /**
    * Get the active sub-pipeline with the given name
@@ -425,7 +422,7 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param subPipelineName
    * @return The active pipeline engine or null if it was not found
    */
-  IPipelineEngine getActiveSubPipeline( final String subPipelineName );
+  IPipelineEngine getActiveSubPipeline(final String subPipelineName);
 
   /**
    * Add an active sub-workflow to allow drill-down in the GUI
@@ -433,7 +430,8 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param subWorkflowName
    * @param subWorkflow
    */
-  void addActiveSubWorkflow( final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow );
+  void addActiveSubWorkflow(
+      final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow);
 
   /**
    * Get the active sub-workflow with the given name
@@ -441,31 +439,36 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    * @param subWorkflowName
    * @return The active workflow or null if nothing was found
    */
-  IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow( final String subWorkflowName );
-
+  IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow(final String subWorkflowName);
 
   /**
-   * Make the engine define internal hop variables based on the given variables, the filename and so on
-   * @param var
-   * TODO get rid of this method, internal variables should be available
+   * Make the engine define internal hop variables based on the given variables, the filename and so
+   * on
+   *
+   * @param var TODO get rid of this method, internal variables should be available
    */
-  void setInternalHopVariables( IVariables var );
+  void setInternalHopVariables(IVariables var);
 
   /**
-   * The unique ID this pipeline engine has while executing in a container like a web-server and so on.
-   * When we have multiple pipelines running with the same name
+   * The unique ID this pipeline engine has while executing in a container like a web-server and so
+   * on. When we have multiple pipelines running with the same name
+   *
    * @param containerId The unique ID to identify this executing engine with
    */
-  void setContainerId( String containerId );
+  void setContainerId(String containerId);
 
   /**
-   * @return Get a status description of the state of the engine (running, stopped, finished, paused, halted, ...)
+   * @return Get a status description of the state of the engine (running, stopped, finished,
+   *     paused, halted, ...)
    */
   String getStatusDescription();
 
   /**
-   * A map in which the various transforms and plugins can store objects to remember during the lifecycle of the pipeline.
-   * TODO This is obviously harder to do in a clustered or remote execution environment. As such it's not clear that it makes sense to leave this method here over time
+   * A map in which the various transforms and plugins can store objects to remember during the
+   * lifecycle of the pipeline. TODO This is obviously harder to do in a clustered or remote
+   * execution environment. As such it's not clear that it makes sense to leave this method here
+   * over time
+   *
    * @return The extension data map to use
    */
   Map<String, Object> getExtensionDataMap();
