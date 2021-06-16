@@ -52,7 +52,6 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
 
   protected ParquetOutputMeta input;
 
-  private Shell shell;
   private TextVar wFilenameBase;
   private TextVar wFilenameExtension;
   private Button wFilenameIncludeDate;
