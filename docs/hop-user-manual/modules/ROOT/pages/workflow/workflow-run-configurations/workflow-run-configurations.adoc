@@ -47,6 +47,6 @@ The tab contains the name, description and the dropdown list for the workflow en
 a|
 The available engine types are:
 
-* Local workflow engine*: this configuration runs pipelines on your machine
+* xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Local workflow engine]: this configuration runs pipelines on your machine
 * xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow engine]: this configuration runs workflows on a Hop Server using a defined Run Configuration.
 |===

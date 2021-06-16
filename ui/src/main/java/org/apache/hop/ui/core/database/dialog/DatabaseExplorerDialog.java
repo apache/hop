@@ -258,6 +258,8 @@ public class DatabaseExplorerDialog extends Dialog {
         });
     shell.addListener(SWT.Close, e -> cancel());
 
+    BaseTransformDialog.setSize(shell);
+
     shell.open();
 
     // Handle the event loop until we're done with this shell...

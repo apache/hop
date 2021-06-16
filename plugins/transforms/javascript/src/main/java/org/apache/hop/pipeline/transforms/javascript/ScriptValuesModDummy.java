@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,26 +29,25 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-//import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+// import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.transform.*;
-//import org.apache.hop.pipeline.transform.TransformListener;
+// import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.ITransform;
 
 import javax.sql.RowSet;
 import java.awt.event.ComponentListener;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Dummy class used for test().
- */
+/** Dummy class used for test(). */
 public class ScriptValuesModDummy implements ITransform {
   private IRowMeta inputRowMeta;
   private IRowMeta outputRowMeta;
 
-  public ScriptValuesModDummy( IRowMeta inputRowMeta, IRowMeta outputRowMeta ) {
+  public ScriptValuesModDummy(IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
     this.inputRowMeta = inputRowMeta;
     this.outputRowMeta = outputRowMeta;
   }
@@ -57,11 +56,9 @@ public class ScriptValuesModDummy implements ITransform {
     return false;
   }
 
-  public void addRowListener( IRowListener rowListener ) {
-  }
+  public void addRowListener(IRowListener rowListener) {}
 
-  public void dispose() {
-  }
+  public void dispose() {}
 
   public long getErrors() {
     return 0;
@@ -124,7 +121,7 @@ public class ScriptValuesModDummy implements ITransform {
     return null;
   }
 
-  public boolean init( ITransform transformMetaInterface, ITransformData iTransformData ) {
+  public boolean init(ITransform transformMetaInterface, ITransformData iTransformData) {
     return false;
   }
 
@@ -137,9 +134,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setPartitionId(String partitionId) {
-
-  }
+  public void setPartitionId(String partitionId) {}
 
   @Override
   public String getPartitionId() {
@@ -150,69 +145,54 @@ public class ScriptValuesModDummy implements ITransform {
     return false;
   }
 
-  public void markStart() {
-  }
+  public void markStart() {}
 
-  public void markStop() {
-  }
+  public void markStop() {}
 
   @Override
-  public void stopRunning() throws HopException {
+  public void stopRunning() throws HopException {}
 
-  }
+  public void putRow(IRowMeta rowMeta, Object[] row) throws HopException {}
 
-  public void putRow( IRowMeta rowMeta, Object[] row ) throws HopException {
-  }
+  public void removeRowListener(IRowListener rowListener) {}
 
-  public void removeRowListener( IRowListener rowListener ) {
-  }
+  public void run() {}
 
-  public void run() {
-  }
+  public void setErrors(long errors) {}
 
-  public void setErrors( long errors ) {
-  }
+  public void setOutputDone() {}
 
-  public void setOutputDone() {
-  }
+  public void setPartitionID(String partitionID) {}
 
-  public void setPartitionID( String partitionID ) {
-  }
+  public void start() {}
 
-  public void start() {
-  }
+  public void stopAll() {}
 
-  public void stopAll() {
-  }
+  public void stopRunning(ITransform transformMetaInterface, ITransformData iTransformData)
+      throws HopException {}
 
-  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
-  }
+  public void cleanup() {}
 
-  public void cleanup() {
-  }
+  public void pauseRunning() {}
 
-  public void pauseRunning() {
-  }
+  public void resumeRunning() {}
 
-  public void resumeRunning() {
-  }
+  public void copyFrom(IVariables variables) {}
 
-  public void copyFrom( IVariables variables ) {
-  }
-
-  public String resolve( String aString ) {
+  public String resolve(String aString) {
     return null;
   }
 
-  public String[] resolve( String[] string ) {
+  public String[] resolve(String[] string) {
     return null;
   }
 
-  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+  public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
+      throws HopValueException {
     return null;
   }
 
-  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     return false;
   }
 
@@ -220,32 +200,27 @@ public class ScriptValuesModDummy implements ITransform {
     return null;
   }
 
-  public void setParentVariables( IVariables parent ) {
-  }
+  public void setParentVariables(IVariables parent) {}
 
-  public String getVariable( String variableName, String defaultValue ) {
+  public String getVariable(String variableName, String defaultValue) {
     return defaultValue;
   }
 
-  public String getVariable( String variableName ) {
+  public String getVariable(String variableName) {
     return null;
   }
 
-  public void initializeFrom( IVariables parent ) {
-  }
+  public void initializeFrom(IVariables parent) {}
 
-  public void setVariables( Map<String, String> map ) {
-  }
+  public void setVariables(Map<String, String> map) {}
 
   public String[] getVariableNames() {
     return null;
   }
 
-  public void setVariable( String variableName, String variableValue ) {
-  }
+  public void setVariable(String variableName, String variableValue) {}
 
-  public void shareWith( IVariables variables ) {
-  }
+  public void shareWith(IVariables variables) {}
 
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
@@ -255,28 +230,21 @@ public class ScriptValuesModDummy implements ITransform {
     return outputRowMeta;
   }
 
-  public void initBeforeStart() throws HopTransformException {
-  }
+  public void initBeforeStart() throws HopTransformException {}
 
   @Override
-  public void addTransformFinishedListener(ITransformFinishedListener transformListener) {
-
-  }
+  public void addTransformFinishedListener(ITransformFinishedListener transformListener) {}
 
   @Override
-  public void addTransformStartedListener(ITransformStartedListener transformListener) {
+  public void addTransformStartedListener(ITransformStartedListener transformListener) {}
 
-  }
-
-  public void setLinesRejected( long linesRejected ) {
-  }
+  public void setLinesRejected(long linesRejected) {}
 
   public int getCopy() {
     return 0;
   }
 
-  public void addTransformListener( ComponentListener transformListener ) {
-  }
+  public void addTransformListener(ComponentListener transformListener) {}
 
   public boolean isMapping() {
     return false;
@@ -294,19 +262,23 @@ public class ScriptValuesModDummy implements ITransform {
     return null;
   }
 
-  @Override public ILogChannel getLogChannel() {
+  @Override
+  public ILogChannel getLogChannel() {
     return null;
   }
 
-  @Override public String getLogText() {
+  @Override
+  public String getLogText() {
     return null;
   }
 
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return null;
   }
 
-  @Override public int getCopyNr() {
+  @Override
+  public int getCopyNr() {
     return 0;
   }
 
@@ -316,15 +288,15 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setLogLevel(LogLevel logLevel) {
+  public void setLogLevel(LogLevel logLevel) {}
 
-  }
-
-  @Override public String getLogChannelId() {
+  @Override
+  public String getLogChannelId() {
     return null;
   }
 
-  @Override public boolean isSelected() {
+  @Override
+  public boolean isSelected() {
     return false;
   }
 
@@ -338,22 +310,23 @@ public class ScriptValuesModDummy implements ITransform {
     return false;
   }
 
-  public void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment ) {
+  public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {
     // TODO Auto-generated method stub
 
   }
 
-  public void setRunning( boolean running ) {
+  public void setRunning(boolean running) {
     // TODO Auto-generated method stub
 
   }
 
-  public void setStopped( boolean stopped ) {
+  public void setStopped(boolean stopped) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override public void setSafeStopped( boolean stopped ) {
+  @Override
+  public void setSafeStopped(boolean stopped) {
     // TODO Auto-generated method stub
   }
 
@@ -412,12 +385,12 @@ public class ScriptValuesModDummy implements ITransform {
 
   }
 
-  public void setPartitioned( boolean partitioned ) {
+  public void setPartitioned(boolean partitioned) {
     // TODO Auto-generated method stub
 
   }
 
-  public void setRepartitioning( int partitioningMethod ) {
+  public void setRepartitioning(int partitioningMethod) {
     // TODO Auto-generated method stub
 
   }
@@ -437,7 +410,7 @@ public class ScriptValuesModDummy implements ITransform {
     return false;
   }
 
-  public void setWaitingForData( boolean waitingForData ) {
+  public void setWaitingForData(boolean waitingForData) {
     // TODO Auto-generated method stub
   }
 
@@ -451,7 +424,7 @@ public class ScriptValuesModDummy implements ITransform {
     return false;
   }
 
-  public void setPassingData( boolean passingData ) {
+  public void setPassingData(boolean passingData) {
     // TODO Auto-generated method stub
 
   }
@@ -461,7 +434,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     // TODO Auto-generated method stub
 
   }
@@ -479,7 +452,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentOutputRowSetNr( int index ) {
+  public void setCurrentOutputRowSetNr(int index) {
     // TODO Auto-generated method stub
 
   }
@@ -491,7 +464,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentInputRowSetNr( int index ) {
+  public void setCurrentInputRowSetNr(int index) {
     // TODO Auto-generated method stub
 
   }
@@ -502,9 +475,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setMeta(ITransformMeta meta) {
-
-  }
+  public void setMeta(ITransformMeta meta) {}
 
   @Override
   public ITransformData getData() {
@@ -512,9 +483,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setData(ITransformData data) {
-
-  }
+  public void setData(ITransformData data) {}
 
   @Override
   public Date getInitStartDate() {
@@ -522,9 +491,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setInitStartDate(Date initStartDate) {
-
-  }
+  public void setInitStartDate(Date initStartDate) {}
 
   @Override
   public Date getExecutionStartDate() {
@@ -532,9 +499,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setExecutionStartDate(Date executionStartDate) {
-
-  }
+  public void setExecutionStartDate(Date executionStartDate) {}
 
   @Override
   public Date getFirstRowReadDate() {
@@ -542,9 +507,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setFirstRowReadDate(Date firstRowReadDate) {
-
-  }
+  public void setFirstRowReadDate(Date firstRowReadDate) {}
 
   @Override
   public Date getLastRowWrittenDate() {
@@ -552,9 +515,7 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setLastRowWrittenDate(Date lastRowWrittenDate) {
-
-  }
+  public void setLastRowWrittenDate(Date lastRowWrittenDate) {}
 
   @Override
   public Date getExecutionEndDate() {
@@ -562,7 +523,10 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setExecutionEndDate(Date executionEndDate) {
+  public void setExecutionEndDate(Date executionEndDate) {}
 
+  @Override
+  public Map<String, Object> getExtensionDataMap() {
+    return Collections.emptyMap();
   }
 }

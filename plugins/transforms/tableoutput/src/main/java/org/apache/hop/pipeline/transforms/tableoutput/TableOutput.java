@@ -540,7 +540,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
 
         data.db = new Database(this, this, meta.getDatabaseMeta());
-        data.db.connect(getPartitionId());
+        data.db.connect();
 
         if (log.isBasic()) {
           logBasic(
