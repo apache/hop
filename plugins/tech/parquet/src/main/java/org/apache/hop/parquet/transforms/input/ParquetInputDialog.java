@@ -65,7 +65,6 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
 
   protected ParquetInputMeta input;
 
-  private Shell shell;
   private Combo wFilenameField;
   private TableView wFields;
 
