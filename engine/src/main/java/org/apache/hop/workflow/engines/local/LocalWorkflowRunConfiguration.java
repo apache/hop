@@ -59,6 +59,7 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
   public LocalWorkflowRunConfiguration(LocalWorkflowRunConfiguration config) {
     super(config);
     this.safeModeEnabled = config.safeModeEnabled;
+    this.transactional = config.transactional;
   }
 
   public LocalWorkflowRunConfiguration clone() {
