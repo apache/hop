@@ -17,6 +17,7 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -178,6 +179,19 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     data.filename = buildFilename(getPipeline().getExecutionStartDate());
 
     try {
+      FileObject fileObject = HopVfs.getFileObject(data.filename);
+
+      // See if we need to create the parent folder(s)...
+      //
+      if (meta.isFilenameCreatingParentFolders()) {
+        FileObject parentFolder = fileObject.getParent();
+        if (parentFolder != null && !parentFolder.exists()) {
+          // Try to create the parent folder...
+          //
+          parentFolder.createFolder();
+        }
+      }
+
       data.outputStream = HopVfs.getOutputStream(data.filename, false);
       data.outputFile = new ParquetOutputFile(data.outputStream);
 
