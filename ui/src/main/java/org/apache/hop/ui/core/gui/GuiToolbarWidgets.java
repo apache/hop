@@ -50,14 +50,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
 
-  private int toolbarIconSize;
-
   public GuiToolbarWidgets() {
     super(UUID.randomUUID().toString());
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
-    toolbarIconSize = ConstUi.SMALL_ICON_SIZE;
   }
 
   public void createToolbarWidgets(Composite parent, String root) {
@@ -369,19 +366,5 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   /** @param guiToolBarMap The guiToolBarMap to set */
   public void setGuiToolBarMap(Map<String, GuiToolbarItem> guiToolBarMap) {
     this.guiToolBarMap = guiToolBarMap;
-  }
-
-  /**
-   * Gets toolbarIconSize
-   *
-   * @return value of toolbarIconSize
-   */
-  public int getToolbarIconSize() {
-    return toolbarIconSize;
-  }
-
-  /** @param toolbarIconSize The toolbarIconSize to set */
-  public void setToolbarIconSize(int toolbarIconSize) {
-    this.toolbarIconSize = toolbarIconSize;
   }
 }
