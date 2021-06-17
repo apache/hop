@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -101,7 +100,13 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
     if (parentObject instanceof HopGuiPipelineGraph) {
       HopGuiPipelineGraph graph = (HopGuiPipelineGraph) parentObject;
-      if (!graph.isVisible()) {
+      try {
+        if (!graph.isVisible()) {
+          return false;
+        }
+      } catch (SWTException e) {
+        // Invalid thread: none of our business, bail out
+        //
         return false;
       }
     }

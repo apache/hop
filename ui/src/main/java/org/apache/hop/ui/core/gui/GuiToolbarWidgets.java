@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Button;
@@ -49,11 +50,18 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
 
+  private int toolbarIconSize;
+
   public GuiToolbarWidgets() {
     super(UUID.randomUUID().toString());
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
+    toolbarIconSize = ConstUi.SMALL_ICON_SIZE;
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      toolbarIconSize *= 2;
+    }
   }
 
   public void createToolbarWidgets(Composite parent, String root) {
@@ -197,6 +205,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 toolbarItem.getListenerClass(),
                 toolbarItem.getListenerMethod());
         combo.addListener(SWT.Selection, listener);
+        combo.addListener(SWT.DefaultSelection, listener);
         toolItemMap.put(toolbarItem.getId(), comboSeparator);
         widgetsMap.put(toolbarItem.getId(), combo);
         break;
@@ -364,5 +373,19 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   /** @param guiToolBarMap The guiToolBarMap to set */
   public void setGuiToolBarMap(Map<String, GuiToolbarItem> guiToolBarMap) {
     this.guiToolBarMap = guiToolBarMap;
+  }
+
+  /**
+   * Gets toolbarIconSize
+   *
+   * @return value of toolbarIconSize
+   */
+  public int getToolbarIconSize() {
+    return toolbarIconSize;
+  }
+
+  /** @param toolbarIconSize The toolbarIconSize to set */
+  public void setToolbarIconSize(int toolbarIconSize) {
+    this.toolbarIconSize = toolbarIconSize;
   }
 }

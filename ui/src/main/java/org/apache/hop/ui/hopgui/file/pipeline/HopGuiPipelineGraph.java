@@ -250,6 +250,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
 
+  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiPipelineGraph-ToolBar-10510-Zoom-In";
+
+  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiPipelineGraph-ToolBar-10520-Zoom-Out";
+
+  public static final String TOOLBAR_ITEM_ZOOM_100PCT =
+      "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";
+
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
 
@@ -1862,6 +1869,36 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void zoomLevel() {
     readMagnification();
     redraw();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_IN,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomIn.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-in.svg")
+  public void zoomIn() {
+    super.zoomIn();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_OUT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomOut.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-out.svg")
+  public void zoomOut() {
+    super.zoomOut();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_100PCT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.Zoom100.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-100.svg")
+  public void zoom100Percent() {
+    super.zoom100Percent();
   }
 
   public List<String> getZoomLevels() {
