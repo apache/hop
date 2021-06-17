@@ -502,7 +502,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
         new TableView(
             variables,
             wParametersComp,
-            SWT.FULL_SELECTION | SWT.MULTI,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             parameterColumns,
             input.getParameterMappings().size(),
             null,
@@ -596,7 +596,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
         new TableView(
             variables,
             wReturnsComp,
-            SWT.FULL_SELECTION | SWT.MULTI,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             returnColumns,
             input.getReturnValues().size(),
             null,
