@@ -902,7 +902,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
-          if (!mouseMovedSinceClick && showTransformOutputData(areaOwner)) {
+          if ((!mouseMovedSinceClick || EnvironmentUtils.getInstance().isWeb())
+              && showTransformOutputData(areaOwner)) {
             return;
           }
           break;
