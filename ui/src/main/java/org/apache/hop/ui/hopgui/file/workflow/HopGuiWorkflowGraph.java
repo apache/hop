@@ -199,6 +199,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiWorkflowGraph-ToolBar-10500-Zoom-Level";
 
+  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiWorkflowGraph-ToolBar-10510-Zoom-In";
+
+  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiWorkflowGraph-ToolBar-10520-Zoom-Out";
+
+  public static final String TOOLBAR_ITEM_ZOOM_100PCT =
+      "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
+
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGrpah-ToolBar-10450-EditWorkflow";
 
@@ -1401,6 +1408,36 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void zoomLevel() {
     readMagnification();
     setFocus();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_IN,
+      toolTip = "i18n::HopGuiWorkflowGraph.GuiAction.ZoomIn.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-in.svg")
+  public void zoomIn() {
+    super.zoomIn();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_OUT,
+      toolTip = "i18n::HopGuiWorkflowGraph.GuiAction.ZoomOut.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-out.svg")
+  public void zoomOut() {
+    super.zoomOut();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_100PCT,
+      toolTip = "HopGuiWorkflowGraph.GuiAction.Zoom100.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-100.svg")
+  public void zoom100Percent() {
+    super.zoom100Percent();
   }
 
   public List<String> getZoomLevels() {
