@@ -58,10 +58,6 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
     toolbarIconSize = ConstUi.SMALL_ICON_SIZE;
-
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      toolbarIconSize *= 2;
-    }
   }
 
   public void createToolbarWidgets(Composite parent, String root) {
