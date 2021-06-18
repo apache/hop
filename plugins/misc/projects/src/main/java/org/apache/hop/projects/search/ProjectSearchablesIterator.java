@@ -74,7 +74,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       FileObject homeFolderFile = HopVfs.getFileObject(projectConfig.getProjectHome());
       Collection<FileObject> pipelineFiles = HopVfs.findFiles(homeFolderFile, "hpl", true);
       for (FileObject pipelineFile : pipelineFiles) {
-        String pipelineFilePath = pipelineFile.getName().getPath();
+        String pipelineFilePath = pipelineFile.getName().getURI();
         try {
           PipelineMeta pipelineMeta =
               new PipelineMeta(pipelineFilePath, metadataProvider, true, variables);
@@ -87,7 +87,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
 
       Collection<FileObject> workflowFiles = HopVfs.findFiles(homeFolderFile, "hwf", true);
       for (FileObject workflowFile : workflowFiles) {
-        String workflowFilePath = workflowFile.getName().getPath();
+        String workflowFilePath = workflowFile.getName().getURI();
         try {
           WorkflowMeta workflowMeta =
               new WorkflowMeta(variables, workflowFilePath, metadataProvider);

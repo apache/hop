@@ -956,9 +956,10 @@ public class ProjectsGuiPlugin {
               OutputStream outputStream = HopVfs.getOutputStream(zipFilename, false);
               ZipOutputStream zos = new ZipOutputStream(outputStream);
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
-              zipFile(projectDirectory, projectDirectory.getName().getPath(), zos);
+              zipFile(projectDirectory, projectDirectory.getName().getURI(), zos);
               zos.close();
               outputStream.close();
+              monitor.done();
             } catch (Exception e) {
               throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
             }
@@ -1000,7 +1001,7 @@ public class ProjectsGuiPlugin {
       }
       FileObject[] children = fileToZip.getChildren();
       for (FileObject childFile : children) {
-        zipFile(childFile, filename + "/" + childFile.getName(), zipOutputStream);
+        zipFile(childFile, filename + "/" + childFile.getName().getBaseName(), zipOutputStream);
       }
       return;
     }
