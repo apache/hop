@@ -57,13 +57,17 @@ You can set the following system environment variables:
 
 == Part size
 
-You can set the default part size for new files on S3 by setting a variables:
+You can set the default part size for new files on S3 by setting the following variable:
 
 `HOP_S3_VFS_PART_SIZE`
 
+This needs to be set as a global Hop configuration variable (in hop-config.json).
+You can use the Tools/Edit config variables menu in Hop GUI or you can use the hop-conf command line tool to do so.
+
 Acceptable are `5MB` as a minimum and `5GB` as a maximum value.
 
-If you don't set this variable `5MB` will be taken and a message will be printed on the console while creating files on S3:
+If this variable is not set, `5MB` will be taken as value and a message will be printed on the console while creating files on S3:
+
 `Part size null less than minimum of 5MB, set to minimum`.
 
 == Usage and testing
