@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 
 package org.apache.hop.projects.search;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -39,7 +40,6 @@ import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.workflow.WorkflowMeta;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,30 +71,30 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
 
       // Find all the pipelines and workflows in the project homefolder...
       //
-      File homeFolderFile = new File(projectConfig.getProjectHome());
-      Collection<File> pipelineFiles =
-          FileUtils.listFiles(homeFolderFile, new String[] {"hpl"}, true);
-      for (File pipelineFile : pipelineFiles) {
+      FileObject homeFolderFile = HopVfs.getFileObject(projectConfig.getProjectHome());
+      Collection<FileObject> pipelineFiles = HopVfs.findFiles(homeFolderFile, "hpl", true);
+      for (FileObject pipelineFile : pipelineFiles) {
+        String pipelineFilePath = pipelineFile.getName().getURI();
         try {
           PipelineMeta pipelineMeta =
-              new PipelineMeta(pipelineFile.getPath(), metadataProvider, true, variables);
+              new PipelineMeta(pipelineFilePath, metadataProvider, true, variables);
           searchables.add(new HopGuiPipelineSearchable("Project pipeline file", pipelineMeta));
         } catch (Exception e) {
           // There was an error loading the XML file...
-          LogChannel.GENERAL.logError("Error loading pipeline metadata: "+pipelineFile.getPath(), e);
+          LogChannel.GENERAL.logError("Error loading pipeline metadata: " + pipelineFilePath, e);
         }
       }
 
-      Collection<File> workflowFiles =
-          FileUtils.listFiles(homeFolderFile, new String[] {"hwf"}, true);
-      for (File workflowFile : workflowFiles) {
+      Collection<FileObject> workflowFiles = HopVfs.findFiles(homeFolderFile, "hwf", true);
+      for (FileObject workflowFile : workflowFiles) {
+        String workflowFilePath = workflowFile.getName().getURI();
         try {
           WorkflowMeta workflowMeta =
-              new WorkflowMeta(variables, workflowFile.getPath(), metadataProvider);
+              new WorkflowMeta(variables, workflowFilePath, metadataProvider);
           searchables.add(new HopGuiWorkflowSearchable("Project workflow file", workflowMeta));
         } catch (Exception e) {
           // There was an error loading the XML file...
-          LogChannel.GENERAL.logError("Error loading workflow metadata: "+workflowFile.getPath(), e);
+          LogChannel.GENERAL.logError("Error loading workflow metadata: " + workflowFilePath, e);
         }
       }
 
@@ -124,7 +124,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       for (String configurationFile : configurationFiles) {
         String realConfigurationFile = variables.resolve(configurationFile);
 
-        if (new File(realConfigurationFile).exists()) {
+        if (HopVfs.fileExists(realConfigurationFile)) {
           DescribedVariablesConfigFile configFile =
               new DescribedVariablesConfigFile(realConfigurationFile);
           configFile.readFromFile();

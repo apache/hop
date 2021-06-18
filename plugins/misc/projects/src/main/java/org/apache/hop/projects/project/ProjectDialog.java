@@ -18,11 +18,14 @@
 package org.apache.hop.projects.project;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
@@ -42,7 +45,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -409,9 +411,14 @@ public class ProjectDialog extends Dialog {
 
     // Set the name to the base folder if the name is empty
     //
-    if (homeFolder != null && StringUtils.isEmpty(wName.getText())) {
-      File file = new File(homeFolder);
-      wName.setText(Const.NVL(file.getName(), ""));
+    try {
+      if (homeFolder != null && StringUtils.isEmpty(wName.getText())) {
+        FileObject file = HopVfs.getFileObject(homeFolder);
+        wName.setText(Const.NVL(file.getName().getBaseName(), ""));
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting base filename of home folder: " + homeFolder, e);
+      // Don't change the name
     }
   }
 
@@ -445,7 +452,7 @@ public class ProjectDialog extends Dialog {
         // Calculate relative path to existing config file
         String tmpConfigFile = StringUtils.difference(rootPath, configFile);
         relativeConfigFile =
-            (tmpConfigFile.startsWith(File.separator) ? tmpConfigFile.substring(1) : tmpConfigFile);
+            (tmpConfigFile.startsWith("/") ? tmpConfigFile.substring(1) : tmpConfigFile);
       }
       wConfigFile.setText(Const.NVL(relativeConfigFile, ""));
     }
@@ -474,7 +481,7 @@ public class ProjectDialog extends Dialog {
       if (StringUtils.isEmpty(homeFolder)) {
         throw new HopException("Please specify a home folder for your project");
       }
-      if (!new File(homeFolder).exists()) {
+      if (!HopVfs.getFileObject(homeFolder).exists()) {
         throw new HopException(
             "Please specify an existing home folder for your project. Folder '"
                 + homeFolder
@@ -508,7 +515,7 @@ public class ProjectDialog extends Dialog {
       getInfo(project, projectConfig);
       returnValue = projectConfig.getProjectName();
       dispose();
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "ProjectDialog.ProjectConfigError.Error.Dialog.Header"),
