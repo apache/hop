@@ -953,7 +953,7 @@ public class ExplorerPerspective implements IHopPerspective {
           // Recursively add children
           //
           if (child.isFolder()) {
-            refreshFolder(childItem, child.getName().getPath());
+            refreshFolder(childItem, child.getName().getURI());
           }
         }
       }
