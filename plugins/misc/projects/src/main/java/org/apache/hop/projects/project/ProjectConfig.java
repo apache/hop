@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,11 @@
 package org.apache.hop.projects.project;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 
-import java.io.File;
 import java.util.Objects;
 
 public class ProjectConfig {
@@ -34,58 +35,81 @@ public class ProjectConfig {
     super();
   }
 
-  public ProjectConfig( String projectName, String projectHome, String configFilename ) {
+  public ProjectConfig(String projectName, String projectHome, String configFilename) {
     super();
     this.projectName = projectName;
     this.projectHome = projectHome;
     this.configFilename = configFilename;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     ProjectConfig that = (ProjectConfig) o;
-    return Objects.equals( projectName, that.projectName );
+    return Objects.equals(projectName, that.projectName);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( projectName );
+  @Override
+  public int hashCode() {
+    return Objects.hash(projectName);
   }
 
   /**
    * The full path to the project config filename
+   *
    * @param variables
    * @return The path to the project config filename
-   * @throws HopException In case the home folder doesn't exist or an invalid filename/path is being used.
+   * @throws HopException In case the home folder doesn't exist or an invalid filename/path is being
+   *     used.
    */
-  public String getActualProjectConfigFilename(  IVariables variables ) throws HopException {
-    String actualHomeFolder = variables.resolve( getProjectHome() );
-    File actualHome = new File( actualHomeFolder );
-    if (!actualHome.exists()) {
-      throw new HopException("Project home folder '" + actualHomeFolder + "' does not exist");
+  public String getActualProjectConfigFilename(IVariables variables) throws HopException {
+    try {
+      String actualHomeFolder = variables.resolve(getProjectHome());
+      FileObject actualHome = HopVfs.getFileObject(actualHomeFolder);
+      if (!actualHome.exists()) {
+        throw new HopException("Project home folder '" + actualHomeFolder + "' does not exist");
+      }
+      String actualConfigFilename = variables.resolve(getConfigFilename());
+      String fullFilename = FilenameUtils.concat(actualHome.toString(), actualConfigFilename);
+      if (fullFilename == null) {
+        throw new HopException(
+            "Unable to determine full path to the configuration file '"
+                + actualConfigFilename
+                + "' in home folder '"
+                + actualHomeFolder);
+      }
+      return fullFilename;
+    } catch (Exception e) {
+      throw new HopException("Error calculating actual project config filename", e);
     }
-    String actualConfigFilename = variables.resolve( getConfigFilename() );
-    String fullFilename = FilenameUtils.concat( actualHome.getAbsolutePath(), actualConfigFilename );
-    if (fullFilename==null) {
-      throw new HopException("Unable to determine full path to the configuration file '"+actualConfigFilename+"' in home folder '"+actualHomeFolder);
-    }
-    return fullFilename;
   }
 
-  public Project loadProject( IVariables variables ) throws HopException {
-    String configFilename = getActualProjectConfigFilename( variables );
-    if (configFilename==null) {
-      String projHome = variables.resolve( getProjectHome() );
-      String confFile = variables.resolve( getConfigFilename() );
-      throw new HopException("Invalid project folder provided: home folder: '"+projHome+"', config file: '"+confFile+"'");
+  public Project loadProject(IVariables variables) throws HopException {
+    String configFilename = getActualProjectConfigFilename(variables);
+    if (configFilename == null) {
+      String projHome = variables.resolve(getProjectHome());
+      String confFile = variables.resolve(getConfigFilename());
+      throw new HopException(
+          "Invalid project folder provided: home folder: '"
+              + projHome
+              + "', config file: '"
+              + confFile
+              + "'");
     }
     Project project = new Project(configFilename);
-    if (new File(configFilename).exists()) {
-      project.readFromFile();
+    try {
+      if (HopVfs.getFileObject(configFilename).exists()) {
+        project.readFromFile();
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          "Error checking config filename '" + configFilename + "' existence while loading project",
+          e);
     }
     return project;
   }
@@ -99,10 +123,8 @@ public class ProjectConfig {
     return projectName;
   }
 
-  /**
-   * @param projectName The projectName to set
-   */
-  public void setProjectName( String projectName ) {
+  /** @param projectName The projectName to set */
+  public void setProjectName(String projectName) {
     this.projectName = projectName;
   }
 
@@ -115,10 +137,8 @@ public class ProjectConfig {
     return projectHome;
   }
 
-  /**
-   * @param projectHome The projectHome to set
-   */
-  public void setProjectHome( String projectHome ) {
+  /** @param projectHome The projectHome to set */
+  public void setProjectHome(String projectHome) {
     this.projectHome = projectHome;
   }
 
@@ -131,10 +151,8 @@ public class ProjectConfig {
     return configFilename;
   }
 
-  /**
-   * @param configFilename The configFilename to set
-   */
-  public void setConfigFilename( String configFilename ) {
+  /** @param configFilename The configFilename to set */
+  public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
   }
 }

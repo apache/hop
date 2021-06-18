@@ -18,7 +18,9 @@
 package org.apache.hop.projects.gui;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -32,6 +34,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
@@ -50,6 +53,7 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -58,18 +62,15 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
-import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -252,8 +253,8 @@ public class ProjectsGuiPlugin {
 
         // Save the project-config.json file as well in the project itself
         //
-        File configFile = new File(projectConfig.getActualProjectConfigFilename(variables));
-
+        FileObject configFile =
+            HopVfs.getFileObject(projectConfig.getActualProjectConfigFilename(variables));
         if (!configFile.exists()) {
           // Create the empty configuration file if it does not exists
           project.saveToFile();
@@ -952,12 +953,12 @@ public class ProjectsGuiPlugin {
             try {
               monitor.setTaskName(
                   BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Taskname.Text"));
-              FileOutputStream fos = new FileOutputStream(zipFilename);
-              ZipOutputStream zos = new ZipOutputStream(fos);
-              File projectDirectory = new File(projectHome);
-              zipFile(projectDirectory, projectDirectory.getName(), zos);
+              OutputStream outputStream = HopVfs.getOutputStream(zipFilename, false);
+              ZipOutputStream zos = new ZipOutputStream(outputStream);
+              FileObject projectDirectory = HopVfs.getFileObject(projectHome);
+              zipFile(projectDirectory, projectDirectory.getName().getPath(), zos);
               zos.close();
-              fos.close();
+              outputStream.close();
             } catch (Exception e) {
               throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
             }
@@ -984,12 +985,12 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  public void zipFile(File fileToZip, String filename, ZipOutputStream zipOutputStream)
+  public void zipFile(FileObject fileToZip, String filename, ZipOutputStream zipOutputStream)
       throws IOException {
     if (fileToZip.isHidden()) {
       return;
     }
-    if (fileToZip.isDirectory()) {
+    if (fileToZip.isFolder()) {
       if (filename.endsWith("/")) {
         zipOutputStream.putNextEntry(new ZipEntry(filename));
         zipOutputStream.closeEntry();
@@ -997,13 +998,13 @@ public class ProjectsGuiPlugin {
         zipOutputStream.putNextEntry(new ZipEntry(filename + "/"));
         zipOutputStream.closeEntry();
       }
-      File[] children = fileToZip.listFiles();
-      for (File childFile : children) {
+      FileObject[] children = fileToZip.getChildren();
+      for (FileObject childFile : children) {
         zipFile(childFile, filename + "/" + childFile.getName(), zipOutputStream);
       }
       return;
     }
-    FileInputStream fis = new FileInputStream(fileToZip);
+    InputStream fis = HopVfs.getInputStream(fileToZip);
     ZipEntry zipEntry = new ZipEntry(filename);
     zipOutputStream.putNextEntry(zipEntry);
     byte[] bytes = new byte[1024];
