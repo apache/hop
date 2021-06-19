@@ -111,7 +111,7 @@ Validate if all files contain the correct headers
 [source,bash]
 ----
 cd apache-hop-X.XX-incubating
-mvn apache-rat:rat -debug
+mvn apache-rat:check -debug
 ----
 
 Now build and test the released code
