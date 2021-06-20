@@ -53,11 +53,10 @@ public class DenormaliserAggregationsTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<>( "Denormaliser", DenormaliserMeta.class,
-        DenormaliserData.class );
-    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.iLogChannel );
-    when( mockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("Denormaliser", DenormaliserMeta.class, DenormaliserData.class);
+    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(mockHelper.iLogChannel);
+    when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
   @AfterClass
@@ -67,8 +66,10 @@ public class DenormaliserAggregationsTest {
 
   @Before
   public void setUp() throws Exception {
-    Mockito.when( mockHelper.transformMeta.getTransform() ).thenReturn( meta );
-    transform = new Denormaliser( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    Mockito.when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
+    transform =
+        new Denormaliser(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
   }
 
   /**
@@ -79,23 +80,27 @@ public class DenormaliserAggregationsTest {
   @Test
   public void testDenormalizeSum100PlusNull() throws HopValueException {
     // prevTargetData
-    Long sto = new Long( 100 );
-    data.targetResult = new Object[] { sto };
+    Long sto = new Long(100);
+    data.targetResult = new Object[] {sto};
 
-    transform.deNormalise( testSumPreconditions( "SUM" ), new Object[] { JUNIT, null } );
+    transform.deNormalise(
+        testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_SUM),
+        new Object[] {JUNIT, null});
 
-    Assert.assertEquals( "100 + null = 100 ", sto, data.targetResult[ 0 ] );
+    Assert.assertEquals("100 + null = 100 ", sto, data.targetResult[0]);
   }
 
   @Test
   public void testDenormalizeSumNullPlus100() throws HopValueException {
     // prevTargetData
-    Long sto = new Long( 100 );
-    data.targetResult = new Object[] { null };
+    Long sto = new Long(100);
+    data.targetResult = new Object[] {null};
 
-    transform.deNormalise( testSumPreconditions( "SUM" ), new Object[] { JUNIT, sto } );
+    transform.deNormalise(
+        testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_SUM),
+        new Object[] {JUNIT, sto});
 
-    Assert.assertEquals( "null + 100 = 100 ", sto, data.targetResult[ 0 ] );
+    Assert.assertEquals("null + 100 = 100 ", sto, data.targetResult[0]);
   }
 
   /**
@@ -105,14 +110,16 @@ public class DenormaliserAggregationsTest {
    */
   @Test
   public void testDenormalizeMinValueY() throws HopValueException {
-    transform.setMinNullIsValued( true );
+    transform.setMinNullIsValued(true);
 
-    Long trinadzat = new Long( -13 );
-    data.targetResult = new Object[] { trinadzat };
+    Long trinadzat = new Long(-13);
+    data.targetResult = new Object[] {trinadzat};
 
-    transform.deNormalise( testSumPreconditions( "MIN" ), new Object[] { JUNIT, null } );
+    transform.deNormalise(
+        testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_MIN),
+        new Object[] {JUNIT, null});
 
-    Assert.assertNull( "Null now is new minimal", data.targetResult[ 0 ] );
+    Assert.assertNull("Null now is new minimal", data.targetResult[0]);
   }
 
   /**
@@ -122,14 +129,16 @@ public class DenormaliserAggregationsTest {
    */
   @Test
   public void testDenormalizeMinValueN() throws HopValueException {
-    transform.setVariable( Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N" );
+    transform.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
 
-    Long sto = new Long( 100 );
-    data.targetResult = new Object[] { sto };
+    Long sto = new Long(100);
+    data.targetResult = new Object[] {sto};
 
-    transform.deNormalise( testSumPreconditions( "MIN" ), new Object[] { JUNIT, null } );
+    transform.deNormalise(
+        testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_MIN),
+        new Object[] {JUNIT, null});
 
-    Assert.assertEquals( "Null is ignored", sto, data.targetResult[ 0 ] );
+    Assert.assertEquals("Null is ignored", sto, data.targetResult[0]);
   }
 
   /**
@@ -137,33 +146,34 @@ public class DenormaliserAggregationsTest {
    *
    * @return
    */
-  IRowMeta testSumPreconditions( String agg ) {
+  IRowMeta testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation agg) {
 
     // create rmi for one string and 2 integers
     IRowMeta rmi = new RowMeta();
     List<IValueMeta> list = new ArrayList<>();
-    list.add( new ValueMetaString( "a" ) );
-    list.add( new ValueMetaInteger( "b" ) );
-    list.add( new ValueMetaInteger( "d" ) );
-    rmi.setValueMetaList( list );
+    list.add(new ValueMetaString("a"));
+    list.add(new ValueMetaInteger("b"));
+    list.add(new ValueMetaInteger("d"));
+    rmi.setValueMetaList(list);
 
     // denormalizer key field will be String 'Junit'
     data.keyValue = new HashMap<>();
     List<Integer> listInt = new ArrayList<>();
-    listInt.add( 0 );
-    data.keyValue.put( JUNIT, listInt );
+    listInt.add(0);
+    data.keyValue.put(JUNIT, listInt);
 
     // we will calculate sum for second field ( like ["JUNIT", 1] )
-    data.fieldNameIndex = new int[] { 1 };
+    data.fieldNameIndex = new int[] {1};
     data.inputRowMeta = rmi;
     data.outputRowMeta = rmi;
-    data.removeNrs = new int[] { -1 };
+    data.removeNrs = new int[] {-1};
 
     // we do create internal instance of output field wiht sum aggregation
     DenormaliserTargetField tField = new DenormaliserTargetField();
-    tField.setTargetAggregationType( agg );
-    DenormaliserTargetField[] pivotField = new DenormaliserTargetField[] { tField };
-    meta.setDenormaliserTargetField( pivotField );
+    tField.setTargetAggregationType(agg);
+    ArrayList<DenormaliserTargetField> pivotField = new ArrayList<>();
+    pivotField.add(new DenormaliserTargetField(tField));
+    meta.setDenormaliserTargetFields(pivotField);
 
     // return row meta interface to pass into denormalize method
     return rmi;
@@ -176,27 +186,31 @@ public class DenormaliserAggregationsTest {
    */
   @Test
   public void testBuildResultWithNullsY() throws HopValueException {
-    transform.setAllNullsAreZero( true );
+    transform.setAllNullsAreZero(true);
 
-    Object[] rowData = new Object[ 10 ];
-    data.targetResult = new Object[ 1 ];
+    Object[] rowData = new Object[10];
+    data.targetResult = new Object[1];
     // this removal of input rows?
-    IRowMeta rmi = testSumPreconditions( "-" );
-    data.removeNrs = new int[] { 0 };
-    Object[] outputRowData = transform.buildResult( rmi, rowData );
+    IRowMeta rmi =
+        testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_NONE);
+    data.removeNrs = new int[] {0};
+    Object[] outputRowData = transform.buildResult(rmi, rowData);
 
-    Assert.assertEquals( "Output row: nulls are zeros", new Long( 0 ), outputRowData[ 2 ] );
+    Assert.assertEquals("Output row: nulls are zeros", new Long(0), outputRowData[2]);
   }
 
   @Test
   public void testBuildResultWithNullsN() throws HopValueException {
-    transform.setAllNullsAreZero( false );
+    transform.setAllNullsAreZero(false);
 
-    Object[] rowData = new Object[ 10 ];
-    data.targetResult = new Object[ 1 ];
-    Object[] outputRowData = transform.buildResult( testSumPreconditions( "-" ), rowData );
+    Object[] rowData = new Object[10];
+    data.targetResult = new Object[1];
+    Object[] outputRowData =
+        transform.buildResult(
+            testSumPreconditions(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_NONE),
+            rowData);
 
-    Assert.assertNull( "Output row: nulls are nulls", outputRowData[ 3 ] );
+    Assert.assertNull("Output row: nulls are nulls", outputRowData[3]);
   }
 
   /**
@@ -207,28 +221,30 @@ public class DenormaliserAggregationsTest {
   @Test
   public void testNewGroup() throws Exception {
     DenormaliserTargetField field1 = new DenormaliserTargetField();
-    field1.setTargetAggregationType( "MIN" );
+    field1.setTargetAggregationType(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_MIN);
 
     DenormaliserTargetField field2 = new DenormaliserTargetField();
-    field2.setTargetAggregationType( "MIN" );
+    field2.setTargetAggregationType(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_MIN);
 
     DenormaliserTargetField field3 = new DenormaliserTargetField();
-    field3.setTargetAggregationType( "MIN" );
+    field3.setTargetAggregationType(DenormaliserTargetField.DenormaliseAggregation.TYPE_AGGR_MIN);
 
-    DenormaliserTargetField[] pivotField = new DenormaliserTargetField[] { field1, field2, field3 };
-    meta.setDenormaliserTargetField( pivotField );
-    data.counters = new long[ 3 ];
-    data.sum = new Object[ 3 ];
+    ArrayList<DenormaliserTargetField> pivotField = new ArrayList<>();
+    pivotField.add(field1);
+    pivotField.add(field2);
+    pivotField.add(field3);
+    meta.setDenormaliserTargetFields(pivotField);
+    data.counters = new long[3];
+    data.sum = new Object[3];
 
-    Method newGroupMethod = transform.getClass().getDeclaredMethod( "newGroup" );
-    newGroupMethod.setAccessible( true );
-    newGroupMethod.invoke( transform );
+    Method newGroupMethod = transform.getClass().getDeclaredMethod("newGroup");
+    newGroupMethod.setAccessible(true);
+    newGroupMethod.invoke(transform);
 
-    Assert.assertEquals( 3, data.targetResult.length );
+    Assert.assertEquals(3, data.targetResult.length);
 
-    for ( Object result : data.targetResult ) {
-      Assert.assertNull( result );
+    for (Object result : data.targetResult) {
+      Assert.assertNull(result);
     }
   }
-
 }

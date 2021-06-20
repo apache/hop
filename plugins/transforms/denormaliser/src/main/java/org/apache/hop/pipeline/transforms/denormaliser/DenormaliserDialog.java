@@ -30,30 +30,19 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
@@ -134,27 +123,9 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     fdKeyField.top = new FormAttachment(wTransformName, margin);
     fdKeyField.right = new FormAttachment(100, 0);
     wKeyField.setLayoutData(fdKeyField);
-    //    wKeyField.addFocusListener( new FocusListener() {
-    //      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-    //      }
-    //
-    //      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-    //        Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
-    //        shell.setCursor( busy );
-    //        getPreviousFieldNames();
-    //        shell.setCursor( null );
-    //        busy.dispose();
-    //      }
-    //    } );
 
     wKeyField.addMouseListener(
-        new MouseListener() {
-          @Override
-          public void mouseDoubleClick(MouseEvent e) {}
-
-          @Override
-          public void mouseDown(MouseEvent e) {}
-
+        new MouseAdapter() {
           @Override
           public void mouseUp(MouseEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -174,7 +145,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wlGroup.setLayoutData(fdlGroup);
 
     int nrKeyCols = 1;
-    int nrKeyRows = (input.getGroupField() != null ? input.getGroupField().length : 1);
+    int nrKeyRows = (input.getGroupFields() != null ? input.getGroupFields().size() : 1);
 
     ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -217,8 +188,8 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wlTarget.setLayoutData(fdlTarget);
 
     int UpInsRows =
-        (input.getDenormaliserTargetField() != null
-            ? input.getDenormaliserTargetField().length
+        (input.getDenormaliserTargetFields() != null
+            ? input.getDenormaliserTargetFields().size()
             : 1);
 
     ColumnInfo[] ciTarget =
@@ -271,7 +242,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
           new ColumnInfo(
               BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Aggregation"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              DenormaliserTargetField.typeAggrLongDesc,
+              DenormaliserTargetField.DenormaliseAggregation.getDescriptions(),
               false),
         };
 
@@ -332,18 +303,19 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       wKeyField.setText(input.getKeyField());
     }
 
-    if (input.getGroupField() != null) {
-      for (int i = 0; i < input.getGroupField().length; i++) {
+    if (input.getGroupFields() != null) {
+      for (int i = 0; i < input.getGroupFields().size(); i++) {
         TableItem item = wGroup.table.getItem(i);
-        if (input.getGroupField()[i] != null) {
-          item.setText(1, input.getGroupField()[i]);
+        if (input.getGroupFields().get(i) != null) {
+          DenormaliserGroupField groupfield = input.getGroupFields().get(i);
+          item.setText(1, groupfield.getName());
         }
       }
     }
 
-    if (input.getDenormaliserTargetField() != null) {
-      for (int i = 0; i < input.getDenormaliserTargetField().length; i++) {
-        DenormaliserTargetField field = input.getDenormaliserTargetField()[i];
+    if (input.getDenormaliserTargetFields() != null) {
+      for (int i = 0; i < input.getDenormaliserTargetFields().size(); i++) {
+        DenormaliserTargetField field = input.getDenormaliserTargetFields().get(i);
 
         TableItem item = wTarget.table.getItem(i);
 
@@ -356,8 +328,8 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
         if (field.getKeyValue() != null) {
           item.setText(3, field.getKeyValue());
         }
-        if (field.getTargetTypeDesc() != null) {
-          item.setText(4, field.getTargetTypeDesc());
+        if (field.getTargetType() != null) {
+          item.setText(4, field.getTargetType());
         }
         if (field.getTargetFormat() != null) {
           item.setText(5, field.getTargetFormat());
@@ -380,8 +352,8 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
         if (field.getTargetNullString() != null) {
           item.setText(11, field.getTargetNullString());
         }
-        if (field.getTargetAggregationType() >= 0) {
-          item.setText(12, field.getTargetAggregationTypeDescLong());
+        if (field.getTargetAggregationType().getDefaultResultType() >= 0) {
+          item.setText(12, field.getTargetAggregationType().getDescription());
         }
       }
     }
@@ -409,13 +381,15 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     int nrFields = wTarget.nrNonEmpty();
 
     input.setKeyField(wKeyField.getText());
-
-    input.allocate(sizegroup, nrFields);
+    input.getGroupFields().clear();
+    input.getDenormaliserTargetFields().clear();
 
     for (int i = 0; i < sizegroup; i++) {
       TableItem item = wGroup.getNonEmpty(i);
       // CHECKSTYLE:Indentation:OFF
-      input.getGroupField()[i] = item.getText(1);
+      DenormaliserGroupField groupfield = new DenormaliserGroupField();
+      groupfield.setName(item.getText(1));
+      input.getGroupFields().add(groupfield);
     }
 
     for (int i = 0; i < nrFields; i++) {
@@ -433,10 +407,11 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       field.setTargetDecimalSymbol(item.getText(9));
       field.setTargetGroupingSymbol(item.getText(10));
       field.setTargetNullString(item.getText(11));
-      field.setTargetAggregationType(item.getText(12));
+      field.setTargetAggregationType(
+          DenormaliserTargetField.DenormaliseAggregation.getTypeWithDescription(item.getText(12)));
 
       // CHECKSTYLE:Indentation:OFF
-      input.getDenormaliserTargetField()[i] = field;
+      input.getDenormaliserTargetFields().add(field);
     }
 
     transformName = wTransformName.getText();
@@ -493,21 +468,21 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
             -1,
             -1,
             (tableItem, v) -> {
-              if (Const.indexOfString(v.getName(), groupingFields) < 0) { // Not a grouping field
-                if (!wKeyField.getText().equalsIgnoreCase(v.getName())) { // Not the key field
-                  int nr = tableItem.getParent().indexOf(tableItem) + 1;
-                  tableItem.setText(
-                      1,
-                      BaseMessages.getString(PKG, "DenormaliserDialog.TargetFieldname.Label")
-                          + nr); // the target fieldname
-                  tableItem.setText(2, v.getName());
-                  tableItem.setText(4, v.getTypeDesc());
-                  if (v.getLength() >= 0) {
-                    tableItem.setText(6, "" + v.getLength());
-                  }
-                  if (v.getPrecision() >= 0) {
-                    tableItem.setText(7, "" + v.getPrecision());
-                  }
+              if (Const.indexOfString(v.getName(), groupingFields) < 0
+                  && !wKeyField.getText().equalsIgnoreCase(v.getName())) { // Not a grouping field
+                // Not the key field
+                int nr = tableItem.getParent().indexOf(tableItem) + 1;
+                tableItem.setText(
+                    1,
+                    BaseMessages.getString(PKG, "DenormaliserDialog.TargetFieldname.Label")
+                        + nr); // the target fieldname
+                tableItem.setText(2, v.getName());
+                tableItem.setText(4, v.getTypeDesc());
+                if (v.getLength() >= 0) {
+                  tableItem.setText(6, "" + v.getLength());
+                }
+                if (v.getPrecision() >= 0) {
+                  tableItem.setText(7, "" + v.getPrecision());
                 }
               }
               return true;
