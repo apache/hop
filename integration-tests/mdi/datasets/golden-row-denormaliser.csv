@@ -1,0 +1,3 @@
+id,colorWhite,colorBlack,colorRed,colorGreen,colorBlue
+1,0xFFFFFF,0x000000,,,
+2,,,0xFF0000,0x00FF00,0X0000FF

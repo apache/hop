@@ -19,216 +19,326 @@ package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 
-/**
- * Contains the properties of the target field, conversion mask, type, aggregation method, etc.
- *
- * @author Matt
- * @since 17-jan-2006
- */
-public class DenormaliserTargetField {
+/** Contains the properties of the target field, conversion mask, type, aggregation method, etc. */
+public class DenormaliserTargetField implements Cloneable {
   private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
 
+  @HopMetadataProperty(
+      key = "field_name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.ValueFieldname")
   private String fieldName;
+
+  @HopMetadataProperty(
+      key = "key_value",
+      injectionKey = "KEY_VALUE",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Keyvalue")
   private String keyValue;
+
+  @HopMetadataProperty(
+      key = "target_name",
+      injectionKey = "TARGET_NAME",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.TargetFieldname")
   private String targetName;
-  private int targetType;
+
+  @HopMetadataProperty(
+      key = "target_type",
+      injectionKey = "TARGET_TYPE",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Type")
+  private String targetType;
+
+  @HopMetadataProperty(
+      key = "target_length",
+      injectionKey = "TARGET_LENGTH",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Length")
   private int targetLength;
+
+  @HopMetadataProperty(
+      key = "target_precision",
+      injectionKey = "TARGET_PRECISION",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Precision")
   private int targetPrecision;
+
+  @HopMetadataProperty(
+      key = "target_currency_symbol",
+      injectionKey = "TARGET_CURRENCY",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Currency")
   private String targetCurrencySymbol;
+
+  @HopMetadataProperty(
+      key = "target_decimal_symbol",
+      injectionKey = "TARGET_DECIMAL",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Decimal")
   private String targetDecimalSymbol;
+
+  @HopMetadataProperty(
+      key = "target_grouping_symbol",
+      injectionKey = "TARGET_GROUP",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Group")
   private String targetGroupingSymbol;
+
+  @HopMetadataProperty(
+      key = "target_null_string",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.NullIf")
   private String targetNullString;
+
+  @HopMetadataProperty(
+      key = "target_format",
+      injectionKey = "TARGET_FORMAT",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Format")
   private String targetFormat;
-  private int targetAggregationType;
 
-  public static final int TYPE_AGGR_NONE = 0;
-  public static final int TYPE_AGGR_SUM = 1;
-  public static final int TYPE_AGGR_AVERAGE = 2;
-  public static final int TYPE_AGGR_MIN = 3;
-  public static final int TYPE_AGGR_MAX = 4;
-  public static final int TYPE_AGGR_COUNT_ALL = 5;
-  public static final int TYPE_AGGR_CONCAT_COMMA = 6;
+  @HopMetadataProperty(
+      key = "target_aggregation_type",
+      injectionKey = "TARGET_AGGREGATION",
+      injectionKeyDescription = "DenormaliserDialog.ColumnInfo.Aggregation",
+      storeWithCode = true)
+  private DenormaliseAggregation targetAggregationType;
 
-  public static final String[] typeAggrDesc = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */
-    { "-", "SUM", "AVERAGE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA"
-    };
+  /** enum for the Aggregation type */
+  public enum DenormaliseAggregation implements IEnumHasCode {
+    TYPE_AGGR_NONE("-", "-", 0),
+    TYPE_AGGR_SUM(
+        "SUM", BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.Sum"), 1),
+    TYPE_AGGR_AVERAGE(
+        "AVERAGE",
+        BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.Average"),
+        2),
+    TYPE_AGGR_MIN(
+        "MIN", BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.Min"), 3),
+    TYPE_AGGR_MAX(
+        "MAX", BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.Max"), 4),
+    TYPE_AGGR_COUNT_ALL(
+        "COUNT_ALL",
+        BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.CountAll"),
+        5),
+    TYPE_AGGR_CONCAT_COMMA(
+        "CONCAT_COMMA",
+        BaseMessages.getString(PKG, "DenormaliserTargetField.TypeAggrLongDesc.ConcatComma"),
+        6);
 
-  public static final String[] typeAggrLongDesc =
-    {
-      "-", BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Sum" ),
-      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Average" ),
-      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Min" ),
-      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Max" ),
-      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.CountAll" ),
-      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.ConcatComma" )
-    };
+    private final String code;
+    private final String description;
+    private final int defaultResultType;
 
-  /**
-   * @return Returns the fieldName.
-   */
+    DenormaliseAggregation(String code, String description, int defaultResultType) {
+      this.code = code;
+      this.description = description;
+      this.defaultResultType = defaultResultType;
+    }
+
+    /**
+     * Get the Descriptions
+     *
+     * @return The Aggregation type descriptions
+     */
+    public static String[] getDescriptions() {
+      String[] descriptions = new String[values().length];
+      for (int i = 0; i < descriptions.length; i++) {
+        descriptions[i] = values()[i].getDescription();
+      }
+      return descriptions;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets defaultResultType
+     *
+     * @return value of defaultResultType
+     */
+    public int getDefaultResultType() {
+      return defaultResultType;
+    }
+
+    public static DenormaliseAggregation getTypeWithDescription(String description) {
+      for (DenormaliseAggregation value : values()) {
+        if (value.getDescription().equals(description)) {
+          return value;
+        }
+      }
+      return TYPE_AGGR_NONE;
+    }
+  }
+
+  /** Create an empty pivot target field */
+  public DenormaliserTargetField() {
+    this.targetAggregationType = DenormaliseAggregation.TYPE_AGGR_NONE;
+  }
+
+  public DenormaliserTargetField(DenormaliserTargetField t) {
+    this.fieldName = t.fieldName;
+    this.keyValue = t.keyValue;
+    this.targetName = t.targetName;
+    this.targetType = t.targetType;
+    this.targetLength = t.targetLength;
+    this.targetPrecision = t.targetPrecision;
+    this.targetCurrencySymbol = t.targetCurrencySymbol;
+    this.targetDecimalSymbol = t.targetDecimalSymbol;
+    this.targetGroupingSymbol = t.targetGroupingSymbol;
+    this.targetNullString = t.targetNullString;
+    this.targetFormat = t.targetFormat;
+    this.targetAggregationType = t.targetAggregationType;
+  }
+
+  public DenormaliserTargetField(
+      String fieldName,
+      String keyValue,
+      String targetName,
+      String targetType,
+      int targetLength,
+      int targetPrecision,
+      String targetCurrencySymbol,
+      String targetDecimalSymbol,
+      String targetGroupingSymbol,
+      String targetNullString,
+      String targetFormat,
+      DenormaliseAggregation targetAggregationType) {
+    this.fieldName = fieldName;
+    this.keyValue = keyValue;
+    this.targetName = targetName;
+    this.targetType = targetType;
+    this.targetLength = targetLength;
+    this.targetPrecision = targetPrecision;
+    this.targetCurrencySymbol = targetCurrencySymbol;
+    this.targetDecimalSymbol = targetDecimalSymbol;
+    this.targetGroupingSymbol = targetGroupingSymbol;
+    this.targetNullString = targetNullString;
+    this.targetFormat = targetFormat;
+    this.targetAggregationType = targetAggregationType;
+  }
+
+  public DenormaliserTargetField clone() {
+    return new DenormaliserTargetField(this);
+  }
+
+  /** @return Returns the fieldName. */
   public String getFieldName() {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set. */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return Returns the targetFormat.
-   */
+  /** @return Returns the targetFormat. */
   public String getTargetFormat() {
     return targetFormat;
   }
 
-  /**
-   * @param targetFormat The targetFormat to set.
-   */
-  public void setTargetFormat( String targetFormat ) {
+  /** @param targetFormat The targetFormat to set. */
+  public void setTargetFormat(String targetFormat) {
     this.targetFormat = targetFormat;
   }
 
-  /**
-   * Create an empty pivot target field
-   */
-  public DenormaliserTargetField() {
-  }
-
-  /**
-   * @return Returns the keyValue.
-   */
+  /** @return Returns the keyValue. */
   public String getKeyValue() {
     return keyValue;
   }
 
-  /**
-   * @param keyValue The keyValue to set.
-   */
-  public void setKeyValue( String keyValue ) {
+  /** @param keyValue The keyValue to set. */
+  public void setKeyValue(String keyValue) {
     this.keyValue = keyValue;
   }
 
-  /**
-   * @return Returns the targetCurrencySymbol.
-   */
+  /** @return Returns the targetCurrencySymbol. */
   public String getTargetCurrencySymbol() {
     return targetCurrencySymbol;
   }
 
-  /**
-   * @param targetCurrencySymbol The targetCurrencySymbol to set.
-   */
-  public void setTargetCurrencySymbol( String targetCurrencySymbol ) {
+  /** @param targetCurrencySymbol The targetCurrencySymbol to set. */
+  public void setTargetCurrencySymbol(String targetCurrencySymbol) {
     this.targetCurrencySymbol = targetCurrencySymbol;
   }
 
-  /**
-   * @return Returns the targetDecimalSymbol.
-   */
+  /** @return Returns the targetDecimalSymbol. */
   public String getTargetDecimalSymbol() {
     return targetDecimalSymbol;
   }
 
-  /**
-   * @param targetDecimalSymbol The targetDecimalSymbol to set.
-   */
-  public void setTargetDecimalSymbol( String targetDecimalSymbol ) {
+  /** @param targetDecimalSymbol The targetDecimalSymbol to set. */
+  public void setTargetDecimalSymbol(String targetDecimalSymbol) {
     this.targetDecimalSymbol = targetDecimalSymbol;
   }
 
-  /**
-   * @return Returns the targetGroupingSymbol.
-   */
+  /** @return Returns the targetGroupingSymbol. */
   public String getTargetGroupingSymbol() {
     return targetGroupingSymbol;
   }
 
-  /**
-   * @param targetGroupingSymbol The targetGroupingSymbol to set.
-   */
-  public void setTargetGroupingSymbol( String targetGroupingSymbol ) {
+  /** @param targetGroupingSymbol The targetGroupingSymbol to set. */
+  public void setTargetGroupingSymbol(String targetGroupingSymbol) {
     this.targetGroupingSymbol = targetGroupingSymbol;
   }
 
-  /**
-   * @return Returns the targetLength.
-   */
+  /** @return Returns the targetLength. */
   public int getTargetLength() {
     return targetLength;
   }
 
-  /**
-   * @param targetLength The targetLength to set.
-   */
-  public void setTargetLength( int targetLength ) {
+  /** @param targetLength The targetLength to set. */
+  public void setTargetLength(int targetLength) {
     this.targetLength = targetLength;
   }
 
-  /**
-   * @return Returns the targetName.
-   */
+  /** @return Returns the targetName. */
   public String getTargetName() {
     return targetName;
   }
 
-  /**
-   * @param targetName The targetName to set.
-   */
-  public void setTargetName( String targetName ) {
+  /** @param targetName The targetName to set. */
+  public void setTargetName(String targetName) {
     this.targetName = targetName;
   }
 
-  /**
-   * @return Returns the targetNullString.
-   */
+  /** @return Returns the targetNullString. */
   public String getTargetNullString() {
     return targetNullString;
   }
 
-  /**
-   * @param targetNullString The targetNullString to set.
-   */
-  public void setTargetNullString( String targetNullString ) {
+  /** @param targetNullString The targetNullString to set. */
+  public void setTargetNullString(String targetNullString) {
     this.targetNullString = targetNullString;
   }
 
-  /**
-   * @return Returns the targetPrecision.
-   */
+  /** @return Returns the targetPrecision. */
   public int getTargetPrecision() {
     return targetPrecision;
   }
 
-  /**
-   * @param targetPrecision The targetPrecision to set.
-   */
-  public void setTargetPrecision( int targetPrecision ) {
+  /** @param targetPrecision The targetPrecision to set. */
+  public void setTargetPrecision(int targetPrecision) {
     this.targetPrecision = targetPrecision;
   }
 
-  /**
-   * @return Returns the targetType.
-   */
-  public int getTargetType() {
+  /** @return Returns the targetType. */
+  public String getTargetType() {
     return targetType;
   }
 
-  /**
-   * @param targetType The targetType to set.
-   */
-  public void setTargetType( int targetType ) {
+  /** @param targetType The targetType to set. */
+  public void setTargetType(String targetType) {
     this.targetType = targetType;
-  }
-
-  /**
-   * @return The description of the target Value type
-   */
-  public String getTargetTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( targetType );
   }
 
   /**
@@ -236,62 +346,23 @@ public class DenormaliserTargetField {
    *
    * @param typeDesc the target value type description
    */
-  public void setTargetType( String typeDesc ) {
-    targetType = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  public void setTargetType(int typeDesc) {
+    targetType = ValueMetaFactory.getValueMetaName(typeDesc);
   }
 
   /**
-   * @return The target aggregation type: when a key-value collision occurs, what it the aggregation to use.
+   * @return The target aggregation type: when a key-value collision occurs, what it the aggregation
+   *     to use.
    */
-  public int getTargetAggregationType() {
+  public DenormaliseAggregation getTargetAggregationType() {
     return targetAggregationType;
   }
 
   /**
-   * @param targetAggregationType Specify the The aggregation type: when a key-value collision occurs, what it the aggregation to use.
+   * @param targetAggregationType Specify the The aggregation type: when a key-value collision
+   *     occurs, what it the aggregation to use.
    */
-  public void setTargetAggregationType( int targetAggregationType ) {
+  public void setTargetAggregationType(DenormaliseAggregation targetAggregationType) {
     this.targetAggregationType = targetAggregationType;
   }
-
-  public static final int getAggregationType( String desc ) {
-    for ( int i = 0; i < typeAggrDesc.length; i++ ) {
-      if ( typeAggrDesc[ i ].equalsIgnoreCase( desc ) ) {
-        return i;
-      }
-    }
-    for ( int i = 0; i < typeAggrLongDesc.length; i++ ) {
-      if ( typeAggrLongDesc[ i ].equalsIgnoreCase( desc ) ) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getAggregationTypeDesc( int i ) {
-    if ( i < 0 || i >= typeAggrDesc.length ) {
-      return null;
-    }
-    return typeAggrDesc[ i ];
-  }
-
-  public static final String getAggregationTypeDescLong( int i ) {
-    if ( i < 0 || i >= typeAggrLongDesc.length ) {
-      return null;
-    }
-    return typeAggrLongDesc[ i ];
-  }
-
-  public void setTargetAggregationType( String aggregationType ) {
-    targetAggregationType = getAggregationType( aggregationType );
-  }
-
-  public String getTargetAggregationTypeDesc() {
-    return getAggregationTypeDesc( targetAggregationType );
-  }
-
-  public String getTargetAggregationTypeDescLong() {
-    return getAggregationTypeDescLong( targetAggregationType );
-  }
-
 }
