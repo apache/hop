@@ -56,6 +56,9 @@ public class S3FileObject extends S3CommonFileObject {
       // this file is a bucket
       s3BucketName = s3BucketName.replaceAll(DELIMITER, "");
     }
+    if (s3BucketName.startsWith("/")) {
+      s3BucketName = s3BucketName.substring(1);
+    }
     return s3BucketName;
   }
 

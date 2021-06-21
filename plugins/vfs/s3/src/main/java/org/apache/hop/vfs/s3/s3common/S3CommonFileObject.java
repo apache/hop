@@ -98,6 +98,9 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
       // this file is a bucket
       bucket = bucket.replace(DELIMITER, "");
     }
+    if (bucket.startsWith("/")) {
+      bucket = bucket.substring(1);
+    }
     return bucket;
   }
 
