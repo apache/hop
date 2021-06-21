@@ -529,7 +529,8 @@ public class ProjectDialog extends Dialog {
                 HopGui hopGui = HopGui.getInstance();
                 ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
                 Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
-                if (parentPrj.getParentProjectName().equals(projectName))
+                if (parentPrj.getParentProjectName() != null
+                        && parentPrj.getParentProjectName().equals(projectName))
                     throw new HopException(
                             "Project '" + projectName + "' cannot reference '" + wParentProject.getText() + "' as parent project because we are going to create a circular reference!");
             }
