@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -506,17 +507,31 @@ public class ProjectDialog extends Dialog {
                 throw new HopException("Please give your new project a name");
             }
 
+            if (wParentProject.getText() != null && wParentProject.getText().length() > 0 && projectName.equals(wParentProject.getText())) {
+                throw new HopException(
+                        "Project '" + projectName + "' cannot be set as a parent project of itself");
+            }
+
             // Check if project name is unique otherwise force the user to change it!
+            ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
+            List<String> prjs = prjsCfg.listProjectConfigNames();
             if (StringUtils.isEmpty(originalName) ||
                     (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName))) {
-                ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
-                List<String> prjs = prjsCfg.listProjectConfigNames();
                 for (String prj : prjs) {
                     if (projectName.equals(prj)) {
                         throw new HopException(
                                 "Project '" + projectName + "' already exists. Project name must be unique!");
                     }
                 }
+            }
+
+            if (wParentProject.getText() != null && wParentProject.getText().length() > 0) {
+                HopGui hopGui = HopGui.getInstance();
+                ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
+                Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
+                if (parentPrj.getParentProjectName().equals(projectName))
+                    throw new HopException(
+                            "Project '" + projectName + "' cannot reference '" + wParentProject.getText() + "' as parent project because we are going to create a circular reference!");
             }
 
             getInfo(project, projectConfig);
