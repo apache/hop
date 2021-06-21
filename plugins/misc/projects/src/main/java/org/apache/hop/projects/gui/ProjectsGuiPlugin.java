@@ -138,8 +138,15 @@ public class ProjectsGuiPlugin {
           new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
         config.addProjectConfig(projectConfig);
-        project.saveToFile();
 
+        if (!projectName.equals(projectConfig.getProjectName())) {
+          // Project got renamed
+          projectName = projectConfig.getProjectName();
+          // Refresh project reference in hop-config.json
+          HopConfig.getInstance().saveToFile();
+        }
+
+        project.saveToFile();
         refreshProjectsList();
         selectProjectInList(projectName);
 
@@ -224,7 +231,7 @@ public class ProjectsGuiPlugin {
       image = "project-edit.svg")
   public void editSelectedProject() {
     editProject();
-  }
+    }
 
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
@@ -244,6 +251,7 @@ public class ProjectsGuiPlugin {
 
       Project project = new Project();
       project.setParentProjectName(config.getStandardParentProject());
+
       ProjectDialog projectDialog =
           new ProjectDialog(hopGui.getShell(), project, projectConfig, variables, false);
       String projectName = projectDialog.open();
