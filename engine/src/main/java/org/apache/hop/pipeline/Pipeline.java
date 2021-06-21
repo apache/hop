@@ -109,6 +109,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -263,6 +264,9 @@ public abstract class Pipeline
 
   /** Int value for storage pipeline statuses */
   private AtomicInteger status;
+
+  /** Boolean to check if pipeline is already stopped */
+  private final AtomicBoolean isAlreadyStopped = new AtomicBoolean(false);
 
   /**
    * This enum stores bit masks which are used to manipulate with statuses over field {@link
@@ -1567,14 +1571,16 @@ public abstract class Pipeline
 
   /** Stops all transforms from running, and alerts any registered listeners. */
   public void stopAll() {
-    if (transforms == null) {
+    if (transforms == null || isAlreadyStopped.get()) {
       return;
     }
+
     transforms.forEach(combi -> stopTransform(combi, false));
 
     // if it is stopped it is not paused
     setPaused(false);
     setStopped(true);
+    isAlreadyStopped.set(true);
 
     firePipelineExecutionStoppedListeners();
   }
