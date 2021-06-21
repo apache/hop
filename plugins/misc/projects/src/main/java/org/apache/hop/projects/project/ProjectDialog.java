@@ -45,6 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -423,26 +424,34 @@ public class ProjectDialog extends Dialog {
     }
 
     private void browseConfigFolder(Event event) {
+        String configFileStr = null;
         // Set the root of the possible path to config file to project's root
         String rootPath = wHome.getText();
+
+        File configFile = new File(wHome.getText() + File.separator + "config" + File.separator + ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
         wConfigFile.setText(rootPath);
-        String configFile =
-                BaseDialog.presentFileDialog(
-                        shell,
-                        wConfigFile,
-                        variables,
-                        new String[]{"*.json", "*.*"},
-                        new String[]{
-                                BaseMessages.getString(PKG, "ProjectDialog.FileList.PrjFiles.Text"),
-                                BaseMessages.getString(PKG, "ProjectDialog.FileList.AllFiles.Text")
-                        },
-                        true);
+
+        if (configFile.exists()) {
+            configFileStr = BaseDialog.presentFileDialog(
+                    shell,
+                    wConfigFile,
+                    variables,
+                    new String[]{"*.json", "*.*"},
+                    new String[]{
+                            BaseMessages.getString(PKG, "ProjectDialog.FileList.PrjFiles.Text"),
+                            BaseMessages.getString(PKG, "ProjectDialog.FileList.AllFiles.Text")
+                    },
+                    true);
+        } else {
+            String configDir = BaseDialog.presentDirectoryDialog(shell, wConfigFile, variables);
+            configFileStr = (configDir != null ? configDir : "") + File.separator + ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+        }
 
         // Set the name to the base folder if the name is empty
         //
-        if (configFile != null) {
+        if (configFileStr != null) {
             String relativeConfigFile = null;
-            if (!configFile.startsWith(rootPath)) {
+            if (!configFileStr.startsWith(rootPath)) {
                 MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK);
                 box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.WrongConfigPath.Dialog.Header"));
                 box.setMessage(
@@ -450,9 +459,11 @@ public class ProjectDialog extends Dialog {
                 box.open();
             } else {
                 // Calculate relative path to existing config file
-                String tmpConfigFile = StringUtils.difference(rootPath, configFile);
+                String tmpConfigFile = StringUtils.difference(rootPath + File.separator, configFileStr);
                 relativeConfigFile =
                         (tmpConfigFile.startsWith("/") ? tmpConfigFile.substring(1) : tmpConfigFile);
+                relativeConfigFile.replace("\\", "/");
+
             }
             wConfigFile.setText(Const.NVL(relativeConfigFile, ""));
         }
