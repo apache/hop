@@ -1674,6 +1674,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   /**
    * @return true if the database name is a required parameter
    */
+  @Override
   public boolean requiresName() {
     return true;
   }
