@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StorageUnitConverter;
 import org.apache.hop.i18n.BaseMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,7 +44,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class S3CommonPipedOutputStream extends PipedOutputStream {
 
   private static final Class<?> PKG = S3CommonPipedOutputStream.class; // For Translator
-  private static final Logger logger = LoggerFactory.getLogger(S3CommonPipedOutputStream.class);
   private static final ILogChannel consoleLog =
       new LogChannel(BaseMessages.getString(PKG, "TITLE.S3File"));
 
@@ -124,7 +121,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
-          logger.error(BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
+          consoleLog.logError(BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
           Thread.currentThread().interrupt();
         }
       }
@@ -156,7 +153,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
         int partNum = 1;
 
         S3CommonWindowedSubstream s3is;
-        logger.info(BaseMessages.getString(PKG, "INFO.S3MultiPart.Start"));
+        consoleLog.logDetailed(BaseMessages.getString(PKG, "INFO.S3MultiPart.Start"));
         while ((read = bis.read(tmpBuffer)) >= 0) {
 
           // if something was actually read
@@ -179,7 +176,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
                     .withInputStream(s3is);
 
             // Upload part and add response to our list.
-            logger.info(
+            consoleLog.logDetailed(
                 BaseMessages.getString(
                     PKG, "INFO.S3MultiPart.Upload", partNum - 1, offset, Long.toString(totalRead)));
             partETags.add(fileSystem.getS3Client().uploadPart(uploadRequest).getPartETag());
@@ -204,12 +201,12 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
                 .withInputStream(s3is)
                 .withLastPart(true);
 
-        logger.info(
+        consoleLog.logDetailed(
             BaseMessages.getString(PKG, "INFO.S3MultiPart.Upload", partNum - 1, offset, totalRead));
         partETags.add(fileSystem.getS3Client().uploadPart(uploadRequest).getPartETag());
 
         // Transform 3: Complete.
-        logger.info(BaseMessages.getString(PKG, "INFO.S3MultiPart.Complete"));
+        consoleLog.logDetailed(BaseMessages.getString(PKG, "INFO.S3MultiPart.Complete"));
         CompleteMultipartUploadRequest compRequest =
             new CompleteMultipartUploadRequest(
                 bucketId, key, initResponse.getUploadId(), partETags);
@@ -224,7 +221,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
             oome);
         returnVal = false;
       } catch (Exception e) {
-        logger.error(BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
+        consoleLog.logError(BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
         if (initResponse == null) {
           close();
         } else {
@@ -232,7 +229,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
               .getS3Client()
               .abortMultipartUpload(
                   new AbortMultipartUploadRequest(bucketId, key, initResponse.getUploadId()));
-          logger.error(BaseMessages.getString(PKG, "ERROR.S3MultiPart.Aborted"));
+          consoleLog.logError(BaseMessages.getString(PKG, "ERROR.S3MultiPart.Aborted"));
         }
         returnVal = false;
       }

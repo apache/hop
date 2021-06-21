@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,8 +32,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hop.core.logging.LogChannel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,7 +43,6 @@ import java.util.List;
 
 public abstract class S3CommonFileObject extends AbstractFileObject {
 
-  private static final Logger logger = LoggerFactory.getLogger(S3CommonFileObject.class);
   public static final String DELIMITER = "/";
 
   protected S3CommonFileSystem fileSystem;
@@ -67,7 +65,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
-    logger.debug("Accessing content {}", getQualifiedName());
+    LogChannel.GENERAL.logDebug("Accessing content {0}", getQualifiedName());
     closeS3Object();
     S3Object streamS3Object = getS3Object();
     return new S3CommonFileInputStream(streamS3Object.getObjectContent(), streamS3Object);
@@ -174,10 +172,10 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   protected S3Object getS3Object(String key, String bucket) {
     if (s3Object != null && s3Object.getObjectContent() != null) {
-      logger.debug("Returning exisiting object {}", getQualifiedName());
+      LogChannel.GENERAL.logDebug("Returning existing object {0}", getQualifiedName());
       return s3Object;
     } else {
-      logger.debug("Getting object {}", getQualifiedName());
+      LogChannel.GENERAL.logDebug("Getting object {0}", getQualifiedName());
       return fileSystem.getS3Client().getObject(bucket, key);
     }
   }
@@ -188,7 +186,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   public void doAttach() throws Exception {
-    logger.debug("Attach called on {}", getQualifiedName());
+    LogChannel.GENERAL.logDebug("Attach called on {0}", getQualifiedName());
     injectType(FileType.IMAGINARY);
 
     if (isRootBucket()) {
@@ -256,7 +254,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
       String errorCode = exception.getErrorCode();
       if (!errorCode.equals("NoSuchKey")) {
         // bubbling up other connection errors
-        logger.error(
+        LogChannel.GENERAL.logError(
             "Could not get information on " + getQualifiedName(),
             exception); // make sure this gets printed for the user
         throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), exception);
@@ -273,7 +271,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   public void doDetach() throws Exception {
-    logger.debug("detaching {}", getQualifiedName());
+    LogChannel.GENERAL.logDebug("detaching {0}", getQualifiedName());
     closeS3Object();
   }
 
@@ -311,7 +309,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   public long doGetLastModifiedTime() {
-    if (s3ObjectMetadata==null) {
+    if (s3ObjectMetadata == null) {
       return 0;
     }
     return s3ObjectMetadata.getLastModified().getTime();

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +28,9 @@ import com.amazonaws.services.s3.model.S3Object;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.s3.s3common.S3CommonFileObject;
 import org.apache.hop.vfs.s3.s3common.S3CommonPipedOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,8 +39,6 @@ import java.util.List;
 import static java.util.AbstractMap.SimpleEntry;
 
 public class S3FileObject extends S3CommonFileObject {
-
-  private static final Logger logger = LoggerFactory.getLogger(S3FileObject.class);
 
   public S3FileObject(final AbstractFileName name, final S3FileSystem fileSystem) {
     super(name, fileSystem);
@@ -73,10 +70,10 @@ public class S3FileObject extends S3CommonFileObject {
   @Override
   protected S3Object getS3Object(String key, String bucket) {
     if (s3Object != null && s3Object.getObjectContent() != null) {
-      logger.debug("Returning existing object {}", getQualifiedName());
+      LogChannel.GENERAL.logDebug("Returning existing object {0}", getQualifiedName());
       return s3Object;
     } else {
-      logger.debug("Getting object {}", getQualifiedName());
+      LogChannel.GENERAL.logDebug("Getting object {0}", getQualifiedName());
       SimpleEntry<String, String> newPath = fixFilePath(key, bucket);
       return fileSystem.getS3Client().getObject(newPath.getValue(), newPath.getKey());
     }
@@ -87,7 +84,7 @@ public class S3FileObject extends S3CommonFileObject {
     try {
       bucketExists = fileSystem.getS3Client().doesBucketExistV2(bucket);
     } catch (SdkClientException e) {
-      logger.debug("Exception checking if bucket exists", e);
+      LogChannel.GENERAL.logError("Exception checking if bucket exists", e);
     }
     return bucketExists;
   }
@@ -156,7 +153,7 @@ public class S3FileObject extends S3CommonFileObject {
         // confirms key doesn't exist but connection okay
         if (!errorCode.equals("NoSuchKey")) {
           // bubbling up other connection errors
-          logger.error(
+          LogChannel.GENERAL.logError(
               "Could not get information on " + getQualifiedName(),
               e2); // make sure this gets printed for the user
           throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), e2);
@@ -174,7 +171,7 @@ public class S3FileObject extends S3CommonFileObject {
     // see if the folder exists; if not, it might be from an old path and the real bucket is in the
     // key
     if (!bucketExists(bucket)) {
-      logger.debug(
+      LogChannel.GENERAL.logDebug(
           "Bucket {} from original path not found, might be an old path from the old driver",
           bucket);
       if (key.split(DELIMITER).length > 1) {
