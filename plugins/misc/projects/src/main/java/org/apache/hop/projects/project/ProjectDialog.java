@@ -496,7 +496,8 @@ public class ProjectDialog extends Dialog {
             }
 
             // Check if project name is unique otherwise force the user to change it!
-            if (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName)) {
+            if (StringUtils.isEmpty(originalName) ||
+                    (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName))) {
                 ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
                 List<String> prjs = prjsCfg.listProjectConfigNames();
                 for (String prj : prjs) {
