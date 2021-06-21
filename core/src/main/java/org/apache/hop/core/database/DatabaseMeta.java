@@ -65,8 +65,8 @@ import java.util.concurrent.Future;
     name = "Relational Database Connection",
     description = "This contains all the metadata needed to connect to a relational database",
     image = "ui/images/database.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html"
-)
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class; // For Translator
 
@@ -575,9 +575,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
     String baseUrl =
         iDatabase.getURL(
-            variables.resolve(hostname),
-            variables.resolve(port),
-            variables.resolve(databaseName));
+            variables.resolve(hostname), variables.resolve(port), variables.resolve(databaseName));
     String url = variables.resolve(baseUrl);
 
     if (iDatabase.supportsOptionsInURL()) {
@@ -591,7 +589,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return url;
   }
 
-  protected String appendExtraOptions(IVariables variables, String url, Map<String, String> extraOptions) {
+  protected String appendExtraOptions(
+      IVariables variables, String url, Map<String, String> extraOptions) {
     if (extraOptions.isEmpty()) {
       return url;
     }
@@ -687,9 +686,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     Map<String, String> map = getExtraOptionsMap();
     for (String option : map.keySet()) {
       String value = map.get(option);
-      properties.put(
-          variables.resolve(option),
-          variables.resolve(Const.NVL(value, "")));
+      properties.put(variables.resolve(option), variables.resolve(Const.NVL(value, "")));
     }
 
     return properties;
@@ -1076,11 +1073,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
-    if ((((BaseDatabaseMeta) getIDatabase()).requiresName()
-        && !(getIDatabase().getPluginId() == "GENERIC"))) {
-      if (getDatabaseName() == null || getDatabaseName().length() == 0) {
-        remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
-      }
+    if (getIDatabase().requiresName()
+        && (getDatabaseName() == null || getDatabaseName().length() == 0)) {
+      remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
 
     return remarks.toArray(new String[remarks.size()]);
@@ -1121,8 +1116,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       }
     } else {
       return iDatabase.getSchemaTableCombination(
-          quoteField(variables.resolve(schemaName)),
-          quoteField(variables.resolve(tableName)));
+          quoteField(variables.resolve(schemaName)), quoteField(variables.resolve(tableName)));
     }
   }
 
@@ -1142,7 +1136,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getFieldDefinition(
-      IValueMeta v, String tk, String pk, boolean useAutoIncrement, boolean addFieldname, boolean addCr) {
+      IValueMeta v,
+      String tk,
+      String pk,
+      boolean useAutoIncrement,
+      boolean addFieldname,
+      boolean addCr) {
 
     String definition =
         v.getDatabaseColumnTypeDefinition(iDatabase, tk, pk, useAutoIncrement, addFieldname, addCr);
@@ -1167,8 +1166,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getAddColumnStatement(
-      String tableName, IValueMeta v, String tk, boolean useAutoIncrement, String pk, boolean semicolon) {
-    String retval = iDatabase.getAddColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
+      String tableName,
+      IValueMeta v,
+      String tk,
+      boolean useAutoIncrement,
+      String pk,
+      boolean semicolon) {
+    String retval =
+        iDatabase.getAddColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
     retval += Const.CR;
     if (semicolon) {
       retval += ";" + Const.CR;
@@ -1177,8 +1182,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getDropColumnStatement(
-      String tableName, IValueMeta v, String tk, boolean useAutoIncrement, String pk, boolean semicolon) {
-    String retval = iDatabase.getDropColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
+      String tableName,
+      IValueMeta v,
+      String tk,
+      boolean useAutoIncrement,
+      String pk,
+      boolean semicolon) {
+    String retval =
+        iDatabase.getDropColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
     retval += Const.CR;
     if (semicolon) {
       retval += ";" + Const.CR;
@@ -1187,8 +1198,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getModifyColumnStatement(
-      String tableName, IValueMeta v, String tk, boolean useAutoIncrement, String pk, boolean semicolon) {
-    String retval = iDatabase.getModifyColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
+      String tableName,
+      IValueMeta v,
+      String tk,
+      boolean useAutoIncrement,
+      String pk,
+      boolean semicolon) {
+    String retval =
+        iDatabase.getModifyColumnStatement(tableName, v, tk, useAutoIncrement, pk, semicolon);
     retval += Const.CR;
     if (semicolon) {
       retval += ";" + Const.CR;
@@ -1452,7 +1469,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     using transactions
    */
   public String getTruncateTableStatement(IVariables variables, String schema, String tableName) {
-    return iDatabase.getTruncateTableStatement(getQuotedSchemaTableCombination( variables, schema, tableName));
+    return iDatabase.getTruncateTableStatement(
+        getQuotedSchemaTableCombination(variables, schema, tableName));
   }
 
   /**
@@ -1598,7 +1616,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       // Schema-table combination
       r = new RowMetaAndData();
       r.addValue(par, IValueMeta.TYPE_STRING, "Schema / Table combination");
-      r.addValue(val, IValueMeta.TYPE_STRING, getQuotedSchemaTableCombination(variables, "SCHEMA", "TABLE"));
+      r.addValue(
+          val,
+          IValueMeta.TYPE_STRING,
+          getQuotedSchemaTableCombination(variables, "SCHEMA", "TABLE"));
       list.add(r);
       // Limit clause
       r = new RowMetaAndData();
