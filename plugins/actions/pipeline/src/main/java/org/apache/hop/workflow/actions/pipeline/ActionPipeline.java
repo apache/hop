@@ -624,7 +624,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           pipeline.waitUntilFinished();
 
           if (parentWorkflow.isStopped() || pipeline.getErrors() != 0) {
-            pipeline.stopAll();
             result.setNrErrors(1);
           }
           updateResult(result);
