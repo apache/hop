@@ -18,226 +18,333 @@
 package org.apache.hop.imports.kettle;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.database.*;
-import org.apache.hop.core.exception.HopPluginException;
+import org.apache.commons.vfs2.FileFilterSelector;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.filter.NameFileFilter;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlFormatter;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.imports.HopImport;
 import org.apache.hop.imports.IHopImport;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class KettleImport extends HopImport implements IHopImport {
 
-  public int kjbCounter, ktrCounter, otherCounter = 0;
+  private int kjbCounter;
+  private int ktrCounter;
+  private int otherCounter;
+  private String variablesTargetConfigFile;
+  private String connectionsReportFileName;
 
-  public KettleImport() {
-    super();
-  }
-
-  public KettleImport(String inputFolderName, String outputFolderName) {
-    super(inputFolderName, outputFolderName);
-  }
-
-  @Override
-  public void importHopFolder() {
-
-    HopGui hopGui = HopGui.getInstance();
-    Shell shell = hopGui.getShell();
-
-    FilenameFilter kettleFilter = (dir, name) -> name.endsWith(".ktr") | name.endsWith("*.kjb");
-    String[] kettleFileNames = inputFolder.list(kettleFilter);
-
-    try {
-      IRunnableWithProgress op =
-          monitor -> {
-            monitor.setTaskName("Import Kettle/PDI Files to Hop... ");
-            try {
-              Stream<Path> kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
-              List<String> result =
-                  kettleWalk
-                      .map(x -> x.toString())
-                      .filter(f -> f.endsWith(".ktr") || f.endsWith(".kjb"))
-                      .collect(Collectors.toList());
-              result.forEach(
-                  kettleFilename -> {
-                    File kettleFile = new File(kettleFilename);
-                    importHopFile(kettleFile);
-                  });
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          };
-
-      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      pmd.run(false, op);
-    } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error importing PDI/Kettle files into Hop project", e);
-    }
-
-    try {
-      IRunnableWithProgress op =
-          monitor -> {
-            monitor.setTaskName("Import other files to Hop... ");
-            // Walk over all ktr and kjb files we received, migrate to hpl and hwf
-            try {
-              Stream<Path> kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
-
-              List<String> result =
-                  kettleWalk
-                      .map(x -> x.toString())
-                      .filter(f -> f.endsWith(".ktr") || f.endsWith(".kjb"))
-                      .collect(Collectors.toList());
-              result.forEach(
-                  kettleFilename -> {
-                    File kettleFile = new File(kettleFilename);
-                    importHopFile(kettleFile);
-                  });
-              kettleWalk = Files.walk(Paths.get(inputFolder.getAbsolutePath()));
-              // TODO: add a proper way to exclude folders instead of hard coded .git exclude.
-              List<String> otherFilesList =
-                  kettleWalk
-                      .map(x -> x.toString())
-                      .filter(
-                          f -> !f.endsWith(".ktr") && !f.endsWith(".kjb") && !f.contains(".git/"))
-                      .collect(Collectors.toList());
-              otherFilesList.forEach(
-                  otherFilename -> {
-                    File otherFile = new File(otherFilename);
-                    if (!otherFile.isDirectory()) {
-                      migratedFilesMap.put(otherFilename, null);
-                      otherCounter++;
-                    }
-                  });
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          };
-
-      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      pmd.run(false, op);
-
-    } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error importing other files into Hop project", e);
-    }
-    log.logBasic("We found " + kettleFileNames.length + " kettle files. ");
+  public KettleImport(IVariables variables) {
+    super(variables);
   }
 
   @Override
-  public void importHopFile(File kettleFile) {
+  public void findFilesToImport() throws HopException {
+    AtomicInteger count = new AtomicInteger();
+    try {
+      // Find all files...
+      //
 
+      List<FileObject> allFiles = new ArrayList<>();
+      allFiles.addAll(HopVfs.findFiles(getInputFolder(), null, true));
+
+      for (FileObject file : allFiles) {
+        // Skip hidden files?
+        //
+        if (skippingHiddenFilesAndFolders && file.isHidden()) {
+          continue;
+        }
+        String ext = file.getName().getExtension();
+        if ("ktr".equalsIgnoreCase(ext) || "kjb".equalsIgnoreCase(ext)) {
+          // This is a Kettle transformation or job
+          //
+          handleHopFile(file);
+          count.incrementAndGet();
+        } else {
+          // Make sure it's not a folder or .git/ (redundant I know)
+          //
+          try {
+            if (!file.getName().getURI().contains(".git/") && !file.isFolder()) {
+              migratedFilesMap.put(file.getName().getURI(), null);
+              otherCounter++;
+              count.incrementAndGet();
+            }
+          } catch (IOException e) {
+            throw new HopException("Error handling file " + file, e);
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new HopException("Error find files to import from PDI/Kettle into Hop project", e);
+    }
+
+    getLog().logBasic("We found " + count.get() + " kettle files. ");
+  }
+
+  private void handleHopFile(FileObject kettleFile) throws HopException {
     Document doc = getDocFromFile(kettleFile);
+
     // import connections first
+    //
     importDbConnections(doc, kettleFile);
 
     // move to processNode?
-    if (kettleFile.getName().endsWith(".ktr")) {
+    String extension = kettleFile.getName().getExtension();
+    Element documentElement = doc.getDocumentElement();
+
+    // We need to add an element to the document:
+    //
+    //   name_sync_with_filename
+    //
+    Element nameSync = doc.createElement("name_sync_with_filename");
+    nameSync.appendChild(doc.createTextNode("Y"));
+    documentElement.appendChild(nameSync);
+
+    if (extension.equalsIgnoreCase("ktr")) {
       ktrCounter++;
-      renameNode(doc, doc.getDocumentElement(), "pipeline");
-    } else if (kettleFile.getName().endsWith(".kjb")) {
+      renameNode(doc, documentElement, "pipeline");
+
+      // Add the name-sync node in /pipeline/info/
+      //
+      Node targetNode = XmlHandler.getSubNode(documentElement, "info");
+      if (targetNode != null) {
+        targetNode.insertBefore(nameSync, XmlHandler.getSubNode(targetNode, "description"));
+      }
+    } else if (extension.equalsIgnoreCase("kjb")) {
       kjbCounter++;
-      renameNode(doc, doc.getDocumentElement(), "workflow");
+      renameNode(doc, documentElement, "workflow");
+
+      // Add the name-sync node in /workflow/
+      //
+      documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
     }
-    processNode(doc, doc.getDocumentElement());
+    processNode(doc, documentElement);
 
     DOMSource domSource = new DOMSource(doc);
-    String outFilename = "";
 
-    if (System.getProperty("os.name").contains("Windows")) {
-      outFilename =
-          kettleFile
-              .getAbsolutePath()
-              .replaceAll("\\\\", "/")
-              .replaceAll(
-                  inputFolder.getAbsolutePath().replaceAll("\\\\", "/"),
-                  outputFolder.getAbsolutePath().replaceAll("\\\\", "/"))
-              .replaceAll(".ktr", ".hpl")
-              .replaceAll(".kjb", ".hwf");
-    } else {
-      outFilename =
-          kettleFile
-              .getAbsolutePath()
-              .replaceAll(inputFolder.getAbsolutePath(), outputFolder.getAbsolutePath())
-              .replaceAll(".ktr", ".hpl")
-              .replaceAll(".kjb", ".hwf");
+    // Only copy if the file doesn't exist or if we're overwriting...
+    //
+    getMigratedFilesMap().put(kettleFile.getName().getURI(), domSource);
+  }
+
+  /**
+   * Grab the list of files to be migrated and copy them over...
+   *
+   * @throws HopException
+   */
+  @Override
+  public void importFiles() throws HopException {
+
+    try {
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+      Iterator<String> filesIterator = getMigratedFilesMap().keySet().iterator();
+      while (filesIterator.hasNext() && (monitor == null || !monitor.isCanceled())) {
+
+        String filename = filesIterator.next();
+        DOMSource domSource = getMigratedFilesMap().get(filename);
+
+        FileObject sourceFile = HopVfs.getFileObject(filename);
+        if (sourceFile.isFolder()) {
+          continue;
+        }
+
+        String targetFilename =
+            filename.replaceAll(inputFolder.getName().getURI(), outputFolderName);
+
+        if (domSource != null) {
+          // We need to rename the target file extensions for these pipelines and workflows...
+          targetFilename =
+              targetFilename.replaceAll("\\.ktr$", ".hpl").replaceAll("\\.kjb$", ".hwf");
+        }
+
+        if (monitor != null) {
+          monitor.subTask("Saving file " + targetFilename);
+        }
+
+        FileObject targetFile = HopVfs.getFileObject(targetFilename);
+        if (isSkippingExistingTargetFiles() && targetFile.exists()) {
+          continue;
+        }
+
+        // Make sure the parent folder(s) exist...
+        //
+        if (!targetFile.getParent().exists()) {
+          targetFile.getParent().createFolder();
+        }
+
+        if (domSource == null) {
+          // copy any non-Hop files as is
+          //
+          try {
+            NameFileFilter filter =
+                new NameFileFilter(Collections.singletonList(sourceFile.getName().getBaseName()));
+            targetFile.getParent().copyFrom(sourceFile.getParent(), new FileFilterSelector(filter));
+          } catch (IOException e) {
+            throw new HopException("Error copying file '" + filename, e);
+          }
+        } else {
+          // Convert Kettle XML metadata to Hop (write the .hpl/.hwf)
+          //
+          ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            StreamResult streamResult = new StreamResult(outputStream);
+            try {
+              transformer.transform(domSource, streamResult);
+            } catch (TransformerException e) {
+              throw new HopException("Error importing file " + filename, e);
+            } finally {
+              outputStream.flush();
+              outputStream.close();
+
+              // Now pretty print the XML...
+              //
+              String xml =
+                  XmlFormatter.format(
+                      new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+              try (OutputStream fileStream = HopVfs.getOutputStream(targetFilename, false)) {
+                fileStream.write(xml.getBytes(StandardCharsets.UTF_8));
+              }
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new HopException("Error importing Kettle files into Hop", e);
     }
-    migratedFilesMap.put(outFilename, domSource);
   }
 
   @Override
-  public void importXmlDbConn(String dbConnPath) {
-    Document doc = getDocFromFile(new File(dbConnPath));
-    importDbConnections(doc, null);
+  public void importConnections() throws HopException {
+    collectConnectionsFromSharedXml();
+    collectConnectionsFromJdbcProperties();
+    importCollectedConnections();
+    saveConnectionsReport();
   }
 
-  @Override
-  public void importPropertiesDbConn(String dbConnPath) {
+  private void saveConnectionsReport() throws HopException {
+    // only create connections csv if we have connections
+    if (connectionsList.size() > 0) {
+      this.connectionsReportFileName = getOutputFolderName() + "/connections.csv";
+      try (OutputStream outputStream =
+          HopVfs.getOutputStream(this.connectionsReportFileName, false)) {
+        for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
+          outputStream.write(entry.getKey().getBytes(StandardCharsets.UTF_8));
+          outputStream.write(",".getBytes(StandardCharsets.UTF_8));
+          outputStream.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
+          outputStream.write(Const.CR.getBytes(StandardCharsets.UTF_8));
+        }
+      } catch (IOException e) {
+        throw new HopException("Error writing connections.csv file to project", e);
+      }
+    }
+  }
+
+  private void importCollectedConnections() throws HopException {
+    // Simply add the collected connections to the metadata provider...
+    //
+    IHopMetadataSerializer<DatabaseMeta> serializer =
+        metadataProvider.getSerializer(DatabaseMeta.class);
+    for (DatabaseMeta databaseMeta : connectionsList) {
+      serializer.save(databaseMeta);
+    }
+  }
+
+  public void collectConnectionsFromSharedXml() throws HopException {
+    if (StringUtils.isEmpty(sharedXmlFilename)) {
+      return;
+    }
+    Document doc = getDocFromFile(HopVfs.getFileObject(sharedXmlFilename));
+    importDbConnections(doc, HopVfs.getFileObject(sharedXmlFilename));
+  }
+
+  public void collectConnectionsFromJdbcProperties() throws HopException {
+    if (StringUtils.isEmpty(jdbcPropertiesFilename)) {
+      return;
+    }
     try {
       Properties properties = new Properties();
-      File varFile = new File(dbConnPath);
-      InputStream inputStream = new FileInputStream(varFile);
+      FileObject varFile = HopVfs.getFileObject(jdbcPropertiesFilename);
+      InputStream inputStream = HopVfs.getInputStream(varFile);
       properties.load(inputStream);
-      List<String> connNamesList = new ArrayList<String>();
-      Set connKeys = properties.keySet();
-      connKeys.forEach(
-          connKey -> {
-            String connName = ((String) connKey).split("/")[0];
-            if (!connNamesList.contains(connName)) {
-              connNamesList.add(connName);
-            }
-            ;
-          });
+      List<String> connNamesList = new ArrayList<>();
+      for (String connKey : properties.stringPropertyNames()) {
+        String connName = connKey.split("/")[0];
+        if (!connNamesList.contains(connName)) {
+          connNamesList.add(connName);
+        }
+      }
 
-      connNamesList.forEach(
-          connName -> {
-            NoneDatabaseMeta database = new NoneDatabaseMeta();
-            database.setDriverClass((String) properties.get(connName + "/driver"));
-            database.setManualUrl((String) properties.get(connName + "/url"));
-            database.setUsername((String) properties.get(connName + "/user"));
-            database.setPassword((String) properties.get(connName + "/password"));
-            IDatabase db = (IDatabase) database;
-            DatabaseMeta databaseMeta = new DatabaseMeta();
-            databaseMeta.setName(connName);
-            db.setPluginId(databaseMeta.getPluginName());
-            databaseMeta.setIDatabase(db);
+      for (String connName : connNamesList) {
+        NoneDatabaseMeta database = new NoneDatabaseMeta();
+        database.setDriverClass((String) properties.get(connName + "/driver"));
+        database.setManualUrl((String) properties.get(connName + "/url"));
+        database.setUsername((String) properties.get(connName + "/user"));
+        database.setPassword((String) properties.get(connName + "/password"));
+        DatabaseMeta databaseMeta = new DatabaseMeta();
+        databaseMeta.setName(connName);
+        database.setPluginId(databaseMeta.getPluginName());
+        databaseMeta.setIDatabase(database);
 
-            addDatabaseMeta(varFile.getAbsolutePath(), databaseMeta);
-          });
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+        addDatabaseMeta(varFile.getName().getURI(), databaseMeta);
+      }
+    } catch (Exception e) {
+      throw new HopException("Error importing properties database connection", e);
     }
   }
 
-  private void importDbConnections(Document doc, File kettleFile) {
+  private void importDbConnections(Document doc, FileObject kettleFile) throws HopException {
+
+    PluginRegistry registry = PluginRegistry.getInstance();
 
     NodeList connectionList = doc.getElementsByTagName("connection");
     for (int i = 0; i < connectionList.getLength(); i++) {
       if (connectionList.item(i).getParentNode().equals(doc.getDocumentElement())) {
         Element connElement = (Element) connectionList.item(i);
         String databaseType = connElement.getElementsByTagName("type").item(0).getTextContent();
-        List<IPlugin> databasePluginTypes = registry.getPlugins(DatabasePluginType.class);
         IPlugin databasePlugin =
             registry.findPluginWithId(
                 DatabasePluginType.class,
@@ -281,7 +388,7 @@ public class KettleImport extends HopImport implements IHopImport {
           if (connElement.getElementsByTagName("index_tablespace").getLength() > 0) {
             iDatabase.setIndexTablespace(getTextContent(connElement, "index_tablespace", 0));
           }
-          Map<String, String> attributesMap = new HashMap<String, String>();
+          Map<String, String> attributesMap = new HashMap<>();
           NodeList connNodeList = connElement.getElementsByTagName("attributes");
           for (int j = 0; j < connNodeList.getLength(); j++) {
             if (connNodeList.item(j).getNodeName().equals("attributes")) {
@@ -308,21 +415,34 @@ public class KettleImport extends HopImport implements IHopImport {
           databaseMeta.setDatabaseType(
               connElement.getElementsByTagName("type").item(0).getTextContent());
 
-          addDatabaseMeta(kettleFile.getAbsolutePath(), databaseMeta);
-        } catch (HopPluginException e) {
-          e.printStackTrace();
-        } catch (NullPointerException e) {
-          log.logError(
-              "Failed to parse connection of type '"
+          addDatabaseMeta(kettleFile.getName().getURI(), databaseMeta);
+        } catch (Exception e) {
+          throw new HopException(
+              "Error importing database type '"
                   + databaseType
-                  + "' for file '"
-                  + kettleFile.getAbsolutePath()
-                  + "'");
-          log.logError("Exception processing connection: " + e.getMessage());
-          e.printStackTrace();
+                  + "' from file '"
+                  + kettleFile.getName().getURI()
+                  + "'",
+              e);
         }
       }
     }
+  }
+
+  @Override
+  public void importVariables() throws HopException {
+    if (StringUtils.isEmpty(kettlePropertiesFilename)
+        || StringUtils.isEmpty(targetConfigFilename)) {
+      return;
+    }
+
+    collectVariablesFromKettleProperties();
+
+    // Have the projects plugin handle the collected variables: add to project config
+    //
+    this.variablesTargetConfigFile = outputFolderName + "/" + targetConfigFilename;
+    Object[] payload = {this.variablesTargetConfigFile, collectedVariables};
+    ExtensionPointHandler.callExtensionPoint(log, variables, "HopImportVariables", payload);
   }
 
   private void renameNode(Document doc, Element element, String newElementName) {
@@ -365,10 +485,10 @@ public class KettleImport extends HopImport implements IHopImport {
             // see if we have multiple parent nodes to check for:
             if (KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).contains(",")) {
               Node parentNode = currentNode.getParentNode();
-              String[] parentNodenames =
+              String[] parentNodeNames =
                   KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).split(",");
-              for (String parentNodename : parentNodenames) {
-                if (parentNode.getNodeName().equals(parentNodename)) {
+              for (String parentNodeName : parentNodeNames) {
+                if (parentNode.getNodeName().equals(parentNodeName)) {
                   parentNode.removeChild(currentNode);
                 }
               }
@@ -462,24 +582,89 @@ public class KettleImport extends HopImport implements IHopImport {
     return repositoryNode;
   }
 
-  private Document getDocFromFile(File kettleFile) {
+  private Document getDocFromFile(FileObject kettleFile) throws HopException {
     try {
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       dbFactory.setIgnoringElementContentWhitespace(true);
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(kettleFile);
+      Document doc = dBuilder.parse(HopVfs.getInputStream(kettleFile));
       return doc;
-    } catch (SAXException e) {
-      e.printStackTrace();
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      throw new HopException("Error importing file '" + kettleFile + "'", e);
     }
-    return null;
   }
 
   private String getTextContent(Element element, String tagName, Integer itemIndex) {
     return element.getElementsByTagName(tagName).item(itemIndex).getTextContent();
+  }
+
+  /**
+   * Gets kjbCounter
+   *
+   * @return value of kjbCounter
+   */
+  public int getKjbCounter() {
+    return kjbCounter;
+  }
+
+  /** @param kjbCounter The kjbCounter to set */
+  public void setKjbCounter(int kjbCounter) {
+    this.kjbCounter = kjbCounter;
+  }
+
+  /**
+   * Gets ktrCounter
+   *
+   * @return value of ktrCounter
+   */
+  public int getKtrCounter() {
+    return ktrCounter;
+  }
+
+  /** @param ktrCounter The ktrCounter to set */
+  public void setKtrCounter(int ktrCounter) {
+    this.ktrCounter = ktrCounter;
+  }
+
+  /**
+   * Gets otherCounter
+   *
+   * @return value of otherCounter
+   */
+  public int getOtherCounter() {
+    return otherCounter;
+  }
+
+  /** @param otherCounter The otherCounter to set */
+  public void setOtherCounter(int otherCounter) {
+    this.otherCounter = otherCounter;
+  }
+
+  /**
+   * Gets variablesTargetConfigFile
+   *
+   * @return value of variablesTargetConfigFile
+   */
+  public String getVariablesTargetConfigFile() {
+    return variablesTargetConfigFile;
+  }
+
+  /** @param variablesTargetConfigFile The variablesTargetConfigFile to set */
+  public void setVariablesTargetConfigFile(String variablesTargetConfigFile) {
+    this.variablesTargetConfigFile = variablesTargetConfigFile;
+  }
+
+  /**
+   * Gets connectionsReportFileName
+   *
+   * @return value of connectionsReportFileName
+   */
+  public String getConnectionsReportFileName() {
+    return connectionsReportFileName;
+  }
+
+  /** @param connectionsReportFileName The connectionsReportFileName to set */
+  public void setConnectionsReportFileName(String connectionsReportFileName) {
+    this.connectionsReportFileName = connectionsReportFileName;
   }
 }

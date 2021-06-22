@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,152 +17,454 @@
 
 package org.apache.hop.imports;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.projects.config.ProjectsConfig;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 
 import javax.xml.transform.dom.DOMSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class HopImport implements IHopImport{
+public abstract class HopImport implements IHopImport {
+  protected final ILogChannel log;
+  protected final IVariables variables;
 
-    private static IHopMetadataProvider metadataProvider;
-    private String inputFolderName;
-    private String outputFolderName;
+  protected String inputFolderName;
+  protected String outputFolderName;
+  protected String sharedXmlFilename;
+  protected String kettlePropertiesFilename;
+  protected String jdbcPropertiesFilename;
+  protected boolean skippingExistingTargetFiles;
+  protected String targetConfigFilename;
+  protected boolean skippingHiddenFilesAndFolders;
 
-    public TreeMap<String, String> connectionFileList;
-    public List<DatabaseMeta> connectionsList;
+  protected TreeMap<String, String> connectionFileMap;
+  protected List<DatabaseMeta> connectionsList;
+  protected IVariables collectedVariables;
 
-    public PluginRegistry registry;
+  protected FileObject inputFolder;
+  protected FileObject outputFolder;
 
-    public File inputFolder, outputFolder;
-    public ILogChannel log;
+  protected HashMap<String, DOMSource> migratedFilesMap;
 
-    public HashMap<String, DOMSource> migratedFilesMap;
+  protected int connectionCounter;
+  protected int variableCounter;
 
-    public int connectionCounter, variableCounter = 0;
+  protected IHopMetadataProvider metadataProvider;
+  protected IProgressMonitor monitor;
+  protected String metadataTargetFolder;
 
-    private ProjectsConfig config;
+  public HopImport(IVariables variables) {
+    this.variables = variables;
+    this.log = LogChannel.GENERAL;
 
-    public HopImport(){
-        HopGui hopGui = HopGui.getInstance();
-        metadataProvider = hopGui.getMetadataProvider();
-        registry = PluginRegistry.getInstance();
+    targetConfigFilename = "imported-env-conf.json";
+    connectionsList = new ArrayList<>();
+    connectionFileMap = new TreeMap<>();
+    migratedFilesMap = new HashMap<>();
+    collectedVariables = new Variables();
+  }
 
-        log = hopGui.getLog();
+  @Override
+  public void runImport(IProgressMonitor monitor) throws HopException {
+    this.monitor = monitor;
 
-        connectionsList = new ArrayList<DatabaseMeta>();
-        connectionFileList = new TreeMap<String, String>();
-        migratedFilesMap = new HashMap<String, DOMSource>();
+    // Create a new metadata provider for the target folder...
+    //
+    if (metadataProvider == null) {
+      this.metadataTargetFolder = outputFolder.getName().getURI() + "/metadata";
+      metadataProvider =
+          new JsonMetadataProvider(Encr.getEncoder(), this.metadataTargetFolder, variables);
     }
-
-    public void importHopFolder(){
+    if (monitor != null) {
+      monitor.setTaskName("Finding files to import");
     }
+    findFilesToImport();
 
-    public void importHopFile(File importFile){
+    if (monitor != null) {
+      if (monitor.isCanceled()) {
+        return;
+      }
+      monitor.worked(1);
+      monitor.setTaskName("Importing files");
     }
-
-    public HopImport(String inputFolderName, String outputFolderName){
-        this();
-        setInputFolder(inputFolderName);
-        setOutputFolder(outputFolderName);
+    importFiles();
+    if (monitor != null) {
+      if (monitor.isCanceled()) {
+        return;
+      }
+      monitor.worked(1);
+      monitor.setTaskName("Importing connections");
     }
-
-    public IVariables importVars(String varFile, HopVarImport varType, IVariables variables) {
-        try{
-            switch(varType){
-                case PROPERTIES:
-                    return importVarsFromProperties(varFile, variables);
-                case XML:
-                    break;
-                default:
-                    break;
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return null;
+    importConnections();
+    if (monitor != null) {
+      if (monitor.isCanceled()) {
+        return;
+      }
+      monitor.worked(1);
+      monitor.setTaskName("Importing variables");
     }
-
-    public void importConnections(String dbConnPath, HopDbConnImport connType){
-        switch(connType){
-            case PROPERTIES:
-                importPropertiesDbConn(dbConnPath);
-                break;
-            case XML:
-                importXmlDbConn(dbConnPath);
-                break;
-            default:
-                break;
-        }
+    importVariables();
+    if (monitor != null) {
+      monitor.worked(1);
     }
+  }
 
-    private IVariables importVarsFromProperties(String varFilePath, IVariables variables) throws IOException {
-        Properties properties = new Properties();
-        File varFile = new File(varFilePath);
-        InputStream inputStream = new FileInputStream(varFile);
-        properties.load(inputStream);
+  public abstract void importFiles() throws HopException;
 
-        Variables projectVars = new Variables();
+  public abstract void findFilesToImport() throws HopException;
 
-        properties.forEach((k,v) -> {
-            projectVars.setVariable((String)k, (String)v);
-            variableCounter++; 
-            log.logBasic("Saved variable " + (String)k + ": " + (String)v);
-        });
+  public abstract void importConnections() throws HopException;
 
-        return projectVars;
+  public abstract void importVariables() throws HopException;
+
+  protected void collectVariablesFromKettleProperties() throws HopException {
+    try {
+      Properties properties = new Properties();
+      FileObject varFile = HopVfs.getFileObject(kettlePropertiesFilename);
+      InputStream inputStream = HopVfs.getInputStream(varFile);
+      properties.load(inputStream);
+
+      properties.forEach(
+          (k, v) -> {
+            collectedVariables.setVariable((String) k, (String) v);
+            variableCounter++;
+            log.logDetailed("Saved variable " + (String) k + ": " + (String) v);
+          });
+    } catch (Exception e) {
+      throw new HopException("Error collecting variables from file " + kettlePropertiesFilename, e);
     }
+  }
 
-    public void importXmlDbConn(String dbConnPath){
+  public void addDatabaseMeta(String filename, DatabaseMeta databaseMeta) throws HopException {
+    // build a list of all jobs, transformations with their connections
+    connectionFileMap.put(filename, databaseMeta.getName());
+
+    // only add new connection names to the list
+    if (connectionsList.stream()
+            .filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName()))
+            .collect(Collectors.toList())
+            .size()
+        == 0) {
+      connectionsList.add(databaseMeta);
+      connectionCounter++;
     }
+  }
 
-    public void importPropertiesDbConn(String dbConnPath){
+  public FileObject getInputFolder() {
+    return inputFolder;
+  }
+
+  public void setValidateInputFolder(String inputFolderName) throws HopException {
+    try {
+      inputFolder = HopVfs.getFileObject(inputFolderName);
+      if (!inputFolder.exists() || !inputFolder.isFolder()) {
+        throw new HopException(
+            "input folder '" + inputFolderName + "' doesn't exist or is not a folder.");
+      }
+      this.inputFolderName = inputFolder.getName().getURI();
+    } catch (Exception e) {
+      throw new HopFileException("Error verifying input folder " + inputFolderName, e);
     }
+  }
 
-    public String getInputFolder() {
-        return inputFolderName;
+  public FileObject getOutputFolder() {
+    return outputFolder;
+  }
+
+  public void setValidateOutputFolder(String outputFolderName) throws HopException {
+    this.outputFolder = HopVfs.getFileObject(outputFolderName);
+    try {
+      if (!outputFolder.exists() || !outputFolder.isFolder()) {
+        log.logBasic("output folder '" + outputFolderName + "' doesn't exist or is not a folder.");
+        outputFolder.createFolder();
+      }
+      this.outputFolderName = outputFolder.getName().getURI();
+    } catch (Exception e) {
+      throw new HopFileException("Error setting output folder " + outputFolderName, e);
     }
+  }
 
-    public void setInputFolder(String inputFolderName) {
-        this.inputFolderName = inputFolderName;
-        inputFolder = new File(inputFolderName);
-        if(!inputFolder.exists() || !inputFolder.isDirectory()){
-            log.logBasic("input folder '" + inputFolderName + "' doesn't exist or is not a folder.");
-        }
-    }
+  /**
+   * Gets inputFolderName
+   *
+   * @return value of inputFolderName
+   */
+  public String getInputFolderName() {
+    return inputFolderName;
+  }
 
-    public String getOutputFolder() {
-        return outputFolderName;
-    }
+  /** @param inputFolderName The inputFolderName to set */
+  public void setInputFolderName(String inputFolderName) {
+    this.inputFolderName = inputFolderName;
+  }
 
-    public void setOutputFolder(String outputFolderName) {
-        this.outputFolderName = outputFolderName;
-        outputFolder = new File(outputFolderName);
+  /**
+   * Gets outputFolderName
+   *
+   * @return value of outputFolderName
+   */
+  public String getOutputFolderName() {
+    return outputFolderName;
+  }
 
-        if(!outputFolder.exists() || !outputFolder.isDirectory()){
-            log.logBasic("output folder '" + outputFolderName + "' doesn't exist or is not a folder.");
-            outputFolder.mkdir();
-        }
-    }
+  /** @param outputFolderName The outputFolderName to set */
+  public void setOutputFolderName(String outputFolderName) {
+    this.outputFolderName = outputFolderName;
+  }
 
-    public void addDatabaseMeta(String filename, DatabaseMeta databaseMeta) {
-        // build a list of all jobs, transformations with their connections
-        connectionFileList.put(filename, databaseMeta.getName());
-        // only add new connection name to the list
-        if(connectionsList.stream().filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName())).collect(Collectors.toList()).size() == 0){
-            connectionsList.add(databaseMeta);
-            connectionCounter++;
-        }
-    }
+  /**
+   * Gets connectionFileList
+   *
+   * @return value of connectionFileList
+   */
+  public TreeMap<String, String> getConnectionFileMap() {
+    return connectionFileMap;
+  }
+
+  /** @param connectionFileMap The connectionFileList to set */
+  public void setConnectionFileMap(TreeMap<String, String> connectionFileMap) {
+    this.connectionFileMap = connectionFileMap;
+  }
+
+  /**
+   * Gets connectionsList
+   *
+   * @return value of connectionsList
+   */
+  public List<DatabaseMeta> getConnectionsList() {
+    return connectionsList;
+  }
+
+  /** @param connectionsList The connectionsList to set */
+  public void setConnectionsList(List<DatabaseMeta> connectionsList) {
+    this.connectionsList = connectionsList;
+  }
+
+  /** @param inputFolder The inputFolder to set */
+  public void setInputFolder(FileObject inputFolder) {
+    this.inputFolder = inputFolder;
+  }
+
+  /** @param outputFolder The outputFolder to set */
+  public void setOutputFolder(FileObject outputFolder) {
+    this.outputFolder = outputFolder;
+  }
+
+  /**
+   * Gets log
+   *
+   * @return value of log
+   */
+  public ILogChannel getLog() {
+    return log;
+  }
+
+  /**
+   * Gets migratedFilesMap
+   *
+   * @return value of migratedFilesMap
+   */
+  public HashMap<String, DOMSource> getMigratedFilesMap() {
+    return migratedFilesMap;
+  }
+
+  /** @param migratedFilesMap The migratedFilesMap to set */
+  public void setMigratedFilesMap(HashMap<String, DOMSource> migratedFilesMap) {
+    this.migratedFilesMap = migratedFilesMap;
+  }
+
+  /**
+   * Gets connectionCounter
+   *
+   * @return value of connectionCounter
+   */
+  public int getConnectionCounter() {
+    return connectionCounter;
+  }
+
+  /** @param connectionCounter The connectionCounter to set */
+  public void setConnectionCounter(int connectionCounter) {
+    this.connectionCounter = connectionCounter;
+  }
+
+  /**
+   * Gets variableCounter
+   *
+   * @return value of variableCounter
+   */
+  public int getVariableCounter() {
+    return variableCounter;
+  }
+
+  /** @param variableCounter The variableCounter to set */
+  public void setVariableCounter(int variableCounter) {
+    this.variableCounter = variableCounter;
+  }
+
+  /**
+   * Gets skippingExistingTargetFiles
+   *
+   * @return value of skippingExistingTargetFiles
+   */
+  @Override
+  public boolean isSkippingExistingTargetFiles() {
+    return skippingExistingTargetFiles;
+  }
+
+  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  @Override
+  public void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles) {
+    this.skippingExistingTargetFiles = skippingExistingTargetFiles;
+  }
+
+  /**
+   * Gets sharedXmlFilename
+   *
+   * @return value of sharedXmlFilename
+   */
+  public String getSharedXmlFilename() {
+    return sharedXmlFilename;
+  }
+
+  /** @param sharedXmlFilename The sharedXmlFilename to set */
+  public void setSharedXmlFilename(String sharedXmlFilename) {
+    this.sharedXmlFilename = sharedXmlFilename;
+  }
+
+  /**
+   * Gets kettlePropertiesFilename
+   *
+   * @return value of kettlePropertiesFilename
+   */
+  public String getKettlePropertiesFilename() {
+    return kettlePropertiesFilename;
+  }
+
+  /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  public void setKettlePropertiesFilename(String kettlePropertiesFilename) {
+    this.kettlePropertiesFilename = kettlePropertiesFilename;
+  }
+
+  /**
+   * Gets jdbcPropertiesFilename
+   *
+   * @return value of jdbcPropertiesFilename
+   */
+  public String getJdbcPropertiesFilename() {
+    return jdbcPropertiesFilename;
+  }
+
+  /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  public void setJdbcPropertiesFilename(String jdbcPropertiesFilename) {
+    this.jdbcPropertiesFilename = jdbcPropertiesFilename;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * Gets metadataProvider
+   *
+   * @return value of metadataProvider
+   */
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  /** @param metadataProvider The metadataProvider to set */
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+    this.metadataProvider = metadataProvider;
+  }
+
+  /**
+   * Gets targetConfigFilename
+   *
+   * @return value of targetConfigFilename
+   */
+  public String getTargetConfigFilename() {
+    return targetConfigFilename;
+  }
+
+  /** @param targetConfigFilename The targetConfigFilename to set */
+  public void setTargetConfigFilename(String targetConfigFilename) {
+    this.targetConfigFilename = targetConfigFilename;
+  }
+
+  /**
+   * Gets collectedVariables
+   *
+   * @return value of collectedVariables
+   */
+  public IVariables getCollectedVariables() {
+    return collectedVariables;
+  }
+
+  /** @param collectedVariables The collectedVariables to set */
+  public void setCollectedVariables(IVariables collectedVariables) {
+    this.collectedVariables = collectedVariables;
+  }
+
+  /**
+   * Gets monitor
+   *
+   * @return value of monitor
+   */
+  public IProgressMonitor getMonitor() {
+    return monitor;
+  }
+
+  /** @param monitor The monitor to set */
+  public void setMonitor(IProgressMonitor monitor) {
+    this.monitor = monitor;
+  }
+
+  /**
+   * Gets metadataTargetFolder
+   *
+   * @return value of metadataTargetFolder
+   */
+  public String getMetadataTargetFolder() {
+    return metadataTargetFolder;
+  }
+
+  /** @param metadataTargetFolder The metadataTargetFolder to set */
+  public void setMetadataTargetFolder(String metadataTargetFolder) {
+    this.metadataTargetFolder = metadataTargetFolder;
+  }
+
+  /**
+   * Gets skippingHiddenFilesAndFolders
+   *
+   * @return value of skippingHiddenFilesAndFolders
+   */
+  public boolean isSkippingHiddenFilesAndFolders() {
+    return skippingHiddenFilesAndFolders;
+  }
+
+  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
+    this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
+  }
 }

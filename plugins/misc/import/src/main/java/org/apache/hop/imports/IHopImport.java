@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,25 +17,98 @@
 
 package org.apache.hop.imports;
 
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.variables.IVariables;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.exception.HopException;
 
 public interface IHopImport {
 
-    void setInputFolder(String inputFolder);
-    String getInputFolder();
+  /**
+   * Perform the actual import of all files
+   *
+   * @param monitor
+   */
+  void runImport(IProgressMonitor monitor) throws HopException;
 
-    void setOutputFolder(String outputFolder);
-    String getOutputFolder();
+  /**
+   * Import all files from the specified source folder to the target
+   *
+   * @throws HopException
+   */
+  void importFiles() throws HopException;
 
-    void importHopFolder();
-    void importHopFile(File fileToImport);
+  /**
+   * Import connections from the specified source files/folders
+   *
+   * @throws HopException
+   */
+  void importConnections() throws HopException;
 
-    IVariables importVars(String varPath, HopVarImport varType, IVariables variables) throws IOException;
-    void importConnections(String dbConnPath, HopDbConnImport connType);
+  /**
+   * Import variables from the specified source files/folders
+   *
+   * @throws HopException
+   */
+  void importVariables() throws HopException;
 
-    void addDatabaseMeta(String filename, DatabaseMeta databaseMeta);
+  void setValidateInputFolder(String inputFolderName) throws HopException;
+
+  FileObject getInputFolder();
+
+  void setValidateOutputFolder(String outputFolderName) throws HopException;
+
+  FileObject getOutputFolder();
+
+  String getInputFolderName();
+
+  String getOutputFolderName();
+
+  /**
+   * Gets skippingExistingTargetFiles
+   *
+   * @return value of skippingExistingTargetFiles
+   */
+  boolean isSkippingExistingTargetFiles();
+
+  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles);
+
+  /**
+   * Gets sharedXmlFilename
+   *
+   * @return value of sharedXmlFilename
+   */
+  String getSharedXmlFilename();
+
+  /** @param sharedXmlFilename The sharedXmlFilename to set */
+  void setSharedXmlFilename(String sharedXmlFilename);
+
+  /**
+   * Gets kettlePropertiesFilename
+   *
+   * @return value of kettlePropertiesFilename
+   */
+  String getKettlePropertiesFilename();
+
+  /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  void setKettlePropertiesFilename(String kettlePropertiesFilename);
+  /**
+   * Gets jdbcPropertiesFilename
+   *
+   * @return value of jdbcPropertiesFilename
+   */
+  String getJdbcPropertiesFilename();
+
+  /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  void setJdbcPropertiesFilename(String jdbcPropertiesFilename);
+
+  /**
+   * Gets targetConfigFilename
+   *
+   * @return value of targetConfigFilename
+   */
+  String getTargetConfigFilename();
+
+  /** @param targetConfigFilename The targetConfigFilename to set */
+  void setTargetConfigFilename(String targetConfigFilename);
 }
