@@ -15,13 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.hop.imports;
+package org.apache.hop.imp;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 public interface IHopImport {
+
+  /**
+   * Initialize the importer
+   *
+   * @param variables
+   * @param log
+   * @throws HopException
+   */
+  void init(IVariables variables, ILogChannel log) throws HopException;
 
   /**
    * Perform the actual import of all files
@@ -43,6 +55,13 @@ public interface IHopImport {
    * @throws HopException
    */
   void importConnections() throws HopException;
+
+  /**
+   * Generate an import report in text format with statistics and advice.
+   *
+   * @return The import report
+   */
+  String getImportReport();
 
   /**
    * Import variables from the specified source files/folders
@@ -109,6 +128,31 @@ public interface IHopImport {
    */
   String getTargetConfigFilename();
 
+  /**
+   * Gets skippingHiddenFilesAndFolders
+   *
+   * @return value of skippingHiddenFilesAndFolders
+   */
+  boolean isSkippingHiddenFilesAndFolders();
+
+  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders);
+
   /** @param targetConfigFilename The targetConfigFilename to set */
   void setTargetConfigFilename(String targetConfigFilename);
+
+  boolean isSkippingFolders();
+
+  /** @param skippingFolders The skippingFolders to set */
+  void setSkippingFolders(boolean skippingFolders);
+
+  /**
+   * Gets metadataProvider
+   *
+   * @return value of metadataProvider
+   */
+  IHopMetadataProvider getMetadataProvider();
+
+  /** @param metadataProvider The metadataProvider to set */
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 }

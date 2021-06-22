@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.imports;
+package org.apache.hop.imp;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IProgressMonitor;
@@ -28,6 +28,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.imp.IHopImport;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 
@@ -40,9 +41,9 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public abstract class HopImport implements IHopImport {
-  protected final ILogChannel log;
-  protected final IVariables variables;
+public abstract class HopImportBase implements IHopImport {
+  protected ILogChannel log;
+  protected IVariables variables;
 
   protected String inputFolderName;
   protected String outputFolderName;
@@ -52,6 +53,7 @@ public abstract class HopImport implements IHopImport {
   protected boolean skippingExistingTargetFiles;
   protected String targetConfigFilename;
   protected boolean skippingHiddenFilesAndFolders;
+  protected boolean skippingFolders;
 
   protected TreeMap<String, String> connectionFileMap;
   protected List<DatabaseMeta> connectionsList;
@@ -69,8 +71,8 @@ public abstract class HopImport implements IHopImport {
   protected IProgressMonitor monitor;
   protected String metadataTargetFolder;
 
-  public HopImport(IVariables variables) {
-    this.variables = variables;
+  public HopImportBase() {
+    this.variables = new Variables();
     this.log = LogChannel.GENERAL;
 
     targetConfigFilename = "imported-env-conf.json";
@@ -78,6 +80,12 @@ public abstract class HopImport implements IHopImport {
     connectionFileMap = new TreeMap<>();
     migratedFilesMap = new HashMap<>();
     collectedVariables = new Variables();
+  }
+
+  @Override
+  public void init(IVariables variables, ILogChannel log) throws HopException {
+    this.variables = variables;
+    this.log = log;
   }
 
   @Override
@@ -467,4 +475,25 @@ public abstract class HopImport implements IHopImport {
   public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
     this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
   }
+
+  /**
+   * Gets skippingFolders
+   *
+   * @return value of skippingFolders
+   */
+  public boolean isSkippingFolders() {
+    return skippingFolders;
+  }
+
+  /** @param skippingFolders The skippingFolders to set */
+  public void setSkippingFolders(boolean skippingFolders) {
+    this.skippingFolders = skippingFolders;
+  }
+
+  /**
+   * Generate a report with statistics and advice.
+   *
+   * @return The import report
+   */
+  public abstract String getImportReport();
 }

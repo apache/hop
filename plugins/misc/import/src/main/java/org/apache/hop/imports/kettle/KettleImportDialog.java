@@ -62,8 +62,9 @@ public class KettleImportDialog extends Dialog {
   public static final String LAST_USED_IMPORT_CONFIG_FILE = "ImportConfigFile";
   public static final String LAST_USED_IMPORT_SKIP_EXISTING = "ImportSkipExisting";
   public static final String LAST_USED_IMPORT_SKIP_HIDDEN = "ImportSkipHidden";
+  public static final String LAST_USED_IMPORT_SKIP_FOLDERS = "ImportSkipFolders";
 
-  private IVariables variables;
+  private final IVariables variables;
 
   private Shell shell;
   private final PropsUi props;
@@ -82,6 +83,7 @@ public class KettleImportDialog extends Dialog {
   private Button wbImportPath;
   private Button wSkipExisting;
   private Button wSkipHidden;
+  private Button wSkipFolders;
 
   public KettleImportDialog(Shell parent, IVariables variables, KettleImport kettleImport)
       throws HopException {
@@ -325,7 +327,6 @@ public class KettleImportDialog extends Dialog {
     fdSkipExisting.top = new FormAttachment(wlSkipExisting, 0, SWT.CENTER);
     wSkipExisting.setLayoutData(fdSkipExisting);
     wSkipExisting.setSelection(true);
-    wSkipExisting.addListener(SWT.Selection, this::showHideProjectFields);
     lastControl = wlSkipExisting;
 
     // Skip existing target files?
@@ -346,8 +347,28 @@ public class KettleImportDialog extends Dialog {
     fdSkipHidden.top = new FormAttachment(wlSkipHidden, 0, SWT.CENTER);
     wSkipHidden.setLayoutData(fdSkipHidden);
     wSkipHidden.setSelection(true);
-    wSkipHidden.addListener(SWT.Selection, this::showHideProjectFields);
     lastControl = wlSkipHidden;
+
+    // Skip existing target files?
+    Label wlSkipFolders = new Label(shell, SWT.RIGHT);
+    props.setLook(wlSkipFolders);
+    wlSkipFolders.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.SkipFolders"));
+    FormData fdlSkipFolders = new FormData();
+    fdlSkipFolders.left = new FormAttachment(0, 0);
+    fdlSkipFolders.right = new FormAttachment(middle, 0);
+    fdlSkipFolders.top = new FormAttachment(lastControl, margin);
+    wlSkipFolders.setLayoutData(fdlSkipFolders);
+
+    wSkipFolders = new Button(shell, SWT.CHECK);
+    props.setLook(wSkipFolders);
+    FormData fdSkipFolders = new FormData();
+    fdSkipFolders.left = new FormAttachment(middle, margin);
+    fdSkipFolders.right = new FormAttachment(100, 0);
+    fdSkipFolders.top = new FormAttachment(wlSkipFolders, 0, SWT.CENTER);
+    wSkipFolders.setLayoutData(fdSkipFolders);
+    wSkipFolders.setSelection(true);
+    wSkipFolders.addListener(SWT.Selection, this::showHideProjectFields);
+    lastControl = wlSkipFolders;
 
     // Target environment configuration file
     Label wlTargetConfigFile = new Label(shell, SWT.RIGHT);
@@ -428,6 +449,9 @@ public class KettleImportDialog extends Dialog {
     wSkipHidden.setSelection(
         !"false"
             .equalsIgnoreCase(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_HIDDEN)));
+    wSkipFolders.setSelection(
+        !"false"
+            .equalsIgnoreCase(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_FOLDERS)));
 
     wImportFrom.setFocus();
 
@@ -449,6 +473,8 @@ public class KettleImportDialog extends Dialog {
         LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? "true" : "false");
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_SKIP_HIDDEN, wSkipHidden.getSelection() ? "true" : "false");
+    AuditManagerGuiUtil.addLastUsedValue(
+        LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? "true" : "false");
     shell.dispose();
   }
 
@@ -540,6 +566,7 @@ public class KettleImportDialog extends Dialog {
       kettleImport.setJdbcPropertiesFilename(wJdbcProps.getText());
       kettleImport.setSkippingExistingTargetFiles(wSkipExisting.getSelection());
       kettleImport.setSkippingHiddenFilesAndFolders(wSkipHidden.getSelection());
+      kettleImport.setSkippingFolders(wSkipFolders.getSelection());
 
       // We're going to run the import in a progress dialog with a monitor...
       //
@@ -559,44 +586,9 @@ public class KettleImportDialog extends Dialog {
 
       // Show some statistics after the import...
       //
-      String eol = System.getProperty("line.separator");
-      String messageString = "Imported: " + eol;
-      if (kettleImport.getKjbCounter() > 0) {
-        messageString += kettleImport.getKjbCounter() + " jobs" + eol;
-      }
-      if (kettleImport.getKtrCounter() > 0) {
-        messageString += kettleImport.getKtrCounter() + " transformations" + eol;
-      }
-      if (kettleImport.getOtherCounter() > 0) {
-        messageString += kettleImport.getOtherCounter() + " other files" + eol;
-      }
-      if (kettleImport.getVariableCounter() > 0) {
-        messageString +=
-            kettleImport.getVariableCounter()
-                + " variables were imported into environment config file "
-                + kettleImport.getVariablesTargetConfigFile()
-                + eol
-                + "You can use this as a configuration file in an environment."
-                + eol;
-      }
-      if (kettleImport.getConnectionCounter() > 0) {
-        messageString +=
-            kettleImport.getConnectionCounter()
-                + " database connections where saved in metadata folder "
-                + kettleImport.getMetadataTargetFolder()
-                + eol
-                + eol;
-        messageString +=
-            "Connections with the same name and different configurations have only been saved once."
-                + eol;
-        messageString +=
-            "Check the following file for a list of connections that might need extra attention: "
-                + kettleImport.getConnectionsReportFileName();
-      }
-
       MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
       box.setText("Import summary");
-      box.setMessage(messageString);
+      box.setMessage(kettleImport.getImportReport());
       box.open();
     } catch (Throwable e) {
       new ErrorDialog(shell, "Error", "Error importing", e);

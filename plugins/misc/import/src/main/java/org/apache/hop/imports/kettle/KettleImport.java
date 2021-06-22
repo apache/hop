@@ -30,6 +30,7 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.StringUtil;
@@ -37,8 +38,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.imports.HopImport;
-import org.apache.hop.imports.IHopImport;
+import org.apache.hop.imp.ImportPlugin;
+import org.apache.hop.imp.HopImportBase;
+import org.apache.hop.imp.IHopImport;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -67,7 +69,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class KettleImport extends HopImport implements IHopImport {
+@ImportPlugin(
+    id = "kettle",
+    name = "Kettle Import",
+    description = "Imports Kettle/PDI files, metadata and variables",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/import/kettle-import.html")
+public class KettleImport extends HopImportBase implements IHopImport {
 
   private int kjbCounter;
   private int ktrCounter;
@@ -75,8 +82,8 @@ public class KettleImport extends HopImport implements IHopImport {
   private String variablesTargetConfigFile;
   private String connectionsReportFileName;
 
-  public KettleImport(IVariables variables) {
-    super(variables);
+  public KettleImport() {
+    super();
   }
 
   @Override
@@ -87,7 +94,7 @@ public class KettleImport extends HopImport implements IHopImport {
       //
 
       List<FileObject> allFiles = new ArrayList<>();
-      allFiles.addAll(HopVfs.findFiles(getInputFolder(), null, true));
+      allFiles.addAll(HopVfs.findFiles(getInputFolder(), null, !skippingFolders));
 
       for (FileObject file : allFiles) {
         // Skip hidden files?
@@ -95,6 +102,7 @@ public class KettleImport extends HopImport implements IHopImport {
         if (skippingHiddenFilesAndFolders && file.isHidden()) {
           continue;
         }
+
         String ext = file.getName().getExtension();
         if ("ktr".equalsIgnoreCase(ext) || "kjb".equalsIgnoreCase(ext)) {
           // This is a Kettle transformation or job
@@ -618,6 +626,46 @@ public class KettleImport extends HopImport implements IHopImport {
       //
       alignLocations(childNode, gridSize);
     }
+  }
+
+  @Override
+  public String getImportReport() {
+    String eol = System.getProperty("line.separator");
+    String messageString = "Imported: " + eol;
+    if (getKjbCounter() > 0) {
+      messageString += getKjbCounter() + " jobs" + eol;
+    }
+    if (getKtrCounter() > 0) {
+      messageString += getKtrCounter() + " transformations" + eol;
+    }
+    if (getOtherCounter() > 0) {
+      messageString += getOtherCounter() + " other files" + eol;
+    }
+    if (getVariableCounter() > 0) {
+      messageString +=
+          getVariableCounter()
+              + " variables were imported into environment config file "
+              + getVariablesTargetConfigFile()
+              + eol
+              + "You can use this as a configuration file in an environment."
+              + eol;
+    }
+    if (getConnectionCounter() > 0) {
+      messageString +=
+          getConnectionCounter()
+              + " database connections where saved in metadata folder "
+              + getMetadataTargetFolder()
+              + eol
+              + eol;
+      messageString +=
+          "Connections with the same name and different configurations have only been saved once."
+              + eol;
+      messageString +=
+          "Check the following file for a list of connections that might need extra attention: "
+              + getConnectionsReportFileName();
+    }
+
+    return messageString;
   }
 
   /**

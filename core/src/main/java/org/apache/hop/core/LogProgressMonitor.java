@@ -15,9 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.hop.imports;
+package org.apache.hop.core;
 
-public enum HopVarImport {
-  PROPERTIES,
-  XML
+import org.apache.hop.core.logging.ILogChannel;
+
+public class LogProgressMonitor implements IProgressMonitor {
+
+  private final ILogChannel log;
+  private int nrWorks;
+
+  public LogProgressMonitor(ILogChannel log) {
+    this.log = log;
+  }
+
+  @Override
+  public void beginTask(String message, int nrWorks) {
+    log.logBasic(message);
+  }
+
+  @Override
+  public void subTask(String message) {
+    log.logBasic("  - " + message);
+  }
+
+  @Override
+  public boolean isCanceled() {
+    return false;
+  }
+
+  @Override
+  public void worked(int nrWorks) {}
+
+  @Override
+  public void done() {}
+
+  @Override
+  public void setTaskName(String taskName) {
+    log.logBasic(taskName);
+  }
 }

@@ -52,7 +52,10 @@ public class HopImportGuiPlugin {
   public void menuToolsImport() {
     HopGui hopGui = HopGui.getInstance();
     try {
-      KettleImport kettleImport = new KettleImport(hopGui.getVariables());
+      // Import using this Kettle import plugin...
+      //
+      KettleImport kettleImport = new KettleImport();
+      kettleImport.init(hopGui.getVariables(), hopGui.getLog());
       KettleImportDialog dialog =
           new KettleImportDialog(hopGui.getShell(), hopGui.getVariables(), kettleImport);
       dialog.open();
