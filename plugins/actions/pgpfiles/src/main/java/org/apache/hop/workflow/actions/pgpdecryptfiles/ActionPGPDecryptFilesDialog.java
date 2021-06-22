@@ -1651,7 +1651,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     action.setDestinationFolder(wDestinationFolder.getText());
 
-    action.setGpgPLocation(wGpgExe.getText());
+    action.setGpgLocation(wGpgExe.getText());
 
     if (wIfMovedFileExists.getSelectionIndex() == 1) {
       action.setIfMovedFileExists("overwrite_file");

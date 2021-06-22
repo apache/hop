@@ -217,7 +217,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     return techKeyCreation == CREATION_METHOD_AUTOINC;
   }
 
-  @SuppressWarnings("deprecation")
   private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     Long valKey = null;
     Long val_hash = null;
@@ -233,7 +232,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       }
 
       if (meta.useHash()) {
-        val_hash = new Long(data.hashRowMeta.oldXORHashCode(hashRow));
+        val_hash = new Long(data.hashRowMeta.hashCode(hashRow));
         lookupRow[lookupIndex] = val_hash;
         lookupIndex++;
       }

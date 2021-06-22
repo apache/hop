@@ -657,25 +657,6 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     this.targetFilenameExtension = uploadFilenameExtension;
   }
 
-  /**
-   * @return Returns the uploadFilenameExtension.
-   * @deprecated Use {@link ActionHttp#getTargetFilenameExtension()} instead
-   */
-  @Deprecated
-  public String getTargetFilenameExtention() {
-    return targetFilenameExtension;
-  }
-
-  /**
-   * @param uploadFilenameExtension The uploadFilenameExtension to set.
-   * @deprecated Use {@link ActionHttp#setTargetFilenameExtension(String uploadFilenameExtension)}
-   *     instead
-   */
-  @Deprecated
-  public void setTargetFilenameExtention(String uploadFilenameExtension) {
-    this.targetFilenameExtension = uploadFilenameExtension;
-  }
-
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {

@@ -317,21 +317,6 @@ public class ValueDataUtil {
   }
 
   /**
-   * @deprecated Use {@link ValueDataUtil#createChecksum(IValueMeta, Object, String, boolean)}
-   *     instead
-   */
-  @Deprecated
-  public static String createChecksum(IValueMeta metaA, Object dataA, String type) {
-    String checksum = null;
-    try {
-      checksum = createChecksum(metaA, dataA, type, false);
-    } catch (HopFileNotFoundException e) {
-      // Ignore
-    }
-    return checksum;
-  }
-
-  /**
    * @param metaA The IValueMeta
    * @param dataA Filename
    * @param type Algorithm to be used when computing the checksum (MD5 or SHA-1)

@@ -463,20 +463,6 @@ public interface IRowMeta extends Cloneable {
   int compare(Object[] rowData1, Object[] rowData2) throws HopValueException;
 
   /**
-   * Calculate a hashCode of the content (not the index) of the data specified NOTE: This method
-   * uses a simple XOR of the individual hashCodes which can result in a lot of collisions for
-   * similar types of data (e.g. [A,B] == [B,A] and is not suitable for normal use. It is kept to
-   * provide backward compatibility with CombinationLookup.lookupValues()
-   *
-   * @param rowData The data to calculate a hashCode with
-   * @return the calculated hashCode
-   * @throws HopValueException in case there is a data conversion error
-   * @deprecated
-   */
-  @Deprecated
-  int oldXORHashCode(Object[] rowData) throws HopValueException;
-
-  /**
    * Calculates a simple hashCode of all the native data objects in the supplied row. This method
    * will return a better distribution of values for rows of numbers or rows with the same values in
    * different positions. NOTE: This method performs against the native values, not the values

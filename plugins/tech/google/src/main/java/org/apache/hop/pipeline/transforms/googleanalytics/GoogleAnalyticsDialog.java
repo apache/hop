@@ -55,7 +55,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -1036,7 +1035,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
 
     meta.setGaProfileName(wGaProfile.getText());
     meta.setGaAppName(wGaAppName.getText());
-    meta.setOauthServiceAccount(wOauthAccount.getText());
+    meta.setOAuthServiceAccount(wOauthAccount.getText());
     meta.setOAuthKeyFile(keyFilename.getText());
 
     if (!Utils.isEmpty(wGaProfile.getText())) {

@@ -65,23 +65,23 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void checksumTest() {
+  public void checksumTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5");
+    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", false);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
-  public void checksumMissingFileTest() {
+  public void checksumMissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5");
+    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
-  public void checksumNullPathTest() {
+  public void checksumNullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5");
+    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 

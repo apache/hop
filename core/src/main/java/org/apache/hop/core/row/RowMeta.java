@@ -1038,33 +1038,6 @@ public class RowMeta implements IRowMeta {
   }
 
   /**
-   * Calculate a hashCode of the content (not the index) of the data specified NOTE: This method uses a simple XOR of
-   * the individual hashCodes which can result in a lot of collisions for similar types of data (e.g. [A,B] == [B,A] and
-   * is not suitable for normal use. It is kept to provide backward compatibility with CombinationLookup.lookupValues()
-   *
-   * @param rowData The data to calculate a hashCode with
-   * @return the calculated hashCode
-   * @throws HopValueException in case there is a data conversion error
-   * @deprecated
-   */
-  @Override
-  @Deprecated
-  public int oldXORHashCode( Object[] rowData ) throws HopValueException {
-    int hash = 0;
-    lock.readLock().lock();
-    try {
-      for ( int i = 0; i < size(); i++ ) {
-        IValueMeta valueMeta = getValueMeta( i );
-        hash ^= valueMeta.hashCode( rowData[ i ] );
-      }
-
-      return hash;
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  /**
    * Calculates a simple hashCode of all the native data objects in the supplied row. This method will return a better
    * distribution of values for rows of numbers or rows with the same values in different positions. NOTE: This method
    * performs against the native values, not the values returned by ValueMeta. This means that if you have two rows with
