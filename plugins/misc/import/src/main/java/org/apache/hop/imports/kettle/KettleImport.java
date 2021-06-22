@@ -22,6 +22,7 @@ import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.filter.NameFileFilter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -160,10 +161,16 @@ public class KettleImport extends HopImport implements IHopImport {
     }
     processNode(doc, documentElement);
 
-    DOMSource domSource = new DOMSource(doc);
-
-    // Only copy if the file doesn't exist or if we're overwriting...
+    // Align x/y locations with a grid size...
     //
+    int gridSize = Const.toInt(new Props().getProperty("CanvasGridSize"), 16);
+    if (gridSize > 1) {
+      alignLocations(documentElement, gridSize);
+    }
+
+    // Keep the document for later saving...
+    //
+    DOMSource domSource = new DOMSource(doc);
     getMigratedFilesMap().put(kettleFile.getName().getURI(), domSource);
   }
 
@@ -596,6 +603,21 @@ public class KettleImport extends HopImport implements IHopImport {
 
   private String getTextContent(Element element, String tagName, Integer itemIndex) {
     return element.getElementsByTagName(tagName).item(itemIndex).getTextContent();
+  }
+
+  private void alignLocations(Node parentNode, int gridSize) {
+    NodeList childNodes = parentNode.getChildNodes();
+    for (int i = 0; i < childNodes.getLength(); i++) {
+      Node childNode = childNodes.item(i);
+      String nodeName = childNode.getNodeName();
+      if (nodeName.equals("xloc") || nodeName.equals("yloc")) {
+        int value = Const.toInt(childNode.getTextContent(), 0);
+        childNode.setTextContent(Integer.toString(gridSize * Math.round(value / gridSize)));
+      }
+      // Find more children
+      //
+      alignLocations(childNode, gridSize);
+    }
   }
 
   /**
