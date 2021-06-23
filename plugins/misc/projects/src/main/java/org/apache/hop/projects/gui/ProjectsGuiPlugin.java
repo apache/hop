@@ -371,8 +371,6 @@ public class ProjectsGuiPlugin {
         if (StringUtils.isEmpty(projectName)) {
             return;
         }
-        HopGui hopGui = HopGui.getInstance();
-
         ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
         ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
@@ -383,63 +381,38 @@ public class ProjectsGuiPlugin {
         String projectHome = currentProjectConfig.getProjectHome();
         String configFilename = currentProjectConfig.getConfigFilename();
 
-        List<String> prjs = config.listProjectConfigNames();
-        Project currentProject = null;
+        try {
 
-      String prjReferences = checkIfProjectReferredAsParent(projectName, hopGui, config, currentProjectConfig, prjs);
+      List<String> refs = ProjectsUtil.getParentProjectReferences(projectName);
 
-      if (prjReferences == null) {
+      if (refs.isEmpty()) {
         performProjectDeletion(projectName, config, projectHome, configFilename);
       } else {
-        MessageBox box =
-                new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
-        box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Header"));
-        box.setMessage(
-                BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message1")
-                + Const.CR
-                + prjReferences
-                + Const.CR
-                + BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message2"))
+          String prjReferences = String.join(",", refs);
+                  MessageBox box =
+                  new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+          box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Header"));
+          box.setMessage(
+                  BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message1")
+                          + Const.CR
+                          + prjReferences
+                          + Const.CR
+                          + BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message2"))
 
-        ;
-        box.open();
+          ;
+          box.open();
+      }
+      } catch (Exception e) {
+                new ErrorDialog(
+                        HopGui.getInstance().getShell(),
+                        BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"),
+                        BaseMessages.getString(
+                                PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
+                        e);
+            }
 
       }
-    }
 
-  private String checkIfProjectReferredAsParent(String projectName, HopGui hopGui, ProjectsConfig config
-          , ProjectConfig currentProjectConfig, List<String> prjs) {
-
-    String referencesRc = null;
-    Project currentProject;
-    try {
-        currentProject = currentProjectConfig.loadProject(hopGui.getVariables());
-
-        for (String prj : prjs) {
-          if (!prj.equals(currentProject)) {
-            ProjectConfig prjCfg = config.findProjectConfig(prj);
-            Project thePrj = prjCfg.loadProject(hopGui.getVariables());
-            if (thePrj != null) {
-              if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(projectName)) {
-                referencesRc = (referencesRc == null ? "" + prj : referencesRc + ", " + prj);
-              }
-            } else {
-              hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
-            }
-          }
-        }
-
-    } catch (Exception e) {
-        new ErrorDialog(
-                hopGui.getShell(),
-                BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"),
-                BaseMessages.getString(
-                        PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
-                e);
-    }
-
-    return referencesRc;
-  }
 
   private void performProjectDeletion(String projectName, ProjectsConfig config
           , String projectHome, String configFilename) {

@@ -29,6 +29,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -529,6 +530,12 @@ public class ProjectDialog extends Dialog {
 
             HopGui hopGui = HopGui.getInstance();
             if (wParentProject.getText() != null && wParentProject.getText().length() > 0) {
+
+                boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
+                if (!parentPrjExists)
+                    throw new HopException(
+                            "Project '" + wParentProject.getText() + "' cannot be set as parent project because it does not exists!");
+
                 ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
                 Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
                 if (parentPrj.getParentProjectName() != null
@@ -537,24 +544,12 @@ public class ProjectDialog extends Dialog {
                             "Project '" + projectName + "' cannot reference '" + wParentProject.getText() + "' as parent project because we are going to create a circular reference!");
             }
 
-            String referencesRc = null;
-
             if (!prevProjectName.equals(projectName)) {
-                for (String prj : prjs) {
-                    ProjectConfig prjCfg = prjsCfg.findProjectConfig(prj);
-                    Project thePrj = prjCfg.loadProject(hopGui.getVariables());
-                    if (thePrj != null) {
-                        if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(prevProjectName)) {
-                            referencesRc = (referencesRc == null ? "" + prj : referencesRc + ", " + prj);
-                        }
-                    } else {
-                        hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
-                    }
-                }
+                List<String> refs = ProjectsUtil.getParentProjectReferences(prevProjectName);
 
-                if (referencesRc != null) {
+                if (!refs.isEmpty()) {
                     throw new HopException(
-                            "Project '" + prevProjectName + "' cannot cannot be renamed in '" + projectName + "' because is referenced in following projects: " + referencesRc);
+                            "Project '" + prevProjectName + "' cannot cannot be renamed in '" + projectName + "' because is referenced in following projects: " + String.join(",", refs));
 
                 }
             }
