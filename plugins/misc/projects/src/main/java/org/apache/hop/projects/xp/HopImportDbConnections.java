@@ -63,8 +63,6 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     Project project = projectConfig.loadProject(hopGui.getVariables());
-    //        project.setMetadataBaseFolder(projectConfig.getProjectHome() +
-    // System.getProperty("file.separator") + "metadata");
     ProjectsUtil.enableProject(
         hopGui.getLog(), projectName, project, variables, Collections.emptyList(), null, hopGui);
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
@@ -83,7 +81,8 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
           databaseSerializer.save(databaseMeta);
         }
       } catch (HopException e) {
-        e.printStackTrace();
+        throw new HopException(
+            "Error importing database metadata [" + databaseMeta.getName() + "]", e);
       }
     }
 
@@ -101,8 +100,7 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
           outputStream.write(eol.getBytes(StandardCharsets.UTF_8));
         }
       } catch (IOException e) {
-        log.logError("Error writing connections file to project : ");
-        e.printStackTrace();
+        throw new HopException("Error writing connections file to project " + projectName, e);
       }
     }
   }

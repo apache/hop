@@ -139,6 +139,9 @@ public enum HopExtensionPoint {
 
   HopGuiGetControlSpaceSortOrderPrefix(
       "Gets a prefix to steer the sort order of variables when using CTRL-SPACE.  Defaults range from 900_ to 400_. Set prefixes in Map<String,String>"),
+
+  HopImportStart("Executed at the start of the 'hop-import' command line tool"),
+  HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
   ;
 
   public String id;

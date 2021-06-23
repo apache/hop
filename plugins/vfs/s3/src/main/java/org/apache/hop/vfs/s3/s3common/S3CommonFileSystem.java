@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,9 +34,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.s3.amazon.s3.S3Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -46,8 +45,6 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
   private String awsAccessKeyCache;
   private String awsSecretKeyCache;
   private AmazonS3 client;
-
-  private static final Logger logger = LoggerFactory.getLogger(S3CommonFileSystem.class);
 
   protected S3CommonFileSystem(final FileName rootName, final FileSystemOptions fileSystemOptions) {
     super(rootName, null, fileSystemOptions);
@@ -127,7 +124,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
         awsAccessKeyCache = System.getProperty(S3Util.ACCESS_KEY_SYSTEM_PROPERTY);
         awsSecretKeyCache = System.getProperty(S3Util.SECRET_KEY_SYSTEM_PROPERTY);
       } catch (Throwable t) {
-        logger.error("Could not get an S3Client", t);
+        LogChannel.GENERAL.logError("Could not get an S3Client", t);
       }
     }
     return client;

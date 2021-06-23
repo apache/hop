@@ -56,9 +56,6 @@ public class HopVfs {
 
   public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
-  private static final int TIMEOUT_LIMIT = 9000;
-  private static final int TIME_TO_SLEEP_TRANSFORM = 50;
-
   private static DefaultFileSystemManager fsm;
 
   private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -174,29 +171,6 @@ public class HopVfs {
         String[] initialSchemes = fsManager.getSchemes();
 
         relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
-
-        int timeOut = TIMEOUT_LIMIT;
-
-        boolean hasScheme =
-            vfsFilename != null && vfsFilename.contains("://"); // check for bigData providers
-        // we have to check for hasScheme even if it is marked as a relative path because that
-        // scheme could not
-        // be available by getSchemes at the time we validate our relativeFilename flag.
-        // So we check if even it is marked as relative path if it contains a possible scheme format
-        // if it does, then give it some time to be loaded, until we get it our timeout is up.
-
-        while (relativeFilename && hasScheme && timeOut > 0) {
-          String[] schemes = fsManager.getSchemes();
-          try {
-            Thread.sleep(TIME_TO_SLEEP_TRANSFORM);
-            timeOut -= TIME_TO_SLEEP_TRANSFORM;
-            relativeFilename = checkForScheme(schemes, relativeFilename, vfsFilename);
-          } catch (InterruptedException e) {
-            relativeFilename = false;
-            Thread.currentThread().interrupt();
-            break;
-          }
-        }
 
         String filename;
         if (vfsFilename.startsWith("\\\\")) {

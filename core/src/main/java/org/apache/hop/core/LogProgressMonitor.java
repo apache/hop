@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,27 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.hop.imports;
+package org.apache.hop.core;
 
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.logging.ILogChannel;
 
-import java.io.File;
-import java.io.IOException;
+public class LogProgressMonitor implements IProgressMonitor {
 
-public interface IHopImport {
+  private final ILogChannel log;
+  private int nrWorks;
 
-    void setInputFolder(String inputFolder);
-    String getInputFolder();
+  public LogProgressMonitor(ILogChannel log) {
+    this.log = log;
+  }
 
-    void setOutputFolder(String outputFolder);
-    String getOutputFolder();
+  @Override
+  public void beginTask(String message, int nrWorks) {
+    log.logBasic(message);
+  }
 
-    void importHopFolder();
-    void importHopFile(File fileToImport);
+  @Override
+  public void subTask(String message) {
+    log.logBasic("  - " + message);
+  }
 
-    IVariables importVars(String varPath, HopVarImport varType, IVariables variables) throws IOException;
-    void importConnections(String dbConnPath, HopDbConnImport connType);
+  @Override
+  public boolean isCanceled() {
+    return false;
+  }
 
-    void addDatabaseMeta(String filename, DatabaseMeta databaseMeta);
+  @Override
+  public void worked(int nrWorks) {}
+
+  @Override
+  public void done() {}
+
+  @Override
+  public void setTaskName(String taskName) {
+    log.logBasic(taskName);
+  }
 }

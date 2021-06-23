@@ -25,5 +25,6 @@ This page provides an overview of the tools that are available in the platform.
 * xref:hop-gui/[Hop Gui]
 * xref:hop-run/index.adoc[Hop Run]
 * xref:hop-tools/hop-search.adoc[Hop Search]
+* xref:hop-tools/hop-import.adoc[Hop Import]
 * xref:hop-server/index.adoc[Hop Server]
 * https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Hop Translator]
