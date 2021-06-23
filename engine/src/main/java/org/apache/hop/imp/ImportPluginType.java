@@ -61,6 +61,6 @@ public class ImportPluginType extends BasePluginType<ImportPlugin> {
 
   @Override
   protected String extractDocumentationUrl(ImportPlugin annotation) {
-    return Const.getDocUrl(annotation.documentationUrl());
+    return annotation.documentationUrl();
   }
 }
