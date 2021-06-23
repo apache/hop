@@ -28,6 +28,7 @@ unzip ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/pl
 cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 
 #build docker image
 docker build ../ -f Dockerfile.web -t hop-web
