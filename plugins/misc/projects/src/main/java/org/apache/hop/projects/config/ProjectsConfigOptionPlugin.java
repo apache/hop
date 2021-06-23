@@ -17,6 +17,8 @@
 
 package org.apache.hop.projects.config;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -28,6 +30,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -35,8 +38,10 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.MessageBox;
 import picocli.CommandLine;
 
 import java.util.ArrayList;
@@ -275,16 +280,38 @@ public class ProjectsConfigOptionPlugin
           ProjectsConfigSingleton.getConfig().setEnvironmentMandatory(environmentMandatory);
           break;
         case WIDGET_ID_DEFAULT_PROJECT:
-          defaultProject = ((ComboVar) control).getText();
-          ProjectsConfigSingleton.getConfig().setDefaultProject(defaultProject);
+          String defProject = ((ComboVar) control).getText();
+          if (!StringUtils.isEmpty(defProject)) {
+            boolean defParentPrjExists = ProjectsUtil.projectExists(defProject);
+            if (!defParentPrjExists) {
+              MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
+              box.setText(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
+              box.setMessage(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.DefaultProject.Error.Message", defProject));
+              box.open();
+            } else {
+              defaultProject = defProject;
+              ProjectsConfigSingleton.getConfig().setDefaultProject(defaultProject);
+            }
+          }
           break;
         case WIDGET_ID_DEFAULT_ENVIRONMENT:
           defaultEnvironment = ((TextVar) control).getText();
           ProjectsConfigSingleton.getConfig().setDefaultEnvironment(defaultEnvironment);
           break;
         case WIDGET_ID_STANDARD_PARENT_PROJECT:
-          standardParentProject = ((ComboVar) control).getText();
-          ProjectsConfigSingleton.getConfig().setStandardParentProject(standardParentProject);
+          String stdParentProject = ((ComboVar) control).getText();
+          if (!StringUtils.isEmpty(stdParentProject)) {
+            boolean stdParentPrjExists = ProjectsUtil.projectExists(stdParentProject);
+            if (!stdParentPrjExists) {
+              MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
+              box.setText(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
+              box.setMessage(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.StandardProject.Error.Message", stdParentProject));
+              box.open();
+            } else {
+              standardParentProject = stdParentProject;
+              ProjectsConfigSingleton.getConfig().setStandardParentProject(standardParentProject);
+            }
+          }
           break;
         case WIDGET_ID_STANDARD_PROJECTS_FOLDER:
           standardProjectsFolder = ((TextVar) control).getText();
