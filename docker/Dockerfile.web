@@ -23,7 +23,8 @@ ENV HOP_WEB_THEME=light
 
 # Cleanup and create folder
 RUN rm -rf webapps/* \
-    && mkdir ${CATALINA_HOME}/webapps/ROOT
+    && mkdir ${CATALINA_HOME}/webapps/ROOT \
+    && export HOP_WEB_THEME=${HOP_WEB_THEME}
 
 # Copy resources
 
