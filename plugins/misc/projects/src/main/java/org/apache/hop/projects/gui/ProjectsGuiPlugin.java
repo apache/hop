@@ -397,9 +397,7 @@ public class ProjectsGuiPlugin {
                           + Const.CR
                           + prjReferences
                           + Const.CR
-                          + BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message2"))
-
-          ;
+                          + BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message2"));
           box.open();
       }
       } catch (Exception e) {
