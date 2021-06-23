@@ -55,20 +55,6 @@ public class MessageDialogWithToggle {
   private final PropsUi props;
   private int returnCode = OK;
 
-  @Deprecated
-  public MessageDialogWithToggle(
-      Shell parent,
-      String title,
-      Image image,
-      String message,
-      int dialogImageType,
-      String[] buttonLabels,
-      int defaultButton,
-      String toggleLabel,
-      boolean toggleState) {
-    this(parent, title, message, dialogImageType, buttonLabels, toggleLabel, toggleState);
-  }
-
   public MessageDialogWithToggle(
       Shell parent,
       String title,

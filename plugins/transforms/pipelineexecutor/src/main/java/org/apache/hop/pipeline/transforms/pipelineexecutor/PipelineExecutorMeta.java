@@ -531,12 +531,6 @@ public class PipelineExecutorMeta
     return infoTransforms.length == 0 ? null : infoTransforms;
   }
 
-  @Deprecated
-  public static synchronized PipelineMeta loadPipelineMeta(
-      PipelineExecutorMeta executorMeta, IVariables variables) throws HopException {
-    return loadMappingMeta(executorMeta, null, variables);
-  }
-
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
