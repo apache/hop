@@ -28,19 +28,13 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -58,7 +52,6 @@ public class EnterNumberDialog extends Dialog {
   protected Text wNumber;
   private FormData fdlNumber, fdNumber, fdlCheckbox, fdCheckbox;
   protected Button wOk, wCancel, wCheckbox;
-  private Listener lsOk;
   private boolean hideCancelButton;
 
   protected Shell shell;
@@ -70,17 +63,6 @@ public class EnterNumberDialog extends Dialog {
   private PropsUi props;
 
   private int width;
-
-  /** @deprecated Use the CT without the <i>Props</i> parameter (at 2nd position) */
-  @Deprecated
-  public EnterNumberDialog(
-      Shell parent, PropsUi props, int samples, String shellText, String lineText) {
-    super(parent, SWT.NONE);
-    this.props = props;
-    this.samples = samples;
-    this.shellText = shellText;
-    this.lineText = lineText;
-  }
 
   public EnterNumberDialog(Shell parent, int samples, String shellText, String lineText) {
     this(parent, samples, shellText, lineText, null);

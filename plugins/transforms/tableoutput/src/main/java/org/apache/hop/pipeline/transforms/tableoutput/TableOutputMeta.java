@@ -257,24 +257,6 @@ public class TableOutputMeta extends BaseTransformMeta
     this.tableName = tableName;
   }
 
-  /**
-   * @return Returns the tablename.
-   * @deprecated Use {@link #getTableName()}
-   */
-  @Deprecated
-  public String getTablename() {
-    return getTableName();
-  }
-
-  /**
-   * @param tableName The tablename to set.
-   * @deprecated Use {@link #setTableName(String)}
-   */
-  @Deprecated
-  public void setTablename(String tableName) {
-    setTableName(tableName);
-  }
-
   /** @return Returns the truncate table flag. */
   public boolean truncateTable() {
     return truncateTable;

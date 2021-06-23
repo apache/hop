@@ -144,15 +144,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     filename = n;
   }
 
-  /**
-   * @return the filename
-   * @deprecated use getFilename() instead.
-   */
-  @Deprecated
-  public String getFileName() {
-    return filename;
-  }
-
   @Override
   public String getFilename() {
     return filename;

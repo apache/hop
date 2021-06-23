@@ -290,23 +290,6 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     return targetDirectory;
   }
 
-  /**
-   * @deprecated use {@link #setCreateTargetFolder(boolean)} instead
-   */
-  @Deprecated
-  public void setcreateTargetFolder( boolean createtargetfolder ) {
-    this.createtargetfolder = createtargetfolder;
-  }
-
-  /**
-   * @return createTargetFolder
-   * @deprecated use {@link #isCreateTargetFolder()} instead.
-   */
-  @Deprecated
-  public boolean iscreateTargetFolder() {
-    return createtargetfolder;
-  }
-
   public boolean isCreateTargetFolder() {
     return createtargetfolder;
   }
