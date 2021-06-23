@@ -209,9 +209,9 @@ Button[PUSH]:disabled,
 Button[TOGGLE]:disabled,
 Button[TOGGLE]:selected:disabled {
   cursor: default;
-  color: #d2d2d2;
+  color: #dfdfdf;
   background-image: none;
-  background-color: #fafafa;
+  background-color: #303030;
   border: 1px solid #d2d2d2;
 }
 
@@ -342,9 +342,9 @@ Button-FocusIndicator[CHECK], Button-FocusIndicator[RADIO] {
 Combo,
 Combo[BORDER] {
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-  color: #b5b5b5;
+  color: #959595;
   background-color: #000001;
-  border: 1px solid #aaaaaa;
+  border: 1px solid #888888;
   border-radius: 0 2px 2px 0;
   background-image: none;
   text-shadow: none;
@@ -690,20 +690,20 @@ MenuItem[SEPARATOR] {
 }
 
 MenuItem:hover {
-  color: #000001;
+  color: #ffffff;
   background-image: gradient(
       linear, left top, left bottom,
-      from(#5882b5),
-      to(#416693)
+      from(#404040),
+      to(#505050)
   );
 }
 
 MenuItem:pressed {
-  color: #000001;
+  color: #ffffff;
   background-image: gradient(
       linear, left top, left bottom,
-      from(#416693),
-      to(#5882b5)
+      from(#505050),
+      to(#404040)
   );
 }
 
@@ -811,12 +811,12 @@ Shell-DisplayOverlay {
 
 Shell-Titlebar {
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-  background-color: #000001;
-  background-gradient-color: #0080c0;
-  color: #fffffe;
+  background-color: #000000;
+  background-gradient-color: #202020;
+  color: #ffffff;
   background-image: gradient(
       linear, left top, left bottom,
-      from(#E0E0E0), to(#C0C0C0)
+      from(#303030), to(#202020)
   );
   padding: 0 10px 0 10px;
   margin: 0px;
@@ -827,11 +827,11 @@ Shell-Titlebar {
 }
 
 Shell-Titlebar:inactive {
-  background-color: #7996a5;
-  background-gradient-color: #7996a5;
+  background-color: #000000;
+  background-gradient-color: #101010;
   background-image: gradient(
       linear, left top, left bottom,
-      from(#818181), to(#b5b5b5)
+      from(#202020), to(#101010)
   );
 }
 
@@ -1109,7 +1109,7 @@ Table {
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
   background-color: #000001;
   background-image: none;
-  color: #b5b5b5;
+  color: #858585;
   border: none;
 }
 
@@ -1126,9 +1126,9 @@ TableColumn {
       from(#060606),
       to(#1b1b1b)
   );
-  color: inherit;
+  color: #ffffff;
   border-bottom: 1px solid #424242;
-  text-shadow: 0 1px 0 #000001;
+  text-shadow: 0 1px 0 #000000;
   text-overflow: ellipsis;
 }
 
@@ -1151,7 +1151,7 @@ TableItem:linesvisible:even:rowtemplate {
 }
 
 TableItem:linesvisible:even {
-  background-color: #f5f5f5;
+  background-color: #252525;
   color: inherit;
 }
 

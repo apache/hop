@@ -27,6 +27,8 @@ import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.service.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,19 +74,23 @@ public class HopWeb implements ApplicationConfiguration {
                   });
             });
 
-    String themeId = System.getProperty("HOP_WEB_THEME", "dark");
-    System.out.println("===================> HOP_WEB_THEME=" + themeId);
-
+    // Only 2 choices for now
+    //
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
     application.addStyleSheet("light", "org/apache/hop/ui/hopgui/light-mode.css");
 
-    if ("dark".equals(themeId)) {
+    String themeId = System.getProperty("HOP_WEB_THEME", "dark");
+    if ("dark".equalsIgnoreCase(themeId)) {
+      themeId = "dark";
       PropsUi.getInstance().setDarkMode(true);
       PropsUi.getInstance().setOSLookShown(true);
+      System.out.println("Hop web: enabled dark mode rendering");
     } else {
+      themeId = "light";
       PropsUi.getInstance().setDarkMode(false);
       PropsUi.getInstance().setOSLookShown(false);
     }
+    System.out.println("Hop web: selected theme is: " + themeId);
 
     Map<String, String> properties = new HashMap<>();
     properties.put(WebClient.PAGE_TITLE, "Hop");
