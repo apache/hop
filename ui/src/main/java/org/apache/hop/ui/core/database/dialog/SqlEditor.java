@@ -50,8 +50,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -106,7 +104,7 @@ public class SqlEditor {
   public void open() {
     shell = new Shell(parentShell, style);
     props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageConnection());
+    shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

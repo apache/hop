@@ -182,7 +182,7 @@ public class DatabaseExplorerDialog extends Dialog {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     }
     props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageConnection());
+    shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     shell.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Title", dbMeta.toString()));
 
@@ -504,7 +504,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
       // New entry in the tree
       tiTree = new TreeItem(wTree, SWT.NONE);
-      tiTree.setImage(GuiResource.getInstance().getImageFolderConnections());
+      tiTree.setImage(GuiResource.getInstance().getImageDatabase());
       tiTree.setText(dbMeta == null ? "" : dbMeta.getName());
 
       // Show the catalogs...
@@ -516,7 +516,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
         for (int i = 0; i < catalogs.length; i++) {
           TreeItem newCat = new TreeItem(tiCat, SWT.NONE);
-          newCat.setImage(GuiResource.getInstance().getImageConnection());
+          newCat.setImage(GuiResource.getInstance().getImageFolder());
           newCat.setText(catalogs[i].getCatalogName());
 
           for (int j = 0; j < catalogs[i].getItems().length; j++) {
