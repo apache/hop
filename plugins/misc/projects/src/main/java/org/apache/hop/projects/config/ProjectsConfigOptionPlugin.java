@@ -27,15 +27,20 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ConfigPlugin(
     id = "ProjectsConfigOptionPlugin",
@@ -90,7 +95,8 @@ public class ProjectsConfigOptionPlugin
   @GuiWidgetElement(
       id = WIDGET_ID_DEFAULT_PROJECT,
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.COMBO,
+      comboValuesMethod = "getProjectsList",
       variables = true,
       label = "i18n::ProjectConfig.DefaultProject.Message")
   @CommandLine.Option(
@@ -112,7 +118,8 @@ public class ProjectsConfigOptionPlugin
   @GuiWidgetElement(
       id = WIDGET_ID_STANDARD_PARENT_PROJECT,
       parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.COMBO,
+      comboValuesMethod = "getProjectsList",
       variables = true,
       label = "i18n::ProjectConfig.ParentProject.Message")
   @CommandLine.Option(
@@ -268,7 +275,7 @@ public class ProjectsConfigOptionPlugin
           ProjectsConfigSingleton.getConfig().setEnvironmentMandatory(environmentMandatory);
           break;
         case WIDGET_ID_DEFAULT_PROJECT:
-          defaultProject = ((TextVar) control).getText();
+          defaultProject = ((ComboVar) control).getText();
           ProjectsConfigSingleton.getConfig().setDefaultProject(defaultProject);
           break;
         case WIDGET_ID_DEFAULT_ENVIRONMENT:
@@ -276,7 +283,7 @@ public class ProjectsConfigOptionPlugin
           ProjectsConfigSingleton.getConfig().setDefaultEnvironment(defaultEnvironment);
           break;
         case WIDGET_ID_STANDARD_PARENT_PROJECT:
-          standardParentProject = ((TextVar) control).getText();
+          standardParentProject = ((ComboVar) control).getText();
           ProjectsConfigSingleton.getConfig().setStandardParentProject(standardParentProject);
           break;
         case WIDGET_ID_STANDARD_PROJECTS_FOLDER:
@@ -419,4 +426,28 @@ public class ProjectsConfigOptionPlugin
   public void setDefaultProjectConfigFile( String defaultProjectConfigFile ) {
     this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
+
+  /**
+   * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
+   *
+   * @param log              Logging object
+   * @param metadataProvider If shared metadata is needed to get the values
+   * @return The list of driver type names shown in the GUI
+   */
+  public List<String> getProjectsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    ProjectsConfig prjsConfig = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = prjsConfig.listProjectConfigNames();
+
+    List<String> prjsList = new ArrayList<>();
+
+    // Add empty entry for no selection
+    prjsList.add("");
+
+    for (String prj: prjs) {
+      prjsList.add(prj);
+    }
+
+    return prjsList;
+  }
+
 }

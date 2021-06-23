@@ -35,6 +35,9 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class ProjectsUtil {
@@ -182,5 +185,55 @@ public class ProjectsUtil {
     if (project.isEnforcingExecutionInHome()) {
       ProjectsUtil.validateFileInProject(log, executableFilename, projectConfig, variables);
     }
+  }
+
+  /**
+   * Returns true if given project exists
+   * @param projectName
+   * @return
+   */
+  public static boolean projectExists(String projectName) {
+
+    boolean prjFound = false;
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = config.listProjectConfigNames();
+    Iterator<String> iPrj = prjs.iterator();
+
+    while(!prjFound && iPrj.hasNext()) {
+      String p = iPrj.next();
+      prjFound = p.equals(projectName);
+    }
+
+    return prjFound;
+  }
+
+  public static List<String> getParentProjectReferences(String projectName) throws HopException {
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = config.listProjectConfigNames();
+
+    HopGui hopGui = HopGui.getInstance();
+    List<String> parentProjectReferences = new ArrayList<>();
+    ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
+
+    if (currentProjectConfig == null) {
+      parentProjectReferences = Collections.EMPTY_LIST;
+    } else {
+      for (String prj : prjs) {
+        if (!prj.equals(projectName)) {
+          ProjectConfig prjCfg = config.findProjectConfig(prj);
+          Project thePrj = prjCfg.loadProject(hopGui.getVariables());
+          if (thePrj != null) {
+            if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(projectName)) {
+              parentProjectReferences.add(prj);
+            }
+          } else {
+            hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
+          }
+        }
+      }
+    }
+    return parentProjectReferences;
   }
 }

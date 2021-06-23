@@ -29,6 +29,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -38,6 +39,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -506,16 +508,49 @@ public class ProjectDialog extends Dialog {
                 throw new HopException("Please give your new project a name");
             }
 
+            if (wParentProject.getText() != null && wParentProject.getText().length() > 0 && projectName.equals(wParentProject.getText())) {
+                throw new HopException(
+                        "Project '" + projectName + "' cannot be set as a parent project of itself");
+            }
+
+            ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
+            List<String> prjs = prjsCfg.listProjectConfigNames();
+            String prevProjectName = projectConfig.getProjectName();
+
             // Check if project name is unique otherwise force the user to change it!
             if (StringUtils.isEmpty(originalName) ||
                     (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName))) {
-                ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
-                List<String> prjs = prjsCfg.listProjectConfigNames();
                 for (String prj : prjs) {
                     if (projectName.equals(prj)) {
                         throw new HopException(
                                 "Project '" + projectName + "' already exists. Project name must be unique!");
                     }
+                }
+            }
+
+            HopGui hopGui = HopGui.getInstance();
+            if (wParentProject.getText() != null && wParentProject.getText().length() > 0) {
+
+                boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
+                if (!parentPrjExists)
+                    throw new HopException(
+                            "Project '" + wParentProject.getText() + "' cannot be set as parent project because it does not exists!");
+
+                ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
+                Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
+                if (parentPrj.getParentProjectName() != null
+                        && parentPrj.getParentProjectName().equals(projectName))
+                    throw new HopException(
+                            "Project '" + projectName + "' cannot reference '" + wParentProject.getText() + "' as parent project because we are going to create a circular reference!");
+            }
+
+            if (!prevProjectName.equals(projectName)) {
+                List<String> refs = ProjectsUtil.getParentProjectReferences(prevProjectName);
+
+                if (!refs.isEmpty()) {
+                    throw new HopException(
+                            "Project '" + prevProjectName + "' cannot cannot be renamed in '" + projectName + "' because is referenced in following projects: " + String.join(",", refs));
+
                 }
             }
 
