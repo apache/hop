@@ -420,7 +420,7 @@ public class ProjectsGuiPlugin {
             ProjectConfig prjCfg = config.findProjectConfig(prj);
             Project thePrj = prjCfg.loadProject(hopGui.getVariables());
             if (thePrj != null) {
-              if (thePrj.getParentProjectName().equals(projectName)) {
+              if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(projectName)) {
                 referencesRc = (referencesRc == null ? "" + prj : referencesRc + ", " + prj);
               }
             } else {
@@ -434,7 +434,7 @@ public class ProjectsGuiPlugin {
                 hopGui.getShell(),
                 BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"),
                 BaseMessages.getString(
-                        PKG, "ProjectGuiPlugin.DeleteSelectedProject.Error.Dialog.Message", projectName),
+                        PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
                 e);
     }
 
