@@ -22,17 +22,15 @@ under the License.
 
 == Methods to avoid
 
-
 === Display.getDefault() is not allowed
 
 See https://www.eclipse.org/forums/index.php/t/805303/
 
 ____
-RAP is multi user framework by its nature. Every user session is
-associated with a display. In RAP, Display#getDefault() will not create
-a new display when it's called from non-UI thread - read
-Display#getDefault JavaDoc. When you execute a code in a background
-thread, RAP needs to know for which UI session (display) it belongs.
+RAP is multi user framework by its nature.
+Every user session is associated with a display.
+In RAP, Display#getDefault() will not create a new display when it's called from non-UI thread - read Display#getDefault JavaDoc.
+When you execute a code in a background thread, RAP needs to know for which UI session (display) it belongs.
 That's why you have to provide the correct UISession/display from outside.
 ____
 
@@ -40,7 +38,6 @@ ____
 ----
 Display.getDefault() cannot be used in non-UI thread with RAP/RWT.
 ----
-
 
 === SWT.CASCADE without submenu does not work
 
@@ -63,3 +60,47 @@ ____
 === CTabFolder.setSimple() is not allowed
 
 This method is not implemented in RAP/RWT.
+
+== Themes
+
+Hop Web now has 2 themes implemented: "light" and "dark".
+They are selected with the system environment variable `HOP_WEB_THEME` which you can pass to a docker container using `--env HOP_WEB_THEME=dark`.
+The default theme is `light`
+
+To change a theme you need to look in 2 different locations:
+
+=== CSS
+
+The colors of the various widgets, windows, the icons used and so on are defined in css files:
+
+* For the dark theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/dark-mode.css`
+* For the light theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/light-mode.css`
+
+The Eclipse RAP theming reference is found https://download.eclipse.org/rt/rap/doc/3.17/guide/reference/theming/index.html[here].
+
+== JS
+
+When icons are moved, lassoed and so on we have a bit of JavaScript taking care of those operations.
+You can find the relevant files handling that over here:
+
+* For the dark theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/canvas-dark.js`
+* For the light theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/canvas-light.js`
+
+== Building the Hop Web docker container
+
+If you have built the project using `mvn clean install` you can build a local `hop-web` docker container to test with the following script:
+
+`docker/create_hop_web_container.sh`
+
+NOTE: You can also do this incrementally for the following modules:
+
+* core
+* engine
+* ui
+* rap
+
+If you rebuild any of these modules after changes you can simply run `docker/create_hop_web_container.sh` and this script it will incorporate your changes in the container.
+
+To then run it simply execute:
+
+`docker run -p 8080:8080 -e HOP_WEB_THEME=dark hop-web`

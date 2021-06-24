@@ -16,7 +16,7 @@
  */
 
 * {
-  color: #b5b5b5;
+  color: #000000;
   background-color: #001;
   background-image: none;
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
@@ -69,13 +69,13 @@ Widget-ToolTip-Pointer:right {
 }
 
 Display {
-  rwt-shadow-color: #a7a6aa;
-  rwt-highlight-color: #000001;
-  rwt-darkshadow-color: #85878c;
-  rwt-lightshadow-color: #dcdfe4;
-  rwt-thinborder-color: #aca899;
-  rwt-selectionmarker-color: #fec83c;
-  rwt-infobackground-color: #000001;
+  rwt-shadow-color: #585955;
+  rwt-highlight-color: #ffffff;
+  rwt-darkshadow-color: #7a7873;
+  rwt-lightshadow-color: #23201b;
+  rwt-thinborder-color: #535766;
+  rwt-selectionmarker-color: #0137c3;
+  rwt-infobackground-color: #ffffff;
 
   rwt-error-image: url(resource/widget/rap/dialog/error.png);
   rwt-information-image: url(resource/widget/rap/dialog/information.png);
@@ -90,21 +90,21 @@ Display {
 }
 
 SystemMessage-DisplayOverlay {
-  background-color: rgba(128, 128, 128, 0.2);
+  background-color: rgba(28, 28, 28, 0.2);
   background-image: url(resource/widget/rap/display/loading.gif);
 }
 
 ErrorBox-Titlebar {
   font: bold 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
   color: white;
-  background-color: #406796;
+  background-color: #bf9869;
 }
 
 ErrorBox {
-  border: 1px solid #3B5998;
+  border: 1px solid #c4a667;
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
   color: #b5b5b5;
-  background-color: white;
+  background-color: black;
 }
 
 /* Default theme for all controls */
@@ -115,7 +115,7 @@ ErrorBox {
 }
 
 *[BORDER] {
-  border: 1px solid #a4a4a4;
+  border: 1px solid #444444;
 }
 
 /* Default theme for all composites */
@@ -414,7 +414,7 @@ Combo-List-Item:hover, Combo-List-Item:even:hover {
 }
 
 Combo-List-Item:selected, Combo-List-Item:even:selected {
-  background-color: #c5dbef;
+  background-color: #3a3a3a;
 }
 
 Combo-Field {
@@ -446,11 +446,11 @@ DropDown-Item {
 }
 
 DropDown-Item:hover {
-  background-color: #f0f0f0;
+  background-color: #0f0f0f;
 }
 
 DropDown-Item:selected {
-  background-color: #c5dbef;
+  background-color: #3a3a3a;
 }
 
 /* CoolBar default theme */
@@ -633,14 +633,14 @@ List-Item:hover {
 }
 
 List-Item:selected {
-  color: #b5b5b5;
+  color: #959595;
   /* background-color property is used on the server to compute system color with id
      SWT.COLOR_LIST_SELECTION (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=434191) */
-  background-color: #c5dbef;
+  background-color: #3a3a3a;
 }
 
 List-Item:selected:unfocused {
-  background-color: #dfe6ee;
+  background-color: #808080;
 }
 
 List-Item:even {
@@ -652,7 +652,7 @@ List-Item:even:hover {
 }
 
 List-Item:even:selected {
-  background-color: #bdd3e7;
+  background-color: #959595;
 }
 
 List-Item:even:selected:unfocused {
@@ -935,8 +935,8 @@ Spinner[BORDER] {
 }
 
 Spinner[BORDER]:focused {
-  border: 1px solid #4f7cb1;
-  box-shadow: 0 0 5px #4f7cb1;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 0 5px #a0a0a0;
 }
 
 Spinner:disabled,
@@ -1271,8 +1271,8 @@ Text[MULTI][BORDER] {
 
 Text[BORDER]:focused,
 Text[MULTI][BORDER]:focused {
-  border: 1px solid #4f7cb1;
-  box-shadow: 0 0 5px #4f7cb1;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 0 5px #a0a0a0;
 }
 
 Text[BORDER]:disabled,
@@ -1837,7 +1837,7 @@ Scale-Thumb {
 }
 
 Scale-Thumb:focused {
-  border: 1px solid #4f7cb1;
+  border: 1px solid #a0a0a0;
 }
 
 /* DateTime default theme */
@@ -1854,8 +1854,8 @@ DateTime {
 }
 
 DateTime[BORDER]:focused {
-  border: 1px solid #4f7cb1;
-  box-shadow: 0 0 5px #4f7cb1;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 0 5px #a0a0a0;
 }
 
 DateTime-Field {
@@ -2308,14 +2308,14 @@ CCombo {
 }
 
 CCombo[BORDER] {
-  border: 1px solid #aaaaaa;
+  border: 1px solid #303030;
   border-radius: 0 2px 2px 0;
-  box-shadow: inset 0 0 3px #424242;
+  box-shadow: inset 0 0 3px #202020;
 }
 
 CCombo[BORDER]:focused {
-  border: 1px solid #4f7cb1;
-  box-shadow: 0 0 5px #4f7cb1;
+  border: 1px solid #606060;
+  box-shadow: 0 0 5px #606060;
 }
 
 CCombo:disabled,
@@ -2356,8 +2356,8 @@ CCombo-Button-Icon:hover {
 }
 
 CCombo-List {
-  border: 1px solid #4f7cb1;
-  box-shadow: 0 0 5px #4f7cb1;
+  border: 1px solid #303030;
+  box-shadow: 0 0 5px #303030;
   border-radius: 2px;
 }
 
@@ -2375,7 +2375,7 @@ CCombo-List-Item:hover, CCombo-List-Item:even:hover {
 }
 
 CCombo-List-Item:selected, CCombo-List-Item:even:selected {
-  background-color: #c5dbef;
+  background-color: #3a3a3a;
 }
 
 CCombo-Field {
