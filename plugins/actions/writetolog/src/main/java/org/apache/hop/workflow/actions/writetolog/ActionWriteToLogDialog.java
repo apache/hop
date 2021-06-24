@@ -203,8 +203,8 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     wName.setText(Const.nullToEmpty(action.getName()));
     wLogMessage.setText(Const.nullToEmpty(action.getLogMessage()));
     wLogSubject.setText(Const.nullToEmpty(action.getLogSubject()));
-    if (action.getLogLevel() != null) {
-      wLoglevel.select(action.getLogLevel().getLevel());
+    if (action.getActionLogLevel() != null) {
+      wLoglevel.select(action.getActionLogLevel().getLevel());
     }
 
     wName.selectAll();
@@ -229,7 +229,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     action.setLogMessage(wLogMessage.getText());
     action.setLogSubject(wLogSubject.getText());
     if (wLoglevel.getSelectionIndex() != -1) {
-      action.setLogLevel(LogLevel.values()[wLoglevel.getSelectionIndex()]);
+      action.setActionLogLevel(LogLevel.values()[wLoglevel.getSelectionIndex()]);
     }
     dispose();
   }

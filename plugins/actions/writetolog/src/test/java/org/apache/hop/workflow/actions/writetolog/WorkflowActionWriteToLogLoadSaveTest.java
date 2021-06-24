@@ -50,7 +50,7 @@ public class WorkflowActionWriteToLogLoadSaveTest extends WorkflowActionLoadSave
   protected Map<String, String> createGettersMap() {
     return toMap(
       "logmessage", "getLogMessage",
-      "loglevel", "getEntryLogLevel",
+      "loglevel", "getActionLogLevel",
       "logsubject", "getLogSubject" );
   }
 
@@ -58,7 +58,7 @@ public class WorkflowActionWriteToLogLoadSaveTest extends WorkflowActionLoadSave
   protected Map<String, String> createSettersMap() {
     return toMap(
       "logmessage", "setLogMessage",
-      "loglevel", "setEntryLogLevel",
+      "loglevel", "setActionLogLevel",
       "logsubject", "setLogSubject" );
   }
 

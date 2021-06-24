@@ -58,7 +58,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   /**
    * The log level with which the message should be logged.
    */
-  private LogLevel logLevel;
+  private LogLevel actionLogLevel;
   private String logsubject;
   private String logmessage;
 
@@ -85,7 +85,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "logmessage", logmessage ) );
     retval.append( "      " ).append(
-      XmlHandler.addTagValue( "loglevel", ( getLogLevel() == null ) ? null : getLogLevel().getCode() ) );
+      XmlHandler.addTagValue( "loglevel", ( getActionLogLevel() == null ) ? null : getActionLogLevel().getCode() ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "logsubject", logsubject ) );
 
     return retval.toString();
@@ -97,7 +97,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     try {
       super.loadXml( entrynode );
       logmessage = XmlHandler.getTagValue( entrynode, "logmessage" );
-      logLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
+      actionLogLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
       logsubject = XmlHandler.getTagValue( entrynode, "logsubject" );
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToLoadFromXML.Label" ), e );
@@ -211,12 +211,12 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     String message = getRealLogMessage();
 
     // Filter out empty messages and those that are not visible with the workflow's log level
-    if ( Utils.isEmpty( message ) || !getLogLevel().isVisible( logChannel.getLogLevel() ) ) {
+    if ( Utils.isEmpty( message ) || !getActionLogLevel().isVisible( logChannel.getLogLevel() ) ) {
       return true;
     }
 
     try {
-      switch ( getLogLevel() ) {
+      switch ( getActionLogLevel() ) {
         case ERROR:
           logChannel.logError( message + Const.CR );
           break;
@@ -302,6 +302,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
       logsubject = "";
     }
     return logsubject;
+
   }
 
   public void setLogMessage( String s ) {
@@ -312,11 +313,11 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     logsubject = logsubjectin;
   }
 
-  public LogLevel getLogLevel() {
-    return logLevel;
+  public LogLevel getActionLogLevel() {
+    return actionLogLevel;
   }
 
-  public void setLogLevel( LogLevel in ) {
-    this.logLevel = in;
+  public void setActionLogLevel( LogLevel in ) {
+    this.actionLogLevel = in;
   }
 }
