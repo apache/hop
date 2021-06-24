@@ -86,3 +86,21 @@ You can find the relevant files handling that over here:
 * For the dark theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/canvas-dark.js`
 * For the light theme: `rap/src/main/resources/org/apache/hop/ui/hopgui/canvas-light.js`
 
+== Building the Hop Web docker container
+
+If you have built the project using `mvn clean install` you can build a local `hop-web` docker container to test with the following script:
+
+`docker/create_hop_web_container.sh`
+
+NOTE: You can also do this incrementally for the following modules:
+
+* core
+* engine
+* ui
+* rap
+
+If you rebuild any of these modules after changes you can simply run `docker/create_hop_web_container.sh` and this script it will incorporate your changes in the container.
+
+To then run it simply execute:
+
+`docker run -p 8080:8080 -e HOP_WEB_THEME=dark hop-web`
