@@ -19,12 +19,16 @@
 FROM tomcat:jdk8
 LABEL maintainer="Apache Hop Team"
 ENV HOP_WEB_THEME=light
-ENV JAVA_OPTS='-Xms1024m -Xmx2048m -DHOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config -DHOP_WEB_THEME=${HOP_WEB_THEME}'
+ENV HOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config
+ENV HOP_AUDIT_FOLDER=${CATALINA_HOME}/webapps/ROOT/audit
+ENV JAVA_OPTS='-Xms1g -Xmx2g -DHOP_CONFIG_FOLDER=${HOP_CONFIG_FOLDER} -DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER} -DHOP_WEB_THEME=${HOP_WEB_THEME}'
 
 # Cleanup and create folder
 RUN rm -rf webapps/* \
     && mkdir ${CATALINA_HOME}/webapps/ROOT \
-    && export HOP_WEB_THEME=${HOP_WEB_THEME}
+    && export HOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
+    && export HOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
+    && export HOP_WEB_THEME="${HOP_WEB_THEME}"
 
 # Copy resources
 

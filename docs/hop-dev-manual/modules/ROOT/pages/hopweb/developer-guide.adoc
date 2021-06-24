@@ -78,7 +78,7 @@ The colors of the various widgets, windows, the icons used and so on are defined
 
 The Eclipse RAP theming reference is found https://download.eclipse.org/rt/rap/doc/3.17/guide/reference/theming/index.html[here].
 
-== JS
+=== JS
 
 When icons are moved, lassoed and so on we have a bit of JavaScript taking care of those operations.
 You can find the relevant files handling that over here:
@@ -104,3 +104,14 @@ If you rebuild any of these modules after changes you can simply run `docker/cre
 To then run it simply execute:
 
 `docker run -p 8080:8080 -e HOP_WEB_THEME=dark hop-web`
+
+== Configuring Hop Web
+
+The main configuration of Hop is done through a single configuration file called `hop-config.json` and it is found in folder `${HOP_CONFIG_FOLDER}`
+
+It is possible to set pass this standard Hop environment variable `HOP_CONFIG_FOLDER` to the docker container.
+You can point it to a mounted volume for example:
+
+`docker run -p 8080:8080 -v /host/path/to/config:/config -e HOP_CONFIG_FOLDER=/config hop-web`
+
+In the same way you can set the standard variable `HOP_AUDIT_FOLDER` to store GUI auditing and logging information.
