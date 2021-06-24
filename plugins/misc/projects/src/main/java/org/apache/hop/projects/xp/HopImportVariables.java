@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,60 +18,51 @@
 package org.apache.hop.projects.xp;
 
 import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.projects.config.ProjectsConfig;
-import org.apache.hop.projects.config.ProjectsConfigSingleton;
-import org.apache.hop.projects.project.Project;
-import org.apache.hop.projects.project.ProjectConfig;
-import org.apache.hop.projects.util.ProjectsUtil;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.Collections;
+import org.apache.hop.core.vfs.HopVfs;
 
 @ExtensionPoint(
-        id = "HopImportVariables",
-        description = "Imports variables into a Hop project",
-        extensionPointId = "HopImportVariables"
-)
-public class HopImportVariables  implements IExtensionPoint<String>{
+    id = "HopImportVariables",
+    description = "Imports variables into a Hop project",
+    extensionPointId = "HopImportVariables")
+public class HopImportVariables implements IExtensionPoint<Object[]> {
 
-    @Override
-    public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, String projectName) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, Object[] payload)
+      throws HopException {
 
-        String envName = "Hop Import Environment";
+    String configFilename = (String) payload[0];
+    IVariables collectedVariables = (IVariables) payload[1];
 
-        HopGui hopGui = HopGui.getInstance();
-        ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    try {
 
-        // open existing project
-        if(!StringUtil.isEmpty(projectName)){
-            ProjectConfig projectConfig = config.findProjectConfig(projectName);
-
-            try {
-                Project project = projectConfig.loadProject( hopGui.getVariables() );
-                project.getDescribedVariables().clear();
-                for (int i = 0; i < variables.getVariableNames().length; i++) {
-                    DescribedVariable variable =
-                            new DescribedVariable(
-                                    variables.getVariableNames()[i], // name
-                                    variables.getVariable(variables.getVariableNames()[i]), // value
-                                    "" // description
-                            );
-                    project.getDescribedVariables().add(variable);
-                }
-                project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
-                project.saveToFile();
-                ProjectsUtil.enableProject(hopGui.getLog(), projectName, project, variables, Collections.emptyList(), null, hopGui);
-
-            } catch ( Exception e ) {
-                new ErrorDialog( hopGui.getShell(), "Error", "Error importing variables to project '" + projectName, e );
-            }
+      DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile(configFilename);
+      if (HopVfs.fileExists(configFilename)) {
+        configFile.readFromFile();
+      }
+      for (String variableName : collectedVariables.getVariableNames()) {
+        String value = collectedVariables.getVariable(variableName);
+        DescribedVariable describedVariable = configFile.findDescribedVariable(variableName);
+        if (describedVariable == null) {
+          describedVariable = new DescribedVariable();
+          describedVariable.setDescription("Imported from Kettle");
         }
+        describedVariable.setName(variableName);
+        describedVariable.setValue(value);
+        configFile.setDescribedVariable(describedVariable);
+      }
+
+      // Save the file...
+      //
+      configFile.saveToFile();
+    } catch (Exception e) {
+      throw new HopException(
+          "Error importing variables to environment config file '" + configFilename, e);
     }
+  }
 }

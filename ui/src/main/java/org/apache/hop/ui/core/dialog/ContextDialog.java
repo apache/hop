@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
@@ -41,7 +40,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
@@ -349,6 +347,10 @@ public class ContextDialog extends Dialog {
 
     categories.sort(Comparator.comparing(o -> o.order));
 
+    // Correct the icon size which is multiplied in GuiResource...
+    //
+    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
+
     // Load the action images
     //
     items.clear();
@@ -357,9 +359,11 @@ public class ContextDialog extends Dialog {
       if (classLoader == null) {
         classLoader = ClassLoader.getSystemClassLoader();
       }
-      SwtUniversalImage universalImage =
-          SwtSvgImageUtil.getUniversalImage(display, classLoader, action.getImage());
-      Image image = universalImage.getAsBitmapForSize(display, iconSize, iconSize);
+      // Load or get from the image cache...
+      //
+      Image image =
+          GuiResource.getInstance()
+              .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
       items.add(new Item(action, image));
     }
 

@@ -35,7 +35,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.util.DataSetConst;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +50,8 @@ import java.util.List;
     description =
         "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
     image = "Test_tube_icon.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-unit-test.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/pipeline-unit-test.html")
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String description;
@@ -263,8 +263,8 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
       baseFilePath = "";
     }
     if (StringUtils.isNotEmpty(baseFilePath)) {
-      if (!baseFilePath.endsWith(File.separator)) {
-        baseFilePath += File.separator;
+      if (!baseFilePath.endsWith("/") && !baseFilePath.endsWith("\\")) {
+        baseFilePath += "/";
       }
     }
     return baseFilePath + pipelineFilename;

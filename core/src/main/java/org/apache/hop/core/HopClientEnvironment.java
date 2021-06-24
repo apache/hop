@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 
 import java.lang.reflect.Field;
@@ -44,8 +45,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This singleton is responsible for initializing the Hop client environment and remembering if it is initialized.
- * More specifically it loads client plugins like value meta plugins and other core Hop functionality.
+ * This singleton is responsible for initializing the Hop client environment and remembering if it
+ * is initialized. More specifically it loads client plugins like value meta plugins and other core
+ * Hop functionality.
  *
  * @author matt
  */
@@ -57,10 +59,13 @@ public class HopClientEnvironment {
   private static Boolean initialized;
 
   public enum ClientType {
-    HOP_GUI, CLI, SERVER, OTHER;
+    HOP_GUI,
+    CLI,
+    SERVER,
+    OTHER;
 
     public String getID() {
-      if ( this != OTHER ) {
+      if (this != OTHER) {
         return this.name();
       }
       return instance.clientID;
@@ -71,31 +76,28 @@ public class HopClientEnvironment {
   // used when type is OTHER
   private String clientID = null;
 
-
   public static synchronized void init() throws HopException {
-    init( Arrays.asList(
-      LoggingPluginType.getInstance(),
-      ValueMetaPluginType.getInstance(),
-      DatabasePluginType.getInstance(),
-      ExtensionPointPluginType.getInstance(),
-      TwoWayPasswordEncoderPluginType.getInstance(),
-      VfsPluginType.getInstance()
-      )
-    );
+    init(
+        Arrays.asList(
+            LoggingPluginType.getInstance(),
+            ValueMetaPluginType.getInstance(),
+            DatabasePluginType.getInstance(),
+            ExtensionPointPluginType.getInstance(),
+            TwoWayPasswordEncoderPluginType.getInstance(),
+            VfsPluginType.getInstance()));
   }
 
-  public static synchronized void init( List<IPluginType> pluginsToLoad ) throws HopException {
-    if ( initialized != null ) {
+  public static synchronized void init(List<IPluginType> pluginsToLoad) throws HopException {
+    if (initialized != null) {
       return;
     }
 
-    if ( HopClientEnvironment.instance == null ) {
+    if (HopClientEnvironment.instance == null) {
       HopClientEnvironment.instance = new HopClientEnvironment();
     }
 
     // Check the Hop Configuration backend
     //
-
 
     // Initialize the logging back-end.
     //
@@ -103,24 +105,29 @@ public class HopClientEnvironment {
 
     // Add console output so that folks see what's going on...
     //
-    if ( !"Y".equalsIgnoreCase( System.getProperty( Const.HOP_DISABLE_CONSOLE_LOGGING, "N" ) ) ) {
-      HopLogStore.getAppender().addLoggingEventListener( new ConsoleLoggingEventListener() );
+    if (!"Y".equalsIgnoreCase(System.getProperty(Const.HOP_DISABLE_CONSOLE_LOGGING, "N"))) {
+      HopLogStore.getAppender().addLoggingEventListener(new ConsoleLoggingEventListener());
     }
-    HopLogStore.getAppender().addLoggingEventListener( new Slf4jLoggingEventListener() );
+    HopLogStore.getAppender().addLoggingEventListener(new Slf4jLoggingEventListener());
 
     // Load plugins
     //
-    pluginsToLoad.forEach( PluginRegistry::addPluginType );
+    pluginsToLoad.forEach(PluginRegistry::addPluginType);
     PluginRegistry.init();
 
-    List<IPlugin> loggingPlugins = PluginRegistry.getInstance().getPlugins( LoggingPluginType.class );
-    initLogginPlugins( loggingPlugins );
+    List<IPlugin> loggingPlugins = PluginRegistry.getInstance().getPlugins(LoggingPluginType.class);
+    initLogginPlugins(loggingPlugins);
 
-    String passwordEncoderPluginID = Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
+    String passwordEncoderPluginID =
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
 
-    Encr.init( passwordEncoderPluginID );
+    Encr.init(passwordEncoderPluginID);
 
-    initialized = new Boolean( true );
+    // Make sure the newly registered VFS plugins are seen and loaded by HopVfs.fsm
+    //
+    HopVfs.reset();
+
+    initialized = new Boolean(true);
   }
 
   /**
@@ -129,22 +136,22 @@ public class HopClientEnvironment {
    * @param parentClass
    * @return A unique list of fields.
    */
-  protected static final List<Field> findDeclaredFields( Class<?> parentClass ) {
+  protected static final List<Field> findDeclaredFields(Class<?> parentClass) {
     Set<Field> fields = new HashSet<>();
 
-    for ( Field field : parentClass.getDeclaredFields() ) {
-      fields.add( field );
+    for (Field field : parentClass.getDeclaredFields()) {
+      fields.add(field);
     }
     Class<?> superClass = parentClass.getSuperclass();
-    while ( superClass != null ) {
-      for ( Field field : superClass.getDeclaredFields() ) {
-        fields.add( field );
+    while (superClass != null) {
+      for (Field field : superClass.getDeclaredFields()) {
+        fields.add(field);
       }
 
       superClass = superClass.getSuperclass();
     }
 
-    return new ArrayList<>( fields );
+    return new ArrayList<>(fields);
   }
 
   /**
@@ -153,37 +160,37 @@ public class HopClientEnvironment {
    * @param parentClass
    * @return A unique list of methods.
    */
-  protected static final List<Method> findDeclaredMethods( Class<?> parentClass ) {
+  protected static final List<Method> findDeclaredMethods(Class<?> parentClass) {
     Set<Method> methods = new HashSet<>();
 
-    for ( Method method : parentClass.getDeclaredMethods() ) {
-      methods.add( method );
+    for (Method method : parentClass.getDeclaredMethods()) {
+      methods.add(method);
     }
     Class<?> superClass = parentClass.getSuperclass();
-    while ( superClass != null ) {
-      for ( Method method : superClass.getDeclaredMethods() ) {
-        methods.add( method );
+    while (superClass != null) {
+      for (Method method : superClass.getDeclaredMethods()) {
+        methods.add(method);
       }
 
       superClass = superClass.getSuperclass();
     }
 
-    return new ArrayList<>( methods );
+    return new ArrayList<>(methods);
   }
 
   public static boolean isInitialized() {
     return initialized != null;
   }
 
-  private static void initLogginPlugins( List<IPlugin> logginPlugins ) throws HopPluginException {
-    for ( IPlugin plugin : logginPlugins ) {
-      ILoggingPlugin loggingPlugin = (ILoggingPlugin) PluginRegistry.getInstance().loadClass( plugin );
+  private static void initLogginPlugins(List<IPlugin> logginPlugins) throws HopPluginException {
+    for (IPlugin plugin : logginPlugins) {
+      ILoggingPlugin loggingPlugin =
+          (ILoggingPlugin) PluginRegistry.getInstance().loadClass(plugin);
       loggingPlugin.init();
     }
   }
 
-
-  public void setClient( ClientType client ) {
+  public void setClient(ClientType client) {
     this.client = client;
   }
 
@@ -192,7 +199,7 @@ public class HopClientEnvironment {
    *
    * @param id
    */
-  public void setClientID( String id ) {
+  public void setClientID(String id) {
     this.clientID = id;
   }
 
@@ -207,7 +214,7 @@ public class HopClientEnvironment {
    */
   public static HopClientEnvironment getInstance() {
 
-    if ( HopClientEnvironment.instance == null ) {
+    if (HopClientEnvironment.instance == null) {
       HopClientEnvironment.instance = new HopClientEnvironment();
     }
 
@@ -215,7 +222,7 @@ public class HopClientEnvironment {
   }
 
   public static void reset() {
-    if ( HopLogStore.isInitialized() ) {
+    if (HopLogStore.isInitialized()) {
       HopLogStore.getInstance().reset();
     }
     PluginRegistry.getInstance().reset();

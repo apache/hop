@@ -36,6 +36,7 @@ services:
       - NEO4J_AUTH=neo4j/abcd
     healthcheck:
       test: perl -MIO::Socket::INET -e 'exit(! defined( IO::Socket::INET->new("localhost:7687")))'
-      interval: 10s
+      interval: 20s
       timeout: 10s
-      retries: 5
+      retries: 6
+      start_period: 120s

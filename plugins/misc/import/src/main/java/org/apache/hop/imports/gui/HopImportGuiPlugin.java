@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,38 +23,44 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.imports.kettle.KettleImport;
 import org.apache.hop.imports.kettle.KettleImportDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
 @GuiPlugin
 public class HopImportGuiPlugin {
 
-    public static final String ID_MAIN_MENU_FILE_IMPORT = "10060-menu-tools-import";
+  public static final String ID_MAIN_MENU_FILE_IMPORT = "10060-menu-tools-import";
 
-    public static HopImportGuiPlugin instance;
+  public static HopImportGuiPlugin instance;
 
-    public static HopImportGuiPlugin getInstance() {
-        if(instance == null){
-            instance = new HopImportGuiPlugin();
-        }
-        return instance;
+  public static HopImportGuiPlugin getInstance() {
+    if (instance == null) {
+      instance = new HopImportGuiPlugin();
     }
+    return instance;
+  }
 
-    @GuiMenuElement(
-            root = HopGui.ID_MAIN_MENU,
-            id = ID_MAIN_MENU_FILE_IMPORT,
-            label = "i18n::HopGuiImport.Menu.Item",
-            image = "kettle-logo.svg",
-            parentId = HopGui.ID_MAIN_MENU_FILE,
-            separator = true
-    )
-    @GuiKeyboardShortcut(control = true, key = 'i')
-    @GuiOsxKeyboardShortcut(command = true, key = 'i')
-    public void menuToolsImport(){
-        HopGui hopGui = HopGui.getInstance();
-
-        KettleImport kettleImport = new KettleImport();
-        KettleImportDialog dialog = new KettleImportDialog(hopGui.getShell(), hopGui.getVariables(), kettleImport);
-        dialog.open();
-
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_IMPORT,
+      label = "i18n::HopGuiImport.Menu.Item",
+      image = "kettle-logo.svg",
+      parentId = HopGui.ID_MAIN_MENU_FILE,
+      separator = true)
+  @GuiKeyboardShortcut(control = true, key = 'i')
+  @GuiOsxKeyboardShortcut(command = true, key = 'i')
+  public void menuToolsImport() {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      // Import using this Kettle import plugin...
+      //
+      KettleImport kettleImport = new KettleImport();
+      kettleImport.init(hopGui.getVariables(), hopGui.getLog());
+      KettleImportDialog dialog =
+          new KettleImportDialog(hopGui.getShell(), hopGui.getVariables(), kettleImport);
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error importing from Kettle", e);
     }
+  }
 }

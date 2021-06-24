@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
   private static final String PROFILE_NAME = "profileName";
   private static final String ENDPOINT = "endpoint";
   private static final String SIGNATURE_VERSION = "signature_version";
-  private static final String PATHSTYLE_ACCESS = "pathSyleAccess";
+  private static final String PATH_STYLE_ACCESS = "pathSyleAccess";
 
   private FileSystemOptions fileSystemOptions;
 
@@ -114,11 +114,11 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
   }
 
   public void setPathStyleAccess(String pathStyleAccess) {
-    this.setParam(getFileSystemOptions(), PATHSTYLE_ACCESS, pathStyleAccess);
+    this.setParam(getFileSystemOptions(), PATH_STYLE_ACCESS, pathStyleAccess);
   }
 
   public String getPathStyleAccess() {
-    return (String) this.getParam(getFileSystemOptions(), PATHSTYLE_ACCESS);
+    return (String) this.getParam(getFileSystemOptions(), PATH_STYLE_ACCESS);
   }
 
   @Override
