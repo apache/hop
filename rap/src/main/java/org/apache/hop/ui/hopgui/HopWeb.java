@@ -22,6 +22,7 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -98,5 +99,10 @@ public class HopWeb implements ApplicationConfiguration {
     application.setOperationMode(Application.OperationMode.SWT_COMPATIBILITY);
 
     application.addServiceHandler("downloadServiceHandler", new DownloadServiceHandler());
+
+    // Print some important system settings...
+    //
+    System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
+    System.out.println("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
   }
 }
