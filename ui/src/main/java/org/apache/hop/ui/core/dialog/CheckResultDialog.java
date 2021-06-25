@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -30,8 +29,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -40,7 +37,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -119,16 +115,26 @@ public class CheckResultDialog extends Dialog {
     wView.addListener(SWT.Selection, e -> view());
     Button wEdit = new Button(shell, SWT.PUSH);
     wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
-    wEdit.addListener(SWT.Selection, e -> edit());
+    wEdit.addListener(SWT.Selection, e -> edit());    
+    
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wClose, wView, wEdit}, margin, null);
-
+    
+    wNoOK = new Button(shell, SWT.CHECK);
+    wNoOK.setText(STRING_SHOW_SUCESSFUL);
+    FormData fd = new FormData();
+    fd.left = new FormAttachment(0, 0);
+    fd.bottom = new FormAttachment(wClose, -2 * margin);
+    wNoOK.setLayoutData(fd);
+    wNoOK.addListener(SWT.Selection, e -> noOK());
+    
+    
     wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "CheckResultDialog.Remarks.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.right = new FormAttachment(100, 0);
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
@@ -170,17 +176,9 @@ public class CheckResultDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wClose, -2 * margin);
+    fdFields.bottom = new FormAttachment(wNoOK, -margin);
     wFields.setLayoutData(fdFields);
-
-    wNoOK = new Button(shell, SWT.CHECK);
-    wNoOK.setText(STRING_SHOW_SUCESSFUL);
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wFields, margin);
-    wNoOK.setLayoutData(fd);
-    wNoOK.addListener(SWT.Selection, e -> noOK());
-
+    
     // Detect X or ALT-F4 or something that kills this window...
     shell.addListener(SWT.Close, e -> close());
 
