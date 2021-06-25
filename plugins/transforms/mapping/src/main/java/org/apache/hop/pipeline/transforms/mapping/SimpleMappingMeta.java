@@ -353,11 +353,6 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return new boolean[] { isMapppingDefined(), };
   }
 
-  @Deprecated
-  public IHasFilename loadReferencedObject( int index, IVariables variables ) throws HopException {
-    return loadReferencedObject( index, null, variables );
-  }
-
   /**
    * Load the referenced object
    *

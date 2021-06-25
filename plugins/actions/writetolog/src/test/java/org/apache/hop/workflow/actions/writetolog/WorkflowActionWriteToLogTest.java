@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Christopher Songer
  */
-public class WorkflowEntryWriteToLogTest {
+public class WorkflowActionWriteToLogTest {
 
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;
   private ActionWriteToLog action;
@@ -75,7 +75,7 @@ public class WorkflowEntryWriteToLogTest {
 
   private void verifyErrorMessageForParentJobLogLevel( LogLevel parentJobLogLevel, VerificationMode mode ) {
     action.setLogMessage( "TEST" );
-    action.setEntryLogLevel( LogLevel.ERROR );
+    action.setActionLogLevel( LogLevel.ERROR );
 
     doReturn( parentJobLogLevel ).when( parentWorkflow ).getLogLevel();
     action.setParentWorkflow( parentWorkflow );
