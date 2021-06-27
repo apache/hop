@@ -18,7 +18,6 @@
 package org.apache.hop.workflow.engine;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -69,11 +68,6 @@ public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugi
   @Override
   protected boolean extractSeparateClassLoader( WorkflowEnginePlugin annotation ) {
     return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( WorkflowEnginePlugin annotation ) {
-    return null;
   }
 
   @Override

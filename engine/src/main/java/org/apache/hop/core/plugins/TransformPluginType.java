@@ -76,11 +76,6 @@ public class TransformPluginType extends BasePluginType<Transform> {
   }
 
   @Override
-  protected String extractI18nPackageName( Transform annotation ) {
-    return annotation.i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation ) {
   }
 

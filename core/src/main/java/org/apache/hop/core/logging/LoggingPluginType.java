@@ -79,11 +79,6 @@ public class LoggingPluginType extends BasePluginType<LoggingPlugin> {
   }
 
   @Override
-  protected String extractI18nPackageName( LoggingPlugin annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, LoggingPlugin annotation ) {
   }
 

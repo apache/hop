@@ -91,12 +91,6 @@ public abstract class BaseFragmentType<T extends Annotation> extends BasePluginT
   }
 
   @Override
-  @Deprecated
-  protected String extractI18nPackageName( T annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, T annotation ) {
   }
 

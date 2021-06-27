@@ -18,7 +18,6 @@
 package org.apache.hop.core.config.plugin;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -77,11 +76,6 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
   @Override
   protected boolean extractSeparateClassLoader( ConfigPlugin annotation ) {
     return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( ConfigPlugin annotation ) {
-    return null;
   }
 
   @Override

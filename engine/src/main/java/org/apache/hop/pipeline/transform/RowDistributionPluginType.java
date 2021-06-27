@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -73,11 +72,6 @@ public class RowDistributionPluginType extends BasePluginType<RowDistributionPlu
   @Override
   protected boolean extractSeparateClassLoader( RowDistributionPlugin annotation ) {
     return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( RowDistributionPlugin annotation ) {
-    return null;
   }
 
   @Override

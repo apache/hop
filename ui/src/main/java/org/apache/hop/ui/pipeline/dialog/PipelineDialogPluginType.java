@@ -76,11 +76,6 @@ public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugi
   }
 
   @Override
-  protected String extractI18nPackageName( PipelineDialogPlugin annotation ) {
-    return annotation.i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PipelineDialogPlugin annotation ) {
   }
 

@@ -33,14 +33,12 @@ import java.lang.annotation.Annotation;
 public class BasePluginTypeExposer {
   private BasePluginType pluginType;
   private Object target;
-  private String packageName;
-  private final String altPackageName;
+  private final String packageName;
 
   public BasePluginTypeExposer( BasePluginType pluginType, Object target ) {
     this.target = target;
     this.pluginType = pluginType;
-
-    altPackageName = target.getClass().getPackage().getName();
+    this.packageName = target.getClass().getPackage().getName();
   }
 
   public String extractID( Annotation annotation ) {
@@ -49,21 +47,18 @@ public class BasePluginTypeExposer {
 
   public String extractName( Annotation annotation ) {
     String name = pluginType.extractName( annotation );
-    packageName = extractI18nPackageName( annotation );
-    return BasePluginType.getTranslation( name, packageName, altPackageName, target.getClass() );
+    return BasePluginType.getTranslation( name, packageName, target.getClass() );
 
   }
 
   public String extractDesc( Annotation annotation ) {
     String desc = pluginType.extractDesc( annotation );
-    packageName = extractI18nPackageName( annotation );
-    return BasePluginType.getTranslation( desc, packageName, altPackageName, target.getClass() );
+    return BasePluginType.getTranslation( desc, packageName, target.getClass() );
   }
 
   public String extractCategory( Annotation annotation ) {
     String category = pluginType.extractCategory( annotation );
-    packageName = extractI18nPackageName( annotation );
-    return BasePluginType.getTranslation( category, packageName, altPackageName, target.getClass() );
+    return BasePluginType.getTranslation( category, packageName, target.getClass() );
   }
 
   public String extractImageFile( Annotation annotation ) {
@@ -72,10 +67,6 @@ public class BasePluginTypeExposer {
 
   public boolean extractSeparateClassLoader( Annotation annotation ) {
     return pluginType.extractSeparateClassLoader( annotation );
-  }
-
-  public String extractI18nPackageName( Annotation annotation ) {
-    return pluginType.extractI18nPackageName( annotation );
   }
 
   public String extractDocumentationUrl( Annotation annotation ) {

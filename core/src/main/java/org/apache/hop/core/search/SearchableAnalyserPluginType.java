@@ -75,11 +75,6 @@ public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnaly
   }
 
   @Override
-  protected String extractI18nPackageName( SearchableAnalyserPlugin annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, SearchableAnalyserPlugin annotation ) {
   }
 
