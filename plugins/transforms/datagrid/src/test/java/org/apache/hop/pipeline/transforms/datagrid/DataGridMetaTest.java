@@ -91,7 +91,7 @@ public class DataGridMetaTest implements IInitializer<ITransformMeta> {
   @Override
   public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof DataGridMeta ) {
-      ( (DataGridMeta) someMeta ).allocate( 3 );
+      //( (DataGridMeta) someMeta ).allocate( 3 );
     }
   }
 
