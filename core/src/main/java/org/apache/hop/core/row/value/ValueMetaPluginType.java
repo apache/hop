@@ -18,7 +18,6 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.row.IValueMeta;
@@ -76,11 +75,6 @@ public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> {
   @Override
   protected boolean extractSeparateClassLoader( ValueMetaPlugin annotation ) {
     return annotation.isSeparateClassLoaderNeeded();
-  }
-
-  @Override
-  protected String extractI18nPackageName( ValueMetaPlugin annotation ) {
-    return null;
   }
 
   @Override

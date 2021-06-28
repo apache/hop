@@ -79,11 +79,6 @@ public class VfsPluginType extends BasePluginType<VfsPlugin> {
   }
 
   @Override
-  protected String extractI18nPackageName( VfsPlugin annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, VfsPlugin annotation ) {
   }
 

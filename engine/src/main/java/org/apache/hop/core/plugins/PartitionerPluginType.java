@@ -75,11 +75,6 @@ public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> {
   }
 
   @Override
-  protected String extractI18nPackageName( PartitionerPlugin annotation ) {
-    return annotation.i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PartitionerPlugin annotation ) {
   }
 

@@ -18,7 +18,6 @@
 package org.apache.hop.core.encryption;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
@@ -75,11 +74,6 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswo
   @Override
   protected boolean extractSeparateClassLoader( TwoWayPasswordEncoderPlugin annotation ) {
     return annotation.isSeparateClassLoaderNeeded();
-  }
-
-  @Override
-  protected String extractI18nPackageName( TwoWayPasswordEncoderPlugin annotation ) {
-    return null;
   }
 
   @Override

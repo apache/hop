@@ -69,11 +69,6 @@ public class AuthenticationProviderPluginType extends BasePluginType<Authenticat
   }
 
   @Override
-  protected String extractI18nPackageName( AuthenticationProviderPlugin annotation ) {
-    return ( (AuthenticationProviderPlugin) annotation ).i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationProviderPlugin annotation ) {
   }
 
