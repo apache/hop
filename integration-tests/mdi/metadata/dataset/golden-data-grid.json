@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-data-grid.csv",
+  "name": "golden-data-grid",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "field1"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "field2"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "field3"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "dd/MM/yyyy",
+      "field_name": "field4"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 6,
+      "field_precision": -1,
+      "field_format": "######0.0###################;-######0.0###################",
+      "field_name": "field5"
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}
