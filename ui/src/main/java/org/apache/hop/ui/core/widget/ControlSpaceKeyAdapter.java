@@ -28,27 +28,14 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.swt.widgets.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
@@ -56,16 +43,16 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static final PropsUi props = PropsUi.getInstance();
 
-  private IGetCaretPosition getCaretPositionInterface;
+  private final IGetCaretPosition getCaretPositionInterface;
 
-  private IInsertText insertTextInterface;
+  private final IInsertText insertTextInterface;
 
   private IVariables variables;
 
-  private Control control;
+  private final Control control;
 
   /**
-   * @param variables
+   * @param variables IVariables object
    * @param control a Text or CCombo box object
    */
   public ControlSpaceKeyAdapter(final IVariables variables, final Control control) {
@@ -73,7 +60,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   /**
-   * @param variables
+   * @param variables IVariables object
    * @param control a Text or CCombo box object
    * @param getCaretPositionInterface
    * @param insertTextInterface
@@ -94,17 +81,18 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
    * in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
    * Ctrl-ALT-SPACE instead.
    *
-   * @param e
-   * @return
+   * @param e the keyevent
+   * @return true when ctrl-SPACE is pressed
    */
   private boolean isHotKey(KeyEvent e) {
     if (System.getProperty("user.language").equals("zh")) {
       return e.character == ' '
           && ((e.stateMask & SWT.CONTROL) != 0)
           && ((e.stateMask & SWT.ALT) != 0);
-    } else if (System.getProperty("os.name").startsWith("Mac OS X")) {
-      return e.character == ' '
-          && ((e.stateMask & SWT.MOD1) != 0)
+    } else if (OsHelper.isMac()) {
+      // character is empty when pressing special key in macOs
+      return e.keyCode == 32
+          && ((e.stateMask & SWT.CONTROL) != 0)
           && ((e.stateMask & SWT.ALT) == 0);
     } else {
       return e.character == ' '
@@ -113,6 +101,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     }
   }
 
+  @Override
   public void keyPressed(KeyEvent e) {
     // CTRL-<SPACE> --> Insert a variable
     if (isHotKey(e)) {
@@ -149,12 +138,14 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
           new SelectionAdapter() {
             // Enter or double-click: picks the variable
             //
+            @Override
             public synchronized void widgetDefaultSelected(SelectionEvent e) {
               applyChanges(shell, list, control, position, insertTextInterface);
             }
 
             // Select a variable name: display the value in a tool tip
             //
+            @Override
             public void widgetSelected(SelectionEvent event) {
               if (list.getSelectionCount() <= 0) {
                 return;
@@ -178,6 +169,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       list.addKeyListener(
           new KeyAdapter() {
 
+            @Override
             public synchronized void keyPressed(KeyEvent e) {
               if (e.keyCode == SWT.CR
                   && ((e.keyCode & SWT.CONTROL) == 0)
@@ -189,6 +181,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
       list.addFocusListener(
           new FocusAdapter() {
+            @Override
             public void focusLost(FocusEvent event) {
               shell.dispose();
               if (!control.isDisposed()) {
@@ -201,7 +194,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     }
   }
 
-  private static final void applyChanges(
+  private static void applyChanges(
       Shell shell, List list, Control control, int position, IInsertText insertTextInterface) {
     String selection =
         list.getSelection()[0].contains(Const.getDeprecatedPrefix())
@@ -236,7 +229,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     }
   }
 
-  public static final String[] getVariableNames(IVariables variables) {
+  public static String[] getVariableNames(IVariables variables) {
     String[] variableNames = variables.getVariableNames();
     for (int i = 0; i < variableNames.length; i++) {
       for (int j = 0; j < Const.DEPRECATED_VARIABLES.length; j++) {
@@ -260,7 +253,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
     // The Hop system settings variables
     //
-    Set<String> hopSystemSettings = new HashSet(Arrays.asList(Const.HOP_SYSTEM_SETTING_VARIABLES));
+    Set<String> hopSystemSettings =
+        new HashSet<>(Arrays.asList(Const.HOP_SYSTEM_SETTING_VARIABLES));
 
     Map<String, String> pluginsPrefixesMap = new HashMap<>();
 
@@ -275,27 +269,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
           "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
     }
 
-    Arrays.sort(
-        variableNames,
-        (var1, var2) -> {
-          String str1 =
-              addPrefix(
-                  var1,
-                  systemProperties,
-                  hopVariablesSet,
-                  deprecatedSet,
-                  hopSystemSettings,
-                  pluginsPrefixesMap);
-          String str2 =
-              addPrefix(
-                  var2,
-                  systemProperties,
-                  hopVariablesSet,
-                  deprecatedSet,
-                  hopSystemSettings,
-                  pluginsPrefixesMap);
-          return str1.compareTo(str2);
-        });
+    Arrays.sort(variableNames);
     return variableNames;
   }
 
