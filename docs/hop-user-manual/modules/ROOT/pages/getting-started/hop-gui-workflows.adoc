@@ -69,9 +69,9 @@ TIP: check the xref:workflow/actions.adoc[full list of actions]. There are over 
 
 Creating a hop is identical to creating a hop in a pipeline:
 
-* **shift-drag**: while holding down the shift key on your keyboard. Click on a transform, while holding down your primary mouse button, drag to the second transform. Release the primary mouse button and the shift key.
-* **scroll-drag**: scroll-click on a transform , while holding down your mouse’s scroll button, drag to the second transform. Release the scroll button.
-* click on a transform in your pipeline to open the '**click anywhere**' dialog. Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop, 25px, align="bottom"] button and select the transform you want to create the hop to.
+* **shift-drag**: while holding down the shift key on your keyboard. Click on an action, while holding down your primary mouse button, drag to the second action. Release the primary mouse button and the shift key.
+* **scroll-drag**: scroll-click on an action , while holding down your mouse’s scroll button, drag to the second action. Release the scroll button.
+* click on an action in your pipeline to open the '**click anywhere**' dialog. Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop, 25px, align="bottom"] button and select the action you want to create the hop to.
 
 image:getting-started/gs-hop-gui-create-workflow-add-pipeline-action.png[]
 
