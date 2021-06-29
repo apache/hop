@@ -26,6 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
@@ -38,6 +40,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -53,6 +56,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
@@ -79,6 +83,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -119,6 +124,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
   private static final String BROWSER_ITEM_ID_CREATE_FOLDER = "0020-create-folder";
   private static final String BROWSER_ITEM_ID_SHOW_HIDDEN = "0200-show-hidden";
+  private static final String BROWSER_ITEM_ID_DELETE = "0100-delete";
+  private static final String BROWSER_ITEM_ID_RENAME = "0110-rename";
 
   private Shell parent;
   private IVariables variables;
@@ -135,6 +142,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private Text wDetails;
   private Tree wBrowser;
+  private TreeEditor wBrowserEditor;
 
   private boolean showingHiddenFiles;
 
@@ -150,7 +158,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private Image fileImage;
 
   private static HopVfsFileDialog instance;
-  private FileObject selectedFile;
 
   private java.util.List<String> navigationHistory;
   private int navigationIndex;
@@ -497,6 +504,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         });
 
+    
+    // Create Tree editor for rename
+    wBrowserEditor = new TreeEditor(wBrowser);
+    wBrowserEditor.horizontalAlignment = SWT.LEFT;
+    wBrowserEditor.grabHorizontal = true;
+    
     // Put file details or message/logging label at the bottom...
     //
     wDetails = new Text(browseSash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
@@ -644,11 +657,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
    * @param e
    */
   private void fileSelected(Event e) {
-    FileObject fileObject = getSelectedFileObject();
-    if (fileObject != null) {
-      selectedFile = fileObject;
+    FileObject selectedFile = getSelectedFileObject();
+    if (selectedFile != null) {
       showFilename(selectedFile);
-    }
+    }    
+    updateSelection();
   }
 
   private void showFilename(FileObject fileObject) {
@@ -791,6 +804,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       populateFolder(activeFolder, parentFolderItem);
 
       parentFolderItem.setExpanded(true);
+      
+      updateSelection();
     } catch (Throwable e) {
       showError(BaseMessages.getString(PKG, "HopVfsFileDialog.Browsing.Error.Message", filename), e);
     }
@@ -1020,6 +1035,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       toolTip = "i18n::HopVfsFileDialog.AddBookmark.Tooltip.Message",
       image = "ui/images/bookmark-add.svg")
   public void addBookmark() {
+    FileObject selectedFile = getSelectedFileObject();
     if (selectedFile != null) {
       String name = selectedFile.getName().getBaseName();
       EnterStringDialog dialog =
@@ -1189,6 +1205,90 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
   }
 
+  @GuiToolbarElement(
+      root = BROWSER_TOOLBAR_PARENT_ID,
+      id = BROWSER_ITEM_ID_RENAME,
+      toolTip = "i18n::HopVfsFileDialog.RenameFile.Tooltip.Message",
+      image = "ui/images/rename.svg")
+  // FIXME: Keyboard don't work
+  @GuiKeyboardShortcut(key = SWT.F2)
+  @GuiOsxKeyboardShortcut(key = SWT.F2)
+  public void renameFile() {
+    FileObject file = getSelectedFileObject();
+    if (file != null) {    
+      TreeItem item = wBrowser.getSelection()[0];
+      
+      // The control that will be the editor must be a child of the Tree
+      Text text = new Text(wBrowser, SWT.BORDER);
+      text.setText(file.getName().getBaseName());
+      text.addListener(SWT.FocusOut, event -> text.dispose());
+      text.addListener(
+          SWT.KeyUp,
+          event -> {
+            switch (event.keyCode) {
+              case SWT.CR:
+              case SWT.KEYPAD_CR:
+                // If name changed
+                if (!item.getText().equals(text.getText())) {
+                  try {
+                    FileObject newFile =
+                        HopVfs.getFileObject(
+                            HopVfs.getFilename(file.getParent()) + "/" + text.getText());
+                    file.moveTo(newFile);
+                  } catch (Exception e) {
+                    showError(BaseMessages.getString(PKG, "HopVfsFileDialog.RenameFile.Error.Message", file), e);
+                  } finally {
+                    text.dispose();
+                    refreshBrowser();
+                  }
+                }
+                break;
+              case SWT.ESC:
+                text.dispose();
+                break;
+            }
+          });
+
+      text.selectAll();
+      text.setFocus();
+      wBrowserEditor.setEditor(text, item);    
+    }
+  }
+
+  @GuiToolbarElement(
+      root = BROWSER_TOOLBAR_PARENT_ID,
+      id = BROWSER_ITEM_ID_DELETE,
+      toolTip = "i18n::HopVfsFileDialog.DeleteFile.Tooltip.Message",
+      image = "ui/images/delete.svg")
+  // FIXME: Keyboard don't work
+  @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
+  public void deleteFile() {
+    FileObject file = getSelectedFileObject();
+    if (file != null) {        
+      try {
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText(
+            BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Message")
+                + Const.CR
+                + Const.CR
+                + file.getName());
+        int answer = box.open();
+        if ((answer & SWT.YES) != 0) {
+          boolean deleted = file.delete();
+          if (deleted) {
+            refreshBrowser();
+            }
+          }
+      } catch (Exception e) {
+        showError(BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Error.Message", file.toString()), e);
+      }
+    }      
+
+  } 
+  
   @GuiToolbarElement(
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS,
@@ -1463,5 +1563,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   /** @param saveFilename The saveFilename to set */
   public void setSaveFilename(String saveFilename) {
     this.saveFilename = saveFilename;
+  }
+  
+  public void updateSelection() {
+    FileObject file = getSelectedFileObject();
+    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DELETE, file != null);
+    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_RENAME, file != null);
   }
 }
