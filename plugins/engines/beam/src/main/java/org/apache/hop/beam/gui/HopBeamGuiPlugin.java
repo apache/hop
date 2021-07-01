@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -46,6 +47,8 @@ import java.util.Set;
 @GuiPlugin
 public class HopBeamGuiPlugin {
 
+  public static final Class<?> PKG = HopBeamGuiPlugin.class; // i18n
+
   public static final String ID_MAIN_MENU_TOOLS_FAT_JAR = "40200-menu-tools-fat-jar";
   public static final String ID_MAIN_MENU_TOOLS_EXPORT_METADATA =
       "40210-menu-tools-export-metadata";
@@ -67,7 +70,7 @@ public class HopBeamGuiPlugin {
   @GuiMenuElement(
       root = HopGui.ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_FAT_JAR,
-      label = "Generate a Hop fat jar...",
+      label = "i18n::BeamGuiPlugin.Menu.GenerateFatJar.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
       separator = true)
   public void menuToolsFatJar() {
@@ -75,11 +78,11 @@ public class HopBeamGuiPlugin {
     final Shell shell = hopGui.getShell();
 
     MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_INFORMATION);
-    box.setText("Create a Hop fat jar file");
+    box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Header"));
     box.setMessage(
-        "This function generates a single Java library which contains the Hop code and all it's current plugins."
+            BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Message1")
             + Const.CR
-            + "If you hit OK simply select the file to save the so called 'fat jar' file to afterwards. All the code will then be collected automatically.");
+            + BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Message2"));
     int answer = box.open();
     if ((answer & SWT.CANCEL) != 0) {
       return;
@@ -92,7 +95,8 @@ public class HopBeamGuiPlugin {
             true,
             shell,
             new String[] {"*.jar", "*.*"},
-            new String[] {"Jar files (*.jar)", "All Files (*.*)"},
+            new String[] {BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Jars.Label"),
+                    BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")},
             true);
     if (filename == null) {
       return;
@@ -104,7 +108,7 @@ public class HopBeamGuiPlugin {
       IRunnableWithProgress op =
           monitor -> {
             try {
-              monitor.setTaskName("Building a Hop fat jar...");
+              monitor.setTaskName(BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Progress.Message"));
               FatJarBuilder fatJarBuilder =
                   new FatJarBuilder(hopGui.getVariables(), filename, jarFilenames);
               fatJarBuilder.setExtraTransformPluginClasses(null);
@@ -122,12 +126,11 @@ public class HopBeamGuiPlugin {
       GuiResource.getInstance().toClipboard(filename);
 
       box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
-      box.setText("Fat jar created");
+      box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Header"));
       box.setMessage(
-          "A fat jar was successfully created : "
-              + filename
+              BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Message1", filename)
               + Const.CR
-              + "The filename was copied to the clipboard.");
+              + BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Message2"));
       box.open();
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error creating fat jar", e);
@@ -137,7 +140,7 @@ public class HopBeamGuiPlugin {
   @GuiMenuElement(
       root = HopGui.ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_EXPORT_METADATA,
-      label = "Export metadata to JSON",
+      label = "i18n::BeamGuiPlugin.Menu.ExportMetadata.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
       separator = true)
   public void menuToolsExportMetadata() {
@@ -145,9 +148,9 @@ public class HopBeamGuiPlugin {
     final Shell shell = hopGui.getShell();
 
     MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_INFORMATION);
-    box.setText("Export current metadata to JSON");
+    box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.ExportMetadata.Dialog.Header"));
     box.setMessage(
-        "Do you want to export the currently available metadata objects to a JSON file?");
+            BaseMessages.getString(PKG, "BeamGuiPlugin.ExportMetadata.Dialog.Message"));
     int answer = box.open();
     if ((answer & SWT.CANCEL) != 0) {
       return;
@@ -160,7 +163,8 @@ public class HopBeamGuiPlugin {
             true,
             shell,
             new String[] {"*.json", "*.*"},
-            new String[] {"JSON files (*.json)", "All Files (*.*)"},
+            new String[] {BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Json.Label"),
+                    BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")},
             true);
     if (filename == null) {
       return;
