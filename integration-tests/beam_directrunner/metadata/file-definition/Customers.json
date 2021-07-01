@@ -1,0 +1,78 @@
+{
+  "enclosure": "",
+  "name": "Customers",
+  "description": "",
+  "fieldDefinitions": [
+    {
+      "hopType": "Integer",
+      "precision": 0,
+      "name": "id",
+      "length": 15,
+      "formatMask": " 0"
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "Last name",
+      "length": 15,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "First name",
+      "length": 20,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": 0,
+      "name": "cust_zip_code",
+      "length": 15,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "city",
+      "length": 8,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "birthdate",
+      "length": -1,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "street",
+      "length": 11,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": 0,
+      "name": "housenr",
+      "length": 15,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "stateCode",
+      "length": 9,
+      "formatMask": ""
+    },
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "state",
+      "length": 30,
+      "formatMask": ""
+    }
+  ],
+  "separator": ";"
+}
