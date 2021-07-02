@@ -21,6 +21,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+import java.util.List;
+
 /**
  * @author Samatar Hassan
  * @since 30 September 2008
@@ -35,6 +37,7 @@ public class StringCutData extends BaseTransformData implements ITransformData {
 
   public int[] cutTo;
 
+  public List<StringCutField> fields;
   public IRowMeta outputRowMeta;
 
   public int inputFieldsNr;

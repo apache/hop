@@ -123,7 +123,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 4;
-    int nrFieldRows = (input.getFieldInStream() != null ? input.getFieldInStream().length : 1);
+    int nrFieldRows = (input.getFields() != null && !input.getFields().isEmpty() ? input.getFields().size() : 1);
 
     ciKey = new ColumnInfo[nrFieldCols];
     ciKey[0] =
@@ -220,21 +220,23 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFieldInStream() != null) {
-      for (int i = 0; i < input.getFieldInStream().length; i++) {
+    if (input.getFields() != null && !input.getFields().isEmpty()) {
+      int i = 0;
+      for (StringCutField scf: input.getFields()) {
         TableItem item = wFields.table.getItem(i);
-        if (input.getFieldInStream()[i] != null) {
-          item.setText(1, input.getFieldInStream()[i]);
+        if (scf.getFieldInStream() != null) {
+          item.setText(1, scf.getFieldInStream());
         }
-        if (input.getFieldOutStream()[i] != null) {
-          item.setText(2, input.getFieldOutStream()[i]);
+        if (scf.getFieldOutStream() != null) {
+          item.setText(2, scf.getFieldOutStream());
         }
-        if (input.getCutFrom()[i] != null) {
-          item.setText(3, input.getCutFrom()[i]);
+        if (scf.getCutFrom() != null) {
+          item.setText(3, scf.getCutFrom());
         }
-        if (input.getCutTo()[i] != null) {
-          item.setText(4, input.getCutTo()[i]);
+        if (scf.getCutTo() != null) {
+          item.setText(4, scf.getCutTo());
         }
+        i++;
       }
     }
 
@@ -252,20 +254,23 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
   }
 
   private void getInfo(StringCutMeta inf) {
-    int nrkeys = wFields.nrNonEmpty();
 
-    inf.allocate(nrkeys);
+    int nrkeys = wFields.nrNonEmpty();
+    inf.getFields().clear();
+
     if (log.isDebug()) {
       logDebug(
           BaseMessages.getString(PKG, "StringCutDialog.Log.FoundFields", String.valueOf(nrkeys)));
     }
+
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      inf.getFieldInStream()[i] = item.getText(1);
-      inf.getFieldOutStream()[i] = item.getText(2);
-      inf.getCutFrom()[i] = item.getText(3);
-      inf.getCutTo()[i] = item.getText(4);
+      StringCutField scf = new StringCutField(item.getText(1)
+              , item.getText(2)
+              , item.getText(3)
+              , item.getText(4));
+      inf.getFields().add(scf);
     }
 
     transformName = wTransformName.getText(); // return value

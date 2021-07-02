@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.stringcut;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -45,7 +46,7 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> imple
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  private String CutString( String string, int cutFrom, int cutTo ) {
+  private String cutString(String string, int cutFrom, int cutTo ) {
     String rcode = string;
 
     if ( !Utils.isEmpty( rcode ) ) {
@@ -89,12 +90,12 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> imple
 
     // Copy the input fields.
     System.arraycopy( row, 0, RowData, 0, rowMeta.size() );
-    int length = meta.getFieldInStream().length;
+    int length = meta.getFields().size();
 
     int j = 0; // Index into "new fields" area, past the first {data.inputFieldsNr} records
     for ( int i = 0; i < length; i++ ) {
       String valueIn = getInputRowMeta().getString( row, data.inStreamNrs[ i ] );
-      String value = CutString( valueIn, data.cutFrom[ i ], data.cutTo[ i ] );
+      String value = cutString( valueIn, data.cutFrom[ i ], data.cutTo[ i ] );
       if ( Utils.isEmpty( data.outStreamNrs[ i ] ) ) {
         RowData[ data.inStreamNrs[ i ] ] = value;
       } else {
@@ -121,39 +122,44 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> imple
       data.inputFieldsNr = data.outputRowMeta.size();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
-      data.inStreamNrs = new int[ meta.getFieldInStream().length ];
-      for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.inStreamNrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[ i ] );
+      data.inStreamNrs = new int[ meta.getFields().size() ];
+      for ( int i = 0; i < meta.getFields().size(); i++ ) {
+        StringCutField scf = meta.getFields().get(i);
+        data.inStreamNrs[ i ] = getInputRowMeta().indexOfValue( scf.getFieldInStream() );
         if ( data.inStreamNrs[ i ] < 0 ) {
-          throw new HopTransformException( BaseMessages.getString( PKG, "StringCut.Exception.FieldRequired", meta
-            .getFieldInStream()[ i ] ) );
+          throw new HopTransformException( BaseMessages.getString( PKG, "StringCut.Exception.FieldRequired", scf.getFieldInStream() ));
         }
 
         // check field type
         if ( getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).getType() != IValueMeta.TYPE_STRING ) {
           throw new HopTransformException( BaseMessages.getString(
-            PKG, "StringCut.Exception.FieldTypeNotString", meta.getFieldInStream()[ i ] ) );
+            PKG, "StringCut.Exception.FieldTypeNotString", scf.getFieldInStream() ) );
         }
       }
 
-      data.outStreamNrs = new String[ meta.getFieldInStream().length ];
-      for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.outStreamNrs[ i ] = resolve( meta.getFieldOutStream()[ i ] );
+      data.outStreamNrs = new String[ meta.getFields().size() ];
+      for ( int i = 0; i < meta.getFields().size(); i++ ) {
+        StringCutField scf = meta.getFields().get(i);
+        if (!StringUtils.isEmpty(scf.getFieldOutStream())) {
+          data.outStreamNrs[i] = resolve(scf.getFieldOutStream());
+        }
       }
 
-      data.cutFrom = new int[ meta.getFieldInStream().length ];
-      data.cutTo = new int[ meta.getFieldInStream().length ];
-      for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        if ( Utils.isEmpty( resolve( meta.getCutFrom()[ i ] ) ) ) {
+      data.cutFrom = new int[ meta.getFields().size() ];
+      data.cutTo = new int[ meta.getFields().size() ];
+
+      for ( int i = 0; i < meta.getFields().size(); i++ ) {
+        StringCutField scf = meta.getFields().get(i);
+        if ( Utils.isEmpty( resolve( scf.getCutFrom() ) ) ) {
           data.cutFrom[ i ] = 0;
         } else {
-          data.cutFrom[ i ] = Const.toInt( resolve( meta.getCutFrom()[ i ] ), 0 );
+          data.cutFrom[ i ] = Const.toInt( resolve( scf.getCutFrom() ), 0 );
         }
 
-        if ( Utils.isEmpty( resolve( meta.getCutTo()[ i ] ) ) ) {
+        if ( Utils.isEmpty( resolve( scf.getCutTo() ) ) ) {
           data.cutTo[ i ] = 0;
         } else {
-          data.cutTo[ i ] = Const.toInt( resolve( meta.getCutTo()[ i ] ), 0 );
+          data.cutTo[ i ] = Const.toInt( resolve( scf.getCutTo() ), 0 );
         }
 
       } // end for
