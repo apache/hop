@@ -118,7 +118,6 @@ under the License.
 *** xref:pipeline/transforms/filemetadata.adoc[File Metadata]
 *** xref:pipeline/transforms/filesfromresult.adoc[Files from result]
 *** xref:pipeline/transforms/filestoresult.adoc[Files to result]
-*** xref:pipeline/transforms/filter.adoc[Filter]
 *** xref:pipeline/transforms/filterrows.adoc[Filter Rows]
 *** xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match]
 *** xref:pipeline/transforms/generaterandomvalue.adoc[Generate Random Value]

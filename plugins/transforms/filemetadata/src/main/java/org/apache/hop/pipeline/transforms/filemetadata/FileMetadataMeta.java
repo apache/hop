@@ -44,7 +44,7 @@ import java.util.ArrayList;
     image = "icon.svg",
     description = "i18n::FileMetadata.Name.Desc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "http://hop.apache.org/manual/latest/pipeline/transforms/filemetadata.html"
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/filemetadata.html"
 )
 public class FileMetadataMeta extends BaseTransformMeta
     implements ITransformMeta<FileMetadata, FileMetadataData> {
