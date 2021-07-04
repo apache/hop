@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0011-data-grid</name>
+  <name>main-0012-string-cut</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -49,13 +49,13 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Run data grid Unit Tests</name>
+      <name>Run string cut Unit Tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0011-data-grid-parent-basic UNIT</name>
+          <name>0012-string-cut-parent UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -67,7 +67,7 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run data grid Unit Tests</to>
+      <to>Run string cut Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>

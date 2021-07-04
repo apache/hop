@@ -123,7 +123,8 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 4;
-    int nrFieldRows = (input.getFields() != null && !input.getFields().isEmpty() ? input.getFields().size() : 1);
+    int nrFieldRows =
+        (input.getFields() != null && !input.getFields().isEmpty() ? input.getFields().size() : 1);
 
     ciKey = new ColumnInfo[nrFieldCols];
     ciKey[0] =
@@ -222,7 +223,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
   public void getData() {
     if (input.getFields() != null && !input.getFields().isEmpty()) {
       int i = 0;
-      for (StringCutField scf: input.getFields()) {
+      for (StringCutField scf : input.getFields()) {
         TableItem item = wFields.table.getItem(i);
         if (scf.getFieldInStream() != null) {
           item.setText(1, scf.getFieldInStream());
@@ -266,10 +267,8 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      StringCutField scf = new StringCutField(item.getText(1)
-              , item.getText(2)
-              , item.getText(3)
-              , item.getText(4));
+      StringCutField scf =
+          new StringCutField(item.getText(1), item.getText(2), item.getText(3), item.getText(4));
       inf.getFields().add(scf);
     }
 

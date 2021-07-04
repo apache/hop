@@ -23,10 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
-/**
- * @author Samatar Hassan
- * @since 30 September 2008
- */
 public class StringCutData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs;
@@ -42,9 +38,7 @@ public class StringCutData extends BaseTransformData implements ITransformData {
 
   public int inputFieldsNr;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public StringCutData() {
     super();
     inputFieldsNr = 0;

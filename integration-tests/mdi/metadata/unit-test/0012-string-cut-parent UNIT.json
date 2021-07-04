@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "StringCutOut",
+          "data_set_field": "StringCutOut"
+        },
+        {
+          "transform_field": "StringToCut",
+          "data_set_field": "StringToCut"
+        }
+      ],
+      "field_order": [
+        "StringToCut",
+        "StringCutOut"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-string-cut"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0012-string-cut-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0012-string-cut-parent.hpl",
+  "test_type": "UNIT_TEST"
+}
