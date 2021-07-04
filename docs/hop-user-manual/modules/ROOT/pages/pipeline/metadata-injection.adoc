@@ -206,7 +206,7 @@ The current (1-july 2021) status is:
 |Stream lookup|Y
 |Stream Schema Merge|N
 |String operations|Y
-|Strings cut|N
+|Strings cut|Y
 |Switch / case|Y
 |Synchronize after merge|Y
 |Table compare|N
