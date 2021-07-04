@@ -35,10 +35,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0030-data-grid-parent-basic UNIT",
+  "name": "0011-data-grid-parent-basic UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0030-data-grid-parent.hpl",
+  "pipeline_filename": "./0011-data-grid-parent.hpl",
   "test_type": "UNIT_TEST"
 }

@@ -135,7 +135,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/0030-data-grid-child.hpl</filename>
+    <filename>${PROJECT_HOME}/0011-data-grid-child.hpl</filename>
     <source_transform>OUTPUT</source_transform>
     <source_output_fields>
       <source_output_field>
