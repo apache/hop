@@ -297,6 +297,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     // ///////////////////////////////
 
     getData();
+    setIncludeRownum();
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -315,12 +316,12 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     wSplitField.setText(Const.NVL(input.getSplitField(), ""));
     wDelimiter.setText(Const.NVL(input.getDelimiter(), ""));
     wValName.setText(Const.NVL(input.getNewFieldname(), ""));
-    wInclRownum.setSelection(input.includeRowNumber());
-    wDelimiterIsRegex.setSelection(input.isDelimiterRegex());
+    wInclRownum.setSelection(input.isIncludeRowNumber());
+    wDelimiterIsRegex.setSelection(input.isIsDelimiterRegex());
     if (input.getRowNumberField() != null) {
       wInclRownumField.setText(input.getRowNumberField());
     }
-    wResetRownum.setSelection(input.resetRowNumber());
+    wResetRownum.setSelection(input.isResetRowNumber());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -344,7 +345,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     input.setIncludeRowNumber(wInclRownum.getSelection());
     input.setRowNumberField(wInclRownumField.getText());
     input.setResetRowNumber(wResetRownum.getSelection());
-    input.setDelimiterRegex(wDelimiterIsRegex.getSelection());
+    input.setIsDelimiterRegex(wDelimiterIsRegex.getSelection());
     dispose();
   }
 }

@@ -31,6 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -54,31 +55,41 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   /** Field to split */
+  @HopMetadataProperty(key="splitfield", injectionKey = "FIELD_TO_SPLIT", injectionKeyDescription = "SplitFieldsToRow.Injection.FieldToSplit.Description")
   private String splitField;
 
   /** Split field based upon this delimiter. */
+  @HopMetadataProperty(injectionKey = "DELIMITER", injectionKeyDescription = "SplitFieldsToRow.Injection.Delimiter.Description")
   private String delimiter;
 
   /** New name of the split field */
+  @HopMetadataProperty(key="newfield", injectionKey = "NEW_FIELD_NAME", injectionKeyDescription = "SplitFieldsToRow.Injection.NewFieldname.Description")
   private String newFieldname;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(key="rownum", injectionKey = "INCLUDE_ROWNUM"
+          , injectionKeyDescription = "SplitFieldsToRow.Injection.IncludeRowNum.Description")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(key="rownum_field", injectionKey = "ROWNUM_FIELD_NAME"
+          , injectionKeyDescription = "SplitFieldsToRow.Injection.RownumFieldname.Description")
   private String rowNumberField;
 
   /** Flag indicating that we should reset RowNum for each file */
+  @HopMetadataProperty(key="resetrownumber", injectionKey = "RESET_ROWNUM"
+          , injectionKeyDescription = "SplitFieldsToRow.Injection.ResetRowNum.Description")
   private boolean resetRowNumber;
 
   /** Flag indicating that the delimiter is a regular expression */
+  @HopMetadataProperty(key="delimiter_is_regex", injectionKey = "DELIMITER_IS_REGEX", injectionKeyDescription = "SplitFieldsToRow.Injection.DelimiterIsRegexp.Description")
   private boolean isDelimiterRegex;
 
-  public boolean isDelimiterRegex() {
+  public boolean isIsDelimiterRegex() {
     return isDelimiterRegex;
   }
 
-  public void setDelimiterRegex(boolean isDelimiterRegex) {
+  public void setIsDelimiterRegex(boolean isDelimiterRegex) {
     this.isDelimiterRegex = isDelimiterRegex;
   }
 
@@ -104,30 +115,6 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
   /** @param splitField The splitField to set. */
   public void setSplitField(String splitField) {
     this.splitField = splitField;
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      splitField = XmlHandler.getTagValue(transformNode, "splitfield");
-      delimiter = XmlHandler.getTagValue(transformNode, "delimiter");
-      newFieldname = XmlHandler.getTagValue(transformNode, "newfield");
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      resetRowNumber =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "resetrownumber"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      isDelimiterRegex =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "delimiter_is_regex"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "SplitFieldToRowsMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
   }
 
   public void setDefault() {
@@ -160,20 +147,6 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("   " + XmlHandler.addTagValue("splitfield", splitField));
-    retval.append("   " + XmlHandler.addTagValue("delimiter", delimiter));
-    retval.append("   " + XmlHandler.addTagValue("newfield", newFieldname));
-    retval.append("   " + XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("   " + XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("   " + XmlHandler.addTagValue("resetrownumber", resetRowNumber));
-    retval.append("   " + XmlHandler.addTagValue("delimiter_is_regex", isDelimiterRegex));
-
-    return retval.toString();
   }
 
   public void check(
@@ -313,7 +286,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
   }
 
   /** @return Returns the resetRowNumber. */
-  public boolean resetRowNumber() {
+  public boolean isResetRowNumber() {
     return resetRowNumber;
   }
 
@@ -328,7 +301,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
   }
 
   /** @return Returns the includeRowNumber. */
-  public boolean includeRowNumber() {
+  public boolean isIncludeRowNumber() {
     return includeRowNumber;
   }
 }

@@ -69,7 +69,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
         numErrors++;
       }
 
-      if ( meta.includeRowNumber() ) {
+      if ( meta.isIncludeRowNumber() ) {
         String realRowNumberField = resolve( meta.getRowNumberField() );
         if ( Utils.isEmpty( realRowNumberField ) ) {
           logError( BaseMessages.getString( PKG, "SplitFieldToRows.Exception.RownrFieldMissing" ) );
@@ -91,7 +91,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       originalString = "";
     }
 
-    if ( meta.includeRowNumber() && meta.resetRowNumber() ) {
+    if ( meta.isIncludeRowNumber() && meta.isResetRowNumber() ) {
       data.rownr = 1L;
     }
     // use -1 for include all strings.
@@ -100,7 +100,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       Object[] outputRow = RowDataUtil.createResizedCopy( rowData, data.outputRowMeta.size() );
       outputRow[ rowMeta.size() ] = string;
       // Include row number in output?
-      if ( meta.includeRowNumber() ) {
+      if ( meta.isIncludeRowNumber() ) {
         outputRow[ rowMeta.size() + 1 ] = data.rownr;
       }
       putRow( data.outputRowMeta, outputRow );
@@ -143,7 +143,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
 
       try {
         String delimiter = Const.nullToEmpty( meta.getDelimiter() );
-        if ( meta.isDelimiterRegex() ) {
+        if ( meta.isIsDelimiterRegex() ) {
           data.delimiterPattern = Pattern.compile( resolve( delimiter ) );
         } else {
           data.delimiterPattern = Pattern.compile( Pattern.quote( resolve( delimiter ) ) );
