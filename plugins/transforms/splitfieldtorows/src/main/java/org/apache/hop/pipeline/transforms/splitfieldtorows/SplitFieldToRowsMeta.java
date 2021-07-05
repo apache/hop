@@ -22,14 +22,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -38,7 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -55,34 +52,51 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   /** Field to split */
-  @HopMetadataProperty(key="splitfield", injectionKey = "FIELD_TO_SPLIT", injectionKeyDescription = "SplitFieldsToRow.Injection.FieldToSplit.Description")
+  @HopMetadataProperty(
+      key = "splitfield",
+      injectionKey = "FIELD_TO_SPLIT",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.FieldToSplit.Description")
   private String splitField;
 
   /** Split field based upon this delimiter. */
-  @HopMetadataProperty(injectionKey = "DELIMITER", injectionKeyDescription = "SplitFieldsToRow.Injection.Delimiter.Description")
+  @HopMetadataProperty(
+      injectionKey = "DELIMITER",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.Delimiter.Description")
   private String delimiter;
 
   /** New name of the split field */
-  @HopMetadataProperty(key="newfield", injectionKey = "NEW_FIELD_NAME", injectionKeyDescription = "SplitFieldsToRow.Injection.NewFieldname.Description")
+  @HopMetadataProperty(
+      key = "newfield",
+      injectionKey = "NEW_FIELD_NAME",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.NewFieldname.Description")
   private String newFieldname;
 
   /** Flag indicating that a row number field should be included in the output */
-  @HopMetadataProperty(key="rownum", injectionKey = "INCLUDE_ROWNUM"
-          , injectionKeyDescription = "SplitFieldsToRow.Injection.IncludeRowNum.Description")
+  @HopMetadataProperty(
+      key = "rownum",
+      injectionKey = "INCLUDE_ROWNUM",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.IncludeRowNum.Description")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
-  @HopMetadataProperty(key="rownum_field", injectionKey = "ROWNUM_FIELD_NAME"
-          , injectionKeyDescription = "SplitFieldsToRow.Injection.RownumFieldname.Description")
+  @HopMetadataProperty(
+      key = "rownum_field",
+      injectionKey = "ROWNUM_FIELD_NAME",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.RownumFieldname.Description")
   private String rowNumberField;
 
   /** Flag indicating that we should reset RowNum for each file */
-  @HopMetadataProperty(key="resetrownumber", injectionKey = "RESET_ROWNUM"
-          , injectionKeyDescription = "SplitFieldsToRow.Injection.ResetRowNum.Description")
+  @HopMetadataProperty(
+      key = "resetrownumber",
+      injectionKey = "RESET_ROWNUM",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.ResetRowNum.Description")
   private boolean resetRowNumber;
 
   /** Flag indicating that the delimiter is a regular expression */
-  @HopMetadataProperty(key="delimiter_is_regex", injectionKey = "DELIMITER_IS_REGEX", injectionKeyDescription = "SplitFieldsToRow.Injection.DelimiterIsRegexp.Description")
+  @HopMetadataProperty(
+      key = "delimiter_is_regex",
+      injectionKey = "DELIMITER_IS_REGEX",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.DelimiterIsRegexp.Description")
   private boolean isDelimiterRegex;
 
   public boolean isIsDelimiterRegex() {
@@ -117,6 +131,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     this.splitField = splitField;
   }
 
+  @Override
   public void setDefault() {
     splitField = "";
     delimiter = ";";
@@ -127,6 +142,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     resetRowNumber = true;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -149,6 +165,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -166,15 +183,13 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "SplitFieldToRowsMeta.CheckResult.TransformReceivingFields",
                   prev.size() + ""),
               transformMeta);
       remarks.add(cr);
-
-      errorMessage = "";
 
       IValueMeta v = prev.searchValueMeta(splitField);
       if (v == null) {
@@ -183,12 +198,12 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
                 PKG,
                 "SplitFieldToRowsMeta.CheckResult.FieldToSplitNotPresentInInputStream",
                 splitField);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "SplitFieldToRowsMeta.CheckResult.FieldToSplitFoundInInputStream",
@@ -201,7 +216,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
           BaseMessages.getString(
                   PKG, "SplitFieldToRowsMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -209,7 +224,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SplitFieldToRowsMeta.CheckResult.TransformReceivingInfoFromOtherTransform"),
               transformMeta);
@@ -217,7 +232,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "SplitFieldToRowsMeta.CheckResult.NoInputReceivedFromOtherTransform"),
               transformMeta);
@@ -227,7 +242,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     if (Utils.isEmpty(newFieldname)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SplitFieldToRowsMeta.CheckResult.NewFieldNameIsNull"),
               transformMeta);
       remarks.add(cr);
@@ -236,14 +251,14 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
       if (Utils.isEmpty(variables.resolve(rowNumberField))) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "SplitFieldToRowsMeta.CheckResult.RowNumberFieldMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "SplitFieldToRowsMeta.CheckResult.RowNumberFieldOk"),
                 transformMeta);
       }
