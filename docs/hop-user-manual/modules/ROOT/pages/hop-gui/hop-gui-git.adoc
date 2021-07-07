@@ -24,11 +24,11 @@ Version control is an important aspect of any serious data orchestration project
 
 The toolbar in the file explorer's tree dialog will enable the git options when it detects the project's root directory is a git repository (has a `.git` folder).
 
-image:hop-gui/hop-gui-no-git.png[No git available, width="30%", link=hop-gui/hop-gui-no-git.png]
+image::hop-gui/hop-gui-no-git.png[No git available, width="30%", link=hop-gui/hop-gui-no-git.png]
 
 If git was found, the toolbar will be shown with the git options enabled.
 
-image:hop-gui/hop-gui-git-toolbar.png[Git toolbar, width="30%", link=hop-gui/hop-gui-git-toolbar.png]
+image::hop-gui/hop-gui-git-toolbar.png[Git toolbar, width="30%", link=hop-gui/hop-gui-git-toolbar.png]
 
 The options available in this toolbar are:
 
@@ -62,4 +62,4 @@ Click on a file that is staged for commit (blue), click 'Git Commit'. A popup di
 Show git info::
 Click on a file that is under version control (black or blue). The file explorer will show the git status for this file: the file or folder, status, branch and a revisions table (list of previous commits). Select one of the available commits to show the changed files to show the changed files for that revision. Select any of the files in the revision from the 'Changed files' list to show the git diff information on the right hand side. For workflows and pipelines, click 'Visual diff' to open the file in the Data Orchestration perspective. Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
 
-image:hop-gui/git-visual-diff.png[Git visual diff, width="65%", link=hop-gui/git-visual-diff.png]
+image::hop-gui/git-visual-diff.png[Git visual diff, width="65%", link=hop-gui/git-visual-diff.png]

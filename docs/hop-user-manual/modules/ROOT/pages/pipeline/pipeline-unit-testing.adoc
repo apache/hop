@@ -64,7 +64,7 @@ After execution, transform output is validated against golden data and logged. I
 
 The 'Unit Testing' category in the transform context dialog (click on transform icon to open) contains the available unit testing options:
 
-image:pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets, width=90%, link="pipeline-unit-testing-data-sets.png"]
+image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets, width=90%, link="pipeline-unit-testing-data-sets.png"]
 
 * **Set input data set**: For the active unit test, it defines which data set to use instead of the output of the transform
 * **Clear input data set**: Remove a defined input data set from this transform unit test
@@ -86,11 +86,11 @@ Consider the following basic pipeline below. This pipeline reads data from a csv
 
 We'll use this example to create a test to verify the output of the pipeline is what we expected.
 
-image:pipeline-unit-testing-pipeline.png[Unit Test - Pipeline, width="90%"]
+image::pipeline-unit-testing-pipeline.png[Unit Test - Pipeline, width="90%"]
 
 Click the '+' icon (highlighted) in the unit testing toolbar to create a new unit test. Previously created unit tests will be available from the dropdown box for editing.
 
-image:pipeline-unit-testing-create-unit-test.png[Unit Test - create test, width="90%"]
+image::pipeline-unit-testing-create-unit-test.png[Unit Test - create test, width="90%"]
 
 The options in this dialog are:
 
@@ -111,7 +111,7 @@ You'll get a popup dialog `Do you want to use this unit test for the active pipe
 
 Click on the 'read customers' transform icon to open the context dialog, click 'Create data set'. The popup dialog already shows the field layout in the bottom half of the dialog. Give the data set a name and file name.
 
-image:pipeline-unit-testing-create-data-set.png[Unit Test - Create data set, width="50%"]
+image::pipeline-unit-testing-create-data-set.png[Unit Test - Create data set, width="50%"]
 
 Do the same for the output transform you'll want to check the data for ('customers by year out' in the example).
 
@@ -128,7 +128,7 @@ Repeat for 'customers by year out', but use 'Set golden data set'.
 
 Your pipeline now has two new indicators for ths input and output data set.
 
-image:pipeline-unit-testing-data-sets-enabled.png[Unit Test - data set enabled, width="90%"]
+image::pipeline-unit-testing-data-sets-enabled.png[Unit Test - data set enabled, width="90%"]
 
 === Run the unit test
 
@@ -153,7 +153,7 @@ If changes to the pipeline cause the test to fail, a popup will be shown for the
 
 In the example below, the number of rows for the year 1990 was changed from 486 to 487, causing the test to fail:
 
-image:pipeline-unit-testing-test-failed.png[Unit test - failed, width="90%"]
+image::pipeline-unit-testing-test-failed.png[Unit test - failed, width="90%"]
 
 === Remove and bypass transforms in unit tests
 
@@ -164,7 +164,7 @@ Click on the transform icon and select either 'Bypass in Test' or 'Remove from t
 
 In the case of bypassing a transform, your pipeline will look like the one below ('Remove' will add a similar icon to the transform icon, crossing it out).
 
-image:pipeline-unit-testing-bypass-transform.png[Unit Test - Bypass transform, width="65%"]
+image::pipeline-unit-testing-bypass-transform.png[Unit Test - Bypass transform, width="65%"]
 
 == Automate unit test execution
 
@@ -174,7 +174,7 @@ There is a workflow action called "Run Pipeline Unit Tests" which can execute al
 
 Use the 'Get test names' in this action to specify which of the available unit tests you want to include in your workflow.
 
-image:pipeline-unit-testing-workflow.png[Unit Test - Workflow, width="55%"]
+image::pipeline-unit-testing-workflow.png[Unit Test - Workflow, width="55%"]
 
 In the workflow logging output, you'll find information about the exit state of your unit tests:
 
