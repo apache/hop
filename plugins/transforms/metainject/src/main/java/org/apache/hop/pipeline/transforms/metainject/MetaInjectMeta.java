@@ -76,9 +76,7 @@ public class MetaInjectMeta extends BaseTransformMeta
   private static final String MAPPINGS = "mappings";
   private static final String MAPPING = "mapping";
 
-  private static final String PIPELINE_NAME = "pipeline_name";
   private static final String FILENAME = "filename";
-  private static final String DIRECTORY_PATH = "directory_path";
   private static final String TARGET_FILE = "target_file";
   private static final String NO_EXECUTION = "no_execution";
   private static final String SOURCE_TRANSFORM = "source_transform";
@@ -95,12 +93,6 @@ public class MetaInjectMeta extends BaseTransformMeta
   private static final String SOURCE_OUTPUT_FIELD_TYPE = "source_output_field_type";
   private static final String SOURCE_OUTPUT_FIELD_LENGTH = "source_output_field_length";
   private static final String SOURCE_OUTPUT_FIELD_PRECISION = "source_output_field_precision";
-
-  private static final String MAPPING_SOURCE_FIELD = "mapping_source_field";
-  private static final String MAPPING_SOURCE_TRANSFORM = "mapping_source_transform";
-  private static final String MAPPING_TARGET_DETAIL = "mapping_target_detail";
-  private static final String MAPPING_TARGET_ATTRIBUTE_KEY = "mapping_target_attribute_key";
-  private static final String MAPPING_TARGET_TRANSFORM_NAME = "mapping_target_transform_name";
 
   private static final String GROUP_AND_NAME_DELIMITER = ".";
 
@@ -144,9 +136,6 @@ public class MetaInjectMeta extends BaseTransformMeta
     Object retval = super.clone();
     return retval;
   }
-
-  @Override
-  public void setDefault() {}
 
   @Override
   public String getXml() {
@@ -334,7 +323,7 @@ public class MetaInjectMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
-              PKG, "MetaInjectMeta.Exception.UnableToLoadTransformationFromFile", realFilename),
+              PKG, "MetaInjectMeta.Exception.UnableToLoadPipelineFromFile", realFilename),
           e);
     }
 
@@ -491,12 +480,6 @@ public class MetaInjectMeta extends BaseTransformMeta
   public String getActiveReferencedObjectDescription() {
     return BaseMessages.getString(PKG, "MetaInjectMeta.ReferencedObjectAfterInjection.Description");
   }
-
-  //  @Override
-  //  @Deprecated
-  //  public Object loadReferencedObject( int index, IVariables variables ) throws HopException {
-  //    return loadReferencedObject( index, null, variables );
-  //  }
 
   /**
    * Load the referenced object
