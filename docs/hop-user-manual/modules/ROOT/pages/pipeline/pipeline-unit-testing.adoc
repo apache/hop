@@ -64,7 +64,7 @@ After execution, transform output is validated against golden data and logged. I
 
 The 'Unit Testing' category in the transform context dialog (click on transform icon to open) contains the available unit testing options:
 
-image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets, width=90%, link="pipeline-unit-testing-data-sets.png"]
+image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets, width=90%]
 
 * **Set input data set**: For the active unit test, it defines which data set to use instead of the output of the transform
 * **Clear input data set**: Remove a defined input data set from this transform unit test

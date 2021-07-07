@@ -160,7 +160,7 @@ You'll be prompted for your username and password. The default is `cluster` for 
 
 TIP: on startup, the pipeline and workflow lists shown below will be empty. Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop Remote pipeline engine] run configuration or through the xref:metadata-types/web-service.adoc[REST api]. When pipelines or workflows are executed on the server, you'll be able to follow the logging output either from the terminal or a log file (e.g. piped from the startup command).
 
-image::hop-server/hop-server-status.png[Hop Server Status, width="65%", link=hop-server/hop-server-status.png]
+image::hop-server/hop-server-status.png[Hop Server Status, width="65%"]
 
 For each of the options in the pipeline and workflow dialogs described below, select a pipeline and workflow from the list and select the desired option.
 

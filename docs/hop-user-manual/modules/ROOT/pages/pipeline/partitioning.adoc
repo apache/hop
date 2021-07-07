@@ -27,7 +27,7 @@ Partitioning data is an important feature to scale your Hop pipelines up and out
 By default, each transform in a pipeline is executed in parallel in a single separate thread. +
 Consider, for example, the pipeline below. With a single copy of each transform, the data is read from the CSV file input transform and then aggregated in the count by state transform. The results of which can be verified by examining the preview data.
 
-image::hop-gui/pipeline/partitionining-preview.png[Pipeline Preview, width="45%", link="/hop-gui/pipeline/partitioning-preview.png"]
+image::hop-gui/pipeline/partitionining-preview.png[Pipeline Preview, width="45%"]
 
 To take advantage of the processing resources in your run configuration, you can scale up the pipeline using the multi-threading option `Change Number of Copies to Start` to produce multiple copies of the transform (click the transform's icon to open the context dialog and select 'Specify copies' in the 'Data routing' category).
 
@@ -37,29 +37,29 @@ By default, this data movement from the CSV file input transform into the count 
 
 Reading the data from the CSV file is done in parallel. Attempting to aggregate in parallel, however, produces incorrect results because the rows are split arbitrarily (without a specific rule) over the two copies of the count by state aggregation transform, as shown in the preview data.
 
-image::hop-gui/pipeline/partitionining-preview-2.png[Pipeline Preview, width="45%", link="/hop-gui/pipeline/partitioning-preview-2.png"]
+image::hop-gui/pipeline/partitionining-preview-2.png[Pipeline Preview, width="45%"]
 
 == Understand repartitioning logic
 
 Data distribution in the transforms is shown in the following table.
 
-image::hop-gui/pipeline/partitionining-preview-table.png[Pipeline Preview Table, width="65%", link="/hop-gui/pipeline/partitioning-preview-table.png"]
+image::hop-gui/pipeline/partitionining-preview-table.png[Pipeline Preview Table, width="65%"]
 
 As you can see, the CSV file input transform divides the work between two transform copies and each copy reads 5000 rows of data. However, these 2 transform copies also need to make sure that the rows end up on the correct count by state transform copy where they arrive in a 5004/4996 split. Because of that, it is a general rule that the transform performing the repartitioning (row redistribution) of the data (a non-partitioned transform before a partitioned one) has internal buffers from every source transform copy to every target transform copy, as shown below.
 
-image::hop-gui/pipeline/partitionining-buffers.png[Partitioning Buffers, width="45%", link="/hop-gui/pipeline/partitioning-buffers.png"]
+image::hop-gui/pipeline/partitionining-buffers.png[Partitioning Buffers, width="45%"]
 
 This is where partitioning data becomes a useful concept, as it applies specific rule-based direction for aggregation, directing rows from the same state to the same transform copy, so that the rows are not split arbitrarily. In the example below, a xref:metadata-types/partition-schema.adoc[partition schema] called State was applied to the count by state transform and the Remainder of division partitioning rule was applied to the State field. Now, the count by state aggregation transform produces consistent correct results because the rows were split up according to the partition schema and rule, as shown in the preview data.
 
-image::hop-gui/pipeline/partitionining-partition-schema.png[Partition Schema, width="45%", link="/hop-gui/pipeline/partitioning-partition-schema.png"]
+image::hop-gui/pipeline/partitionining-partition-schema.png[Partition Schema, width="45%"]
 
-image::hop-gui/pipeline/partitionining-partitioned.png[Pipeline Transform Partitioned, width="45%", link="/hop-gui/pipeline/partitioning-partitioned.png"]
+image::hop-gui/pipeline/partitionining-partitioned.png[Pipeline Transform Partitioned, width="45%"]
 
 == Partitioning data over tables
 
 The Table output transform supports partitioning rows of data to different tables. When configured to accept the table name from a Partitioning field, the PDI client will output the rows to the appropriate table. You can also Partition data per month or Partition data per day. To ensure that all the necessary tables exist, we recommend creating them in a separate pipeline.
 
-image::hop-gui/pipeline/partitionining-table.png[Partitioned Table Transform, width="45%", link="/hop-gui/pipeline/partitioning-table.png"]
+image::hop-gui/pipeline/partitionining-table.png[Partitioned Table Transform, width="45%"]
 
 
 == Use partitioning
@@ -82,12 +82,12 @@ NOTE: When you run the pipeline, there are no guarantees as to which page name g
 
 When a partitioned transform passes data to another partitioned transform with the same partition schema, the data is kept in swimlanes because no repartitioning needs to be done. As illustrated below, no extra buffers (row sets) are allocated between the copies of transforms count by state and Replace in string.
 
-image::hop-gui/pipeline/partitionining-swimlanes-1.png[Partitioning - Swimlanes, width="45%", link="/hop-gui/pipeline/partitioning-swimlanes-1.png"]
+image::hop-gui/pipeline/partitionining-swimlanes-1.png[Partitioning - Swimlanes, width="45%"]
 
 
 The transform copies remain isolated from one another and the rows of data travel in swimlanes. No extra work needs to be done to keep the data partitioned, so you can chain as many partitioned transforms as needed. This will internally be executed as shown in the following illustration.
 
-image::hop-gui/pipeline/partitionining-swimlanes-2.png[Partitioning - Swimlanes, width="45%", link="/hop-gui/pipeline/partitioning-swimlanes-2.png"]
+image::hop-gui/pipeline/partitionining-swimlanes-2.png[Partitioning - Swimlanes, width="45%"]
 
 
 == Rules for partitioning
