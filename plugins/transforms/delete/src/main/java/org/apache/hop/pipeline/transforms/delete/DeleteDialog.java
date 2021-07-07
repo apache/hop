@@ -228,7 +228,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
-    int nrKeyRows = (input.getKeyStream() != null ? input.getKeyStream().length : 1);
+    List<DeleteKeyField> keyFields = input.getLookup().getFields();
+    int nrKeyRows = (keyFields != null && !keyFields.equals(Collections.EMPTY_LIST) ? keyFields.size() : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -353,29 +354,32 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     wCommit.setText(input.getCommitSizeVar());
 
-    if (input.getKeyStream() != null) {
-      for (int i = 0; i < input.getKeyStream().length; i++) {
+    List<DeleteKeyField> keyFields = input.getLookup().getFields();
+
+    if (keyFields != null && !keyFields.equals(Collections.EMPTY_LIST)) {
+      for (int i = 0; i < keyFields.size(); i++) {
         TableItem item = wKey.table.getItem(i);
-        if (input.getKeyLookup()[i] != null) {
-          item.setText(1, input.getKeyLookup()[i]);
+        DeleteKeyField field = keyFields.get(i);
+        if (field.getKeyLookup() != null) {
+          item.setText(1, field.getKeyLookup());
         }
-        if (input.getKeyCondition()[i] != null) {
-          item.setText(2, input.getKeyCondition()[i]);
+        if (field.getKeyCondition() != null) {
+          item.setText(2, field.getKeyCondition());
         }
-        if (input.getKeyStream()[i] != null) {
-          item.setText(3, input.getKeyStream()[i]);
+        if (field.getKeyStream() != null) {
+          item.setText(3, field.getKeyStream());
         }
-        if (input.getKeyStream2()[i] != null) {
-          item.setText(4, input.getKeyStream2()[i]);
+        if (field.getKeyStream2() != null) {
+          item.setText(4, field.getKeyStream2());
         }
       }
     }
 
-    if (input.getSchemaName() != null) {
-      wSchema.setText(input.getSchemaName());
+    if (input.getLookup().getSchemaName() != null) {
+      wSchema.setText(input.getLookup().getSchemaName());
     }
-    if (input.getTableName() != null) {
-      wTable.setText(input.getTableName());
+    if (input.getLookup().getTableName() != null) {
+      wTable.setText(input.getLookup().getTableName());
     }
     if (input.getDatabaseMeta() != null) {
       wConnection.setText(input.getDatabaseMeta().getName());
@@ -451,24 +455,26 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
 
-    inf.allocate(nrkeys);
-
     inf.setCommitSize(wCommit.getText());
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "DeleteDialog.Log.FoundKeys", String.valueOf(nrkeys)));
     }
     // CHECKSTYLE:Indentation:OFF
+    List<DeleteKeyField> keyFields = inf.getLookup().getFields();
+    keyFields.clear();
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
-      inf.getKeyLookup()[i] = item.getText(1);
-      inf.getKeyCondition()[i] = item.getText(2);
-      inf.getKeyStream()[i] = item.getText(3);
-      inf.getKeyStream2()[i] = item.getText(4);
+      DeleteKeyField f = new DeleteKeyField(item.getText(1),
+              item.getText(2),
+              item.getText(3),
+              item.getText(4));
+      keyFields.add(f);
     }
 
-    inf.setSchemaName(wSchema.getText());
-    inf.setTableName(wTable.getText());
+    inf.getLookup().setSchemaName(wSchema.getText());
+    inf.getLookup().setTableName(wTable.getText());
     inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
 
     transformName = wTransformName.getText(); // return value
