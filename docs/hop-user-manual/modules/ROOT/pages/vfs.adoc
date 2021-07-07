@@ -55,15 +55,15 @@ Check the Apache VFS https://commons.apache.org/proper/commons-vfs/filesystems.h
 |BZIP2|Provides read-only access to the contents of gzip and bzip2 files.
 a|URI Format
 
-`gz:// compressed-file-uri`
+`+gz:// compressed-file-uri+`
 
-`bz2:// compressed-file-uri`
+`+bz2:// compressed-file-uri+`
 
 Where compressed-file-uri refers to a file of any supported type. There is no need to add a `!` part to the URI if you read the content of the file you always will get the uncompressed version.
 
 Examples
 
-* `gz:/my/gz/file.gz`
+* `+gz:/my/gz/file.gz+`
 
 //
 // CIFS
@@ -72,18 +72,18 @@ Examples
 |File|Provides access to the files on the local physical file system.
 a|URI Format
 
-`[file://] absolute-path`
+`+[file://] absolute-path+`
 
 Where `absolute-path` is a valid absolute file name for the local platform. UNC names are supported under Windows.
 
 Examples
 
-* `file:///home/someuser/somedir`
-* `file:///C:/Documents and Settings`
-* `file://///somehost/someshare/afile.txt`
-* `/home/someuser/somedir`
-* `c:\program files\some dir`
-* `c:/program files/some dir`
+* `+file:///home/someuser/somedir+`
+* `+file:///C:/Documents and Settings+`
+* `+file://///somehost/someshare/afile.txt+`
+* `+/home/someuser/somedir+`
+* `+c:\program files\some dir+`
+* `+c:/program files/some dir+`
 
 
 //
@@ -92,15 +92,15 @@ Examples
 |FTP|Provides access to the files on an FTP server.
 a|URI Format
 
-`ftp://[ username[: password]@] hostname[: port][ relative-path]`
+`+tp://[ username[: password]@] hostname[: port][ relative-path]+`
 
 Examples
 
-`ftp://myusername:mypassword@somehost/pub/downloads/somefile.tgz`
+`+ftp://myusername:mypassword@somehost/pub/downloads/somefile.tgz+`
 
 By default, the path is relative to the user's home directory. This can be changed with:
 
-`FtpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(options, false);`
+`+FtpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(options, false);+`
 //
 // FTPS
 //
@@ -108,11 +108,11 @@ By default, the path is relative to the user's home directory. This can be chang
 a|
 URI Format
 
-`ftps://[ username[: password]@] hostname[: port][ absolute-path]`
+`+ftps://[ username[: password]@] hostname[: port][ absolute-path]+`
 
 Examples
 
-`ftps://myusername:mypassword@somehost/pub/downloads/somefile.tgz`
+`+ftps://myusername:mypassword@somehost/pub/downloads/somefile.tgz+`
 
 //
 // GZIP
@@ -125,12 +125,12 @@ Examples
 a|
 URI Format
 
-`hdfs:// hostname[: port][ absolute-path]`
+`+hdfs:// hostname[: port][ absolute-path]+`
 
 Examples
 
-* `hdfs://somehost:8080/downloads/some_dir`
-* `hdfs://somehost:8080/downloads/some_file.ext`
+* `+hdfs://somehost:8080/downloads/some_dir+`
+* `+hdfs://somehost:8080/downloads/some_file.ext+`
 
 //
 // HTTP
@@ -139,9 +139,9 @@ Examples
 a|
 URI Format
 
-`http://[ username[: password]@] hostname[: port][ absolute-path]`
+`+http://[ username[: password]@] hostname[: port][ absolute-path]+`
 
-`https://[ username[: password]@] hostname[: port][ absolute-path]`
+`+https://[ username[: password]@] hostname[: port][ absolute-path]+`
 
 File System Options
 
@@ -157,8 +157,8 @@ File System Options
 
 Examples
 
-* `http://somehost:8080/downloads/somefile.jar`
-* `http://myusername@somehost/index.html`
+* `+http://somehost:8080/downloads/somefile.jar+`
+* `+http://myusername@somehost/index.html+`
 
 //
 // Jar, Zip and Tar
@@ -167,27 +167,27 @@ Examples
 a|
 URI Format
 
-`zip:// arch-file-uri[! absolute-path]`
+`+zip:// arch-file-uri[! absolute-path]+`
 
-`jar:// arch-file-uri[! absolute-path]`
+`+jar:// arch-file-uri[! absolute-path]+`
 
-`tar:// arch-file-uri[! absolute-path]`
+`+tar:// arch-file-uri[! absolute-path]+`
 
-`tgz:// arch-file-uri[! absolute-path]`
+`+tgz:// arch-file-uri[! absolute-path]+`
 
-`tbz2:// arch-file-uri[! absolute-path]`
+`+tbz2:// arch-file-uri[! absolute-path]+`
 
 Where `arch-file-uri` refers to a file of any supported type, including other zip files. Note: if you would like to use the ! as normal character it must be escaped using `%21`.
 `tgz` and `tbz2` are convenience for `tar:gz` and `tar:bz2`.
 
 Examples
 
-* `jar:../lib/classes.jar!/META-INF/manifest.mf`
-* `zip:http://somehost/downloads/somefile.zip`
-* `jar:zip:outer.zip!/nested.jar!/somedir`
-* `jar:zip:outer.zip!/nested.jar!/some%21dir`
-* `tar:gz:http://anyhost/dir/mytar.tar.gz!/mytar.tar!/path/in/tar/README.txt`
-* `tgz:file://anyhost/dir/mytar.tgz!/somepath/somefile`
+* `+jar:../lib/classes.jar!/META-INF/manifest.mf+`
+* `+zip:http://somehost/downloads/somefile.zip+`
+* `+jar:zip:outer.zip!/nested.jar!/somedir+`
+* `+jar:zip:outer.zip!/nested.jar!/some%21dir+`
+* `+tar:gz:http://anyhost/dir/mytar.tar.gz!/mytar.tar!/path/in/tar/README.txt+`
+* `+tgz:file://anyhost/dir/mytar.tgz!/somepath/somefile+`
 
 //
 // mime
@@ -197,13 +197,13 @@ If a part in the parsed mail has no name, a dummy name will be generated. The du
 a|
 URI Format
 
-`mime:// mime-file-uri[! absolute-path]`
+`+mime:// mime-file-uri[! absolute-path]+`
 
 Examples
 
-* `mime:file:///your/path/mail/anymail.mime!/`
-* `mime:file:///your/path/mail/anymail.mime!/filename.pdf`
-* `mime:file:///your/path/mail/anymail.mime!/_body_part_0`
+* `+mime:file:///your/path/mail/anymail.mime!/+`
+* `+mime:file:///your/path/mail/anymail.mime!/filename.pdf+`
+* `+mime:file:///your/path/mail/anymail.mime!/_body_part_0+`
 
 //
 // RAM
@@ -212,7 +212,7 @@ Examples
 a|
 URI Format
 
-`ram://[ path]`
+`+ram://[ path]+`
 
 File System Options
 
@@ -220,7 +220,7 @@ File System Options
 
 Examples
 
-* `ram:///any/path/to/file.txt`
+* `+ram:///any/path/to/file.txt+`
 
 //
 // RES
@@ -229,11 +229,11 @@ Examples
 a|
 URI Format
 
-`res://[ path]`
+`+res://[ path]+`
 
 Examples
 
-* `res://path/in/classpath/image.png` might result in `jar:file://my/path/to/images.jar!/path/in/classpath/image.png`
+* `+res://path/in/classpath/image.png` might result in `jar:file://my/path/to/images.jar!/path/in/classpath/image.png+`
 
 //
 // SFTP
@@ -242,11 +242,11 @@ Examples
 a|
 URI Format
 
-`sftp://[ username[: password]@] hostname[: port][ relative-path]`
+`+sftp://[ username[: password]@] hostname[: port][ relative-path]+`
 
 Examples
 
-* `sftp://myusername:mypassword@somehost/pub/downloads/somefile.tgz`
+* `+sftp://myusername:mypassword@somehost/pub/downloads/somefile.tgz+`
 
 //By default, the path is relative to the user's home directory. This can be changed with:
 //
@@ -263,11 +263,11 @@ Examples
 a|
 URI Format
 
-`tmp://[ absolute-path]`
+`+tmp://[ absolute-path]+`
 
 Examples
 
-* `tmp://dir/somefile.txt`
+* `+tmp://dir/somefile.txt+`
 
 //
 // WebDAV
@@ -276,7 +276,7 @@ Examples
 a|
 URI Format
 
-`webdav://[ username[: password]@] hostname[: port][ absolute-path]`
+`+webdav://[ username[: password]@] hostname[: port][ absolute-path]+`
 
 File System Options
 
@@ -285,7 +285,7 @@ File System Options
 
 Examples
 
-* `webdav://somehost:8080/dist`
+* `+webdav://somehost:8080/dist+`
 
 //
 // Zip
