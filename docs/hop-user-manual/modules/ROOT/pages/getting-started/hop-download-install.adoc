@@ -34,7 +34,7 @@ Hop is self contained, all you need is a Java runtime. Hop has been developed an
 
 == Install
 
-Unzip Hop to a folder of your choice. From that folder, you'll be able to run the different Hop <<../hop-tools.adoc, tools>> through their corresponding scripts.
+Unzip Hop to a folder of your choice. From that folder, you'll be able to run the different Hop xref:hop-tools/index.adoc[tools] through their corresponding scripts.
 
 Now that you have Hop installed, let's have a look at all of the Hop tools you have at your disposal.
 

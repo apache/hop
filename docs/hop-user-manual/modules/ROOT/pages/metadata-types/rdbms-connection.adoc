@@ -41,7 +41,7 @@ Actions:
 
 Transforms:
 
-* xref:pipeline/transforms/dbproc.adoc[Call DB Procedure]
+* xref:pipeline/transforms/calldbproc.adoc[Call DB Procedure]
 * xref:pipeline/transforms/columnexists.adoc[Column Exists]
 * xref:pipeline/transforms/combinationlookup.adoc[Combination Lookup/Update]
 * xref:pipeline/transforms/databasejoin.adoc[Database Join]

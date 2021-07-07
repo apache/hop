@@ -41,7 +41,7 @@ This plugin organization is mainly technical, there is no 1 on 1 mapping between
 ** Cassandra: xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection], xref:pipeline/transforms/cassandra-input.adoc[Cassandra Input] and xref:pipeline/transforms/cassandra-output.adoc[Cassandra Output]
 ** Google:
 *** VFS: xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/google-drive-vfs.adoc[Google Drive]
-*** Transforms: xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets Input], xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets Output], Google Analytics
+*** Transforms: xref:pipeline/transforms/googlesheetsinput.adoc[Google Sheets Input], xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets Output], Google Analytics
 ** Neo4j: a collection of Neo4j plugins
 * xref:pipeline/transforms.adoc[Transform Plugins]
 * Value Types
