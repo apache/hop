@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-import javafx.scene.control.ListCell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -110,7 +109,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
 
       data.schemaTable =
           meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
+              .getQuotedSchemaTableCombination(
+                  this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -131,18 +131,19 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
             !"IS NOT NULL".equalsIgnoreCase(dlf.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream()));
+              BaseMessages.getString(PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream()));
         }
 
-        data.keynrs2[i] = (dlf.getKeyStream2() == null ? -1 : getInputRowMeta().indexOfValue(dlf.getKeyStream2()));
+        data.keynrs2[i] =
+            (dlf.getKeyStream2() == null
+                ? -1
+                : getInputRowMeta().indexOfValue(dlf.getKeyStream2()));
         if (data.keynrs2[i] < 0
             && // couldn't find field!
             "BETWEEN".equalsIgnoreCase(dlf.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream2()));
+              BaseMessages.getString(PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream2()));
         }
 
         if (log.isDebug()) {
