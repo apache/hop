@@ -39,7 +39,7 @@ parameters::
 * load: -
 
 example request::
-`http://localhost:8081/hop/addExport/?type=workflow` with zipped workflow as payload
+`+http://localhost:8081/hop/addExport/?type=workflow+` with zipped workflow as payload
 
 result::
 A zip file with the export is created on the server's file system.
@@ -69,7 +69,7 @@ parameters::
 Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
-`http://localhost:8081/hop/addPipeline/xml=Y` with XML payload
+`+http://localhost:8081/hop/addPipeline/xml=Y+` with XML payload
 
 result::
 
@@ -90,7 +90,7 @@ parameters::
 Request body should contain xml containing workflow_configuration (pipeline and workflow_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
-`http://localhost:8081/hop/addWorkflow/xml=Y` with XML payload
+`+http://localhost:8081/hop/addWorkflow/xml=Y+` with XML payload
 
 result::
 
@@ -110,7 +110,7 @@ parameters::
 * id: id of the pipeline to generate the image for
 
 example request::
-GET `http://localhost:8081/hop/pipelineImage/?name=remote-pipeline&id=c1451bfb-b867-4c76-b123-c29d2b05da17`
+GET `+http://localhost:8081/hop/pipelineImage/?name=remote-pipeline&id=c1451bfb-b867-4c76-b123-c29d2b05da17+`
 
 result::
 an SVG image of the pipeline graph
@@ -131,7 +131,7 @@ parameters::
 * id: id of the pipeline to get the status for
 
 example request::
-GET `http://localhost:8081/hop/pipelineStatus/?name=<NAME>>&id=<ID>`
+GET `+http://localhost:8081/hop/pipelineStatus/?name=<NAME>>&id=<ID>+`
 
 result::
 an HTML response with the execution status, transform details and canvas preview for this pipeline
@@ -148,7 +148,7 @@ parameters::
 none
 
 example request::
-GET `http://localhost:8081/hop/status`
+GET `+http://localhost:8081/hop/status+`
 
 result::
 an HTML page with an overview of the pipelines and workflows on the server, their execution details and the server's configuration details.
@@ -169,7 +169,7 @@ parameters::
 * id: id of the workflow to generate the image for
 
 example request::
-GET `http://localhost:8081/hop/workflowImage/?name=<NAME>>&id=<ID>`
+GET `+http://localhost:8081/hop/workflowImage/?name=<NAME>>&id=<ID>+`
 
 result::
 an SVG image of the workflow graph
@@ -191,7 +191,7 @@ parameters::
 * id: id of the workflow to get the status for
 
 example request::
-GET `http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>+`
 
 result::
 an HTML response with the execution status, action details and canvas preview for this workflow
@@ -213,7 +213,7 @@ parameters::
 * id: id of the pipeline to pause or restart
 
 example request::
-GET `http://localhost:8081/hop/pausePipeline/?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/pausePipeline/?name=<NAME>&id=<ID>+`
 
 result::
 HTML page with the request status, e.g.
@@ -256,7 +256,7 @@ parameters::
 * id: the id of the pipeline to prepare execution for
 
 example request::
-GET `http://localhost:8081/hop/prepareExec/?xml=Y&name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/prepareExec/?xml=Y&name=<NAME>&id=<ID>+`
 
 result::
 
@@ -311,7 +311,7 @@ parameters::
 Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
-`http://localhost:8081/hop/registerPipeline/xml=Y` with XML payload
+`+http://localhost:8081/hop/registerPipeline/xml=Y+` with XML payload
 
 result::
 
@@ -352,7 +352,7 @@ parameters::
 - id: the id of the pipeline to remove
 
 example request::
-GET `http://localhost:8081/hop/removePipeline/?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/removePipeline/?name=<NAME>&id=<ID>+`
 
 result::
 
@@ -392,7 +392,7 @@ parameters::
 * id: the id of the workflow to remove
 
 example request::
-GET `http://localhost:8081/hop/removeWorkflow/?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/removeWorkflow/?name=<NAME>&id=<ID>+`
 
 result::
 
@@ -434,7 +434,7 @@ parameters::
 * type: (input/output) sniff input or output
 
 example request::
-GET `http://localhost:8081/hop/sniffTransform/?xml=Y&name=<NAME>&id=<ID>&transform=<TRANSFORMNAME>&type=output`
+GET `+http://localhost:8081/hop/sniffTransform/?xml=Y&name=<NAME>&id=<ID>&transform=<TRANSFORMNAME>&type=output+`
 
 result::
 
@@ -461,7 +461,7 @@ parameters::
 * name: the name of the pipeline to start
 
 example request::
-GET `http://localhost:8081/hop/startExec?name=<NAME>`
+GET `+http://localhost:8081/hop/startExec?name=<NAME>+`
 
 result::
 
@@ -503,7 +503,7 @@ parameters::
 * name: the name of the pipeline to start
 
 example request::
-GET `http://localhost:8081/hop/startPipeline?name=<NAME>`
+GET `+http://localhost:8081/hop/startPipeline?name=<NAME>+`
 
 result::
 
@@ -545,7 +545,7 @@ parameters::
 * name: the name of the workflow to start
 
 example request::
-GET `http://localhost:8081/hop/startWorkflow?name=<NAME>`
+GET `+http://localhost:8081/hop/startWorkflow?name=<NAME>+`
 
 result::
 
@@ -587,7 +587,7 @@ parameters::
 * id: the id of the pipeline to stop
 
 example request::
-GET `http://localhost:8081/hop/stopPipeline?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/stopPipeline?name=<NAME>&id=<ID>+`
 
 result::
 
@@ -629,7 +629,7 @@ parameters::
 * id: the id of the workflow to stop
 
 example request::
-GET `http://localhost:8081/hop/stopWorkflow?name=<NAME>&id=<ID>`
+GET `+http://localhost:8081/hop/stopWorkflow?name=<NAME>&id=<ID>+`
 
 
 result::
