@@ -52,5 +52,5 @@ The Neo4j plugin offers a separate perspective to query this logging and lineage
 * xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j Graph Output]: Writes to a Neo4j graph using an input fields mapping.
 * xref:pipeline/transforms/neo4j-import.adoc[Neo4j Import]: Runs a Neo4j import command using the provided CSV files
 * xref:pipeline/transforms/neo4j-output.adoc[Neo4j Output]: Write nodes and/or relationships to a Neo4j graph
-* xref:pipeline/transforms/neo4j-split-graph[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
+* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
 
