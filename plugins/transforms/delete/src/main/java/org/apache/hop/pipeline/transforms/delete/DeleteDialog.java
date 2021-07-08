@@ -41,7 +41,10 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -94,6 +97,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -229,7 +233,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     int nrKeyCols = 4;
     List<DeleteKeyField> keyFields = input.getLookup().getFields();
-    int nrKeyRows = (keyFields != null && !keyFields.equals(Collections.EMPTY_LIST) ? keyFields.size() : 1);
+    int nrKeyRows =
+        (keyFields != null && !keyFields.equals(Collections.emptyList()) ? keyFields.size() : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -309,12 +314,14 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -356,7 +363,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     List<DeleteKeyField> keyFields = input.getLookup().getFields();
 
-    if (keyFields != null && !keyFields.equals(Collections.EMPTY_LIST)) {
+    if (keyFields != null && !keyFields.equals(Collections.emptyList())) {
       for (int i = 0; i < keyFields.size(); i++) {
         TableItem item = wKey.table.getItem(i);
         DeleteKeyField field = keyFields.get(i);
@@ -402,9 +409,9 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {
@@ -452,7 +459,6 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getInfo(DeleteMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
 
     inf.setCommitSize(wCommit.getText());
@@ -466,10 +472,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
-      DeleteKeyField f = new DeleteKeyField(item.getText(1),
-              item.getText(2),
-              item.getText(3),
-              item.getText(4));
+      DeleteKeyField f =
+          new DeleteKeyField(item.getText(1), item.getText(2), item.getText(3), item.getText(4));
       keyFields.add(f);
     }
 

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
@@ -26,87 +25,86 @@ import java.util.Objects;
 
 public class DeleteLookupField {
 
-    @HopMetadataProperty(
-            key = "key",
-            injectionGroupDescription = "Delete.Injection.Fields",
-            injectionKeyDescription = "Delete.Injection.Field")
-    private List<DeleteKeyField> fields;
+  @HopMetadataProperty(
+      key = "key",
+      injectionGroupDescription = "Delete.Injection.Fields",
+      injectionKeyDescription = "Delete.Injection.Field")
+  private List<DeleteKeyField> fields;
 
-    /** The target schema name */
-    @HopMetadataProperty(
-            key = "schema",
-            injectionKeyDescription = "Delete.Injection.SchemaName.Field")
-    private String schemaName;
+  /** The target schema name */
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKeyDescription = "Delete.Injection.SchemaName.Field")
+  private String schemaName;
 
-    /** The lookup table name */
-    @HopMetadataProperty(
-            key = "table",
-            injectionKeyDescription = "Delete.Injection.TableName.Field")
-    private String tableName;
+  /** The lookup table name */
+  @HopMetadataProperty(key = "table", injectionKeyDescription = "Delete.Injection.TableName.Field")
+  private String tableName;
 
-    public DeleteLookupField() {
-        fields = new ArrayList<>();
+  public DeleteLookupField() {
+    fields = new ArrayList<>();
+  }
+
+  public DeleteLookupField(DeleteLookupField obj) {
+    this.schemaName = obj.schemaName;
+    this.tableName = obj.tableName;
+
+    fields = new ArrayList<>();
+    for (DeleteKeyField field : obj.fields) {
+      this.fields.add(new DeleteKeyField(field));
     }
+  }
 
-    public DeleteLookupField(DeleteLookupField obj) {
-        this.schemaName = obj.schemaName;
-        this.tableName = obj.tableName;
+  public DeleteLookupField(String schemaName, String tableName, List<DeleteKeyField> fields) {
+    this.fields = fields;
+    this.schemaName = schemaName;
+    this.tableName = tableName;
+  }
 
-        fields = new ArrayList<>();
-        for (DeleteKeyField field : obj.fields) {
-            this.fields.add(new DeleteKeyField(field));
-        }
-    }
+  /** @return Returns the tableName. */
+  public String getTableName() {
+    return tableName;
+  }
 
-    public DeleteLookupField(String schemaName, String tableName, List<DeleteKeyField> fields) {
-        this.fields = fields;
-        this.schemaName = schemaName;
-        this.tableName = tableName;
-    }
+  /** @param tableName The tableName to set. */
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
 
-    /** @return Returns the tableName. */
-    public String getTableName() {
-        return tableName;
-    }
+  public String getSchemaName() {
+    return schemaName;
+  }
 
-    /** @param tableName The tableName to set. */
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
+  public void setSchemaName(String schemaName) {
+    this.schemaName = schemaName;
+  }
 
-    public String getSchemaName() {
-        return schemaName;
-    }
+  /**
+   * Gets fields
+   *
+   * @return value of fields
+   */
+  public List<DeleteKeyField> getFields() {
+    return fields;
+  }
 
-    public void setSchemaName(String schemaName) {
-        this.schemaName = schemaName;
-    }
+  /** @param fields The fields to set */
+  public void setFields(List<DeleteKeyField> fields) {
+    this.fields = fields;
+  }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    DeleteLookupField that = (DeleteLookupField) o;
+    return fields.equals(that.fields)
+        && Objects.equals(schemaName, that.schemaName)
+        && tableName.equals(that.tableName);
+  }
 
-    /**
-     * Gets fields
-     *
-     * @return value of fields
-     */
-    public List<DeleteKeyField> getFields() {
-        return fields;
-    }
-
-    /** @param fields The fields to set */
-    public void setFields(List<DeleteKeyField> fields) {
-        this.fields = fields;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DeleteLookupField that = (DeleteLookupField) o;
-        return fields.equals(that.fields) && Objects.equals(schemaName, that.schemaName) && tableName.equals(that.tableName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fields, schemaName, tableName);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(fields, schemaName, tableName);
+  }
 }

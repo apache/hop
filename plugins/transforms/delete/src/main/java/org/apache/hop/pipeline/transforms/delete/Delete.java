@@ -35,12 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Delete data in a database table.
- *
- * @author Tom
- * @since 28-March-2006
- */
+/** Delete data in a database table. */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     implements ITransform<DeleteMeta, DeleteData> {
 
@@ -89,6 +84,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     incrementLinesUpdated();
   }
 
+  @Override
   public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -161,10 +157,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
       putRow(
           data.outputRowMeta, r); // output the same rows of data, but with a copy of the metadata
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
 
@@ -230,6 +224,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     }
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       if (meta.getDatabaseMeta() == null) {
@@ -256,6 +251,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {

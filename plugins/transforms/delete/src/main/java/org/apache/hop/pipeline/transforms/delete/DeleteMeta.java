@@ -41,15 +41,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This class takes care of deleting values in a table using a certain condition and values for
  * input.
- *
- * @author Tom, Matt
- * @since 28-March-2006
  */
 @Transform(
     id = "Delete",
@@ -67,15 +63,15 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
   /** database connection */
   @HopMetadataProperty(
-          key = "connection",
-          storeWithName = true,
-          injectionKeyDescription = "Delete.Injection.Connection")
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "Delete.Injection.Connection")
   private DatabaseMeta databaseMeta;
 
   /** Commit size for inserts/updates */
   @HopMetadataProperty(
-          key = "commit",
-          injectionKeyDescription = "Delete.Injection.CommitSize.Field")
+      key = "commit",
+      injectionKeyDescription = "Delete.Injection.CommitSize.Field")
   private String commitSize;
 
   public DeleteMeta() {
@@ -148,10 +144,12 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     this.lookup = new DeleteLookupField(obj.lookup);
   }
 
+  @Override
   public Object clone() {
     return new DeleteMeta(this);
   }
 
+  @Override
   public void setDefault() {
     databaseMeta = null;
     commitSize = "100";
@@ -159,6 +157,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     lookup.setTableName(BaseMessages.getString(PKG, "DeleteMeta.DefaultTableName.Label"));
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -170,6 +169,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -184,7 +184,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -340,6 +340,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -352,12 +353,13 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(lookup.getTableName())) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
             String schemaTable =
-                databaseMeta.getQuotedSchemaTableCombination(variables, lookup.getSchemaName(), lookup.getTableName());
+                databaseMeta.getQuotedSchemaTableCombination(
+                    variables, lookup.getSchemaName(), lookup.getTableName());
             String crTable = db.getDDL(schemaTable, prev, null, false, null, true);
 
             String crIndex = "";
@@ -415,6 +417,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     return retval;
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -459,6 +462,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     return new DeleteData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -467,6 +471,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
