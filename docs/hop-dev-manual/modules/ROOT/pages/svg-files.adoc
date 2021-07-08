@@ -32,4 +32,3 @@ Since there are a lot of licenses out there so be very careful.  Check with the 
 == Colors scheme
 
 If you want to re-color or create icons that fit the Hop look & feel, please refer to http://hop.apache.org/tech-manual/latest/_attachments/BrandGuideline_Hop.pdf[Hop Branding guide] for some guidance.
-
