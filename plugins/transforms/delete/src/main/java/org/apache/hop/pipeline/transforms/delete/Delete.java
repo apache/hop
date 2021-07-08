@@ -33,13 +33,9 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
+import java.util.List;
 
-/**
- * Delete data in a database table.
- *
- * @author Tom
- * @since 28-March-2006
- */
+/** Delete data in a database table. */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     implements ITransform<DeleteMeta, DeleteData> {
 
@@ -61,7 +57,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     Object[] deleteRow = new Object[data.deleteParameterRowMeta.size()];
     int deleteIndex = 0;
 
-    for (int i = 0; i < meta.getKeyStream().length; i++) {
+    List<DeleteKeyField> keyFields = meta.getLookup().getFields();
+    for (int i = 0; i < keyFields.size(); i++) {
       if (data.keynrs[i] >= 0) {
         deleteRow[deleteIndex] = row[data.keynrs[i]];
         deleteIndex++;
@@ -87,6 +84,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     incrementLinesUpdated();
   }
 
+  @Override
   public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -107,7 +105,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
 
       data.schemaTable =
           meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+              .getQuotedSchemaTableCombination(
+                  this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -115,33 +114,37 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
             BaseMessages.getString(PKG, "Delete.Log.CheckingRow") + getInputRowMeta().getString(r));
       }
 
-      data.keynrs = new int[meta.getKeyStream().length];
-      data.keynrs2 = new int[meta.getKeyStream().length];
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        data.keynrs[i] = getInputRowMeta().indexOfValue(meta.getKeyStream()[i]);
+      List<DeleteKeyField> keyFields = meta.getLookup().getFields();
+      data.keynrs = new int[keyFields.size()];
+      data.keynrs2 = new int[keyFields.size()];
+      for (int i = 0; i < keyFields.size(); i++) {
+        DeleteKeyField dlf = keyFields.get(i);
+        data.keynrs[i] = getInputRowMeta().indexOfValue(dlf.getKeyStream());
         if (data.keynrs[i] < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
+            !"IS NULL".equalsIgnoreCase(dlf.getKeyCondition())
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i]) // No field needed!
+            !"IS NOT NULL".equalsIgnoreCase(dlf.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "Delete.Exception.FieldRequired", meta.getKeyStream()[i]));
+              BaseMessages.getString(PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream()));
         }
-        data.keynrs2[i] = getInputRowMeta().indexOfValue(meta.getKeyStream2()[i]);
+
+        data.keynrs2[i] =
+            (dlf.getKeyStream2() == null
+                ? -1
+                : getInputRowMeta().indexOfValue(dlf.getKeyStream2()));
         if (data.keynrs2[i] < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i]) // 2 fields needed!
+            "BETWEEN".equalsIgnoreCase(dlf.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "Delete.Exception.FieldRequired", meta.getKeyStream2()[i]));
+              BaseMessages.getString(PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream2()));
         }
 
         if (log.isDebug()) {
           logDebug(
-              BaseMessages.getString(PKG, "Delete.Log.FieldInfo", meta.getKeyStream()[i])
+              BaseMessages.getString(PKG, "Delete.Log.FieldInfo", dlf.getKeyStream())
                   + data.keynrs[i]);
         }
       }
@@ -154,10 +157,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
       putRow(
           data.outputRowMeta, r); // output the same rows of data, but with a copy of the metadata
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
 
@@ -190,22 +191,24 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     String sql = "DELETE FROM " + data.schemaTable + Const.CR;
 
     sql += "WHERE ";
+    List<DeleteKeyField> keyFields = meta.getLookup().getFields();
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < keyFields.size(); i++) {
+      DeleteKeyField dlkf = keyFields.get(i);
       if (i != 0) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      sql += databaseMeta.quoteField(dlkf.getKeyLookup());
+      if ("BETWEEN".equalsIgnoreCase(dlkf.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
-        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
-      } else if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-          || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(dlkf.getKeyStream()));
+        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(dlkf.getKeyStream2()));
+      } else if ("IS NULL".equalsIgnoreCase(dlkf.getKeyCondition())
+          || "IS NOT NULL".equalsIgnoreCase(dlkf.getKeyCondition())) {
+        sql += " " + dlkf.getKeyCondition() + " ";
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
+        sql += " " + dlkf.getKeyCondition() + " ? ";
+        data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(dlkf.getKeyStream()));
       }
     }
 
@@ -221,6 +224,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     }
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       if (meta.getDatabaseMeta() == null) {
@@ -247,6 +251,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {
