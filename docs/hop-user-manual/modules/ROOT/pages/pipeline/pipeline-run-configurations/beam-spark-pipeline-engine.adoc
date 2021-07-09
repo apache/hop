@@ -42,18 +42,18 @@ Check the https://beam.apache.org/documentation/runners/spark/[Apache Beam Spark
 |Streaming: batch interval (ms)|The StreamingContext's batchDuration - setting Spark's batch interval.|1000
 |Streaming: checkpoint directory|	A checkpoint directory for streaming resilience, ignored in batch. For durability, a reliable filesystem such as HDFS/S3/GS is necessary.|local dir in /tmp
 |Streaming: checkpoint duration (ms)||
-|Enable Metrics sink|A servlet within the existing Spark UI to serve metrics data as JSON data.
-|Streaming: maximum records per batch|The maximum records per batch interval.
-|Streaming: minimum read time (ms)|Mimimum elapsed read time.
-|Bundle size|The maximum number of elements in a bundle.
+|Enable Metrics sink|A servlet within the existing Spark UI to serve metrics data as JSON data.|
+|Streaming: maximum records per batch|The maximum records per batch interval.|
+|Streaming: minimum read time (ms)|Mimimum elapsed read time.|
+|Bundle size|The maximum number of elements in a bundle.|
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
-|Temp location|Path for temporary files.
-|Plugins to stage (, delimited)|Comma separated list of plugins.
-|Transform plugin classes|List of transform plugin classes.
-|XP plugin classes|List of extensions point plugins.
-|Streaming Hop transforms flush interval (ms)|The amount of time after which the internal buffer is sent completely over the network and emptied.
-|Hop streaming transforms buffer size|The internal buffer size to use.
-|Fat jar file location|Fat jar location.
+|Temp location|Path for temporary files.|
+|Plugins to stage (, delimited)|Comma separated list of plugins.|
+|Transform plugin classes|List of transform plugin classes.|
+|XP plugin classes|List of extensions point plugins.|
+|Streaming Hop transforms flush interval (ms)|The amount of time after which the internal buffer is sent completely over the network and emptied.|
+|Hop streaming transforms buffer size|The internal buffer size to use.|
+|Fat jar file location|Fat jar location.|
 |===
 
 == Running remotely
