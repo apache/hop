@@ -46,7 +46,7 @@ Check the https://beam.apache.org/documentation/runners/spark/[Apache Beam Spark
 |Streaming: maximum records per batch|The maximum records per batch interval.|
 |Streaming: minimum read time (ms)|Mimimum elapsed read time.|
 |Bundle size|The maximum number of elements in a bundle.|
-|User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
+|User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.|
 |Temp location|Path for temporary files.|
 |Plugins to stage (, delimited)|Comma separated list of plugins.|
 |Transform plugin classes|List of transform plugin classes.|
