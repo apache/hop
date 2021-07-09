@@ -159,7 +159,6 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
 
     List<String> attributesList = new ArrayList<>();
     Map<String, String> getterMap = new HashMap<>();
-    //getterMap.put( "ignoreErrors", "isIgnoreErrors" );
 
     Map<String, String> setterMap = new HashMap<>();
 
