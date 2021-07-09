@@ -73,11 +73,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
@@ -659,7 +655,10 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlFields.setLayoutData(fdlUpIns);
 
     int tableCols = 2;
-    int UpInsRows = (input.getFieldStream() != null ? input.getFieldStream().length : 1);
+    int UpInsRows =
+        (input.getFields() != null && !input.getFields().equals(Collections.EMPTY_LIST)
+            ? input.getFields().size()
+                : 1);
 
     ciFields = new ColumnInfo[tableCols];
     ciFields[0] =
@@ -1201,9 +1200,9 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       wConnection.setText(input.getDatabaseMeta().getName());
     }
 
-    wTruncate.setSelection(input.truncateTable());
-    wIgnore.setSelection(input.ignoreErrors());
-    wBatch.setSelection(input.useBatchUpdate());
+    wTruncate.setSelection(input.isTruncateTable());
+    wIgnore.setSelection(input.isIgnoreErrors());
+    wBatch.setSelection(input.isUseBatchUpdate());
 
     wCommit.setText(input.getCommitSize());
 
@@ -1225,15 +1224,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       wReturnField.setText(input.getGeneratedKeyField());
     }
 
-    wSpecifyFields.setSelection(input.specifyFields());
+    wSpecifyFields.setSelection(input.isSpecifyFields());
 
-    for (int i = 0; i < input.getFieldDatabase().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
+      TableOutputField tf = input.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
-      if (input.getFieldDatabase()[i] != null) {
-        item.setText(1, input.getFieldDatabase()[i]);
+      if (tf.getFieldDatabase() != null) {
+        item.setText(1, tf.getFieldDatabase());
       }
-      if (input.getFieldStream()[i] != null) {
-        item.setText(2, input.getFieldStream()[i]);
+      if (tf.getFieldStream() != null) {
+        item.setText(2, tf.getFieldStream());
       }
     }
 
@@ -1269,12 +1269,12 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     info.setSpecifyFields(wSpecifyFields.getSelection());
 
     int nrRows = wFields.nrNonEmpty();
-    info.allocate(nrRows);
+    info.getFields().clear();
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      info.getFieldDatabase()[i] = Const.NVL(item.getText(1), "");
-      info.getFieldStream()[i] = Const.NVL(item.getText(2), "");
+      TableOutputField tf = new TableOutputField(Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
+      info.getFields().add(tf);
     }
   }
 
@@ -1381,20 +1381,21 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
       TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
 
-      if (info.specifyFields()) {
+      if (info.isSpecifyFields()) {
         // Only use the fields that were specified.
         IRowMeta prevNew = new RowMeta();
 
-        for (int i = 0; i < info.getFieldDatabase().length; i++) {
-          IValueMeta insValue = prev.searchValueMeta(info.getFieldStream()[i]);
+        for (int i = 0; i < info.getFields().size(); i++) {
+          TableOutputField tf = info.getFields().get(i);
+          IValueMeta insValue = prev.searchValueMeta(tf.getFieldStream());
           if (insValue != null) {
             IValueMeta insertValue = insValue.clone();
-            insertValue.setName(info.getFieldDatabase()[i]);
+            insertValue.setName(tf.getFieldDatabase());
             prevNew.addValueMeta(insertValue);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutputDialog.FailedToFindField.Message", info.getFieldStream()[i]));
+                    PKG, "TableOutputDialog.FailedToFindField.Message", tf.getFieldStream()));
           }
         }
         prev = prevNew;

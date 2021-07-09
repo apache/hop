@@ -116,7 +116,7 @@ public class TableOutputTest {
 
   @Test
   public void testTruncateTable_on() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(0);
 
     tableOutputSpy.truncateTable();
@@ -125,7 +125,7 @@ public class TableOutputTest {
 
   @Test
   public void testTruncateTable_on_PartitionId() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(1);
     when(tableOutputSpy.getPartitionId()).thenReturn("partition id");
 
@@ -135,7 +135,7 @@ public class TableOutputTest {
 
   @Test
   public void testProcessRow_truncatesIfNoRowsAvailable() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
 
     doReturn(null).when(tableOutputSpy).getRow();
 
@@ -147,7 +147,7 @@ public class TableOutputTest {
 
   @Test
   public void testProcessRow_doesNotTruncateIfNoRowsAvailableAndTruncateIsOff() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(false);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(false);
 
     doReturn(null).when(tableOutputSpy).getRow();
 
@@ -159,7 +159,7 @@ public class TableOutputTest {
 
   @Test
   public void testProcessRow_truncatesOnFirstRow() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
     doReturn(row).when(tableOutputSpy).getRow();
 
@@ -173,7 +173,7 @@ public class TableOutputTest {
 
   @Test
   public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
-    when(tableOutputMeta.truncateTable()).thenReturn(true);
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
     doReturn(row).when(tableOutputSpy).getRow();
     tableOutputSpy.first = false;

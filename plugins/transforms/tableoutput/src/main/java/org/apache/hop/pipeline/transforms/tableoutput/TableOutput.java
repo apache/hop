@@ -69,7 +69,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
       // truncate the table if there are no rows at all coming into this transform
-      if (first && meta.truncateTable()) {
+      if (first && meta.isTruncateTable()) {
         truncateTable();
       }
       return false;
@@ -77,13 +77,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (first) {
       first = false;
-      if (meta.truncateTable()) {
+      if (meta.isTruncateTable()) {
         truncateTable();
       }
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (!meta.specifyFields()) {
+      if (!meta.isSpecifyFields()) {
         // Just take the input row
         data.insertRowMeta = getInputRowMeta().clone();
       } else {
@@ -93,26 +93,28 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         //
         // Cache the position of the compare fields in Row row
         //
-        data.valuenrs = new int[meta.getFieldDatabase().length];
-        for (int i = 0; i < meta.getFieldDatabase().length; i++) {
-          data.valuenrs[i] = getInputRowMeta().indexOfValue(meta.getFieldStream()[i]);
+        data.valuenrs = new int[meta.getFields().size()];
+        for (int i = 0; i < meta.getFields().size(); i++) {
+          TableOutputField tf = meta.getFields().get(i);
+          data.valuenrs[i] = getInputRowMeta().indexOfValue(tf.getFieldStream());
           if (data.valuenrs[i] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutput.Exception.FieldRequired", meta.getFieldStream()[i]));
+                    PKG, "TableOutput.Exception.FieldRequired", tf.getFieldStream()));
           }
         }
 
-        for (int i = 0; i < meta.getFieldDatabase().length; i++) {
-          IValueMeta insValue = getInputRowMeta().searchValueMeta(meta.getFieldStream()[i]);
+        for (int i = 0; i < meta.getFields().size(); i++) {
+          TableOutputField tf = meta.getFields().get(i);
+          IValueMeta insValue = getInputRowMeta().searchValueMeta(tf.getFieldStream());
           if (insValue != null) {
             IValueMeta insertValue = insValue.clone();
-            insertValue.setName(meta.getFieldDatabase()[i]);
+            insertValue.setName(tf.getFieldDatabase());
             data.insertRowMeta.addValueMeta(insertValue);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutput.Exception.FailedToFindField", meta.getFieldStream()[i]));
+                    PKG, "TableOutput.Exception.FailedToFindField", tf.getFieldStream()));
           }
         }
       }
@@ -174,12 +176,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           logError(message);
           throw new HopTransformException(message);
         }
-        if (!meta.isTableNameInTable() && !meta.specifyFields()) {
+        if (!meta.isTableNameInTable() && !meta.isSpecifyFields()) {
           data.insertRowMeta.removeValueMeta(data.indexOfTableNameField);
         }
       }
       tableName = rowMeta.getString(r, data.indexOfTableNameField);
-      if (!meta.isTableNameInTable() && !meta.specifyFields()) {
+      if (!meta.isTableNameInTable() && !meta.isSpecifyFields()) {
         // If the name of the table should not be inserted itself, remove the table name
         // from the input row data as well. This forcibly creates a copy of r
         //
@@ -222,7 +224,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       insertRowData = r;
     }
 
-    if (meta.specifyFields()) {
+    if (meta.isSpecifyFields()) {
       //
       // The values to insert are those in the fields sections
       //
@@ -365,7 +367,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         sendToErrorRow = true;
         errorMessage = dbe.toString();
       } else {
-        if (meta.ignoreErrors()) {
+        if (meta.isIgnoreErrors()) {
           if (data.warnings < 20) {
             if (log.isBasic()) {
               logBasic(
@@ -508,7 +510,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         // - if we are reverting to save-points
         //
         data.batchMode =
-            meta.useBatchUpdate()
+            meta.isUseBatchUpdate()
                 && data.commitSize > 0
                 && !meta.isReturningGeneratedKeys()
                 && !data.useSafePoints;
@@ -576,7 +578,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     if (!meta.isPartitioningEnabled() && !meta.isTableNameInField()) {
       // Only the first one truncates in a non-partitioned transform copy
       //
-      if (meta.truncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+      if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
         data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
       }
     }

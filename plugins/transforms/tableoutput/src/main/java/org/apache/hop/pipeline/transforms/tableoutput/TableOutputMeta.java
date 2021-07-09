@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import com.google.common.base.Preconditions;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -29,15 +28,14 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -47,9 +45,8 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,34 +61,130 @@ public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
+  private static final String PARTION_PER_DAY = "DAY";
+  private static final String PARTION_PER_MONTH = "MONTH";
+
+  @HopMetadataProperty(
+          key = "connection",
+          storeWithName = true,
+          injectionKeyDescription = "TableOutputMeta.Injection.Connection")
   private DatabaseMeta databaseMeta;
+
+  @HopMetadataProperty(
+          key = "schema",
+          injectionKey = "TARGET_SCHEMA",
+          injectionKeyDescription = "TableOutputMeta.Injection.SchemaName.Field")
   private String schemaName;
+
+  @HopMetadataProperty(
+          key = "table",
+          injectionKey = "TARGET_TABLE",
+          injectionKeyDescription = "TableOutputMeta.Injection.TableName.Field")
   private String tableName;
+
+  @HopMetadataProperty(
+          key = "commit",
+          injectionKey = "COMMIT_SIZE",
+          injectionKeyDescription = "TableOutputMeta.Injection.CommitSize.Field")
   private String commitSize;
+
+  @HopMetadataProperty(
+          key = "truncate",
+          injectionKey = "TRUNCATE_TABLE",
+          injectionKeyDescription = "TableOutputMeta.Injection.TruncateTable.Field")
   private boolean truncateTable;
+
+  @HopMetadataProperty(
+          key = "ignore_errors",
+          injectionKey = "IGNORE_INSERT_ERRORS",
+          injectionKeyDescription = "TableOutputMeta.Injection.IgnoreErrors.Field")
   private boolean ignoreErrors;
+
+  @HopMetadataProperty(
+          key = "use_batch",
+          injectionKey = "USE_BATCH_UPDATE",
+          defaultBoolean = true,
+          injectionKeyDescription = "TableOutputMeta.Injection.UseBatch.Field")
   private boolean useBatchUpdate;
 
+  @HopMetadataProperty(
+          key = "partitioning_enabled",
+          injectionKey = "PARTITION_OVER_TABLES",
+          injectionKeyDescription = "TableOutputMeta.Injection.PartitioningEnabled.Field")
   private boolean partitioningEnabled;
-  private String partitioningField;
-  private boolean partitioningDaily;
-  private boolean partitioningMonthly;
 
+  @HopMetadataProperty(
+          key = "partitioning_field",
+          injectionKey = "PARTITIONING_FIELD",
+          injectionKeyDescription = "TableOutputMeta.Injection.PartitioningField.Field")
+  private String partitioningField;
+
+  @HopMetadataProperty(
+          key = "partitioning_daily")
+  private Boolean partitioningDaily;
+
+  @HopMetadataProperty(
+          key = "partitioning_monthly")
+  private Boolean partitioningMonthly;
+
+  @HopMetadataProperty(
+          injectionKey = "PARTITION_DATA_PER",
+          injectionKeyDescription = "TableOutputMeta.Injection.PartitionDataPer.Field")
+  private transient String partitionDataPer;
+
+  @HopMetadataProperty(
+          key = "tablename_in_field",
+          injectionKey = "TABLE_NAME_DEFINED_IN_FIELD",
+          injectionKeyDescription = "TableOutputMeta.Injection.TableNameInField.Field")
   private boolean tableNameInField;
+
+  @HopMetadataProperty(
+          key = "tablename_field",
+          injectionKey = "TABLE_NAME_FIELD",
+          injectionKeyDescription = "TableOutputMeta.Injection.TableNameField.Field")
   private String tableNameField;
+
+  @HopMetadataProperty(
+          key = "tablename_in_table",
+          injectionKey = "STORE_TABLE_NAME",
+          injectionKeyDescription = "TableOutputMeta.Injection.TableNameInTable.Field")
   private boolean tableNameInTable;
 
+  @HopMetadataProperty(
+          key = "return_keys",
+          injectionKeyDescription = "TableOutputMeta.Injection.ReturningGeneratedKeys.Field")
   private boolean returningGeneratedKeys;
+
+  @HopMetadataProperty(
+          key = "return_field",
+          injectionKey = "RETURN_AUTO_GENERATED_KEY",
+          injectionKeyDescription = "TableOutputMeta.Injection.GeneratedKeys.Field")
   private String generatedKeyField;
 
   /** Do we explicitly select the fields to update in the database */
+
+  @HopMetadataProperty(
+          key = "specify_fields",
+          injectionKey = "AUTO_GENERATED_KEY_FIELD",
+          injectionKeyDescription = "TableOutputMeta.Injection.SpecifyFields.Field")
   private boolean specifyFields;
 
-  /** Fields containing the values in the input stream to insert */
-  private String[] fieldStream;
+  @HopMetadataProperty(
+          groupKey = "fields",
+          key = "field",
+          injectionKey = "DATABASE_FIELD",
+          injectionGroupKey = "DATABASE_FIELDS",
+          injectionGroupDescription = "TableOutputMeta.Injection.Fields",
+          injectionKeyDescription = "TableOutputMeta.Injection.Field")
+  private List<TableOutputField> fields;
 
-  /** Fields in the table to insert */
-  private String[] fieldDatabase;
+  public List<TableOutputField> getFields() {
+    return fields;
+  }
+
+  public void setFields(List<TableOutputField> fields) {
+    this.fields = fields;
+  }
 
   /** @return Returns the generatedKeyField. */
   public String getGeneratedKeyField() {
@@ -147,22 +240,22 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the partitioningDaily. */
-  public boolean isPartitioningDaily() {
+  public Boolean isPartitioningDaily() {
     return partitioningDaily;
   }
 
   /** @param partitioningDaily The partitioningDaily to set. */
-  public void setPartitioningDaily(boolean partitioningDaily) {
+  public void setPartitioningDaily(Boolean partitioningDaily) {
     this.partitioningDaily = partitioningDaily;
   }
 
   /** @return Returns the partitioningMontly. */
-  public boolean isPartitioningMonthly() {
+  public Boolean isPartitioningMonthly() {
     return partitioningMonthly;
   }
 
   /** @param partitioningMontly The partitioningMontly to set. */
-  public void setPartitioningMonthly(boolean partitioningMontly) {
+  public void setPartitioningMonthly(Boolean partitioningMontly) {
     this.partitioningMonthly = partitioningMontly;
   }
 
@@ -186,36 +279,29 @@ public class TableOutputMeta extends BaseTransformMeta
     this.partitioningField = partitioningField;
   }
 
+  /** @return Returns the partitionDataPer value */
+  public String getPartitionDataPer() {
+    return partitionDataPer;
+  }
+
+  /** @param partitionDataPer The partitionDataPer to set */
+  public void setPartitionDataPer(String partitionDataPer) {
+    this.partitionDataPer = partitionDataPer;
+
+    this.partitioningDaily = partitionDataPer.equals(PARTION_PER_DAY);
+    this.partitioningMonthly = partitionDataPer.equals(PARTION_PER_MONTH);
+  }
+
   public TableOutputMeta() {
     super(); // allocate BaseTransformMeta
     useBatchUpdate = true;
     commitSize = "1000";
 
-    fieldStream = new String[0];
-    fieldDatabase = new String[0];
-  }
-
-  public void allocate(int nrRows) {
-    fieldStream = new String[nrRows];
-    fieldDatabase = new String[nrRows];
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+    fields = new ArrayList<>();
   }
 
   public Object clone() {
-    Preconditions.checkState(
-        fieldStream.length == fieldDatabase.length,
-        "Table fields and stream fields are not of equal length.");
-    TableOutputMeta retval = (TableOutputMeta) super.clone();
-    int nrRows = fieldStream.length;
-    retval.allocate(nrRows);
-    System.arraycopy(fieldStream, 0, retval.fieldStream, 0, nrRows);
-    System.arraycopy(fieldDatabase, 0, retval.fieldDatabase, 0, nrRows);
-
-    return retval;
+    return (TableOutputMeta) super.clone();
   }
 
   /** @return Returns the database. */
@@ -258,7 +344,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the truncate table flag. */
-  public boolean truncateTable() {
+  public boolean isTruncateTable() {
     return truncateTable;
   }
 
@@ -273,7 +359,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the ignore errors flag. */
-  public boolean ignoreErrors() {
+  public boolean isIgnoreErrors() {
     return ignoreErrors;
   }
 
@@ -283,7 +369,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the specify fields flag. */
-  public boolean specifyFields() {
+  public boolean isSpecifyFields() {
     return specifyFields;
   }
 
@@ -293,58 +379,10 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the useBatchUpdate flag. */
-  public boolean useBatchUpdate() {
+  public boolean isUseBatchUpdate() {
     return useBatchUpdate;
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "table");
-      commitSize = XmlHandler.getTagValue(transformNode, "commit");
-      truncateTable = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "truncate"));
-      ignoreErrors = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignore_errors"));
-      useBatchUpdate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_batch"));
-
-      // If not present it will be false to be compatible with pre-v3.2
-      specifyFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "specify_fields"));
-
-      partitioningEnabled =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "partitioning_enabled"));
-      partitioningField = XmlHandler.getTagValue(transformNode, "partitioning_field");
-      partitioningDaily =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "partitioning_daily"));
-      partitioningMonthly =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "partitioning_monthly"));
-
-      tableNameInField =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "tablename_in_field"));
-      tableNameField = XmlHandler.getTagValue(transformNode, "tablename_field");
-      tableNameInTable =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "tablename_in_table"));
-
-      returningGeneratedKeys =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "return_keys"));
-      generatedKeyField = XmlHandler.getTagValue(transformNode, "return_field");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrRows = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrRows);
-
-      for (int i = 0; i < nrRows; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldDatabase[i] = XmlHandler.getTagValue(knode, "column_name");
-        fieldStream[i] = XmlHandler.getTagValue(knode, "stream_name");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
 
   public void setDefault() {
     databaseMeta = null;
@@ -359,46 +397,6 @@ public class TableOutputMeta extends BaseTransformMeta
 
     // To be compatible with pre-v3.2 (SB)
     specifyFields = false;
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    " + XmlHandler.addTagValue("schema", schemaName));
-    retval.append("    " + XmlHandler.addTagValue("table", tableName));
-    retval.append("    " + XmlHandler.addTagValue("commit", commitSize));
-    retval.append("    " + XmlHandler.addTagValue("truncate", truncateTable));
-    retval.append("    " + XmlHandler.addTagValue("ignore_errors", ignoreErrors));
-    retval.append("    " + XmlHandler.addTagValue("use_batch", useBatchUpdate));
-    retval.append("    " + XmlHandler.addTagValue("specify_fields", specifyFields));
-
-    retval.append("    " + XmlHandler.addTagValue("partitioning_enabled", partitioningEnabled));
-    retval.append("    " + XmlHandler.addTagValue("partitioning_field", partitioningField));
-    retval.append("    " + XmlHandler.addTagValue("partitioning_daily", partitioningDaily));
-    retval.append("    " + XmlHandler.addTagValue("partitioning_monthly", partitioningMonthly));
-
-    retval.append("    " + XmlHandler.addTagValue("tablename_in_field", tableNameInField));
-    retval.append("    " + XmlHandler.addTagValue("tablename_field", tableNameField));
-    retval.append("    " + XmlHandler.addTagValue("tablename_in_table", tableNameInTable));
-
-    retval.append("    " + XmlHandler.addTagValue("return_keys", returningGeneratedKeys));
-    retval.append("    " + XmlHandler.addTagValue("return_field", generatedKeyField));
-
-    retval.append("    <fields>").append(Const.CR);
-
-    for (int i = 0; i < fieldDatabase.length; i++) {
-      retval.append("        <field>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("column_name", fieldDatabase[i]));
-      retval.append("          ").append(XmlHandler.addTagValue("stream_name", fieldStream[i]));
-      retval.append("        </field>").append(Const.CR);
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
   }
 
   public void getFields(
@@ -485,7 +483,7 @@ public class TableOutputMeta extends BaseTransformMeta
                         transformMeta);
                 remarks.add(cr);
 
-                if (!specifyFields()) {
+                if (!isSpecifyFields()) {
                   // Starting from prev...
                   for (int i = 0; i < prev.size(); i++) {
                     IValueMeta pv = prev.getValueMeta(i);
@@ -518,10 +516,11 @@ public class TableOutputMeta extends BaseTransformMeta
                   }
                 } else {
                   // Specifying the column names explicitly
-                  for (int i = 0; i < getFieldDatabase().length; i++) {
-                    int idx = r.indexOfValue(getFieldDatabase()[i]);
+                  for (int i = 0; i < fields.size(); i++) {
+                    TableOutputField tf = fields.get(i);
+                    int idx = r.indexOfValue(tf.getFieldDatabase());
                     if (idx < 0) {
-                      errorMessage += "\t\t" + getFieldDatabase()[i] + Const.CR;
+                      errorMessage += "\t\t" + tf.getFieldDatabase() + Const.CR;
                       errorFound = true;
                     }
                   }
@@ -548,9 +547,9 @@ public class TableOutputMeta extends BaseTransformMeta
                 }
 
                 errorMessage = "";
-                if (!specifyFields()) {
+                if (!isSpecifyFields()) {
                   // Starting from table fields in r...
-                  for (int i = 0; i < getFieldDatabase().length; i++) {
+                  for (int i = 0; i < fields.size(); i++) {
                     IValueMeta rv = r.getValueMeta(i);
                     int idx = prev.indexOfValue(rv.getName());
                     if (idx < 0) {
@@ -579,10 +578,11 @@ public class TableOutputMeta extends BaseTransformMeta
                   }
                 } else {
                   // Specifying the column names explicitly
-                  for (int i = 0; i < getFieldStream().length; i++) {
-                    int idx = prev.indexOfValue(getFieldStream()[i]);
+                  for (int i = 0; i < fields.size(); i++) {
+                    TableOutputField tf = fields.get(i);
+                    int idx = prev.indexOfValue(tf.getFieldStream());
                     if (idx < 0) {
-                      errorMessage += "\t\t" + getFieldStream()[i] + Const.CR;
+                      errorMessage += "\t\t" + tf.getFieldStream() + Const.CR;
                       errorFound = true;
                     }
                   }
@@ -835,18 +835,6 @@ public class TableOutputMeta extends BaseTransformMeta
     }
   }
 
-  /** @return Fields containing the values in the input stream to insert. */
-  public String[] getFieldStream() {
-    return fieldStream;
-  }
-
-  /**
-   * @param fieldStream The fields containing the values in the input stream to insert in the table.
-   */
-  public void setFieldStream(String[] fieldStream) {
-    this.fieldStream = fieldStream;
-  }
-
   @Override
   public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     return (RowMeta) ((TableOutputData) transformData).insertRowMeta;
@@ -854,28 +842,30 @@ public class TableOutputMeta extends BaseTransformMeta
 
   @Override
   public List<String> getDatabaseFields() {
-    if (specifyFields()) {
-      return Arrays.asList(getFieldDatabase());
+
+    List<String> items = Collections.emptyList();;
+    if (isSpecifyFields()) {
+      items = new ArrayList<>();
+      for (TableOutputField tf : fields) {
+          items.add(tf.getFieldDatabase());
+      }
     }
-    return Collections.emptyList();
+    return items;
+
   }
 
   @Override
   public List<String> getStreamFields() {
-    if (specifyFields()) {
-      return Arrays.asList(getFieldStream());
+
+    List<String> items = Collections.emptyList();;
+    if (isSpecifyFields()) {
+      items = new ArrayList<>();
+      for (TableOutputField tf : fields) {
+        items.add(tf.getFieldStream());
+      }
     }
-    return Collections.emptyList();
-  }
+    return items;
 
-  /** @return Fields containing the fieldnames in the database insert. */
-  public String[] getFieldDatabase() {
-    return fieldDatabase;
-  }
-
-  /** @param fieldDatabase The fields containing the names of the fields to insert. */
-  public void setFieldDatabase(String[] fieldDatabase) {
-    this.fieldDatabase = fieldDatabase;
   }
 
   /** @return the schemaName */
