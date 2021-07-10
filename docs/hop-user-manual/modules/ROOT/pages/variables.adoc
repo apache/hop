@@ -123,7 +123,7 @@ The following variables are available in Hop through `Tools -> Edit config varia
 |Variable name|Default Value|Description
 |HOP_AGGREGATION_ALL_NULLS_ARE_ZERO|N|Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL.
 |HOP_AGGREGATION_MIN_NULL_IS_VALUED|N|Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-|HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES	false	Set this variable to TRUE to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|false|Set this variable to TRUE to allow your pipeline to pass 'null' fields and/or empty types.
 |HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE|N|System wide flag to ignore timezone while writing date/timestamp value to the database.
 |HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL|N|Set this variable to Y for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.
 |HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER|N|Set this variable to Y for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.
@@ -139,7 +139,7 @@ The following variables are available in Hop through `Tools -> Edit config varia
 |HOP_EMPTY_STRING_DIFFERS_FROM_NULL|N|NULL vs Empty String. If this setting is set to Y, an empty string and null are different. Otherwise they are not.
 |HOP_FAIL_ON_LOGGING_ERROR|N|Set this variable to Y when you want the workflow/pipeline fail with an error when the related logging process (e.g. to a database) fails.
 |HOP_FILE_OUTPUT_MAX_STREAM_COUNT|1024|This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded
-|HOP_FILE_OUTPUT_MAX_STREAM_LIFE	0	This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.
+|HOP_FILE_OUTPUT_MAX_STREAM_LIFE|0|This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|false|Set this variable to false to preserve global log variables defined in pipeline / workflow Properties -> Log panel. Changing it to true will clear it when export pipeline / workflow.
 |HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.
 |HOP_LOG_SIZE_LIMIT|0|The log size limit for all pipelines and workflows that don't have the "log size limit" property set in their respective properties.
