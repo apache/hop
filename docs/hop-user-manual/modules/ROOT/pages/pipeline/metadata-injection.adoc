@@ -87,7 +87,7 @@ The current (1-july 2021) status is:
 |Database lookup|Y
 |De-serialize from file|N
 |Delay row|N
-|Delete|N
+|Delete|Y
 |Detect empty stream|N
 |Dimension lookup/update|Y
 |Dropbox Input |N
@@ -198,7 +198,7 @@ The current (1-july 2021) status is:
 |Simple Mapping|N
 |Sort rows|Y
 |Sorted merge|Y
-|Split field to rows|N
+|Split field to rows|Y
 |Split fields|Y
 |Splunk Input|Y
 |SQL file output|N
@@ -212,7 +212,7 @@ The current (1-july 2021) status is:
 |Table compare|N
 |Table exists|N
 |Table input|Y
-|Table output|N
+|Table output|Y
 |Teradata Fastload bulk loader|N
 |Text file input|Y
 |Text file input (deprecated)|N
