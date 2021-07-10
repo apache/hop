@@ -114,3 +114,69 @@ You can define variables in a pipeline either with the "Set Variables", "JavaScr
 
 *IMPORTANT* Since in pipelines all transforms run in parallel you should never try to set and use the same variable in the same pipeline.
 
+== Available global variables
+
+The following variables are available in Hop through `Tools -> Edit config variables`
+
+[options="header", width="90%"]
+|===
+|Variable name|Default Value|Description
+|HOP_AGGREGATION_ALL_NULLS_ARE_ZERO|N|Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL.
+|HOP_AGGREGATION_MIN_NULL_IS_VALUED|N|Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
+|HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES	false	Set this variable to TRUE to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE|N|System wide flag to ignore timezone while writing date/timestamp value to the database.
+|HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL|N|Set this variable to Y for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.
+|HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER|N|Set this variable to Y for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.
+|HOP_CORE_TRANSFORMS_FILE||The name of the project variable that will contain the alternative location of the hop-transforms.xml file. You can use this to customize the list of available internal transforms outside of the codebase.
+|HOP_CORE_WORKFLOW_ACTIONS_FILE	||The name of the project variable that will contain the alternative location of the hop-workflow-actions.xml file.
+|HOP_DEFAULT_BIGNUMBER_FORMAT||The name of the variable containing an alternative default bignumber format
+|HOP_DEFAULT_DATE_FORMAT||The name of the variable containing an alternative default date format
+|HOP_DEFAULT_INTEGER_FORMAT||The name of the variable containing an alternative default integer format
+|HOP_DEFAULT_NUMBER_FORMAT||The name of the variable containing an alternative default number format
+|HOP_DEFAULT_SERVLET_ENCODING||Defines the default encoding for servlets, leave it empty to use Java default encoding
+|HOP_DEFAULT_TIMESTAMP_FORMAT||The name of the variable containing an alternative default timestamp format
+|HOP_DISABLE_CONSOLE_LOGGING|N|Set this variable to Y to disable standard Hop logging to the console. (stdout)
+|HOP_EMPTY_STRING_DIFFERS_FROM_NULL|N|NULL vs Empty String. If this setting is set to Y, an empty string and null are different. Otherwise they are not.
+|HOP_FAIL_ON_LOGGING_ERROR|N|Set this variable to Y when you want the workflow/pipeline fail with an error when the related logging process (e.g. to a database) fails.
+|HOP_FILE_OUTPUT_MAX_STREAM_COUNT|1024|This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded
+|HOP_FILE_OUTPUT_MAX_STREAM_LIFE	0	This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.
+|HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|false|Set this variable to false to preserve global log variables defined in pipeline / workflow Properties -> Log panel. Changing it to true will clear it when export pipeline / workflow.
+|HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.
+|HOP_LOG_SIZE_LIMIT|0|The log size limit for all pipelines and workflows that don't have the "log size limit" property set in their respective properties.
+|HOP_LOG_TAB_REFRESH_DELAY|1000|The hop log tab refresh delay.
+|HOP_LOG_TAB_REFRESH_PERIOD|1000|The hop log tab refresh period.
+|HOP_MAX_ACTIONS_LOGGED|5000|The maximum number of action results kept in memory for logging purposes.
+|HOP_MAX_LOGGING_REGISTRY_SIZE|10000|The maximum number of logging registry entries kept in memory for logging purposes.
+|HOP_MAX_LOG_SIZE_IN_LINES|0|The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)
+|HOP_MAX_LOG_TIMEOUT_IN_MINUTES|1440|The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)
+|HOP_MAX_WORKFLOW_TRACKER_SIZE|5000|The maximum number of workflow trackers kept in memory
+|HOP_PASSWORD_ENCODER_PLUGIN|Hop|Specifies the password encoder plugin to use by ID (Hop is the default).
+|HOP_PIPELINE_PAN_JVM_EXIT_CODE||Set this variable to an integer that will be returned as the Pan JVM exit code.
+|HOP_PLUGIN_CLASSES||A comma delimited list of classes to scan for plugin annotations
+|HOP_PLUGIN_PACKAGES||A comma delimited list of packages to scan for plugin annotations (warning: slow!!)
+|HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
+|HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.
+|HOP_ROWSET_GET_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a difference for extremely short lived pipelines.
+|HOP_ROWSET_PUT_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived pipelines.
+|HOP_SERVER_JETTY_ACCEPTORS||A variable to configure jetty option: acceptors for Carte
+|HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE||A variable to configure jetty option: acceptQueueSize for Carte
+|HOP_SERVER_JETTY_RES_MAX_IDLE_TIME||A variable to configure jetty option: lowResourcesMaxIdleTime for Carte
+|HOP_SERVER_OBJECT_TIMEOUT_MINUTES|1440|This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).
+|HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE|false|Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.
+|HOP_SYSTEM_HOSTNAME||You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.
+|HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT|0|The maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)
+|HOP_USE_NATIVE_FILE_DIALOG|N|Set this value to Y if you want to use the system file open/save dialog when browsing files
+|NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database.
+|===
+
+== Environment variables
+
+Set the environment variables listed below in your operating system to configure Hop's startup behavior:
+
+[options="header", width="90%"]
+|===
+|Variable name|Default Value|Description
+|HOP_AUDIT_FOLDER||Set this variable to a valid path on your machine to store Hop's audit information. This information includes last opened files per project, zoom size and lots more.
+|HOP_CONFIG_FOLDER||Set this variable to a valid path on your machine to store Hop's configuration outside of your Hop installation's `config` folder
+|HOP_PLUGIN_BASE_FOLDERS||Set this variable to point Hop to a comma separated list of folders where you want Hop to look for additional plugins.
+|===
