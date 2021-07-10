@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -40,11 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,117 +57,114 @@ public class TableOutputMeta extends BaseTransformMeta
   private static final String PARTION_PER_MONTH = "MONTH";
 
   @HopMetadataProperty(
-          key = "connection",
-          storeWithName = true,
-          injectionKeyDescription = "TableOutputMeta.Injection.Connection")
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "TableOutputMeta.Injection.Connection")
   private DatabaseMeta databaseMeta;
 
   @HopMetadataProperty(
-          key = "schema",
-          injectionKey = "TARGET_SCHEMA",
-          injectionKeyDescription = "TableOutputMeta.Injection.SchemaName.Field")
+      key = "schema",
+      injectionKey = "TARGET_SCHEMA",
+      injectionKeyDescription = "TableOutputMeta.Injection.SchemaName.Field")
   private String schemaName;
 
   @HopMetadataProperty(
-          key = "table",
-          injectionKey = "TARGET_TABLE",
-          injectionKeyDescription = "TableOutputMeta.Injection.TableName.Field")
+      key = "table",
+      injectionKey = "TARGET_TABLE",
+      injectionKeyDescription = "TableOutputMeta.Injection.TableName.Field")
   private String tableName;
 
   @HopMetadataProperty(
-          key = "commit",
-          injectionKey = "COMMIT_SIZE",
-          injectionKeyDescription = "TableOutputMeta.Injection.CommitSize.Field")
+      key = "commit",
+      injectionKey = "COMMIT_SIZE",
+      injectionKeyDescription = "TableOutputMeta.Injection.CommitSize.Field")
   private String commitSize;
 
   @HopMetadataProperty(
-          key = "truncate",
-          injectionKey = "TRUNCATE_TABLE",
-          injectionKeyDescription = "TableOutputMeta.Injection.TruncateTable.Field")
+      key = "truncate",
+      injectionKey = "TRUNCATE_TABLE",
+      injectionKeyDescription = "TableOutputMeta.Injection.TruncateTable.Field")
   private boolean truncateTable;
 
   @HopMetadataProperty(
-          key = "ignore_errors",
-          injectionKey = "IGNORE_INSERT_ERRORS",
-          injectionKeyDescription = "TableOutputMeta.Injection.IgnoreErrors.Field")
+      key = "ignore_errors",
+      injectionKey = "IGNORE_INSERT_ERRORS",
+      injectionKeyDescription = "TableOutputMeta.Injection.IgnoreErrors.Field")
   private boolean ignoreErrors;
 
   @HopMetadataProperty(
-          key = "use_batch",
-          injectionKey = "USE_BATCH_UPDATE",
-          defaultBoolean = true,
-          injectionKeyDescription = "TableOutputMeta.Injection.UseBatch.Field")
+      key = "use_batch",
+      injectionKey = "USE_BATCH_UPDATE",
+      defaultBoolean = true,
+      injectionKeyDescription = "TableOutputMeta.Injection.UseBatch.Field")
   private boolean useBatchUpdate;
 
   @HopMetadataProperty(
-          key = "partitioning_enabled",
-          injectionKey = "PARTITION_OVER_TABLES",
-          injectionKeyDescription = "TableOutputMeta.Injection.PartitioningEnabled.Field")
+      key = "partitioning_enabled",
+      injectionKey = "PARTITION_OVER_TABLES",
+      injectionKeyDescription = "TableOutputMeta.Injection.PartitioningEnabled.Field")
   private boolean partitioningEnabled;
 
   @HopMetadataProperty(
-          key = "partitioning_field",
-          injectionKey = "PARTITIONING_FIELD",
-          injectionKeyDescription = "TableOutputMeta.Injection.PartitioningField.Field")
+      key = "partitioning_field",
+      injectionKey = "PARTITIONING_FIELD",
+      injectionKeyDescription = "TableOutputMeta.Injection.PartitioningField.Field")
   private String partitioningField;
 
-  @HopMetadataProperty(
-          key = "partitioning_daily")
+  @HopMetadataProperty(key = "partitioning_daily")
   private Boolean partitioningDaily;
 
-  @HopMetadataProperty(
-          key = "partitioning_monthly")
+  @HopMetadataProperty(key = "partitioning_monthly")
   private Boolean partitioningMonthly;
 
   @HopMetadataProperty(
-          injectionKey = "PARTITION_DATA_PER",
-          injectionKeyDescription = "TableOutputMeta.Injection.PartitionDataPer.Field")
+      injectionKey = "PARTITION_DATA_PER",
+      injectionKeyDescription = "TableOutputMeta.Injection.PartitionDataPer.Field")
   private transient String partitionDataPer;
 
   @HopMetadataProperty(
-          key = "tablename_in_field",
-          injectionKey = "TABLE_NAME_DEFINED_IN_FIELD",
-          injectionKeyDescription = "TableOutputMeta.Injection.TableNameInField.Field")
+      key = "tablename_in_field",
+      injectionKey = "TABLE_NAME_DEFINED_IN_FIELD",
+      injectionKeyDescription = "TableOutputMeta.Injection.TableNameInField.Field")
   private boolean tableNameInField;
 
   @HopMetadataProperty(
-          key = "tablename_field",
-          injectionKey = "TABLE_NAME_FIELD",
-          injectionKeyDescription = "TableOutputMeta.Injection.TableNameField.Field")
+      key = "tablename_field",
+      injectionKey = "TABLE_NAME_FIELD",
+      injectionKeyDescription = "TableOutputMeta.Injection.TableNameField.Field")
   private String tableNameField;
 
   @HopMetadataProperty(
-          key = "tablename_in_table",
-          injectionKey = "STORE_TABLE_NAME",
-          injectionKeyDescription = "TableOutputMeta.Injection.TableNameInTable.Field")
+      key = "tablename_in_table",
+      injectionKey = "STORE_TABLE_NAME",
+      injectionKeyDescription = "TableOutputMeta.Injection.TableNameInTable.Field")
   private boolean tableNameInTable;
 
   @HopMetadataProperty(
-          key = "return_keys",
-          injectionKeyDescription = "TableOutputMeta.Injection.ReturningGeneratedKeys.Field")
+      key = "return_keys",
+      injectionKeyDescription = "TableOutputMeta.Injection.ReturningGeneratedKeys.Field")
   private boolean returningGeneratedKeys;
 
   @HopMetadataProperty(
-          key = "return_field",
-          injectionKey = "RETURN_AUTO_GENERATED_KEY",
-          injectionKeyDescription = "TableOutputMeta.Injection.GeneratedKeys.Field")
+      key = "return_field",
+      injectionKey = "RETURN_AUTO_GENERATED_KEY",
+      injectionKeyDescription = "TableOutputMeta.Injection.GeneratedKeys.Field")
   private String generatedKeyField;
 
   /** Do we explicitly select the fields to update in the database */
-
   @HopMetadataProperty(
-          key = "specify_fields",
-          injectionKey = "AUTO_GENERATED_KEY_FIELD",
-          injectionKeyDescription = "TableOutputMeta.Injection.SpecifyFields.Field")
+      key = "specify_fields",
+      injectionKey = "AUTO_GENERATED_KEY_FIELD",
+      injectionKeyDescription = "TableOutputMeta.Injection.SpecifyFields.Field")
   private boolean specifyFields;
 
   @HopMetadataProperty(
-          groupKey = "fields",
-          key = "field",
-          injectionKey = "DATABASE_FIELD",
-          injectionGroupKey = "DATABASE_FIELDS",
-          injectionGroupDescription = "TableOutputMeta.Injection.Fields",
-          injectionKeyDescription = "TableOutputMeta.Injection.Field")
+      groupKey = "fields",
+      key = "field",
+      injectionKey = "DATABASE_FIELD",
+      injectionGroupKey = "DATABASE_FIELDS",
+      injectionGroupDescription = "TableOutputMeta.Injection.Fields",
+      injectionKeyDescription = "TableOutputMeta.Injection.Field")
   private List<TableOutputField> fields;
 
   public List<TableOutputField> getFields() {
@@ -300,8 +289,9 @@ public class TableOutputMeta extends BaseTransformMeta
     fields = new ArrayList<>();
   }
 
+  @Override
   public Object clone() {
-    return (TableOutputMeta) super.clone();
+    return super.clone();
   }
 
   /** @return Returns the database. */
@@ -383,22 +373,23 @@ public class TableOutputMeta extends BaseTransformMeta
     return useBatchUpdate;
   }
 
-
+  @Override
   public void setDefault() {
     databaseMeta = null;
     tableName = "";
     commitSize = "1000";
 
     partitioningEnabled = false;
+    partitioningDaily = false;
     partitioningMonthly = true;
     partitioningField = "";
     tableNameInTable = true;
     tableNameField = "";
 
-    // To be compatible with pre-v3.2 (SB)
     specifyFields = false;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String origin,
@@ -415,6 +406,7 @@ public class TableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -691,6 +683,7 @@ public class TableOutputMeta extends BaseTransformMeta
     return new TableOutputData();
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -737,6 +730,7 @@ public class TableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -794,6 +788,7 @@ public class TableOutputMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
@@ -827,6 +822,7 @@ public class TableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -843,21 +839,20 @@ public class TableOutputMeta extends BaseTransformMeta
   @Override
   public List<String> getDatabaseFields() {
 
-    List<String> items = Collections.emptyList();;
+    List<String> items = Collections.emptyList();
     if (isSpecifyFields()) {
       items = new ArrayList<>();
       for (TableOutputField tf : fields) {
-          items.add(tf.getFieldDatabase());
+        items.add(tf.getFieldDatabase());
       }
     }
     return items;
-
   }
 
   @Override
   public List<String> getStreamFields() {
 
-    List<String> items = Collections.emptyList();;
+    List<String> items = Collections.emptyList();
     if (isSpecifyFields()) {
       items = new ArrayList<>();
       for (TableOutputField tf : fields) {
@@ -865,7 +860,6 @@ public class TableOutputMeta extends BaseTransformMeta
       }
     }
     return items;
-
   }
 
   /** @return the schemaName */
@@ -878,6 +872,7 @@ public class TableOutputMeta extends BaseTransformMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     if (databaseMeta != null) {
       return databaseMeta.getIDatabase().supportsErrorHandling();

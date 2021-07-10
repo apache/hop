@@ -23,68 +23,64 @@ import java.util.Objects;
 
 public class TableOutputField {
 
-    public TableOutputField() {
-    }
+  public TableOutputField() {}
 
-    public TableOutputField(String fieldStream, String fieldDatabase) {
-        this.fieldDatabase = fieldDatabase;
-        this.fieldStream = fieldStream;
-    }
+  public TableOutputField(String fieldStream, String fieldDatabase) {
+    this.fieldDatabase = fieldDatabase;
+    this.fieldStream = fieldStream;
+  }
 
+  public TableOutputField(TableOutputField obj) {
+    this.fieldStream = obj.fieldStream;
+    this.fieldDatabase = obj.fieldDatabase;
+  }
 
-    public TableOutputField(TableOutputField obj) {
-        this.fieldStream = obj.fieldStream;
-        this.fieldDatabase = obj.fieldDatabase;
-    }
+  /** Fields containing the values in the input stream to insert */
+  @HopMetadataProperty(
+      key = "stream_name",
+      injectionKey = "STREAM_FIELDNAME",
+      injectionKeyDescription = "TableOutputMeta.Injection.FieldStream.Field")
+  private String fieldStream;
 
-    /** Fields containing the values in the input stream to insert */
-    @HopMetadataProperty(
-            key = "stream_name",
-            injectionKey = "STREAM_FIELDNAME",
-            injectionKeyDescription = "TableOutputMeta.Injection.FieldStream.Field")
-    private String fieldStream;
+  /** Fields in the table to insert */
+  @HopMetadataProperty(
+      key = "column_name",
+      injectionKey = "DATABASE_FIELDNAME",
+      injectionKeyDescription = "TableOutputMeta.Injection.FieldDatabase.Field")
+  private String fieldDatabase;
 
-    /** Fields in the table to insert */
-    @HopMetadataProperty(
-            key = "column_name",
-            injectionKey = "DATABASE_FIELDNAME",
-            injectionKeyDescription = "TableOutputMeta.Injection.FieldDatabase.Field")
-    private String fieldDatabase;
+  /** @return Fields containing the values in the input stream to insert. */
+  public String getFieldStream() {
+    return fieldStream;
+  }
 
+  /**
+   * @param fieldStream The fields containing the values in the input stream to insert in the table.
+   */
+  public void setFieldStream(String fieldStream) {
+    this.fieldStream = fieldStream;
+  }
 
-    /** @return Fields containing the values in the input stream to insert. */
-    public String getFieldStream() {
-        return fieldStream;
-    }
+  /** @return Fields containing the fieldnames in the database insert. */
+  public String getFieldDatabase() {
+    return fieldDatabase;
+  }
 
-    /**
-     * @param fieldStream The fields containing the values in the input stream to insert in the table.
-     */
-    public void setFieldStream(String fieldStream) {
-        this.fieldStream = fieldStream;
-    }
+  /** @param fieldDatabase The fields containing the names of the fields to insert. */
+  public void setFieldDatabase(String fieldDatabase) {
+    this.fieldDatabase = fieldDatabase;
+  }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    TableOutputField that = (TableOutputField) o;
+    return fieldStream.equals(that.fieldStream) && fieldDatabase.equals(that.fieldDatabase);
+  }
 
-    /** @return Fields containing the fieldnames in the database insert. */
-    public String getFieldDatabase() {
-        return fieldDatabase;
-    }
-
-    /** @param fieldDatabase The fields containing the names of the fields to insert. */
-    public void setFieldDatabase(String fieldDatabase) {
-        this.fieldDatabase = fieldDatabase;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TableOutputField that = (TableOutputField) o;
-        return fieldStream.equals(that.fieldStream) && fieldDatabase.equals(that.fieldDatabase);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fieldStream, fieldDatabase);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(fieldStream, fieldDatabase);
+  }
 }

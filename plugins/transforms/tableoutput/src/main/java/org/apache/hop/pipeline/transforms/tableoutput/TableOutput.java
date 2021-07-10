@@ -43,12 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Writes rows to a database table.
- *
- * @author Matt Casters
- * @since 6-apr-2003
- */
+/** Writes rows to a database table. */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     implements ITransform<TableOutputMeta, TableOutputData> {
 
@@ -64,6 +59,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
@@ -127,10 +123,8 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         incrementLinesOutput();
       }
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
       logError("Because of an error, this transform can't continue: ", e);
@@ -200,7 +194,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
               "Unable to find field [" + meta.getPartitioningField() + "] in the input row!");
         }
 
-        if (meta.isPartitioningDaily()) {
+        if (Boolean.TRUE.equals(meta.isPartitioningDaily())) {
           data.dateFormater = new SimpleDateFormat("yyyyMMdd");
         } else {
           data.dateFormater = new SimpleDateFormat("yyyyMM");
@@ -273,14 +267,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       } else {
         commitCounter++;
       }
-      data.commitCounterMap.put(tableName, Integer.valueOf(commitCounter.intValue()));
+      data.commitCounterMap.put(tableName, commitCounter);
 
       // Release the savepoint if needed
       //
-      if (data.useSafePoints) {
-        if (data.releaseSavepoint) {
-          data.db.releaseSavepoint(data.savepoint);
-        }
+      if (data.useSafePoints && data.releaseSavepoint) {
+        data.db.releaseSavepoint(data.savepoint);
       }
 
       // Perform a commit if needed
@@ -376,14 +368,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
                       + Const.CR
                       + dbe.getMessage());
             }
-          } else if (data.warnings == 20) {
-            if (log.isBasic()) {
-              logBasic(
-                  "FINAL WARNING (no more then 20 displayed): Couldn't insert row into table: "
-                      + rowMeta.getString(r)
-                      + Const.CR
-                      + dbe.getMessage());
-            }
+          } else if (data.warnings == 20 && log.isBasic()) {
+            logBasic(
+                "FINAL WARNING (no more then 20 displayed): Couldn't insert row into table: "
+                    + rowMeta.getString(r)
+                    + Const.CR
+                    + dbe.getMessage());
           }
           data.warnings++;
         } else {
@@ -440,6 +430,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     return outputRowData;
   }
 
+  @Override
   public boolean isRowLevel() {
     return log.isRowLevel();
   }
@@ -481,6 +472,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     data.batchBuffer.clear();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -584,6 +576,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {
