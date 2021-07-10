@@ -1,0 +1,28 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[MetadataInjection]]
+:imagesdir: ../../assets/images
+
+If you find that you need to create 'almost' the same pipeline a lot of times, consider that you can use xref:pipeline/transforms/metainject.adoc[Metadata Injection] to create re-usable template pipelines.
+
+* Avoid manual population of dialogs
+* Whenever you need dynamic ETL
+* Supports data streaming
+
+Example use cases include:
+* Load 50 different file formats into a database with one pipeline template
+* Automatically normalize and load property sets
