@@ -17,20 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.utils.TestUtils;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Node;
 
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,11 +47,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class TableOutputMetaTest {
+public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
 
   private IVariables variables;
   private List<DatabaseMeta> databases;
   private IHopMetadataProvider metadataProvider;
+  LoadSaveTester loadSaveTester;
+  Class<TableOutputMeta> testMetaClass = TableOutputMeta.class;
 
   @SuppressWarnings("unchecked")
   @Before
@@ -80,8 +88,9 @@ public class TableOutputMetaTest {
   @Test
   public void testProvidesModeler() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.setFieldDatabase(new String[] {"f1", "f2", "f3"});
-    tableOutputMeta.setFieldStream(new String[] {"s4", "s5", "s6"});
+    tableOutputMeta.getFields().add(new TableOutputField("s4", "f1"));
+    tableOutputMeta.getFields().add(new TableOutputField("s5", "f2"));
+    tableOutputMeta.getFields().add(new TableOutputField("s6", "f3"));
 
     TableOutputData tableOutputData = new TableOutputData();
     tableOutputData.insertRowMeta = mock(RowMeta.class);
@@ -104,61 +113,6 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testLoadXml() throws Exception {
-
-    TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.loadXml(getTestNode(), metadataProvider);
-    assertEquals("1000", tableOutputMeta.getCommitSize());
-    assertEquals(null, tableOutputMeta.getGeneratedKeyField());
-    assertEquals("public", tableOutputMeta.getSchemaName());
-    assertEquals("sales_csv", tableOutputMeta.getTableName());
-    assertEquals(null, tableOutputMeta.getPartitioningField());
-    assertTrue(tableOutputMeta.truncateTable());
-    assertTrue(tableOutputMeta.specifyFields());
-    assertFalse(tableOutputMeta.ignoreErrors());
-    assertFalse(tableOutputMeta.isPartitioningEnabled());
-    assertTrue(tableOutputMeta.useBatchUpdate());
-    assertFalse(tableOutputMeta.isTableNameInField());
-    assertTrue(tableOutputMeta.isTableNameInTable());
-    assertFalse(tableOutputMeta.isReturningGeneratedKeys());
-    String expectedXml =
-        ""
-            + "    <connection/>\n"
-            + "    <schema>public</schema>\n"
-            + "    <table>sales_csv</table>\n"
-            + "    <commit>1000</commit>\n"
-            + "    <truncate>Y</truncate>\n"
-            + "    <ignore_errors>N</ignore_errors>\n"
-            + "    <use_batch>Y</use_batch>\n"
-            + "    <specify_fields>Y</specify_fields>\n"
-            + "    <partitioning_enabled>N</partitioning_enabled>\n"
-            + "    <partitioning_field/>\n"
-            + "    <partitioning_daily>N</partitioning_daily>\n"
-            + "    <partitioning_monthly>Y</partitioning_monthly>\n"
-            + "    <tablename_in_field>N</tablename_in_field>\n"
-            + "    <tablename_field/>\n"
-            + "    <tablename_in_table>Y</tablename_in_table>\n"
-            + "    <return_keys>N</return_keys>\n"
-            + "    <return_field/>\n"
-            + "    <fields>\n"
-            + "        <field>\n"
-            + "          <column_name>ORDERNUMBER</column_name>\n"
-            + "          <stream_name>ORDERNUMBER</stream_name>\n"
-            + "        </field>\n"
-            + "        <field>\n"
-            + "          <column_name>QUANTITYORDERED</column_name>\n"
-            + "          <stream_name>QUANTITYORDERED</stream_name>\n"
-            + "        </field>\n"
-            + "        <field>\n"
-            + "          <column_name>PRICEEACH</column_name>\n"
-            + "          <stream_name>PRICEEACH</stream_name>\n"
-            + "        </field>\n"
-            + "    </fields>\n";
-    String actualXml = TestUtils.toUnixLineSeparators(tableOutputMeta.getXml());
-    assertEquals(expectedXml, actualXml);
-  }
-
-  @Test
   public void testSetupDefault() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
@@ -169,15 +123,16 @@ public class TableOutputMetaTest {
     assertEquals("", tableOutputMeta.getPartitioningField());
     assertTrue(tableOutputMeta.isTableNameInTable());
     assertEquals("", tableOutputMeta.getTableNameField());
-    assertFalse(tableOutputMeta.specifyFields());
+    assertFalse(tableOutputMeta.isSpecifyFields());
   }
 
   @Test
   public void testClone() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
-    tableOutputMeta.setFieldStream(new String[] {"1", "2", "3"});
-    tableOutputMeta.setFieldDatabase(new String[] {"d1", "d2", "d3"});
+    tableOutputMeta.getFields().add(new TableOutputField("1", "d1"));
+    tableOutputMeta.getFields().add(new TableOutputField("2", "d2"));
+    tableOutputMeta.getFields().add(new TableOutputField("3", "d3"));
     TableOutputMeta clone = (TableOutputMeta) tableOutputMeta.clone();
     assertNotSame(clone, tableOutputMeta);
     assertEquals(clone.getXml(), tableOutputMeta.getXml());
@@ -197,57 +152,77 @@ public class TableOutputMetaTest {
     assertTrue(tableOutputMeta.supportsErrorHandling());
   }
 
-  private Node getTestNode() throws HopXmlException {
-    String xml =
-        "  <transform>\n"
-            + "    <name>Table output</name>\n"
-            + "    <type>TableOutput</type>\n"
-            + "    <description/>\n"
-            + "    <distribute>Y</distribute>\n"
-            + "    <custom_distribution/>\n"
-            + "    <copies>1</copies>\n"
-            + "         <partitioning>\n"
-            + "           <method>none</method>\n"
-            + "           <schema_name/>\n"
-            + "           </partitioning>\n"
-            + "    <connection>local postgres</connection>\n"
-            + "    <schema>public</schema>\n"
-            + "    <table>sales_csv</table>\n"
-            + "    <commit>1000</commit>\n"
-            + "    <truncate>Y</truncate>\n"
-            + "    <ignore_errors>N</ignore_errors>\n"
-            + "    <use_batch>Y</use_batch>\n"
-            + "    <specify_fields>Y</specify_fields>\n"
-            + "    <partitioning_enabled>N</partitioning_enabled>\n"
-            + "    <partitioning_field/>\n"
-            + "    <partitioning_daily>N</partitioning_daily>\n"
-            + "    <partitioning_monthly>Y</partitioning_monthly>\n"
-            + "    <tablename_in_field>N</tablename_in_field>\n"
-            + "    <tablename_field/>\n"
-            + "    <tablename_in_table>Y</tablename_in_table>\n"
-            + "    <return_keys>N</return_keys>\n"
-            + "    <return_field/>\n"
-            + "    <fields>\n"
-            + "        <field>\n"
-            + "          <column_name>ORDERNUMBER</column_name>\n"
-            + "          <stream_name>ORDERNUMBER</stream_name>\n"
-            + "        </field>\n"
-            + "        <field>\n"
-            + "          <column_name>QUANTITYORDERED</column_name>\n"
-            + "          <stream_name>QUANTITYORDERED</stream_name>\n"
-            + "        </field>\n"
-            + "        <field>\n"
-            + "          <column_name>PRICEEACH</column_name>\n"
-            + "          <stream_name>PRICEEACH</stream_name>\n"
-            + "        </field>\n"
-            + "    </fields>\n"
-            + "     <cluster_schema/>\n"
-            + "    <GUI>\n"
-            + "      <xloc>368</xloc>\n"
-            + "      <yloc>64</yloc>\n"
-            + "      <draw>Y</draw>\n"
-            + "      </GUI>\n"
-            + "    </transform>\n";
-    return XmlHandler.loadXmlString(xml, "transform");
+  @Before
+  public void setUpLoadSave() throws Exception {
+    HopEnvironment.init();
+    PluginRegistry.init( false );
+
+    List<String> attributesList = new ArrayList<>();
+    Map<String, String> getterMap = new HashMap<>();
+
+    Map<String, String> setterMap = new HashMap<>();
+
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
+    attrValidatorMap.put(
+            "fields", new ListLoadSaveValidator<>(new TableOutputFieldInputFieldLoadSaveValidator(), 5));
+
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
+
+    loadSaveTester =
+            new LoadSaveTester( testMetaClass, attributesList, new ArrayList<>(),
+                    getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
+
+
+  // Call the allocate method on the LoadSaveTester meta class
+  public void modify( ITransformMeta someMeta ) {
+    if ( someMeta instanceof TableOutputMeta ) {
+      ((TableOutputMeta) someMeta ).getFields().clear();
+      ((TableOutputMeta) someMeta)
+              .getFields()
+              .addAll(
+                      Arrays.asList(
+                              new TableOutputField("StreamField1", "DatabaseField1"),
+                              new TableOutputField("StreamField2", "DatabaseField2"),
+                              new TableOutputField("StreamField3", "DatabaseField3"),
+                              new TableOutputField("StreamField4", "DatabaseField4"),
+                              new TableOutputField("StreamField5", "DatabaseField5")));
+    }
+  }
+
+  @Test
+  public void testSerialization() throws HopException {
+    loadSaveTester.testSerialization();
+  }
+
+  public class TableOutputFieldInputFieldLoadSaveValidator
+          implements IFieldLoadSaveValidator<TableOutputField> {
+    final Random rand = new Random();
+
+    @Override
+    public TableOutputField getTestObject() {
+      String[] types = ValueMetaFactory.getAllValueMetaNames();
+
+      TableOutputField field =
+              new TableOutputField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString());
+
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(TableOutputField testObject, Object actual) {
+      if (!(actual instanceof TableOutputField)) {
+        return false;
+      }
+      TableOutputField another = (TableOutputField) actual;
+      return new EqualsBuilder()
+              .append(testObject.getFieldStream(), another.getFieldStream())
+              .append(testObject.getFieldDatabase(), another.getFieldDatabase())
+              .isEquals();
+    }
+  }
+
+
 }
