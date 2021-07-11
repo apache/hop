@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -34,7 +33,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -72,7 +70,8 @@ public class StyledTextComp extends Composite {
     textWidget = new Text(this, args);
     styledTextPopupmenu = new Menu(parent.getShell(), SWT.POP_UP);
     xParent = parent;
-    this.setLayout(variableIconOnTop ? new FormLayout() : new FillLayout());
+    this.setLayout(new FormLayout());  
+    
     buildingStyledTextMenu();
 
     if (varsSensitive) {
@@ -92,16 +91,20 @@ public class StyledTextComp extends Composite {
                 .bottom(100, 0)
                 .result());
       } else {
-        Label controlDecoration = new Label(parent, SWT.NONE);
+        Label controlDecoration = new Label(this, SWT.NONE);
         controlDecoration.setImage(image);
         controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         PropsUi.getInstance().setLook(controlDecoration);
-        controlDecoration.setLayoutData(
+        controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        textWidget.setLayoutData(
             new FormDataBuilder()
-                .top(new FormAttachment(textWidget, 0, SWT.TOP))
-                .left(new FormAttachment(textWidget, Const.MARGIN, SWT.RIGHT))
+                .top()
+                .left()
+                .right(new FormAttachment(controlDecoration, 0, 0))
+                .bottom(100, 0)
                 .result());
+
       }
     }
   }
