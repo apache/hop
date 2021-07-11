@@ -599,9 +599,6 @@ public class Const {
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
-  /** the value the Pan JVM should return on exit. */
-  public static final String HOP_PIPELINE_PAN_JVM_EXIT_CODE = "HOP_PIPELINE_PAN_JVM_EXIT_CODE";
-
   /** The name of the variable containing an alternative default number format */
   public static final String HOP_DEFAULT_NUMBER_FORMAT = "HOP_DEFAULT_NUMBER_FORMAT";
 
