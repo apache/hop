@@ -953,8 +953,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       for (int i = 0; i < mappings.size(); i++) {
         SourceToTargetMapping mapping = mappings.get(i);
         TableItem item = wFields.table.getItem(i);
-        item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
-        item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
+        item.setText(1, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
+        item.setText(2, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
       }
       wFields.setRowNums();
       wFields.optWidth(true);
@@ -1228,11 +1228,11 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     for (int i = 0; i < input.getFields().size(); i++) {
       TableOutputField tf = input.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
-      if (tf.getFieldDatabase() != null) {
-        item.setText(1, tf.getFieldDatabase());
-      }
       if (tf.getFieldStream() != null) {
-        item.setText(2, tf.getFieldStream());
+        item.setText(1, tf.getFieldStream());
+      }
+      if (tf.getFieldDatabase() != null) {
+        item.setText(2, tf.getFieldDatabase());
       }
     }
 
