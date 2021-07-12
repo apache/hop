@@ -443,10 +443,10 @@ public class ContextDialog extends Dialog {
     // Position the dialog where there was a click to be more intuitive
     //
     if (location != null) {
-      /** Adapt to the primary monitor */
-      Monitor primary = display.getPrimaryMonitor();    
-      if ( location.x>primary.getBounds().width - width) location.x = primary.getBounds().width - width;
-      if ( location.y>primary.getBounds().height - height) location.y = primary.getBounds().height - height;  
+      /** Adapt to the monitor */
+      Monitor monitor = shell.getMonitor();    
+      if ( location.x>monitor.getClientArea().width - width) location.x = monitor.getClientArea().width - width;
+      if ( location.y>monitor.getClientArea().height - height) location.y = monitor.getClientArea().height - height;  
       
       shell.setSize(width, height);
       shell.setLocation(location.x, location.y);
