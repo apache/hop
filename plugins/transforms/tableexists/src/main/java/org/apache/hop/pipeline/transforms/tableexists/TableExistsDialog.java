@@ -222,11 +222,11 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     if (input.getDatabase() != null) {
       wConnection.setText(input.getDatabase().getName());
     }
-    if (input.getDynamicTablenameField() != null) {
-      wTableName.setText(input.getDynamicTablenameField());
+    if (input.getTableNameField() != null) {
+      wTableName.setText(input.getTableNameField());
     }
-    if (input.getSchemaname() != null) {
-      wSchemaname.setText(input.getSchemaname());
+    if (input.getSchemaName() != null) {
+      wSchemaname.setText(input.getSchemaName());
     }
     if (input.getResultFieldName() != null) {
       wResult.setText(input.getResultFieldName());
@@ -248,8 +248,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     }
 
     input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
-    input.setSchemaname(wSchemaname.getText());
-    input.setDynamicTablenameField(wTableName.getText());
+    input.setSchemaName(wSchemaname.getText());
+    input.setTableNameField(wTableName.getText());
     input.setResultFieldName(wResult.getText());
 
     transformName = wTransformName.getText(); // return value

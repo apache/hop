@@ -69,7 +69,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
         // Check is tablename field is provided
-        if (Utils.isEmpty(meta.getDynamicTablenameField())) {
+        if (Utils.isEmpty(meta.getTableNameField())) {
           logError(BaseMessages.getString(PKG, "TableExists.Error.TablenameFieldMissing"));
           throw new HopException(
               BaseMessages.getString(PKG, "TableExists.Error.TablenameFieldMissing"));
@@ -77,19 +77,19 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
 
         // cache the position of the field
         if (data.indexOfTablename < 0) {
-          data.indexOfTablename = getInputRowMeta().indexOfValue(meta.getDynamicTablenameField());
+          data.indexOfTablename = getInputRowMeta().indexOfValue(meta.getTableNameField());
           if (data.indexOfTablename < 0) {
             // The field is unreachable !
             logError(
                 BaseMessages.getString(PKG, "TableExists.Exception.CouldnotFindField")
                     + "["
-                    + meta.getDynamicTablenameField()
+                    + meta.getTableNameField()
                     + "]");
             throw new HopException(
                 BaseMessages.getString(
                     PKG,
                     "TableExists.Exception.CouldnotFindField",
-                    meta.getDynamicTablenameField()));
+                    meta.getTableNameField()));
           }
         }
       } // End If first
@@ -142,8 +142,8 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       }
 
       data.db = new Database(this, this, meta.getDatabase());
-      if (!Utils.isEmpty(meta.getSchemaname())) {
-        data.realSchemaname = resolve(meta.getSchemaname());
+      if (!Utils.isEmpty(meta.getSchemaName())) {
+        data.realSchemaname = resolve(meta.getSchemaName());
       }
 
       try {
