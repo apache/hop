@@ -59,26 +59,26 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>key</name>
-        <type>String</type>
-        <format/>
         <currency/>
         <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
         <group/>
         <length>-1</length>
+        <name>key_data</name>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
       <field>
-        <name>value</name>
-        <type>String</type>
-        <format/>
         <currency/>
         <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
         <group/>
         <length>-1</length>
+        <name>value_data</name>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
     </fields>
     <data>
@@ -120,33 +120,33 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>unit-test-db</connection>
-    <schema>public</schema>
-    <table>testtable</table>
     <commit>1000</commit>
-    <truncate>Y</truncate>
-    <ignore_errors>N</ignore_errors>
-    <use_batch>Y</use_batch>
-    <specify_fields>Y</specify_fields>
-    <partitioning_enabled>N</partitioning_enabled>
-    <partitioning_field/>
-    <partitioning_daily>N</partitioning_daily>
-    <partitioning_monthly>Y</partitioning_monthly>
-    <tablename_in_field>N</tablename_in_field>
-    <tablename_field/>
-    <tablename_in_table>Y</tablename_in_table>
-    <return_keys>N</return_keys>
-    <return_field/>
+    <connection>unit-test-db</connection>
     <fields>
       <field>
         <column_name>key</column_name>
-        <stream_name>key</stream_name>
+        <stream_name>key_data</stream_name>
       </field>
       <field>
         <column_name>value</column_name>
-        <stream_name>value</stream_name>
+        <stream_name>value_data</stream_name>
       </field>
     </fields>
+    <return_field/>
+    <ignore_errors>N</ignore_errors>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema>public</schema>
+    <specify_fields>Y</specify_fields>
+    <table>testtable</table>
+    <tablename_field/>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>Y</truncate>
+    <use_batch>Y</use_batch>
     <attributes/>
     <GUI>
       <xloc>336</xloc>
