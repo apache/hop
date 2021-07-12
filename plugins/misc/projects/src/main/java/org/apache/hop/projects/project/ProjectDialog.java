@@ -491,10 +491,10 @@ public class ProjectDialog extends Dialog {
             // Do some extra validations to prevent bad data ending up in the projects configuration
             //
             String homeFolder = wHome.getText();
-            if (StringUtils.isEmpty(homeFolder)) {
+            if (StringUtils.isEmpty(variables.resolve(homeFolder))) {
                 throw new HopException("Please specify a home folder for your project");
             }
-            if (!HopVfs.getFileObject(homeFolder).exists()) {
+            if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()) {
                 throw new HopException(
                         "Please specify an existing home folder for your project. Folder '"
                                 + homeFolder
