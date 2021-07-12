@@ -58,6 +58,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -442,6 +443,11 @@ public class ContextDialog extends Dialog {
     // Position the dialog where there was a click to be more intuitive
     //
     if (location != null) {
+      /** Adapt to the primary monitor */
+      Monitor primary = display.getPrimaryMonitor();    
+      if ( location.x>primary.getBounds().width - width) location.x = primary.getBounds().width - width;
+      if ( location.y>primary.getBounds().height - height) location.y = primary.getBounds().height - height;  
+      
       shell.setSize(width, height);
       shell.setLocation(location.x, location.y);
     } else {
