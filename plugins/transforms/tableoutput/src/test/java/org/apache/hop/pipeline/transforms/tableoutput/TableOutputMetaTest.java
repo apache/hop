@@ -88,9 +88,9 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
   @Test
   public void testProvidesModeler() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.getFields().add(new TableOutputField("s4", "f1"));
-    tableOutputMeta.getFields().add(new TableOutputField("s5", "f2"));
-    tableOutputMeta.getFields().add(new TableOutputField("s6", "f3"));
+    tableOutputMeta.getFields().add(new TableOutputField("f1", "s4"));
+    tableOutputMeta.getFields().add(new TableOutputField("f2", "s5"));
+    tableOutputMeta.getFields().add(new TableOutputField("f3", "s6"));
 
     TableOutputData tableOutputData = new TableOutputData();
     tableOutputData.insertRowMeta = mock(RowMeta.class);
@@ -130,9 +130,9 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
   public void testClone() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
-    tableOutputMeta.getFields().add(new TableOutputField("1", "d1"));
-    tableOutputMeta.getFields().add(new TableOutputField("2", "d2"));
-    tableOutputMeta.getFields().add(new TableOutputField("3", "d3"));
+    tableOutputMeta.getFields().add(new TableOutputField("d1", "1"));
+    tableOutputMeta.getFields().add(new TableOutputField("d2", "2"));
+    tableOutputMeta.getFields().add(new TableOutputField("d3", "3"));
     TableOutputMeta clone = (TableOutputMeta) tableOutputMeta.clone();
     assertNotSame(clone, tableOutputMeta);
     assertEquals(clone.getXml(), tableOutputMeta.getXml());
@@ -182,11 +182,11 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
               .getFields()
               .addAll(
                       Arrays.asList(
-                              new TableOutputField("StreamField1", "DatabaseField1"),
-                              new TableOutputField("StreamField2", "DatabaseField2"),
-                              new TableOutputField("StreamField3", "DatabaseField3"),
-                              new TableOutputField("StreamField4", "DatabaseField4"),
-                              new TableOutputField("StreamField5", "DatabaseField5")));
+                              new TableOutputField("DatabaseField1","StreamField1" ),
+                              new TableOutputField("DatabaseField2","StreamField2" ),
+                              new TableOutputField("DatabaseField3", "StreamField3" ),
+                              new TableOutputField("DatabaseField4","StreamField4" ),
+                              new TableOutputField("DatabaseField5","StreamField5" )));
     }
   }
 
