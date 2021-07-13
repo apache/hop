@@ -51,8 +51,8 @@ import java.util.Map;
 
 @Transform(
     id = "BeamBigtableOutput",
-    name = "Beam Bigtable Output",
-    description = "Writes to Bigtable in Beam",
+    name = "i18n::BeamBigtableOutput.Name",
+    description = "i18n::BeamBigtableOutput.Description",
     image = "beam-gcp-bigtable-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
