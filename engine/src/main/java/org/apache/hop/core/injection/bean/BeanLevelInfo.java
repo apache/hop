@@ -140,7 +140,7 @@ public class BeanLevelInfo<Meta extends Object> {
       }
       if (f.isSynthetic() || f.isEnumConstant() || Modifier.isStatic(f.getModifiers())) {
         // fields can't contain real data with such modifier
-        throw new RuntimeException("Wrong modifier for anotated field " + f);
+        throw new RuntimeException("Wrong modifier for annotated field " + f);
       }
       BeanLevelInfo leaf = new BeanLevelInfo();
       leaf.parent = this;
