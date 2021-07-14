@@ -46,30 +46,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
@@ -442,6 +423,14 @@ public class ContextDialog extends Dialog {
     // Position the dialog where there was a click to be more intuitive
     //
     if (location != null) {
+      /*Adapt to the monitor */
+      Monitor monitor = shell.getMonitor();
+      org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
+      if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
+        location.x = (monitor.getClientArea().width + displayPosition.x) - width;
+      if (location.y - displayPosition.y > monitor.getClientArea().height - height)
+        location.y = (monitor.getClientArea().height + displayPosition.y) - height;
+
       shell.setSize(width, height);
       shell.setLocation(location.x, location.y);
     } else {
