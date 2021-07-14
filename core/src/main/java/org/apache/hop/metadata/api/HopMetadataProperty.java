@@ -64,6 +64,9 @@ public @interface HopMetadataProperty {
   /** @return The default value to return for a non-existing boolean value */
   boolean defaultBoolean() default false;
 
+  /** @return Prevents the item to be considered in injection. Default value: false  */
+  boolean isExcludedFromInjection() default false;
+
   /**
    * @return The metadata key for this property. Don't specify any key if you want this to be the
    *     same as key();

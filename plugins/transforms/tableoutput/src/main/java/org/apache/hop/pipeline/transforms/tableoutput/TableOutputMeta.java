@@ -111,11 +111,13 @@ public class TableOutputMeta extends BaseTransformMeta
       injectionKeyDescription = "TableOutputMeta.Injection.PartitioningField.Field")
   private String partitioningField;
 
-  @HopMetadataProperty(key = "partitioning_daily")
-  private Boolean partitioningDaily;
+  @HopMetadataProperty(key = "partitioning_daily",
+          isExcludedFromInjection = true)
+  private boolean partitioningDaily;
 
-  @HopMetadataProperty(key = "partitioning_monthly")
-  private Boolean partitioningMonthly;
+  @HopMetadataProperty(key = "partitioning_monthly",
+          isExcludedFromInjection = true)
+  private boolean partitioningMonthly;
 
   @HopMetadataProperty(
       injectionKey = "PARTITION_DATA_PER",
@@ -229,22 +231,22 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the partitioningDaily. */
-  public Boolean isPartitioningDaily() {
+  public boolean isPartitioningDaily() {
     return partitioningDaily;
   }
 
   /** @param partitioningDaily The partitioningDaily to set. */
-  public void setPartitioningDaily(Boolean partitioningDaily) {
+  public void setPartitioningDaily(boolean partitioningDaily) {
     this.partitioningDaily = partitioningDaily;
   }
 
   /** @return Returns the partitioningMontly. */
-  public Boolean isPartitioningMonthly() {
+  public boolean isPartitioningMonthly() {
     return partitioningMonthly;
   }
 
   /** @param partitioningMontly The partitioningMontly to set. */
-  public void setPartitioningMonthly(Boolean partitioningMontly) {
+  public void setPartitioningMonthly(boolean partitioningMontly) {
     this.partitioningMonthly = partitioningMontly;
   }
 

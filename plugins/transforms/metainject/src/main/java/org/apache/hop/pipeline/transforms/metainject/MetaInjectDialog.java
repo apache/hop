@@ -926,26 +926,30 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       }
 
       List<BeanInjectionInfo.Property> propertyList = gr.getProperties();
+
       for (BeanInjectionInfo.Property property : propertyList) {
         if (!property.hasMatch(filterString)) {
           continue;
         }
 
-        TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
-        treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
+        if (!property.isExcludedFromInjection()) {
+          TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
+          treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
 
-        TargetTransformAttribute target =
-            new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
-        treeItemTargetMap.put(treeItem, target);
+          TargetTransformAttribute target =
+              new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
+          treeItemTargetMap.put(treeItem, target);
 
-        SourceTransformField source = targetSourceMapping.get(target);
-        if (source != null) {
-          hasUsedKeys = true;
-          treeItem.setText(
-              1,
-              Const.NVL(
-                  source.getTransformName() == null ? CONST_VALUE : source.getTransformName(), ""));
-          treeItem.setText(2, Const.NVL(source.getField(), ""));
+          SourceTransformField source = targetSourceMapping.get(target);
+          if (source != null) {
+            hasUsedKeys = true;
+            treeItem.setText(
+                1,
+                Const.NVL(
+                    source.getTransformName() == null ? CONST_VALUE : source.getTransformName(),
+                    ""));
+            treeItem.setText(2, Const.NVL(source.getField(), ""));
+          }
         }
       }
     }
