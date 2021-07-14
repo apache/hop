@@ -29,12 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Check if a table exists in a Database *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Check if a table exists in a Database */
 public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
     implements ITransform<TableExistsMeta, TableExistsData> {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
@@ -49,6 +44,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -87,9 +83,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
                     + "]");
             throw new HopException(
                 BaseMessages.getString(
-                    PKG,
-                    "TableExists.Exception.CouldnotFindField",
-                    meta.getTableNameField()));
+                    PKG, "TableExists.Exception.CouldnotFindField", meta.getTableNameField()));
           }
         }
       } // End If first
@@ -103,7 +97,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       Object[] outputRowData = RowDataUtil.addValueData(r, getInputRowMeta().size(), tablexists);
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(
@@ -133,6 +127,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -164,6 +159,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.db != null) {
       data.db.disconnect();

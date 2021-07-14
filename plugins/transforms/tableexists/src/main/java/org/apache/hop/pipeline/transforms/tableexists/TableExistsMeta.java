@@ -38,11 +38,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
-
 @Transform(
     id = "TableExists",
     image = "tableexists.svg",
@@ -107,7 +102,7 @@ public class TableExistsMeta extends BaseTransformMeta
     return resultFieldName;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
+  /** @param name The resultfieldname to set. */
   public void setResultFieldName(String name) {
     this.resultFieldName = name;
   }
@@ -120,12 +115,6 @@ public class TableExistsMeta extends BaseTransformMeta
     this.schemaName = name;
   }
 
-  public Object clone() {
-    TableExistsMeta retval = (TableExistsMeta) super.clone();
-
-    return retval;
-  }
-
   @Override
   public TableExists createTransform(
       TransformMeta transformMeta,
@@ -136,12 +125,14 @@ public class TableExistsMeta extends BaseTransformMeta
     return new TableExists(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public void setDefault() {
     database = null;
     schemaName = null;
     resultFieldName = "result";
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -158,6 +149,7 @@ public class TableExistsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -173,32 +165,32 @@ public class TableExistsMeta extends BaseTransformMeta
 
     if (database == null) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(resultFieldName)) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(tableNameField)) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.TableFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.TableFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "TableExistsMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -206,7 +198,7 @@ public class TableExistsMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);
@@ -217,6 +209,7 @@ public class TableExistsMeta extends BaseTransformMeta
     return new TableExistsData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (database != null) {
       return new DatabaseMeta[] {database};
@@ -225,6 +218,7 @@ public class TableExistsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
