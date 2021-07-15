@@ -17,24 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -42,8 +37,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -52,7 +47,8 @@ import java.util.List;
     description = "i18n::PGBulkLoader.Description",
     name = "i18n::PGBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/postgresbulkloader.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/postgresbulkloader.html")
 public class PGBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
         IProvidesDatabaseConnectionInformation {
@@ -60,36 +56,56 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
   /** what's the schema for the target? */
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKeyDescription = "PGBulkLoader.Injection.Schema.Label")
   private String schemaName;
 
   /** what's the table for the target? */
+  @HopMetadataProperty(key = "table", injectionKeyDescription = "PGBulkLoader.Injection.Table.Label")
   private String tableName;
 
   /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "PGBulkLoader.Injection.Connection.Label")
   private DatabaseMeta databaseMeta;
 
   /** Field value to dateMask after lookup */
-  private String[] fieldTable;
-
-  /** Field name in the stream */
-  private String[] fieldStream;
-
-  /** boolean indicating if field needs to be updated */
-  private String[] dateMask;
+  @HopMetadataProperty(
+      injectionGroupKey = "mapping",
+      injectionGroupDescription = "PGBulkLoader.Injection.Mapping.Label" )
+  private List<PGBulkLoaderMappingMeta> mapping;
 
   /** Load action */
+  @HopMetadataProperty(
+      key = "load_action",
+      injectionKeyDescription = "PGBulkLoader.Injection.LoadAction.Label")
   private String loadAction;
 
   /** Database name override */
+  @HopMetadataProperty(
+      key = "db_override",
+      injectionKeyDescription = "PGBulkLoader.Injection.DBOverride.Label")
   private String dbNameOverride;
 
   /** The field delimiter to use for loading */
+  @HopMetadataProperty(
+      key = "delimiter",
+      injectionKeyDescription = "PGBulkLoader.Injection.Delimiter.Label")
   private String delimiter;
 
   /** The enclosure to use for loading */
+  @HopMetadataProperty(
+      key = "enclosure",
+      injectionKeyDescription = "PGBulkLoader.Injection.Enclosure.Label")
   private String enclosure;
 
   /** Stop On Error */
+  @HopMetadataProperty(
+      key = "stop_on_error",
+      injectionKeyDescription = "PGBulkLoader.Injection.StopOnError.Label")
   private boolean stopOnError;
 
   /*
@@ -133,106 +149,88 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     this.tableName = tableName;
   }
 
-  /** @return Returns the fieldTable. */
-  public String[] getFieldTable() {
-    return fieldTable;
+  public List<PGBulkLoaderMappingMeta> getMapping() {
+    return mapping;
   }
 
-  /** @param fieldTable The fieldTable to set. */
-  public void setFieldTable(String[] fieldTable) {
-    this.fieldTable = fieldTable;
+  public void setMapping(List<PGBulkLoaderMappingMeta> mapping) {
+    this.mapping = mapping;
   }
 
-  /** @return Returns the fieldStream. */
-  public String[] getFieldStream() {
-    return fieldStream;
-  }
+  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+  //      throws HopXmlException {
+  //    readData(transformNode, metadataProvider);
+  //  }
+  //
+  //  public void allocate(int nrvalues) {
+  //    fieldTable = new String[nrvalues];
+  //    fieldStream = new String[nrvalues];
+  //    dateMask = new String[nrvalues];
+  //  }
 
-  /** @param fieldStream The fieldStream to set. */
-  public void setFieldStream(String[] fieldStream) {
-    this.fieldStream = fieldStream;
-  }
+  //  @Override
+  //  public Object clone() {
+  //    PGBulkLoaderMeta retval = (PGBulkLoaderMeta) super.clone();
+  //    int nrvalues = fieldTable.length;
+  //
+  //    //retval.allocate(nrvalues);
+  //    System.arraycopy(fieldTable, 0, retval.fieldTable, 0, nrvalues);
+  //    System.arraycopy(fieldStream, 0, retval.fieldStream, 0, nrvalues);
+  //    System.arraycopy(dateMask, 0, retval.dateMask, 0, nrvalues);
+  //    return retval;
+  //  }
 
-  public String[] getDateMask() {
-    return dateMask;
-  }
+  //  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+  //      throws HopXmlException {
+  //    try {
+  //      String con = XmlHandler.getTagValue(transformNode, "connection");
+  //      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
+  //
+  //      schemaName = XmlHandler.getTagValue(transformNode, "schema");
+  //      tableName = XmlHandler.getTagValue(transformNode, "table");
+  //
+  //      enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
+  //      delimiter = XmlHandler.getTagValue(transformNode, "delimiter");
+  //
+  //      loadAction = XmlHandler.getTagValue(transformNode, "load_action");
+  //      dbNameOverride = XmlHandler.getTagValue(transformNode, "dbname_override");
+  //      stopOnError = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
+  // "stop_on_error"));
+  //
+  //      int nrvalues = XmlHandler.countNodes(transformNode, "mapping");
+  //      allocate(nrvalues);
+  //
+  //      for (int i = 0; i < nrvalues; i++) {
+  //        Node vnode = XmlHandler.getSubNodeByNr(transformNode, "mapping", i);
+  //
+  //        fieldTable[i] = XmlHandler.getTagValue(vnode, "stream_name");
+  //        fieldStream[i] = XmlHandler.getTagValue(vnode, "field_name");
+  //        if (fieldStream[i] == null) {
+  //          fieldStream[i] = fieldTable[i]; // default: the same name!
+  //        }
+  //        String locDateMask = XmlHandler.getTagValue(vnode, "date_mask");
+  //        if (locDateMask == null) {
+  //          dateMask[i] = "";
+  //        } else {
+  //          if (PGBulkLoaderMeta.DATE_MASK_DATE.equals(locDateMask)
+  //              || PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals(locDateMask)
+  //              || PGBulkLoaderMeta.DATE_MASK_DATETIME.equals(locDateMask)) {
+  //            dateMask[i] = locDateMask;
+  //          } else {
+  //            dateMask[i] = "";
+  //          }
+  //        }
+  //      }
+  //    } catch (Exception e) {
+  //      throw new HopXmlException(
+  //          BaseMessages.getString(
+  //              PKG, "GPBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML"),
+  //          e);
+  //    }
+  //  }
 
-  public void setDateMask(String[] dateMask) {
-    this.dateMask = dateMask;
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrvalues) {
-    fieldTable = new String[nrvalues];
-    fieldStream = new String[nrvalues];
-    dateMask = new String[nrvalues];
-  }
-
-  public Object clone() {
-    PGBulkLoaderMeta retval = (PGBulkLoaderMeta) super.clone();
-    int nrvalues = fieldTable.length;
-
-    retval.allocate(nrvalues);
-    System.arraycopy(fieldTable, 0, retval.fieldTable, 0, nrvalues);
-    System.arraycopy(fieldStream, 0, retval.fieldStream, 0, nrvalues);
-    System.arraycopy(dateMask, 0, retval.dateMask, 0, nrvalues);
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "table");
-
-      enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
-      delimiter = XmlHandler.getTagValue(transformNode, "delimiter");
-
-      loadAction = XmlHandler.getTagValue(transformNode, "load_action");
-      dbNameOverride = XmlHandler.getTagValue(transformNode, "dbname_override");
-      stopOnError = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "stop_on_error"));
-
-      int nrvalues = XmlHandler.countNodes(transformNode, "mapping");
-      allocate(nrvalues);
-
-      for (int i = 0; i < nrvalues; i++) {
-        Node vnode = XmlHandler.getSubNodeByNr(transformNode, "mapping", i);
-
-        fieldTable[i] = XmlHandler.getTagValue(vnode, "stream_name");
-        fieldStream[i] = XmlHandler.getTagValue(vnode, "field_name");
-        if (fieldStream[i] == null) {
-          fieldStream[i] = fieldTable[i]; // default: the same name!
-        }
-        String locDateMask = XmlHandler.getTagValue(vnode, "date_mask");
-        if (locDateMask == null) {
-          dateMask[i] = "";
-        } else {
-          if (PGBulkLoaderMeta.DATE_MASK_DATE.equals(locDateMask)
-              || PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals(locDateMask)
-              || PGBulkLoaderMeta.DATE_MASK_DATETIME.equals(locDateMask)) {
-            dateMask[i] = locDateMask;
-          } else {
-            dateMask[i] = "";
-          }
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "GPBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML"),
-          e);
-    }
-  }
-
+  @Override
   public void setDefault() {
-    fieldTable = null;
     databaseMeta = null;
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "GPBulkLoaderMeta.DefaultTableName");
@@ -241,36 +239,38 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     enclosure = "\"";
     stopOnError = false;
     int nrvalues = 0;
-    allocate(nrvalues);
+    mapping = new ArrayList<>();
+    // allocate(nrvalues);
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
+  //  public String getXml() {
+  //    StringBuilder retval = new StringBuilder(300);
+  //
+  //    retval
+  //        .append("    ")
+  //        .append(
+  //            XmlHandler.addTagValue(
+  //                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
+  //    retval.append("    ").append(XmlHandler.addTagValue("schema", schemaName));
+  //    retval.append("    ").append(XmlHandler.addTagValue("table", tableName));
+  //    retval.append("    ").append(XmlHandler.addTagValue("load_action", loadAction));
+  //    retval.append("    ").append(XmlHandler.addTagValue("dbname_override", dbNameOverride));
+  //    retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
+  //    retval.append("    ").append(XmlHandler.addTagValue("delimiter", delimiter));
+  //    retval.append("    ").append(XmlHandler.addTagValue("stop_on_error", stopOnError));
+  //
+  //    for (int i = 0; i < fieldTable.length; i++) {
+  //      retval.append("      <mapping>").append(Const.CR);
+  //      retval.append("        ").append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
+  //      retval.append("        ").append(XmlHandler.addTagValue("field_name", fieldStream[i]));
+  //      retval.append("        ").append(XmlHandler.addTagValue("date_mask", dateMask[i]));
+  //      retval.append("      </mapping>").append(Const.CR);
+  //    }
+  //
+  //    return retval.toString();
+  //  }
 
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("    ").append(XmlHandler.addTagValue("table", tableName));
-    retval.append("    ").append(XmlHandler.addTagValue("load_action", loadAction));
-    retval.append("    ").append(XmlHandler.addTagValue("dbname_override", dbNameOverride));
-    retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
-    retval.append("    ").append(XmlHandler.addTagValue("delimiter", delimiter));
-    retval.append("    ").append(XmlHandler.addTagValue("stop_on_error", stopOnError));
-
-    for (int i = 0; i < fieldTable.length; i++) {
-      retval.append("      <mapping>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field_name", fieldStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("date_mask", dateMask[i]));
-      retval.append("      </mapping>").append(Const.CR);
-    }
-
-    return retval.toString();
-  }
-
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -282,6 +282,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -296,7 +297,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -329,8 +330,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
             errorFound = false;
             errorMessage = "";
 
-            for (int i = 0; i < fieldTable.length; i++) {
-              String field = fieldTable[i];
+            for (int i = 0; i < mapping.size(); i++) {
+              String field = mapping.get(i).getFieldTable();
 
               IValueMeta v = r.searchValueMeta(field);
               if (v == null) {
@@ -380,8 +381,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < fieldStream.length; i++) {
-            IValueMeta v = prev.searchValueMeta(fieldStream[i]);
+          for (int i = 0; i < mapping.size(); i++) {
+            IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
             if (v == null) {
               if (first) {
                 first = false;
@@ -390,7 +391,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + fieldStream[i] + Const.CR;
+              errorMessage += "\t\t" + mapping.get(i).getFieldStream() + Const.CR;
             }
           }
           if (errorFound) {
@@ -445,6 +446,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -461,20 +463,20 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
         IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
-        for (int i = 0; i < fieldTable.length; i++) {
-          IValueMeta v = prev.searchValueMeta(fieldStream[i]);
+        for (int i = 0; i < mapping.size(); i++) {
+          IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
           if (v != null) {
             IValueMeta tableField = v.clone();
-            tableField.setName(fieldTable[i]);
+            tableField.setName(mapping.get(i).getFieldTable());
             tableFields.addValueMeta(tableField);
           } else {
             throw new HopTransformException(
-                "Unable to find field [" + fieldStream[i] + "] in the input rows");
+                "Unable to find field [" + mapping.get(i).getFieldStream() + "] in the input rows");
           }
         }
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
@@ -523,8 +525,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
-      for (int i = 0; i < fieldTable.length; i++) {
-        IValueMeta v = prev.searchValueMeta(fieldStream[i]);
+      for (int i = 0; i < mapping.size(); i++) {
+        IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
 
         DatabaseImpact ii =
             new DatabaseImpact(
@@ -533,8 +535,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 variables.resolve(tableName),
-                fieldTable[i],
-                fieldStream[i],
+                mapping.get(i).getFieldTable(),
+                mapping.get(i).getFieldStream(),
                 v != null ? v.getOrigin() : "?",
                 "",
                 "Type = " + v.toStringMeta());
@@ -556,6 +558,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     return new PGBulkLoaderData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -564,12 +567,13 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 

@@ -48,27 +48,14 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
@@ -93,15 +80,18 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
   private final PGBulkLoaderMeta input;
 
-  private static final String[] ALL_FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "PGBulkLoaderDialog.Filetype.All")};
-
   private ColumnInfo[] ciReturn;
 
   private final Map<String, Integer> inputFields;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+
+  private static final String PASSTROUGH_LABEL = "PGBulkLoaderDialog.PassThrough.Label";
+
+  private static final String DATEMASK_LABEL = "PGBulkLoaderDialog.DateMask.Label";
+
+  private static final String DATETIMEMASK_LABEL = "PGBulkLoaderDialog.DateTimeMask.Label";
 
   public PGBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -120,6 +110,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     ModifyListener lsMod = e -> input.setChanged();
     FocusListener lsFocusLost =
         new FocusAdapter() {
+          @Override
           public void focusLost(FocusEvent arg0) {
             setTableFieldCombo();
           }
@@ -308,6 +299,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     wStopOnError.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -331,10 +323,10 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdlReturn.top = new FormAttachment(wStopOnError, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getFieldTable() != null ? input.getFieldTable().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getMapping() != null ? input.getMapping().size() : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "PGBulkLoaderDialog.ColumnInfo.TableField"),
@@ -349,13 +341,13 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
             false);
     ciReturn[2] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "PGBulkLoaderDialog.ColumnInfo.DateMask"),
+            BaseMessages.getString(PKG, DATEMASK_LABEL),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
               "",
-              BaseMessages.getString(PKG, "PGBulkLoaderDialog.PassThrough.Label"),
-              BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateMask.Label"),
-              BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateTimeMask.Label")
+              BaseMessages.getString(PKG, PASSTROUGH_LABEL),
+              BaseMessages.getString(PKG, DATEMASK_LABEL),
+              BaseMessages.getString(PKG, DATETIMEMASK_LABEL)
             },
             true);
     tableFieldColumns.add(ciReturn[0]);
@@ -365,7 +357,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -424,6 +416,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -442,23 +435,24 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.GettingKeyInfo"));
 
-    if (input.getFieldTable() != null) {
-      for (int i = 0; i < input.getFieldTable().length; i++) {
+    if (input.getMapping() != null) {
+      for (int i = 0; i < input.getMapping().size(); i++) {
+        PGBulkLoaderMappingMeta mapping = input.getMapping().get(i);
         TableItem item = wReturn.table.getItem(i);
-        if (input.getFieldTable()[i] != null) {
-          item.setText(1, input.getFieldTable()[i]);
+        if (mapping.getFieldTable() != null) {
+          item.setText(1, mapping.getFieldTable());
         }
-        if (input.getFieldStream()[i] != null) {
-          item.setText(2, input.getFieldStream()[i]);
+        if (mapping.getFieldStream() != null) {
+          item.setText(2, mapping.getFieldStream());
         }
-        String dateMask = input.getDateMask()[i];
+        String dateMask = mapping.getDateMask();
         if (dateMask != null) {
           if (PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, "PGBulkLoaderDialog.PassThrough.Label"));
+            item.setText(3, BaseMessages.getString(PKG, PASSTROUGH_LABEL));
           } else if (PGBulkLoaderMeta.DATE_MASK_DATE.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateMask.Label"));
+            item.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
           } else if (PGBulkLoaderMeta.DATE_MASK_DATETIME.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateTimeMask.Label"));
+            item.setText(3, BaseMessages.getString(PKG, DATETIMEMASK_LABEL));
           } else {
             item.setText(3, "");
           }
@@ -679,7 +673,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   private void getInfo(PGBulkLoaderMeta inf) {
     int nrFields = wReturn.nrNonEmpty();
 
-    inf.allocate(nrFields);
+    // inf.allocate(nrFields);
+    inf.getMapping().clear();
 
     inf.setDbNameOverride(wDbNameOverride.getText());
 
@@ -687,20 +682,19 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      inf.getFieldTable()[i] = item.getText(1);
-      inf.getFieldStream()[i] = item.getText(2);
-      if (BaseMessages.getString(PKG, "PGBulkLoaderDialog.PassThrough.Label")
-          .equals(item.getText(3))) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH;
-      } else if (BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateMask.Label")
-          .equals(item.getText(3))) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_DATE;
-      } else if (BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateTimeMask.Label")
-          .equals(item.getText(3))) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_DATETIME;
+      PGBulkLoaderMappingMeta mapping = new PGBulkLoaderMappingMeta();
+      mapping.setFieldTable(item.getText(1));
+      mapping.setFieldStream(item.getText(2));
+      if (BaseMessages.getString(PKG, PASSTROUGH_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH);
+      } else if (BaseMessages.getString(PKG, DATEMASK_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_DATE);
+      } else if (BaseMessages.getString(PKG, DATETIMEMASK_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_DATETIME);
       } else {
-        inf.getDateMask()[i] = "";
+        mapping.setDateMask("");
       }
+      inf.getMapping().add(mapping);
     }
 
     inf.setSchemaName(wSchema.getText());
@@ -783,8 +777,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
             (tableItem, v) -> {
               if (v.getType() == IValueMeta.TYPE_DATE) {
                 // The default is date mask.
-                tableItem.setText(
-                    3, BaseMessages.getString(PKG, "PGBulkLoaderDialog.DateMask.Label"));
+                tableItem.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
               } else {
                 tableItem.setText(3, "");
               }
@@ -853,9 +846,9 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {

@@ -35,8 +35,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -49,15 +49,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
-/**
- * Performs a bulk load to a postgres table.
- *
- * <p>Based on (copied from) Sven Boden's Oracle Bulk Loader transform
- *
- * @author matt
- * @since 28-mar-2008
- */
+/** Performs a bulk load to a postgres table. */
 public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData>
     implements ITransform<PGBulkLoaderMeta, PGBulkLoaderData> {
 
@@ -89,11 +83,6 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     String tableName =
         dm.getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
 
-    // Set the date style...
-    //
-    // contents.append("SET DATESTYLE ISO;"); // This is the default but we set it anyway...
-    // contents.append(Const.CR);
-
     // Create a Postgres / Greenplum COPY string for use with a psql client
     contents.append("COPY ");
     // Table name
@@ -104,18 +93,17 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
     contents.append(" ( ");
 
-    String[] streamFields = meta.getFieldStream();
-    String[] tableFields = meta.getFieldTable();
+    List<PGBulkLoaderMappingMeta> mapping = meta.getMapping();
 
-    if (streamFields == null || streamFields.length == 0) {
+    if (mapping == null || mapping.isEmpty()) {
       throw new HopException("No fields defined to load to database");
     }
 
-    for (int i = 0; i < streamFields.length; i++) {
+    for (int i = 0; i < mapping.size(); i++) {
       if (i != 0) {
         contents.append(", ");
       }
-      contents.append(dm.quoteField(tableFields[i]));
+      contents.append(dm.quoteField(mapping.get(i).getFieldTable()));
     }
 
     contents.append(" ) ");
@@ -216,6 +204,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     try {
@@ -230,6 +219,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
         if (data != null && pgCopyOut != null) {
           pgCopyOut.flush();
           pgCopyOut.endCopy();
+          pgCopyOut.close();
         }
 
         return false;
@@ -240,9 +230,10 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
         // Cache field indexes.
         //
-        data.keynrs = new int[meta.getFieldStream().length];
+        data.keynrs = new int[meta.getMapping().size()];
         for (int i = 0; i < data.keynrs.length; i++) {
-          data.keynrs[i] = getInputRowMeta().indexOfValue(meta.getFieldStream()[i]);
+          data.keynrs[i] =
+              getInputRowMeta().indexOfValue(meta.getMapping().get(i).getFieldStream());
         }
 
         // execute the copy statement... pgCopyOut is setup there
@@ -293,7 +284,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
             case IValueMeta.TYPE_STRING:
               pgCopyOut.write(data.quote);
 
-              // No longer dump the bytes for a Lazy Conversion;
+              // No longer dump the bytes for a Lazy Conversion
               // We need to escape the quote characters in every string
               String quoteStr = new String(data.quote);
               String escapedString =
@@ -441,6 +432,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     }
   }
 
+  @Override
   public boolean init() {
 
     String enclosure = resolve(meta.getEnclosure());
@@ -468,13 +460,19 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       }
       data.newline = Const.CR.getBytes();
 
-      data.dateFormatChoices = new int[meta.getFieldStream().length];
+      data.dateFormatChoices = new int[meta.getMapping().size()];
       for (int i = 0; i < data.dateFormatChoices.length; i++) {
-        if (Utils.isEmpty(meta.getDateMask()[i])) {
+        if (Utils.isEmpty(meta.getMapping().get(i).getDateMask())) {
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
-        } else if (meta.getDateMask()[i].equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATE)) {
+        } else if (meta.getMapping()
+            .get(i)
+            .getDateMask()
+            .equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATE)) {
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_DATE;
-        } else if (meta.getDateMask()[i].equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATETIME)) {
+        } else if (meta.getMapping()
+            .get(i)
+            .getDateMask()
+            .equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATETIME)) {
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_DATETIME;
         } else { // The default : just pass it along...
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
