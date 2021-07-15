@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0015-check-table-exists</name>
+  <name>main-0016-postgresql-bulkloader</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -49,47 +49,20 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>SQL</name>
+      <name>Delete generic driver</name>
       <description/>
-      <type>SQL</type>
+      <type>DELETE_FILES</type>
       <attributes/>
-      <sql/>
-      <useVariableSubstitution>F</useVariableSubstitution>
-      <sqlfromfile>T</sqlfromfile>
-      <sqlfilename>${PROJECT_HOME}/scripts/script1.sql</sqlfilename>
-      <sendOneStatement>F</sendOneStatement>
-      <connection>unit-test-db</connection>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${user.dir}/lib/</name>
+          <filemask>postgresql.*</filemask>
+        </field>
+      </fields>
       <parallel>N</parallel>
-      <xloc>272</xloc>
-      <yloc>80</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0015-check-table-exists.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0015-check-table-exists.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>464</xloc>
+      <xloc>240</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
@@ -97,17 +70,10 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>SQL</to>
+      <to>Delete generic driver</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>SQL</from>
-      <to>0015-check-table-exists.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

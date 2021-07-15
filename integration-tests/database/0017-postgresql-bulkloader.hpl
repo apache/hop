@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0016-postgresql-bulkloader</name>
+    <name>0017-postgresql-bulkloader</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -58,23 +58,22 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <connection>unit-test-db</connection>
-    <schema>public</schema>
-    <table>testtable</table>
-    <load_action>TRUNCATE</load_action>
-    <dbname_override/>
-    <enclosure>"</enclosure>
     <delimiter>;</delimiter>
-    <stop_on_error>N</stop_on_error>
+    <enclosure>"</enclosure>
+    <load_action>TRUNCATE</load_action>
     <mapping>
-      <stream_name>key</stream_name>
+      <date_mask/>
       <field_name>key_data</field_name>
-      <date_mask/>
+      <stream_name>key</stream_name>
     </mapping>
     <mapping>
-      <stream_name>value</stream_name>
-      <field_name>value_data</field_name>
       <date_mask/>
+      <field_name>value_data</field_name>
+      <stream_name>value</stream_name>
     </mapping>
+    <schema>public</schema>
+    <stop_on_error>N</stop_on_error>
+    <table>testtable</table>
     <attributes/>
     <GUI>
       <xloc>464</xloc>
