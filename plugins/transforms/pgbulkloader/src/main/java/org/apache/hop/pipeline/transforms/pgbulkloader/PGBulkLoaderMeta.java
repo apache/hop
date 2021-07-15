@@ -157,78 +157,6 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     this.mapping = mapping;
   }
 
-  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    readData(transformNode, metadataProvider);
-  //  }
-  //
-  //  public void allocate(int nrvalues) {
-  //    fieldTable = new String[nrvalues];
-  //    fieldStream = new String[nrvalues];
-  //    dateMask = new String[nrvalues];
-  //  }
-
-  //  @Override
-  //  public Object clone() {
-  //    PGBulkLoaderMeta retval = (PGBulkLoaderMeta) super.clone();
-  //    int nrvalues = fieldTable.length;
-  //
-  //    //retval.allocate(nrvalues);
-  //    System.arraycopy(fieldTable, 0, retval.fieldTable, 0, nrvalues);
-  //    System.arraycopy(fieldStream, 0, retval.fieldStream, 0, nrvalues);
-  //    System.arraycopy(dateMask, 0, retval.dateMask, 0, nrvalues);
-  //    return retval;
-  //  }
-
-  //  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    try {
-  //      String con = XmlHandler.getTagValue(transformNode, "connection");
-  //      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-  //
-  //      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-  //      tableName = XmlHandler.getTagValue(transformNode, "table");
-  //
-  //      enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
-  //      delimiter = XmlHandler.getTagValue(transformNode, "delimiter");
-  //
-  //      loadAction = XmlHandler.getTagValue(transformNode, "load_action");
-  //      dbNameOverride = XmlHandler.getTagValue(transformNode, "dbname_override");
-  //      stopOnError = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
-  // "stop_on_error"));
-  //
-  //      int nrvalues = XmlHandler.countNodes(transformNode, "mapping");
-  //      allocate(nrvalues);
-  //
-  //      for (int i = 0; i < nrvalues; i++) {
-  //        Node vnode = XmlHandler.getSubNodeByNr(transformNode, "mapping", i);
-  //
-  //        fieldTable[i] = XmlHandler.getTagValue(vnode, "stream_name");
-  //        fieldStream[i] = XmlHandler.getTagValue(vnode, "field_name");
-  //        if (fieldStream[i] == null) {
-  //          fieldStream[i] = fieldTable[i]; // default: the same name!
-  //        }
-  //        String locDateMask = XmlHandler.getTagValue(vnode, "date_mask");
-  //        if (locDateMask == null) {
-  //          dateMask[i] = "";
-  //        } else {
-  //          if (PGBulkLoaderMeta.DATE_MASK_DATE.equals(locDateMask)
-  //              || PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals(locDateMask)
-  //              || PGBulkLoaderMeta.DATE_MASK_DATETIME.equals(locDateMask)) {
-  //            dateMask[i] = locDateMask;
-  //          } else {
-  //            dateMask[i] = "";
-  //          }
-  //        }
-  //      }
-  //    } catch (Exception e) {
-  //      throw new HopXmlException(
-  //          BaseMessages.getString(
-  //              PKG, "GPBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML"),
-  //          e);
-  //    }
-  //  }
-
   @Override
   public void setDefault() {
     databaseMeta = null;
@@ -238,37 +166,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     delimiter = ";";
     enclosure = "\"";
     stopOnError = false;
-    int nrvalues = 0;
     mapping = new ArrayList<>();
-    // allocate(nrvalues);
   }
-
-  //  public String getXml() {
-  //    StringBuilder retval = new StringBuilder(300);
-  //
-  //    retval
-  //        .append("    ")
-  //        .append(
-  //            XmlHandler.addTagValue(
-  //                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-  //    retval.append("    ").append(XmlHandler.addTagValue("schema", schemaName));
-  //    retval.append("    ").append(XmlHandler.addTagValue("table", tableName));
-  //    retval.append("    ").append(XmlHandler.addTagValue("load_action", loadAction));
-  //    retval.append("    ").append(XmlHandler.addTagValue("dbname_override", dbNameOverride));
-  //    retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
-  //    retval.append("    ").append(XmlHandler.addTagValue("delimiter", delimiter));
-  //    retval.append("    ").append(XmlHandler.addTagValue("stop_on_error", stopOnError));
-  //
-  //    for (int i = 0; i < fieldTable.length; i++) {
-  //      retval.append("      <mapping>").append(Const.CR);
-  //      retval.append("        ").append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
-  //      retval.append("        ").append(XmlHandler.addTagValue("field_name", fieldStream[i]));
-  //      retval.append("        ").append(XmlHandler.addTagValue("date_mask", dateMask[i]));
-  //      retval.append("      </mapping>").append(Const.CR);
-  //    }
-  //
-  //    return retval.toString();
-  //  }
 
   @Override
   public void getFields(
@@ -649,7 +548,6 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
 
   @Override
   public String getMissingDatabaseConnectionInformationMessage() {
-    // TODO Auto-generated method stub
     return null;
   }
 

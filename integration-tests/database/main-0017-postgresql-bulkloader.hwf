@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0016-postgresql-bulkloader</name>
+  <name>main-0017-postgresql-bulkloader</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -60,16 +60,16 @@ limitations under the License.
       <sendOneStatement>F</sendOneStatement>
       <connection>unit-test-db</connection>
       <parallel>N</parallel>
-      <xloc>272</xloc>
+      <xloc>416</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>0016-postgresql-bulkloader.hpl</name>
+      <name>0017-postgresql-bulkloader.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0016-postgresql-bulkloader.hpl</filename>
+      <filename>${PROJECT_HOME}/0017-postgresql-bulkloader.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -84,30 +84,30 @@ limitations under the License.
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>transactional</run_configuration>
+      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>464</xloc>
+      <xloc>608</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
+      <from>SQL</from>
+      <to>0017-postgresql-bulkloader.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
       <from>Start</from>
       <to>SQL</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>SQL</from>
-      <to>0016-postgresql-bulkloader.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
