@@ -65,7 +65,7 @@ public class PGBulkLoaderMetaTest {
     PluginRegistry.init( false );
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "loadAction", "dbNameOverride", "delimiter",
-        "enclosure", "stopOnError", "fieldTable", "fieldStream", "dateMask", "databaseMeta" );
+        "enclosure", "stopOnError", "databaseMeta" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -76,9 +76,6 @@ public class PGBulkLoaderMetaTest {
         put( "delimiter", "getDelimiter" );
         put( "enclosure", "getEnclosure" );
         put( "stopOnError", "isStopOnError" );
-        put( "fieldTable", "getFieldTable" );
-        put( "fieldStream", "getFieldStream" );
-        put( "dateMask", "getDateMask" );
         put( "databaseMeta", "getDatabaseMeta" );
       }
     };
@@ -91,9 +88,6 @@ public class PGBulkLoaderMetaTest {
         put( "delimiter", "setDelimiter" );
         put( "enclosure", "setEnclosure" );
         put( "stopOnError", "setStopOnError" );
-        put( "fieldTable", "setFieldTable" );
-        put( "fieldStream", "setFieldStream" );
-        put( "dateMask", "setDateMask" );
         put( "databaseMeta", "setDatabaseMeta" );
       }
     };
@@ -109,7 +103,6 @@ public class PGBulkLoaderMetaTest {
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
