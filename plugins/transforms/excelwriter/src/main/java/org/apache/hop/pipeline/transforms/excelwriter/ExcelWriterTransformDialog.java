@@ -1193,7 +1193,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
-    final int FieldsRows = input.getOutputFields().length;
+    final int FieldsRows = input.getOutputFields().size();
 
     // Prepare a list of possible formats, filtering reserved internal formats away
     String[] formats = BuiltinFormats.getAll();
@@ -1479,21 +1479,24 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFileName() != null) {
-      wFilename.setText(input.getFileName());
-    }
-    wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
-    if (input.getExtension() != null) {
+    ExcelWriterFileField file = input.getFile();
+    ExcelWriterTemplateField template = input.getTemplate();
 
-      if (input.getExtension().equals("xlsx")) {
+    if (file.getFileName() != null) {
+      wFilename.setText(file.getFileName());
+    }
+    wDoNotOpenNewFileInit.setSelection(file.isDoNotOpenNewFileInit());
+    if (file.getExtension() != null) {
+
+      if (file.getExtension().equals("xlsx")) {
         wExtension.select(1);
       } else {
         wExtension.select(0);
       }
     }
 
-    wStreamData.setSelection(input.isStreamingData());
-    wSplitEvery.setText("" + input.getSplitEvery());
+    wStreamData.setSelection(file.isStreamingData());
+    wSplitEvery.setText("" + file.getSplitEvery());
     wEmptyRows.setText("" + input.getAppendEmpty());
     wSkipRows.setText("" + input.getAppendOffset());
     wAppendLines.setSelection(input.isAppendLines());
@@ -1507,64 +1510,64 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wStartingCell.setText(input.getStartingCell());
     }
 
-    wAddDate.setSelection(input.isDateInFilename());
-    wAddTime.setSelection(input.isTimeInFilename());
+    wAddDate.setSelection(file.isDateInFilename());
+    wAddTime.setSelection(file.isTimeInFilename());
 
-    if (input.getDateTimeFormat() != null) {
-      wDateTimeFormat.setText(input.getDateTimeFormat());
+    if (file.getDateTimeFormat() != null) {
+      wDateTimeFormat.setText(file.getDateTimeFormat());
     }
-    wSpecifyFormat.setSelection(input.isSpecifyFormat());
+    wSpecifyFormat.setSelection(file.isSpecifyFormat());
 
-    wAddToResult.setSelection(input.isAddToResultFiles());
-    wAutoSize.setSelection(input.isAutoSizeColums());
+    wAddToResult.setSelection(input.isAddToResultFilenames());
+    wAutoSize.setSelection(file.isAutosizecolums());
     wIfFileExists.select(
-        ExcelWriterTransformMeta.IF_FILE_EXISTS_REUSE.equals(input.getIfFileExists()) ? 1 : 0);
+        ExcelWriterTransformMeta.IF_FILE_EXISTS_REUSE.equals(file.getIfFileExists()) ? 1 : 0);
     wIfSheetExists.select(
-        ExcelWriterTransformMeta.IF_SHEET_EXISTS_REUSE.equals(input.getIfSheetExists()) ? 1 : 0);
+        ExcelWriterTransformMeta.IF_SHEET_EXISTS_REUSE.equals(file.getIfSheetExists()) ? 1 : 0);
     wRowWritingMethod.select(
         ExcelWriterTransformMeta.ROW_WRITE_PUSH_DOWN.equals(input.getRowWritingMethod()) ? 1 : 0);
 
-    wAddTransformNr.setSelection(input.isTransformNrInFilename());
+    wAddTransformNr.setSelection(file.isTransformNrInFilename());
     wMakeActiveSheet.setSelection(input.isMakeSheetActive());
-    wTemplate.setSelection(input.isTemplateEnabled());
-    wTemplateSheet.setSelection(input.isTemplateSheetEnabled());
+    wTemplate.setSelection(template.isTemplateEnabled());
+    wTemplateSheet.setSelection(template.isTemplateSheetEnabled());
 
-    if (input.getTemplateFileName() != null) {
-      wTemplateFilename.setText(input.getTemplateFileName());
+    if (template.getTemplateFileName() != null) {
+      wTemplateFilename.setText(template.getTemplateFileName());
     }
 
-    if (input.getTemplateSheetName() != null) {
-      wTemplateSheetname.setText(input.getTemplateSheetName());
+    if (template.getTemplateSheetName() != null) {
+      wTemplateSheetname.setText(template.getTemplateSheetName());
     }
 
-    if (input.getSheetname() != null) {
-      wSheetname.setText(input.getSheetname());
+    if (file.getSheetname() != null) {
+      wSheetname.setText(file.getSheetname());
     } else {
-      wSheetname.setText("Sheet1");
+      wSheetname.setText(BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text"));
     }
-    wTemplateSheetHide.setSelection(input.isTemplateSheetHidden());
-    wProtectSheet.setSelection(input.isSheetProtected());
+    wTemplateSheetHide.setSelection(template.isTemplateSheetHidden());
+    wProtectSheet.setSelection(file.isProtectsheet());
 
     enablePassword();
     enableTemplate();
 
-    if (input.getPassword() != null) {
-      wPassword.setText(input.getPassword());
+    if (file.getPassword() != null) {
+      wPassword.setText(file.getPassword());
     }
-    if (input.getProtectedBy() != null) {
-      wProtectedBy.setText(input.getProtectedBy());
+    if (file.getProtectedBy() != null) {
+      wProtectedBy.setText(file.getProtectedBy());
     }
 
-    logDebug("getting fields info...");
+    logDebug("Getting fields info...");
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      ExcelWriterTransformField field = input.getOutputFields()[i];
+    for (int i = 0; i < input.getOutputFields().size(); i++) {
+      ExcelWriterOutputField field = input.getOutputFields().get(i);
 
       TableItem item = wFields.table.getItem(i);
       if (field.getName() != null) {
         item.setText(1, field.getName());
       }
-      item.setText(2, field.getTypeDesc());
+      item.setText(2, field.getType());
 
       if (field.getFormat() != null) {
         item.setText(3, field.getFormat());
@@ -1610,56 +1613,59 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   }
 
   private void getInfo(ExcelWriterTransformMeta tfoi) {
-    tfoi.setFileName(wFilename.getText());
-    tfoi.setStreamingData(wStreamData.getSelection());
-    tfoi.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+
+    ExcelWriterFileField file = tfoi.getFile();
+    ExcelWriterTemplateField template = tfoi.getTemplate();
+
+    file.setFileName(wFilename.getText());
+    file.setStreamingData(wStreamData.getSelection());
+    file.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     tfoi.setAppendOmitHeader(wOmitHeader.getSelection());
-    tfoi.setExtension((String) wExtension.getData(wExtension.getText()));
-    tfoi.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
+    file.setExtension((String) wExtension.getData(wExtension.getText()));
+    file.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
     tfoi.setAppendOffset(Const.toInt(wSkipRows.getText(), 0));
     tfoi.setAppendEmpty(Const.toInt(wEmptyRows.getText(), 0));
     tfoi.setAppendLines(wAppendLines.getSelection());
     tfoi.setHeaderEnabled(wHeader.getSelection());
     tfoi.setFooterEnabled(wFooter.getSelection());
     tfoi.setStartingCell(wStartingCell.getText());
-    tfoi.setTransformNrInFilename(wAddTransformNr.getSelection());
-    tfoi.setDateInFilename(wAddDate.getSelection());
-    tfoi.setTimeInFilename(wAddTime.getSelection());
-    tfoi.setIfFileExists((String) wIfFileExists.getData(wIfFileExists.getText()));
-    tfoi.setIfSheetExists((String) wIfSheetExists.getData(wIfSheetExists.getText()));
+    file.setTransformNrInFilename(wAddTransformNr.getSelection());
+    file.setDateInFilename(wAddDate.getSelection());
+    file.setTimeInFilename(wAddTime.getSelection());
+    file.setIfFileExists((String) wIfFileExists.getData(wIfFileExists.getText()));
+    file.setIfSheetExists((String) wIfSheetExists.getData(wIfSheetExists.getText()));
     tfoi.setRowWritingMethod((String) wRowWritingMethod.getData(wRowWritingMethod.getText()));
     tfoi.setForceFormulaRecalculation(wForceFormulaRecalculation.getSelection());
     tfoi.setLeaveExistingStylesUnchanged(wLeaveExistingStylesUnchanged.getSelection());
 
-    tfoi.setDateTimeFormat(wDateTimeFormat.getText());
-    tfoi.setSpecifyFormat(wSpecifyFormat.getSelection());
-    tfoi.setAutoSizeColums(wAutoSize.getSelection());
+    file.setDateTimeFormat(wDateTimeFormat.getText());
+    file.setSpecifyFormat(wSpecifyFormat.getSelection());
+    file.setAutosizecolums(wAutoSize.getSelection());
 
-    tfoi.setAddToResultFiles(wAddToResult.getSelection());
+    tfoi.setAddToResultFilenames(wAddToResult.getSelection());
 
     tfoi.setMakeSheetActive(wMakeActiveSheet.getSelection());
-    tfoi.setProtectSheet(wProtectSheet.getSelection());
-    tfoi.setProtectedBy(wProtectedBy.getText());
-    tfoi.setPassword(wPassword.getText());
+    file.setProtectsheet(wProtectSheet.getSelection());
+    file.setProtectedBy(wProtectedBy.getText());
+    file.setPassword(wPassword.getText());
 
-    tfoi.setTemplateEnabled(wTemplate.getSelection());
-    tfoi.setTemplateSheetEnabled(wTemplateSheet.getSelection());
-    tfoi.setTemplateFileName(wTemplateFilename.getText());
-    tfoi.setTemplateSheetName(wTemplateSheetname.getText());
-    tfoi.setTemplateSheetHidden(wTemplateSheetHide.getSelection());
+    template.setTemplateEnabled(wTemplate.getSelection());
+    template.setTemplateSheetEnabled(wTemplateSheet.getSelection());
+    template.setTemplateFileName(wTemplateFilename.getText());
+    template.setTemplateSheetName(wTemplateSheetname.getText());
+    template.setTemplateSheetHidden(wTemplateSheetHide.getSelection());
 
     if (wSheetname.getText() != null) {
-      tfoi.setSheetname(wSheetname.getText());
+      file.setSheetname(wSheetname.getText());
     } else {
-      tfoi.setSheetname("Sheet 1");
+      file.setSheetname(BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text"));
     }
 
     int nrFields = wFields.nrNonEmpty();
-
-    tfoi.allocate(nrFields);
+    input.getOutputFields().clear();
 
     for (int i = 0; i < nrFields; i++) {
-      ExcelWriterTransformField field = new ExcelWriterTransformField();
+      ExcelWriterOutputField field = new ExcelWriterOutputField();
 
       TableItem item = wFields.getNonEmpty(i);
       field.setName(item.getText(1));
@@ -1674,7 +1680,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       field.setCommentAuthorField(item.getText(10));
 
       // CHECKSTYLE:Indentation:OFF
-      tfoi.getOutputFields()[i] = field;
+      tfoi.getOutputFields().add(field);
     }
   }
 

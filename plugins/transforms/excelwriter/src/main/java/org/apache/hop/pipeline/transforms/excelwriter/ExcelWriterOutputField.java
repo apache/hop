@@ -18,17 +18,48 @@
 package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class  ExcelWriterTransformField implements Cloneable {
+public class ExcelWriterOutputField implements Cloneable {
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
   private String name;
-  private int type;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
+  private String type;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
   private String format;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
   private String title;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
   private boolean formula;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
   private String hyperlinkField;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
   private String commentField;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
   private String commentAuthorField;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
   private String titleStyleCell;
+
+  @HopMetadataProperty(
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
 
   public String getCommentAuthorField() {
@@ -39,24 +70,24 @@ public class  ExcelWriterTransformField implements Cloneable {
     this.commentAuthorField = commentAuthorField;
   }
 
-  public ExcelWriterTransformField( String name, int type, String format ) {
+  public ExcelWriterOutputField(String name, String type, String format ) {
     this.name = name;
     this.type = type;
     this.format = format;
   }
 
-  public ExcelWriterTransformField() {
+  public ExcelWriterOutputField() {
   }
 
   public int compare( Object obj ) {
-    ExcelWriterTransformField field = (ExcelWriterTransformField) obj;
+    ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
     return name.compareTo( field.getName() );
   }
 
   @Override
   public boolean equals( Object obj ) {
-    ExcelWriterTransformField field = (ExcelWriterTransformField) obj;
+    ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
     return name.equals( field.getName() );
   }
@@ -89,20 +120,12 @@ public class  ExcelWriterTransformField implements Cloneable {
     this.name = fieldname;
   }
 
-  public int getType() {
+  public String getType() {
     return type;
   }
 
-  public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
-  }
-
-  public void setType( int type ) {
+  public void setType( String type ) {
     this.type = type;
-  }
-
-  public void setType( String typeDesc ) {
-    this.type = ValueMetaFactory.getIdForValueMeta( typeDesc );
   }
 
   public String getFormat() {
@@ -163,6 +186,6 @@ public class  ExcelWriterTransformField implements Cloneable {
 
   @Override
   public String toString() {
-    return name + ":" + getTypeDesc();
+    return name + ":" + getType();
   }
 }

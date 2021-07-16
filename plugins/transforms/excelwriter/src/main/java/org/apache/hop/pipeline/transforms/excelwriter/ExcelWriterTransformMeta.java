@@ -22,16 +22,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -40,9 +38,9 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +56,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
+
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";
 
@@ -67,100 +66,90 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   public static final String ROW_WRITE_OVERWRITE = "overwrite";
   public static final String ROW_WRITE_PUSH_DOWN = "push";
 
-  /** The base name of the output file */
-  private String fileName;
-  /** what to do if file exists */
-  private String ifFileExists;
-
-  private String ifSheetExists;
-
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.MakeSheetActive.Field")
   private boolean makeSheetActive;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.ForceFormulaRecalculation.Field")
   private boolean forceFormulaRecalculation = false;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.LeaveExistingStylesUnchanged.Field")
   private boolean leaveExistingStylesUnchanged = false;
 
   /** advanced line append options */
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendOffset.Field")
   private int appendOffset = 0;
 
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendEmpty.Field")
   private int appendEmpty = 0;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendOmitHeader.Field")
   private boolean appendOmitHeader = false;
 
   /** how to write rows */
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.RowWritingMethod.Field")
   private String rowWritingMethod;
 
   /** where to start writing */
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.StartingCell.Field")
   private String startingCell;
 
-  /** The file extension in case of a generated filename */
-  private String extension;
-
-  /** The password to protect the sheet */
-  private String password;
-
-  private String protectedBy;
-
   /** Add a header at the top of the file? */
+  @HopMetadataProperty(key = "header",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.HeaderEnabled.Field")
   private boolean headerEnabled;
 
   /** Add a footer at the bottom of the file? */
+  @HopMetadataProperty(key = "footer",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.FooterEnabled.Field")
   private boolean footerEnabled;
 
-  /**
-   * if this value is larger then 0, the text file is split up into parts of this number of lines
-   */
-  private int splitEvery;
-
-  /** Flag: add the transformnr in the filename */
-  private boolean transformNrInFilename;
-
-  /** Flag: add the date in the filename */
-  private boolean dateInFilename;
-
   /** Flag: add the filenames to result filenames */
+  @HopMetadataProperty(key = "add_to_result_filenames",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.AddToResultFilenames.Field")
   private boolean addToResultFilenames;
-
-  /** Flag: protect the sheet */
-  private boolean protectsheet;
-
-  /** Flag: add the time in the filename */
-  private boolean timeInFilename;
-
-  /** Flag: use a template */
-  private boolean templateEnabled;
-
-  private boolean templateSheetEnabled;
-  private boolean templateSheetHidden;
-
-  /** the excel template */
-  private String templateFileName;
-
-  private String templateSheetName;
-
-  /** the excel sheet name */
-  private String sheetname;
 
   /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
-  private ExcelWriterTransformField[] outputFields;
+  @HopMetadataProperty(
+          groupKey = "fields",
+          key = "field",
+          injectionGroupDescription = "ExcelWriterMeta.Injection.Fields",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Field")
+  private List<ExcelWriterOutputField> outputFields;
 
   /** Flag : appendLines lines? */
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendLines.Field")
   private boolean appendLines;
 
-  /** Flag : Do not open new file when pipeline start */
-  private boolean doNotOpenNewFileInit;
+  @HopMetadataProperty
+  private ExcelWriterFileField file;
 
-  private boolean specifyFormat;
-
-  private String dateTimeFormat;
-
-  /** Flag : auto size columns? */
-  private boolean autosizecolums;
-
-  /** Do we need to stream data to handle very large files? */
-  private boolean streamingData;
+  @HopMetadataProperty
+  private ExcelWriterTemplateField template;
 
   public ExcelWriterTransformMeta() {
     super();
+
+    file = new ExcelWriterFileField();
+    template = new ExcelWriterTemplateField();
+    outputFields = new ArrayList<>();
+  }
+
+  public ExcelWriterFileField getFile() {
+    return file;
+  }
+
+  public void setFile(ExcelWriterFileField file) {
+    this.file = file;
+  }
+
+  public ExcelWriterTemplateField getTemplate() {
+    return template;
+  }
+
+  public void setTemplate(ExcelWriterTemplateField template) {
+    this.template = template;
   }
 
   public int getAppendOffset() {
@@ -177,16 +166,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
 
   public void setAppendEmpty(int appendEmpty) {
     this.appendEmpty = appendEmpty >= 0 ? appendEmpty : 0;
-  }
-
-  /** @return Returns the dateInFilename. */
-  public boolean isDateInFilename() {
-    return dateInFilename;
-  }
-
-  /** @param dateInFilename The dateInFilename to set. */
-  public void setDateInFilename(boolean dateInFilename) {
-    this.dateInFilename = dateInFilename;
   }
 
   public boolean isAppendOmitHeader() {
@@ -213,70 +192,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     this.rowWritingMethod = rowWritingMethod;
   }
 
-  public String getIfFileExists() {
-    return ifFileExists;
-  }
-
-  public void setIfFileExists(String ifFileExists) {
-    this.ifFileExists = ifFileExists;
-  }
-
-  public String getIfSheetExists() {
-    return ifSheetExists;
-  }
-
-  public void setIfSheetExists(String ifSheetExists) {
-    this.ifSheetExists = ifSheetExists;
-  }
-
-  public String getProtectedBy() {
-    return protectedBy;
-  }
-
-  public void setProtectedBy(String protectedBy) {
-    this.protectedBy = protectedBy;
-  }
-
-  /** @return Returns the extension. */
-  public String getExtension() {
-    return extension;
-  }
-
-  /** @param extension The extension to set. */
-  public void setExtension(String extension) {
-    this.extension = extension;
-  }
-
-  /** @return Returns the fileName. */
-  public String getFileName() {
-    return fileName;
-  }
-
-  /** @return Returns the password. */
-  public String getPassword() {
-    return password;
-  }
-
-  /** @return Returns the sheet name. */
-  public String getSheetname() {
-    return sheetname;
-  }
-
-  /** @param sheetname The sheet name. */
-  public void setSheetname(String sheetname) {
-    this.sheetname = sheetname;
-  }
-
-  /** @param fileName The fileName to set. */
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  /** @param password teh passwoed to set. */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
   /** @return Returns the footer. */
   public boolean isFooterEnabled() {
     return footerEnabled;
@@ -285,16 +200,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   /** @param footer The footer to set. */
   public void setFooterEnabled(boolean footer) {
     this.footerEnabled = footer;
-  }
-
-  /** @return Returns the autosizecolums. */
-  public boolean isAutoSizeColums() {
-    return autosizecolums;
-  }
-
-  /** @param autosizecolums The autosizecolums to set. */
-  public void setAutoSizeColums(boolean autosizecolums) {
-    this.autosizecolums = autosizecolums;
   }
 
   /** @return Returns the header. */
@@ -307,126 +212,24 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     this.headerEnabled = header;
   }
 
-  public boolean isSpecifyFormat() {
-    return specifyFormat;
-  }
-
-  public void setSpecifyFormat(boolean specifyFormat) {
-    this.specifyFormat = specifyFormat;
-  }
-
-  public String getDateTimeFormat() {
-    return dateTimeFormat;
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    this.dateTimeFormat = dateTimeFormat;
-  }
-
-  /** @return Returns the splitEvery. */
-  public int getSplitEvery() {
-    return splitEvery;
-  }
-
   /** @return Returns the add to result filesname. */
-  public boolean isAddToResultFiles() {
+  public boolean isAddToResultFilenames() {
     return addToResultFilenames;
   }
 
-  /** @param addtoresultfilenamesin The addtoresultfilenames to set. */
-  public void setAddToResultFiles(boolean addtoresultfilenamesin) {
-    this.addToResultFilenames = addtoresultfilenamesin;
-  }
-
-  /** @param splitEvery The splitEvery to set. */
-  public void setSplitEvery(int splitEvery) {
-    this.splitEvery = splitEvery >= 0 ? splitEvery : 0;
-  }
-
-  /** @return Returns the transformNrInFilename. */
-  public boolean isTransformNrInFilename() {
-    return transformNrInFilename;
-  }
-
-  /** @param transformNrInFilename The transformNrInFilename to set. */
-  public void setTransformNrInFilename(boolean transformNrInFilename) {
-    this.transformNrInFilename = transformNrInFilename;
-  }
-
-  /** @return Returns the timeInFilename. */
-  public boolean isTimeInFilename() {
-    return timeInFilename;
-  }
-
-  /** @return Returns the protectsheet. */
-  public boolean isSheetProtected() {
-    return protectsheet;
-  }
-
-  /** @param timeInFilename The timeInFilename to set. */
-  public void setTimeInFilename(boolean timeInFilename) {
-    this.timeInFilename = timeInFilename;
-  }
-
-  /** @param protectsheet the value to set. */
-  public void setProtectSheet(boolean protectsheet) {
-    this.protectsheet = protectsheet;
+  /** @param addtoresultfilenames The addtoresultfilenames to set. */
+  public void setAddToResultFilenames(boolean addtoresultfilenames) {
+    this.addToResultFilenames = addtoresultfilenames;
   }
 
   /** @return Returns the outputFields. */
-  public ExcelWriterTransformField[] getOutputFields() {
+  public List<ExcelWriterOutputField> getOutputFields() {
     return outputFields;
   }
 
   /** @param outputFields The outputFields to set. */
-  public void setOutputFields(ExcelWriterTransformField[] outputFields) {
+  public void setOutputFields(List<ExcelWriterOutputField> outputFields) {
     this.outputFields = outputFields;
-  }
-
-  /** @return Returns the template. */
-  public boolean isTemplateEnabled() {
-    return templateEnabled;
-  }
-
-  /** @param template The template to set. */
-  public void setTemplateEnabled(boolean template) {
-    this.templateEnabled = template;
-  }
-
-  public boolean isTemplateSheetEnabled() {
-    return templateSheetEnabled;
-  }
-
-  public void setTemplateSheetEnabled(boolean templateSheetEnabled) {
-    this.templateSheetEnabled = templateSheetEnabled;
-  }
-
-  /** @return Returns the templateFileName. */
-  public String getTemplateFileName() {
-    return templateFileName;
-  }
-
-  /** @param templateFileName The templateFileName to set. */
-  public void setTemplateFileName(String templateFileName) {
-    this.templateFileName = templateFileName;
-  }
-
-  public String getTemplateSheetName() {
-    return templateSheetName;
-  }
-
-  public void setTemplateSheetName(String templateSheetName) {
-    this.templateSheetName = templateSheetName;
-  }
-
-  /** @return Returns the "do not open new file at init" flag. */
-  public boolean isDoNotOpenNewFileInit() {
-    return doNotOpenNewFileInit;
-  }
-
-  /** @param doNotOpenNewFileInit The "do not open new file at init" flag to set. */
-  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
-    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
   /** @return Returns the appendLines. */
@@ -464,125 +267,10 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int nrFields) {
-    outputFields = new ExcelWriterTransformField[nrFields];
-  }
-
-  @Override
   public Object clone() {
     ExcelWriterTransformMeta retval = (ExcelWriterTransformMeta) super.clone();
-    int nrFields = outputFields.length;
-
-    retval.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      retval.outputFields[i] = (ExcelWriterTransformField) outputFields[i].clone();
-    }
 
     return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      headerEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
-      footerEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "footer"));
-      appendOmitHeader =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "appendOmitHeader"));
-      appendLines = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "appendLines"));
-      makeSheetActive =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "makeSheetActive"));
-      appendOffset = Const.toInt(XmlHandler.getTagValue(transformNode, "appendOffset"), 0);
-      appendEmpty = Const.toInt(XmlHandler.getTagValue(transformNode, "appendEmpty"), 0);
-
-      startingCell = XmlHandler.getTagValue(transformNode, "startingCell");
-      rowWritingMethod = XmlHandler.getTagValue(transformNode, "rowWritingMethod");
-      forceFormulaRecalculation =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "forceFormulaRecalculation"));
-      leaveExistingStylesUnchanged =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "leaveExistingStylesUnchanged"));
-
-      String addToResult = XmlHandler.getTagValue(transformNode, "add_to_result_filenames");
-      if (Utils.isEmpty(addToResult)) {
-        addToResultFilenames = true;
-      } else {
-        addToResultFilenames = "Y".equalsIgnoreCase(addToResult);
-      }
-
-      fileName = XmlHandler.getTagValue(transformNode, "file", "name");
-      extension = XmlHandler.getTagValue(transformNode, "file", "extention");
-
-      doNotOpenNewFileInit =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "do_not_open_newfile_init"));
-      transformNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "split"));
-      dateInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_date"));
-      timeInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_time"));
-      specifyFormat =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "SpecifyFormat"));
-      dateTimeFormat = XmlHandler.getTagValue(transformNode, "file", "date_time_format");
-
-      autosizecolums =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "autosizecolums"));
-      streamingData =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "stream_data"));
-      protectsheet =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "protect_sheet"));
-      password =
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformNode, "file", "password"));
-      protectedBy = XmlHandler.getTagValue(transformNode, "file", "protected_by");
-      splitEvery = Const.toInt(XmlHandler.getTagValue(transformNode, "file", "splitevery"), 0);
-
-      templateEnabled =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "template", "enabled"));
-      templateSheetEnabled =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "template", "sheet_enabled"));
-      templateSheetHidden =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "template", "hidden"));
-      templateFileName = XmlHandler.getTagValue(transformNode, "template", "filename");
-      templateSheetName = XmlHandler.getTagValue(transformNode, "template", "sheetname");
-      sheetname = XmlHandler.getTagValue(transformNode, "file", "sheetname");
-      ifFileExists = XmlHandler.getTagValue(transformNode, "file", "if_file_exists");
-      ifSheetExists = XmlHandler.getTagValue(transformNode, "file", "if_sheet_exists");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        outputFields[i] = new ExcelWriterTransformField();
-        outputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
-        outputFields[i].setType(XmlHandler.getTagValue(fnode, "type"));
-        outputFields[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
-        outputFields[i].setTitle(XmlHandler.getTagValue(fnode, "title"));
-        outputFields[i].setTitleStyleCell(XmlHandler.getTagValue(fnode, "titleStyleCell"));
-        outputFields[i].setStyleCell(XmlHandler.getTagValue(fnode, "styleCell"));
-        outputFields[i].setCommentField(XmlHandler.getTagValue(fnode, "commentField"));
-        outputFields[i].setCommentAuthorField(XmlHandler.getTagValue(fnode, "commentAuthorField"));
-        outputFields[i].setFormula(
-            XmlHandler.getTagValue(fnode, "formula") != null
-                && XmlHandler.getTagValue(fnode, "formula").equalsIgnoreCase("Y"));
-        outputFields[i].setHyperlinkField(XmlHandler.getTagValue(fnode, "hyperlinkField"));
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
   }
 
   public String getNewLine(String fformat) {
@@ -602,28 +290,10 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   @Override
   public void setDefault() {
 
-    autosizecolums = false;
-    streamingData = false;
     headerEnabled = true;
     footerEnabled = false;
-    fileName = "file";
-    extension = "xls";
-    doNotOpenNewFileInit = false;
-    transformNrInFilename = false;
-    dateInFilename = false;
-    timeInFilename = false;
-    dateTimeFormat = null;
-    specifyFormat = false;
     addToResultFilenames = true;
-    protectsheet = false;
-    splitEvery = 0;
-    templateEnabled = false;
-    templateFileName = "template.xls";
-    templateSheetHidden = false;
-    sheetname = "Sheet1";
     appendLines = false;
-    ifFileExists = IF_FILE_EXISTS_CREATE_NEW;
-    ifSheetExists = IF_SHEET_EXISTS_CREATE_NEW;
     startingCell = "A1";
     rowWritingMethod = ROW_WRITE_OVERWRITE;
     appendEmpty = 0;
@@ -631,19 +301,19 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     appendOmitHeader = false;
     makeSheetActive = true;
     forceFormulaRecalculation = false;
-
-    allocate(0);
+    file.setDefault();
+    template.setDefault();
   }
 
   public String[] getFiles(IVariables variables) {
     int copies = 1;
     int splits = 1;
 
-    if (transformNrInFilename) {
+    if (file.isTransformNrInFilename()) {
       copies = 3;
     }
 
-    if (splitEvery != 0) {
+    if (file.getSplitEvery() != 0) {
       splits = 4;
     }
 
@@ -672,31 +342,31 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.resolve(fileName);
-    String realextension = variables.resolve(extension);
+    String retval = variables.resolve(file.getFileName());
+    String realextension = variables.resolve(file.getExtension());
 
     Date now = new Date();
 
-    if (specifyFormat && !Utils.isEmpty(dateTimeFormat)) {
-      daf.applyPattern(dateTimeFormat);
+    if (file.isSpecifyFormat() && !Utils.isEmpty(file.getDateTimeFormat())) {
+      daf.applyPattern(file.getDateTimeFormat());
       String dt = daf.format(now);
       retval += dt;
     } else {
-      if (dateInFilename) {
+      if (file.isDateInFilename()) {
         daf.applyPattern("yyyMMdd");
         String d = daf.format(now);
         retval += "_" + d;
       }
-      if (timeInFilename) {
+      if (file.isTimeInFilename()) {
         daf.applyPattern("HHmmss");
         String t = daf.format(now);
         retval += "_" + t;
       }
     }
-    if (transformNrInFilename) {
+    if (file.isTransformNrInFilename()) {
       retval += "_" + transformnr;
     }
-    if (splitEvery > 0) {
+    if (file.getSplitEvery() > 0) {
       retval += "_" + splitnr;
     }
 
@@ -721,96 +391,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
 
     // No values are added to the row in this type of transform
   }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(800);
-
-    retval.append("    ").append(XmlHandler.addTagValue("header", headerEnabled));
-    retval.append("    ").append(XmlHandler.addTagValue("footer", footerEnabled));
-    retval.append("    ").append(XmlHandler.addTagValue("makeSheetActive", makeSheetActive));
-    retval.append("    ").append(XmlHandler.addTagValue("rowWritingMethod", rowWritingMethod));
-    retval.append("    ").append(XmlHandler.addTagValue("startingCell", startingCell));
-    retval.append("    ").append(XmlHandler.addTagValue("appendOmitHeader", appendOmitHeader));
-    retval.append("    ").append(XmlHandler.addTagValue("appendOffset", appendOffset));
-    retval.append("    ").append(XmlHandler.addTagValue("appendEmpty", appendEmpty));
-    retval.append("    ").append(XmlHandler.addTagValue("rowWritingMethod", rowWritingMethod));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("forceFormulaRecalculation", forceFormulaRecalculation));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue("leaveExistingStylesUnchanged", leaveExistingStylesUnchanged));
-    retval.append("    " + XmlHandler.addTagValue("appendLines", appendLines));
-    retval.append("    " + XmlHandler.addTagValue("add_to_result_filenames", addToResultFilenames));
-
-    retval.append("    <file>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
-    retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("do_not_open_newfile_init", doNotOpenNewFileInit));
-    retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("sheetname", sheetname));
-    retval.append("      ").append(XmlHandler.addTagValue("autosizecolums", autosizecolums));
-    retval.append("      ").append(XmlHandler.addTagValue("stream_data", streamingData));
-    retval.append("      ").append(XmlHandler.addTagValue("protect_sheet", protectsheet));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-    retval.append("      ").append(XmlHandler.addTagValue("protected_by", protectedBy));
-    retval.append("      ").append(XmlHandler.addTagValue("splitevery", splitEvery));
-    retval.append("      ").append(XmlHandler.addTagValue("if_file_exists", ifFileExists));
-    retval.append("      ").append(XmlHandler.addTagValue("if_sheet_exists", ifSheetExists));
-
-    retval.append("      </file>").append(Const.CR);
-
-    retval.append("    <template>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("enabled", templateEnabled));
-    retval.append("      ").append(XmlHandler.addTagValue("sheet_enabled", templateSheetEnabled));
-    retval.append("      ").append(XmlHandler.addTagValue("filename", templateFileName));
-    retval.append("      ").append(XmlHandler.addTagValue("sheetname", templateSheetName));
-    retval.append("      ").append(XmlHandler.addTagValue("hidden", templateSheetHidden));
-    retval.append("    </template>").append(Const.CR);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      ExcelWriterTransformField field = outputFields[i];
-
-      if (field.getName() != null && field.getName().length() != 0) {
-        retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-        retval.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
-        retval.append("        ").append(XmlHandler.addTagValue("title", field.getTitle()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("titleStyleCell", field.getTitleStyleCell()));
-        retval.append("        ").append(XmlHandler.addTagValue("styleCell", field.getStyleCell()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("commentField", field.getCommentField()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("commentAuthorField", field.getCommentAuthorField()));
-        retval.append("        ").append(XmlHandler.addTagValue("formula", field.isFormula()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("hyperlinkField", field.getHyperlinkField()));
-        retval.append("      </field>").append(Const.CR);
-      }
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -838,10 +418,11 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getName());
+      for (int i = 0; i < outputFields.size(); i++) {
+        ExcelWriterOutputField field = outputFields.get(i);
+        int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getName() + Const.CR;
+          errorMessage += "\t\t" + field.getName() + Const.CR;
           errorFound = true;
         }
       }
@@ -905,13 +486,13 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
-      if (!Utils.isEmpty(fileName)) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName));
-        fileName = iResourceNaming.nameResource(fileObject, variables, true);
+      if (!Utils.isEmpty(file.getFileName())) {
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getFileName()));
+        file.setFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
-      if (!Utils.isEmpty(templateFileName)) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(templateFileName));
-        templateFileName = iResourceNaming.nameResource(fileObject, variables, true);
+      if (!Utils.isEmpty(template.getTemplateFileName())) {
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(template.getTemplateFileName()));
+        template.setTemplateFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
 
       return null;
@@ -933,23 +514,5 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   @Override
   public ExcelWriterTransformData getTransformData() {
     return new ExcelWriterTransformData();
-  }
-
-  /** @return the streamingData */
-  public boolean isStreamingData() {
-    return streamingData;
-  }
-
-  /** @param streamingData the streamingData to set */
-  public void setStreamingData(boolean streamingData) {
-    this.streamingData = streamingData;
-  }
-
-  public boolean isTemplateSheetHidden() {
-    return templateSheetHidden;
-  }
-
-  public void setTemplateSheetHidden(boolean hide) {
-    this.templateSheetHidden = hide;
   }
 }

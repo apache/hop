@@ -45,7 +45,9 @@ import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -93,6 +95,7 @@ public class ExcelWriterTransformTest {
     dataMock = mock( ExcelWriterTransformData.class );
 
     transform = spy( new ExcelWriterTransform( mockHelper.transformMeta, metaMock, dataMock, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
+
     assertTrue( transform.init() );
   }
 
@@ -114,7 +117,7 @@ public class ExcelWriterTransformTest {
     transform = spy( new ExcelWriterTransform( mockHelper.transformMeta, metaMock, dataMock, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
 
     // Return a 32 character name
-    when( metaMock.getSheetname() ).thenReturn( "12345678901234567890123456789012" );
+    when( metaMock.getFile().getSheetname() ).thenReturn( "12345678901234567890123456789012" );
 
     transform.init();
 
@@ -136,10 +139,10 @@ public class ExcelWriterTransformTest {
     File outDir = Files.createTempDir();
     String testFileOut = outDir.getAbsolutePath() + File.separator + "test.xlsx";
     when( transform.buildFilename( 0 ) ).thenReturn( testFileOut );
-    when( metaMock.isTemplateEnabled() ).thenReturn( true );
-    when( metaMock.isStreamingData() ).thenReturn( true );
+    when( metaMock.getTemplate().isTemplateEnabled() ).thenReturn( true );
+    when( metaMock.getFile().isStreamingData() ).thenReturn( true );
     when( metaMock.isHeaderEnabled() ).thenReturn( true );
-    when( metaMock.getExtension() ).thenReturn( XLSX );
+    when( metaMock.getFile().getExtension() ).thenReturn( XLSX );
     dataMock.createNewFile = true;
     dataMock.realTemplateFileName = getClass().getResource( "template_test.xlsx" ).getFile();
     dataMock.realSheetname = SHEET_NAME;
@@ -160,17 +163,19 @@ public class ExcelWriterTransformTest {
     dataMock.realSheetname = "TicketData";
     dataMock.inputRowMeta = mock( IRowMeta.class );
 
-    ExcelWriterTransformField field = new ExcelWriterTransformField();
+    List<ExcelWriterOutputField> fields = new ArrayList<ExcelWriterOutputField>();
+    fields.add(new ExcelWriterOutputField());
+
     IValueMeta vmi = mock( ValueMetaInteger.class );
     doReturn( IValueMeta.TYPE_INTEGER ).when( vmi ).getType();
     doReturn( "name" ).when( vmi ).getName();
     doReturn( 12.0 ).when( vmi ).getNumber( anyObject() );
 
-    doReturn( true ).when( metaMock ).isTemplateEnabled();
-    doReturn( true ).when( metaMock ).isStreamingData();
+    doReturn( true ).when( metaMock ).getTemplate().isTemplateEnabled();
+    doReturn( true ).when( metaMock ).getFile().isStreamingData();
     doReturn( false ).when( metaMock ).isHeaderEnabled();
-    doReturn( XLSX ).when( metaMock ).getExtension();
-    doReturn( new ExcelWriterTransformField[] { field } ).when( metaMock ).getOutputFields();
+    doReturn( XLSX ).when( metaMock ).getFile().getExtension();
+    doReturn( fields ).when( metaMock ).getOutputFields();
 
     doReturn( 10 ).when( dataMock.inputRowMeta ).size();
     doReturn( vmi ).when( dataMock.inputRowMeta ).getValueMeta( anyInt() );
@@ -425,12 +430,13 @@ public class ExcelWriterTransformTest {
     dataMock.inputRowMeta = mock( IRowMeta.class );
 
     doReturn( path ).when( transform ).buildFilename( 0 );
-    doReturn( isTemplateEnabled ).when( metaMock ).isTemplateEnabled();
-    doReturn( isStreaming ).when( metaMock ).isStreamingData();
+    doReturn( isTemplateEnabled ).when( metaMock ).getTemplate().isTemplateEnabled();
+    doReturn( isStreaming ).when( metaMock ).getFile().isStreamingData();
     doReturn( false ).when( metaMock ).isHeaderEnabled();
-    doReturn( extension ).when( metaMock ).getExtension();
-    ExcelWriterTransformField field = new ExcelWriterTransformField();
-    doReturn( new ExcelWriterTransformField[] { field } ).when( metaMock ).getOutputFields();
+    doReturn( extension ).when( metaMock ).getFile().getExtension();
+    List<ExcelWriterOutputField> fields = new ArrayList<>();
+    fields.add(new ExcelWriterOutputField());
+    doReturn( fields ).when( metaMock ).getOutputFields();
 
     doReturn( 1 ).when( dataMock.inputRowMeta ).size();
     doReturn( vmi ).when( dataMock.inputRowMeta ).getValueMeta( anyInt() );
@@ -448,7 +454,7 @@ public class ExcelWriterTransformTest {
     transform.writeNextLine( vObjArr );
 
     if ( null != dataMock.sheet && !( dataMock.sheet instanceof HSSFSheet ) ) {
-      verify( transform ).writeField( eq( vObj ), eq( vmi ), eq( field ), any( Row.class ), eq( 0 ), any(), eq( 0 ),
+      verify( transform ).writeField( eq( vObj ), eq( vmi ), eq( fields.get(0) ), any( Row.class ), eq( 0 ), any(), eq( 0 ),
         eq( Boolean.FALSE ) );
 
       verify( dataMock.sheet ).createRow( anyInt() );

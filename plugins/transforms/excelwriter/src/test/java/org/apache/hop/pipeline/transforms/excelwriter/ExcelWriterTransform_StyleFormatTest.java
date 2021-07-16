@@ -172,9 +172,9 @@ public class ExcelWriterTransform_StyleFormatTest {
     meta = new ExcelWriterTransformMeta();
     meta.setDefault();
 
-    meta.setFileName( "testExcel" );
-    meta.setExtension( fileType );
-    meta.setSheetname( "Sheet1" );
+    meta.getFile().setFileName( "testExcel" );
+    meta.getFile().setExtension( fileType );
+    meta.getFile().setSheetname( "Sheet1" );
     meta.setHeaderEnabled( true );
     meta.setStartingCell( "A2" );
 
@@ -183,15 +183,20 @@ public class ExcelWriterTransform_StyleFormatTest {
     //   2. No format, only style
     //   3. Format, and a different style without a format defined
     //   4. Format, and a different style with a different format defined but gets overridden
-    ExcelWriterTransformField[] outputFields = new ExcelWriterTransformField[ 4 ];
-    outputFields[ 0 ] = new ExcelWriterTransformField( "col 1", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
-    outputFields[ 0 ].setStyleCell( "" );
-    outputFields[ 1 ] = new ExcelWriterTransformField( "col 2", ValueMetaFactory.getIdForValueMeta( "Number" ), "" );
-    outputFields[ 1 ].setStyleCell( "G1" );
-    outputFields[ 2 ] = new ExcelWriterTransformField( "col 3", ValueMetaFactory.getIdForValueMeta( "BigNumber" ), "0.00000" );
-    outputFields[ 2 ].setStyleCell( "F1" );
-    outputFields[ 3 ] = new ExcelWriterTransformField( "col 4", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
-    outputFields[ 3 ].setStyleCell( "G1" );
+    List<ExcelWriterOutputField> outputFields = new ArrayList<>();
+    ExcelWriterOutputField field = new ExcelWriterOutputField( "col 1", "Integer",  "0.00000" );
+    field.setStyleCell( "" );
+    outputFields.add(field);
+    field = new ExcelWriterOutputField( "col 2", "Number", "" );
+    field.setStyleCell( "G1" );
+    outputFields.add(field);
+    field = new ExcelWriterOutputField( "col 3",  "BigNumber" , "0.00000" );
+    field.setStyleCell( "F1" );
+    outputFields.add(field);
+    field = new ExcelWriterOutputField( "col 4",  "Integer" , "0.00000" );
+    field.setStyleCell( "G1" );
+    outputFields.add(field);
+
     meta.setOutputFields( outputFields );
   }
 
@@ -226,7 +231,7 @@ public class ExcelWriterTransform_StyleFormatTest {
 
     // we avoid reading/writing Excel files, so ExcelWriterTransform.prepareNextOutputFile() doesn't get executed
     // create Excel workbook object
-    data.wb = meta.getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
+    data.wb = meta.getFile().getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
     data.sheet = data.wb.createSheet();
     data.file = null;
     data.clearStyleCache( numOfFields );

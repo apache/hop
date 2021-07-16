@@ -90,14 +90,14 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       }
 
       // if we are supposed to init the file up front, here we go
-      if ( !meta.isDoNotOpenNewFileInit() ) {
+      if ( !meta.getFile().isDoNotOpenNewFileInit() ) {
         data.firstFileOpened = true;
 
         try {
           prepareNextOutputFile();
         } catch ( HopException e ) {
           logError( BaseMessages.getString( PKG, "ExcelWriterTransform.Exception.CouldNotPrepareFile",
-            resolve( meta.getFileName() ) ) );
+            resolve( meta.getFile().getFileName() ) ) );
           setErrors( 1L );
           stopAll();
           return false;
@@ -106,20 +106,20 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
 
       if ( r != null ) {
         // if we are supposed to init the file delayed, here we go
-        if ( meta.isDoNotOpenNewFileInit() ) {
+        if ( meta.getFile().isDoNotOpenNewFileInit() ) {
           data.firstFileOpened = true;
           prepareNextOutputFile();
         }
 
         // Let's remember where the fields are in the input row
-        int outputFieldsCount = meta.getOutputFields().length;
+        int outputFieldsCount = meta.getOutputFields().size();
         data.commentauthorfieldnrs = new int[ outputFieldsCount ];
         data.commentfieldnrs = new int[ outputFieldsCount ];
         data.linkfieldnrs = new int[ outputFieldsCount ];
         data.fieldnrs = new int[ outputFieldsCount ];
 
         int i = 0;
-        for ( ExcelWriterTransformField outputField : meta.getOutputFields() ) {
+        for ( ExcelWriterOutputField outputField : meta.getOutputFields() ) {
           // Output Fields
           String outputFieldName = outputField.getName();
           data.fieldnrs[ i ] = data.inputRowMeta.indexOfValue( outputFieldName );
@@ -173,7 +173,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
 
     if ( r != null ) {
       // File Splitting Feature, is it time to create a new file?
-      if ( !meta.isAppendLines() && meta.getSplitEvery() > 0 && data.datalines > 0 && data.datalines % meta.getSplitEvery() == 0 ) {
+      if ( !meta.isAppendLines() && meta.getFile().getSplitEvery() > 0 && data.datalines > 0 && data.datalines % meta.getFile().getSplitEvery() == 0 ) {
         closeOutputFile();
         prepareNextOutputFile();
       }
@@ -220,19 +220,19 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         writeHeader();
       }
       // handle auto size for columns
-      if ( meta.isAutoSizeColums() ) {
+      if ( meta.getFile().isAutosizecolums() ) {
 
         // track all columns for autosizing if using streaming worksheet
         if ( data.sheet instanceof SXSSFSheet ) {
           ( (SXSSFSheet) data.sheet ).trackAllColumnsForAutoSizing();
         }
 
-        if ( meta.getOutputFields() == null || meta.getOutputFields().length == 0 ) {
+        if ( meta.getOutputFields() == null || meta.getOutputFields().size() == 0 ) {
           for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
             data.sheet.autoSizeColumn( i + data.startingCol );
           }
         } else {
-          for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
+          for ( int i = 0; i < meta.getOutputFields().size(); i++ ) {
             data.sheet.autoSizeColumn( i + data.startingCol );
           }
         }
@@ -286,7 +286,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         xlsRow = data.sheet.createRow( data.posY );
       }
       Object v = null;
-      if ( meta.getOutputFields() == null || meta.getOutputFields().length == 0 ) {
+      if ( meta.getOutputFields() == null || meta.getOutputFields().size() == 0 ) {
         //  Write all values in stream to text file.
         int nr = data.inputRowMeta.size();
         data.clearStyleCache( nr );
@@ -303,10 +303,11 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         /*
          * Only write the fields specified!
          */
-        for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
+        for ( int i = 0; i < meta.getOutputFields().size(); i++ ) {
           v = r[ data.fieldnrs[ i ] ];
+          ExcelWriterOutputField field = meta.getOutputFields().get(i);
           writeField(
-            v, data.inputRowMeta.getValueMeta( data.fieldnrs[ i ] ), meta.getOutputFields()[ i ], xlsRow,
+            v, data.inputRowMeta.getValueMeta( data.fieldnrs[ i ] ), field, xlsRow,
             data.posX++, r, i, false );
         }
         // go to the next line
@@ -361,8 +362,8 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
   }
 
   //VisibleForTesting
-  void writeField( Object v, IValueMeta vMeta, ExcelWriterTransformField excelField, Row xlsRow,
-                   int posX, Object[] row, int fieldNr, boolean isTitle ) throws HopException {
+  void writeField(Object v, IValueMeta vMeta, ExcelWriterOutputField excelField, Row xlsRow,
+                  int posX, Object[] row, int fieldNr, boolean isTitle ) throws HopException {
     try {
       boolean cellExisted = true;
       // get the cell
@@ -567,7 +568,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         throw new HopException( BaseMessages.getString( PKG, "ExcelWriterTransform.Exception.MaxSheetName", data.realSheetname ) );
       }
       // clear style cache
-      int numOfFields = meta.getOutputFields() != null && meta.getOutputFields().length > 0 ? meta.getOutputFields().length : 0;
+      int numOfFields = meta.getOutputFields() != null && meta.getOutputFields().size() > 0 ? meta.getOutputFields().size() : 0;
       if ( numOfFields == 0 ) {
         numOfFields = data.inputRowMeta != null ? data.inputRowMeta.size() : 0;
       }
@@ -594,7 +595,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       }
 
       // adding filename to result
-      if ( meta.isAddToResultFiles() ) {
+      if ( meta.isAddToResultFilenames() ) {
         // Add this to the result file names...
         ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
         resultFile.setComment( "This file was created with an Excel writer transform by Hop : The Hop Orchestration Platform" );
@@ -604,13 +605,13 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       // if now no file exists we must create it as indicated by user
       if ( !data.file.exists() ) {
         // if template file is enabled
-        if ( meta.isTemplateEnabled() ) {
+        if ( meta.getTemplate().isTemplateEnabled() ) {
           // handle template case (must have same format)
           // ensure extensions match
           String templateExt = HopVfs.getFileObject( data.realTemplateFileName ).getName().getExtension();
-          if ( !meta.getExtension().equalsIgnoreCase( templateExt ) ) {
+          if ( !meta.getFile().getExtension().equalsIgnoreCase( templateExt ) ) {
             throw new HopException( "Template Format Mismatch: Template has extension: "
-              + templateExt + ", but output file has extension: " + meta.getExtension()
+              + templateExt + ", but output file has extension: " + meta.getFile().getExtension()
               + ". Template and output file must share the same format!" );
           }
 
@@ -627,7 +628,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
           }
         } else {
           // handle fresh file case, just create a fresh workbook
-          Workbook wb = meta.getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
+          Workbook wb = meta.getFile().getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
           BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVfs.getOutputStream( data.file, false ) );
           wb.createSheet( data.realSheetname );
           wb.write( out );
@@ -638,9 +639,9 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       }
 
       // file is guaranteed to be in place now
-      if ( meta.getExtension().equalsIgnoreCase( "xlsx" ) ) {
+      if ( meta.getFile().getExtension().equalsIgnoreCase( "xlsx" ) ) {
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook( HopVfs.getInputStream( data.file ) );
-        if ( meta.isStreamingData() && !meta.isTemplateEnabled() ) {
+        if ( meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled() ) {
           data.wb = new SXSSFWorkbook( xssfWorkbook, 100 );
         } else {
           //Initialize it later after writing header/template because SXSSFWorkbook can't read/rewrite existing data,
@@ -664,7 +665,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
 
       // if sheet is now missing, we need to create a new one
       if ( data.wb.getSheet( data.realSheetname ) == null ) {
-        if ( meta.isTemplateSheetEnabled() ) {
+        if ( meta.getTemplate().isTemplateSheetEnabled() ) {
           Sheet ts = data.wb.getSheet( data.realTemplateSheetName );
           // if template sheet is missing, break
           if ( ts == null ) {
@@ -674,7 +675,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
           data.wb.setSheetName( data.wb.getSheetIndex( data.sheet ), data.realSheetname );
           // unhide sheet in case it was hidden
           data.wb.setSheetHidden( data.wb.getSheetIndex( data.sheet ), false );
-          if ( meta.isTemplateSheetHidden() ) {
+          if ( meta.getTemplate().isTemplateSheetHidden() ) {
             data.wb.setSheetHidden( data.wb.getSheetIndex( ts ), true );
           }
         } else {
@@ -699,7 +700,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         data.wb.setSelectedTab( sheetIndex );
       }
       // handle write protection
-      if ( meta.isSheetProtected() ) {
+      if ( meta.getFile().isProtectsheet() ) {
         protectSheet( data.sheet, data.realPassword );
       }
 
@@ -772,11 +773,12 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       }
       int posX = data.posX;
       // If we have fields specified: list them in this order!
-      if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
-        for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-          String fieldName = !Utils.isEmpty( meta.getOutputFields()[ i ].getTitle() ) ? meta.getOutputFields()[ i ].getTitle() : meta.getOutputFields()[ i ].getName();
+      if ( meta.getOutputFields() != null && meta.getOutputFields().size() > 0 ) {
+        for ( int i = 0; i < meta.getOutputFields().size(); i++ ) {
+          ExcelWriterOutputField field = meta.getOutputFields().get(i);
+          String fieldName = !Utils.isEmpty(field.getTitle() ) ? field.getTitle() : field.getName();
           IValueMeta vMeta = new ValueMetaString( fieldName );
-          writeField( fieldName, vMeta, meta.getOutputFields()[ i ], xlsRow, posX++, null, -1, true );
+          writeField( fieldName, vMeta, field, xlsRow, posX++, null, -1, true );
         }
         // Just put all field names in
       } else if ( data.inputRowMeta != null ) {
@@ -798,16 +800,16 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
     if ( super.init() ) {
       data.splitnr = 0;
       data.datalines = 0;
-      data.realSheetname = resolve( meta.getSheetname() );
-      data.realTemplateSheetName = resolve( meta.getTemplateSheetName() );
-      data.realTemplateFileName = resolve( meta.getTemplateFileName() );
+      data.realSheetname = resolve( meta.getFile().getSheetname() );
+      data.realTemplateSheetName = resolve( meta.getTemplate().getTemplateSheetName() );
+      data.realTemplateFileName = resolve( meta.getTemplate().getTemplateFileName() );
       data.realStartingCell = resolve( meta.getStartingCell() );
-      data.realPassword = Utils.resolvePassword( variables, meta.getPassword() );
-      data.realProtectedBy = resolve( meta.getProtectedBy() );
+      data.realPassword = Utils.resolvePassword( variables, meta.getFile().getPassword() );
+      data.realProtectedBy = resolve( meta.getFile().getProtectedBy() );
 
       data.shiftExistingCells = ExcelWriterTransformMeta.ROW_WRITE_PUSH_DOWN.equals( meta.getRowWritingMethod() );
-      data.createNewSheet = ExcelWriterTransformMeta.IF_SHEET_EXISTS_CREATE_NEW.equals( meta.getIfSheetExists() );
-      data.createNewFile = ExcelWriterTransformMeta.IF_FILE_EXISTS_CREATE_NEW.equals( meta.getIfFileExists() );
+      data.createNewSheet = ExcelWriterTransformMeta.IF_SHEET_EXISTS_CREATE_NEW.equals( meta.getFile().getIfSheetExists() );
+      data.createNewFile = ExcelWriterTransformMeta.IF_FILE_EXISTS_CREATE_NEW.equals( meta.getFile().getIfFileExists() );
       return true;
     }
     return false;
