@@ -17,48 +17,70 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class  ExcelWriterTransformField implements Cloneable {
+public class ExcelWriterOutputField implements Cloneable {
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
   private String name;
-  private int type;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
+  private String type;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
   private String format;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
   private String title;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
   private boolean formula;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
   private String hyperlinkField;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
   private String commentField;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
   private String commentAuthorField;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
   private String titleStyleCell;
+
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
 
   public String getCommentAuthorField() {
     return commentAuthorField;
   }
 
-  public void setCommentAuthorField( String commentAuthorField ) {
+  public void setCommentAuthorField(String commentAuthorField) {
     this.commentAuthorField = commentAuthorField;
   }
 
-  public ExcelWriterTransformField( String name, int type, String format ) {
+  public ExcelWriterOutputField(String name, String type, String format) {
     this.name = name;
     this.type = type;
     this.format = format;
   }
 
-  public ExcelWriterTransformField() {
-  }
+  public ExcelWriterOutputField() {}
 
-  public int compare( Object obj ) {
-    ExcelWriterTransformField field = (ExcelWriterTransformField) obj;
+  public int compare(Object obj) {
+    ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
-    return name.compareTo( field.getName() );
+    return name.compareTo(field.getName());
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    ExcelWriterTransformField field = (ExcelWriterTransformField) obj;
+  public boolean equals(Object obj) {
+    ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
-    return name.equals( field.getName() );
+    return name.equals(field.getName());
   }
 
   @Override
@@ -67,16 +89,15 @@ public class  ExcelWriterTransformField implements Cloneable {
   }
 
   @Deprecated
-  public boolean equal( Object obj ) {
-    return equals( obj );
+  public boolean equal(Object obj) {
+    return equals(obj);
   }
 
   @Override
   public Object clone() {
     try {
-      Object retval = super.clone();
-      return retval;
-    } catch ( CloneNotSupportedException e ) {
+      return super.clone();
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -85,31 +106,23 @@ public class  ExcelWriterTransformField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
-  public int getType() {
+  public String getType() {
     return type;
   }
 
-  public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
-  }
-
-  public void setType( int type ) {
+  public void setType(String type) {
     this.type = type;
-  }
-
-  public void setType( String typeDesc ) {
-    this.type = ValueMetaFactory.getIdForValueMeta( typeDesc );
   }
 
   public String getFormat() {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -117,7 +130,7 @@ public class  ExcelWriterTransformField implements Cloneable {
     return title;
   }
 
-  public void setTitle( String title ) {
+  public void setTitle(String title) {
     this.title = title;
   }
 
@@ -125,7 +138,7 @@ public class  ExcelWriterTransformField implements Cloneable {
     return formula;
   }
 
-  public void setFormula( boolean formula ) {
+  public void setFormula(boolean formula) {
     this.formula = formula;
   }
 
@@ -133,7 +146,7 @@ public class  ExcelWriterTransformField implements Cloneable {
     return hyperlinkField;
   }
 
-  public void setHyperlinkField( String hyperlinkField ) {
+  public void setHyperlinkField(String hyperlinkField) {
     this.hyperlinkField = hyperlinkField;
   }
 
@@ -141,7 +154,7 @@ public class  ExcelWriterTransformField implements Cloneable {
     return commentField;
   }
 
-  public void setCommentField( String commentField ) {
+  public void setCommentField(String commentField) {
     this.commentField = commentField;
   }
 
@@ -149,7 +162,7 @@ public class  ExcelWriterTransformField implements Cloneable {
     return titleStyleCell;
   }
 
-  public void setTitleStyleCell( String formatCell ) {
+  public void setTitleStyleCell(String formatCell) {
     this.titleStyleCell = formatCell;
   }
 
@@ -157,12 +170,12 @@ public class  ExcelWriterTransformField implements Cloneable {
     return styleCell;
   }
 
-  public void setStyleCell( String styleCell ) {
+  public void setStyleCell(String styleCell) {
     this.styleCell = styleCell;
   }
 
   @Override
   public String toString() {
-    return name + ":" + getTypeDesc();
+    return name + ":" + getType();
   }
 }

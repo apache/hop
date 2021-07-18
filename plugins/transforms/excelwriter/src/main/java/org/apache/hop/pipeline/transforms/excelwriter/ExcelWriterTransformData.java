@@ -59,25 +59,24 @@ public class ExcelWriterTransformData extends BaseTransformData implements ITran
     super();
   }
 
-  public void clearStyleCache( int nrFields ) {
-    cellStyleCache = new CellStyle[ nrFields ];
-    cellLinkStyleCache = new CellStyle[ nrFields ];
+  public void clearStyleCache(int nrFields) {
+    cellStyleCache = new CellStyle[nrFields];
+    cellLinkStyleCache = new CellStyle[nrFields];
   }
 
-  public void cacheStyle( int fieldNr, CellStyle style ) {
-    cellStyleCache[ fieldNr ] = style;
+  public void cacheStyle(int fieldNr, CellStyle style) {
+    cellStyleCache[fieldNr] = style;
   }
 
-  public void cacheLinkStyle( int fieldNr, CellStyle style ) {
-    cellLinkStyleCache[ fieldNr ] = style;
+  public void cacheLinkStyle(int fieldNr, CellStyle style) {
+    cellLinkStyleCache[fieldNr] = style;
   }
 
-  public CellStyle getCachedStyle( int fieldNr ) {
-    return cellStyleCache[ fieldNr ];
+  public CellStyle getCachedStyle(int fieldNr) {
+    return cellStyleCache[fieldNr];
   }
 
-  public CellStyle getCachedLinkStyle( int fieldNr ) {
-    return cellLinkStyleCache[ fieldNr ];
+  public CellStyle getCachedLinkStyle(int fieldNr) {
+    return cellLinkStyleCache[fieldNr];
   }
-
 }
