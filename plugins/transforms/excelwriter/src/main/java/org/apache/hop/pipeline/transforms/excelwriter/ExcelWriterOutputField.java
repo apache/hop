@@ -17,79 +17,70 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterOutputField implements Cloneable {
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
   private String name;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
   private String type;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
   private String format;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
   private String title;
 
   @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
   private boolean formula;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
   private String hyperlinkField;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
   private String commentField;
 
   @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
   private String commentAuthorField;
 
   @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
   private String titleStyleCell;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
 
   public String getCommentAuthorField() {
     return commentAuthorField;
   }
 
-  public void setCommentAuthorField( String commentAuthorField ) {
+  public void setCommentAuthorField(String commentAuthorField) {
     this.commentAuthorField = commentAuthorField;
   }
 
-  public ExcelWriterOutputField(String name, String type, String format ) {
+  public ExcelWriterOutputField(String name, String type, String format) {
     this.name = name;
     this.type = type;
     this.format = format;
   }
 
-  public ExcelWriterOutputField() {
-  }
+  public ExcelWriterOutputField() {}
 
-  public int compare( Object obj ) {
+  public int compare(Object obj) {
     ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
-    return name.compareTo( field.getName() );
+    return name.compareTo(field.getName());
   }
 
   @Override
-  public boolean equals( Object obj ) {
+  public boolean equals(Object obj) {
     ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
-    return name.equals( field.getName() );
+    return name.equals(field.getName());
   }
 
   @Override
@@ -98,16 +89,15 @@ public class ExcelWriterOutputField implements Cloneable {
   }
 
   @Deprecated
-  public boolean equal( Object obj ) {
-    return equals( obj );
+  public boolean equal(Object obj) {
+    return equals(obj);
   }
 
   @Override
   public Object clone() {
     try {
-      Object retval = super.clone();
-      return retval;
-    } catch ( CloneNotSupportedException e ) {
+      return super.clone();
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -116,7 +106,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -124,7 +114,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return type;
   }
 
-  public void setType( String type ) {
+  public void setType(String type) {
     this.type = type;
   }
 
@@ -132,7 +122,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -140,7 +130,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return title;
   }
 
-  public void setTitle( String title ) {
+  public void setTitle(String title) {
     this.title = title;
   }
 
@@ -148,7 +138,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return formula;
   }
 
-  public void setFormula( boolean formula ) {
+  public void setFormula(boolean formula) {
     this.formula = formula;
   }
 
@@ -156,7 +146,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return hyperlinkField;
   }
 
-  public void setHyperlinkField( String hyperlinkField ) {
+  public void setHyperlinkField(String hyperlinkField) {
     this.hyperlinkField = hyperlinkField;
   }
 
@@ -164,7 +154,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return commentField;
   }
 
-  public void setCommentField( String commentField ) {
+  public void setCommentField(String commentField) {
     this.commentField = commentField;
   }
 
@@ -172,7 +162,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return titleStyleCell;
   }
 
-  public void setTitleStyleCell( String formatCell ) {
+  public void setTitleStyleCell(String formatCell) {
     this.titleStyleCell = formatCell;
   }
 
@@ -180,7 +170,7 @@ public class ExcelWriterOutputField implements Cloneable {
     return styleCell;
   }
 
-  public void setStyleCell( String styleCell ) {
+  public void setStyleCell(String styleCell) {
     this.styleCell = styleCell;
   }
 

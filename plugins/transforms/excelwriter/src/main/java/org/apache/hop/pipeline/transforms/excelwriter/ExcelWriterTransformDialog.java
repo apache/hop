@@ -45,7 +45,9 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -94,10 +96,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private Button wAddToResult;
 
-  // private Label wlAppend;
-  // private Button wAppend;
-  // private FormData fdlAppend, fdAppend;
-
   private Button wDoNotOpenNewFileInit;
 
   private Button wSpecifyFormat;
@@ -106,10 +104,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private CCombo wDateTimeFormat;
 
   private Button wAutoSize;
-
-  // private Label wlNullIsBlank;
-  // private Button wNullIsBlank;
-  // private FormData fdlNullIsBlank, fdNullIsBlank;
 
   private ColumnInfo[] colinf;
 
@@ -485,8 +479,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlIfFileExists.top = new FormAttachment(wbShowFiles, 2 * margin, margin);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
-    // wIfFileExists=new TextVar(variables,wFileComp, SWT.SINGLE | SWT.LEFT |
-    // SWT.BORDER);
     wIfFileExists = new CCombo(fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
 
     String createNewLabel =
@@ -719,10 +711,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook(wTemplateGroup);
     wTemplateGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.TemplateGroup.Label"));
 
-    FormLayout TemplateGroupgroupLayout = new FormLayout();
-    TemplateGroupgroupLayout.marginWidth = 10;
-    TemplateGroupgroupLayout.marginHeight = 10;
-    wTemplateGroup.setLayout(TemplateGroupgroupLayout);
+    FormLayout templateGroupgroupLayout = new FormLayout();
+    templateGroupgroupLayout.marginWidth = 10;
+    templateGroupgroupLayout.marginHeight = 10;
+    wTemplateGroup.setLayout(templateGroupgroupLayout);
 
     // Use template
     Label wlTemplate = new Label(wTemplateGroup, SWT.RIGHT);
@@ -889,10 +881,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook(wContentGroup);
     wContentGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ContentGroup.Label"));
 
-    FormLayout ContentGroupgroupLayout = new FormLayout();
-    ContentGroupgroupLayout.marginWidth = 10;
-    ContentGroupgroupLayout.marginHeight = 10;
-    wContentGroup.setLayout(ContentGroupgroupLayout);
+    FormLayout contentGroupgroupLayout = new FormLayout();
+    contentGroupgroupLayout.marginWidth = 10;
+    contentGroupgroupLayout.marginHeight = 10;
+    wContentGroup.setLayout(contentGroupgroupLayout);
 
     // starting cell
     Label wlStartingCell = new Label(wContentGroup, SWT.RIGHT);
@@ -939,13 +931,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     props.setLook(wRowWritingMethod);
     wRowWritingMethod.addModifyListener(lsMod);
-
-    // wRowWritingMethod.addSelectionListener(new SelectionAdapter() {
-    // public void widgetSelected(SelectionEvent e) {
-    // input.setChanged();
-    // EnableRowWritingMethod();
-    // }
-    // });
 
     FormData fdRowWritingMethod = new FormData();
     fdRowWritingMethod.left = new FormAttachment(middle, 0);
@@ -1095,7 +1080,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdAppendLines.top = new FormAttachment(wlAppendLines, 0, SWT.CENTER);
     fdAppendLines.right = new FormAttachment(100, 0);
     wAppendLines.setLayoutData(fdAppendLines);
-    // wAppendLines.addSelectionListener(lsMod);
     wAppendLines.addSelectionListener(
         new SelectionAdapter() {
           @Override

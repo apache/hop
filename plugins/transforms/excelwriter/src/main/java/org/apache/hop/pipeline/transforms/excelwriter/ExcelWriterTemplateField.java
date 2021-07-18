@@ -21,87 +21,95 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterTemplateField {
 
-    /** Flag: use a template */
-    @HopMetadataProperty(key = "enabled",
-            injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateEnabled.Field")
-    private boolean templateEnabled;
+  /** Flag: use a template */
+  @HopMetadataProperty(
+      key = "enabled",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateEnabled.Field")
+  private boolean templateEnabled;
 
-    @HopMetadataProperty(key = "sheet_enabled",
-            injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetEnabled.Field")
-    private boolean templateSheetEnabled;
+  @HopMetadataProperty(
+      key = "sheet_enabled",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetEnabled.Field")
+  private boolean templateSheetEnabled;
 
-    @HopMetadataProperty(key = "hidden",
-            injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetHidden.Field")
-    private boolean templateSheetHidden;
+  @HopMetadataProperty(
+      key = "hidden",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetHidden.Field")
+  private boolean templateSheetHidden;
 
-    /** the excel template */
-    @HopMetadataProperty(key = "filename",
-            injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateFileName.Field")
-    private String templateFileName;
+  /** the excel template */
+  @HopMetadataProperty(
+      key = "filename",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateFileName.Field")
+  private String templateFileName;
 
-    @HopMetadataProperty(key = "sheetname",
-            injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetName.Field")
-    private String templateSheetName;
+  @HopMetadataProperty(
+      key = "sheetname",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.TemplateSheetName.Field")
+  private String templateSheetName;
 
-    public ExcelWriterTemplateField() {
-    }
+  public ExcelWriterTemplateField() {}
 
-    public ExcelWriterTemplateField(boolean templateEnabled, boolean templateSheetEnabled, boolean templateSheetHidden, String templateFileName, String templateSheetName) {
-        this.templateEnabled = templateEnabled;
-        this.templateSheetEnabled = templateSheetEnabled;
-        this.templateSheetHidden = templateSheetHidden;
-        this.templateFileName = templateFileName;
-        this.templateSheetName = templateSheetName;
-    }
+  public ExcelWriterTemplateField(
+      boolean templateEnabled,
+      boolean templateSheetEnabled,
+      boolean templateSheetHidden,
+      String templateFileName,
+      String templateSheetName) {
+    this.templateEnabled = templateEnabled;
+    this.templateSheetEnabled = templateSheetEnabled;
+    this.templateSheetHidden = templateSheetHidden;
+    this.templateFileName = templateFileName;
+    this.templateSheetName = templateSheetName;
+  }
 
-    /** @return Returns the template. */
-    public boolean isTemplateEnabled() {
-        return templateEnabled;
-    }
+  /** @return Returns the template. */
+  public boolean isTemplateEnabled() {
+    return templateEnabled;
+  }
 
-    /** @param template The template to set. */
-    public void setTemplateEnabled(boolean template) {
-        this.templateEnabled = template;
-    }
+  /** @param template The template to set. */
+  public void setTemplateEnabled(boolean template) {
+    this.templateEnabled = template;
+  }
 
-    public boolean isTemplateSheetEnabled() {
-        return templateSheetEnabled;
-    }
+  public boolean isTemplateSheetEnabled() {
+    return templateSheetEnabled;
+  }
 
-    public void setTemplateSheetEnabled(boolean templateSheetEnabled) {
-        this.templateSheetEnabled = templateSheetEnabled;
-    }
+  public void setTemplateSheetEnabled(boolean templateSheetEnabled) {
+    this.templateSheetEnabled = templateSheetEnabled;
+  }
 
-    public boolean isTemplateSheetHidden() {
-        return templateSheetHidden;
-    }
+  public boolean isTemplateSheetHidden() {
+    return templateSheetHidden;
+  }
 
-    public void setTemplateSheetHidden(boolean hide) {
-        this.templateSheetHidden = hide;
-    }
+  public void setTemplateSheetHidden(boolean hide) {
+    this.templateSheetHidden = hide;
+  }
 
-    /** @return Returns the templateFileName. */
-    public String getTemplateFileName() {
-        return templateFileName;
-    }
+  /** @return Returns the templateFileName. */
+  public String getTemplateFileName() {
+    return templateFileName;
+  }
 
-    /** @param templateFileName The templateFileName to set. */
-    public void setTemplateFileName(String templateFileName) {
-        this.templateFileName = templateFileName;
-    }
+  /** @param templateFileName The templateFileName to set. */
+  public void setTemplateFileName(String templateFileName) {
+    this.templateFileName = templateFileName;
+  }
 
-    public String getTemplateSheetName() {
-        return templateSheetName;
-    }
+  public String getTemplateSheetName() {
+    return templateSheetName;
+  }
 
-    public void setTemplateSheetName(String templateSheetName) {
-        this.templateSheetName = templateSheetName;
-    }
+  public void setTemplateSheetName(String templateSheetName) {
+    this.templateSheetName = templateSheetName;
+  }
 
-    public void setDefault() {
-        templateEnabled = false;
-        templateFileName = "template.xls";
-        templateSheetHidden = false;
-    }
-
+  public void setDefault() {
+    templateEnabled = false;
+    templateFileName = "template.xls";
+    templateSheetHidden = false;
+  }
 }

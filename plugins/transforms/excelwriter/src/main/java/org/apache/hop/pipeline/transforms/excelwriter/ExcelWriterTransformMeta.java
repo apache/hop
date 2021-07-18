@@ -56,7 +56,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
-
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";
 
@@ -69,10 +68,12 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.MakeSheetActive.Field")
   private boolean makeSheetActive;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.ForceFormulaRecalculation.Field")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.ForceFormulaRecalculation.Field")
   private boolean forceFormulaRecalculation = false;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.LeaveExistingStylesUnchanged.Field")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.LeaveExistingStylesUnchanged.Field")
   private boolean leaveExistingStylesUnchanged = false;
 
   /** advanced line append options */
@@ -94,39 +95,40 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
   private String startingCell;
 
   /** Add a header at the top of the file? */
-  @HopMetadataProperty(key = "header",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.HeaderEnabled.Field")
+  @HopMetadataProperty(
+      key = "header",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.HeaderEnabled.Field")
   private boolean headerEnabled;
 
   /** Add a footer at the bottom of the file? */
-  @HopMetadataProperty(key = "footer",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.FooterEnabled.Field")
+  @HopMetadataProperty(
+      key = "footer",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.FooterEnabled.Field")
   private boolean footerEnabled;
 
   /** Flag: add the filenames to result filenames */
-  @HopMetadataProperty(key = "add_to_result_filenames",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.AddToResultFilenames.Field")
+  @HopMetadataProperty(
+      key = "add_to_result_filenames",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.AddToResultFilenames.Field")
   private boolean addToResultFilenames;
 
   /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
   @HopMetadataProperty(
-          groupKey = "fields",
-          key = "field",
-          injectionGroupDescription = "ExcelWriterMeta.Injection.Fields",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Field")
+      groupKey = "fields",
+      key = "field",
+      injectionGroupDescription = "ExcelWriterMeta.Injection.Fields",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Field")
   private List<ExcelWriterOutputField> outputFields;
 
   /** Flag : appendLines lines? */
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendLines.Field")
   private boolean appendLines;
 
-  @HopMetadataProperty
-  private ExcelWriterFileField file;
+  @HopMetadataProperty private ExcelWriterFileField file;
 
-  @HopMetadataProperty
-  private ExcelWriterTemplateField template;
+  @HopMetadataProperty private ExcelWriterTemplateField template;
 
   public ExcelWriterTransformMeta() {
     super();
@@ -391,6 +393,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
 
     // No values are added to the row in this type of transform
   }
+
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -491,7 +494,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
         file.setFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
       if (!Utils.isEmpty(template.getTemplateFileName())) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(template.getTemplateFileName()));
+        FileObject fileObject =
+            HopVfs.getFileObject(variables.resolve(template.getTemplateFileName()));
         template.setTemplateFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
 
