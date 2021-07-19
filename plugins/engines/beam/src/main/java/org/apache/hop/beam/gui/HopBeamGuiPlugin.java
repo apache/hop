@@ -80,7 +80,7 @@ public class HopBeamGuiPlugin {
     MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_INFORMATION);
     box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Header"));
     box.setMessage(
-            BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Message1")
+        BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Message1")
             + Const.CR
             + BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Dialog.Message2"));
     int answer = box.open();
@@ -95,8 +95,10 @@ public class HopBeamGuiPlugin {
             true,
             shell,
             new String[] {"*.jar", "*.*"},
-            new String[] {BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Jars.Label"),
-                    BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")},
+            new String[] {
+              BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Jars.Label"),
+              BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")
+            },
             true);
     if (filename == null) {
       return;
@@ -108,13 +110,14 @@ public class HopBeamGuiPlugin {
       IRunnableWithProgress op =
           monitor -> {
             try {
-              monitor.setTaskName(BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Progress.Message"));
+              monitor.setTaskName(
+                  BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Progress.Message"));
               FatJarBuilder fatJarBuilder =
                   new FatJarBuilder(hopGui.getVariables(), filename, jarFilenames);
               fatJarBuilder.setExtraTransformPluginClasses(null);
               fatJarBuilder.setExtraXpPluginClasses(null);
               fatJarBuilder.buildTargetJar();
-
+              monitor.done();
             } catch (Exception e) {
               throw new InvocationTargetException(e, "Error building fat jar: " + e.getMessage());
             }
@@ -128,7 +131,7 @@ public class HopBeamGuiPlugin {
       box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Header"));
       box.setMessage(
-              BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Message1", filename)
+          BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Message1", filename)
               + Const.CR
               + BaseMessages.getString(PKG, "BeamGuiPlugin.FatJarCreated.Dialog.Message2"));
       box.open();
@@ -149,8 +152,7 @@ public class HopBeamGuiPlugin {
 
     MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_INFORMATION);
     box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.ExportMetadata.Dialog.Header"));
-    box.setMessage(
-            BaseMessages.getString(PKG, "BeamGuiPlugin.ExportMetadata.Dialog.Message"));
+    box.setMessage(BaseMessages.getString(PKG, "BeamGuiPlugin.ExportMetadata.Dialog.Message"));
     int answer = box.open();
     if ((answer & SWT.CANCEL) != 0) {
       return;
@@ -163,8 +165,10 @@ public class HopBeamGuiPlugin {
             true,
             shell,
             new String[] {"*.json", "*.*"},
-            new String[] {BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Json.Label"),
-                    BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")},
+            new String[] {
+              BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.Json.Label"),
+              BaseMessages.getString(PKG, "BeamGuiPlugin.FileTypes.All.Label")
+            },
             true);
     if (filename == null) {
       return;
