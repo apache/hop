@@ -11,7 +11,7 @@
       "flinkCheckpointTimeoutMillis": "",
       "flinkFailingOnCheckpointingErrors": "",
       "flinkAutoWatermarkInterval": "",
-      "fatJar": "/home/matt/parking/hop-0.40-fat.jar",
+      "fatJar": "",
       "flinkMaxBundleTimeMills": "",
       "transformPluginClasses": "",
       "xpPluginClasses": "",
