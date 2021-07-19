@@ -115,7 +115,7 @@ ErrorBox {
 }
 
 *[BORDER] {
-  border: 1px solid #444444;
+  border: 1px solid #333333;
 }
 
 /* Default theme for all composites */
@@ -344,7 +344,7 @@ Combo[BORDER] {
   font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
   color: #959595;
   background-color: #000001;
-  border: 1px solid #888888;
+  border: 1px solid #333333;
   border-radius: 0 2px 2px 0;
   background-image: none;
   text-shadow: none;
@@ -353,7 +353,7 @@ Combo[BORDER] {
 
 Combo:focused,
 Combo[BORDER]:focused {
-  border: 1px solid #4f7cb1;
+  border: 1px solid #555555;
   box-shadow: 0 0 5px #4f7cb1;
 }
 
@@ -431,9 +431,9 @@ Combo-FocusIndicator {
 /* DropDown default theme */
 
 DropDown {
-  border: 1px solid #4f7cb1;
+  border: 1px solid #333333;
   border-radius: 0;
-  box-shadow: 0 0 5px #4f7cb1;
+  box-shadow: 0 0 5px #444444;
 }
 
 DropDown-Item {
@@ -530,7 +530,7 @@ Group-Label {
   background-image: none;
   background-repeat: repeat;
   background-position: left top;
-  border: 1px solid #424242;
+  border: 1px solid #333333;
   border-radius: 10px;
   color: inherit;
   margin: 10px 10px 10px 20px;
@@ -556,7 +556,7 @@ Label {
 }
 
 Label[BORDER] {
-  border: 1px solid #424242;
+  border: 1px solid #333333;
   border-radius: 2px;
 }
 
@@ -614,7 +614,7 @@ List {
 }
 
 List[BORDER] {
-  border: 1px solid #424242;
+  border: 1px solid #333333;
 }
 
 List-Item {
@@ -629,7 +629,7 @@ List-Item {
 }
 
 List-Item:hover {
-  background-color: #f0f0f0;
+  background-color: #a0a0a0;
 }
 
 List-Item:selected {
