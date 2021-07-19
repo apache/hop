@@ -40,8 +40,8 @@
     <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
     <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
     <google-cloud-storage.version>1.53.0</google-cloud-storage.version>
-    <google-http-client-jackson2.version>1.36.0</google-http-client-jackson2.version>
-    <google-http-client.version>1.36.0</google-http-client.version>
+    <google-http-client-jackson2.version>1.39.2</google-http-client-jackson2.version>
+    <google-http-client.version>1.39.2</google-http-client.version>
     <google-oauth-client.version>1.31.2</google-oauth-client.version>
     <google-oauth-client-jetty.version>1.31.2</google-oauth-client-jetty.version>
     <jetty-client.version>6.1.26</jetty-client.version>

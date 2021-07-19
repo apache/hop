@@ -145,6 +145,7 @@
         <include>com.google.protobuf:protobuf-java</include>
         <include>com.google.protobuf:protobuf-java-util</include>
         <include>commons-cli:commons-cli</include>
+        <include>commons-codec:commons-codec</include>
         <include>commons-configuration:commons-configuration</include>
         <include>commons-digester:commons-digester</include>
         <include>commons-httpclient:commons-httpclient</include>
