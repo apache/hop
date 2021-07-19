@@ -21,34 +21,31 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
+import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 30-06-2008
- *
+/**
+ * Add sequence depending of fields value change.
  */
 
 @Transform(
     id = "FieldsChangeSequence",
     image = "fieldschangesequence.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FieldsChangeSequence",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FieldsChangeSequence",
+    name = "i18n::FieldsChangeSequence.Name",
+    description = "i18n::FieldsChangeSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/addfieldschangesequence.html")
@@ -57,62 +54,72 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   /** by which fields to display? */
-  private String[] fieldName;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupDescription = "FieldsChangeSequenceMeta.Injection.Fields",
+      injectionKeyDescription = "FieldsChangeSequenceMeta.Injection.Field")
+  private List<FieldsChangeSequenceField> fields;
 
-  private String resultfieldName;
+  @HopMetadataProperty(
+      key = "resultfieldName",
+      injectionKeyDescription = "FieldsChangeSequenceMeta.Injection.ResultFieldName")
+  private String resultFieldName;
 
+  @HopMetadataProperty(
+      key = "start",
+      injectionKeyDescription = "FieldsChangeSequenceMeta.Injection.Start")
   private String start;
 
+  @HopMetadataProperty(
+      key = "increment",
+      injectionKeyDescription = "FieldsChangeSequenceMeta.Injection.Increment")
   private String increment;
 
   public FieldsChangeSequenceMeta() {
-    super(); // allocate BaseTransformMeta
+    super(); 
+    fields = new ArrayList<>();
   }
 
+  public FieldsChangeSequenceMeta(FieldsChangeSequenceMeta meta) {
+    super();     
+    
+    this.start = meta.getStart();
+    this.increment = meta.getIncrement();
+    this.resultFieldName = meta.getResultFieldName();
+    this.fields = new ArrayList<>();
+    for (FieldsChangeSequenceField field:meta.getFields()) {
+      fields.add(new FieldsChangeSequenceField(field.getName()));
+    }
+  }
+  
   public String getStart() {
     return start;
   }
 
   /** @return Returns the resultfieldName. */
   public String getResultFieldName() {
-    return resultfieldName;
+    return resultFieldName;
   }
 
   /** @param resultfieldName The resultfieldName to set. */
   public void setResultFieldName(String resultfieldName) {
-    this.resultfieldName = resultfieldName;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+    this.resultFieldName = resultfieldName;
   }
 
   @Override
   public Object clone() {
-    FieldsChangeSequenceMeta retval = (FieldsChangeSequenceMeta) super.clone();
-
-    int nrFields = fieldName.length;
-
-    retval.allocate(nrFields);
-
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
-    return retval;
-  }
-
-  public void allocate(int nrFields) {
-    fieldName = new String[nrFields];
+    return new FieldsChangeSequenceMeta(this);  
   }
 
   /** @return Returns the fieldName. */
-  public String[] getFieldName() {
-    return fieldName;
+  public List<FieldsChangeSequenceField> getFields() {
+    return fields;
   }
 
   /** @param fieldName The fieldName to set. */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
+  public void setFields(List<FieldsChangeSequenceField> fieldName) {
+    this.fields = fieldName;
   }
 
   public void setStart(String start) {
@@ -127,56 +134,12 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     return increment;
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      start = XmlHandler.getTagValue(transformNode, "start");
-      increment = XmlHandler.getTagValue(transformNode, "increment");
-      resultfieldName = XmlHandler.getTagValue(transformNode, "resultfieldName");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("      " + XmlHandler.addTagValue("start", start));
-    retval.append("      " + XmlHandler.addTagValue("increment", increment));
-    retval.append("      " + XmlHandler.addTagValue("resultfieldName", resultfieldName));
-
-    retval.append("    <fields>" + Const.CR);
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
-  }
-
   @Override
   public void setDefault() {
-    resultfieldName = null;
+    resultFieldName = null;
     start = "1";
     increment = "1";
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = "field" + i;
-    }
+    fields = new ArrayList<>();    
   }
 
   @Override
@@ -187,8 +150,8 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    if (!Utils.isEmpty(resultfieldName)) {
-      IValueMeta v = new ValueMetaInteger(resultfieldName);
+    if (!Utils.isEmpty(resultFieldName)) {
+      IValueMeta v = new ValueMetaInteger(resultFieldName);
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       r.addValueMeta(v);
@@ -209,21 +172,21 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     CheckResult cr;
     String errorMessage = "";
 
-    if (Utils.isEmpty(resultfieldName)) {
+    if (Utils.isEmpty(resultFieldName)) {
       errorMessage =
           BaseMessages.getString(PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage =
           BaseMessages.getString(PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "FieldsChangeSequenceMeta.CheckResult.NotReceivingFields"),
               transformMeta);
@@ -231,7 +194,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "FieldsChangeSequenceMeta.CheckResult.TransformRecevingData",
@@ -243,10 +206,10 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
       errorMessage = "";
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fieldName.length; i++) {
-        int idx = prev.indexOfValue(fieldName[i]);
+      for (FieldsChangeSequenceField field:fields) {
+        int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
-          errorMessage += "\t\t" + fieldName[i] + Const.CR;
+          errorMessage += "\t\t" + field.getName() + Const.CR;
           errorFound = true;
         }
       }
@@ -258,21 +221,21 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
         cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fieldName.length > 0) {
+        if (fields.isEmpty() ) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_WARNING,
                   BaseMessages.getString(
-                      PKG, "FieldsChangeSequenceMeta.CheckResult.AllFieldsFound"),
+                      PKG, "FieldsChangeSequenceMeta.CheckResult.NoFieldsEntered"),
                   transformMeta);
           remarks.add(cr);
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_WARNING,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
-                      PKG, "FieldsChangeSequenceMeta.CheckResult.NoFieldsEntered"),
-                  transformMeta);
+                      PKG, "FieldsChangeSequenceMeta.CheckResult.AllFieldsFound"),
+                  transformMeta);              
           remarks.add(cr);
         }
       }
@@ -282,7 +245,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FieldsChangeSequenceMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
@@ -290,7 +253,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FieldsChangeSequenceMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

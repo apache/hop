@@ -61,18 +61,18 @@ public class FieldsChangeSequence extends BaseTransform<FieldsChangeSequenceMeta
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
-      if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
-        data.fieldnr = meta.getFieldName().length;
+      if ( meta.getFields() == null || meta.getFields().size() > 0 ) {
+        data.fieldnr = meta.getFields().size();
         data.fieldnrs = new int[ data.fieldnr ];
         data.previousValues = new Object[ data.fieldnr ];
         data.fieldnrsMeta = new IValueMeta[ data.fieldnr ];
         for ( int i = 0; i < data.fieldnr; i++ ) {
-          data.fieldnrs[ i ] = data.previousMeta.indexOfValue( meta.getFieldName()[ i ] );
+          data.fieldnrs[ i ] = data.previousMeta.indexOfValue( meta.getFields().get(i).getName() );
           if ( data.fieldnrs[ i ] < 0 ) {
             logError( BaseMessages.getString(
-              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
+              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFields().get(i) ) );
             throw new HopException( BaseMessages.getString(
-              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
+              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFields().get(i) ) );
           }
           data.fieldnrsMeta[ i ] = data.previousMeta.getValueMeta( data.fieldnrs[ i ] );
         }

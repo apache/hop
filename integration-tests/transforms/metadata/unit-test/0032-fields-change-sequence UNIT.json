@@ -1,0 +1,14 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [],
+  "input_data_sets": [],
+  "name": "0032-fields-change-sequence UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0032-fields-change-sequence.hpl",
+  "test_type": "UNIT_TEST"
+}

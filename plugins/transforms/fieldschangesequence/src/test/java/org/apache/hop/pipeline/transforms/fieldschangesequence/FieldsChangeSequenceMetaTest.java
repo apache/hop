@@ -17,9 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -31,23 +33,29 @@ import java.util.Map;
 public class FieldsChangeSequenceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init();
+  }
+  
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "start", "increment", "resultfieldName", "name" );
+    List<String> attributes = Arrays.asList( "start", "increment", "resultFieldName" );
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "start", "getStart" );
     getterMap.put( "increment", "getIncrement" );
     getterMap.put( "resultfieldName", "getResultFieldName" );
-    getterMap.put( "name", "getFieldName" );
+    //getterMap.put( "name", "getFieldName" );
 
     Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "start", "setStart" );
     setterMap.put( "increment", "setIncrement" );
     setterMap.put( "resultfieldName", "setResultFieldName" );
-    setterMap.put( "name", "setFieldName" );
+    //setterMap.put( "name", "setFieldName" );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class, attributes, getterMap, setterMap );
+    //LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class, attributes );
     loadSaveTester.testSerialization();
   }
 
