@@ -30,6 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.constant.ConstantField;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
@@ -180,18 +181,14 @@ public class BeamPipelineMetaUtil {
     // Add 2 add constants transforms A and B
     //
     ConstantMeta constantA = new ConstantMeta();
-    constantA.allocate(1);
-    constantA.getFieldName()[0] = "label";
-    constantA.getFieldType()[0] = "String";
-    constantA.getValue()[0] = "< 'k'";
+    ConstantField cf1 = new ConstantField("label", "String", "< 'k'");
+    constantA.getFields().add(cf1);
     TransformMeta constantAMeta = new TransformMeta("A", constantA);
     pipelineMeta.addTransform(constantAMeta);
 
     ConstantMeta constantB = new ConstantMeta();
-    constantB.allocate(1);
-    constantB.getFieldName()[0] = "label";
-    constantB.getFieldType()[0] = "String";
-    constantB.getValue()[0] = ">= 'k'";
+    ConstantField cf2 = new ConstantField("label", "String", ">= 'k'");
+    constantB.getFields().add(cf2);
     TransformMeta constantBMeta = new TransformMeta("B", constantB);
     pipelineMeta.addTransform(constantBMeta);
 
@@ -264,10 +261,8 @@ public class BeamPipelineMetaUtil {
     String[] stateCodes = new String[] {"CA", "FL", "NY", "AR", "Default"};
     for (String stateCode : stateCodes) {
       ConstantMeta constant = new ConstantMeta();
-      constant.allocate(1);
-      constant.getFieldName()[0] = "Comment";
-      constant.getFieldType()[0] = "String";
-      constant.getValue()[0] = stateCode + " : some comment";
+      ConstantField cf = new ConstantField("Comment", "String", stateCode + " : some comment");
+      constant.getFields().add(cf);
       TransformMeta constantMeta = new TransformMeta(stateCode, constant);
       pipelineMeta.addTransform(constantMeta);
     }
