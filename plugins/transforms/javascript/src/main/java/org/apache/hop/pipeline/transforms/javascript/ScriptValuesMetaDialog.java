@@ -70,8 +70,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.*;
 
-public class ScriptValuesMetaModDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ScriptValuesMetaMod.class; // For Translator
+public class ScriptValuesMetaDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO =
       new String[] {
@@ -124,7 +124,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   private static final int ERROR_PIPELINE = -2;
   private static final int CONTINUE_PIPELINE = 0;
 
-  private final ScriptValuesMetaMod input;
+  private final ScriptValuesMeta input;
   private ScriptValuesHelp scVHelp;
   private TextVar wOptimizationLevel;
 
@@ -138,11 +138,11 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
 
   private RowGeneratorMeta genMeta;
 
-  public ScriptValuesMetaModDialog(
+  public ScriptValuesMetaDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
 
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (ScriptValuesMetaMod) in;
+    input = (ScriptValuesMeta) in;
     genMeta = null;
     try {
       imageActiveScript = guiresource.getImage("ui/images/script-active.svg");
@@ -769,7 +769,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     if (!Utils.isEmpty(Const.trim(input.getOptimizationLevel()))) {
       wOptimizationLevel.setText(input.getOptimizationLevel().trim());
     } else {
-      wOptimizationLevel.setText(ScriptValuesMetaMod.OPTIMIZATION_LEVEL_DEFAULT);
+      wOptimizationLevel.setText(ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT);
     }
 
     for (int i = 0; i < input.getFieldname().length; i++) {
@@ -863,7 +863,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     return true;
   }
 
-  private void getInfo(ScriptValuesMetaMod meta) {
+  private void getInfo(ScriptValuesMeta meta) {
     //    meta.setCompatible( wCompatible.getSelection() );
     meta.setOptimizationLevel(wOptimizationLevel.getText());
     int nrFields = wFields.nrNonEmpty();
@@ -1064,7 +1064,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
 
         // Now create a JavaScript transform with the information in this dialog
         //
-        ScriptValuesMetaMod scriptMeta = new ScriptValuesMetaMod();
+        ScriptValuesMeta scriptMeta = new ScriptValuesMeta();
         getInfo(scriptMeta);
         TransformMeta scriptTransform =
             new TransformMeta(
@@ -1184,8 +1184,8 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
       IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (rowMeta != null) {
 
-        ScriptValuesModDummy dummyTransform =
-            new ScriptValuesModDummy(
+        ScriptValuesDummy dummyTransform =
+            new ScriptValuesDummy(
                 rowMeta, pipelineMeta.getTransformFields(variables, transformName));
         Scriptable jsvalue = Context.toObject(dummyTransform, jsscope);
         jsscope.put("_transform_", jsscope, jsvalue);

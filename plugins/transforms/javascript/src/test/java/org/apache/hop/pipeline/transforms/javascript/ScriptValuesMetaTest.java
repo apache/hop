@@ -42,11 +42,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
+public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   LoadSaveTester loadSaveTester;
-  Class<ScriptValuesMetaMod> testMetaClass = ScriptValuesMetaMod.class;
+  Class<ScriptValuesMeta> testMetaClass = ScriptValuesMeta.class;
 
   @Before
   public void setUpLoadSave() throws Exception {
@@ -106,8 +106,8 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
 
   // Call the allocate method on the LoadSaveTester meta class
   public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof ScriptValuesMetaMod ) {
-      ( (ScriptValuesMetaMod) someMeta ).allocate( 5 );
+    if ( someMeta instanceof ScriptValuesMeta ) {
+      ( (ScriptValuesMeta) someMeta ).allocate( 5 );
     }
   }
 
@@ -141,7 +141,7 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
 
   @Test
   public void testExtend() {
-    ScriptValuesMetaMod meta = new ScriptValuesMetaMod();
+    ScriptValuesMeta meta = new ScriptValuesMeta();
     int size = 1;
     meta.extend( size );
 
@@ -158,7 +158,7 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
     Assert.assertEquals( size, meta.getReplace().length );
     Assert.assertFalse( meta.getReplace()[ 0 ] );
 
-    meta = new ScriptValuesMetaMod();
+    meta = new ScriptValuesMeta();
     // set some values, uneven lengths
     Whitebox.setInternalState( meta, "fieldname", new String[] { "Field 1", "Field 2", "Field 3" } );
     Whitebox.setInternalState( meta, "rename", new String[] { "Field 1 - new" } );
@@ -169,7 +169,7 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
     validateExtended( meta );
   }
 
-  private void validateExtended( final ScriptValuesMetaMod meta ) {
+  private void validateExtended( final ScriptValuesMeta meta ) {
 
     Assert.assertEquals( 3, meta.getFieldname().length );
     Assert.assertEquals( "Field 1", meta.getFieldname()[ 0 ] );

@@ -43,11 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 /** Dummy class used for test(). */
-public class ScriptValuesModDummy implements ITransform {
+public class ScriptValuesDummy implements ITransform {
   private IRowMeta inputRowMeta;
   private IRowMeta outputRowMeta;
 
-  public ScriptValuesModDummy(IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
+  public ScriptValuesDummy(IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
     this.inputRowMeta = inputRowMeta;
     this.outputRowMeta = outputRowMeta;
   }

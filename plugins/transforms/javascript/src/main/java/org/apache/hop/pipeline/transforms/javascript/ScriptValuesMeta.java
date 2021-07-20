@@ -76,9 +76,9 @@ import java.util.Properties;
 @InjectionSupported(
     localizationPrefix = "ScriptValuesMod.Injection.",
     groups = {"FIELDS", "SCRIPTS"})
-public class ScriptValuesMetaMod extends BaseTransformMeta
-    implements ITransformMeta<ScriptValuesMod, ScriptValuesModData> {
-  private static final Class<?> PKG = ScriptValuesMetaMod.class; // For Translator
+public class ScriptValuesMeta extends BaseTransformMeta
+    implements ITransformMeta<ScriptValues, ScriptValuesData> {
+  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
   private static final String JSSCRIPT_TAG_NAME = "jsScript_name";
@@ -123,7 +123,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
   @Injection(name = "OPTIMIZATION_LEVEL")
   private String optimizationLevel;
 
-  public ScriptValuesMetaMod() {
+  public ScriptValuesMeta() {
     super(); // allocate BaseTransformMeta
     try {
       parseXmlForAdditionalClasses();
@@ -282,7 +282,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
   }
 
   public Object clone() {
-    ScriptValuesMetaMod retval = (ScriptValuesMetaMod) super.clone();
+    ScriptValuesMeta retval = (ScriptValuesMeta) super.clone();
 
     int nrFields = fieldname.length;
 
@@ -300,11 +300,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
   @Override
   public ITransform createTransform(
       TransformMeta transformMeta,
-      ScriptValuesModData data,
+      ScriptValuesData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    return new ScriptValuesMod(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+    return new ScriptValues(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -588,11 +588,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
 
       // Adding some Constants to the JavaScript
       try {
-        jsscope.put("SKIP_PIPELINE", jsscope, Integer.valueOf(ScriptValuesMod.SKIP_PIPELINE));
-        jsscope.put("ABORT_PIPELINE", jsscope, Integer.valueOf(ScriptValuesMod.ABORT_PIPELINE));
-        jsscope.put("ERROR_PIPELINE", jsscope, Integer.valueOf(ScriptValuesMod.ERROR_PIPELINE));
+        jsscope.put("SKIP_PIPELINE", jsscope, Integer.valueOf(ScriptValues.SKIP_PIPELINE));
+        jsscope.put("ABORT_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ABORT_PIPELINE));
+        jsscope.put("ERROR_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ERROR_PIPELINE));
         jsscope.put(
-            "CONTINUE_PIPELINE", jsscope, Integer.valueOf(ScriptValuesMod.CONTINUE_PIPELINE));
+            "CONTINUE_PIPELINE", jsscope, Integer.valueOf(ScriptValues.CONTINUE_PIPELINE));
       } catch (Exception ex) {
         errorMessage = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -600,8 +600,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
       }
 
       try {
-        ScriptValuesModDummy dummyTransform =
-            new ScriptValuesModDummy(
+        ScriptValuesDummy dummyTransform =
+            new ScriptValuesDummy(
                 prev, pipelineMeta.getTransformFields(variables, transformMeta));
         Scriptable jsvalue = Context.toObject(dummyTransform, jsscope);
         jsscope.put("_transform_", jsscope, jsvalue);
@@ -796,8 +796,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta
     return sRC;
   }
 
-  public ScriptValuesModData getTransformData() {
-    return new ScriptValuesModData();
+  public ScriptValuesData getTransformData() {
+    return new ScriptValuesData();
   }
 
   // This is for Additional Classloading

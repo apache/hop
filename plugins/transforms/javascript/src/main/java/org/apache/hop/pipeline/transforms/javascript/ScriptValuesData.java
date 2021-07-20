@@ -29,7 +29,7 @@ import org.mozilla.javascript.Scriptable;
  * @author Matt
  * @since 24-jan-2005
  */
-public class ScriptValuesModData extends BaseTransformData implements ITransformData {
+public class ScriptValuesData extends BaseTransformData implements ITransformData {
   public Context cx;
   public Scriptable scope;
   public Script script;
@@ -40,7 +40,7 @@ public class ScriptValuesModData extends BaseTransformData implements ITransform
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
 
-  public ScriptValuesModData() {
+  public ScriptValuesData() {
     super();
     cx = null;
     fieldsUsed = null;
