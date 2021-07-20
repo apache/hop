@@ -19,17 +19,13 @@ package org.apache.hop.pipeline.transforms.constant;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -38,16 +34,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 4-apr-2003
- *
- */
 @Transform(
     id = "Constant",
     image = "constant.svg",
@@ -62,10 +52,10 @@ public class ConstantMeta extends BaseTransformMeta
 
   /** The output fields */
   @HopMetadataProperty(
-          groupKey = "fields",
-          key = "field",
-          injectionGroupDescription = "ConstantMeta.Injection.Fields",
-          injectionKeyDescription = "ConstantMeta.Injection.Field")
+      groupKey = "fields",
+      key = "field",
+      injectionGroupDescription = "ConstantMeta.Injection.Fields",
+      injectionKeyDescription = "ConstantMeta.Injection.Field")
   List<ConstantField> fields;
 
   public List<ConstantField> getFields() {
@@ -81,10 +71,12 @@ public class ConstantMeta extends BaseTransformMeta
     this.fields = new ArrayList<>();
   }
 
+  @Override
   public Object clone() {
     return (ConstantMeta) super.clone();
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String name,
@@ -114,6 +106,7 @@ public class ConstantMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

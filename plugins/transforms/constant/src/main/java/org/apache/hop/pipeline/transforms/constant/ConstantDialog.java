@@ -31,7 +31,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -42,6 +42,8 @@ import java.util.List;
 
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ConstantMeta.class; // For Translator
+
+  private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private TableView wFields;
 
@@ -165,7 +167,7 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
             BaseMessages.getString(PKG, "ConstantDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No")
             });
 
@@ -235,9 +237,9 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
         item.setText(col++, Const.NVL(group, ""));
         item.setText(col++, Const.NVL(def, ""));
         item.setText(
-            col++,
+            col,
             field.isEmptyString()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, "System.Combo.No"));
       }
     }
@@ -263,7 +265,6 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     transformName = wTransformName.getText(); // return value
 
     int i;
-    // Table table = wFields.table;
 
     int nrFields = wFields.nrNonEmpty();
     List<ConstantField> fields = input.getFields();
@@ -273,9 +274,18 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     // CHECKSTYLE:LineLength:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      boolean isEmptyStringFlag = BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10));
-      ConstantField field = (isEmptyStringFlag ? new ConstantField(item.getText(1), isEmptyStringFlag ? "String" : item.getText(2), isEmptyStringFlag) :
-              new ConstantField(item.getText(1), isEmptyStringFlag ? "String" : item.getText(2), isEmptyStringFlag ? "" : item.getText(9)));
+      boolean isEmptyStringFlag =
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(10));
+      ConstantField field =
+          (isEmptyStringFlag
+              ? new ConstantField(
+                  item.getText(1),
+                  isEmptyStringFlag ? "String" : item.getText(2),
+                  isEmptyStringFlag)
+              : new ConstantField(
+                  item.getText(1),
+                  isEmptyStringFlag ? "String" : item.getText(2),
+                  isEmptyStringFlag ? "" : item.getText(9)));
 
       field.setFieldFormat(item.getText(3));
       String slength = item.getText(4);
