@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.RowMetaAndData;
@@ -58,27 +59,28 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> implemen
   public static final RowMetaAndData buildRow( ConstantMeta meta, ConstantData data,
                                                List<ICheckResult> remarks ) {
     IRowMeta rowMeta = new RowMeta();
-    Object[] rowData = new Object[ meta.getFieldName().length ];
+    Object[] rowData = new Object[ meta.getFields().size() ];
 
-    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[ i ] );
-      if ( meta.getFieldName()[ i ] != null ) {
+    for ( int i = 0; i < meta.getFields().size(); i++ ) {
+      ConstantField field = meta.getFields().get(i);
+      int valtype = ValueMetaFactory.getIdForValueMeta( field.getFieldType() );
+      if ( field.getFieldName() != null ) {
         IValueMeta value = null;
         try {
-          value = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype );
+          value = ValueMetaFactory.createValueMeta( field.getFieldName(), valtype );
         } catch ( Exception exception ) {
           remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, exception.getMessage(), null ) );
           continue;
         }
-        value.setLength( meta.getFieldLength()[ i ] );
-        value.setPrecision( meta.getFieldPrecision()[ i ] );
+        value.setLength( field.getFieldLength() );
+        value.setPrecision( field.getFieldPrecision() );
 
-        if ( meta.isSetEmptyString()[ i ] ) {
+        if ( field.isEmptyString() ) {
           // Just set empty string
           rowData[ i ] = StringUtil.EMPTY_STRING;
         } else {
 
-          String stringValue = meta.getValue()[ i ];
+          String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
           if ( stringValue == null || stringValue.length() == 0 ) {
@@ -94,20 +96,20 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> implemen
             switch ( value.getType() ) {
               case IValueMeta.TYPE_NUMBER:
                 try {
-                  if ( meta.getFieldFormat()[ i ] != null
-                    || meta.getDecimal()[ i ] != null || meta.getGroup()[ i ] != null
-                    || meta.getCurrency()[ i ] != null ) {
-                    if ( meta.getFieldFormat()[ i ] != null && meta.getFieldFormat()[ i ].length() >= 1 ) {
-                      data.df.applyPattern( meta.getFieldFormat()[ i ] );
+                  if ( field.getFieldFormat() != null
+                    || field.getDecimal() != null || field.getGroup() != null
+                    || field.getCurrency() != null ) {
+                    if (!StringUtils.isEmpty(field.getFieldFormat())) {
+                      data.df.applyPattern( field.getFieldFormat() );
                     }
-                    if ( meta.getDecimal()[ i ] != null && meta.getDecimal()[ i ].length() >= 1 ) {
-                      data.dfs.setDecimalSeparator( meta.getDecimal()[ i ].charAt( 0 ) );
+                    if (!StringUtils.isEmpty(field.getDecimal())) {
+                      data.dfs.setDecimalSeparator( field.getDecimal().charAt( 0 ) );
                     }
-                    if ( meta.getGroup()[ i ] != null && meta.getGroup()[ i ].length() >= 1 ) {
-                      data.dfs.setGroupingSeparator( meta.getGroup()[ i ].charAt( 0 ) );
+                    if (!StringUtils.isEmpty(field.getGroup())) {
+                      data.dfs.setGroupingSeparator( field.getGroup().charAt( 0 ) );
                     }
-                    if ( meta.getCurrency()[ i ] != null && meta.getCurrency()[ i ].length() >= 1 ) {
-                      data.dfs.setCurrencySymbol( meta.getCurrency()[ i ] );
+                    if (!StringUtils.isEmpty(field.getCurrency())) {
+                      data.dfs.setCurrencySymbol( field.getCurrency() );
                     }
 
                     data.df.setDecimalFormatSymbols( data.dfs );
@@ -129,8 +131,8 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> implemen
 
               case IValueMeta.TYPE_DATE:
                 try {
-                  if ( meta.getFieldFormat()[ i ] != null ) {
-                    data.daf.applyPattern( meta.getFieldFormat()[ i ] );
+                  if ( field.getFieldFormat() != null ) {
+                    data.daf.applyPattern( field.getFieldFormat() );
                     data.daf.setDateFormatSymbols( data.dafs );
                   }
 

@@ -17,28 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   LoadSaveTester<ConstantMeta> loadSaveTester;
@@ -49,51 +41,73 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "currency", "decimal", "group", "value", "fieldName", "fieldType", "fieldFormat", "fieldLength",
-        "fieldPrecision", "setEmptyString" );
+    List<String> attributes = new ArrayList<>();
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "setEmptyString", "isSetEmptyString" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "setEmptyString", "setEmptyString" );
-      }
-    };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-
-    PrimitiveIntArrayLoadSaveValidator intArrayLoadSaveValidator = new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 );
-    PrimitiveBooleanArrayLoadSaveValidator booleanArrayLoadSaveValidator = new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 );
+    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<String, String>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "currency", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "decimal", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "group", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "value", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldType", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldFormat", stringArrayLoadSaveValidator );
-
-    attrValidatorMap.put( "fieldLength", intArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldPrecision", intArrayLoadSaveValidator );
-    attrValidatorMap.put( "setEmptyString", booleanArrayLoadSaveValidator );
-
+    attrValidatorMap.put(
+            "fields", new ListLoadSaveValidator<>(new ConstantFieldLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+
+    IFieldLoadSaveValidatorFactory validatorFactory =
+            loadSaveTester.getFieldLoadSaveValidatorFactory();
+    validatorFactory.registerValidator(
+            validatorFactory.getName(ConstantField.class),
+            new ObjectValidator<ConstantField>(
+                    validatorFactory,
+                    ConstantField.class,
+                    Arrays.asList("name", "type", "format", "length", "precision", "set_empty_string", "nullif", "group", "decimal", "currency"),
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "getFieldName");
+                        put("type", "getFieldType");
+                        put("format", "getFieldFormat");
+                        put("length", "getFieldLength");
+                        put("precision", "getFieldPrecision");
+                        put("set_empty_string", "isEmptyString");
+                        put("nullif", "getValue");
+                        put("group", "getGroup");
+                        put("decimal", "getDecimal");
+                        put("currency", "getCurrency");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "setFieldName");
+                        put("type", "setFieldType");
+                        put("format", "setFieldFormat");
+                        put("length", "setFieldLength");
+                        put("precision", "setFieldPrecision");
+                        put("set_empty_string", "setEmptyString");
+                        put("nullif", "setValue");
+                        put("group", "setGroup");
+                        put("decimal", "setDecimal");
+                        put("currency", "setCurrency");
+                      }
+                    }));
+
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
   public void modify( ConstantMeta someMeta ) {
     if ( someMeta instanceof ConstantMeta ) {
-      ( (ConstantMeta) someMeta ).allocate( 5 );
+      ((ConstantMeta) someMeta ).getFields().clear();
+      ((ConstantMeta) someMeta)
+              .getFields()
+              .addAll(
+                      Arrays.asList(
+                              new ConstantField("InField1", "String", "Value1"),
+                              new ConstantField("InField2", "String", "Value2"),
+                              new ConstantField("InField3", "String", "Value3"),
+                              new ConstantField("InField4", "String", "Value4"),
+                              new ConstantField("InField5", "String", "Value5")));
     }
   }
 
@@ -101,4 +115,37 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
+
+
+  public class ConstantFieldLoadSaveValidator
+          implements IFieldLoadSaveValidator<ConstantField> {
+    final Random rand = new Random();
+
+    @Override
+    public ConstantField getTestObject() {
+      String[] types = ValueMetaFactory.getAllValueMetaNames();
+
+      ConstantField field =
+              new ConstantField(
+                      UUID.randomUUID().toString(),
+                      "String",
+                      UUID.randomUUID().toString());
+
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(ConstantField testObject, Object actual) {
+      if (!(actual instanceof ConstantField)) {
+        return false;
+      }
+      ConstantField another = (ConstantField) actual;
+      return new EqualsBuilder()
+              .append(testObject.getFieldName(), another.getFieldName())
+              .append(testObject.getFieldType(), another.getFieldType())
+              .append(testObject.getValue(), another.getValue())
+              .isEquals();
+    }
+  }
+
 }
