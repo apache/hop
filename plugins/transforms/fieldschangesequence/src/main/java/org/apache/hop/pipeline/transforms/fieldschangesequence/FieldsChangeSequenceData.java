@@ -22,10 +22,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 16-06-2008
- */
 public class FieldsChangeSequenceData extends BaseTransformData implements ITransformData {
 
   public IValueMeta[] fieldnrsMeta;
@@ -43,5 +39,4 @@ public class FieldsChangeSequenceData extends BaseTransformData implements ITran
   public FieldsChangeSequenceData() {
     super();
   }
-
 }
