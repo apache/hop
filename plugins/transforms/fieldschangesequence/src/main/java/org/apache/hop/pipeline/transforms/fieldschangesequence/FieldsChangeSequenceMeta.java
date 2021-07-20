@@ -34,13 +34,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Add sequence depending of fields value change.
- */
-
+/** Add sequence depending of fields value change. */
 @Transform(
     id = "FieldsChangeSequence",
     image = "fieldschangesequence.svg",
@@ -77,22 +75,22 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
   private String increment;
 
   public FieldsChangeSequenceMeta() {
-    super(); 
+    super();
     fields = new ArrayList<>();
   }
 
   public FieldsChangeSequenceMeta(FieldsChangeSequenceMeta meta) {
-    super();     
-    
+    super();
+
     this.start = meta.getStart();
     this.increment = meta.getIncrement();
     this.resultFieldName = meta.getResultFieldName();
     this.fields = new ArrayList<>();
-    for (FieldsChangeSequenceField field:meta.getFields()) {
+    for (FieldsChangeSequenceField field : meta.getFields()) {
       fields.add(new FieldsChangeSequenceField(field.getName()));
     }
   }
-  
+
   public String getStart() {
     return start;
   }
@@ -109,7 +107,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    return new FieldsChangeSequenceMeta(this);  
+    return new FieldsChangeSequenceMeta(this);
   }
 
   /** @return Returns the fieldName. */
@@ -139,7 +137,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
     resultFieldName = null;
     start = "1";
     increment = "1";
-    fields = new ArrayList<>();    
+    fields = new ArrayList<>();
   }
 
   @Override
@@ -206,7 +204,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
       errorMessage = "";
 
       // Starting from selected fields in ...
-      for (FieldsChangeSequenceField field:fields) {
+      for (FieldsChangeSequenceField field : fields) {
         int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
           errorMessage += "\t\t" + field.getName() + Const.CR;
@@ -218,10 +216,10 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
             BaseMessages.getString(
                 PKG, "FieldsChangeSequenceMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fields.isEmpty() ) {
+        if (fields.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_WARNING,
@@ -235,7 +233,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
                   ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG, "FieldsChangeSequenceMeta.CheckResult.AllFieldsFound"),
-                  transformMeta);              
+                  transformMeta);
           remarks.add(cr);
         }
       }

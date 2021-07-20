@@ -37,26 +37,27 @@ public class FieldsChangeSequenceMetaTest {
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
-  
+
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "start", "increment", "resultFieldName" );
+    List<String> attributes = Arrays.asList("start", "increment", "resultFieldName");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "start", "getStart" );
-    getterMap.put( "increment", "getIncrement" );
-    getterMap.put( "resultfieldName", "getResultFieldName" );
-    //getterMap.put( "name", "getFieldName" );
+    getterMap.put("start", "getStart");
+    getterMap.put("increment", "getIncrement");
+    getterMap.put("resultfieldName", "getResultFieldName");
+    // getterMap.put( "name", "getFieldName" );
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "start", "setStart" );
-    setterMap.put( "increment", "setIncrement" );
-    setterMap.put( "resultfieldName", "setResultFieldName" );
-    //setterMap.put( "name", "setFieldName" );
+    setterMap.put("start", "setStart");
+    setterMap.put("increment", "setIncrement");
+    setterMap.put("resultfieldName", "setResultFieldName");
+    // setterMap.put( "name", "setFieldName" );
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class, attributes, getterMap, setterMap );
-    //LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class, attributes );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(FieldsChangeSequenceMeta.class, attributes, getterMap, setterMap);
+    // LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class,
+    // attributes );
     loadSaveTester.testSerialization();
   }
-
 }

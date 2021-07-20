@@ -27,13 +27,12 @@ public class FieldsChangeSequenceField {
       injectionKeyDescription = "FieldsChangeSequenceMeta.Injection.Field.Name")
   private String name;
 
-  public FieldsChangeSequenceField() {   
-  }
-  
+  public FieldsChangeSequenceField() {}
+
   public FieldsChangeSequenceField(String name) {
     this.name = name;
   }
-  
+
   public String getName() {
     return name;
   }
@@ -41,7 +40,7 @@ public class FieldsChangeSequenceField {
   public void setName(String name) {
     this.name = name;
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
