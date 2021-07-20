@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.workflow;
 
 import org.apache.commons.vfs2.FileName;
@@ -73,7 +73,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -310,7 +309,7 @@ public abstract class Workflow extends Variables
       result.setResult(false);
       addErrors(1); // This can be before actual execution
 
-      emergencyWriteJobTracker(result);
+      emergencyWriteWorkflowTracker(result);
 
       setActive(false);
       setFinished(true);
@@ -333,14 +332,14 @@ public abstract class Workflow extends Variables
         log.logError(
             BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
 
-        emergencyWriteJobTracker(result);
+        emergencyWriteWorkflowTracker(result);
       }
     }
 
     return result;
   }
 
-  private void emergencyWriteJobTracker(Result res) {
+  private void emergencyWriteWorkflowTracker(Result res) {
     ActionResult jerFinalResult =
         new ActionResult(
             res,

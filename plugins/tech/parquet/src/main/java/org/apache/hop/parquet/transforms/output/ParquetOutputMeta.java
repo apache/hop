@@ -70,6 +70,9 @@ public class ParquetOutputMeta extends BaseTransformMeta
   @HopMetadataProperty(key = "filename_split_size")
   private String fileSplitSize;
 
+  @HopMetadataProperty(key = "filename_create_parent_folders")
+  private boolean filenameCreatingParentFolders;
+
   @HopMetadataProperty(key = "compression_codec")
   private CompressionCodecName compressionCodec;
 
@@ -99,6 +102,7 @@ public class ParquetOutputMeta extends BaseTransformMeta
     fields = new ArrayList<>();
     filenameIncludingCopyNr = true;
     filenameIncludingSplitNr = true;
+    filenameCreatingParentFolders = true;
     fileSplitSize = "1000000";
   }
 
@@ -112,6 +116,7 @@ public class ParquetOutputMeta extends BaseTransformMeta
     this.filenameIncludingCopyNr = m.filenameIncludingCopyNr;
     this.filenameIncludingSplitNr = m.filenameIncludingSplitNr;
     this.fileSplitSize = m.fileSplitSize;
+    this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;
     this.compressionCodec = m.compressionCodec;
     this.version = m.version;
     this.rowGroupSize = m.rowGroupSize;
@@ -259,6 +264,20 @@ public class ParquetOutputMeta extends BaseTransformMeta
   /** @param fileSplitSize The filenameIncludingSplitSize to set */
   public void setFileSplitSize(String fileSplitSize) {
     this.fileSplitSize = fileSplitSize;
+  }
+
+  /**
+   * Gets filenameCreatingParentFolders
+   *
+   * @return value of filenameCreatingParentFolders
+   */
+  public boolean isFilenameCreatingParentFolders() {
+    return filenameCreatingParentFolders;
+  }
+
+  /** @param filenameCreatingParentFolders The filenameCreatingParentFolders to set */
+  public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
+    this.filenameCreatingParentFolders = filenameCreatingParentFolders;
   }
 
   /**

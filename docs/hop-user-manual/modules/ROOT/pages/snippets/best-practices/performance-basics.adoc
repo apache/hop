@@ -1,0 +1,24 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[PerformanceBasics]]
+:imagesdir: ../../assets/images
+
+Here are a few things to consider when looking at performance in a pipeline:
+
+* Pipelines are networks. The speed of the network is limited by the slowest transform in it.
+* Slow transforms are indicated when running in Hop GUI.  You'll see a dotted line around the slow transforms.
+* Adding more copies and increasing parallelism is not always beneficial, but it can be.  The proof of that pudding is in the eating so take note of execution times and see if you should increase or decrease parallelism to help performance.

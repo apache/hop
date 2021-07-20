@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
@@ -31,12 +32,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 
-import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,20 +80,22 @@ public class Project extends ConfigFile implements IConfigFile {
   public void saveToFile() throws HopException {
     try {
 
-      File file = new File(configFilename);
+      FileObject file = HopVfs.getFileObject(configFilename);
 
       // Does the parent folder of the file exist?
       //
-      if (!file.getParentFile().exists()) {
-        // Create it to make sure.
+      if (!file.getParent().exists()) {
+        // Create it (and parents) to make sure.
         //
-        file.getParentFile().mkdirs();
+        file.getParent().createFolder();
       }
 
       ObjectMapper objectMapper = new ObjectMapper();
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
       objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-      objectMapper.writeValue(file, this);
+
+      OutputStream outputStream = HopVfs.getOutputStream(file, false);
+      objectMapper.writeValue(outputStream, this);
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);
@@ -99,9 +104,9 @@ public class Project extends ConfigFile implements IConfigFile {
 
   @Override
   public void readFromFile() throws HopException {
-    try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      Project project = objectMapper.readValue(new File(configFilename), Project.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    try (InputStream inputStream = HopVfs.getInputStream(configFilename)) {
+      Project project = objectMapper.readValue(inputStream, Project.class);
 
       this.description = project.description;
       this.company = project.company;
@@ -174,10 +179,11 @@ public class Project extends ConfigFile implements IConfigFile {
     for (String configurationFile : configurationFiles) {
       String realConfigurationFile = variables.resolve(configurationFile);
 
-      File file = new File(realConfigurationFile);
-      if (file.exists()) {
-        ConfigFile configFile = new DescribedVariablesConfigFile(realConfigurationFile);
-        try {
+      FileObject file = HopVfs.getFileObject(realConfigurationFile);
+      try {
+        if (file.exists()) {
+          ConfigFile configFile = new DescribedVariablesConfigFile(realConfigurationFile);
+
           configFile.readFromFile();
 
           // Apply the variable values...
@@ -186,18 +192,18 @@ public class Project extends ConfigFile implements IConfigFile {
             variables.setVariable(describedVariable.getName(), describedVariable.getValue());
           }
 
-        } catch (Exception e) {
+        } else {
           LogChannel.GENERAL.logError(
-              "Error reading described variables from configuration file '"
+              "Configuration file '"
                   + realConfigurationFile
-                  + "'",
-              e);
+                  + "' does not exist to read variables from.");
         }
-      } else {
+      } catch (Exception e) {
         LogChannel.GENERAL.logError(
-            "Configuration file '"
+            "Error reading described variables from configuration file '"
                 + realConfigurationFile
-                + "' does not exist to read variables from.");
+                + "'",
+            e);
       }
     }
 

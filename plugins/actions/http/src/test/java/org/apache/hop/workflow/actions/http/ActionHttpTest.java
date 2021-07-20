@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class ActionHttpTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  private ActionHttp jobEntryHttp = new ActionHttp();
+  private ActionHttp actionHttp = new ActionHttp();
 
   @BeforeClass
   public static void beforeClass() throws HopException {
@@ -46,12 +46,11 @@ public class ActionHttpTest {
     Encr.init( passwordEncoderPluginID );
   }
 
-  @SuppressWarnings( "deprecation" )
   @Test
   public void testDeprecatedTargetFilenameExtension() {
-    jobEntryHttp.setTargetFilenameExtention( "txt" );
-    assertTrue( "txt".equals( jobEntryHttp.getTargetFilenameExtension() ) );
-    jobEntryHttp.setTargetFilenameExtension( "zip" );
-    assertTrue( "zip".equals( jobEntryHttp.getTargetFilenameExtention() ) );
+    actionHttp.setTargetFilenameExtension( "txt" );
+    assertTrue( "txt".equals( actionHttp.getTargetFilenameExtension() ) );
+    actionHttp.setTargetFilenameExtension( "zip" );
+    assertTrue( "zip".equals( actionHttp.getTargetFilenameExtension() ) );
   }
 }

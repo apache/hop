@@ -55,21 +55,6 @@ limitations under the License.
       <attributes/>
       <test_names>
         <test_name>
-          <name>0008-analytic-query-parent UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0006-filter-parent UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0005-merge-join-parent UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0004-csv-input-parent UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0007-add-checksum-parent UNIT</name>
-        </test_name>
-        <test_name>
           <name>0009-coalesce-parent UNIT</name>
         </test_name>
       </test_names>

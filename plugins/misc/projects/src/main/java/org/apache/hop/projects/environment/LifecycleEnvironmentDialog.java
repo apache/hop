@@ -53,8 +53,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
-
 public class LifecycleEnvironmentDialog extends Dialog {
   private static final Class<?> PKG = LifecycleEnvironmentDialog.class; // For Translator
 
@@ -269,14 +267,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
       DescribedVariablesConfigFile variablesConfigFile =
           new DescribedVariablesConfigFile(realConfigFilename);
 
-      File file = new File(realConfigFilename);
+      FileObject file = HopVfs.getFileObject(realConfigFilename);
       if (!file.exists()) {
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Create file?");
         box.setMessage("This configuration file doesn't exist.  Do you want to create it?");
-        int anwser = box.open();
-        if ((anwser & SWT.NO) != 0) {
+        int answer = box.open();
+        if ((answer & SWT.NO) != 0) {
           return;
         }
       } else {
@@ -326,12 +324,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
         if (projectConfig != null) {
           String environmentName = Const.NVL(wName.getText(), projectName);
           filename =
-              projectConfig.getProjectHome()
-                  + File.separator
-                  + ".."
-                  + File.separator
-                  + environmentName
-                  + "-config.json";
+              projectConfig.getProjectHome() + "/" + ".." + "/" + environmentName + "-config.json";
         }
       }
       FileObject fileObject = HopVfs.getFileObject(filename);

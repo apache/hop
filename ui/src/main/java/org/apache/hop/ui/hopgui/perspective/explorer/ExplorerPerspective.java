@@ -941,7 +941,7 @@ public class ExplorerPerspective implements IHopPerspective {
             continue;
           }
 
-          String childPath = child.getName().getPath();
+          String childPath = child.toString();
           String childName = child.getName().getBaseName();
           IHopFileType fileType = getFileType(childPath);
           TreeItem childItem = new TreeItem(item, SWT.NONE);
@@ -953,7 +953,7 @@ public class ExplorerPerspective implements IHopPerspective {
           // Recursively add children
           //
           if (child.isFolder()) {
-            refreshFolder(childItem, child.getName().getPath());
+            refreshFolder(childItem, child.getName().getURI());
           }
         }
       }

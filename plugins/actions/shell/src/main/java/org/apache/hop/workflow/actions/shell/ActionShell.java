@@ -161,7 +161,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
-      setFileName(XmlHandler.getTagValue(entrynode, "filename"));
+      setFilename(XmlHandler.getTagValue(entrynode, "filename"));
       setWorkDirectory(XmlHandler.getTagValue(entrynode, "work_directory"));
       argFromPrevious =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
@@ -212,15 +212,6 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     setAppendLogfile = false;
     insertScript = false;
     script = null;
-  }
-
-  /**
-   * @param n
-   * @deprecated use {@link #setFilename(String)} instead
-   */
-  @Deprecated
-  public void setFileName(String n) {
-    filename = n;
   }
 
   public void setFilename(String n) {

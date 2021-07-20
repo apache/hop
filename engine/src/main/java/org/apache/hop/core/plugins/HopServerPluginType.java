@@ -75,11 +75,6 @@ public class HopServerPluginType extends BasePluginType<HopServerServlet> {
   }
 
   @Override
-  protected String extractI18nPackageName( HopServerServlet annotation ) {
-    return annotation.i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopServerServlet annotation ) {
   }
 

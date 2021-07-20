@@ -46,28 +46,28 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>count</from>
-      <to>count&lt;>100k</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>count&lt;>100k</from>
-      <to>Abort</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>id</from>
       <to>myUuid</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>myUuid</from>
-      <to>myUuid &lt;&gt; '-'</to>
+      <from>count</from>
+      <to>count &lt;&gt; 100.000</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count &lt;&gt; 100.000</from>
+      <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>myUuid &lt;&gt; '-'</from>
       <to>count</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>myUuid</from>
+      <to>myUuid &lt;&gt; '-'</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -152,8 +152,8 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>count&lt;>100k</name>
-    <type>Filter</type>
+    <name>count &lt;&gt; 100.000</name>
+    <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -162,7 +162,25 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <condition>count &lt;&gt; 100000</condition>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>count</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>100000</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>#</mask>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
       <xloc>656</xloc>
@@ -232,7 +250,7 @@ limitations under the License.
   </transform>
   <transform>
     <name>myUuid &lt;&gt; '-'</name>
-    <type>Filter</type>
+    <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -241,7 +259,25 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <condition>myUuid &lt;&gt; '-'</condition>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>myUuid</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>-</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
       <xloc>432</xloc>

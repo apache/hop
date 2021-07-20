@@ -199,7 +199,7 @@ public class SwtGc implements IGc {
       case CHECKPOINT:
         return GuiResource.getInstance().getSwtImageCheckpoint();
       case DB:
-        return GuiResource.getInstance().getSwtImageConnection();
+        return GuiResource.getInstance().getSwtImageDatabase();
       case PARALLEL:
         return GuiResource.getInstance().getSwtImageParallelHop();
       case UNCONDITIONAL:

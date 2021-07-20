@@ -48,13 +48,6 @@
 				<include>org.apache.hop:hop-action-ftp:jar</include>
 			</includes>
 		</dependencySet>
-		<dependencySet>
-			<useProjectArtifact>false</useProjectArtifact>
-			<outputDirectory>lib</outputDirectory>
-			<includes>
-				<include>commons-net:commons-net:jar</include>
-			</includes>
-		</dependencySet>
 	</dependencySets>
 
 </assembly>

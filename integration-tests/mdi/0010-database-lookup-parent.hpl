@@ -46,18 +46,13 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>count</from>
-      <to>count&lt;>100</to>
+      <from>keys</from>
+      <to>ETL metadata injection</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>count&lt;>100</from>
-      <to>Abort</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>myUuid &lt;&gt; '-'</from>
-      <to>count</to>
+      <from>returns</from>
+      <to>ETL metadata injection</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -66,13 +61,18 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>keys</from>
-      <to>ETL metadata injection</to>
+      <from>myUuid &lt;&gt; '-'</from>
+      <to>count</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>returns</from>
-      <to>ETL metadata injection</to>
+      <from>count</from>
+      <to>count &lt;&gt; 100</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count &lt;&gt; 100</from>
+      <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -110,7 +110,20 @@ limitations under the License.
     </partitioning>
     <filename>${PROJECT_HOME}/0010-database-lookup-child.hpl</filename>
     <source_transform>OUTPUT</source_transform>
-    <source_output_fields>    </source_output_fields>
+    <source_output_fields>
+      <source_output_field>
+        <source_output_field_name>id</source_output_field_name>
+        <source_output_field_type>Integer</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>myUuid</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+    </source_output_fields>
     <target_file/>
     <no_execution>N</no_execution>
     <stream_source_transform/>
@@ -243,8 +256,8 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>count&lt;>100</name>
-    <type>Filter</type>
+    <name>count &lt;&gt; 100</name>
+    <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -253,7 +266,25 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <condition>count &lt;&gt; 100</condition>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>count</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>100</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>#</mask>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
       <xloc>656</xloc>
@@ -404,7 +435,7 @@ limitations under the License.
   </transform>
   <transform>
     <name>myUuid &lt;&gt; '-'</name>
-    <type>Filter</type>
+    <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -413,7 +444,25 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <condition>myUuid &lt;&gt; '-'</condition>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>myUuid</leftvalue>
+        <function>&lt;></function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>-</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
       <xloc>432</xloc>

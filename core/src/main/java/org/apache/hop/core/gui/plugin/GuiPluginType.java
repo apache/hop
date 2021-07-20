@@ -18,7 +18,6 @@
 package org.apache.hop.core.gui.plugin;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 
 import java.util.Map;
@@ -75,11 +74,6 @@ public class GuiPluginType extends BasePluginType<GuiPlugin> {
   @Override
   protected boolean extractSeparateClassLoader( GuiPlugin annotation ) {
     return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( GuiPlugin annotation ) {
-    return null;
   }
 
   @Override

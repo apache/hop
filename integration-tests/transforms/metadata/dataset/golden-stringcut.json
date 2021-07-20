@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-stringcut.csv",
+  "name": "golden-stringcut",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "StringToCut"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "StringCutOut"
+    }
+  ],
+  "folder_name": ""
+}

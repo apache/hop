@@ -1,0 +1,16 @@
+{
+  "description" : "HOP-2333 Test Environment Variables - DEV",
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "config" : {
+    "variables" : [ {
+      "name" : "sample-var2",
+      "value" : "ProvaDev2"
+    }, {
+      "name" : "sample-var1",
+      "value" : "ProvaDev1"
+    } ]
+  }
+}

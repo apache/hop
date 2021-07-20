@@ -1100,4 +1100,9 @@ public interface IDatabase extends Cloneable {
    * @param manualUrl A manually entered URL which will be used over the internally generated one
    */
   public void setManualUrl( String manualUrl );
+
+  /**
+   * @return true if the database name is a required parameter
+   */
+  public boolean requiresName();
 }

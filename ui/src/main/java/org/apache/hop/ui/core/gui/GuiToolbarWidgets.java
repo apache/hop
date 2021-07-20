@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Button;
@@ -197,6 +198,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 toolbarItem.getListenerClass(),
                 toolbarItem.getListenerMethod());
         combo.addListener(SWT.Selection, listener);
+        combo.addListener(SWT.DefaultSelection, listener);
         toolItemMap.put(toolbarItem.getId(), comboSeparator);
         widgetsMap.put(toolbarItem.getId(), combo);
         break;

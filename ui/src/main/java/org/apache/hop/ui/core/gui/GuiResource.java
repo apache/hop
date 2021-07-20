@@ -158,7 +158,7 @@ public class GuiResource {
 
   private SwtUniversalImage imageLogo;
   private SwtUniversalImage imageDisabledHop;
-  private SwtUniversalImage imageConnection;
+  private SwtUniversalImage imageDatabase;
   private SwtUniversalImage imageData;
   private SwtUniversalImage imagePreview;
   private SwtUniversalImage imageMissing;
@@ -440,7 +440,7 @@ public class GuiResource {
       // Common images
       imageLogo.dispose();
       imageDisabledHop.dispose();
-      imageConnection.dispose();
+      imageDatabase.dispose();
       imageData.dispose();
       imageAdd.dispose();
       imageTable.dispose();
@@ -776,7 +776,7 @@ public class GuiResource {
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
     imagePartitionSchema =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/partition_schema.svg");
-    imageConnection = SwtSvgImageUtil.getImageAsResource(display, "ui/images/database.svg");
+    imageDatabase = SwtSvgImageUtil.getImageAsResource(display, "ui/images/database.svg");
     imageData = SwtSvgImageUtil.getImageAsResource(display, "ui/images/data.svg");
     imageEdit = SwtSvgImageUtil.getImageAsResource(display, "ui/images/edit.svg");
     imageMissing = SwtSvgImageUtil.getImageAsResource(display, "ui/images/missing.svg");
@@ -1038,19 +1038,19 @@ public class GuiResource {
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imageConnection. */
-  public Image getImageConnection() {
-    return imageConnection.getAsBitmapForSize(
+  /** @return Returns the database image. */
+  public Image getImageDatabase() {
+    return imageDatabase.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imageConnection. */
+  /** @return Returns the data image. */
   public Image getImageData() {
     return imageData.getAsBitmapForSize(display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  public SwtUniversalImage getSwtImageConnection() {
-    return imageConnection;
+  public SwtUniversalImage getSwtImageDatabase() {
+    return imageDatabase;
   }
 
   public SwtUniversalImage getSwtImageData() {
@@ -1061,12 +1061,12 @@ public class GuiResource {
     return imageAdd;
   }
 
-  /** @return Returns the imageTable. */
+  /** @return Returns the table image. */
   public Image getImageTable() {
     return imageTable;
   }
 
-  /** @return Returns the imageTable. */
+  /** @return Returns the preview image. */
   public Image getImagePreview() {
     return imagePreview.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);

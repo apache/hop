@@ -18,55 +18,71 @@
 package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The Denormaliser pipeline transform meta-data
- *
- * @author Matt
- * @since 17-jan-2006
- */
 @Transform(
     id = "Denormaliser",
     image = "denormaliser.svg",
     name = "i18n::Denormaliser.Name",
     description = "i18n::Denormaliser.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rowdenormaliser.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/rowdenormaliser.html")
 public class DenormaliserMeta extends BaseTransformMeta
     implements ITransformMeta<Denormaliser, DenormaliserData> {
   private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
 
   /** Fields to group over */
-  private String[] groupField;
+  @HopMetadataProperty(groupKey = "group", key = "field")
+  private List<DenormaliserGroupField> groupFields;
 
   /** The key field */
+  @HopMetadataProperty(
+      key = "key_field",
+      injectionKeyDescription = "DenormaliserDialog.KeyField.Label")
   private String keyField;
 
   /** The fields to unpivot */
-  private DenormaliserTargetField[] denormaliserTargetField;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<DenormaliserTargetField> denormaliserTargetFields;
 
   public DenormaliserMeta() {
-    super(); // allocate BaseTransformMeta
+    groupFields = new ArrayList<>();
+    denormaliserTargetFields = new ArrayList<>();
+  }
+
+  public DenormaliserMeta(DenormaliserMeta m) {
+    this.denormaliserTargetFields = m.denormaliserTargetFields;
+    this.keyField = m.keyField;
+    this.groupFields = m.groupFields;
+  }
+
+  @Override
+  public DenormaliserMeta clone() {
+    DenormaliserMeta meta = new DenormaliserMeta();
+
+    for (DenormaliserTargetField target : denormaliserTargetFields) {
+      meta.getDenormaliserTargetFields().add(new DenormaliserTargetField(target));
+    }
+
+    return meta;
   }
 
   /** @return Returns the keyField. */
@@ -80,64 +96,23 @@ public class DenormaliserMeta extends BaseTransformMeta
   }
 
   /** @return Returns the groupField. */
-  public String[] getGroupField() {
-    return groupField;
+  public List<DenormaliserGroupField> getGroupFields() {
+    return groupFields;
   }
 
-  /** @param groupField The groupField to set. */
-  public void setGroupField(String[] groupField) {
-    this.groupField = groupField;
+  /** @param groupFields The groupField to set. */
+  public void setGroupFields(List<DenormaliserGroupField> groupFields) {
+    this.groupFields = groupFields;
   }
 
-  public String[] getDenormaliserTargetFields() {
-    String[] fields = new String[denormaliserTargetField.length];
-    for (int i = 0; i < fields.length; i++) {
-      fields[i] = denormaliserTargetField[i].getTargetName();
-    }
-
-    return fields;
+  /** @return Return the Targetfields */
+  public List<DenormaliserTargetField> getDenormaliserTargetFields() {
+    return denormaliserTargetFields;
   }
 
-  public DenormaliserTargetField searchTargetField(String targetName) {
-    for (int i = 0; i < denormaliserTargetField.length; i++) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
-      if (field.getTargetName().equalsIgnoreCase(targetName)) {
-        return field;
-      }
-    }
-    return null;
-  }
-
-  /** @return Returns the pivotField. */
-  public DenormaliserTargetField[] getDenormaliserTargetField() {
-    return denormaliserTargetField;
-  }
-
-  /** @param pivotField The pivotField to set. */
-  public void setDenormaliserTargetField(DenormaliserTargetField[] pivotField) {
-    this.denormaliserTargetField = pivotField;
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int sizegroup, int nrFields) {
-    groupField = new String[sizegroup];
-    denormaliserTargetField = new DenormaliserTargetField[nrFields];
-  }
-
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  public void setDefault() {
-    int sizegroup = 0;
-    int nrFields = 0;
-
-    allocate(sizegroup, nrFields);
+  /** @param denormaliserTargetFields the denormaliserTargetField to set */
+  public void setDenormaliserTargetFields(List<DenormaliserTargetField> denormaliserTargetFields) {
+    this.denormaliserTargetFields = denormaliserTargetFields;
   }
 
   @Override
@@ -167,8 +142,8 @@ public class DenormaliserMeta extends BaseTransformMeta
 
     // Remove all field value(s) (there will be different entries for each output row)
     //
-    for (int i = 0; i < denormaliserTargetField.length; i++) {
-      String fieldname = denormaliserTargetField[i].getFieldName();
+    for (int i = 0; i < denormaliserTargetFields.size(); i++) {
+      String fieldname = denormaliserTargetFields.get(i).getFieldName();
       if (fieldname != null && fieldname.length() > 0) {
         int idx = row.indexOfValue(fieldname);
         if (idx >= 0) {
@@ -182,11 +157,11 @@ public class DenormaliserMeta extends BaseTransformMeta
     }
 
     // Re-add the target fields
-    for (int i = 0; i < denormaliserTargetField.length; i++) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
+    for (DenormaliserTargetField field : denormaliserTargetFields) {
       try {
         IValueMeta target =
-            ValueMetaFactory.createValueMeta(field.getTargetName(), field.getTargetType());
+            ValueMetaFactory.createValueMeta(
+                field.getTargetName(), ValueMetaFactory.getIdForValueMeta(field.getTargetType()));
         target.setLength(field.getTargetLength(), field.getTargetPrecision());
         target.setOrigin(name);
         row.addValueMeta(target);
@@ -196,105 +171,7 @@ public class DenormaliserMeta extends BaseTransformMeta
     }
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      keyField = XmlHandler.getTagValue(transformNode, "key_field");
-
-      Node groupn = XmlHandler.getSubNode(transformNode, "group");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-
-      int sizegroup = XmlHandler.countNodes(groupn, "field");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(sizegroup, nrFields);
-
-      for (int i = 0; i < sizegroup; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(groupn, "field", i);
-        groupField[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        denormaliserTargetField[i] = new DenormaliserTargetField();
-        denormaliserTargetField[i].setFieldName(XmlHandler.getTagValue(fnode, "field_name"));
-        denormaliserTargetField[i].setKeyValue(XmlHandler.getTagValue(fnode, "key_value"));
-        denormaliserTargetField[i].setTargetName(XmlHandler.getTagValue(fnode, "target_name"));
-        denormaliserTargetField[i].setTargetType(XmlHandler.getTagValue(fnode, "target_type"));
-        denormaliserTargetField[i].setTargetFormat(XmlHandler.getTagValue(fnode, "target_format"));
-        denormaliserTargetField[i].setTargetLength(
-            Const.toInt(XmlHandler.getTagValue(fnode, "target_length"), -1));
-        denormaliserTargetField[i].setTargetPrecision(
-            Const.toInt(XmlHandler.getTagValue(fnode, "target_precision"), -1));
-        denormaliserTargetField[i].setTargetDecimalSymbol(
-            XmlHandler.getTagValue(fnode, "target_decimal_symbol"));
-        denormaliserTargetField[i].setTargetGroupingSymbol(
-            XmlHandler.getTagValue(fnode, "target_grouping_symbol"));
-        denormaliserTargetField[i].setTargetCurrencySymbol(
-            XmlHandler.getTagValue(fnode, "target_currency_symbol"));
-        denormaliserTargetField[i].setTargetNullString(
-            XmlHandler.getTagValue(fnode, "target_null_string"));
-        denormaliserTargetField[i].setTargetAggregationType(
-            XmlHandler.getTagValue(fnode, "target_aggregation_type"));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "DenormaliserMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("      " + XmlHandler.addTagValue("key_field", keyField));
-
-    retval.append("      <group>" + Const.CR);
-    for (int i = 0; i < groupField.length; i++) {
-      retval.append("        <field>" + Const.CR);
-      retval.append("          " + XmlHandler.addTagValue("name", groupField[i]));
-      retval.append("          </field>" + Const.CR);
-    }
-    retval.append("        </group>" + Const.CR);
-
-    retval.append("      <fields>" + Const.CR);
-    for (int i = 0; i < denormaliserTargetField.length; i++) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
-
-      retval.append("        <field>" + Const.CR);
-      retval.append("          " + XmlHandler.addTagValue("field_name", field.getFieldName()));
-      retval.append("          " + XmlHandler.addTagValue("key_value", field.getKeyValue()));
-      retval.append("          " + XmlHandler.addTagValue("target_name", field.getTargetName()));
-      retval.append(
-          "          " + XmlHandler.addTagValue("target_type", field.getTargetTypeDesc()));
-      retval.append(
-          "          " + XmlHandler.addTagValue("target_format", field.getTargetFormat()));
-      retval.append(
-          "          " + XmlHandler.addTagValue("target_length", field.getTargetLength()));
-      retval.append(
-          "          " + XmlHandler.addTagValue("target_precision", field.getTargetPrecision()));
-      retval.append(
-          "          "
-              + XmlHandler.addTagValue("target_decimal_symbol", field.getTargetDecimalSymbol()));
-      retval.append(
-          "          "
-              + XmlHandler.addTagValue("target_grouping_symbol", field.getTargetGroupingSymbol()));
-      retval.append(
-          "          "
-              + XmlHandler.addTagValue("target_currency_symbol", field.getTargetCurrencySymbol()));
-      retval.append(
-          "          " + XmlHandler.addTagValue("target_null_string", field.getTargetNullString()));
-      retval.append(
-          "          "
-              + XmlHandler.addTagValue(
-                  "target_aggregation_type", field.getTargetAggregationTypeDesc()));
-      retval.append("          </field>" + Const.CR);
-    }
-    retval.append("        </fields>" + Const.CR);
-
-    return retval.toString();
-  }
-
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -310,7 +187,7 @@ public class DenormaliserMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DenormaliserMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -318,7 +195,7 @@ public class DenormaliserMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "DenormaliserMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);

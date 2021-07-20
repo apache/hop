@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.vfs;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.CacheStrategy;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -52,10 +54,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class HopVfs {
   private static final Class<?> PKG = HopVfs.class; // For Translator
 
-  public static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
-
-  private static final int TIMEOUT_LIMIT = 9000;
-  private static final int TIME_TO_SLEEP_TRANSFORM = 50;
+  public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
   private static DefaultFileSystemManager fsm;
 
@@ -64,11 +63,11 @@ public class HopVfs {
   public static DefaultFileSystemManager getFileSystemManager() {
     lock.readLock().lock();
     try {
-      if ( fsm == null ) {
+      if (fsm == null) {
         try {
           fsm = createFileSystemManager();
-        } catch ( Exception e ) {
-          throw new RuntimeException( "Error initializing file system manager : ", e );
+        } catch (Exception e) {
+          throw new RuntimeException("Error initializing file system manager : ", e);
         }
       }
       return fsm;
@@ -86,29 +85,31 @@ public class HopVfs {
   private static DefaultFileSystemManager createFileSystemManager() throws HopException {
     try {
       DefaultFileSystemManager fsm = new DefaultFileSystemManager();
-      fsm.addProvider( "ram", new org.apache.commons.vfs2.provider.ram.RamFileProvider() );
-      fsm.addProvider( "file", new org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider() );
-      fsm.addProvider( "res", new org.apache.commons.vfs2.provider.res.ResourceFileProvider() );
-      fsm.addProvider( "zip", new org.apache.commons.vfs2.provider.zip.ZipFileProvider() );
-      fsm.addProvider( "gz", new org.apache.commons.vfs2.provider.gzip.GzipFileProvider() );
-      fsm.addProvider( "jar", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "http", new org.apache.commons.vfs2.provider.http.HttpFileProvider() );
-      fsm.addProvider( "https", new org.apache.commons.vfs2.provider.https.HttpsFileProvider() );
-      fsm.addProvider( "ftp", new org.apache.commons.vfs2.provider.ftp.FtpFileProvider() );
-      fsm.addProvider( "ftps", new org.apache.commons.vfs2.provider.ftps.FtpsFileProvider() );
-      fsm.addProvider( "war", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "par", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "ear", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "sar", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "ejb3", new org.apache.commons.vfs2.provider.jar.JarFileProvider() );
-      fsm.addProvider( "tmp", new org.apache.commons.vfs2.provider.temp.TemporaryFileProvider() );
-      fsm.addProvider( "tar", new org.apache.commons.vfs2.provider.tar.TarFileProvider() );
-      fsm.addProvider( "tbz2", new org.apache.commons.vfs2.provider.tar.TarFileProvider() );
-      fsm.addProvider( "tgz", new org.apache.commons.vfs2.provider.tar.TarFileProvider() );
-      fsm.addProvider( "bz2", new org.apache.commons.vfs2.provider.bzip2.Bzip2FileProvider() );
-      fsm.addProvider( "files-cache", new org.apache.commons.vfs2.provider.temp.TemporaryFileProvider());
-      fsm.addExtensionMap( "jar", "jar" );
-      fsm.addExtensionMap( "zip", "zip" );
+      fsm.addProvider("ram", new org.apache.commons.vfs2.provider.ram.RamFileProvider());
+      fsm.addProvider(
+          "file", new org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider());
+      fsm.addProvider("res", new org.apache.commons.vfs2.provider.res.ResourceFileProvider());
+      fsm.addProvider("zip", new org.apache.commons.vfs2.provider.zip.ZipFileProvider());
+      fsm.addProvider("gz", new org.apache.commons.vfs2.provider.gzip.GzipFileProvider());
+      fsm.addProvider("jar", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("http", new org.apache.commons.vfs2.provider.http.HttpFileProvider());
+      fsm.addProvider("https", new org.apache.commons.vfs2.provider.https.HttpsFileProvider());
+      fsm.addProvider("ftp", new org.apache.commons.vfs2.provider.ftp.FtpFileProvider());
+      fsm.addProvider("ftps", new org.apache.commons.vfs2.provider.ftps.FtpsFileProvider());
+      fsm.addProvider("war", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("par", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("ear", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("sar", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("ejb3", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
+      fsm.addProvider("tmp", new org.apache.commons.vfs2.provider.temp.TemporaryFileProvider());
+      fsm.addProvider("tar", new org.apache.commons.vfs2.provider.tar.TarFileProvider());
+      fsm.addProvider("tbz2", new org.apache.commons.vfs2.provider.tar.TarFileProvider());
+      fsm.addProvider("tgz", new org.apache.commons.vfs2.provider.tar.TarFileProvider());
+      fsm.addProvider("bz2", new org.apache.commons.vfs2.provider.bzip2.Bzip2FileProvider());
+      fsm.addProvider(
+          "files-cache", new org.apache.commons.vfs2.provider.temp.TemporaryFileProvider());
+      fsm.addExtensionMap("jar", "jar");
+      fsm.addExtensionMap("zip", "zip");
       fsm.addExtensionMap("gz", "gz");
       fsm.addExtensionMap("tar", "tar");
       fsm.addExtensionMap("tbz2", "tar");
@@ -118,100 +119,93 @@ public class HopVfs {
       fsm.addMimeTypeMap("application/x-gzip", "gz");
       fsm.addMimeTypeMap("application/zip", "zip");
       fsm.setFileContentInfoFactory(new FileContentInfoFilenameFactory());
-      fsm.setReplicator( new DefaultFileReplicator() );
+      fsm.setReplicator(new DefaultFileReplicator());
 
-      fsm.setFilesCache( new SoftRefFilesCache() );
-      fsm.setCacheStrategy( CacheStrategy.ON_RESOLVE);
+      fsm.setFilesCache(new SoftRefFilesCache());
+      fsm.setCacheStrategy(CacheStrategy.ON_RESOLVE);
 
       // Here are extra VFS plugins to register
       //
       PluginRegistry registry = PluginRegistry.getInstance();
-      List<IPlugin> plugins = registry.getPlugins( VfsPluginType.class );
-      for ( IPlugin plugin : plugins ) {
-        IVfs iVfs = registry.loadClass( plugin, IVfs.class );
+      List<IPlugin> plugins = registry.getPlugins(VfsPluginType.class);
+      for (IPlugin plugin : plugins) {
+        IVfs iVfs = registry.loadClass(plugin, IVfs.class);
         try {
-          fsm.addProvider( iVfs.getUrlSchemes(), iVfs.getProvider() );
-        } catch ( Exception e ) {
-          throw new HopException( "Error registering provider for VFS plugin " + plugin.getIds()[ 0 ] + " : " + plugin.getName() + " : ", e );
+          fsm.addProvider(iVfs.getUrlSchemes(), iVfs.getProvider());
+        } catch (Exception e) {
+          throw new HopException(
+              "Error registering provider for VFS plugin "
+                  + plugin.getIds()[0]
+                  + " : "
+                  + plugin.getName()
+                  + " : ",
+              e);
         }
       }
 
       fsm.init();
 
       return fsm;
-    } catch ( Exception e ) {
-      throw new HopException( "Error creating file system manager", e );
+    } catch (Exception e) {
+      throw new HopException("Error creating file system manager", e);
     }
   }
 
-  public synchronized static FileObject getFileObject( String vfsFilename ) throws HopFileException {
+  public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
     lock.readLock().lock();
     try {
       DefaultFileSystemManager fsManager = getFileSystemManager();
 
       try {
-        // We have one problem with VFS: if the file is in a subdirectory of the current one: somedir/somefile
+        // We have one problem with VFS: if the file is in a subdirectory of the current one:
+        // somedir/somefile
         // In that case, VFS doesn't parse the file correctly.
         // We need to put file: in front of it to make it work.
         // However, how are we going to verify this?
         //
-        // We are going to see if the filename starts with one of the known protocols like file: zip: ram: smb: jar: etc.
+        // We are going to see if the filename starts with one of the known protocols like file:
+        // zip: ram: smb: jar: etc.
         // If not, we are going to assume it's a file.
         //
         boolean relativeFilename = true;
         String[] initialSchemes = fsManager.getSchemes();
 
-        relativeFilename = checkForScheme( initialSchemes, relativeFilename, vfsFilename );
-
-        int timeOut = TIMEOUT_LIMIT;
-
-        boolean hasScheme = vfsFilename != null && vfsFilename.contains( "://" ); // check for bigData providers
-        //we have to check for hasScheme even if it is marked as a relative path because that scheme could not
-        //be available by getSchemes at the time we validate our relativeFilename flag.
-        //So we check if even it is marked as relative path if it contains a possible scheme format
-        //if it does, then give it some time to be loaded, until we get it our timeout is up.
-
-        while ( relativeFilename && hasScheme && timeOut > 0 ) {
-          String[] schemes = fsManager.getSchemes();
-          try {
-            Thread.sleep( TIME_TO_SLEEP_TRANSFORM );
-            timeOut -= TIME_TO_SLEEP_TRANSFORM;
-            relativeFilename = checkForScheme( schemes, relativeFilename, vfsFilename );
-          } catch ( InterruptedException e ) {
-            relativeFilename = false;
-            Thread.currentThread().interrupt();
-            break;
-          }
-        }
+        relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
 
         String filename;
-        if ( vfsFilename.startsWith( "\\\\" ) ) {
-          File file = new File( vfsFilename );
+        if (vfsFilename.startsWith("\\\\")) {
+          File file = new File(vfsFilename);
           filename = file.toURI().toString();
         } else {
-          if ( relativeFilename ) {
-            File file = new File( vfsFilename );
+          if (relativeFilename) {
+            File file = new File(vfsFilename);
             filename = file.getAbsolutePath();
           } else {
             filename = vfsFilename;
           }
         }
 
-        return fsManager.resolveFile( filename );
-      } catch ( Exception e ) {
-        throw new HopFileException( "Unable to get VFS File object for filename '" + cleanseFilename( vfsFilename ) + "' : " + e.getMessage(), e );
+        return fsManager.resolveFile(filename);
+      } catch (Exception e) {
+        throw new HopFileException(
+            "Unable to get VFS File object for filename '"
+                + cleanseFilename(vfsFilename)
+                + "' : "
+                + e.getMessage(),
+            e);
       }
     } finally {
       lock.readLock().unlock();
     }
   }
 
-  protected static boolean checkForScheme( String[] initialSchemes, boolean relativeFilename, String vfsFilename ) {
-    if ( vfsFilename == null ) {
+  protected static boolean checkForScheme(
+      String[] initialSchemes, boolean relativeFilename, String vfsFilename) {
+    if (vfsFilename == null) {
       return false;
     }
-    for ( int i = 0; i < initialSchemes.length && relativeFilename; i++ ) {
-      if ( vfsFilename.startsWith( initialSchemes[ i ] + ":" ) ) {
+    for (int i = 0; i < initialSchemes.length && relativeFilename; i++) {
+      if (vfsFilename.startsWith(initialSchemes[i] + ":")) {
         relativeFilename = false;
       }
     }
@@ -219,13 +213,11 @@ public class HopVfs {
   }
 
   /**
-   * Private method for stripping password from filename when a FileObject
-   * can not be obtained.
-   * getFriendlyURI(FileObject) or getFriendlyURI(String) are the public
-   * methods.
+   * Private method for stripping password from filename when a FileObject can not be obtained.
+   * getFriendlyURI(FileObject) or getFriendlyURI(String) are the public methods.
    */
-  private static String cleanseFilename( String vfsFilename ) {
-    return vfsFilename.replaceAll( ":[^:@/]+@", ":<password>@" );
+  private static String cleanseFilename(String vfsFilename) {
+    return vfsFilename.replaceAll(":[^:@/]+@", ":<password>@");
   }
 
   /**
@@ -236,78 +228,82 @@ public class HopVfs {
    * @return The content of the file as a String
    * @throws IOException
    */
-  public static String getTextFileContent( String vfsFilename, String charSetName ) throws HopFileException {
+  public static String getTextFileContent(String vfsFilename, String charSetName)
+      throws HopFileException {
     try {
-      InputStream inputStream = getInputStream( vfsFilename );
+      InputStream inputStream = getInputStream(vfsFilename);
 
-      InputStreamReader reader = new InputStreamReader( inputStream, charSetName );
+      InputStreamReader reader = new InputStreamReader(inputStream, charSetName);
       int c;
       StringBuilder aBuffer = new StringBuilder();
-      while ( ( c = reader.read() ) != -1 ) {
-        aBuffer.append( (char) c );
+      while ((c = reader.read()) != -1) {
+        aBuffer.append((char) c);
       }
       reader.close();
       inputStream.close();
 
       return aBuffer.toString();
-    } catch ( IOException e ) {
-      throw new HopFileException( e );
+    } catch (IOException e) {
+      throw new HopFileException(e);
     }
   }
 
-  public static boolean fileExists( String vfsFilename ) throws HopFileException {
+  public static boolean fileExists(String vfsFilename) throws HopFileException {
     FileObject fileObject = null;
     try {
-      fileObject = getFileObject( vfsFilename );
+      fileObject = getFileObject(vfsFilename);
       return fileObject.exists();
-    } catch ( IOException e ) {
-      throw new HopFileException( e );
+    } catch (IOException e) {
+      throw new HopFileException(e);
     } finally {
-      if ( fileObject != null ) {
+      if (fileObject != null) {
         try {
           fileObject.close();
-        } catch ( Exception e ) { /* Ignore */
+        } catch (Exception e) {
+          /* Ignore */
         }
       }
     }
   }
 
-  public static InputStream getInputStream( FileObject fileObject ) throws FileSystemException {
+  public static InputStream getInputStream(FileObject fileObject) throws FileSystemException {
     FileContent content = fileObject.getContent();
     return content.getInputStream();
   }
 
-  public static InputStream getInputStream( String vfsFilename ) throws HopFileException {
+  public static InputStream getInputStream(String vfsFilename) throws HopFileException {
     try {
-      FileObject fileObject = getFileObject( vfsFilename );
+      FileObject fileObject = getFileObject(vfsFilename);
 
-      return getInputStream( fileObject );
-    } catch ( IOException e ) {
-      throw new HopFileException( e );
+      return getInputStream(fileObject);
+    } catch (IOException e) {
+      throw new HopFileException(e);
     }
   }
 
-  public static OutputStream getOutputStream( FileObject fileObject, boolean append ) throws IOException {
+  public static OutputStream getOutputStream(FileObject fileObject, boolean append)
+      throws IOException {
     FileObject parent = fileObject.getParent();
-    if ( parent != null ) {
-      if ( !parent.exists() ) {
-        throw new IOException( BaseMessages.getString(
-          PKG, "HopVFS.Exception.ParentDirectoryDoesNotExist", getFriendlyURI( parent ) ) );
+    if (parent != null) {
+      if (!parent.exists()) {
+        throw new IOException(
+            BaseMessages.getString(
+                PKG, "HopVFS.Exception.ParentDirectoryDoesNotExist", getFriendlyURI(parent)));
       }
     }
     try {
       fileObject.createFile();
       FileContent content = fileObject.getContent();
-      return content.getOutputStream( append );
-    } catch ( FileSystemException e ) {
+      return content.getOutputStream(append);
+    } catch (FileSystemException e) {
       // Perhaps if it's a local file, we can retry using the standard
       // File object. This is because on Windows there is a bug in VFS.
       //
-      if ( fileObject instanceof LocalFile ) {
+      if (fileObject instanceof LocalFile) {
         try {
-          String filename = getFilename( fileObject );
-          return new FileOutputStream( new File( filename ), append );
-        } catch ( Exception e2 ) {
+          String filename = getFilename(fileObject);
+          return new FileOutputStream(new File(filename), append);
+        } catch (Exception e2) {
           throw e; // throw the original exception: hide the retry.
         }
       } else {
@@ -316,52 +312,53 @@ public class HopVfs {
     }
   }
 
-  public static OutputStream getOutputStream( String vfsFilename, boolean append ) throws HopFileException {
+  public static OutputStream getOutputStream(String vfsFilename, boolean append)
+      throws HopFileException {
     try {
-      FileObject fileObject = getFileObject( vfsFilename );
-      return getOutputStream( fileObject, append );
-    } catch ( IOException e ) {
-      throw new HopFileException( e );
+      FileObject fileObject = getFileObject(vfsFilename);
+      return getOutputStream(fileObject, append);
+    } catch (IOException e) {
+      throw new HopFileException(e);
     }
   }
 
-  public static String getFilename( FileObject fileObject ) {
+  public static String getFilename(FileObject fileObject) {
     FileName fileName = fileObject.getName();
     String root = fileName.getRootURI();
-    if ( !root.startsWith( "file:" ) ) {
+    if (!root.startsWith("file:")) {
       return fileName.getURI(); // nothing we can do about non-normal files.
     }
-    if ( root.startsWith( "file:////" ) ) {
+    if (root.startsWith("file:////")) {
       return fileName.getURI(); // we'll see 4 forward slashes for a windows/smb network share
     }
-    if ( root.endsWith( ":/" ) ) { // Windows
-      root = root.substring( 8, 10 );
+    if (root.endsWith(":/")) { // Windows
+      root = root.substring(8, 10);
     } else { // *nix & OSX
       root = "";
     }
     String fileString = root + fileName.getPath();
-    if ( !"/".equals( Const.FILE_SEPARATOR ) ) {
-      fileString = Const.replace( fileString, "/", Const.FILE_SEPARATOR );
+    if (!"/".equals(Const.FILE_SEPARATOR)) {
+      fileString = Const.replace(fileString, "/", Const.FILE_SEPARATOR);
     }
     return fileString;
   }
 
-  public static String getFriendlyURI( String filename ) {
-    if ( filename == null ) {
+  public static String getFriendlyURI(String filename) {
+    if (filename == null) {
       return null;
     }
     String friendlyName;
     try {
-      friendlyName = getFriendlyURI( HopVfs.getFileObject( filename ) );
-    } catch ( Exception e ) {
+      friendlyName = getFriendlyURI(HopVfs.getFileObject(filename));
+    } catch (Exception e) {
       // unable to get a friendly name from VFS object.
       // Cleanse name of pwd before returning
-      friendlyName = cleanseFilename( filename );
+      friendlyName = cleanseFilename(filename);
     }
     return friendlyName;
   }
 
-  public static String getFriendlyURI( FileObject fileObject ) {
+  public static String getFriendlyURI(FileObject fileObject) {
     return fileObject.getName().getFriendlyURI();
   }
 
@@ -373,18 +370,19 @@ public class HopVfs {
    * @return FileObject
    * @throws HopFileException
    */
-  public static FileObject createTempFile( String prefix, Suffix suffix ) throws HopFileException {
-    return createTempFile( prefix, suffix.ext, TEMP_DIR );
+  public static FileObject createTempFile(String prefix, Suffix suffix) throws HopFileException {
+    return createTempFile(prefix, suffix.ext, TEMP_DIR);
   }
 
   /**
-   * @param prefix    - file name
-   * @param suffix    - file extension
+   * @param prefix - file name
+   * @param suffix - file extension
    * @param directory - directory where file will be created
    * @return FileObject
    * @throws HopFileException
    */
-  public synchronized static FileObject createTempFile( String prefix, String suffix, String directory ) throws HopFileException {
+  public static synchronized FileObject createTempFile(
+      String prefix, String suffix, String directory) throws HopFileException {
     try {
       FileObject fileObject;
       do {
@@ -392,33 +390,34 @@ public class HopVfs {
         // No other schemes besides file:// make sense
         //
         String baseUrl;
-        if ( directory.contains( "://" ) ) {
+        if (directory.contains("://")) {
           baseUrl = directory;
         } else {
-          File directoryFile = new File( directory );
+          File directoryFile = new File(directory);
           baseUrl = "file://" + directoryFile.getAbsolutePath();
         }
 
-
-        // Build temporary file name using UUID to ensure uniqueness. Old mechanism would fail using Sort Rows (for example)
-        // when there multiple nodes with multiple JVMs on each node. In this case, the temp file names would end up being
+        // Build temporary file name using UUID to ensure uniqueness. Old mechanism would fail using
+        // Sort Rows (for example)
+        // when there multiple nodes with multiple JVMs on each node. In this case, the temp file
+        // names would end up being
         // duplicated which would cause the sort to fail.
         //
         String filename = baseUrl + "/" + prefix + "_" + UUID.randomUUID() + suffix;
 
-        fileObject = getFileObject( filename );
-      } while ( fileObject.exists() );
+        fileObject = getFileObject(filename);
+      } while (fileObject.exists());
       return fileObject;
-    } catch ( IOException e ) {
-      throw new HopFileException( e );
+    } catch (IOException e) {
+      throw new HopFileException(e);
     }
   }
 
   public static Comparator<FileObject> getComparator() {
-    return ( o1, o2 ) -> {
-      String filename1 = getFilename( o1 );
-      String filename2 = getFilename( o2 );
-      return filename1.compareTo( filename2 );
+    return (o1, o2) -> {
+      String filename1 = getFilename(o1);
+      String filename2 = getFilename(o2);
+      return filename1.compareTo(filename2);
     };
   }
 
@@ -428,29 +427,31 @@ public class HopVfs {
    * @param fileObject
    * @return a FileInputStream
    * @throws IOException
-   * @deprecated because of API change in Apache VFS. As a workaround use FileObject.getName().getPathDecoded(); Then
-   * use a regular File() object to create a File Input stream.
+   * @deprecated because of API change in Apache VFS. As a workaround use
+   *     FileObject.getName().getPathDecoded(); Then use a regular File() object to create a File
+   *     Input stream.
    */
   @Deprecated
-  public static FileInputStream getFileInputStream( FileObject fileObject ) throws IOException {
+  public static FileInputStream getFileInputStream(FileObject fileObject) throws IOException {
 
-    if ( !( fileObject instanceof LocalFile ) ) {
+    if (!(fileObject instanceof LocalFile)) {
       // We can only use NIO on local files at the moment, so that's what we limit ourselves to.
       //
-      throw new IOException( BaseMessages.getString( PKG, "FixedInput.Log.OnlyLocalFilesAreSupported" ) );
+      throw new IOException(
+          BaseMessages.getString(PKG, "FixedInput.Log.OnlyLocalFilesAreSupported"));
     }
 
-    return new FileInputStream( fileObject.getName().getPathDecoded() );
+    return new FileInputStream(fileObject.getName().getPathDecoded());
   }
 
   /**
-   * Check if filename starts with one of the known protocols like file: zip: ram: smb: jar: etc.
-   * If yes, return true otherwise return false
+   * Check if filename starts with one of the known protocols like file: zip: ram: smb: jar: etc. If
+   * yes, return true otherwise return false
    *
    * @param vfsFileName
    * @return boolean
    */
-  public static boolean startsWithScheme( String vfsFileName ) {
+  public static boolean startsWithScheme(String vfsFileName) {
     lock.readLock().lock();
     try {
 
@@ -458,8 +459,8 @@ public class HopVfs {
 
       boolean found = false;
       String[] schemes = fsManager.getSchemes();
-      for ( int i = 0; i < schemes.length; i++ ) {
-        if ( vfsFileName.startsWith( schemes[ i ] + ":" ) ) {
+      for (int i = 0; i < schemes.length; i++) {
+        if (vfsFileName.startsWith(schemes[i] + ":")) {
           found = true;
           break;
         }
@@ -472,16 +473,41 @@ public class HopVfs {
   }
 
   /**
-   * @see StandardFileSystemManager#freeUnusedResources()
+   * Find files with a specific extension in the specified folder and optionally
+   *
+   * @param folder The folder to search in
+   * @param extension The extension of null if you want all files
+   * @param includeSubFolders True if you want to search sub-folders as well.
+   * @return The list of files found
+   * @throws Exception
    */
+  public static final List<FileObject> findFiles(
+      FileObject folder, String extension, boolean includeSubFolders) throws Exception {
+    List<FileObject> files = new ArrayList<>();
+
+    for (FileObject child : folder.getChildren()) {
+      if (child.isFolder() && includeSubFolders) {
+        files.addAll(findFiles(child, extension, true));
+      } else {
+        if (StringUtils.isEmpty(extension)
+            || extension.equalsIgnoreCase(child.getName().getExtension())) {
+          files.add(child);
+        }
+      }
+    }
+
+    return files;
+  }
+
+  /** @see StandardFileSystemManager#freeUnusedResources() */
   public static void freeUnusedResources() {
-    if (fsm!=null) {
+    if (fsm != null) {
       fsm.freeUnusedResources();
     }
   }
 
   public static void reset() {
-    if (fsm!=null) {
+    if (fsm != null) {
       fsm.freeUnusedResources();
       fsm.close();
       fsm = null;
@@ -489,13 +515,14 @@ public class HopVfs {
   }
 
   public enum Suffix {
-    ZIP( ".zip" ), TMP( ".tmp" ), JAR( ".jar" );
+    ZIP(".zip"),
+    TMP(".tmp"),
+    JAR(".jar");
 
     private String ext;
 
-    Suffix( String ext ) {
+    Suffix(String ext) {
       this.ext = ext;
     }
   }
-
 }

@@ -30,7 +30,7 @@ Hop supports Neo4j through the following metadata objects
 == Perspective: Execution lineage
 
 You can use Neo4j to store logging and execution lineage of your workflows and pipelines.
-The way you do this is simply by setting the variable NEO_LOGGING_CONNECTION to the name of the Neo4j Connection where you want the logging and lineage to be written to.
+The way you do this is simply by setting the variable `NEO4J_LOGGING_CONNECTION` to the name of the Neo4j Connection where you want the logging and lineage to be written to.
 
 The Neo4j plugin offers a separate perspective to query this logging and lineage information.  For example, it allows you to quickly jump to the place where an error occurred.  This neat trick is performed by asking the database to find the shortest path between and execution node where an error occurred and without children and the "grand parent" node.  The path you get is the exact path that was followed from for example the "grand parent" workflow to the exact transform where an error occurred.
 
@@ -52,5 +52,5 @@ The Neo4j plugin offers a separate perspective to query this logging and lineage
 * xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j Graph Output]: Writes to a Neo4j graph using an input fields mapping.
 * xref:pipeline/transforms/neo4j-import.adoc[Neo4j Import]: Runs a Neo4j import command using the provided CSV files
 * xref:pipeline/transforms/neo4j-output.adoc[Neo4j Output]: Write nodes and/or relationships to a Neo4j graph
-* xref:pipeline/transforms/neo4j-split-graph[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
+* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
 

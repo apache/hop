@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,10 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -219,7 +217,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     Label wlPath = new Label(shell, SWT.LEFT);
     props.setLook(wlPath);
-    wlPath.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Transformation.Label"));
+    wlPath.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
     fdlTransformation.top = new FormAttachment(spacer, 20);
@@ -251,8 +249,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     wbBrowse.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
-            selectFileTrans(true);
+            selectFileTrans();
             refreshTree();
           }
         });
@@ -343,8 +342,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private void showErrorOnLoadTransformationDialog(HopException e) {
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Title"),
-        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Message"),
+        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
+        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
         e);
   }
 
@@ -728,7 +727,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
-  private void selectFileTrans(boolean useVfs) {
+  private void selectFileTrans() {
     try {
       HopPipelineFileType<PipelineMeta> fileType =
           HopGui.getDataOrchestrationPerspective().getPipelineFileType();
@@ -755,8 +754,19 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
   private void loadPipelineFile(String filename) throws HopException {
     String realFilename = variables.resolve(filename);
-    injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
-    injectPipelineMeta.clearChanged();
+    try {
+      injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
+      injectPipelineMeta.clearChanged();
+    } catch (HopXmlException e) {
+      MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+      box.setText(
+          BaseMessages.getString(
+              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"));
+      box.open();
+    }
   }
 
   private boolean loadPipeline() throws HopException {
@@ -769,7 +779,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       wPath.setText(filename);
     }
     loadPipelineFile(filename);
-
+    if (injectPipelineMeta == null) {
+      return false;
+    }
     return true;
   }
 
@@ -781,16 +793,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wStreamingTargetTransform.setEnabled(streaming);
     wlStreamingTargetTransform.setEnabled(streaming);
   }
-
-  /*
-    private void getByReferenceData( RepositoryElementMetaInterface transInf  ) {
-      String path =
-        DialogUtils.getPath( pipelineMeta.getRepositoryDirectory().getPath(), transInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( transInf.getName(), "" );
-      wPath.setText( fullPath );
-    }
-  */
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
@@ -805,7 +807,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       wSourceFields.setText(
           field.getLength() < 0 ? "" : Integer.toString(field.getLength()), colNr++, rownr);
       wSourceFields.setText(
-          field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()), colNr++, rownr);
+          field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()), colNr, rownr);
       rownr++;
     }
 
@@ -896,9 +898,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   }
 
   /**
-   * @param transformMeta
-   * @param transformItem
-   * @param metaInterface
+   * @param transformMeta The transform meta
+   * @param transformItem The TreeItem
+   * @param metaInterface The transform ITransformMeta
    * @return true if there was at least one used key
    */
   private boolean processMDIDescription(
@@ -924,26 +926,30 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       }
 
       List<BeanInjectionInfo.Property> propertyList = gr.getProperties();
+
       for (BeanInjectionInfo.Property property : propertyList) {
         if (!property.hasMatch(filterString)) {
           continue;
         }
 
-        TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
-        treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
+        if (!property.isExcludedFromInjection()) {
+          TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
+          treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
 
-        TargetTransformAttribute target =
-            new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
-        treeItemTargetMap.put(treeItem, target);
+          TargetTransformAttribute target =
+              new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
+          treeItemTargetMap.put(treeItem, target);
 
-        SourceTransformField source = targetSourceMapping.get(target);
-        if (source != null) {
-          hasUsedKeys = true;
-          treeItem.setText(
-              1,
-              Const.NVL(
-                  source.getTransformName() == null ? CONST_VALUE : source.getTransformName(), ""));
-          treeItem.setText(2, Const.NVL(source.getField(), ""));
+          SourceTransformField source = targetSourceMapping.get(target);
+          if (source != null) {
+            hasUsedKeys = true;
+            treeItem.setText(
+                1,
+                Const.NVL(
+                    source.getTransformName() == null ? CONST_VALUE : source.getTransformName(),
+                    ""));
+            treeItem.setText(2, Const.NVL(source.getField(), ""));
+          }
         }
       }
     }
@@ -982,9 +988,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Title"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
           BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Message"),
+              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
           e);
     }
 
@@ -1077,9 +1083,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Title"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
           BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedTransformation.Message"),
+              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
           e);
       return;
     }

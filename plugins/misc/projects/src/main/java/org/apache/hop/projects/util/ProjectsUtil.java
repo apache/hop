@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package org.apache.hop.projects.util;
 
@@ -36,6 +35,9 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class ProjectsUtil {
@@ -48,12 +50,10 @@ public class ProjectsUtil {
   public static final String STRING_PROJECT_AUDIT_TYPE = "project";
   public static final String STRING_ENVIRONMENT_AUDIT_TYPE = "environment";
 
-
   /**
-   * Enable the specified project
-   * Force reload of a number of settings
+   * Enable the specified project Force reload of a number of settings
    *
-   * @param log                the log channel to log to
+   * @param log the log channel to log to
    * @param projectName
    * @param project
    * @param variables
@@ -61,92 +61,112 @@ public class ProjectsUtil {
    * @throws HopException
    * @throws HopException
    */
-  public static void enableProject( ILogChannel log, String projectName, Project project, IVariables variables, List<String> configurationFiles, String environmentName, IHasHopMetadataProvider hasHopMetadataProvider ) throws HopException {
+  public static void enableProject(
+      ILogChannel log,
+      String projectName,
+      Project project,
+      IVariables variables,
+      List<String> configurationFiles,
+      String environmentName,
+      IHasHopMetadataProvider hasHopMetadataProvider)
+      throws HopException {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
-    ProjectConfig projectConfig = config.findProjectConfig( projectName );
-    if ( projectConfig == null ) {
-      throw new HopException( "Error enabling project " + projectName + ": it is not configured." );
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException("Error enabling project " + projectName + ": it is not configured.");
     }
 
     // Variable system variables but also apply them to variables
     // We'll use those to change the loaded variables in HopGui
     //
-    project.modifyVariables( variables, projectConfig, configurationFiles, environmentName );
+    project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
 
     // Change the metadata provider in the GUI
     //
-    if ( hasHopMetadataProvider != null ) {
-      hasHopMetadataProvider.setMetadataProvider( HopMetadataUtil.getStandardHopMetadataProvider( variables ) );
+    if (hasHopMetadataProvider != null) {
+      hasHopMetadataProvider.setMetadataProvider(
+          HopMetadataUtil.getStandardHopMetadataProvider(variables));
     }
 
     // We store the project in the namespace singleton (used mainly in the GUI)
     //
-    HopNamespace.setNamespace( projectName );
+    HopNamespace.setNamespace(projectName);
 
     // Save some history concerning the usage of the project...
     //
     AuditManager.registerEvent(
-      HopGui.DEFAULT_HOP_GUI_NAMESPACE,
-      STRING_PROJECT_AUDIT_TYPE,
-      projectName,
-      "open"
-      );
+        HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
 
     // Signal others that we have a new active project
     //
-    ExtensionPointHandler.callExtensionPoint( log, variables, Defaults.EXTENSION_POINT_PROJECT_ACTIVATED, projectName );
+    ExtensionPointHandler.callExtensionPoint(
+        log, variables, Defaults.EXTENSION_POINT_PROJECT_ACTIVATED, projectName);
   }
 
-  public static void validateFileInProject( ILogChannel log, String filename, ProjectConfig projectConfig, IVariables variables ) throws HopException, FileSystemException {
+  public static void validateFileInProject(
+      ILogChannel log, String filename, ProjectConfig projectConfig, IVariables variables)
+      throws HopException, FileSystemException {
     String projectHome = projectConfig.getProjectHome();
-    if ( StringUtils.isNotEmpty( filename ) ) {
+    if (StringUtils.isNotEmpty(filename)) {
       // See that this filename is located under the environment home folder
       //
-      log.logBasic( "Validation against environment '" + projectConfig.getProjectName() + "' in home folder : " + projectHome );
+      log.logBasic(
+          "Validation against environment '"
+              + projectConfig.getProjectName()
+              + "' in home folder : "
+              + projectHome);
 
-      FileObject envHome = HopVfs.getFileObject( projectHome );
-      FileObject transFile = HopVfs.getFileObject( filename );
-      if ( !isInSubDirectory( transFile, envHome ) ) {
-        throw new HopException( "File '" + filename + "' does not live in the configured environment home folder : '" + projectHome + "'" );
+      FileObject envHome = HopVfs.getFileObject(projectHome);
+      FileObject transFile = HopVfs.getFileObject(filename);
+      if (!isInSubDirectory(transFile, envHome)) {
+        throw new HopException(
+            "File '"
+                + filename
+                + "' does not live in the configured environment home folder : '"
+                + projectHome
+                + "'");
       }
     }
   }
 
-  private static boolean isInSubDirectory( FileObject file, FileObject directory ) throws FileSystemException {
+  private static boolean isInSubDirectory(FileObject file, FileObject directory)
+      throws FileSystemException {
 
-    String filePath = file.getName().getPath();
-    String directoryPath = directory.getName().getPath();
+    String filePath = file.getName().getURI();
+    String directoryPath = directory.getName().getURI();
 
     // Same?
-    if ( filePath.equals( directoryPath ) ) {
-      System.out.println( "Found " + filePath + " in directory " + directoryPath );
+    if (filePath.equals(directoryPath)) {
+      System.out.println("Found " + filePath + " in directory " + directoryPath);
       return true;
     }
 
-    if ( filePath.startsWith( directoryPath ) ) {
+    if (filePath.startsWith(directoryPath)) {
       return true;
     }
 
     FileObject parent = file.getParent();
-    if ( parent != null && isInSubDirectory( parent, directory ) ) {
+    if (parent != null && isInSubDirectory(parent, directory)) {
       return true;
     }
     return false;
   }
 
-  public static void validateFileInProject( ILogChannel log, String executableFilename, IVariables variables ) throws HopException, FileSystemException, HopException {
+  public static void validateFileInProject(
+      ILogChannel log, String executableFilename, IVariables variables)
+      throws HopException, FileSystemException, HopException {
 
-    if ( StringUtils.isEmpty( executableFilename ) ) {
+    if (StringUtils.isEmpty(executableFilename)) {
       // Repo or remote
       return;
     }
 
     // What is the active project?
     //
-    String activeProjectName = System.getProperty( Defaults.VARIABLE_HOP_PROJECT_NAME );
-    if ( StringUtils.isEmpty( activeProjectName ) ) {
+    String activeProjectName = System.getProperty(Defaults.VARIABLE_HOP_PROJECT_NAME);
+    if (StringUtils.isEmpty(activeProjectName)) {
       // Nothing to be done here...
       //
       return;
@@ -154,16 +174,66 @@ public class ProjectsUtil {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
-    log.logBasic( "Validating active project '" + activeProjectName + "'" );
-    ProjectConfig projectConfig = config.findProjectConfig( activeProjectName );
+    log.logBasic("Validating active project '" + activeProjectName + "'");
+    ProjectConfig projectConfig = config.findProjectConfig(activeProjectName);
 
-    if ( projectConfig == null ) {
-      throw new HopException( "Project '" + activeProjectName + "' is not defined" );
+    if (projectConfig == null) {
+      throw new HopException("Project '" + activeProjectName + "' is not defined");
     }
 
-    Project project = projectConfig.loadProject( variables );
-    if ( project.isEnforcingExecutionInHome() ) {
-      ProjectsUtil.validateFileInProject( log, executableFilename, projectConfig, variables );
+    Project project = projectConfig.loadProject(variables);
+    if (project.isEnforcingExecutionInHome()) {
+      ProjectsUtil.validateFileInProject(log, executableFilename, projectConfig, variables);
     }
+  }
+
+  /**
+   * Returns true if given project exists
+   * @param projectName
+   * @return
+   */
+  public static boolean projectExists(String projectName) {
+
+    boolean prjFound = false;
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = config.listProjectConfigNames();
+    Iterator<String> iPrj = prjs.iterator();
+
+    while(!prjFound && iPrj.hasNext()) {
+      String p = iPrj.next();
+      prjFound = p.equals(projectName);
+    }
+
+    return prjFound;
+  }
+
+  public static List<String> getParentProjectReferences(String projectName) throws HopException {
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = config.listProjectConfigNames();
+
+    HopGui hopGui = HopGui.getInstance();
+    List<String> parentProjectReferences = new ArrayList<>();
+    ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
+
+    if (currentProjectConfig == null) {
+      parentProjectReferences = Collections.EMPTY_LIST;
+    } else {
+      for (String prj : prjs) {
+        if (!prj.equals(projectName)) {
+          ProjectConfig prjCfg = config.findProjectConfig(prj);
+          Project thePrj = prjCfg.loadProject(hopGui.getVariables());
+          if (thePrj != null) {
+            if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(projectName)) {
+              parentProjectReferences.add(prj);
+            }
+          } else {
+            hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
+          }
+        }
+      }
+    }
+    return parentProjectReferences;
   }
 }

@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -184,7 +184,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 1;
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getFields().size();
 
     colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
@@ -314,13 +314,14 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     wResult.setText(Const.NVL(input.getResultFieldName(), "result"));
 
     Table table = wFields.table;
-    if (input.getFieldName().length > 0) {
+    if (!input.getFields().isEmpty()) {
       table.removeAll();
     }
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    List<FieldsChangeSequenceField> fields = input.getFields();
+    for (int i = 0; i < fields.size(); i++) {
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
-      ti.setText(1, input.getFieldName()[i]);
+      ti.setText(1, fields.get(i).getName());
     }
 
     wFields.setRowNums();
@@ -347,12 +348,13 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     input.setResultFieldName(wResult.getText());
 
     int nrFields = wFields.nrNonEmpty();
-    input.allocate(nrFields);
+    List<FieldsChangeSequenceField> fieldName = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
       // CHECKSTYLE:Indentation:OFF
-      input.getFieldName()[i] = ti.getText(1);
+      fieldName.add(new FieldsChangeSequenceField(ti.getText(1)));
     }
+    input.setFields(fieldName);
 
     if ("Y"
         .equalsIgnoreCase(

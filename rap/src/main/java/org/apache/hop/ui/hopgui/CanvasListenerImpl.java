@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,22 +22,29 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
 
-public class CanvasListenerImpl extends ClientListener implements ISingletonProvider{
+public class CanvasListenerImpl extends ClientListener implements ISingletonProvider {
 
   @Override
   public Object getInstanceInternal() {
-    return SingletonUtil.getSessionInstance( CanvasListenerImpl.class );
+    return SingletonUtil.getSessionInstance(CanvasListenerImpl.class);
   }
 
   protected CanvasListenerImpl() {
-    super( getText() );
+    super(getText());
   }
 
   private static String getText() {
     String canvasScript = null;
     try {
-      canvasScript = IOUtils.toString( CanvasListenerImpl.class.getResourceAsStream( "canvas.js" ) );
-    } catch ( IOException e1 ) {
+      String themeId = System.getProperty("HOP_WEB_THEME", "dark");
+      if ("dark".equalsIgnoreCase(themeId)) {
+        canvasScript =
+            IOUtils.toString(CanvasListenerImpl.class.getResourceAsStream("canvas-dark.js"));
+      } else {
+        canvasScript =
+            IOUtils.toString(CanvasListenerImpl.class.getResourceAsStream("canvas-light.js"));
+      }
+    } catch (IOException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }

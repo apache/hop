@@ -1,0 +1,44 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[LocalWorkflowEngine]]
+:imagesdir: ../assets/images
+= Local Workflow Engine
+
+== Hop local workflow engine
+
+The local run configuration runs workflows locally.
+
+=== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+
+|Make this workflow transactional
+|If you enable this there will always be just one connection used per database.
+At the end of the workflow there will be a commit or rollback (in case of error) on all named connections at the same time.
+Note that child pipelines and workflows are also automatically run as a transaction.
+Also be aware that while you *can* commit and rollback across multiple databases that this still means that you can have a successful commit on one database and a failure on another.
+This is not a two-phase-commit system.
+|false
+
+|Safe mode
+|Passed down to child pipelines.
+Checks every row passed through your pipeline and ensure all layouts are identical.
+If a row does not have the same layout as the first row, an error is generated and reported.
+
+|===

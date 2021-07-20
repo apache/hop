@@ -65,12 +65,14 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
   private final DataGridMeta dataGridMeta;
   private ModifyListener lsMod;
 
+  private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
+
   public DataGridDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (DataGridMeta) in;
 
-    dataGridMeta = (DataGridMeta) input.clone();
+    dataGridMeta = input.clone();
   }
 
   @Override
@@ -142,7 +144,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     fileLayout.marginHeight = 3;
     wMetaComp.setLayout(fileLayout);
 
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getDataGridFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -182,7 +184,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
               BaseMessages.getString(PKG, "DataGridDialog.Value.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
                 BaseMessages.getString(PKG, "System.Combo.No")
               }),
         };
@@ -289,21 +291,25 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
       }
     }
 
-    ColumnInfo[] columns = new ColumnInfo[dataGridMeta.getFieldName().length];
+    ColumnInfo[] columns = new ColumnInfo[dataGridMeta.getDataGridFields().size()];
     for (int i = 0; i < columns.length; i++) {
       columns[i] =
-          new ColumnInfo(dataGridMeta.getFieldName()[i], ColumnInfo.COLUMN_TYPE_TEXT, false, false);
+          new ColumnInfo(
+              dataGridMeta.getDataGridFields().get(i).getName(),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false);
     }
-    List<List<String>> lines = dataGridMeta.getDataLines();
+    List<DataGridDataMeta> lines = dataGridMeta.getDataLines();
     wData = new TableView(variables, wDataComp, SWT.NONE, columns, lines.size(), lsMod, props);
     wData.setSortable(false);
 
     for (int i = 0; i < lines.size(); i++) {
-      List<String> line = lines.get(i);
+      DataGridDataMeta line = lines.get(i);
       TableItem item = wData.table.getItem(i);
 
-      for (int f = 0; f < line.size(); f++) {
-        item.setText(f + 1, Const.NVL(line.get(f), ""));
+      for (int f = 0; f < line.getDatalines().size(); f++) {
+        item.setText(f + 1, Const.NVL(line.getDatalines().get(f), ""));
       }
     }
 
@@ -429,24 +435,30 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
   }
 
   private void getMetaData() {
-    int nrFields = input.getFieldName().length;
+    int nrFields = input.getDataGridFields().size();
     if (nrFields > wFields.table.getItemCount()) {
       nrFields = wFields.table.getItemCount();
     }
     for (int i = 0; i < nrFields; i++) {
-      if (input.getFieldName()[i] != null) {
+      if (input.getDataGridFields().get(i).getName() != null) {
         TableItem item = wFields.table.getItem(i);
         int col = 1;
 
-        item.setText(col++, input.getFieldName()[i]);
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ("" + input.getFieldLength()[i]);
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ("" + input.getFieldPrecision()[i]);
+        item.setText(col++, input.getDataGridFields().get(i).getName());
+        String type = input.getDataGridFields().get(i).getType();
+        String format = input.getDataGridFields().get(i).getFormat();
+        String length =
+            input.getDataGridFields().get(i).getLenght() < 0
+                ? ""
+                : ("" + input.getDataGridFields().get(i).getLenght());
+        String prec =
+            input.getDataGridFields().get(i).getPrecision() < 0
+                ? ""
+                : ("" + input.getDataGridFields().get(i).getPrecision());
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
+        String curr = input.getDataGridFields().get(i).getCurrency();
+        String group = input.getDataGridFields().get(i).getGroup();
+        String decim = input.getDataGridFields().get(i).getDecimal();
 
         item.setText(col++, Const.NVL(type, ""));
         item.setText(col++, Const.NVL(format, ""));
@@ -456,9 +468,9 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
         item.setText(col++, Const.NVL(decim, ""));
         item.setText(col++, Const.NVL(group, ""));
         item.setText(
-            col++,
-            input.isSetEmptyString()[i]
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+            col,
+            Boolean.TRUE.equals(input.getDataGridFields().get(i).isEmptyString())
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, "System.Combo.No"));
       }
     }
@@ -496,51 +508,52 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
   private void getMetaInfo(DataGridMeta meta) {
     int nrFields = wFields.nrNonEmpty();
 
-    meta.allocate(nrFields);
+    meta.getDataGridFields().clear();
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
+      DataGridFieldMeta field = new DataGridFieldMeta();
       int col = 1;
-      meta.getFieldName()[i] = item.getText(col++);
-      meta.getFieldType()[i] = item.getText(col++);
-      meta.getFieldFormat()[i] = item.getText(col++);
+      field.setName(item.getText(col++));
+      field.setType(item.getText(col++));
+      field.setFormat(item.getText(col++));
       String slength = item.getText(col++);
       String sprec = item.getText(col++);
-      meta.getCurrency()[i] = item.getText(col++);
-      meta.getDecimal()[i] = item.getText(col++);
-      meta.getGroup()[i] = item.getText(col++);
+      field.setCurrency(item.getText(col++));
+      field.setDecimal(item.getText(col++));
+      field.setGroup(item.getText(col++));
 
       try {
-        meta.getFieldLength()[i] = Integer.parseInt(slength);
+        field.setLenght(Integer.parseInt(slength));
       } catch (Exception e) {
-        meta.getFieldLength()[i] = -1;
+        field.setLenght(-1);
       }
       try {
-        meta.getFieldPrecision()[i] = Integer.parseInt(sprec);
+        field.setPrecision(Integer.parseInt(sprec));
       } catch (Exception e) {
-        meta.getFieldPrecision()[i] = -1;
+        field.setPrecision(-1);
       }
-      meta.isSetEmptyString()[i] =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(col++));
+      field.setEmptyString(
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(col)));
 
-      if (meta.isSetEmptyString()[i]) {
-        meta.getFieldType()[i] = "String";
+      if (Boolean.TRUE.equals(field.isEmptyString())) {
+        field.setType("String");
       }
+      meta.getDataGridFields().add(field);
     }
   }
 
   private void getDataInfo(DataGridMeta meta) {
-    List<List<String>> data = new ArrayList<>();
+    List<DataGridDataMeta> data = new ArrayList<>();
 
     int nrLines = wData.table.getItemCount();
-    int nrFields = meta.getFieldName().length;
+    int nrFields = meta.getDataGridFields().size();
 
     for (int i = 0; i < nrLines; i++) {
-      List<String> line = new ArrayList<>();
+      DataGridDataMeta line = new DataGridDataMeta();
       TableItem item = wData.table.getItem(i);
       for (int f = 0; f < nrFields; f++) {
-        line.add(item.getText(f + 1));
+        line.getDatalines().add(item.getText(f + 1));
       }
       data.add(line);
     }
@@ -581,18 +594,18 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =

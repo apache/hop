@@ -32,7 +32,8 @@ The Data Grid transform allows you to enter a static list of rows in a grid.  Th
 |===
 
 == Metadata Injection Support
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+This transform supports metadata injection. It is made up out of 2 parts the meta (field definitions) and the data.
+The meta requires multiple rows to define the fields. The data part contains 2 injection fields, the first is a concatenated string that contains all values the second is the delimiter used to split that specific row. Mixing delimiters is possible, when empty "," is used as string to split with.
 
 == Limitations
 It is not yet possible to insert columns in between 2 existing one or in general re-order the fields in the metadata tab.

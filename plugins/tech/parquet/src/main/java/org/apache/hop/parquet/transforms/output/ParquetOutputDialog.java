@@ -52,7 +52,6 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
 
   protected ParquetOutputMeta input;
 
-  private Shell shell;
   private TextVar wFilenameBase;
   private TextVar wFilenameExtension;
   private Button wFilenameIncludeDate;
@@ -64,6 +63,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
   private Button wFilenameIncludeSplitNr;
   private Label wlFilenameSplitSize;
   private TextVar wFilenameSplitSize;
+  private Button wFilenameCreateFolders;
   private Combo wCompressionCodec;
   private Combo wVersion;
   private TextVar wRowGroupSize;
@@ -304,6 +304,24 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     fdFilenameSplitSize.top = new FormAttachment(wlFilenameSplitSize, 0, SWT.CENTER);
     fdFilenameSplitSize.right = new FormAttachment(100, 0);
     wFilenameSplitSize.setLayoutData(fdFilenameSplitSize);
+    lastControl = wFilenameSplitSize;
+
+    Label wlFilenameCreateFolders = new Label(wFileGroup, SWT.RIGHT);
+    wlFilenameCreateFolders.setText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameCreateFolders.Label"));
+    props.setLook(wlFilenameCreateFolders);
+    FormData fdlFilenameCreateFolders = new FormData();
+    fdlFilenameCreateFolders.left = new FormAttachment(0, 0);
+    fdlFilenameCreateFolders.right = new FormAttachment(middle, -margin);
+    fdlFilenameCreateFolders.top = new FormAttachment(lastControl, margin);
+    wlFilenameCreateFolders.setLayoutData(fdlFilenameCreateFolders);
+    wFilenameCreateFolders = new Button(wFileGroup, SWT.CHECK);
+    props.setLook(wFilenameCreateFolders);
+    FormData fdFilenameCreateFolders = new FormData();
+    fdFilenameCreateFolders.left = new FormAttachment(middle, 0);
+    fdFilenameCreateFolders.top = new FormAttachment(wlFilenameCreateFolders, 0, SWT.CENTER);
+    fdFilenameCreateFolders.right = new FormAttachment(100, 0);
+    wFilenameCreateFolders.setLayoutData(fdFilenameCreateFolders);
 
     // End of the file group
     //
@@ -478,6 +496,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameIncludeCopyNr.setSelection(input.isFilenameIncludingCopyNr());
     wFilenameIncludeSplitNr.setSelection(input.isFilenameIncludingSplitNr());
     wFilenameSplitSize.setText(Const.NVL(input.getFileSplitSize(), ""));
+    wFilenameCreateFolders.setSelection(input.isFilenameCreatingParentFolders());
     wCompressionCodec.setText(input.getCompressionCodec().name());
     wVersion.setText(input.getVersion().getDescription());
     wRowGroupSize.setText(Const.NVL(input.getRowGroupSize(), ""));
@@ -489,6 +508,8 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
       item.setText(1, Const.NVL(field.getSourceFieldName(), ""));
       item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
     }
+    wFields.optimizeTableView();
+    enableFields();
   }
 
   private void ok() {
@@ -503,6 +524,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     input.setFilenameIncludingCopyNr(wFilenameIncludeCopyNr.getSelection());
     input.setFilenameIncludingSplitNr(wFilenameIncludeSplitNr.getSelection());
     input.setFileSplitSize(wFilenameSplitSize.getText());
+    input.setFilenameCreatingParentFolders(wFilenameCreateFolders.getSelection());
 
     CompressionCodecName codec = CompressionCodecName.UNCOMPRESSED;
     try {

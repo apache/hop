@@ -45,10 +45,12 @@ public class SplitFieldToRowsMetaTest {
       "rowNumberField", "resetRowNumber", "delimiterRegex" );
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "includeRowNumber", "includeRowNumber" );
-    getterMap.put( "resetRowNumber", "resetRowNumber" );
+    getterMap.put( "includeRowNumber", "isIncludeRowNumber" );
+    getterMap.put( "resetRowNumber", "isResetRowNumber" );
+    getterMap.put( "delimiterRegex", "isIsDelimiterRegex" );
 
     Map<String, String> setterMap = new HashMap<>();
+    setterMap.put( "delimiterRegex", "setIsDelimiterRegex" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
       new HashMap<>();

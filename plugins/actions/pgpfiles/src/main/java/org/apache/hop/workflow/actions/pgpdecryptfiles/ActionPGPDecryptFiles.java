@@ -1207,15 +1207,6 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return destinationFolder;
   }
 
-  /**
-   * @param gpgLocation
-   * @deprecated use {@link #setGpgLocation(String)} instead
-   */
-  @Deprecated
-  public void setGpgPLocation( String gpgLocation ) {
-    this.gpgLocation = gpgLocation;
-  }
-
   public void setGpgLocation( String gpgLocation ) {
     this.gpgLocation = gpgLocation;
   }

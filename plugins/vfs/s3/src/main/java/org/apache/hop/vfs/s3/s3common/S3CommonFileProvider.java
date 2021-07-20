@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,18 +41,16 @@ public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvid
   protected static final Collection<Capability> capabilities =
       Collections.unmodifiableCollection(
           Arrays.asList(
-              new Capability[] {
-                Capability.CREATE,
-                Capability.DELETE,
-                Capability.RENAME,
-                Capability.GET_TYPE,
-                Capability.LIST_CHILDREN,
-                Capability.READ_CONTENT,
-                Capability.URI,
-                Capability.WRITE_CONTENT,
-                Capability.GET_LAST_MODIFIED,
-                Capability.RANDOM_ACCESS_READ
-              }));
+              Capability.CREATE,
+              Capability.DELETE,
+              Capability.RENAME,
+              Capability.GET_TYPE,
+              Capability.LIST_CHILDREN,
+              Capability.READ_CONTENT,
+              Capability.URI,
+              Capability.WRITE_CONTENT,
+              Capability.GET_LAST_MODIFIED,
+              Capability.RANDOM_ACCESS_READ));
 
   public S3CommonFileProvider() {
     super();

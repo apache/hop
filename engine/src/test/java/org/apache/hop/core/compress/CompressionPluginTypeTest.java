@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -72,7 +70,6 @@ public class CompressionPluginTypeTest {
     assertEquals( "Compression Plugin", instance.extractDesc( a ) );
     assertEquals( "", instance.extractDocumentationUrl( a ) );
     assertEquals( "", instance.extractForumUrl( a ) );
-    assertEquals( "", instance.extractI18nPackageName( a ) );
     assertNull( instance.extractImageFile( a ) );
     assertFalse( instance.extractSeparateClassLoader( a ) );
   }

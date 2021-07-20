@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,7 +42,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-import org.apache.hop.core.variables.IVariables;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
@@ -129,6 +129,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
@@ -163,7 +164,9 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // disable focuslost even
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -222,11 +225,11 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     if (input.getDatabase() != null) {
       wConnection.setText(input.getDatabase().getName());
     }
-    if (input.getDynamicTablenameField() != null) {
-      wTableName.setText(input.getDynamicTablenameField());
+    if (input.getTableNameField() != null) {
+      wTableName.setText(input.getTableNameField());
     }
-    if (input.getSchemaname() != null) {
-      wSchemaname.setText(input.getSchemaname());
+    if (input.getSchemaName() != null) {
+      wSchemaname.setText(input.getSchemaName());
     }
     if (input.getResultFieldName() != null) {
       wResult.setText(input.getResultFieldName());
@@ -248,8 +251,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     }
 
     input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
-    input.setSchemaname(wSchemaname.getText());
-    input.setDynamicTablenameField(wTableName.getText());
+    input.setSchemaName(wSchemaname.getText());
+    input.setTableNameField(wTableName.getText());
     input.setResultFieldName(wResult.getText());
 
     transformName = wTransformName.getText(); // return value
@@ -309,7 +312,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
                   BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
           String d = dialog.open();
           if (d != null) {
-            wSchemaname.setText(Const.NVL(d.toString(), ""));
+            wSchemaname.setText(Const.NVL(d, ""));
           }
 
         } else {

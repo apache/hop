@@ -578,15 +578,6 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta implements ITransform
     }
 
     /**
-     * @deprecated use {@link #setOAuthServiceAccount(String)} instead
-     * @param oauthServiceAccount
-     */
-    @Deprecated
-    public void setOauthServiceAccount( String oauthServiceAccount ) {
-        setOAuthServiceAccount( oauthServiceAccount );
-    }
-
-    /**
      * If we use injection we can have different arrays lengths.
      * We need synchronize them for consistency behavior with UI
      */

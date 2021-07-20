@@ -95,6 +95,7 @@ public class CheckPipelineProgressDialog {
                 new ProgressMonitorAdapter(monitor),
                 variables,
                 metadataProvider);
+            monitor.done();
           } catch (Exception e) {
             throw new InvocationTargetException(
                 e,

@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -108,7 +109,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     }
 
     Object[] add;
-    boolean cache_now = false;
+    boolean cacheNow = false;
     boolean cacheHit = false;
 
     // First, check if we looked up before
@@ -137,7 +138,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
         data.db.setValuesLookup(data.lookupMeta, lookupRow);
         add = data.db.getLookup(meta.getLookup().isFailingOnMultipleResults());
-        cache_now = true;
+        cacheNow = true;
       }
     }
 
@@ -176,21 +177,23 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
       for (int i = 0; i < types.length; i++) {
         // If type is String and trim is required do that
-        IValueMeta returned = data.db.getReturnRowMeta().getValueMeta(i);
-        if (types[i] == IValueMeta.TYPE_STRING && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
+        if (types[i] == IValueMeta.TYPE_STRING
+            && ValueMetaBase.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
           IValueMeta expected = data.returnMeta.getValueMeta(i);
-          add[i] = expected.convertDataFromString((String) add[i], returned, "", ""
-                  , ValueMetaString.getTrimTypeByCode(trimTypes[i]));
+          add[i] =
+              expected.convertDataFromString(
+                  (String) add[i], expected, "", "", ValueMetaBase.getTrimTypeByCode(trimTypes[i]));
         } else if (types[i] != IValueMeta.TYPE_STRING
-                && ValueMetaString.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE ) {
-          logBasic("WARNING - TrimType is applied only to String fields - Affected field: " + returned.getName());
+            && ValueMetaBase.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
+          logBasic(
+              "WARNING - TrimType is applied only to String fields - Affected field: "
+                  + IValueMeta.getTypeDescription(types[i]));
         }
       }
-        // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
+      // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
       // In that case, we already know the data type is OK.
       if (!cacheHit) {
         incrementLinesInput();
-
 
         // The assumption here is that the types are in the same order
         // as the returned lookup row, but since we make the lookup row
@@ -211,7 +214,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     // Store in cache if we need to!
     // If we already loaded all data into the cache, storing more makes no sense.
     //
-    if (meta.isCached() && cache_now && !meta.isLoadingAllDataInCache() && data.allEquals) {
+    if (meta.isCached() && cacheNow && !meta.isLoadingAllDataInCache() && data.allEquals) {
       data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow, add);
     }
 
@@ -362,7 +365,10 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
       for (int i = 0; i < returnValues.size(); i++) {
         returnField[i] = returnValues.get(i).getTableField();
-        returnRename[i] = Utils.isEmpty(returnValues.get(i).getNewName()) ? null : returnValues.get(i).getNewName();
+        returnRename[i] =
+            Utils.isEmpty(returnValues.get(i).getNewName())
+                ? null
+                : returnValues.get(i).getNewName();
         data.returnTrimTypes[i] = returnValues.get(i).getTrimType();
       }
 
@@ -451,7 +457,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       Object[] outputRow = lookupValues(getInputRowMeta(), r);
 
       if (outputRow != null) {
-        // copy row to output rowset(s);
+        // copy row to output rowset(s)
         putRow(data.outputRowMeta, outputRow);
 
         if (log.isRowLevel()) {
@@ -525,7 +531,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       // Now that we have the SQL constructed, let's store the rows...
       //
       List<Object[]> rows = db.getRows(sql, 0);
-      if (rows != null && rows.size() > 0) {
+      if (rows != null && !rows.isEmpty()) {
         if (data.allEquals) {
           putToDefaultCache(db, rows);
         } else {
@@ -556,11 +562,9 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       for (int i = 0; i < keysAmount; i++) {
         keyData[i] = row[index++];
       }
-      // RowMeta valueMeta = new RowMeta();
       Object[] valueData = new Object[data.returnMeta.size()];
       for (int i = 0; i < data.returnMeta.size(); i++) {
         valueData[i] = row[index++];
-        // valueMeta.addValueMeta(returnRowMeta.getValueMeta(index++));
       }
       // Store the data...
       //
@@ -689,7 +693,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void connectDatabase(Database database) throws HopDatabaseException {
-    database.connect(getPartitionId());
+    database.connect();
 
     database.setCommit(100); // we never get a commit, but it just turns off auto-commit.
 

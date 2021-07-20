@@ -74,6 +74,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, trans);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // Read the data from all input transforms and keep it in memory...
@@ -402,6 +403,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     setErrors(result.getNrErrors());
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

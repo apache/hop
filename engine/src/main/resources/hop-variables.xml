@@ -147,12 +147,6 @@
   </hop-variable>
 
   <hop-variable>
-    <description>Set this variable to an integer that will be returned as the Pan JVM exit code.</description>
-    <variable>HOP_PIPELINE_PAN_JVM_EXIT_CODE</variable>
-    <default-value></default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>Set this variable to Y to disable standard Hop logging to the console. (stdout)</description>
     <variable>HOP_DISABLE_CONSOLE_LOGGING</variable>
     <default-value>N</default-value>

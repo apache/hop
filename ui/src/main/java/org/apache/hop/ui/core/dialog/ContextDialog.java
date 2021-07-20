@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
@@ -41,37 +40,17 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
@@ -349,6 +328,10 @@ public class ContextDialog extends Dialog {
 
     categories.sort(Comparator.comparing(o -> o.order));
 
+    // Correct the icon size which is multiplied in GuiResource...
+    //
+    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
+
     // Load the action images
     //
     items.clear();
@@ -357,9 +340,11 @@ public class ContextDialog extends Dialog {
       if (classLoader == null) {
         classLoader = ClassLoader.getSystemClassLoader();
       }
-      SwtUniversalImage universalImage =
-          SwtSvgImageUtil.getUniversalImage(display, classLoader, action.getImage());
-      Image image = universalImage.getAsBitmapForSize(display, iconSize, iconSize);
+      // Load or get from the image cache...
+      //
+      Image image =
+          GuiResource.getInstance()
+              .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
       items.add(new Item(action, image));
     }
 
@@ -438,6 +423,14 @@ public class ContextDialog extends Dialog {
     // Position the dialog where there was a click to be more intuitive
     //
     if (location != null) {
+      /*Adapt to the monitor */
+      Monitor monitor = shell.getMonitor();
+      org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
+      if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
+        location.x = (monitor.getClientArea().width + displayPosition.x) - width;
+      if (location.y - displayPosition.y > monitor.getClientArea().height - height)
+        location.y = (monitor.getClientArea().height + displayPosition.y) - height;
+
       shell.setSize(width, height);
       shell.setLocation(location.x, location.y);
     } else {

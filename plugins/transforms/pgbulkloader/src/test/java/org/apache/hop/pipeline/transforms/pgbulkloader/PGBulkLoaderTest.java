@@ -31,6 +31,8 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.*;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -87,7 +89,7 @@ public class PGBulkLoaderTest {
   public void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock( PGBulkLoaderMeta.class );
     doReturn( new DatabaseMeta() ).when( meta ).getDatabaseMeta();
-    doReturn( new String[ 0 ] ).when( meta ).getFieldStream();
+    doReturn( new ArrayList<>()).when( meta ).getMapping();
     PGBulkLoaderData data = mock( PGBulkLoaderData.class );
 
     PGBulkLoader spy = spy( new PGBulkLoader( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );

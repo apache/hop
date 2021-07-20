@@ -79,11 +79,6 @@ public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> {
   }
 
   @Override
-  protected String extractI18nPackageName( ExtensionPoint annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, ExtensionPoint annotation ) {
   }
 

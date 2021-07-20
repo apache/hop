@@ -920,4 +920,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
     return super.getExtraOptionsHelpText();
   }
+
+  @Override
+  public boolean requiresName(){
+    return false;
+  }
 }

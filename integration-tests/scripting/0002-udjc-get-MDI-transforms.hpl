@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0002-udjc-get-MDI-transforms</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/07/01 09:35:23.944</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/07/01 09:35:23.944</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>dummy row</from>
+      <to>get MDI supported transforms</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>dummy row</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>get MDI supported transforms</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <definitions>
+      <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+        <class_name>Processor</class_name>
+        <class_source>import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.injection.bean.BeanInjectionInfo;
+import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import java.util.List;
+
+
+public boolean processRow() throws HopException
+{
+    // We expect exactly 1 input row
+    //
+	Object[] r = getRow();
+
+	PluginRegistry registry = PluginRegistry.getInstance();
+	List&lt;IPlugin> plugins = registry.getPlugins(TransformPluginType.class);
+
+    //
+
+
+    for (IPlugin plugin : plugins) {
+		ITransformMeta transformMeta = (ITransformMeta) registry.loadClass( plugin );
+		String transformName = plugin.getName();
+		String mdiSuport = "N";
+		try {
+			BeanInjectionInfo bii = new BeanInjectionInfo( transformMeta.getClass() );
+			mdiSuport="Y";
+			
+			}catch (Exception e)
+			{
+			}
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+    outputRow[0] = transformName;
+	outputRow[1] = mdiSuport;
+
+	putRow(data.outputRowMeta, outputRow);
+		
+    }
+
+    // Now render this pipeline...
+    //
+    String svgXml = "test";
+		
+
+    // First, get a row from the default input hop
+    //
+
+
+	setOutputDone();
+
+    return false;
+}
+
+
+
+</class_source>
+      </definition>
+    </definitions>
+    <fields>
+      <field>
+        <field_name>transform</field_name>
+        <field_type>String</field_type>
+        <field_length>-1</field_length>
+        <field_precision>-1</field_precision>
+      </field>
+      <field>
+        <field_name>MDI_support</field_name>
+        <field_type>String</field_type>
+        <field_length>-1</field_length>
+        <field_precision>-1</field_precision>
+      </field>
+    </fields>
+    <clear_result_fields>N</clear_result_fields>
+    <info_transforms/>
+    <target_transforms/>
+    <usage_parameters/>
+    <attributes/>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

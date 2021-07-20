@@ -23,6 +23,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -43,6 +44,8 @@ import java.util.List;
     description = "Inject a bunch of rows into a transform during preview")
 public class ValidatePipelineUnitTestExtensionPoint
     implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
+
+  public final static Class<?> PKG = ValidatePipelineUnitTestExtensionPoint.class; //i18n
 
   @Override
   public void callExtensionPoint(
@@ -142,7 +145,8 @@ public class ValidatePipelineUnitTestExtensionPoint
               dialog.setProposingToGetMoreRows(false);
               dialog.setProposingToStop(false);
               dialog.setTitleMessage(
-                  "Unit test results", "Here are the results of the unit test validations:");
+                      BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Header"),
+                      BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Message"));
               dialog.open();
             });
   }

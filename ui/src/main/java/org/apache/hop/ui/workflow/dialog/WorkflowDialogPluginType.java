@@ -77,11 +77,6 @@ public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugi
   }
 
   @Override
-  protected String extractI18nPackageName( WorkflowDialogPlugin annotation ) {
-    return ( (WorkflowDialogPlugin) annotation ).i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, WorkflowDialogPlugin annotation ) {
   }
 

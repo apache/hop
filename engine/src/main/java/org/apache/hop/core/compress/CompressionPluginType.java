@@ -72,11 +72,6 @@ public class CompressionPluginType extends BasePluginType<CompressionPlugin> {
   }
 
   @Override
-  protected String extractI18nPackageName( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, CompressionPlugin annotation ) {
   }
 

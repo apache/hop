@@ -32,3 +32,207 @@ We recommend the following basic procedure for using this transform to inject me
 2. Develop pipelines for the repetitive process (the template pipeline), for metadata injection through the ETL Metadata Injection transform, and for handling multiple inputs.
 
 The metadata is injected into the template pipeline through any transform that supports metadata injection.
+
+== Supported Transforms
+
+The goal is to add Metadata Injection support to all transforms,
+The current (1-july 2021) status is:
+
+|===
+|Transform|Supports MDI
+|Abort|Y
+|Add a checksum|Y
+|Add constants|Y
+|Add sequence|Y
+|Add value fields changing sequence|Y
+|Add XML|Y
+|Analytic query|Y
+|Append streams|Y
+|Avro Decode|Y
+|Avro File Input|Y
+|Azure Event Hubs Listener|N
+|Azure Event Hubs Writer|N
+|Beam BigQuery Input|Y
+|Beam BigQuery Output|Y
+|Beam Bigtable Input|Y
+|Beam Bigtable Output|Y
+|Beam GCP Pub/Sub : Publish|Y
+|Beam GCP Pub/Sub : Subscribe|Y
+|Beam Input|Y
+|Beam Kafka Consume|Y
+|Beam Kafka Produce|Y
+|Beam Output|Y
+|Beam Timestamp|Y
+|Beam Window|Y
+|Block until transforms finish|Y
+|Blocking transform|Y
+|Calculator|Y
+|Call DB procedure|N
+|Cassandra input|Y
+|Cassandra output|Y
+|Change file encoding|N
+|Check if file is locked|N
+|Check if webservice is available|N
+|Clone row|N
+|Closure generator|N
+|Coalesce Fields|Y
+|Column exists|N
+|Combination lookup/update|Y
+|Concat Fields|N
+|Copy rows to result|N
+|Credit card validator|N
+|CSV file input|Y
+|Data grid|Y
+|Database join|N
+|Database lookup|Y
+|De-serialize from file|N
+|Delay row|N
+|Delete|Y
+|Detect empty stream|N
+|Dimension lookup/update|Y
+|Dropbox Input |N
+|Dropbox Output |N
+|Dummy (do nothing)|N
+|Dynamic SQL row|N
+|EDI to XML|N
+|Email messages input|N
+|Enhanced JSON Output|N
+|ETL metadata injection|Y
+|Execute a process|N
+|Execute row SQL script|Y
+|Execute SQL script|Y
+|Execute Unit Tests|N
+|Fake data|N
+|File exists|N
+|File Metadata|N
+|Filter rows|Y
+|Fuzzy match|N
+|Generate random value|N
+|Generate rows|Y
+|Get data from XML|N
+|Get file names|N
+|Get files rows count|N
+|Get ID from hop server|N
+|Get Neo4j Logging Info|Y
+|Get records from stream|N
+|Get rows from result|N
+|Get subfolder names|N
+|Get system info|Y
+|Get table names|Y
+|Get variables|Y
+|Google Analytics|Y
+|Google Sheet Output|Y
+|Google Sheets Input|N
+|Group by|Y
+|HTTP client|N
+|HTTP post|N
+|Identify last row in a stream|N
+|If Null|Y
+|Injector|Y
+|Insert / update|Y
+|Java filter|N
+|JavaScript|Y
+|Join rows (cartesian product)|Y
+|JSON input|Y
+|JSON output|N
+|Kafka Consumer|Y
+|Kafka Producer|Y
+|LDAP input|N
+|LDAP output|N
+|Load file content in memory|N
+|Mail|N
+|Mail validator|N
+|Mapping Input|N
+|Mapping Output|N
+|Memory group by|Y
+|Merge join|Y
+|Merge rows (diff)|Y
+|Metadata structure of stream|Y
+|Microsoft Excel input|Y
+|Microsoft Excel writer|N
+|MonetDB bulk loader|Y
+|MongoDB input|Y
+|MongoDB output|Y
+|MQTT Publisher|N
+|MQTT Subscriber|N
+|Multiway merge join|Y
+|Neo4j Cypher|Y
+|Neo4j Generate CSVs|N
+|Neo4j Graph Output|Y
+|Neo4j Import|N
+|Neo4J Output|Y
+|Neo4j Split Graph|N
+|Null if|Y
+|Number range|N
+|Parquet File Input|Y
+|Parquet File Output |Y
+|PGP decrypt stream|N
+|PGP encrypt stream|N
+|Pipeline executor|N
+|Pipeline Logging|N
+|Pipeline Probe|N
+|PostgreSQL Bulk Loader|Y
+|Process files|N
+|Properties input|N
+|Properties output|N
+|Regex evaluation|N
+|Replace in string|Y
+|Reservoir sampling|N
+|REST client|N
+|Row denormaliser|Y
+|Row flattener|N
+|Row normaliser|Y
+|Run SSH commands|N
+|Salesforce delete|N
+|Salesforce input|Y
+|Salesforce insert|N
+|Salesforce update|N
+|Salesforce upsert|N
+|Sample rows|N
+|SAS Input|N
+|Select values|Y
+|Serialize to file|N
+|Set field value|Y
+|Set field value to a constant|Y
+|Set variables|N
+|Simple Mapping|N
+|Sort rows|Y
+|Sorted merge|Y
+|Split field to rows|Y
+|Split fields|Y
+|Splunk Input|Y
+|SQL file output|N
+|SSTable output|Y
+|Stream lookup|Y
+|Stream Schema Merge|N
+|String operations|Y
+|Strings cut|Y
+|Switch / case|Y
+|Synchronize after merge|Y
+|Table compare|N
+|Table exists|N
+|Table input|Y
+|Table output|Y
+|Teradata Fastload bulk loader|N
+|Text file input|Y
+|Text file input (deprecated)|N
+|Text file output|Y
+|Token Replacement|Y
+|Unique rows|N
+|Unique rows (HashSet)|N
+|Update|Y
+|User defined Java class|Y
+|User defined Java expression|Y
+|Value mapper|Y
+|Web services lookup|N
+|Workflow executor|N
+|Workflow Logging|N
+|Write to log|N
+|XML input stream (StAX)|N
+|XML join|Y
+|XML output|Y
+|XSD validator|N
+|XSL pipeline|N
+|YAML input |N
+|Zip file|N
+|===

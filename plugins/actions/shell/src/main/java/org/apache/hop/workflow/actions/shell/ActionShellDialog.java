@@ -740,7 +740,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    action.setFileName(wFilename.getText());
+    action.setFilename(wFilename.getText());
     action.setName(wName.getText());
     action.setWorkDirectory(wWorkDirectory.getText());
 

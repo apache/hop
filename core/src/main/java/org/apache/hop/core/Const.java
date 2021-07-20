@@ -599,9 +599,6 @@ public class Const {
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
-  /** the value the Pan JVM should return on exit. */
-  public static final String HOP_PIPELINE_PAN_JVM_EXIT_CODE = "HOP_PIPELINE_PAN_JVM_EXIT_CODE";
-
   /** The name of the variable containing an alternative default number format */
   public static final String HOP_DEFAULT_NUMBER_FORMAT = "HOP_DEFAULT_NUMBER_FORMAT";
 
@@ -812,10 +809,9 @@ public class Const {
   public static final String I18N_PREFIX = "i18n:";
 
   /**
-   * A variable to configure if the S3 input / output transforms should use the Amazon Default
-   * Credentials Provider Chain even if access credentials are specified within the pipeline.
+   * This is the name of the string used to store the connection group in pipelines and workflows.
    */
-  public static final String HOP_USE_AWS_DEFAULT_CREDENTIALS = "HOP_USE_AWS_DEFAULT_CREDENTIALS";
+  public static final String CONNECTION_GROUP = "CONNECTION_GROUP";
 
   /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal

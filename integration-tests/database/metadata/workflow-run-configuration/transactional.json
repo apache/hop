@@ -1,0 +1,10 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "safe_mode": false,
+      "transactional": true
+    }
+  },
+  "name": "transactional",
+  "description": ""
+}

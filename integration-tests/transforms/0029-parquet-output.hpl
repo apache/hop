@@ -34,7 +34,7 @@ limitations under the License.
     <created_date>2021/06/10 15:12:24.183</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/06/10 15:12:24.183</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -46,6 +46,80 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>${java.io.tmpdir}/customers.parquet.snappy</name>
+    <type>ParquetFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compression_codec>SNAPPY</compression_codec>
+    <data_page_size>1048576</data_page_size>
+    <dictionary_page_size>1048576</dictionary_page_size>
+    <fields>
+      <field>
+        <source_field>id</source_field>
+        <target_field>id</target_field>
+      </field>
+      <field>
+        <source_field>name</source_field>
+        <target_field>name</target_field>
+      </field>
+      <field>
+        <source_field>firstname</source_field>
+        <target_field>firstname</target_field>
+      </field>
+      <field>
+        <source_field>zip</source_field>
+        <target_field>zip</target_field>
+      </field>
+      <field>
+        <source_field>city</source_field>
+        <target_field>city</target_field>
+      </field>
+      <field>
+        <source_field>birthdate</source_field>
+        <target_field>birthdate</target_field>
+      </field>
+      <field>
+        <source_field>street</source_field>
+        <target_field>street</target_field>
+      </field>
+      <field>
+        <source_field>housenr</source_field>
+        <target_field>housenr</target_field>
+      </field>
+      <field>
+        <source_field>stateCode</source_field>
+        <target_field>stateCode</target_field>
+      </field>
+      <field>
+        <source_field>state</source_field>
+        <target_field>state</target_field>
+      </field>
+    </fields>
+    <filename_split_size>1000000</filename_split_size>
+    <filename_base>${java.io.tmpdir}/it/parquet/customers</filename_base>
+    <filename_create_parent_folders>Y</filename_create_parent_folders>
+    <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
+    <filename_ext>parquet</filename_ext>
+    <filename_include_copy>N</filename_include_copy>
+    <filename_include_date>N</filename_include_date>
+    <filename_include_datetime>N</filename_include_datetime>
+    <filename_include_split>N</filename_include_split>
+    <filename_include_time>N</filename_include_time>
+    <row_group_size>20000</row_group_size>
+    <version>1.0</version>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>customers-100.txt</name>
     <type>CSVInput</type>
@@ -185,79 +259,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>160</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>${java.io.tmpdir}/customers.parquet.snappy</name>
-    <type>ParquetFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compression_codec>SNAPPY</compression_codec>
-    <data_page_size>1048576</data_page_size>
-    <dictionary_page_size>1048576</dictionary_page_size>
-    <fields>
-      <field>
-        <source_field>id</source_field>
-        <target_field>id</target_field>
-      </field>
-      <field>
-        <source_field>name</source_field>
-        <target_field>name</target_field>
-      </field>
-      <field>
-        <source_field>firstname</source_field>
-        <target_field>firstname</target_field>
-      </field>
-      <field>
-        <source_field>zip</source_field>
-        <target_field>zip</target_field>
-      </field>
-      <field>
-        <source_field>city</source_field>
-        <target_field>city</target_field>
-      </field>
-      <field>
-        <source_field>birthdate</source_field>
-        <target_field>birthdate</target_field>
-      </field>
-      <field>
-        <source_field>street</source_field>
-        <target_field>street</target_field>
-      </field>
-      <field>
-        <source_field>housenr</source_field>
-        <target_field>housenr</target_field>
-      </field>
-      <field>
-        <source_field>stateCode</source_field>
-        <target_field>stateCode</target_field>
-      </field>
-      <field>
-        <source_field>state</source_field>
-        <target_field>state</target_field>
-      </field>
-    </fields>
-    <filename_split_size>1000000</filename_split_size>
-    <filename_base>${java.io.tmpdir}/customers</filename_base>
-    <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
-    <filename_ext>parquet</filename_ext>
-    <filename_include_copy>N</filename_include_copy>
-    <filename_include_date>N</filename_include_date>
-    <filename_include_datetime>N</filename_include_datetime>
-    <filename_include_split>N</filename_include_split>
-    <filename_include_time>N</filename_include_time>
-    <row_group_size>20000</row_group_size>
-    <version>1.0</version>
-    <attributes/>
-    <GUI>
-      <xloc>384</xloc>
       <yloc>144</yloc>
     </GUI>
   </transform>

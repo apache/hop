@@ -20,7 +20,6 @@ package org.apache.hop.core.database;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 
 import java.util.Map;
 
@@ -80,11 +79,6 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   @Override
   protected boolean extractSeparateClassLoader( DatabaseMetaPlugin annotation ) {
     return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( DatabaseMetaPlugin annotation ) {
-    return null;
   }
 
   @Override

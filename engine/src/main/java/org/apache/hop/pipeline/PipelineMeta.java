@@ -131,13 +131,6 @@ public class PipelineMeta extends AbstractMeta
   /** The status of the pipeline. */
   protected int pipelineStatus;
 
-  /**
-   * A table of named counters.
-   *
-   * @deprecated Moved to Pipeline
-   */
-  @Deprecated protected Hashtable<String, Counter> counters;
-
   /** Indicators for changes in transforms, databases, hops, and notes. */
   protected boolean changedTransforms, changedHops;
 
@@ -2464,12 +2457,6 @@ public class PipelineMeta extends AbstractMeta
   public boolean hasLoop(TransformMeta transformMeta) {
     clearLoopCache();
     return hasLoop(transformMeta, null);
-  }
-
-  /** @deprecated use {@link #hasLoop(TransformMeta, TransformMeta)}} */
-  @Deprecated
-  public boolean hasLoop(TransformMeta transformMeta, TransformMeta lookup, boolean info) {
-    return hasLoop(transformMeta, lookup, new HashSet<>());
   }
 
   /**

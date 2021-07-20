@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
-/**
- * @author Tom
- * @since 28-March-2006
- */
 public class DeleteData extends BaseTransformData implements ITransformData {
   public Database db;
 
@@ -47,5 +43,4 @@ public class DeleteData extends BaseTransformData implements ITransformData {
 
     db = null;
   }
-
 }

@@ -29,127 +29,132 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData> implements ITransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
+public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData>
+    implements ITransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
-
-
-  public SplitFieldToRows( TransformMeta transformMeta, SplitFieldToRowsMeta meta, SplitFieldToRowsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public SplitFieldToRows(
+      TransformMeta transformMeta,
+      SplitFieldToRowsMeta meta,
+      SplitFieldToRowsData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private boolean splitField( IRowMeta rowMeta, Object[] rowData ) throws HopException {
-    if ( first ) {
+  private boolean splitField(IRowMeta rowMeta, Object[] rowData) throws HopException {
+    if (first) {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      String realSplitFieldName = resolve( meta.getSplitField() );
-      data.fieldnr = rowMeta.indexOfValue( realSplitFieldName );
+      String realSplitFieldName = resolve(meta.getSplitField());
+      data.fieldnr = rowMeta.indexOfValue(realSplitFieldName);
 
       int numErrors = 0;
-      if ( Utils.isEmpty( meta.getNewFieldname() ) ) {
-        logError( BaseMessages.getString( PKG, "SplitFieldToRows.Log.NewFieldNameIsNull" ) );
+      if (Utils.isEmpty(meta.getNewFieldname())) {
+        logError(BaseMessages.getString(PKG, "SplitFieldToRows.Log.NewFieldNameIsNull"));
         numErrors++;
       }
 
-      if ( data.fieldnr < 0 ) {
-        logError( BaseMessages
-          .getString( PKG, "SplitFieldToRows.Log.CouldNotFindFieldToSplit", realSplitFieldName ) );
+      if (data.fieldnr < 0) {
+        logError(
+            BaseMessages.getString(
+                PKG, "SplitFieldToRows.Log.CouldNotFindFieldToSplit", realSplitFieldName));
         numErrors++;
       }
 
-      if ( !rowMeta.getValueMeta( data.fieldnr ).isString() ) {
-        logError( BaseMessages.getString( PKG, "SplitFieldToRows.Log.SplitFieldNotValid", realSplitFieldName ) );
+      if (!rowMeta.getValueMeta(data.fieldnr).isString()) {
+        logError(
+            BaseMessages.getString(
+                PKG, "SplitFieldToRows.Log.SplitFieldNotValid", realSplitFieldName));
         numErrors++;
       }
 
-      if ( meta.includeRowNumber() ) {
-        String realRowNumberField = resolve( meta.getRowNumberField() );
-        if ( Utils.isEmpty( realRowNumberField ) ) {
-          logError( BaseMessages.getString( PKG, "SplitFieldToRows.Exception.RownrFieldMissing" ) );
+      if (meta.isIncludeRowNumber()) {
+        String realRowNumberField = resolve(meta.getRowNumberField());
+        if (Utils.isEmpty(realRowNumberField)) {
+          logError(BaseMessages.getString(PKG, "SplitFieldToRows.Exception.RownrFieldMissing"));
           numErrors++;
         }
       }
 
-      if ( numErrors > 0 ) {
-        setErrors( numErrors );
+      if (numErrors > 0) {
+        setErrors(numErrors);
         stopAll();
         return false;
       }
 
-      data.splitMeta = rowMeta.getValueMeta( data.fieldnr );
+      data.splitMeta = rowMeta.getValueMeta(data.fieldnr);
     }
 
-    String originalString = data.splitMeta.getString( rowData[ data.fieldnr ] );
-    if ( originalString == null ) {
+    String originalString = data.splitMeta.getString(rowData[data.fieldnr]);
+    if (originalString == null) {
       originalString = "";
     }
 
-    if ( meta.includeRowNumber() && meta.resetRowNumber() ) {
+    if (meta.isIncludeRowNumber() && meta.isResetRowNumber()) {
       data.rownr = 1L;
     }
     // use -1 for include all strings.
-    String[] splitStrings = data.delimiterPattern.split( originalString, -1 );
-    for ( String string : splitStrings ) {
-      Object[] outputRow = RowDataUtil.createResizedCopy( rowData, data.outputRowMeta.size() );
-      outputRow[ rowMeta.size() ] = string;
+    String[] splitStrings = data.delimiterPattern.split(originalString, -1);
+    for (String string : splitStrings) {
+      Object[] outputRow = RowDataUtil.createResizedCopy(rowData, data.outputRowMeta.size());
+      outputRow[rowMeta.size()] = string;
       // Include row number in output?
-      if ( meta.includeRowNumber() ) {
-        outputRow[ rowMeta.size() + 1 ] = data.rownr;
+      if (meta.isIncludeRowNumber()) {
+        outputRow[rowMeta.size() + 1] = data.rownr;
       }
-      putRow( data.outputRowMeta, outputRow );
+      putRow(data.outputRowMeta, outputRow);
       data.rownr++;
     }
 
     return true;
   }
 
+  @Override
   public synchronized boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row from rowset, wait for our turn, indicate busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
     }
 
-    boolean ok = splitField( getInputRowMeta(), r );
-    if ( !ok ) {
+    boolean ok = splitField(getInputRowMeta(), r);
+    if (!ok) {
       setOutputDone();
       return false;
     }
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      if ( log.isDetailed() ) {
-        if ( log.isDetailed() ) {
-          logBasic( BaseMessages.getString( PKG, "SplitFieldToRows.Log.LineNumber" ) + getLinesRead() );
-        }
-      }
+    if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+          logBasic(BaseMessages.getString(PKG, "SplitFieldToRows.Log.LineNumber") + getLinesRead());
     }
 
     return true;
   }
 
+  @Override
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       data.rownr = 1L;
 
       try {
-        String delimiter = Const.nullToEmpty( meta.getDelimiter() );
-        if ( meta.isDelimiterRegex() ) {
-          data.delimiterPattern = Pattern.compile( resolve( delimiter ) );
+        String delimiter = Const.nullToEmpty(meta.getDelimiter());
+        if (meta.isIsDelimiterRegex()) {
+          data.delimiterPattern = Pattern.compile(resolve(delimiter));
         } else {
-          data.delimiterPattern = Pattern.compile( Pattern.quote( resolve( delimiter ) ) );
+          data.delimiterPattern = Pattern.compile(Pattern.quote(resolve(delimiter)));
         }
-      } catch ( PatternSyntaxException pse ) {
-        log.logError( pse.getMessage() );
+      } catch (PatternSyntaxException pse) {
+        log.logError(pse.getMessage());
         throw pse;
       }
 

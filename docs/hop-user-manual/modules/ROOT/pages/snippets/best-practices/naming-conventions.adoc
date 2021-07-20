@@ -1,0 +1,49 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NamingConventions]]
+:imagesdir: ../../assets/images
+
+=== Transforms and actions
+
+When looking at a pipeline or workflow it's so much easier to see what's going on if you give meaningful names to the transforms and workflows.
+
+image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name, width="65%"]
+
+For input and output files, why not use the filename you're using?
+
+TIP: You can use any unicode character in the name of a transform or action and even newlines are allowed.
+
+=== Metadata
+
+When giving names to metadata objects like relational database connections, avoid environment specific words like a country, region, lifecycle environments:
+
+Here are some examples to avoid and possible alternatives:
+
+* Test Database -> CRM
+* France MySQL -> WWW
+* East Coast Cluster -> Fraud
+
+=== Naming standard
+
+What you can see in larger projects is that projects can become quite cluttered after a while.
+Here is some advice on how to keep things tidy and clean...
+
+* Folders can have sub-folders: organize your work with sub-folders in a project.  It's just hard to work with hundreds of pipelines and workflows in a single folder.
+* Use a naming convention for any object that you need to give a name: pipelines, workflows, folders, names, tables, fields, ...
+* For larger projects you should consider setting up a naming standard.  It's just a document in which you specify how you want to name things.
+* Make sure to adjust, verify and enforce your naming standard periodically.  If you don't plan to do this you might was well not set up a corporate standard.
+* Consider scripts and commit hooks or a nightly run on your build server (Jenkins) to validate your naming standard.

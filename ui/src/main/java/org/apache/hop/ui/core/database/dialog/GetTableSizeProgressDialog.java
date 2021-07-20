@@ -42,12 +42,12 @@ import java.lang.reflect.InvocationTargetException;
 public class GetTableSizeProgressDialog {
   private static final Class<?> PKG = GetTableSizeProgressDialog.class; // For Translator
 
-  private Shell shell;
-  private IVariables variables;
-  private DatabaseMeta databaseMeta;
-  private String tableName;
-  private Long size;
+  private final Shell shell;
+  private final IVariables variables;
+  private final DatabaseMeta databaseMeta;
+  private final String tableName;
 
+  private Long size;
   private Database db;
 
   /** Creates a new dialog that will handle the wait while we're doing the hard work. */
@@ -63,6 +63,7 @@ public class GetTableSizeProgressDialog {
       String tableName,
       String schemaName) {
     this.shell = shell;
+    this.variables = variables;
     this.databaseMeta = databaseMeta;
     this.tableName = databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
   }
@@ -87,6 +88,7 @@ public class GetTableSizeProgressDialog {
                 e, "Couldn't get a result because of an error :" + e.toString());
           } finally {
             db.disconnect();
+            monitor.done();
           }
         };
 

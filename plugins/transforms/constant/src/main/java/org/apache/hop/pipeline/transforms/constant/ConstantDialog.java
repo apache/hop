@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -30,15 +31,19 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.util.List;
+
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ConstantMeta.class; // For Translator
+
+  private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private TableView wFields;
 
@@ -109,7 +114,7 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 10;
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getFields().size();
 
     ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
@@ -162,7 +167,7 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
             BaseMessages.getString(PKG, "ConstantDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No")
             });
 
@@ -206,21 +211,22 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
       logDebug("getting fields info...");
     }
 
-    for (i = 0; i < input.getFieldName().length; i++) {
-      if (input.getFieldName()[i] != null) {
+    for (i = 0; i < input.getFields().size(); i++) {
+      ConstantField field = input.fields.get(i);
+      if (!StringUtils.isEmpty(field.getFieldName())) {
         TableItem item = wFields.table.getItem(i);
         int col = 1;
-        item.setText(col++, input.getFieldName()[i]);
+        item.setText(col++, field.getFieldName());
 
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ("" + input.getFieldLength()[i]);
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ("" + input.getFieldPrecision()[i]);
+        String type = field.getFieldType();
+        String format = field.getFieldFormat();
+        String length = field.getFieldLength() < 0 ? "" : ("" + field.getFieldLength());
+        String prec = field.getFieldPrecision() < 0 ? "" : ("" + field.getFieldPrecision());
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
-        String def = input.getValue()[i];
+        String curr = field.getCurrency();
+        String group = field.getGroup();
+        String decim = field.getDecimal();
+        String def = field.getValue();
 
         item.setText(col++, Const.NVL(type, ""));
         item.setText(col++, Const.NVL(format, ""));
@@ -231,9 +237,9 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
         item.setText(col++, Const.NVL(group, ""));
         item.setText(col++, Const.NVL(def, ""));
         item.setText(
-            col++,
-            input.isSetEmptyString()[i]
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+            col,
+            field.isEmptyString()
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, "System.Combo.No"));
       }
     }
@@ -259,39 +265,47 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     transformName = wTransformName.getText(); // return value
 
     int i;
-    // Table table = wFields.table;
 
     int nrFields = wFields.nrNonEmpty();
-
-    input.allocate(nrFields);
+    List<ConstantField> fields = input.getFields();
+    fields.clear();
 
     // CHECKSTYLE:Indentation:OFF
     // CHECKSTYLE:LineLength:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = item.getText(1);
-      input.isSetEmptyString()[i] =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10));
+      boolean isEmptyStringFlag =
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(10));
+      ConstantField field =
+          (isEmptyStringFlag
+              ? new ConstantField(
+                  item.getText(1),
+                  isEmptyStringFlag ? "String" : item.getText(2),
+                  isEmptyStringFlag)
+              : new ConstantField(
+                  item.getText(1),
+                  isEmptyStringFlag ? "String" : item.getText(2),
+                  isEmptyStringFlag ? "" : item.getText(9)));
 
-      input.getFieldType()[i] = input.isSetEmptyString()[i] ? "String" : item.getText(2);
-      input.getFieldFormat()[i] = item.getText(3);
+      field.setFieldFormat(item.getText(3));
       String slength = item.getText(4);
       String sprec = item.getText(5);
-      input.getCurrency()[i] = item.getText(6);
-      input.getDecimal()[i] = item.getText(7);
-      input.getGroup()[i] = item.getText(8);
-      input.getValue()[i] = input.isSetEmptyString()[i] ? "" : item.getText(9);
+      field.setCurrency(item.getText(6));
+      field.setDecimal(item.getText(7));
+      field.setGroup(item.getText(8));
 
       try {
-        input.getFieldLength()[i] = Integer.parseInt(slength);
+        field.setFieldLength(Integer.parseInt(slength));
       } catch (Exception e) {
-        input.getFieldLength()[i] = -1;
+        field.setFieldLength(-1);
       }
       try {
-        input.getFieldPrecision()[i] = Integer.parseInt(sprec);
+        field.setFieldPrecision(Integer.parseInt(sprec));
       } catch (Exception e) {
-        input.getFieldPrecision()[i] = -1;
+        field.setFieldPrecision(-1);
       }
+
+      fields.add(field);
     }
 
     dispose();

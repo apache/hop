@@ -47,16 +47,27 @@ Check our [Contribution Guide](http://www.project-hop.org/community/contributing
 
 Required: 
 - [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
+  
+Recommended:
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
 
 Clone Hop to a local repository: 
 
     $ git clone https://github.com/apache/incubator-hop.git
 
-Change into the clone repository and build: 
+
+Change into the clone repository and build: \
+We provide two ways to build the code, if you have the correct Maven version installed you can use following commands:
 
     $ cd incubator-hop 
     $ mvn clean install 
+
+We have also added mavenwrapper which simplifies build by using the correct Apache Maven version when it is not available on the system
+
+    $ cd incubator-hop
+    $ ./mvnw clean install
+
+    
 
 ### From release archive
 
@@ -70,10 +81,16 @@ Unzip the archive
 
     $ tar -xf apache-hop*.tar.gz
 
-Change into the extracted folder and build
+Change into the clone repository and build: \
+We provide two ways to build the code, if you have the correct Maven version installed you can use following commands:
 
     $ cd apache-hop-*-incubating
     $ mvn clean install
+
+We have also added mavenwrapper which simplifies build by using the correct Apache Maven version when it is not available on the system
+
+    $ cd apache-hop-*-incubating
+    $ ./mvnw clean install
 
 
 ## Run Apache Hop 
@@ -100,6 +117,7 @@ Help us to improve Hop by logging issues in the [Hop JIRA](https://issues.apache
    import, possession, or use, and re-export of encryption software, to 
    see if this is permitted. See http://www.wassenaar.org for
    more information.
+
 The Apache Software Foundation has classified this software as Export Commodity 
    Control Number (ECCN) 5D002, which includes information security
    software using or performing cryptographic functions with asymmetric
@@ -107,9 +125,10 @@ The Apache Software Foundation has classified this software as Export Commodity
    distribution makes it eligible for export under the "publicly available"
    Section 742.15(b) exemption (see the BIS Export Administration Regulations, 
    Section 742.15(b)) for both object code and source code.
-The following provides more details on the included cryptographic
+
+The following provides more details on the included cryptographic\
    software:
-    PGP Encrypt - Decrypt transforms/actions
-    Apache Kafka Transforms
-    Apache POI Transforms
-    MQTT Transforms
+* PGP Encrypt - Decrypt transforms/actions
+* Apache Kafka Transforms
+* Apache POI Transforms
+* MQTT Transforms

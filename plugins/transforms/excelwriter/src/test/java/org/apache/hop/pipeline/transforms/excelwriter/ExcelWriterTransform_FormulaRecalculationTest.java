@@ -44,6 +44,13 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     mockHelper = TransformMockUtil.getTransformMockHelper( ExcelWriterTransformMeta.class, ExcelWriterTransformData.class, "ExcelWriterTransform_FormulaRecalculationTest" );
 
     meta = mockHelper.iTransformMeta;
+
+    ExcelWriterFileField fieldMock = mock( ExcelWriterFileField.class );
+    doReturn(fieldMock).when(meta).getFile();
+
+    ExcelWriterTemplateField templateMock = mock( ExcelWriterTemplateField.class );
+    doReturn(templateMock).when(meta).getTemplate();
+
     data = new ExcelWriterTransformData();
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,28 +29,29 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Check if a table exists in a Database *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
-
-public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData> implements ITransform<TableExistsMeta, TableExistsData> {
+/** Check if a table exists in a Database */
+public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
+    implements ITransform<TableExistsMeta, TableExistsData> {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
-  public TableExists( TransformMeta transformMeta, TableExistsMeta meta, TableExistsData data, int copyNr, PipelineMeta pipelineMeta,
-                      Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public TableExists(
+      TransformMeta transformMeta,
+      TableExistsMeta meta,
+      TableExistsData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
@@ -58,86 +59,99 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
 
     boolean tablexists = false;
     try {
-      if ( first ) {
+      if (first) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
         // Check is tablename field is provided
-        if ( Utils.isEmpty( meta.getDynamicTablenameField() ) ) {
-          logError( BaseMessages.getString( PKG, "TableExists.Error.TablenameFieldMissing" ) );
-          throw new HopException( BaseMessages.getString( PKG, "TableExists.Error.TablenameFieldMissing" ) );
+        if (Utils.isEmpty(meta.getTableNameField())) {
+          logError(BaseMessages.getString(PKG, "TableExists.Error.TablenameFieldMissing"));
+          throw new HopException(
+              BaseMessages.getString(PKG, "TableExists.Error.TablenameFieldMissing"));
         }
 
         // cache the position of the field
-        if ( data.indexOfTablename < 0 ) {
-          data.indexOfTablename = getInputRowMeta().indexOfValue( meta.getDynamicTablenameField() );
-          if ( data.indexOfTablename < 0 ) {
+        if (data.indexOfTablename < 0) {
+          data.indexOfTablename = getInputRowMeta().indexOfValue(meta.getTableNameField());
+          if (data.indexOfTablename < 0) {
             // The field is unreachable !
-            logError( BaseMessages.getString( PKG, "TableExists.Exception.CouldnotFindField" )
-              + "[" + meta.getDynamicTablenameField() + "]" );
-            throw new HopException( BaseMessages.getString(
-              PKG, "TableExists.Exception.CouldnotFindField", meta.getDynamicTablenameField() ) );
+            logError(
+                BaseMessages.getString(PKG, "TableExists.Exception.CouldnotFindField")
+                    + "["
+                    + meta.getTableNameField()
+                    + "]");
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "TableExists.Exception.CouldnotFindField", meta.getTableNameField()));
           }
         }
       } // End If first
 
       // get tablename
-      String tableName = getInputRowMeta().getString( r, data.indexOfTablename );
+      String tableName = getInputRowMeta().getString(r, data.indexOfTablename);
 
       // Check if table exists on the specified connection
-      tablexists = data.db.checkTableExists( data.realSchemaname, tableName );
+      tablexists = data.db.checkTableExists(data.realSchemaname, tableName);
 
-      Object[] outputRowData = RowDataUtil.addValueData( r, getInputRowMeta().size(), tablexists );
+      Object[] outputRowData = RowDataUtil.addValueData(r, getInputRowMeta().size(), tablexists);
 
       // add new values to the row.
-      putRow( data.outputRowMeta, outputRowData ); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if ( log.isRowLevel() ) {
-        logRowlevel( BaseMessages.getString( PKG, "TableExists.LineNumber", getLinesRead()
-          + " : " + getInputRowMeta().getString( r ) ) );
+      if (log.isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(
+                PKG,
+                "TableExists.LineNumber",
+                getLinesRead() + " : " + getInputRowMeta().getString(r)));
       }
-    } catch ( HopException e ) {
-      if ( getTransformMeta().isDoingErrorHandling() ) {
+    } catch (HopException e) {
+      if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "TableExists.ErrorInTransformRunning" + " : " + e.getMessage() ) );
-        throw new HopTransformException( BaseMessages.getString( PKG, "TableExists.Log.ErrorInTransform" ), e );
+        logError(
+            BaseMessages.getString(
+                PKG, "TableExists.ErrorInTransformRunning" + " : " + e.getMessage()));
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "TableExists.Log.ErrorInTransform"), e);
       }
-      if ( sendToErrorRow ) {
+      if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "TableExistsO01" );
+        putError(
+            getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "TableExistsO01");
       }
     }
 
     return true;
   }
 
+  @Override
   public boolean init() {
 
-    if ( super.init() ) {
-      if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
-        logError( BaseMessages.getString( PKG, "TableExists.Error.ResultFieldMissing" ) );
+    if (super.init()) {
+      if (Utils.isEmpty(meta.getResultFieldName())) {
+        logError(BaseMessages.getString(PKG, "TableExists.Error.ResultFieldMissing"));
         return false;
       }
 
-      data.db = new Database( this, this, meta.getDatabase() );
-      if ( !Utils.isEmpty( meta.getSchemaname() ) ) {
-        data.realSchemaname = resolve( meta.getSchemaname() );
+      data.db = new Database(this, this, meta.getDatabase());
+      if (!Utils.isEmpty(meta.getSchemaName())) {
+        data.realSchemaname = resolve(meta.getSchemaName());
       }
 
       try {
-        data.db.connect( getPartitionId() );
+        data.db.connect();
 
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "TableExists.Log.ConnectedToDB" ) );
+        if (log.isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "TableExists.Log.ConnectedToDB"));
         }
 
         return true;
-      } catch ( HopException e ) {
-        logError( BaseMessages.getString( PKG, "TableExists.Log.DBException" ) + e.getMessage() );
-        if ( data.db != null ) {
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "TableExists.Log.DBException") + e.getMessage());
+        if (data.db != null) {
           data.db.disconnect();
         }
       }
@@ -145,8 +159,9 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
     return false;
   }
 
+  @Override
   public void dispose() {
-    if ( data.db != null ) {
+    if (data.db != null) {
       data.db.disconnect();
     }
     super.dispose();

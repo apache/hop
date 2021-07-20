@@ -1,0 +1,12 @@
+Field_A,Field_B,Field_C,Result
+ABCD,X,9,3
+ABCD,Z,1,3
+ABCD,Z,2,3
+ABCD,Z,2,5
+ABCD,Z,2,7
+ABCD,Z,2,9
+ABCD,Z,6,3
+EFG,X,6,3
+EFG,X,8,3
+EFG,Z,1,3
+EFG,Z,8,3

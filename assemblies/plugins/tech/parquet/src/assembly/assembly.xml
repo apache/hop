@@ -57,7 +57,6 @@
         <include>commons-collections:commons-collections:jar</include>
         <include>commons-digester:commons-digester:jar</include>
         <include>commons-httpclient:commons-httpclient:jar</include>
-        <include>commons-net:commons-net:jar</include>
         <include>com.sun.jersey:jersey-client:jar</include>
         <include>com.sun.jersey:jersey-core:jar</include>
         <include>io.netty:netty:jar</include>
