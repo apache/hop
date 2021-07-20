@@ -50,6 +50,7 @@
     <commons-io.version>2.2</commons-io.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <commons-pool.version>1.5.7</commons-pool.version>
+    <commons-net.version>3.7.2</commons-net.version>
     <jsch.version>0.1.54</jsch.version>
     <jzlib.version>1.0.7</jzlib.version>
     <ognl.version>2.6.9</ognl.version>
@@ -90,6 +91,10 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -306,6 +311,17 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${commons-lang.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>${commons-net.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
