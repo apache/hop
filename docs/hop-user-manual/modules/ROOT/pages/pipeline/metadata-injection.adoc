@@ -42,9 +42,9 @@ The current (1-july 2021) status is:
 |Transform|Supports MDI
 |Abort|Y
 |Add a checksum|Y
-|Add constants|N
+|Add constants|Y
 |Add sequence|Y
-|Add value fields changing sequence|N
+|Add value fields changing sequence|Y
 |Add XML|Y
 |Analytic query|Y
 |Append streams|Y
