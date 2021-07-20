@@ -1,3 +1,4 @@
+echo off
 REM
 REM Licensed to the Apache Software Foundation (ASF) under one or more
 REM contributor license agreements.  See the NOTICE file distributed with
