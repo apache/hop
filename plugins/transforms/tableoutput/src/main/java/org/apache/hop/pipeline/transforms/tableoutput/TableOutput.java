@@ -479,6 +479,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
 
+        if (meta.getDatabaseMeta() == null) {
+            if (meta.getConnection() != null) {
+              meta.setDatabaseMeta(getPipelineMeta().findDatabase(variables.resolve(meta.getConnection())));
+            }
+        }
+
         data.databaseMeta = meta.getDatabaseMeta();
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
