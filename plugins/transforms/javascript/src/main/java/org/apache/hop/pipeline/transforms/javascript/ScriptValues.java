@@ -47,8 +47,8 @@ import org.mozilla.javascript.ScriptableObject;
  * @author Matt
  * @since 5-April-2003
  */
-public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptValuesModData> implements ITransform<ScriptValuesMetaMod, ScriptValuesModData> {
-  private static final Class<?> PKG = ScriptValuesMetaMod.class; // For Translator
+public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData> implements ITransform<ScriptValuesMeta, ScriptValuesData> {
+  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   public static final int SKIP_PIPELINE = 1;
 
@@ -78,7 +78,7 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
 
   public Script script;
 
-  public ScriptValuesMod(TransformMeta transformMeta, ScriptValuesMetaMod meta, ScriptValuesModData data, int copyNr, PipelineMeta pipelineMeta,
+  public ScriptValues(TransformMeta transformMeta, ScriptValuesMeta meta, ScriptValuesData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -168,9 +168,9 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
           logBasic( BaseMessages.getString( PKG, "ScriptValuesMod.Optimization.Level", resolve( meta
             .getOptimizationLevel() ) ) );
         } else {
-          data.cx.setOptimizationLevel( Integer.parseInt( ScriptValuesMetaMod.OPTIMIZATION_LEVEL_DEFAULT ) );
+          data.cx.setOptimizationLevel( Integer.parseInt( ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT ) );
           logBasic( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Optimization.UsingDefault", ScriptValuesMetaMod.OPTIMIZATION_LEVEL_DEFAULT ) );
+            PKG, "ScriptValuesMod.Optimization.UsingDefault", ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT ) );
         }
       } catch ( NumberFormatException nfe ) {
         throw new HopTransformException( BaseMessages.getString(

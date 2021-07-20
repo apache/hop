@@ -30,13 +30,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ScriptValuesMetaModInjectionTest extends BaseMetadataInjectionTest<ScriptValuesMetaMod> {
+public class ScriptValuesMetaInjectionTest extends BaseMetadataInjectionTest<ScriptValuesMeta> {
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() throws Exception {
-    setup( new ScriptValuesMetaMod() );
+    setup( new ScriptValuesMeta() );
   }
 
   @Test

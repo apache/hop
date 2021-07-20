@@ -368,7 +368,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           if (!isNull(ArgList) && !isUndefined(ArgList)) {
             Object scmO = actualObject.get("_transform_", actualObject);
-            ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+            ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
             String strMessage = Context.toString(ArgList[0]);
             scm.logDebug(strMessage);
           }
@@ -380,7 +380,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           if (!isNull(ArgList) && !isUndefined(ArgList)) {
             Object scmO = actualObject.get("_transform_", actualObject);
-            ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+            ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
 
             String strType = Context.toString(ArgList[0]).toLowerCase();
             String strMessage = Context.toString(ArgList[1]);
@@ -568,7 +568,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     if (ArgList.length == 2) {
       try {
         Object scmO = actualObject.get("_transform_", actualObject);
-        ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+        ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
         String strDBName = Context.toString(ArgList[0]);
         String strSql = Context.toString(ArgList[1]);
         DatabaseMeta databaseMeta =
@@ -2019,11 +2019,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       try {
         Object scmO = actualObject.get("_transform_", actualObject);
         try {
-          ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+          ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           return scm.getOutputRowMeta();
         } catch (Exception e) {
-          ScriptValuesModDummy scm =
-              (ScriptValuesModDummy) Context.jsToJava(scmO, ScriptValuesModDummy.class);
+          ScriptValuesDummy scm =
+              (ScriptValuesDummy) Context.jsToJava(scmO, ScriptValuesDummy.class);
           return scm.getOutputRowMeta();
         }
       } catch (Exception e) {
@@ -2045,11 +2045,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       try {
         Object scmO = actualObject.get("_transform_", actualObject);
         try {
-          ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+          ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           return scm.getInputRowMeta();
         } catch (Exception e) {
-          ScriptValuesModDummy scm =
-              (ScriptValuesModDummy) Context.jsToJava(scmO, ScriptValuesModDummy.class);
+          ScriptValuesDummy scm =
+              (ScriptValuesDummy) Context.jsToJava(scmO, ScriptValuesDummy.class);
           return scm.getInputRowMeta();
         }
       } catch (Exception e) {
@@ -2092,12 +2092,12 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
         Object scmO = actualObject.get("_transform_", actualObject);
         try {
-          ScriptValuesMod transform =
-              (ScriptValuesMod) Context.jsToJava(scmO, ScriptValuesMod.class);
+          ScriptValues transform =
+              (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           transform.putRow(transform.getOutputRowMeta(), newRow);
         } catch (Exception e) {
-          ScriptValuesModDummy transform =
-              (ScriptValuesModDummy) Context.jsToJava(scmO, ScriptValuesModDummy.class);
+          ScriptValuesDummy transform =
+              (ScriptValuesDummy) Context.jsToJava(scmO, ScriptValuesDummy.class);
           transform.putRow(transform.getOutputRowMeta(), newRow);
         }
 

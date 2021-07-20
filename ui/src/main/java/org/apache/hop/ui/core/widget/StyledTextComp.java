@@ -74,6 +74,16 @@ public class StyledTextComp extends Composite {
     
     buildingStyledTextMenu();
 
+    // Default layout without variables
+    textWidget.setLayoutData(
+        new FormDataBuilder()
+            .top()
+            .left()
+            .right(100, 0)
+            .bottom(100, 0)
+            .result());
+    
+    // Special layout for variables decorator
     if (varsSensitive) {
       textWidget.addKeyListener(new ControlSpaceKeyAdapter(variables, textWidget));
       image = GuiResource.getInstance().getImageVariable();
@@ -106,7 +116,7 @@ public class StyledTextComp extends Composite {
                 .result());
 
       }
-    }
+    }   
   }
 
   public String getSelectionText() {

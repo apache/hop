@@ -37,7 +37,7 @@ import static org.mockito.Mockito.spy;
 /**
  * @author Andrey Khayrutdinov
  */
-public class ScriptValuesModTest {
+public class ScriptValuesTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -48,7 +48,7 @@ public class ScriptValuesModTest {
   @Test
   @Ignore
   public void bigNumberAreNotTrimmedToInt() throws Exception {
-    ScriptValuesMod transform = TransformMockUtil.getTransform( ScriptValuesMod.class, ScriptValuesMetaMod.class, ScriptValuesModData.class, "test" );
+    ScriptValues transform = TransformMockUtil.getTransform( ScriptValues.class, ScriptValuesMeta.class, ScriptValuesData.class, "test" );
 
     RowMeta input = new RowMeta();
     input.addValueMeta( new ValueMetaBigNumber( "value_int" ) );
@@ -58,7 +58,7 @@ public class ScriptValuesModTest {
     transform = spy( transform );
     doReturn( new Object[] { BigDecimal.ONE, BigDecimal.ONE } ).when( transform ).getRow();
 
-    ScriptValuesMetaMod meta = new ScriptValuesMetaMod();
+    ScriptValuesMeta meta = new ScriptValuesMeta();
     meta.allocate( 2 );
     meta.setFieldname( new String[] { "value_int", "value_double" } );
     meta.setType( new int[] { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_BIGNUMBER } );
@@ -69,7 +69,7 @@ public class ScriptValuesModTest {
         "value_int = 10.00;\nvalue_double = 10.50" )
     } );
 
-    ScriptValuesModData data = new ScriptValuesModData();
+    ScriptValuesData data = new ScriptValuesData();
     transform.init();
 
     Object[] expectedRow = { BigDecimal.TEN, new BigDecimal( "10.5" ) };
@@ -80,7 +80,7 @@ public class ScriptValuesModTest {
   @Test
   @Ignore
   public void variableIsSetInScopeOfTransform() throws Exception {
-    ScriptValuesMod transform = TransformMockUtil.getTransform( ScriptValuesMod.class, ScriptValuesMetaMod.class, ScriptValuesModData.class, "test" );
+    ScriptValues transform = TransformMockUtil.getTransform( ScriptValues.class, ScriptValuesMeta.class, ScriptValuesData.class, "test" );
 
     RowMeta input = new RowMeta();
     input.addValueMeta( new ValueMetaString( "str" ) );
@@ -89,7 +89,7 @@ public class ScriptValuesModTest {
     transform = spy( transform );
     doReturn( new Object[] { "" } ).when( transform ).getRow();
 
-    ScriptValuesMetaMod meta = new ScriptValuesMetaMod();
+    ScriptValuesMeta meta = new ScriptValuesMeta();
     meta.allocate( 1 );
     meta.setFieldname( new String[] { "str" } );
     meta.setType( new int[] { IValueMeta.TYPE_STRING } );
@@ -100,7 +100,7 @@ public class ScriptValuesModTest {
         "setVariable('temp', 'pass', 'r');\nstr = getVariable('temp', 'fail');" )
     } );
 
-    ScriptValuesModData data = new ScriptValuesModData();
+    ScriptValuesData data = new ScriptValuesData();
     transform.init();
 
     Object[] expectedRow = { "pass" };
