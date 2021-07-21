@@ -47,15 +47,14 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
   // nr clones
   private Label wlnrClone;
   private TextVar wnrClone;
-
   private Label wlcloneFlagField;
   private Label wlCloneNumField;
-  private TextVar wcloneFlagField, wCloneNumField;
-  private Button waddCloneFlag, waddCloneNum;
-
+  private TextVar wcloneFlagField;
+  private TextVar wCloneNumField;
+  private Button waddCloneFlag;
+  private Button waddCloneNum;
   private Label wlNrCloneField;
   private CCombo wNrCloneField;
-
   private Button wIsNrCloneInField;
 
   private boolean gotPreviousFields = false;
@@ -203,10 +202,10 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     props.setLook(wOutpuFields);
     wOutpuFields.setText(BaseMessages.getString(PKG, "CloneRowDialog.wOutpuFields.Label"));
 
-    FormLayout OutpuFieldsgroupLayout = new FormLayout();
-    OutpuFieldsgroupLayout.marginWidth = 10;
-    OutpuFieldsgroupLayout.marginHeight = 10;
-    wOutpuFields.setLayout(OutpuFieldsgroupLayout);
+    FormLayout outpuFieldsgroupLayout = new FormLayout();
+    outpuFieldsgroupLayout.marginWidth = 10;
+    outpuFieldsgroupLayout.marginHeight = 10;
+    wOutpuFields.setLayout(outpuFieldsgroupLayout);
 
     // add clone flag?
     Label wladdCloneFlag = new Label(wOutpuFields, SWT.RIGHT);

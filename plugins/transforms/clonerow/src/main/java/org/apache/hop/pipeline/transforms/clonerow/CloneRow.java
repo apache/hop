@@ -30,9 +30,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Clone input row.
- *
- * @author Samatar
- * @since 27-06-2008
  */
 public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implements ITransform<CloneRowMeta, CloneRowData> {
 
@@ -148,7 +145,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
         if ( meta.isAddCloneNum() ) {
           // Let's add to clone number
           // Clone starts at number 1 (0 is for the original row)
-          Long clonenum = new Long( i + 1 );
+          Long clonenum = i + 1L;
           outputRowData[ rowIndex ] = clonenum;
         }
       }
@@ -161,14 +158,4 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
 
     return true;
   }
-
-  @Override
-  public boolean init(){
-    if ( super.init() ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
-  }
-
 }
