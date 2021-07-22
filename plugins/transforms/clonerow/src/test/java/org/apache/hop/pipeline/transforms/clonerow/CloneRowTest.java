@@ -33,9 +33,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Andrey Khayrutdinov
- */
 public class CloneRowTest {
 
   private TransformMockHelper<CloneRowMeta, CloneRowData> transformMockHelper;
@@ -43,10 +40,10 @@ public class CloneRowTest {
   @Before
   public void setup() {
     transformMockHelper =
-      new TransformMockHelper<>( "Test CloneRow", CloneRowMeta.class, CloneRowData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("Test CloneRow", CloneRowMeta.class, CloneRowData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
   @After
@@ -54,22 +51,27 @@ public class CloneRowTest {
     transformMockHelper.cleanUp();
   }
 
-  @Test( expected = HopException.class )
+  @Test(expected = HopException.class)
   public void nullNrCloneField() throws Exception {
     CloneRow transform =
-      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
+        new CloneRow(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
     transform.init();
 
-    IRowMeta inputRowMeta = mock( IRowMeta.class );
-    when( inputRowMeta.getInteger( any( Object[].class ), anyInt() ) ).thenReturn( null );
+    IRowMeta inputRowMeta = mock(IRowMeta.class);
+    when(inputRowMeta.getInteger(any(Object[].class), anyInt())).thenReturn(null);
 
-    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet( new Integer[] { null } );
-    when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
-    transform.setInputRowSets( Collections.singletonList( inputRowSet ) );
+    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet(new Integer[] {null});
+    when(inputRowSet.getRowMeta()).thenReturn(inputRowMeta);
+    transform.setInputRowSets(Collections.singletonList(inputRowSet));
 
-    when( transformMockHelper.iTransformMeta.isNrCloneInField() ).thenReturn( true );
-    when( transformMockHelper.iTransformMeta.getNrCloneField() ).thenReturn( "field" );
+    when(transformMockHelper.iTransformMeta.isNrCloneInField()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.getNrCloneField()).thenReturn("field");
 
     transform.processRow();
   }
