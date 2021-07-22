@@ -1193,18 +1193,6 @@
       </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-transforms-dropbox</artifactId>
-      <version>${hop-plugins-transforms.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.hop</groupId>
@@ -1768,19 +1756,6 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-mongodb</artifactId>
-      <version>${hop-plugins-transforms.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-assemblies-plugins-transforms-mqtt</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
       <exclusions>
