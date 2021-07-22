@@ -64,23 +64,8 @@ It can also accept any number of input streams, aggregate any fields defined by 
 |Pipeline file name|File name of the pipeline (XML only).
 |User that modified the pipeline last|
 |Date when the pipeline was modified last|
-|Pipeline batch ID|ID_BATCH value in the logging table, see .08 Pipeline Settings.
-|Parent workflow batch ID|The Hop batch ID of the parent workflow taken from the workflow logging table. You need to enable logging in the workflow and set "Pass batch ID" in the workflow settings.
 |Hostname|Returns the hostname of the server.
 |IP address|Returns the IP address of the server.
-|Command line argument 1|Argument 1 on the command line
-|Command line argument 2|Argument 2 on the command line
-|Command line argument 3|Argument 3 on the command line
-|Command line argument 4|Argument 4 on the command line
-|Command line argument 5|Argument 5 on the command line
-|Command line argument 6|Argument 6 on the command line
-|Command line argument 7|Argument 7 on the command line
-|Command line argument 8|Argument 8 on the command line
-|Command line argument 9|Argument 9 on the command line
-|Command line argument 10|Argument 10 on the command line
-|Hop version|Returns the Hop version (for example, 1.0.0)
-|Hop Build Version|Returns the build version of the core Hop library (for example, 13)
-|Hop Build Date|Returns the build date of the core Hop library
 |Current process identifier (PID)|The PID under which the Java process is currently running
 |JVM max memory|
 |JVM total memory|

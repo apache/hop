@@ -73,7 +73,7 @@ The current (1-july 2021) status is:
 |Change file encoding|N
 |Check if file is locked|N
 |Check if webservice is available|N
-|Clone row|N
+|Clone row|Y
 |Closure generator|N
 |Coalesce Fields|Y
 |Column exists|N
