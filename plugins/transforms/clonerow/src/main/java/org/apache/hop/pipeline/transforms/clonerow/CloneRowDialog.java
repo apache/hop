@@ -155,6 +155,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     wIsNrCloneInField.setLayoutData(fdisNrCloneInField);
     SelectionAdapter lisNrCloneInField =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activeIsNrCloneInField();
             input.setChanged();
@@ -183,7 +184,9 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     wNrCloneField.setLayoutData(fdNrCloneField);
     wNrCloneField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // disable focusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -227,6 +230,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     waddCloneFlag.setLayoutData(fdaddCloneFlag);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
             activeAddCloneFlag();
@@ -274,6 +278,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     waddCloneNum.setLayoutData(fdaddCloneNum);
     waddCloneNum.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
             activeAddCloneNum();

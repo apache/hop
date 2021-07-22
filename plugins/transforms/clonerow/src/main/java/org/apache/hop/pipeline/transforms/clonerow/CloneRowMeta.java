@@ -38,10 +38,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/*
- * Created on 27-06-2008
- *
- */
 @Transform(
     id = "CloneRow",
     name = "i18n::CloneRow.Name",
@@ -86,7 +82,7 @@ public class CloneRowMeta extends BaseTransformMeta
       key = "addclonenum",
       injectionKeyDescription = "CloneRowMeta.Injection.AddCloneNum")
   private boolean addCloneNum;
-  
+
   @HopMetadataProperty(
       key = "clonenumfield",
       injectionKeyDescription = "CloneRowMeta.Injection.CloneNumField")
@@ -94,12 +90,6 @@ public class CloneRowMeta extends BaseTransformMeta
 
   public CloneRowMeta() {
     super();
-  }
-  
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
   }
 
   public String getNrClones() {
