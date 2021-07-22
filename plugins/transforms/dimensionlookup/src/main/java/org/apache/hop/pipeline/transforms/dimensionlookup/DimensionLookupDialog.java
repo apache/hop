@@ -25,7 +25,6 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -45,7 +44,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -127,7 +125,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private Button wCreate;
 
   private final DimensionLookupMeta input;
-  private boolean backupUpdate, backupAutoInc;
+  private boolean backupUpdate;
+  private boolean backupAutoInc;
 
   private DatabaseMeta ci;
 
@@ -144,9 +143,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  private Composite helpComp;
-  private Composite mainComposite;
-
   public DimensionLookupDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -159,12 +155,13 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
+    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
 
     FocusListener lsConnectionFocus =
         new FocusAdapter() {
-
+          @Override
           public void focusLost(FocusEvent event) {
             input.setChanged();
             setTableFieldCombo();
@@ -202,16 +199,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     sComp.setExpandHorizontal(true);
     sComp.setExpandVertical(true);
 
-    helpComp = new Composite(shell, SWT.NONE);
-    helpComp.setLayout(new FormLayout());
-    GridData helpCompData = new GridData();
-    helpCompData.grabExcessHorizontalSpace = true;
-    helpCompData.grabExcessVerticalSpace = false;
-    helpComp.setLayoutData(helpCompData);
-
-    setShellImage(shell, input);
-
-    mainComposite = new Composite(sComp, SWT.NONE);
+    Composite mainComposite = new Composite(sComp, SWT.NONE);
     props.setLook(mainComposite);
 
     FormLayout fileLayout = new FormLayout();
@@ -259,6 +247,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // Clicking on update changes the options in the update combo boxes!
     wUpdate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setUpdate(!input.isUpdate());
             input.setChanged();
@@ -362,6 +351,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook(wUseCache);
     wUseCache.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             setFlags();
             input.setChanged();
@@ -386,6 +376,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook(wPreloadCache);
     wPreloadCache.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             setFlags();
             input.setChanged();
@@ -518,10 +509,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlUpIns.top = new FormAttachment(0, margin);
     wlUpIns.setLayoutData(fdlUpIns);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getFieldStream() != null ? input.getFieldStream().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getFieldStream() != null ? input.getFieldStream().length : 1);
 
-    ciUpIns = new ColumnInfo[UpInsCols];
+    ciUpIns = new ColumnInfo[upInsCols];
     ciUpIns[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "DimensionLookupDialog.ColumnInfo.DimensionField"),
@@ -546,7 +537,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciUpIns,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -618,7 +609,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTk.setLayoutData(fdTk);
     wTk.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -703,7 +696,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             wTableMax.setSelection(false);
           }
 
-          public void focusLost(FocusEvent arg0) {}
+          public void focusLost(FocusEvent arg0) {
+            // Do not trigger focusLost
+          }
         });
 
     // Use an autoincrement field?
@@ -743,7 +738,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wVersion.setLayoutData(fdVersion);
     wVersion.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -773,7 +770,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wDatefield.setLayoutData(fdDatefield);
     wDatefield.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -807,7 +806,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wFromdate.setLayoutData(fdFromdate);
     wFromdate.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -859,6 +860,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wUseAltStartDate.setLayoutData(fdUseAltStartDate);
     wUseAltStartDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setFlags();
             input.setChanged();
@@ -902,7 +904,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wAltStartDateField.setLayoutData(fdAltStartDateField);
     wAltStartDateField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -932,7 +936,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTodate.setLayoutData(fdTodate);
     wTodate.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do not trigger focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -975,7 +981,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wCancel = new Button(mainComposite, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    positionBottomButtons(shell, new Button[] {wOk, wGet, wCreate, wCancel}, margin, wMaxyear);
+    setButtonPositions(new Button[] {wOk, wGet, wCreate, wCancel}, margin, wMaxyear);
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment(0, 0);
@@ -999,12 +1005,14 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -1090,15 +1098,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // "unknown" is 1.
     // If we have a MySQL database with Table-max the "unknown" is 0.
     //
-
-    // gTechGroup.setEnabled( update );
-    // wlAutoinc.setEnabled( update );
-    // wAutoinc.setEnabled( update );
-    // wlTableMax.setEnabled( update );
-    // wTableMax.setEnabled( update );
-    // wlSeqButton.setEnabled( update );
-    // wSeqButton.setEnabled( update );
-    // wSeq.setEnabled( update );
 
     if (update) {
       setAutoincUse();
@@ -1350,7 +1349,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private void getInfo(DimensionLookupMeta in) {
     in.setUpdate(wUpdate.getSelection());
 
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wUpIns.nrNonEmpty();
 
@@ -1509,9 +1507,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {
@@ -1739,11 +1737,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
           BaseMessages.getString(PKG, "DimensionLookupDialog.FailedToGetFields.DialogMessage"),
           ke);
     }
-  }
-
-  @Override
-  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
-    return HelpUtils.createHelpButton(helpComp, HelpUtils.getHelpDialogTitle(plugin), plugin);
   }
 
   // Generate code for create table...
