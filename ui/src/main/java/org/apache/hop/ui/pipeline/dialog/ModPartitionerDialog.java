@@ -36,18 +36,14 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
@@ -179,7 +175,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     IPlugin plugin =
         PluginRegistry.getInstance().getPlugin(PartitionerPluginType.class, partitioner.getId());
     if (!Utils.isEmpty(plugin.getDocumentationUrl())) {
-      createHelpButton(shell, transformMeta, plugin);
+      HelpUtils.createHelpButton(shell, plugin);
     }
 
     shell.setImage(GuiResource.getInstance().getImageHopUi());

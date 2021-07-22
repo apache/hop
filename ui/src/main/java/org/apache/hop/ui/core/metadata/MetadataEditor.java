@@ -109,7 +109,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   protected Button createHelpButton(final Shell shell) {  
     HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
     IPlugin plugin =  PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());   
-    return HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
+    return HelpUtils.createHelpButton(shell, plugin);
   }
   
   public HopGui getHopGui() {
