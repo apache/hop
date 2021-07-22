@@ -19,6 +19,6 @@ under the License.
 
 = Workflows
 
-* https://hop.apache.org/manual/latest/hop-gui/workflows/create-workflow.html[Create a Workflow]
-* https://hop.apache.org/manual/latest/hop-gui/workflows/run-debug-workflow.html[Run and Debug a Workflow]
-* https://hop.apache.org/manual/latest/hop-gui/workflows/workflow-run-configurations/workflow-run-configurations.html[Workflow Run Configurations]
+** xref:workflow/create-workflow.adoc[Create a Workflow]
+** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]
+** xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
