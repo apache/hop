@@ -21,7 +21,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 
 /**
  * An interface for pipeline transforms that connect to a database table. For example a table output transform or a bulk
- * loader. This interface is used by the Agile BI plugin to determine which transforms it can model or visualize.
+ * loader.
  *
  * @author jamesdixon
  */

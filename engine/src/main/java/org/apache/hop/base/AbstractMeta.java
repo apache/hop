@@ -319,6 +319,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
    */
+  @Deprecated
   public DatabaseMeta findDatabase( String name ) {
     if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
       return null;
@@ -328,6 +329,24 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
       return databaseMeta;
     } catch ( HopException e ) {
       throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
+    }
+  }
+
+  /**
+   * Find a database connection by it's name
+   *
+   * @param name The database name to look for
+   * @return The database connection or null if nothing was found.
+   */
+  public DatabaseMeta findDatabase( String name, IVariables variables ) {
+    if ( metadataProvider == null || StringUtils.isEmpty( variables.resolve(name) ) ) {
+      return null;
+    }
+    try {
+      DatabaseMeta databaseMeta = metadataProvider.getSerializer( DatabaseMeta.class ).load( variables.resolve(name) );
+      return databaseMeta;
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to load database with name '" + variables.resolve(name) + "' from the metadata", e );
     }
   }
 
