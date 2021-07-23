@@ -179,9 +179,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     backupAutoInc = input.isAutoIncrement();
     ci = input.getDatabaseMeta();
 
-    GridLayout shellLayout = new GridLayout();
-    shellLayout.numColumns = 1;
-    shell.setLayout(shellLayout);
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = Const.FORM_MARGIN;
+    formLayout.marginHeight = Const.FORM_MARGIN;
+
+    shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
@@ -189,10 +191,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     Composite sCompParent = new Composite(shell, SWT.NONE);
     sCompParent.setLayout(new FillLayout(SWT.VERTICAL));
-    GridData sCompGridData = new GridData(GridData.FILL_BOTH);
-    sCompGridData.grabExcessHorizontalSpace = true;
-    sCompGridData.grabExcessVerticalSpace = true;
-    sCompParent.setLayoutData(sCompGridData);
+    FormData fdCompGridData = new FormData();
+    sCompParent.setLayoutData(fdCompGridData);
 
     ScrolledComposite sComp = new ScrolledComposite(sCompParent, SWT.V_SCROLL | SWT.H_SCROLL);
     sComp.setLayout(new FormLayout());
@@ -643,12 +643,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     Group gTechGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
     gTechGroup.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TechGroup.Label"));
-    GridLayout gridLayout = new GridLayout(3, false);
-    gTechGroup.setLayout(gridLayout);
+
+    FormLayout groupLayout = new FormLayout();
+    groupLayout.marginHeight = 10;
+    groupLayout.marginWidth = 10;
+    gTechGroup.setLayout(groupLayout);
     FormData fdTechGroup = new FormData();
-    fdTechGroup.left = new FormAttachment(middle, 0);
-    fdTechGroup.top = new FormAttachment(wTkRename, 2 * margin);
-    fdTechGroup.right = new FormAttachment(100, 0);
+    fdTechGroup.top = new FormAttachment(wTkRename, margin);
+    fdTechGroup.left = new FormAttachment(middle,0);
+    fdTechGroup.right = new FormAttachment(100,-margin);
     gTechGroup.setBackground(shell.getBackground()); // the default looks ugly
     gTechGroup.setLayoutData(fdTechGroup);
 
@@ -656,37 +659,48 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTableMax = new Button(gTechGroup, SWT.RADIO);
     props.setLook(wTableMax);
     wTableMax.setSelection(false);
-    GridData gdTableMax = new GridData();
-    wTableMax.setLayoutData(gdTableMax);
+    FormData fdTableMax = new FormData();
+    fdTableMax.left = new FormAttachment(0, 0);
+    fdTableMax.top = new FormAttachment(wTkRename,  margin);
+    wTableMax.setLayoutData(fdTableMax);
     wTableMax.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Tooltip", Const.CR));
     wlTableMax = new Label(gTechGroup, SWT.LEFT);
     wlTableMax.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Label"));
     props.setLook(wlTableMax);
-    GridData gdlTableMax = new GridData(GridData.FILL_BOTH);
-    gdlTableMax.horizontalSpan = 2;
-    gdlTableMax.verticalSpan = 1;
-    wlTableMax.setLayoutData(gdlTableMax);
+    FormData fdlTableMax = new FormData();
+    fdlTableMax.left = new FormAttachment(wTableMax, margin);
+    fdlTableMax.top = new FormAttachment(wTkRename,  margin);
+    fdlTableMax.right = new FormAttachment(100, 0);
+    wlTableMax.setLayoutData(fdlTableMax);
 
     // Sequence Check Button
     wSeqButton = new Button(gTechGroup, SWT.RADIO);
     props.setLook(wSeqButton);
     wSeqButton.setSelection(false);
-    GridData gdSeqButton = new GridData();
-    wSeqButton.setLayoutData(gdSeqButton);
+    FormData fdSeqButton = new FormData();
+    fdSeqButton.left = new FormAttachment(0, 0);
+    fdSeqButton.top = new FormAttachment(wTableMax,  margin);
+    wSeqButton.setLayoutData(fdSeqButton);
     wSeqButton.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Tooltip", Const.CR));
     wlSeqButton = new Label(gTechGroup, SWT.LEFT);
     wlSeqButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Label"));
     props.setLook(wlSeqButton);
-    GridData gdlSeqButton = new GridData();
-    wlSeqButton.setLayoutData(gdlSeqButton);
+    FormData fdlSeqButton = new FormData();
+    fdlSeqButton.left = new FormAttachment(wSeqButton, 0);
+    fdlSeqButton.top = new FormAttachment(wTableMax,  margin);
+    fdlSeqButton.right = new FormAttachment(100, 0);
+    wlSeqButton.setLayoutData(fdlSeqButton);
 
     wSeq = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSeq);
     wSeq.addModifyListener(lsMod);
-    GridData gdSeq = new GridData(GridData.FILL_HORIZONTAL);
-    wSeq.setLayoutData(gdSeq);
+    FormData fdSeq = new FormData();
+    fdSeq.left = new FormAttachment(0, 0);
+    fdSeq.top = new FormAttachment(wSeqButton,  margin);
+    fdSeq.right = new FormAttachment(100, 0);
+    wSeq.setLayoutData(fdSeq);
     wSeq.addFocusListener(
         new FocusListener() {
           public void focusGained(FocusEvent arg0) {
@@ -705,15 +719,20 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wAutoinc = new Button(gTechGroup, SWT.RADIO);
     props.setLook(wAutoinc);
     wAutoinc.setSelection(false);
-    GridData gdAutoinc = new GridData();
-    wAutoinc.setLayoutData(gdAutoinc);
+    FormData fdAutoinc = new FormData();
+    fdAutoinc.left = new FormAttachment(0, 0);
+    fdAutoinc.top = new FormAttachment(wSeq,  margin);
+    wAutoinc.setLayoutData(fdAutoinc);
     wAutoinc.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoincButton.Tooltip", Const.CR));
     wlAutoinc = new Label(gTechGroup, SWT.LEFT);
     wlAutoinc.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Autoincrement.Label"));
     props.setLook(wlAutoinc);
-    GridData gdlAutoinc = new GridData();
-    wlAutoinc.setLayoutData(gdlAutoinc);
+    FormData fdlAutoinc = new FormData();
+    fdlAutoinc.left = new FormAttachment(wAutoinc, 0);
+    fdlAutoinc.top = new FormAttachment(wSeq,  margin);
+    fdlAutoinc.right = new FormAttachment(100, 0);
+    wlAutoinc.setLayoutData(fdlAutoinc);
 
     // //////////////////////////////////////////////////
     // The key creation box END
@@ -1519,9 +1538,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             // next get focus
             gotTableFields = false;
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              if (databaseMeta != null) {
+                Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
                   db.connect();
 
@@ -1629,9 +1648,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private void getFieldsFromTable() {
     if (!gotTableFields) {
       if (!Utils.isEmpty(wTable.getText())) {
-        DatabaseMeta ci = pipelineMeta.findDatabase(wConnection.getText());
-        if (ci != null) {
-          Database db = new Database(loggingObject, variables, ci);
+        DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+        if (databaseMeta != null) {
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
             IRowMeta r =
