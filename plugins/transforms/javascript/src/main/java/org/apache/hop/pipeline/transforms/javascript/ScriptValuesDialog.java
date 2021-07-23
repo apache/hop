@@ -70,7 +70,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.*;
 
-public class ScriptValuesMetaDialog extends BaseTransformDialog implements ITransformDialog {
+public class ScriptValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO =
@@ -100,7 +100,7 @@ public class ScriptValuesMetaDialog extends BaseTransformDialog implements ITran
   private Menu cMenu;
   private Menu tMenu;
 
-  // Suport for Rename Tree
+  // Support for Rename Tree
   private TreeItem[] lastItem;
   private TreeEditor editor;
 
@@ -138,7 +138,7 @@ public class ScriptValuesMetaDialog extends BaseTransformDialog implements ITran
 
   private RowGeneratorMeta genMeta;
 
-  public ScriptValuesMetaDialog(
+  public ScriptValuesDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
 
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
