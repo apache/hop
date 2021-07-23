@@ -701,7 +701,7 @@ public class WorkflowDialog extends Dialog {
         addDeprecation(shell);
       }
 
-      helpButton = HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
+      helpButton = HelpUtils.createHelpButton(shell, plugin);
 
       shell.setImage(getImage(shell, plugin));
 

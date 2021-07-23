@@ -33,18 +33,14 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -424,26 +420,13 @@ public class EnterSelectionDialog extends Dialog {
     fdSeparator.left = new FormAttachment(0, 10);
     separator.setLayoutData(fdSeparator);
 
-    Button btnHelp = new Button(shell, SWT.PUSH);
-    btnHelp.setImage(GuiResource.getInstance().getImageHelpWeb());
+    Button btnHelp = HelpUtils.createHelpButton(shell, Const.getDocUrl(BaseMessages.getString(PKG, "EnterSelectionDialog.Help")));   
     FormData fd_btnHelp = new FormData();
     fd_btnHelp.top = new FormAttachment(separator, 12);
     fd_btnHelp.left = new FormAttachment(0, 10);
     fd_btnHelp.bottom = new FormAttachment(100, -10);
     fd_btnHelp.width = (Const.isOSX() ? 85 : 75);
     btnHelp.setLayoutData(fd_btnHelp);
-    btnHelp.setText(BaseMessages.getString(PKG, "System.Button.Help"));
-    btnHelp.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            HelpUtils.openHelpDialog(
-                shell,
-                BaseMessages.getString(PKG, "EnterSelectionDialog.Help.Title"),
-                Const.getDocUrl(BaseMessages.getString(PKG, "EnterSelectionDialog.Help")),
-                BaseMessages.getString(PKG, "EnterSelectionDialog.Help.Header"));
-          }
-        });
 
     fdSelection = new FormData();
     fdSelection.left = new FormAttachment(0, 10);
