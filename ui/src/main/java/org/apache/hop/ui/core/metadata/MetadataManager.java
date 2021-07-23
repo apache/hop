@@ -150,11 +150,11 @@ public class MetadataManager<T extends IHopMetadata> {
 
       // Load the metadata element from the metadata
       //
-      T element = serializer.load( elementName );
+      T element = serializer.load( getVariables().resolve( elementName ));
       if ( element == null ) {
         // Something removed or renamed the element in the background
         //
-        throw new HopException( "Unable to find element '" + elementName + "' in the metadata" );
+        throw new HopException( "Unable to find element '" + getVariables().resolve( elementName ) + "' in the metadata" );
       }
 
       initializeElementVariables( element );

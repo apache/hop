@@ -19,9 +19,6 @@ package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.parameters.INamedParameterDefinitions;
-import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.IEngineMeta;
@@ -40,44 +37,34 @@ import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.NamedParameters;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.server.HopServer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes, ILoggingObject {
+public abstract class AbstractMeta
+    implements IChanged,
+        IUndo,
+        IEngineMeta,
+        INamedParameterDefinitions,
+        IAttributes,
+        ILoggingObject {
 
-  /**
-   * Constant = 1
-   **/
+  /** Constant = 1 */
   public static final int TYPE_UNDO_CHANGE = 1;
 
-  /**
-   * Constant = 2
-   **/
+  /** Constant = 2 */
   public static final int TYPE_UNDO_NEW = 2;
 
-  /**
-   * Constant = 3
-   **/
+  /** Constant = 3 */
   public static final int TYPE_UNDO_DELETE = 3;
 
-  /**
-   * Constant = 4
-   **/
+  /** Constant = 4 */
   public static final int TYPE_UNDO_POSITION = 4;
 
   protected String containerObjectId;
@@ -92,13 +79,17 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
 
   protected String filename;
 
-  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+  protected Set<INameChangedListener> nameChangedListeners =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+  protected Set<IFilenameChangedListener> filenameChangedListeners =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+  protected Set<IContentChangedListener> contentChangedListeners =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   protected List<NotePadMeta> notes;
 
@@ -115,7 +106,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   protected IHopMetadataProvider metadataProvider;
 
   protected String createdUser, modifiedUser;
-
   protected Date createdDate, modifiedDate;
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
@@ -135,7 +125,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return showDialog;
   }
 
-  public void setShowDialog( boolean showDialog ) {
+  public void setShowDialog(boolean showDialog) {
     this.showDialog = showDialog;
   }
 
@@ -143,7 +133,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return alwaysShowRunOptions;
   }
 
-  public void setAlwaysShowRunOptions( boolean alwaysShowRunOptions ) {
+  public void setAlwaysShowRunOptions(boolean alwaysShowRunOptions) {
     this.alwaysShowRunOptions = alwaysShowRunOptions;
   }
 
@@ -162,43 +152,45 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param containerObjectId the execution container Object id to set
    */
-  public void setCarteObjectId( String containerObjectId ) {
+  public void setCarteObjectId(String containerObjectId) {
     this.containerObjectId = containerObjectId;
   }
 
   protected abstract String getExtension();
 
   /**
-   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base filename.
+   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base
+   * filename.
    *
    * @return The name of the pipeline
    */
   @Override
   public String getName() {
-    return extractNameFromFilename( nameSynchronizedWithFilename, name, filename, getExtension() );
+    return extractNameFromFilename(nameSynchronizedWithFilename, name, filename, getExtension());
   }
 
-  public static final String extractNameFromFilename( boolean sync, String name, String filename, String extension ) {
-    if ( filename == null ) {
+  public static final String extractNameFromFilename(
+      boolean sync, String name, String filename, String extension) {
+    if (filename == null) {
       return name;
     } else {
-      if ( sync ) {
-        int lastExtIndex = filename.toLowerCase().lastIndexOf( extension );
-        if ( lastExtIndex < 0 ) {
+      if (sync) {
+        int lastExtIndex = filename.toLowerCase().lastIndexOf(extension);
+        if (lastExtIndex < 0) {
           lastExtIndex = filename.length();
         }
 
         // Get the last / or \ in a filename
         //
-        int lastSlashIndex = filename.lastIndexOf( '/' );
-        if ( lastSlashIndex < 0 ) {
-          lastSlashIndex = filename.lastIndexOf( '\\' );
+        int lastSlashIndex = filename.lastIndexOf('/');
+        if (lastSlashIndex < 0) {
+          lastSlashIndex = filename.lastIndexOf('\\');
         }
-        if ( lastSlashIndex < 0 ) {
+        if (lastSlashIndex < 0) {
           lastSlashIndex = -1;
         }
 
-        return filename.substring( lastSlashIndex + 1, lastExtIndex );
+        return filename.substring(lastSlashIndex + 1, lastExtIndex);
 
       } else {
         return name;
@@ -211,8 +203,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param newName The new name
    */
-  public void setName( String newName ) {
-    fireNameChangedListeners( this.name, newName );
+  public void setName(String newName) {
+    fireNameChangedListeners(this.name, newName);
     this.name = newName;
   }
 
@@ -225,10 +217,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return nameSynchronizedWithFilename;
   }
 
-  /**
-   * @param nameSynchronizedWithFilename The nameSynchronizedWithFilename to set
-   */
-  public void setNameSynchronizedWithFilename( boolean nameSynchronizedWithFilename ) {
+  /** @param nameSynchronizedWithFilename The nameSynchronizedWithFilename to set */
+  public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
     this.nameSynchronizedWithFilename = nameSynchronizedWithFilename;
   }
 
@@ -246,7 +236,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param description The new description of the workflow
    */
-  public void setDescription( String description ) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -264,17 +254,15 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param extendedDescription The new extended description of the workflow
    */
-  public void setExtendedDescription( String extendedDescription ) {
+  public void setExtendedDescription(String extendedDescription) {
     this.extendedDescription = extendedDescription;
   }
 
-  /**
-   * Builds a name - if no name is set, yet - from the filename
-   */
+  /** Builds a name - if no name is set, yet - from the filename */
   @Override
   public void nameFromFilename() {
-    if ( !Utils.isEmpty( filename ) ) {
-      setName( Const.createName( filename ) );
+    if (!Utils.isEmpty(filename)) {
+      setName(Const.createName(filename));
     }
   }
 
@@ -295,47 +283,70 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param newFilename The new filename of the workflow
    */
   @Override
-  public void setFilename( String newFilename ) {
-    fireFilenameChangedListeners( this.filename, newFilename );
+  public void setFilename(String newFilename) {
+    fireFilenameChangedListeners(this.filename, newFilename);
     this.filename = newFilename;
   }
 
-
-  /**
-   * This method sets various internal hop variables.
-   */
-  public abstract void setInternalHopVariables( IVariables var );
+  /** This method sets various internal hop variables. */
+  public abstract void setInternalHopVariables(IVariables var);
 
   /**
    * Sets the internal filename hop variables.
    *
    * @param var the new internal filename hop variables
    */
-  protected abstract void setInternalFilenameHopVariables( IVariables var );
+  protected abstract void setInternalFilenameHopVariables(IVariables var);
+
+  /**
+   * Find a database connection by it's name
+   *
+   * @deprecated use {@link #findDatabase(String name, IVariables variables)}
+   * @param name The database name to look for
+   * @return The database connection or null if nothing was found.
+   */
+  @Deprecated
+  public DatabaseMeta findDatabase(String name) {
+    if (metadataProvider == null || StringUtils.isEmpty(name)) {
+      return null;
+    }
+    try {
+      DatabaseMeta databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(name);
+      return databaseMeta;
+    } catch (HopException e) {
+      throw new RuntimeException(
+          "Unable to load database with name '" + name + "' from the metadata", e);
+    }
+  }
 
   /**
    * Find a database connection by it's name
    *
    * @param name The database name to look for
+   * @param variables Ivariables to use to resolve possible database name
    * @return The database connection or null if nothing was found.
    */
-  public DatabaseMeta findDatabase( String name ) {
-    if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
+  public DatabaseMeta findDatabase(String name, IVariables variables) {
+    if (metadataProvider == null || StringUtils.isEmpty(variables.resolve(name))) {
       return null;
     }
     try {
-      DatabaseMeta databaseMeta = metadataProvider.getSerializer( DatabaseMeta.class ).load( name );
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
       return databaseMeta;
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
+    } catch (HopException e) {
+      throw new RuntimeException(
+          "Unable to load database with name '" + variables.resolve(name) + "' from the metadata",
+          e);
     }
   }
 
   public int nrDatabases() {
     try {
-      return metadataProvider.getSerializer( DatabaseMeta.class ).listObjectNames().size();
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
+      return metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames().size();
+    } catch (HopException e) {
+      throw new RuntimeException(
+          "Unable to load database with name '" + name + "' from the metadata", e);
     }
   }
 
@@ -344,9 +355,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener the listener
    */
-  public void addNameChangedListener( INameChangedListener listener ) {
-    if ( listener != null ) {
-      nameChangedListeners.add( listener );
+  public void addNameChangedListener(INameChangedListener listener) {
+    if (listener != null) {
+      nameChangedListeners.add(listener);
     }
   }
 
@@ -355,15 +366,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener the listener
    */
-  public void removeNameChangedListener( INameChangedListener listener ) {
-    if ( listener != null ) {
-      nameChangedListeners.remove( listener );
+  public void removeNameChangedListener(INameChangedListener listener) {
+    if (listener != null) {
+      nameChangedListeners.remove(listener);
     }
   }
 
-  /**
-   * Removes all the name changed listeners
-   */
+  /** Removes all the name changed listeners */
   public void clearNameChangedListeners() {
     nameChangedListeners.clear();
   }
@@ -374,10 +383,10 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param oldName the old name
    * @param newName the new name
    */
-  protected void fireNameChangedListeners( String oldName, String newName ) {
-    if ( nameChanged( oldName, newName ) ) {
-      for ( INameChangedListener listener : nameChangedListeners ) {
-        listener.nameChanged( this, oldName, newName );
+  protected void fireNameChangedListeners(String oldName, String newName) {
+    if (nameChanged(oldName, newName)) {
+      for (INameChangedListener listener : nameChangedListeners) {
+        listener.nameChanged(this, oldName, newName);
       }
     }
   }
@@ -387,9 +396,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener the listener
    */
-  public void addFilenameChangedListener( IFilenameChangedListener listener ) {
-    if ( listener != null ) {
-      filenameChangedListeners.add( listener );
+  public void addFilenameChangedListener(IFilenameChangedListener listener) {
+    if (listener != null) {
+      filenameChangedListeners.add(listener);
     }
   }
 
@@ -398,9 +407,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener the listener
    */
-  public void removeFilenameChangedListener( IFilenameChangedListener listener ) {
-    if ( listener != null ) {
-      filenameChangedListeners.remove( listener );
+  public void removeFilenameChangedListener(IFilenameChangedListener listener) {
+    if (listener != null) {
+      filenameChangedListeners.remove(listener);
     }
   }
 
@@ -410,10 +419,10 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param oldFilename the old filename
    * @param newFilename the new filename
    */
-  protected void fireFilenameChangedListeners( String oldFilename, String newFilename ) {
-    if ( nameChanged( oldFilename, newFilename ) ) {
-      for ( IFilenameChangedListener listener : filenameChangedListeners ) {
-        listener.filenameChanged( this, oldFilename, newFilename );
+  protected void fireFilenameChangedListeners(String oldFilename, String newFilename) {
+    if (nameChanged(oldFilename, newFilename)) {
+      for (IFilenameChangedListener listener : filenameChangedListeners) {
+        listener.filenameChanged(this, oldFilename, newFilename);
       }
     }
   }
@@ -423,9 +432,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener
    */
-  public void addContentChangedListener( IContentChangedListener listener ) {
-    if ( listener != null ) {
-      contentChangedListeners.add( listener );
+  public void addContentChangedListener(IContentChangedListener listener) {
+    if (listener != null) {
+      contentChangedListeners.add(listener);
     }
   }
 
@@ -434,64 +443,55 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param listener
    */
-  public void removeContentChangedListener( IContentChangedListener listener ) {
-    if ( listener != null ) {
-      contentChangedListeners.remove( listener );
+  public void removeContentChangedListener(IContentChangedListener listener) {
+    if (listener != null) {
+      contentChangedListeners.remove(listener);
     }
   }
 
   public List<IContentChangedListener> getContentChangedListeners() {
-    return ImmutableList.copyOf( contentChangedListeners );
+    return ImmutableList.copyOf(contentChangedListeners);
   }
 
-  /**
-   * Fire content changed listeners.
-   */
+  /** Fire content changed listeners. */
   protected void fireContentChangedListeners() {
-    fireContentChangedListeners( true );
+    fireContentChangedListeners(true);
   }
 
-  protected void fireContentChangedListeners( boolean ch ) {
-    if ( ch ) {
-      for ( IContentChangedListener listener : contentChangedListeners ) {
-        listener.contentChanged( this );
+  protected void fireContentChangedListeners(boolean ch) {
+    if (ch) {
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentChanged(this);
       }
     } else {
-      for ( IContentChangedListener listener : contentChangedListeners ) {
-        listener.contentSafe( this );
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentSafe(this);
       }
     }
   }
 
-  /**
-   * Remove listener
-   */
-  public void addCurrentDirectoryChangedListener( ICurrentDirectoryChangedListener listener ) {
-    if ( listener != null && !currentDirectoryChangedListeners.contains( listener ) ) {
-      currentDirectoryChangedListeners.add( listener );
+  /** Remove listener */
+  public void addCurrentDirectoryChangedListener(ICurrentDirectoryChangedListener listener) {
+    if (listener != null && !currentDirectoryChangedListeners.contains(listener)) {
+      currentDirectoryChangedListeners.add(listener);
     }
   }
 
-  /**
-   * Add a listener to be notified of design-time changes to current directory variable
-   */
-  public void removeCurrentDirectoryChangedListener( ICurrentDirectoryChangedListener listener ) {
-    if ( listener != null ) {
-      currentDirectoryChangedListeners.remove( listener );
+  /** Add a listener to be notified of design-time changes to current directory variable */
+  public void removeCurrentDirectoryChangedListener(ICurrentDirectoryChangedListener listener) {
+    if (listener != null) {
+      currentDirectoryChangedListeners.remove(listener);
     }
   }
 
-  /**
-   * Notify listeners of a change in current directory.
-   */
-  protected void fireCurrentDirectoryChanged( String previous, String current ) {
-    if ( nameChanged( previous, current ) ) {
-      for ( ICurrentDirectoryChangedListener listener : currentDirectoryChangedListeners ) {
-        listener.directoryChanged( this, previous, current );
+  /** Notify listeners of a change in current directory. */
+  protected void fireCurrentDirectoryChanged(String previous, String current) {
+    if (nameChanged(previous, current)) {
+      for (ICurrentDirectoryChangedListener listener : currentDirectoryChangedListeners) {
+        listener.directoryChanged(this, previous, current);
       }
     }
   }
-
 
   /**
    * Find a hop server using the name
@@ -499,14 +499,15 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param serverString the name of the hop server
    * @return the hop server or null if we couldn't spot an approriate entry.
    */
-  public HopServer findHopServer( String serverString ) {
-    if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
+  public HopServer findHopServer(String serverString) {
+    if (metadataProvider == null || StringUtils.isEmpty(name)) {
       return null;
     }
     try {
-      return metadataProvider.getSerializer( HopServer.class ).load( name );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to load hop server with name '" + name + "' from the metadata", e );
+      return metadataProvider.getSerializer(HopServer.class).load(name);
+    } catch (HopException e) {
+      throw new RuntimeException(
+          "Unable to load hop server with name '" + name + "' from the metadata", e);
     }
   }
 
@@ -517,11 +518,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   public String[] getHopServerNames() {
     try {
-      List<String> names = metadataProvider.getSerializer( HopServer.class ).listObjectNames();
-      Collections.sort( names );
-      return names.toArray( new String[ 0 ] );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to get hop server names from the metadata", e );
+      List<String> names = metadataProvider.getSerializer(HopServer.class).listObjectNames();
+      Collections.sort(names);
+      return names.toArray(new String[0]);
+    } catch (HopException e) {
+      throw new RuntimeException("Unable to get hop server names from the metadata", e);
     }
   }
 
@@ -532,8 +533,14 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * org.apache.hop.core.gui.Point[], org.apache.hop.core.gui.Point[], int, boolean)
    */
   @Override
-  public void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int typeOfChange,
-                       boolean nextAlso ) {
+  public void addUndo(
+      Object[] from,
+      Object[] to,
+      int[] pos,
+      Point[] prev,
+      Point[] curr,
+      int typeOfChange,
+      boolean nextAlso) {
     // First clean up after the current position.
     // Example: position at 3, size=5
     // 012345
@@ -542,40 +549,38 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     // Add 4
     // 01234
 
-    while ( undo.size() > undoPosition + 1 && undo.size() > 0 ) {
+    while (undo.size() > undoPosition + 1 && undo.size() > 0) {
       int last = undo.size() - 1;
-      undo.remove( last );
+      undo.remove(last);
     }
 
     ChangeAction ta = new ChangeAction();
-    switch ( typeOfChange ) {
+    switch (typeOfChange) {
       case TYPE_UNDO_CHANGE:
-        ta.setChanged( from, to, pos );
+        ta.setChanged(from, to, pos);
         break;
       case TYPE_UNDO_DELETE:
-        ta.setDelete( from, pos );
+        ta.setDelete(from, pos);
         break;
       case TYPE_UNDO_NEW:
-        ta.setNew( from, pos );
+        ta.setNew(from, pos);
         break;
       case TYPE_UNDO_POSITION:
-        ta.setPosition( from, pos, prev, curr );
+        ta.setPosition(from, pos, prev, curr);
         break;
       default:
         break;
     }
-    undo.add( ta );
+    undo.add(ta);
     undoPosition++;
 
-    if ( undo.size() > maxUndo ) {
-      undo.remove( 0 );
+    if (undo.size() > maxUndo) {
+      undo.remove(0);
       undoPosition--;
     }
   }
 
-  /**
-   * Clear undo.
-   */
+  /** Clear undo. */
   public void clearUndo() {
     undo = new ArrayList<>();
     undoPosition = -1;
@@ -589,13 +594,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   @Override
   public ChangeAction nextUndo() {
     int size = undo.size();
-    if ( size == 0 || undoPosition >= size - 1 ) {
+    if (size == 0 || undoPosition >= size - 1) {
       return null; // no redo left...
     }
 
     undoPosition++;
 
-    ChangeAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get(undoPosition);
 
     return retval;
   }
@@ -608,11 +613,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   @Override
   public ChangeAction viewNextUndo() {
     int size = undo.size();
-    if ( size == 0 || undoPosition >= size - 1 ) {
+    if (size == 0 || undoPosition >= size - 1) {
       return null; // no redo left...
     }
 
-    ChangeAction retval = undo.get( undoPosition + 1 );
+    ChangeAction retval = undo.get(undoPosition + 1);
 
     return retval;
   }
@@ -625,11 +630,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   @Override
   public ChangeAction previousUndo() {
-    if ( undo.isEmpty() || undoPosition < 0 ) {
+    if (undo.isEmpty() || undoPosition < 0) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get(undoPosition);
 
     undoPosition--;
 
@@ -643,11 +648,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   @Override
   public ChangeAction viewThisUndo() {
-    if ( undo.isEmpty() || undoPosition < 0 ) {
+    if (undo.isEmpty() || undoPosition < 0) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get(undoPosition);
 
     return retval;
   }
@@ -660,11 +665,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   @Override
   public ChangeAction viewPreviousUndo() {
-    if ( undo.isEmpty() || undoPosition < 0 ) {
+    if (undo.isEmpty() || undoPosition < 0) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get(undoPosition);
 
     return retval;
   }
@@ -685,10 +690,10 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @see org.apache.hop.core.gui.IUndo#setMaxUndo(int)
    */
   @Override
-  public void setMaxUndo( int mu ) {
+  public void setMaxUndo(int mu) {
     maxUndo = mu;
-    while ( undo.size() > mu && undo.size() > 0 ) {
-      undo.remove( 0 );
+    while (undo.size() > mu && undo.size() > 0) {
+      undo.remove(0);
     }
   }
 
@@ -698,14 +703,14 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @return the undo size
    */
   public int getUndoSize() {
-    if ( undo == null ) {
+    if (undo == null) {
       return 0;
     }
     return undo.size();
   }
 
   @Override
-  public void setAttributesMap( Map<String, Map<String, String>> attributesMap ) {
+  public void setAttributesMap(Map<String, Map<String, String>> attributesMap) {
     this.attributesMap = attributesMap;
   }
 
@@ -715,42 +720,43 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   }
 
   @Override
-  public void setAttribute( String groupName, String key, String value ) {
-    Map<String, String> attributes = getAttributes( groupName );
-    if ( attributes == null ) {
+  public void setAttribute(String groupName, String key, String value) {
+    Map<String, String> attributes = getAttributes(groupName);
+    if (attributes == null) {
       attributes = new HashMap<>();
-      attributesMap.put( groupName, attributes );
+      attributesMap.put(groupName, attributes);
     }
-    attributes.put( key, value );
+    attributes.put(key, value);
   }
 
   @Override
-  public void setAttributes( String groupName, Map<String, String> attributes ) {
-    attributesMap.put( groupName, attributes );
+  public void setAttributes(String groupName, Map<String, String> attributes) {
+    attributesMap.put(groupName, attributes);
   }
 
   @Override
-  public Map<String, String> getAttributes( String groupName ) {
-    return attributesMap.get( groupName );
+  public Map<String, String> getAttributes(String groupName) {
+    return attributesMap.get(groupName);
   }
 
   @Override
-  public String getAttribute( String groupName, String key ) {
-    Map<String, String> attributes = attributesMap.get( groupName );
-    if ( attributes == null ) {
+  public String getAttribute(String groupName, String key) {
+    Map<String, String> attributes = attributesMap.get(groupName);
+    if (attributes == null) {
       return null;
     }
-    return attributes.get( key );
+    return attributes.get(key);
   }
 
   /**
-   * Add a new note at a certain location (i.e. the specified index). Also marks that the notes have changed.
+   * Add a new note at a certain location (i.e. the specified index). Also marks that the notes have
+   * changed.
    *
-   * @param p  The index into the notes list
+   * @param p The index into the notes list
    * @param ni The note to be added.
    */
-  public void addNote( int p, NotePadMeta ni ) {
-    notes.add( p, ni );
+  public void addNote(int p, NotePadMeta ni) {
+    notes.add(p, ni);
     changedNotes = true;
   }
 
@@ -759,8 +765,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param ni The note to be added.
    */
-  public void addNote( NotePadMeta ni ) {
-    notes.add( ni );
+  public void addNote(NotePadMeta ni) {
+    notes.add(ni);
     changedNotes = true;
   }
 
@@ -769,19 +775,22 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param x the x-coordinate of the point queried
    * @param y the y-coordinate of the point queried
-   * @return The note information if a note is located at the point. Otherwise, if nothing was found: null.
+   * @return The note information if a note is located at the point. Otherwise, if nothing was
+   *     found: null.
    */
-  public NotePadMeta getNote( int x, int y ) {
+  public NotePadMeta getNote(int x, int y) {
     int i, s;
     s = notes.size();
-    for ( i = s - 1; i >= 0; i-- ) {
+    for (i = s - 1; i >= 0; i--) {
       // Back to front because drawing goes from start to end
 
-      NotePadMeta ni = notes.get( i );
+      NotePadMeta ni = notes.get(i);
       Point loc = ni.getLocation();
-      Point p = new Point( loc.x, loc.y );
-      if ( x >= p.x && x <= p.x + ni.width + 2 * Const.NOTE_MARGIN && y >= p.y
-        && y <= p.y + ni.height + 2 * Const.NOTE_MARGIN ) {
+      Point p = new Point(loc.x, loc.y);
+      if (x >= p.x
+          && x <= p.x + ni.width + 2 * Const.NOTE_MARGIN
+          && y >= p.y
+          && y <= p.y + ni.height + 2 * Const.NOTE_MARGIN) {
         return ni;
       }
     }
@@ -794,8 +803,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param i the i
    * @return the note
    */
-  public NotePadMeta getNote( int i ) {
-    return notes.get( i );
+  public NotePadMeta getNote(int i) {
+    return notes.get(i);
   }
 
   /**
@@ -814,9 +823,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   public List<NotePadMeta> getSelectedNotes() {
     List<NotePadMeta> selection = new ArrayList<>();
-    for ( NotePadMeta note : notes ) {
-      if ( note.isSelected() ) {
-        selection.add( note );
+    for (NotePadMeta note : notes) {
+      if (note.isSelected()) {
+        selection.add(note);
       }
     }
     return selection;
@@ -828,21 +837,21 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param ni The note queried
    * @return The location of the note, or -1 if nothing was found.
    */
-  public int indexOfNote( NotePadMeta ni ) {
-    return notes.indexOf( ni );
+  public int indexOfNote(NotePadMeta ni) {
+    return notes.indexOf(ni);
   }
 
   /**
-   * Lowers a note to the "bottom" of the list by removing the note at the specified index and re-inserting it at the
-   * front. Also marks that the notes have changed.
+   * Lowers a note to the "bottom" of the list by removing the note at the specified index and
+   * re-inserting it at the front. Also marks that the notes have changed.
    *
    * @param p the index into the notes list.
    */
-  public void lowerNote( int p ) {
+  public void lowerNote(int p) {
     // if valid index and not first index
-    if ( ( p > 0 ) && ( p < notes.size() ) ) {
-      NotePadMeta note = notes.remove( p );
-      notes.add( 0, note );
+    if ((p > 0) && (p < notes.size())) {
+      NotePadMeta note = notes.remove(p);
+      notes.add(0, note);
       changedNotes = true;
     }
   }
@@ -857,30 +866,31 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   }
 
   /**
-   * Raises a note to the "top" of the list by removing the note at the specified index and re-inserting it at the end.
-   * Also marks that the notes have changed.
+   * Raises a note to the "top" of the list by removing the note at the specified index and
+   * re-inserting it at the end. Also marks that the notes have changed.
    *
    * @param p the index into the notes list.
    */
-  public void raiseNote( int p ) {
+  public void raiseNote(int p) {
     // if valid index and not last index
-    if ( ( p >= 0 ) && ( p < notes.size() - 1 ) ) {
-      NotePadMeta note = notes.remove( p );
-      notes.add( note );
+    if ((p >= 0) && (p < notes.size() - 1)) {
+      NotePadMeta note = notes.remove(p);
+      notes.add(note);
       changedNotes = true;
     }
   }
 
   /**
-   * Removes a note at a certain location (i.e. the specified index). Also marks that the notes have changed.
+   * Removes a note at a certain location (i.e. the specified index). Also marks that the notes have
+   * changed.
    *
    * @param i The index into the notes list
    */
-  public void removeNote( int i ) {
-    if ( i < 0 || i >= notes.size() ) {
+  public void removeNote(int i) {
+    if (i < 0 || i >= notes.size()) {
       return;
     }
-    notes.remove( i );
+    notes.remove(i);
     changedNotes = true;
   }
 
@@ -890,13 +900,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @return true if the notes have been changed, false otherwise
    */
   public boolean haveNotesChanged() {
-    if ( changedNotes ) {
+    if (changedNotes) {
       return true;
     }
 
-    for ( int i = 0; i < nrNotes(); i++ ) {
-      NotePadMeta note = getNote( i );
-      if ( note.hasChanged() ) {
+    for (int i = 0; i < nrNotes(); i++) {
+      NotePadMeta note = getNote(i);
+      if (note.hasChanged()) {
         return true;
       }
     }
@@ -909,11 +919,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param notes An array of notes
    * @return an array of the locations of an array of notes
    */
-  public int[] getNoteIndexes( List<NotePadMeta> notes ) {
-    int[] retval = new int[ notes.size() ];
+  public int[] getNoteIndexes(List<NotePadMeta> notes) {
+    int[] retval = new int[notes.size()];
 
-    for ( int i = 0; i < notes.size(); i++ ) {
-      retval[ i ] = indexOfNote( notes.get( i ) );
+    for (int i = 0; i < notes.size(); i++) {
+      retval[i] = indexOfNote(notes.get(i));
     }
 
     return retval;
@@ -926,9 +936,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   public List<DatabaseMeta> getDatabases() {
     try {
-      return metadataProvider.getSerializer( DatabaseMeta.class ).loadAll();
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to load databases from the metadata", e );
+      return metadataProvider.getSerializer(DatabaseMeta.class).loadAll();
+    } catch (HopException e) {
+      throw new RuntimeException("Unable to load databases from the metadata", e);
     }
   }
 
@@ -939,11 +949,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    */
   public String[] getDatabaseNames() {
     try {
-      List<String> names = metadataProvider.getSerializer( DatabaseMeta.class ).listObjectNames();
-      Collections.sort( names );
-      return names.toArray( new String[ 0 ] );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to get database names from the metadata", e );
+      List<String> names = metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames();
+      Collections.sort(names);
+      return names.toArray(new String[0]);
+    } catch (HopException e) {
+      throw new RuntimeException("Unable to get database names from the metadata", e);
     }
   }
 
@@ -954,8 +964,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * java.lang.String)
    */
   @Override
-  public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
-    namedParams.addParameterDefinition( key, defValue, description );
+  public void addParameterDefinition(String key, String defValue, String description)
+      throws DuplicateParamException {
+    namedParams.addParameterDefinition(key, defValue, description);
   }
 
   /*
@@ -964,8 +975,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @see org.apache.hop.core.parameters.INamedParameters#getParameterDescription(java.lang.String)
    */
   @Override
-  public String getParameterDescription( String key ) throws UnknownParamException {
-    return namedParams.getParameterDescription( key );
+  public String getParameterDescription(String key) throws UnknownParamException {
+    return namedParams.getParameterDescription(key);
   }
 
   /*
@@ -974,8 +985,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @see org.apache.hop.core.parameters.INamedParameters#getParameterDefault(java.lang.String)
    */
   @Override
-  public String getParameterDefault( String key ) throws UnknownParamException {
-    return namedParams.getParameterDefault( key );
+  public String getParameterDefault(String key) throws UnknownParamException {
+    return namedParams.getParameterDefault(key);
   }
 
   /*
@@ -1013,7 +1024,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    *
    * @param logLevel the new log level
    */
-  public void setLogLevel( LogLevel logLevel ) {
+  public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -1021,17 +1032,16 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return metadataProvider;
   }
 
-  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
-
 
   /**
    * Sets the internal name hop variable.
    *
    * @param var the new internal name hop variable
    */
-  protected abstract void setInternalNameHopVariable( IVariables var );
+  protected abstract void setInternalNameHopVariable(IVariables var);
 
   /**
    * Gets the date the pipeline was created.
@@ -1049,7 +1059,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param createdDate The creation date to set.
    */
   @Override
-  public void setCreatedDate( Date createdDate ) {
+  public void setCreatedDate(Date createdDate) {
     this.createdDate = createdDate;
   }
 
@@ -1059,7 +1069,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param createdUser The user to set.
    */
   @Override
-  public void setCreatedUser( String createdUser ) {
+  public void setCreatedUser(String createdUser) {
     this.createdUser = createdUser;
   }
 
@@ -1079,7 +1089,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param modifiedDate The modified date to set.
    */
   @Override
-  public void setModifiedDate( Date modifiedDate ) {
+  public void setModifiedDate(Date modifiedDate) {
     this.modifiedDate = modifiedDate;
   }
 
@@ -1099,7 +1109,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @param modifiedUser The user name to set.
    */
   @Override
-  public void setModifiedUser( String modifiedUser ) {
+  public void setModifiedUser(String modifiedUser) {
     this.modifiedUser = modifiedUser;
   }
 
@@ -1114,14 +1124,14 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   }
 
   public void clear() {
-    setName( null );
-    setFilename( null );
+    setName(null);
+    setFilename(null);
     notes = new ArrayList<>();
     attributesMap = new HashMap<>();
     maxUndo = Const.MAX_UNDO;
     clearUndo();
     clearChanged();
-    setChanged( false );
+    setChanged(false);
 
     createdUser = "-";
     createdDate = new Date();
@@ -1135,17 +1145,17 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   @Override
   public void clearChanged() {
     changedNotes = false;
-    for ( int i = 0; i < nrNotes(); i++ ) {
-      getNote( i ).setChanged( false );
+    for (int i = 0; i < nrNotes(); i++) {
+      getNote(i).setChanged(false);
     }
     changedFlag.clearChanged();
-    fireContentChangedListeners( false );
+    fireContentChangedListeners(false);
   }
 
   @Override
   public void setChanged() {
     changedFlag.setChanged();
-    fireContentChangedListeners( true );
+    fireContentChangedListeners(true);
   }
 
   /*
@@ -1154,24 +1164,24 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @see org.apache.hop.core.changed.ChangedFlag#setChanged(boolean)
    */
   @Override
-  public final void setChanged( boolean ch ) {
-    if ( ch ) {
+  public final void setChanged(boolean ch) {
+    if (ch) {
       setChanged();
     } else {
       clearChanged();
     }
   }
 
-  public void addObserver( IHopObserver o ) {
-    changedFlag.addObserver( o );
+  public void addObserver(IHopObserver o) {
+    changedFlag.addObserver(o);
   }
 
-  public void deleteObserver( IHopObserver o ) {
-    changedFlag.deleteObserver( o );
+  public void deleteObserver(IHopObserver o) {
+    changedFlag.deleteObserver(o);
   }
 
-  public void notifyObservers( Object arg ) {
-    changedFlag.notifyObservers( arg );
+  public void notifyObservers(Object arg) {
+    changedFlag.notifyObservers(arg);
   }
 
   /**
@@ -1187,10 +1197,10 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
 
   @Override
   public boolean hasChanged() {
-    if ( changedFlag.hasChanged() ) {
+    if (changedFlag.hasChanged()) {
       return true;
     }
-    if ( haveNotesChanged() ) {
+    if (haveNotesChanged()) {
       return true;
     }
     return false;
@@ -1238,58 +1248,58 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
   }
 
   /**
-   * Checks whether the specified name has changed (i.e. is different from the specified old name). If both names are
-   * null, false is returned. If the old name is null and the new new name is non-null, true is returned. Otherwise, if
-   * the name strings are equal then true is returned; false is returned if the name strings are not equal.
+   * Checks whether the specified name has changed (i.e. is different from the specified old name).
+   * If both names are null, false is returned. If the old name is null and the new new name is
+   * non-null, true is returned. Otherwise, if the name strings are equal then true is returned;
+   * false is returned if the name strings are not equal.
    *
    * @param oldName the old name
    * @param newName the new name
    * @return true if the names have changed, false otherwise
    */
-  private boolean nameChanged( String oldName, String newName ) {
-    if ( oldName == null && newName == null ) {
+  private boolean nameChanged(String oldName, String newName) {
+    if (oldName == null && newName == null) {
       return false;
     }
-    if ( oldName == null && newName != null ) {
+    if (oldName == null && newName != null) {
       return true;
     }
-    return !oldName.equals( newName );
+    return !oldName.equals(newName);
   }
 
   public boolean hasMissingPlugins() {
     return false;
   }
 
-  protected int compare( AbstractMeta meta1, AbstractMeta meta2 ) {
+  protected int compare(AbstractMeta meta1, AbstractMeta meta2) {
     // If we don't have a filename...
     //
-    if ( StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isNotEmpty( meta2.getFilename() ) ) {
+    if (StringUtils.isEmpty(meta1.getFilename()) && StringUtils.isNotEmpty(meta2.getFilename())) {
       return -1;
     }
-    if ( StringUtils.isNotEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() ) ) {
+    if (StringUtils.isNotEmpty(meta1.getFilename()) && StringUtils.isEmpty(meta2.getFilename())) {
       return 1;
     }
-    if ( ( StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() )
-      || ( meta1.getFilename().equals( meta2.getFilename() ) ) )
-    ) {
+    if ((StringUtils.isEmpty(meta1.getFilename()) && StringUtils.isEmpty(meta2.getFilename())
+        || (meta1.getFilename().equals(meta2.getFilename())))) {
       // Compare names...
       //
-      if ( Utils.isEmpty( meta1.getName() ) && !Utils.isEmpty( meta2.getName() ) ) {
+      if (Utils.isEmpty(meta1.getName()) && !Utils.isEmpty(meta2.getName())) {
         return -1;
       }
-      if ( !Utils.isEmpty( meta1.getName() ) && Utils.isEmpty( meta2.getName() ) ) {
+      if (!Utils.isEmpty(meta1.getName()) && Utils.isEmpty(meta2.getName())) {
         return 1;
       }
-      int cmpName = meta1.getName().compareTo( meta2.getName() );
+      int cmpName = meta1.getName().compareTo(meta2.getName());
       return cmpName;
     } else {
-      return meta1.getFilename().compareTo( meta2.getFilename() );
+      return meta1.getFilename().compareTo(meta2.getFilename());
     }
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( filename, name );
+    return Objects.hash(filename, name);
   }
 
   private static class RunOptions {
@@ -1306,7 +1316,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return runOptions.clearingLog;
   }
 
-  public void setClearingLog( boolean clearingLog ) {
+  public void setClearingLog(boolean clearingLog) {
     this.runOptions.clearingLog = clearingLog;
   }
 
@@ -1314,7 +1324,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
     return runOptions.safeModeEnabled;
   }
 
-  public void setSafeModeEnabled( boolean safeModeEnabled ) {
+  public void setSafeModeEnabled(boolean safeModeEnabled) {
     this.runOptions.safeModeEnabled = safeModeEnabled;
   }
 }
