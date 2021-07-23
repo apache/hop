@@ -23,6 +23,13 @@ import org.apache.beam.sdk.options.PipelineOptions;
 
 import java.security.Security;
 
+/**
+ * This class will be picked up and used at the very start of a DataFlow JVM. As such it allows us
+ * to disable certain security algorithms so that secure connections automatically pick up the right
+ * one. This is an issue for secure Kafka and Neo4j Aura connections (neo4j+s:// protocol)
+ *
+ * <p>TODO make this configurable somehow.
+ */
 @AutoService(value = JvmInitializer.class)
 public class DataFlowJvmStart implements JvmInitializer {
   @Override
