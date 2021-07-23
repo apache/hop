@@ -92,7 +92,7 @@
         <include>com.google.api.grpc:grpc-google-cloud-bigtable-v2</include>
         <include>com.google.api.grpc:grpc-google-cloud-pubsub-v1</include>
         <include>com.google.api.grpc:grpc-google-common-protos</include>
-        <include>com.google.api.grpc:proto-google-cloud-bigquerystorage-v1beta1</include>
+        <include>com.google.api.grpc:proto-google-cloud-bigquerystorage-v1beta2</include>
         <include>com.google.api.grpc:proto-google-cloud-bigtable-admin-v2</include>
         <include>com.google.api.grpc:proto-google-cloud-bigtable-v2</include>
         <include>com.google.api.grpc:proto-google-cloud-datastore-v1</include>
