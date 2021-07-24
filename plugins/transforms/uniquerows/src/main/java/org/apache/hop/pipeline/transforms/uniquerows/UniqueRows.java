@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import java.util.List;
 
 /**
  * Removes the same consequetive rows from the input stream(s).
@@ -40,6 +41,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row!
@@ -65,25 +67,29 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
       data.previous = data.inputRowMeta.cloneRow( r ); // copy the row
 
       // ICache lookup of fields
-      data.fieldnrs = new int[ meta.getCompareFields().length ];
+      
+      List<UniqueField> fields = meta.getCompareFields();
+      data.fieldnrs = new int[ fields.size() ];
 
-      for ( int i = 0; i < meta.getCompareFields().length; i++ ) {
-        data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( meta.getCompareFields()[ i ] );
+      for ( int i = 0; i < fields.size(); i++ ) {
+        UniqueField field = fields.get(i);
+
+        data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( field.getName() );
         if ( data.fieldnrs[ i ] < 0 ) {
           logError( BaseMessages.getString(
-            PKG, "UniqueRows.Log.CouldNotFindFieldInRow", meta.getCompareFields()[ i ] ) );
+            PKG, "UniqueRows.Log.CouldNotFindFieldInRow", field.getName() ) );
           setErrors( 1 );
           stopAll();
           return false;
         }
         // Change the case insensitive flag...
         //
-        data.compareRowMeta.getValueMeta( data.fieldnrs[ i ] ).setCaseInsensitive( meta.getCaseInsensitive()[ i ] );
+        data.compareRowMeta.getValueMeta( data.fieldnrs[ i ] ).setCaseInsensitive( field.isCaseInsensitive() );
 
         if ( data.sendDuplicateRows ) {
           data.compareFields =
-            data.compareFields == null ? meta.getCompareFields()[ i ] : data.compareFields
-              + "," + meta.getCompareFields()[ i ];
+            data.compareFields == null ? field.getName() : data.compareFields
+              + "," + field.getName();
         }
       }
       if ( data.sendDuplicateRows && !Utils.isEmpty( meta.getErrorDescription() ) ) {
@@ -99,7 +105,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
 
     boolean isEqual = false;
 
-    if ( meta.getCompareFields() == null || meta.getCompareFields().length == 0 ) {
+    if ( meta.getCompareFields() == null || meta.getCompareFields().isEmpty() ) {
       // Compare the complete row...
       isEqual = data.outputRowMeta.compare( r, data.previous ) == 0;
     } else {
@@ -119,10 +125,8 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
       }
     }
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      if ( log.isBasic() ) {
+    if ( checkFeedback( getLinesRead() ) && log.isBasic() ) {
         logBasic( BaseMessages.getString( PKG, "UniqueRows.Log.LineNumber" ) + getLinesRead() );
-      }
     }
     first = false;
     return true;
@@ -138,6 +142,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
     }
   }
 
+  
   public boolean init() {
 
     if ( super.init() ) {

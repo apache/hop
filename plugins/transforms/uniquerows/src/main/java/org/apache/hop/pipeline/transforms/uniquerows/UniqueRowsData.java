@@ -26,15 +26,15 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * @since 22-jan-2005
  */
 public class UniqueRowsData extends BaseTransformData implements ITransformData {
-  public IRowMeta outputRowMeta;
-  public IRowMeta compareRowMeta;
-  public IRowMeta inputRowMeta;
-  public long counter;
-  public Object[] previous;
-  public int[] fieldnrs;
-  public String compareFields;
-  public String realErrorDescription;
-  public boolean sendDuplicateRows;
+  protected IRowMeta outputRowMeta;
+  protected IRowMeta compareRowMeta;
+  protected IRowMeta inputRowMeta;
+  protected long counter;
+  protected Object[] previous;
+  protected int[] fieldnrs;
+  protected String compareFields;
+  protected String realErrorDescription;
+  protected boolean sendDuplicateRows;
 
   public UniqueRowsData() {
     super();

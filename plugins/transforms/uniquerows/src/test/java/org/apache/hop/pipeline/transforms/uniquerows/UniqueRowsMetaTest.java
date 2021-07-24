@@ -40,23 +40,20 @@ public class UniqueRowsMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes =
       Arrays.asList( "count_rows", "count_field", "reject_duplicate_row",
-        "error_description", "name", "case_insensitive" );
+        "error_description" );
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "count_rows", "isCountRows" );
     getterMap.put( "count_field", "getCountField" );
     getterMap.put( "reject_duplicate_row", "isRejectDuplicateRow" );
     getterMap.put( "error_description", "getErrorDescription" );
-    getterMap.put( "name", "getCompareFields" );
-    getterMap.put( "case_insensitive", "getCaseInsensitive" );
 
     Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "count_rows", "setCountRows" );
     setterMap.put( "count_field", "setCountField" );
     setterMap.put( "reject_duplicate_row", "setRejectDuplicateRow" );
     setterMap.put( "error_description", "setErrorDescription" );
-    setterMap.put( "name", "setCompareFields" );
-    setterMap.put( "case_insensitive", "setCaseInsensitive" );
+
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
       new HashMap<>();

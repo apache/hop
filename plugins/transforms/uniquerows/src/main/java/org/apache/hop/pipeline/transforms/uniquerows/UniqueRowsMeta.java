@@ -21,33 +21,30 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
- * Created on 02-jun-2003
- *
+ * Unique rows
  */
-
 @Transform(
     id = "Unique",
     image = "uniquerows.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.UniqueRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.UniqueRows",
+    name = "i18n::UniqueRows.Name",
+    description = "i18n::UniqueRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/uniquerows.html")
 public class UniqueRowsMeta extends BaseTransformMeta
@@ -55,24 +52,52 @@ public class UniqueRowsMeta extends BaseTransformMeta
   private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   /** Indicate that we want to count the number of doubles */
+  @HopMetadataProperty(
+      key = "count_rows",
+      injectionKeyDescription = "UniqueRowsMeta.Injection.CountRows")
   private boolean countRows;
 
   /** The fieldname that will contain the number of doubles */
+  @HopMetadataProperty(
+      key = "count_field",
+      injectionKeyDescription = "UniqueRowsMeta.Injection.CountField")
   private String countField;
 
   /** The fields to compare for double, null means all */
-  private String[] compareFields;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupDescription = "UniqueRowsMeta.Injection.Fields",
+      injectionKeyDescription = "UniqueRowsMeta.Injection.Field")
+  private List<UniqueField> compareFields;
 
-  /** The fields to compare for double, null means all */
-  private boolean[] caseInsensitive;
-
+  @HopMetadataProperty(
+      key = "reject_duplicate_row",
+      injectionKeyDescription = "UniqueRowsMeta.Injection.RejectDuplicateRow")
   private boolean rejectDuplicateRow;
+  
+  @HopMetadataProperty(
+      key = "error_description",
+      injectionKeyDescription = "UniqueRowsMeta.Injection.ErrorDescription")
   private String errorDescription;
 
   public UniqueRowsMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    compareFields = new ArrayList<>();
   }
 
+  public UniqueRowsMeta(UniqueRowsMeta meta) {
+    super();
+    this.countRows = meta.countRows;
+    this.countField = meta.countField;
+    this.errorDescription = meta.errorDescription;
+    this.rejectDuplicateRow = meta.rejectDuplicateRow;  
+    this.compareFields = new ArrayList<>();
+    for (UniqueField field : meta.getCompareFields()) {
+      compareFields.add(new UniqueField(field.getName(), field.isCaseInsensitive()));
+    }
+  }
+  
   /** @return Returns the countRows. */
   public boolean isCountRows() {
     return countRows;
@@ -94,12 +119,12 @@ public class UniqueRowsMeta extends BaseTransformMeta
   }
 
   /** @param compareField The compareField to set. */
-  public void setCompareFields(String[] compareField) {
+  public void setCompareFields(List<UniqueField> compareField) {
     this.compareFields = compareField;
   }
 
   /** @return Returns the compareField. */
-  public String[] getCompareFields() {
+  public List<UniqueField> getCompareFields() {
     return compareFields;
   }
 
@@ -113,11 +138,6 @@ public class UniqueRowsMeta extends BaseTransformMeta
     return rejectDuplicateRow;
   }
 
-  public void allocate(int nrFields) {
-    compareFields = new String[nrFields];
-    caseInsensitive = new boolean[nrFields];
-  }
-
   /** @return Returns the errorDescription. */
   public String getErrorDescription() {
     return errorDescription;
@@ -129,22 +149,8 @@ public class UniqueRowsMeta extends BaseTransformMeta
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
   public Object clone() {
-    UniqueRowsMeta retval = (UniqueRowsMeta) super.clone();
-
-    int nrFields = compareFields.length;
-
-    retval.allocate(nrFields);
-    System.arraycopy(compareFields, 0, retval.compareFields, 0, nrFields);
-    System.arraycopy(caseInsensitive, 0, retval.caseInsensitive, 0, nrFields);
-
-    return retval;
+    return new UniqueRowsMeta(this);
   }
 
   @Override
@@ -157,49 +163,13 @@ public class UniqueRowsMeta extends BaseTransformMeta
     return new UniqueRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      countRows = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "count_rows"));
-      countField = XmlHandler.getTagValue(transformNode, "count_field");
-      rejectDuplicateRow =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "reject_duplicate_row"));
-      errorDescription = XmlHandler.getTagValue(transformNode, "error_description");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        compareFields[i] = XmlHandler.getTagValue(fnode, "name");
-        caseInsensitive[i] =
-            !"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "case_insensitive"));
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "UniqueRowsMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
   @Override
   public void setDefault() {
     countRows = false;
     countField = "";
     rejectDuplicateRow = false;
     errorDescription = null;
-
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      compareFields[i] = "field" + i;
-      caseInsensitive[i] = true;
-    }
+    compareFields = new ArrayList<>();
   }
 
   @Override
@@ -212,11 +182,11 @@ public class UniqueRowsMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // change the case insensitive flag too
-    for (int i = 0; i < compareFields.length; i++) {
-      int idx = row.indexOfValue(compareFields[i]);
+    for (UniqueField field : compareFields) {
+      int idx = row.indexOfValue(field.getName());
       if (idx >= 0) {
-        row.getValueMeta(idx).setCaseInsensitive(caseInsensitive[i]);
-      }
+        row.getValueMeta(idx).setCaseInsensitive(field.isCaseInsensitive());
+      }      
     }
     if (countRows) {
       IValueMeta v = new ValueMetaInteger(countField);
@@ -224,27 +194,6 @@ public class UniqueRowsMeta extends BaseTransformMeta
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("      " + XmlHandler.addTagValue("count_rows", countRows));
-    retval.append("      " + XmlHandler.addTagValue("count_field", countField));
-    retval.append("      " + XmlHandler.addTagValue("reject_duplicate_row", rejectDuplicateRow));
-    retval.append("      " + XmlHandler.addTagValue("error_description", errorDescription));
-
-    retval.append("    <fields>");
-    for (int i = 0; i < compareFields.length; i++) {
-      retval.append("      <field>");
-      retval.append("        " + XmlHandler.addTagValue("name", compareFields[i]));
-      retval.append("        " + XmlHandler.addTagValue("case_insensitive", caseInsensitive[i]));
-      retval.append("        </field>");
-    }
-    retval.append("      </fields>");
-
-    return retval.toString();
   }
 
   @Override
@@ -282,16 +231,6 @@ public class UniqueRowsMeta extends BaseTransformMeta
   @Override
   public UniqueRowsData getTransformData() {
     return new UniqueRowsData();
-  }
-
-  /** @return Returns the caseInsensitive. */
-  public boolean[] getCaseInsensitive() {
-    return caseInsensitive;
-  }
-
-  /** @param caseInsensitive The caseInsensitive to set. */
-  public void setCaseInsensitive(boolean[] caseInsensitive) {
-    this.caseInsensitive = caseInsensitive;
   }
 
   @Override
