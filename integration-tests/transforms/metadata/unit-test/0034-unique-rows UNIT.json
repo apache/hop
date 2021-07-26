@@ -1,0 +1,71 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Field_A",
+          "data_set_field": "Field_A"
+        },
+        {
+          "transform_field": "Field_B",
+          "data_set_field": "Field_B"
+        },
+        {
+          "transform_field": "Field_C",
+          "data_set_field": "Field_C"
+        },
+        {
+          "transform_field": "CounterField",
+          "data_set_field": "CounterField"
+        }
+      ],
+      "field_order": [
+        "Field_A",
+        "Field_B",
+        "Field_C",
+        "CounterField"
+      ],
+      "transform_name": "Result case sensitive",
+      "data_set_name": "golden-unique-rows"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "CounterField",
+          "data_set_field": "CounterField"
+        },
+        {
+          "transform_field": "Field_A",
+          "data_set_field": "Field_A"
+        },
+        {
+          "transform_field": "Field_B",
+          "data_set_field": "Field_B"
+        },
+        {
+          "transform_field": "Field_C",
+          "data_set_field": "Field_C"
+        }
+      ],
+      "field_order": [
+        "CounterField",
+        "Field_C",
+        "Field_B",
+        "Field_A"
+      ],
+      "transform_name": "Result",
+      "data_set_name": "golden-unique-rows"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0034-unique-rows UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0034-unique-rows.hpl",
+  "test_type": "UNIT_TEST"
+}
