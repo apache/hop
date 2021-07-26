@@ -120,9 +120,6 @@ The current (1-july 2021) status is:
 |Get system info|Y
 |Get table names|Y
 |Get variables|Y
-|Google Analytics|Y
-|Google Sheet Output|Y
-|Google Sheets Input|N
 |Group by|Y
 |HTTP client|N
 |HTTP post|N
@@ -153,8 +150,6 @@ The current (1-july 2021) status is:
 |MonetDB bulk loader|Y
 |MongoDB input|Y
 |MongoDB output|Y
-|MQTT Publisher|N
-|MQTT Subscriber|N
 |Multiway merge join|Y
 |Neo4j Cypher|Y
 |Neo4j Generate CSVs|N
@@ -218,7 +213,7 @@ The current (1-july 2021) status is:
 |Text file input (deprecated)|N
 |Text file output|Y
 |Token Replacement|Y
-|Unique rows|N
+|Unique rows|Y
 |Unique rows (HashSet)|N
 |Update|Y
 |User defined Java class|Y
