@@ -58,7 +58,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     transform = new ExcelWriterTransform( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     transform = spy( transform );
     // ignoring to avoid useless errors in log
-    doNothing().when( transform ).prepareNextOutputFile();
+    doNothing().when( transform ).prepareNextOutputFile(any(Object[].class));
     transform.init();
   }
 

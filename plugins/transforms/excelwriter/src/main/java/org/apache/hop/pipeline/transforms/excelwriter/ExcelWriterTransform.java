@@ -21,6 +21,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -89,7 +90,7 @@ public class ExcelWriterTransform
         data.firstFileOpened = true;
 
         try {
-          prepareNextOutputFile();
+          prepareNextOutputFile(r);
         } catch (HopException e) {
           logError(
               BaseMessages.getString(
@@ -106,7 +107,7 @@ public class ExcelWriterTransform
         // if we are supposed to init the file delayed, here we go
         if (meta.getFile().isDoNotOpenNewFileInit()) {
           data.firstFileOpened = true;
-          prepareNextOutputFile();
+          prepareNextOutputFile(r);
         }
 
         // Let's remember where the fields are in the input row
@@ -170,11 +171,12 @@ public class ExcelWriterTransform
     if (r != null) {
       // File Splitting Feature, is it time to create a new file?
       if (!meta.isAppendLines()
+          && !meta.getFile().isFileNameInField()
           && meta.getFile().getSplitEvery() > 0
           && data.datalines > 0
           && data.datalines % meta.getFile().getSplitEvery() == 0) {
         closeOutputFile();
-        prepareNextOutputFile();
+        prepareNextOutputFile(r);
       }
 
       writeNextLine(r);
@@ -568,6 +570,15 @@ public class ExcelWriterTransform
    *
    * @return current output filename to write to
    */
+  public String buildFilename(IRowMeta rowMeta, Object[] row) {
+    return meta.buildFilename(rowMeta, row, this);
+  }
+
+  /**
+   * Returns the output filename that belongs to this transform observing the file split feature
+   *
+   * @return current output filename to write to
+   */
   public String buildFilename(int splitNr) {
     return meta.buildFilename(this, getCopy(), splitNr);
   }
@@ -592,7 +603,7 @@ public class ExcelWriterTransform
     }
   }
 
-  public void prepareNextOutputFile() throws HopException {
+  public void prepareNextOutputFile(Object[] row) throws HopException {
     try {
       // sheet name shouldn't exceed 31 character
       if (data.realSheetname != null && data.realSheetname.length() > 31) {
@@ -611,7 +622,10 @@ public class ExcelWriterTransform
       data.clearStyleCache(numOfFields);
 
       // build new filename
-      String buildFilename = buildFilename(data.splitnr);
+      String buildFilename =
+          (!meta.getFile().isFileNameInField())
+              ? buildFilename(data.splitnr)
+              : buildFilename(data.inputRowMeta, row);
 
       data.file = HopVfs.getFileObject(buildFilename);
 

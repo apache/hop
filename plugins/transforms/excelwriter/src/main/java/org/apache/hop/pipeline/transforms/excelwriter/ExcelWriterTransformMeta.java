@@ -344,7 +344,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.resolve(file.getFileName());
+    String  retval = variables.resolve(file.getFileName());
     String realextension = variables.resolve(file.getExtension());
 
     Date now = new Date();
@@ -371,6 +371,18 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     if (file.getSplitEvery() > 0) {
       retval += "_" + splitnr;
     }
+
+    if (realextension != null && realextension.length() != 0) {
+      retval += "." + realextension;
+    }
+
+    return retval;
+    }
+
+  public String buildFilename(IRowMeta rowMeta, Object row[], IVariables variables) {
+    int filenameFieldIdx = rowMeta.indexOfValue(variables.resolve(getFile().getFileNameField()));
+    String retval = (String) row[filenameFieldIdx];
+    String realextension = variables.resolve(file.getExtension());
 
     if (realextension != null && realextension.length() != 0) {
       retval += "." + realextension;
@@ -419,6 +431,18 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
 
       String errorMessage = "";
       boolean errorFound = false;
+
+      // Check fieldname fields is present
+      if (getFile().isFileNameInField()) {
+        int idx = prev.indexOfValue(getFile().getFileNameField());
+        if (idx < 0) {
+          errorMessage =
+                  BaseMessages.getString(
+                          PKG, "ExcelWriterTransformMeta.CheckResult.FilenameFieldNotFound", errorMessage);
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          remarks.add(cr);
+        }
+      }
 
       // Starting from selected fields in ...
       for (int i = 0; i < outputFields.size(); i++) {

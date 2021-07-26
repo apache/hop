@@ -129,7 +129,7 @@ public class ExcelWriterTransformTest {
     transform.init();
 
     try {
-      transform.prepareNextOutputFile();
+      transform.prepareNextOutputFile(any(Object[].class));
       // An exception should have been thrown!
       fail();
     } catch ( HopException e ) {
@@ -154,7 +154,7 @@ public class ExcelWriterTransformTest {
     dataMock.realTemplateFileName = getClass().getResource( "template_test.xlsx" ).getFile();
     dataMock.realSheetname = SHEET_NAME;
 
-    transform.prepareNextOutputFile();
+    transform.prepareNextOutputFile(any(Object[].class));
   }
 
   @Test
@@ -189,7 +189,7 @@ public class ExcelWriterTransformTest {
 
     when( transform.buildFilename( 0 )).thenReturn( path );
 
-    transform.prepareNextOutputFile();
+    transform.prepareNextOutputFile(any(Object[].class));
 
     dataMock.posY = 1;
     dataMock.sheet = spy( dataMock.sheet );
@@ -448,7 +448,7 @@ public class ExcelWriterTransformTest {
     when( dataMock.inputRowMeta.size()).thenReturn( 1 );
     when( dataMock.inputRowMeta.getValueMeta( anyInt() )).thenReturn( vmi );
 
-    transform.prepareNextOutputFile();
+    transform.prepareNextOutputFile(any(Object[].class));
 
     assertNull( dataMock.sheet.getRow( 1 ) );
 
