@@ -31,11 +31,11 @@ public class UniqueField {
       key = "case_insensitive",
       injectionKeyDescription = "UniqueRowsMeta.Injection.Field.CaseInsensitive")
   private boolean caseInsensitive;
-  
+
   public UniqueField() {
     this.caseInsensitive = false;
   }
-  
+
   public UniqueField(String name, boolean caseInsensitive) {
     this.name = name;
     this.caseInsensitive = caseInsensitive;
@@ -48,7 +48,7 @@ public class UniqueField {
   public void setName(String name) {
     this.name = name;
   }
-  
+
   public boolean isCaseInsensitive() {
     return caseInsensitive;
   }
@@ -62,11 +62,11 @@ public class UniqueField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     UniqueField that = (UniqueField) o;
-    return name.equals(that.name) && caseInsensitive==that.caseInsensitive;
+    return name.equals(that.name) && caseInsensitive == that.caseInsensitive;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name,caseInsensitive);
+    return Objects.hash(name, caseInsensitive);
   }
 }

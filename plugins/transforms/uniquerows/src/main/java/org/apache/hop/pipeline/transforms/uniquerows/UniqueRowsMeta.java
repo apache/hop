@@ -75,7 +75,7 @@ public class UniqueRowsMeta extends BaseTransformMeta
       key = "reject_duplicate_row",
       injectionKeyDescription = "UniqueRowsMeta.Injection.RejectDuplicateRow")
   private boolean rejectDuplicateRow;
-  
+
   @HopMetadataProperty(
       key = "error_description",
       injectionKeyDescription = "UniqueRowsMeta.Injection.ErrorDescription")
@@ -91,13 +91,13 @@ public class UniqueRowsMeta extends BaseTransformMeta
     this.countRows = meta.countRows;
     this.countField = meta.countField;
     this.errorDescription = meta.errorDescription;
-    this.rejectDuplicateRow = meta.rejectDuplicateRow;  
+    this.rejectDuplicateRow = meta.rejectDuplicateRow;
     this.compareFields = new ArrayList<>();
     for (UniqueField field : meta.getCompareFields()) {
       compareFields.add(new UniqueField(field.getName(), field.isCaseInsensitive()));
     }
   }
-  
+
   /** @return Returns the countRows. */
   public boolean isCountRows() {
     return countRows;
@@ -186,7 +186,7 @@ public class UniqueRowsMeta extends BaseTransformMeta
       int idx = row.indexOfValue(field.getName());
       if (idx >= 0) {
         row.getValueMeta(idx).setCaseInsensitive(field.isCaseInsensitive());
-      }      
+      }
     }
     if (countRows) {
       IValueMeta v = new ValueMetaInteger(countField);

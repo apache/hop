@@ -37,23 +37,13 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
@@ -153,10 +143,12 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdCount.left = new FormAttachment(middle, 0);
     fdCount.top = new FormAttachment(wlCount, 0, SWT.CENTER);
     wCount.setLayoutData(fdCount);
-    wCount.addListener(SWT.Selection, e -> {
-      input.setChanged();
-      setFlags();
-    });
+    wCount.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          setFlags();
+        });
 
     wlCountField = new Label(wSettings, SWT.LEFT);
     wlCountField.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.CounterField.Label"));
@@ -191,10 +183,12 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdRejectDuplicateRow.left = new FormAttachment(middle, margin);
     fdRejectDuplicateRow.top = new FormAttachment(wlRejectDuplicateRow, 0, SWT.CENTER);
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
-    wRejectDuplicateRow.addListener(SWT.Selection, e -> {
-      input.setChanged();
-      setErrorDesc();
-    });
+    wRejectDuplicateRow.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          setErrorDesc();
+        });
 
     wlErrorDesc = new Label(wSettings, SWT.LEFT);
     wlErrorDesc.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.ErrorDescription.Label"));
@@ -347,7 +341,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     }
     setErrorDesc();
     int i = 0;
-    for (UniqueField field:input.getCompareFields()) {
+    for (UniqueField field : input.getCompareFields()) {
       TableItem item = wFields.table.getItem(i++);
       if (field != null) {
         item.setText(1, field.getName());
@@ -372,11 +366,11 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       return;
     }
 
-    int nrFields = wFields.nrNonEmpty();    
+    int nrFields = wFields.nrNonEmpty();
     List<UniqueField> fields = new ArrayList<>(nrFields);
     for (int i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);      
-      UniqueField field = new UniqueField(); 
+      TableItem item = wFields.getNonEmpty(i);
+      UniqueField field = new UniqueField();
       field.setName(item.getText(1));
       field.setCaseInsensitive("Y".equalsIgnoreCase(item.getText(2)));
       fields.add(field);
@@ -406,7 +400,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     // Remove any error hops coming out of UniqueRows when Reject Duplicate Rows checkbox is
     // unselected.
-    if ( !wRejectDuplicateRow.getSelection() ) {
+    if (!wRejectDuplicateRow.getSelection()) {
       List<PipelineHopMeta> hops = this.pipelineMeta.getPipelineHops();
       IntStream.range(0, hops.size())
           .filter(

@@ -21,10 +21,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class UniqueRowsData extends BaseTransformData implements ITransformData {
   protected IRowMeta outputRowMeta;
   protected IRowMeta compareRowMeta;
@@ -45,5 +41,4 @@ public class UniqueRowsData extends BaseTransformData implements ITransformData 
     compareFields = null;
     sendDuplicateRows = false;
   }
-
 }
