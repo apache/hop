@@ -548,7 +548,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     return new TokenReplacementData();
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder(800);
 
     retval.append("    " + XmlHandler.addTagValue(INPUT_TYPE, inputType));

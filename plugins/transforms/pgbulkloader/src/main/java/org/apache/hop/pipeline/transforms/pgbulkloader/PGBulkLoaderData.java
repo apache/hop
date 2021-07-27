@@ -27,12 +27,7 @@ import org.postgresql.PGConnection;
 
 import java.io.OutputStream;
 
-/**
- * Stores data for the GPBulkLoader transform.
- *
- * @author Sven Boden
- * @since 20-feb-2005
- */
+/** Stores data for the GPBulkLoader transform. */
 public class PGBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 
@@ -57,20 +52,18 @@ public class PGBulkLoaderData extends BaseTransformData implements ITransformDat
   public IValueMeta dateMeta;
   public IValueMeta dateTimeMeta;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PGBulkLoaderData() {
     super();
 
     db = null;
 
     // Let's use ISO 8601 format. This in unambiguous with PostgreSQL
-    dateMeta = new ValueMetaDate( "date" );
-    dateMeta.setConversionMask( "yyyy-MM-dd" );
+    dateMeta = new ValueMetaDate("date");
+    dateMeta.setConversionMask("yyyy-MM-dd");
 
-    dateTimeMeta = new ValueMetaDate( "date" );
+    dateTimeMeta = new ValueMetaDate("date");
     // Let's keep milliseconds. Didn't find a way to keep microseconds (max resolution with PG)
-    dateTimeMeta.setConversionMask( "yyyy-MM-dd HH:mm:ss.SSS" );
+    dateTimeMeta.setConversionMask("yyyy-MM-dd HH:mm:ss.SSS");
   }
 }

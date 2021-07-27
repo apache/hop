@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "H2": {
+      "databaseName": "hop-samples",
+      "pluginId": "H2",
+      "accessType": 0,
+      "hostname": "localhost",
+      "password": "Encrypted ",
+      "port": "8082",
+      "pluginName": "H2",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "CREATE TABLE IF NOT EXISTS PUBLIC.dim_sample\n(\n  scd_key IDENTITY\n, version INTEGER\n, date_from TIMESTAMP\n, date_to TIMESTAMP\n, id DOUBLE\n, name VARCHAR(50)\n, street VARCHAR(50)\n, number INT\n, zip VARCHAR(50)\n, city VARCHAR(50)\n)\n;CREATE INDEX IF NOT EXISTS idx_dim_sample_lookup ON dim_sample(id)\n;\nCREATE INDEX IF NOT EXISTS idx_dim_sample_tk ON dim_sample(scd_key)\n;\n\nCREATE TABLE IF NOT EXISTS PUBLIC.TABLEOUTPUT_BASIC\n(\n  ID INT\n, COL_BOOL BOOLEAN\n, COL_STRING TEXT\n, COL_DATE DATE\n)\n;\n\n\nCREATE TABLE IF NOT EXISTS PUBLIC.INSERTUPDATE\n(\n  ID INT\n, COL_BOOL BOOLEAN\n, COL_STRING TEXT\n, COL_DATE DATE\n)\n;\n\nCREATE TABLE IF NOT EXISTS PUBLIC.DBLOOKUP \n(\nID INT,\nDESCRIPTION TEXT\n);  \n\nTRUNCATE TABLE PUBLIC.DBLOOKUP; \n\nINSERT INTO PUBLIC.DBLOOKUP VALUES \n(1, \u0027value 01\u0027),\n(2, \u0027value 02\u0027),\n(3, \u0027value 03\u0027),\n(4, \u0027value 04\u0027),\n(5, \u0027value 05\u0027),\n(6, \u0027value 06\u0027),\n(7, \u0027value 07\u0027),\n(8, \u0027value 08\u0027),\n(9, \u0027value 09\u0027),\n(10, \u0027value 10\u0027);\n\nCREATE TABLE IF NOT EXISTS PUBLIC.TABLEINPUT\n(\n  ID INT\n, COL_BOOL BOOLEAN\n, COL_STRING TEXT\n, COL_DATE DATE\n)\n;\n\nTRUNCATE TABLE PUBLIC.TABLEINPUT;\n\nINSERT INTO PUBLIC.TABLEINPUT VALUES \n(1, \u0027Y\u0027, \u0027value 01\u0027, \u00272021-01-01\u0027),\n(2, \u0027Y\u0027, \u0027value 02\u0027, \u00272022-01-01\u0027),\n(3, \u0027Y\u0027, \u0027value 03\u0027, \u00272023-01-01\u0027),\n(4, \u0027Y\u0027, \u0027value 04\u0027, \u00272024-01-01\u0027),\n(5, \u0027Y\u0027, \u0027value 05\u0027, \u00272025-01-01\u0027);\n\n",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "jdbc:h2:mem:hop-samples;DB_CLOSE_DELAY\u003d-1",
+      "username": ""
+    }
+  },
+  "name": "hop-samples"
+}

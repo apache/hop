@@ -43,12 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Writes rows to a database table.
- *
- * @author Matt Casters
- * @since 6-apr-2003
- */
+/** Writes rows to a database table. */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     implements ITransform<TableOutputMeta, TableOutputData> {
 
@@ -64,12 +59,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
       // truncate the table if there are no rows at all coming into this transform
-      if (first && meta.truncateTable()) {
+      if (first && meta.isTruncateTable()) {
         truncateTable();
       }
       return false;
@@ -77,13 +73,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (first) {
       first = false;
-      if (meta.truncateTable()) {
+      if (meta.isTruncateTable()) {
         truncateTable();
       }
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (!meta.specifyFields()) {
+      if (!meta.isSpecifyFields()) {
         // Just take the input row
         data.insertRowMeta = getInputRowMeta().clone();
       } else {
@@ -93,26 +89,28 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         //
         // Cache the position of the compare fields in Row row
         //
-        data.valuenrs = new int[meta.getFieldDatabase().length];
-        for (int i = 0; i < meta.getFieldDatabase().length; i++) {
-          data.valuenrs[i] = getInputRowMeta().indexOfValue(meta.getFieldStream()[i]);
+        data.valuenrs = new int[meta.getFields().size()];
+        for (int i = 0; i < meta.getFields().size(); i++) {
+          TableOutputField tf = meta.getFields().get(i);
+          data.valuenrs[i] = getInputRowMeta().indexOfValue(tf.getFieldStream());
           if (data.valuenrs[i] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutput.Exception.FieldRequired", meta.getFieldStream()[i]));
+                    PKG, "TableOutput.Exception.FieldRequired", tf.getFieldStream()));
           }
         }
 
-        for (int i = 0; i < meta.getFieldDatabase().length; i++) {
-          IValueMeta insValue = getInputRowMeta().searchValueMeta(meta.getFieldStream()[i]);
+        for (int i = 0; i < meta.getFields().size(); i++) {
+          TableOutputField tf = meta.getFields().get(i);
+          IValueMeta insValue = getInputRowMeta().searchValueMeta(tf.getFieldStream());
           if (insValue != null) {
             IValueMeta insertValue = insValue.clone();
-            insertValue.setName(meta.getFieldDatabase()[i]);
+            insertValue.setName(tf.getFieldDatabase());
             data.insertRowMeta.addValueMeta(insertValue);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutput.Exception.FailedToFindField", meta.getFieldStream()[i]));
+                    PKG, "TableOutput.Exception.FailedToFindField", tf.getFieldStream()));
           }
         }
       }
@@ -125,10 +123,8 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         incrementLinesOutput();
       }
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
       logError("Because of an error, this transform can't continue: ", e);
@@ -174,12 +170,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           logError(message);
           throw new HopTransformException(message);
         }
-        if (!meta.isTableNameInTable() && !meta.specifyFields()) {
+        if (!meta.isTableNameInTable() && !meta.isSpecifyFields()) {
           data.insertRowMeta.removeValueMeta(data.indexOfTableNameField);
         }
       }
       tableName = rowMeta.getString(r, data.indexOfTableNameField);
-      if (!meta.isTableNameInTable() && !meta.specifyFields()) {
+      if (!meta.isTableNameInTable() && !meta.isSpecifyFields()) {
         // If the name of the table should not be inserted itself, remove the table name
         // from the input row data as well. This forcibly creates a copy of r
         //
@@ -198,7 +194,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
               "Unable to find field [" + meta.getPartitioningField() + "] in the input row!");
         }
 
-        if (meta.isPartitioningDaily()) {
+        if (Boolean.TRUE.equals(meta.isPartitioningDaily())) {
           data.dateFormater = new SimpleDateFormat("yyyyMMdd");
         } else {
           data.dateFormater = new SimpleDateFormat("yyyyMM");
@@ -222,7 +218,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       insertRowData = r;
     }
 
-    if (meta.specifyFields()) {
+    if (meta.isSpecifyFields()) {
       //
       // The values to insert are those in the fields sections
       //
@@ -271,14 +267,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       } else {
         commitCounter++;
       }
-      data.commitCounterMap.put(tableName, Integer.valueOf(commitCounter.intValue()));
+      data.commitCounterMap.put(tableName, commitCounter);
 
       // Release the savepoint if needed
       //
-      if (data.useSafePoints) {
-        if (data.releaseSavepoint) {
-          data.db.releaseSavepoint(data.savepoint);
-        }
+      if (data.useSafePoints && data.releaseSavepoint) {
+        data.db.releaseSavepoint(data.savepoint);
       }
 
       // Perform a commit if needed
@@ -365,7 +359,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         sendToErrorRow = true;
         errorMessage = dbe.toString();
       } else {
-        if (meta.ignoreErrors()) {
+        if (meta.isIgnoreErrors()) {
           if (data.warnings < 20) {
             if (log.isBasic()) {
               logBasic(
@@ -374,14 +368,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
                       + Const.CR
                       + dbe.getMessage());
             }
-          } else if (data.warnings == 20) {
-            if (log.isBasic()) {
-              logBasic(
-                  "FINAL WARNING (no more then 20 displayed): Couldn't insert row into table: "
-                      + rowMeta.getString(r)
-                      + Const.CR
-                      + dbe.getMessage());
-            }
+          } else if (data.warnings == 20 && log.isBasic()) {
+            logBasic(
+                "FINAL WARNING (no more then 20 displayed): Couldn't insert row into table: "
+                    + rowMeta.getString(r)
+                    + Const.CR
+                    + dbe.getMessage());
           }
           data.warnings++;
         } else {
@@ -438,6 +430,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     return outputRowData;
   }
 
+  @Override
   public boolean isRowLevel() {
     return log.isRowLevel();
   }
@@ -479,11 +472,16 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     data.batchBuffer.clear();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
       try {
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
+
+        if (meta.getConnection() != null) {
+          meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
+        }
 
         data.databaseMeta = meta.getDatabaseMeta();
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
@@ -508,7 +506,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         // - if we are reverting to save-points
         //
         data.batchMode =
-            meta.useBatchUpdate()
+            meta.isUseBatchUpdate()
                 && data.commitSize > 0
                 && !meta.isReturningGeneratedKeys()
                 && !data.useSafePoints;
@@ -540,7 +538,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
 
         data.db = new Database(this, this, meta.getDatabaseMeta());
-        data.db.connect(getPartitionId());
+        data.db.connect();
 
         if (log.isBasic()) {
           logBasic(
@@ -576,12 +574,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     if (!meta.isPartitioningEnabled() && !meta.isTableNameInField()) {
       // Only the first one truncates in a non-partitioned transform copy
       //
-      if (meta.truncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+      if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
         data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
       }
     }
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {

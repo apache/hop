@@ -1,0 +1,8 @@
+Field_A,Field_B,Field_C,CounterField
+abcd,X,9,2
+ABCD,Z,1,2
+ABCD,z,2,1
+ABCD,Z,2,1
+ABCD,z,2,2
+EFG,X,6,2
+EFG,Z,1,2

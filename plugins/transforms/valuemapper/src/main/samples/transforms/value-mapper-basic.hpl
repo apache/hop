@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>value-mapper-basic</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/07/14 20:06:17.008</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/07/14 20:06:17.008</modified_date>
+    <key_for_session_key/>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Map a list of values to other values, e.g. currency codes to currency names and write to a new field or overwrite the original field. </note>
+      <xloc>160</xloc>
+      <yloc>112</yloc>
+      <width>725</width>
+      <heigth>27</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Currency Codes</from>
+      <to>Map Currency Name</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Map Currency Name</from>
+      <to>Output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Currency Codes</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>currency_code</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>USD</item>
+      </line>
+      <line>
+        <item>EUR</item>
+      </line>
+      <line>
+        <item>GBP</item>
+      </line>
+      <line>
+        <item>INR</item>
+      </line>
+      <line>
+        <item>AUD</item>
+      </line>
+      <line>
+        <item>CAD</item>
+      </line>
+      <line>
+        <item>SOD</item>
+      </line>
+      <line>
+        <item>CHF</item>
+      </line>
+      <line>
+        <item>MYR</item>
+      </line>
+      <line>
+        <item>JPY</item>
+      </line>
+      <line>
+        <item>CNY</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Map Currency Name</name>
+    <type>ValueMapper</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <field_to_use>currency_code</field_to_use>
+    <target_field>currency_description</target_field>
+    <non_match_default>unknown currency</non_match_default>
+    <fields>
+      <field>
+        <source_value>USD</source_value>
+        <target_value>US Dollar</target_value>
+      </field>
+      <field>
+        <source_value>EUR</source_value>
+        <target_value>Euro</target_value>
+      </field>
+      <field>
+        <source_value>GBP</source_value>
+        <target_value>British Pound</target_value>
+      </field>
+      <field>
+        <source_value>INR</source_value>
+        <target_value>Indian Rupee</target_value>
+      </field>
+      <field>
+        <source_value>AUD</source_value>
+        <target_value>Australian Dollar</target_value>
+      </field>
+      <field>
+        <source_value>CAD</source_value>
+        <target_value>Canadian Dollar</target_value>
+      </field>
+      <field>
+        <source_value>SGD</source_value>
+        <target_value>Singapore Dollar</target_value>
+      </field>
+      <field>
+        <source_value>CHF</source_value>
+        <target_value>Swiss Franc</target_value>
+      </field>
+      <field>
+        <source_value>MYR</source_value>
+        <target_value>Malaysian Ringgit</target_value>
+      </field>
+      <field>
+        <source_value>JPY</source_value>
+        <target_value>Japanese Yen</target_value>
+      </field>
+      <field>
+        <source_value>CNY</source_value>
+        <target_value>Chinese Yuan Renminbi</target_value>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Output</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -225,19 +224,18 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     }
   }
 
-  protected static String[] getTranslations( String[] strings, String packageName, String altPackageName, Class<?> resourceClass) {
+  protected static String[] getTranslations( String[] strings, String packageName, Class<?> resourceClass) {
     if (strings==null) {
       return null;
     }
     String[] translations = new String[strings.length];
     for (int i=0;i<translations.length;i++) {
-      translations[i] = getTranslation( strings[i], packageName, altPackageName, resourceClass );
+      translations[i] = getTranslation( strings[i], packageName, resourceClass );
     }
     return translations;
   }
 
-  protected static String getTranslation( String string, String packageName, String altPackageName,
-                                          Class<?> resourceClass ) {
+  protected static String getTranslation( String string, String packageName, Class<?> resourceClass ) {
     if ( string == null ) {
       return null;
     }
@@ -249,7 +247,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       } else {
         String i18nPackage = parts[1];
         if ( StringUtils.isEmpty( i18nPackage )) {
-          i18nPackage = Const.NVL(packageName, altPackageName);
+          i18nPackage = packageName;
         }
         String i18nKey = parts[2];
 
@@ -271,22 +269,24 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         DefaultLogLevel.setLogLevel( LogLevel.BASIC );
 
         translation = BaseMessages.getString( packageName, string, resourceClass );
-        if ( translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
-          translation = BaseMessages.getString( classFromResourcesPackage, string, resourceClass );
-        }
 
         // restore loglevel, when the last alternative fails, log it when loglevel is detailed
         //
-        DefaultLogLevel.setLogLevel( oldLogLevel );
-        if ( !Utils.isEmpty( altPackageName ) &&  translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
-          translation = BaseMessages.getString( altPackageName, string, resourceClass );
+        DefaultLogLevel.setLogLevel( oldLogLevel );        
+        
+        if ( translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
+          translation = BaseMessages.getString( classFromResourcesPackage, string, resourceClass );        
+        }
+
+        if ( translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
+          translation = string;
         }
       } else {
-        // Translations are not supported, simply keep the original text.
-        //
-        translation = string;
+          // Translations are not supported, simply keep the original text.
+          //
+          translation = string;
       }
-
+      
       return translation;
     }
   }
@@ -487,10 +487,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return false;
   }
 
-  protected String extractI18nPackageName( T annotation ) {
-    return null;
-  }
-
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, T annotation ) {
   }
 
@@ -566,19 +562,18 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
     // Only one ID for now
     String[] ids = idList.split( "," );
-    String packageName = extractI18nPackageName( annotation );
-    String altPackageName = clazz.getPackage().getName();
-    String pluginName = getTranslation( extractName( annotation ), packageName, altPackageName, clazz );
-    String description = getTranslation( extractDesc( annotation ), packageName, altPackageName, clazz );
-    String category = getTranslation( extractCategory( annotation ), packageName, altPackageName, clazz );
+    String packageName = clazz.getPackage().getName();    
+    String pluginName = getTranslation( extractName( annotation ), packageName, clazz );
+    String description = getTranslation( extractDesc( annotation ), packageName, clazz );
+    String category = getTranslation( extractCategory( annotation ), packageName, clazz );
     String imageFile = extractImageFile( annotation );
     boolean separateClassLoader = extractSeparateClassLoader( annotation );
     String documentationUrl = extractDocumentationUrl( annotation );
     String casesUrl = extractCasesUrl( annotation );
     String forumUrl = extractForumUrl( annotation );
-    String suggestion = getTranslation( extractSuggestion( annotation ), packageName, altPackageName, clazz );
+    String suggestion = getTranslation( extractSuggestion( annotation ), packageName, clazz );
     String classLoaderGroup = extractClassLoaderGroup( annotation );
-    String[] keywords = getTranslations(extractKeywords( annotation ), packageName, altPackageName, clazz);
+    String[] keywords = getTranslations(extractKeywords( annotation ), packageName, clazz);
 
     Map<Class<?>, String> classMap = new HashMap<>();
 

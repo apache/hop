@@ -33,10 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -46,6 +43,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -58,12 +56,19 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   private TextVar wFilename;
+  private Label wlFilename;
 
   private CCombo wExtension;
+
+  private Button wFileNameInField;
+
+  private Label wlFileNameField;
+  private ComboVar wFileNameField;
 
   private Button wStreamData;
 
   private Button wAddTransformNr;
+  private Label wlAddTransformNr;
 
   private Label wlAddDate;
   private Button wAddDate;
@@ -78,11 +83,14 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private Button wFooter;
 
   private Text wSplitEvery;
+  private Label wlSplitEvery;
 
   private Button wTemplate;
 
   private Button wbTemplateFilename;
   private TextVar wTemplateFilename;
+
+  private Button wbShowFiles;
 
   private TextVar wPassword;
 
@@ -94,22 +102,15 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private Button wAddToResult;
 
-  // private Label wlAppend;
-  // private Button wAppend;
-  // private FormData fdlAppend, fdAppend;
-
   private Button wDoNotOpenNewFileInit;
 
   private Button wSpecifyFormat;
+  private Label wlSpecifyFormat;
 
   private Label wlDateTimeFormat;
   private CCombo wDateTimeFormat;
 
   private Button wAutoSize;
-
-  // private Label wlNullIsBlank;
-  // private Button wNullIsBlank;
-  // private FormData fdlNullIsBlank, fdNullIsBlank;
 
   private ColumnInfo[] colinf;
 
@@ -142,6 +143,11 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private Button wMakeActiveSheet;
   private Button wForceFormulaRecalculation;
   private Button wLeaveExistingStylesUnchanged;
+
+  private boolean gotPreviousFields = false;
+
+  private static final String LABEL_FORMATXLSX = "ExcelWriterDialog.FormatXLSX.Label";
+  private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
 
   public ExcelWriterTransformDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -236,7 +242,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fileGroup.setLayout(fileGroupgroupLayout);
 
     // Filename line
-    Label wlFilename = new Label(fileGroup, SWT.RIGHT);
+    wlFilename = new Label(fileGroup, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Filename.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
@@ -274,8 +280,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wlExtension.setLayoutData(fdlExtension);
     wExtension = new CCombo(fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
 
-    String xlsLabel = BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label");
-    String xlsxLabel = BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label");
+    String xlsLabel = BaseMessages.getString(PKG, LABEL_FORMATXLS);
+    String xlsxLabel = BaseMessages.getString(PKG, LABEL_FORMATXLSX);
     wExtension.setItems(new String[] {xlsLabel, xlsxLabel});
     wExtension.setData(xlsLabel, "xls");
     wExtension.setData(xlsxLabel, "xlsx");
@@ -300,12 +306,74 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdExtension.right = new FormAttachment(wbFilename, -margin);
     wExtension.setLayoutData(fdExtension);
 
+    // FileNameInField line
+    /* Additional fields */
+    Label wlFileNameInField = new Label(fileGroup, SWT.RIGHT);
+    wlFileNameInField.setText(
+        BaseMessages.getString(PKG, "ExcelWriterDialog.FileNameInField.Label"));
+    props.setLook(wlFileNameInField);
+    FormData fdlFileNameInField = new FormData();
+    fdlFileNameInField.left = new FormAttachment(0, 0);
+    fdlFileNameInField.top = new FormAttachment(wExtension, margin);
+    fdlFileNameInField.right = new FormAttachment(middle, -margin);
+    wlFileNameInField.setLayoutData(fdlFileNameInField);
+    wFileNameInField = new Button(fileGroup, SWT.CHECK);
+    props.setLook(wFileNameInField);
+    FormData fdFileNameInField = new FormData();
+    fdFileNameInField.left = new FormAttachment(middle, 0);
+    fdFileNameInField.top = new FormAttachment(wlFileNameInField, 0, SWT.CENTER);
+    fdFileNameInField.right = new FormAttachment(100, 0);
+    wFileNameInField.setLayoutData(fdFileNameInField);
+    wFileNameInField.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            activeFileNameField();
+          }
+        });
+
+    // FileNameField Line
+    wlFileNameField = new Label(fileGroup, SWT.RIGHT);
+    wlFileNameField.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.FileNameField.Label"));
+    props.setLook(wlFileNameField);
+    FormData fdlFileNameField = new FormData();
+    fdlFileNameField.left = new FormAttachment(0, 0);
+    fdlFileNameField.right = new FormAttachment(middle, -margin);
+    fdlFileNameField.top = new FormAttachment(wFileNameInField, margin);
+    wlFileNameField.setLayoutData(fdlFileNameField);
+
+    wFileNameField = new ComboVar(variables, fileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wFileNameField);
+    wFileNameField.addModifyListener(lsMod);
+    FormData fdFileNameField = new FormData();
+    fdFileNameField.left = new FormAttachment(middle, 0);
+    fdFileNameField.top = new FormAttachment(wFileNameInField, margin);
+    fdFileNameField.right = new FormAttachment(100, 0);
+    wFileNameField.setLayoutData(fdFileNameField);
+    wFileNameField.setEnabled(false);
+    wFileNameField.addFocusListener(
+        new FocusListener() {
+          public void focusLost(FocusEvent e) {
+            // Disable focustLost event
+          }
+
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+    /* End */
+
     Label wlStreamData = new Label(fileGroup, SWT.RIGHT);
     wlStreamData.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.StreamData.Label"));
     props.setLook(wlStreamData);
     FormData fdlStreamData = new FormData();
     fdlStreamData.left = new FormAttachment(0, 0);
-    fdlStreamData.top = new FormAttachment(wExtension, margin);
+    fdlStreamData.top = new FormAttachment(wFileNameField, margin);
     fdlStreamData.right = new FormAttachment(middle, -margin);
     wlStreamData.setLayoutData(fdlStreamData);
     wStreamData = new Button(fileGroup, SWT.CHECK);
@@ -318,7 +386,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wStreamData.addSelectionListener(lsSel);
 
     // split every x rows
-    Label wlSplitEvery = new Label(fileGroup, SWT.RIGHT);
+    wlSplitEvery = new Label(fileGroup, SWT.RIGHT);
     wlSplitEvery.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.SplitEvery.Label"));
     props.setLook(wlSplitEvery);
     FormData fdlSplitEvery = new FormData();
@@ -337,7 +405,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wSplitEvery.setLayoutData(fdSplitEvery);
 
     // Create multi-part file?
-    Label wlAddTransformNr = new Label(fileGroup, SWT.RIGHT);
+    wlAddTransformNr = new Label(fileGroup, SWT.RIGHT);
     wlAddTransformNr.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.AddTransformnr.Label"));
     props.setLook(wlAddTransformNr);
     FormData fdlAddTransformNr = new FormData();
@@ -390,7 +458,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wAddTime.addSelectionListener(lsSel);
 
     // Specify date time format?
-    Label wlSpecifyFormat = new Label(fileGroup, SWT.RIGHT);
+    wlSpecifyFormat = new Label(fileGroup, SWT.RIGHT);
     wlSpecifyFormat.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.SpecifyFormat.Label"));
     props.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
@@ -441,7 +509,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wDateTimeFormat.add(dat);
     }
 
-    Button wbShowFiles = new Button(fileGroup, SWT.PUSH | SWT.CENTER);
+    wbShowFiles = new Button(fileGroup, SWT.PUSH | SWT.CENTER);
     props.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
@@ -485,8 +553,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlIfFileExists.top = new FormAttachment(wbShowFiles, 2 * margin, margin);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
-    // wIfFileExists=new TextVar(variables,wFileComp, SWT.SINGLE | SWT.LEFT |
-    // SWT.BORDER);
     wIfFileExists = new CCombo(fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
 
     String createNewLabel =
@@ -534,7 +600,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
-    fdlAddToResult.top = new FormAttachment(wDoNotOpenNewFileInit);
+    fdlAddToResult.top = new FormAttachment(wDoNotOpenNewFileInit, 2 * margin, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
     wAddToResult = new Button(fileGroup, SWT.CHECK);
@@ -554,9 +620,38 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fsFileGroup.right = new FormAttachment(100, -margin);
     fileGroup.setLayoutData(fsFileGroup);
 
+    FormData fdFileComp = new FormData();
+    fdFileComp.left = new FormAttachment(0, 0);
+    fdFileComp.top = new FormAttachment(0, 0);
+    fdFileComp.right = new FormAttachment(100, 0);
+    fdFileComp.bottom = new FormAttachment(100, 0);
+    wFileComp.setLayoutData(fdFileComp);
+
+    wFileComp.layout();
+    wFileTab.setControl(wFileComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF FILE TAB
+    // ///////////////////////////////////////////////////////////
+
     // END OF FILE GROUP
 
-    Group sheetGroup = new Group(wFileComp, SWT.SHADOW_NONE);
+    // ////////////////////////
+    // START OF SHEET & TEMPLATE TAB
+    // /
+    CTabItem wSheetTemplateTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSheetTemplateTab.setText(
+        BaseMessages.getString(PKG, "ExcelWriterDialog.SheeTemplateTab.TabTitle"));
+
+    Composite wSheetTemplateComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wSheetTemplateComp);
+
+    FormLayout sheetTemplateLayout = new FormLayout();
+    fileLayout.marginWidth = 3;
+    fileLayout.marginHeight = 3;
+    wSheetTemplateComp.setLayout(sheetTemplateLayout);
+
+    Group sheetGroup = new Group(wSheetTemplateComp, SWT.SHADOW_NONE);
     props.setLook(sheetGroup);
     sheetGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.sheetGroup.Label"));
 
@@ -715,14 +810,14 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     // START OF Template Group GROUP //
     // ///////////////////////////////
 
-    Group wTemplateGroup = new Group(wFileComp, SWT.SHADOW_NONE);
+    Group wTemplateGroup = new Group(wSheetTemplateComp, SWT.SHADOW_NONE);
     props.setLook(wTemplateGroup);
     wTemplateGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.TemplateGroup.Label"));
 
-    FormLayout TemplateGroupgroupLayout = new FormLayout();
-    TemplateGroupgroupLayout.marginWidth = 10;
-    TemplateGroupgroupLayout.marginHeight = 10;
-    wTemplateGroup.setLayout(TemplateGroupgroupLayout);
+    FormLayout templateGroupGroupLayout = new FormLayout();
+    templateGroupGroupLayout.marginWidth = 10;
+    templateGroupGroupLayout.marginHeight = 10;
+    wTemplateGroup.setLayout(templateGroupGroupLayout);
 
     // Use template
     Label wlTemplate = new Label(wTemplateGroup, SWT.RIGHT);
@@ -853,22 +948,18 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdTemplateGroup.right = new FormAttachment(100, -margin);
     wTemplateGroup.setLayoutData(fdTemplateGroup);
 
-    // ///////////////////////////////////////////////////////////
-    // / END OF Write to existing Group GROUP
-    // ///////////////////////////////////////////////////////////
+    FormData fdSheetTemplateComp = new FormData();
+    fdSheetTemplateComp.left = new FormAttachment(0, 0);
+    fdSheetTemplateComp.top = new FormAttachment(0, 0);
+    fdSheetTemplateComp.right = new FormAttachment(100, 0);
+    fdSheetTemplateComp.bottom = new FormAttachment(100, 0);
+    wSheetTemplateComp.setLayoutData(fdSheetTemplateComp);
 
-    FormData fdFileComp = new FormData();
-    fdFileComp.left = new FormAttachment(0, 0);
-    fdFileComp.top = new FormAttachment(0, 0);
-    fdFileComp.right = new FormAttachment(100, 0);
-    fdFileComp.bottom = new FormAttachment(100, 0);
-    wFileComp.setLayoutData(fdFileComp);
-
-    wFileComp.layout();
-    wFileTab.setControl(wFileComp);
+    wSheetTemplateComp.layout();
+    wSheetTemplateTab.setControl(wSheetTemplateComp);
 
     // ///////////////////////////////////////////////////////////
-    // / END OF FILE TAB
+    // END OF SHEET & TEMPLATE TAB
     // ///////////////////////////////////////////////////////////
 
     // ////////////////////////
@@ -889,10 +980,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook(wContentGroup);
     wContentGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ContentGroup.Label"));
 
-    FormLayout ContentGroupgroupLayout = new FormLayout();
-    ContentGroupgroupLayout.marginWidth = 10;
-    ContentGroupgroupLayout.marginHeight = 10;
-    wContentGroup.setLayout(ContentGroupgroupLayout);
+    FormLayout contentGroupGroupLayout = new FormLayout();
+    contentGroupGroupLayout.marginWidth = 10;
+    contentGroupGroupLayout.marginHeight = 10;
+    wContentGroup.setLayout(contentGroupGroupLayout);
 
     // starting cell
     Label wlStartingCell = new Label(wContentGroup, SWT.RIGHT);
@@ -939,13 +1030,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     props.setLook(wRowWritingMethod);
     wRowWritingMethod.addModifyListener(lsMod);
-
-    // wRowWritingMethod.addSelectionListener(new SelectionAdapter() {
-    // public void widgetSelected(SelectionEvent e) {
-    // input.setChanged();
-    // EnableRowWritingMethod();
-    // }
-    // });
 
     FormData fdRowWritingMethod = new FormData();
     fdRowWritingMethod.left = new FormAttachment(middle, 0);
@@ -1095,7 +1179,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdAppendLines.top = new FormAttachment(wlAppendLines, 0, SWT.CENTER);
     fdAppendLines.right = new FormAttachment(100, 0);
     wAppendLines.setLayoutData(fdAppendLines);
-    // wAppendLines.addSelectionListener(lsMod);
     wAppendLines.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -1170,18 +1253,42 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdWriteToExistingGroup.right = new FormAttachment(100, -margin);
     writeToExistingGroup.setLayoutData(fdWriteToExistingGroup);
 
+    FormData fdContentComp = new FormData();
+    fdContentComp.left = new FormAttachment(0, 0);
+    fdContentComp.top = new FormAttachment(0, 0);
+    fdContentComp.right = new FormAttachment(100, 0);
+    fdContentComp.bottom = new FormAttachment(100, 0);
+    wContentGroup.setLayoutData(fdContentComp);
+
+    wContentComp.layout();
+    wContentTab.setControl(wContentComp);
+
     // ///////////////////////////////////////////////////////////
     // / END OF Write to existing Group GROUP
     // ///////////////////////////////////////////////////////////
 
-    Group fieldGroup = new Group(wContentComp, SWT.SHADOW_NONE);
+    // ////////////////////////
+    // START OF FIELDS TAB///
+    // /
+    CTabItem wFieldTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldTab.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.OutputFieldsTab.TabTitle"));
+
+    FormLayout fieldLayout = new FormLayout();
+    fieldLayout.marginWidth = 3;
+    fieldLayout.marginHeight = 3;
+
+    Composite wFieldComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wFieldComp);
+    wFieldComp.setLayout(fieldLayout);
+
+    Group fieldGroup = new Group(wFieldComp, SWT.SHADOW_NONE);
     props.setLook(fieldGroup);
     fieldGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.fieldGroup.Label"));
 
-    FormLayout fieldGroupgroupLayout = new FormLayout();
-    fieldGroupgroupLayout.marginWidth = 10;
-    fieldGroupgroupLayout.marginHeight = 10;
-    fieldGroup.setLayout(fieldGroupgroupLayout);
+    FormLayout fieldGroupGroupLayout = new FormLayout();
+    fieldGroupGroupLayout.marginWidth = 10;
+    fieldGroupGroupLayout.marginHeight = 10;
+    fieldGroup.setLayout(fieldGroupGroupLayout);
 
     wGet = new Button(fieldGroup, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
@@ -1193,10 +1300,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
-    final int FieldsRows = input.getOutputFields().length;
+    final int FieldsRows = input.getOutputFields().size();
 
     // Prepare a list of possible formats, filtering reserved internal formats away
-    String[] formats = BuiltinFormats.getAll();
 
     List<String> allFormats = Arrays.asList(BuiltinFormats.getAll());
     List<String> nonReservedFormats = new ArrayList<>(allFormats.size());
@@ -1208,7 +1314,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     }
 
     Collections.sort(nonReservedFormats);
-    formats = nonReservedFormats.toArray(new String[0]);
+    String[] formats = nonReservedFormats.toArray(new String[0]);
 
     colinf =
         new ColumnInfo[] {
@@ -1302,15 +1408,15 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdFieldGroup.right = new FormAttachment(100, -margin);
     fieldGroup.setLayoutData(fdFieldGroup);
 
-    FormData fdContentComp = new FormData();
-    fdContentComp.left = new FormAttachment(0, 0);
-    fdContentComp.top = new FormAttachment(0, 0);
-    fdContentComp.right = new FormAttachment(100, 0);
-    fdContentComp.bottom = new FormAttachment(100, 0);
-    wContentComp.setLayoutData(fdContentComp);
+    FormData fdFieldComp = new FormData();
+    fdFieldComp.left = new FormAttachment(0, 0);
+    fdFieldComp.top = new FormAttachment(0, 0);
+    fdFieldComp.right = new FormAttachment(100, 0);
+    fdFieldComp.bottom = new FormAttachment(100, 0);
+    wFieldComp.setLayoutData(fdFieldComp);
 
-    wContentComp.layout();
-    wContentTab.setControl(wContentComp);
+    wFieldComp.layout();
+    wFieldTab.setControl(wFieldComp);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -1384,8 +1490,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
                 variables,
                 new String[] {"*.xls", "*.xlsx", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label"),
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label"),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1398,8 +1504,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
                 variables,
                 new String[] {"*.xls", "*.xlsx", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label"),
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label"),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1407,7 +1513,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wTabFolder.setSelection(0);
 
     getData();
-    setDateTimeFormat();
+    activeFileNameField();
     enableExtension();
     enableAppend();
     enableHeader();
@@ -1435,6 +1541,37 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     return transformName;
   }
 
+  private void activeFileNameField() {
+    wlFileNameField.setEnabled(wFileNameInField.getSelection());
+    wFileNameField.setEnabled(wFileNameInField.getSelection());
+    wlFilename.setEnabled(!wFileNameInField.getSelection());
+    wFilename.setEnabled(!wFileNameInField.getSelection());
+
+    if (wFileNameInField.getSelection()) {
+      if (!wDoNotOpenNewFileInit.getSelection()) {
+        wDoNotOpenNewFileInit.setSelection(true);
+      }
+      wAddDate.setSelection(false);
+      wAddTime.setSelection(false);
+      wSpecifyFormat.setSelection(false);
+      wAddTransformNr.setSelection(false);
+    }
+
+    wlSpecifyFormat.setEnabled(!wFileNameInField.getSelection());
+    wSpecifyFormat.setEnabled(!wFileNameInField.getSelection());
+
+    wAddTransformNr.setEnabled(!wFileNameInField.getSelection());
+    wlAddTransformNr.setEnabled(!wFileNameInField.getSelection());
+    if (wFileNameInField.getSelection()) {
+      wSplitEvery.setText("0");
+    }
+    wSplitEvery.setEnabled(!wFileNameInField.getSelection());
+    wlSplitEvery.setEnabled(!wFileNameInField.getSelection());
+    wbShowFiles.setEnabled(!wFileNameInField.getSelection());
+
+    setDateTimeFormat();
+  }
+
   private void enableAppend() {
     wSplitEvery.setEnabled(!wAppendLines.getSelection());
   }
@@ -1449,12 +1586,12 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wAddTime.setSelection(false);
     }
 
-    wDateTimeFormat.setEnabled(wSpecifyFormat.getSelection());
-    wlDateTimeFormat.setEnabled(wSpecifyFormat.getSelection());
-    wAddDate.setEnabled(!wSpecifyFormat.getSelection());
-    wlAddDate.setEnabled(!wSpecifyFormat.getSelection());
-    wAddTime.setEnabled(!wSpecifyFormat.getSelection());
-    wlAddTime.setEnabled(!wSpecifyFormat.getSelection());
+    wDateTimeFormat.setEnabled(wSpecifyFormat.getSelection() && !wFileNameInField.getSelection());
+    wlDateTimeFormat.setEnabled(wSpecifyFormat.getSelection() && !wFileNameInField.getSelection());
+    wAddDate.setEnabled(!(wFileNameInField.getSelection() || wSpecifyFormat.getSelection()));
+    wlAddDate.setEnabled(!(wSpecifyFormat.getSelection() || wFileNameInField.getSelection()));
+    wAddTime.setEnabled(!(wSpecifyFormat.getSelection() || wFileNameInField.getSelection()));
+    wlAddTime.setEnabled(!(wSpecifyFormat.getSelection() || wFileNameInField.getSelection()));
   }
 
   protected void setComboBoxes() {
@@ -1479,21 +1616,30 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFileName() != null) {
-      wFilename.setText(input.getFileName());
-    }
-    wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
-    if (input.getExtension() != null) {
+    ExcelWriterFileField file = input.getFile();
+    ExcelWriterTemplateField template = input.getTemplate();
 
-      if (input.getExtension().equals("xlsx")) {
+    if (file.getFileName() != null) {
+      wFilename.setText(file.getFileName());
+    }
+    wDoNotOpenNewFileInit.setSelection(file.isDoNotOpenNewFileInit());
+    if (file.getExtension() != null) {
+
+      if (file.getExtension().equals("xlsx")) {
         wExtension.select(1);
       } else {
         wExtension.select(0);
       }
     }
 
-    wStreamData.setSelection(input.isStreamingData());
-    wSplitEvery.setText("" + input.getSplitEvery());
+    wFileNameInField.setSelection(file.isFileNameInField());
+
+    if (file.isFileNameInField() && file.getFileNameField() != null) {
+      wFileNameField.setText(file.getFileNameField());
+    }
+
+    wStreamData.setSelection(file.isStreamingData());
+    wSplitEvery.setText("" + file.getSplitEvery());
     wEmptyRows.setText("" + input.getAppendEmpty());
     wSkipRows.setText("" + input.getAppendOffset());
     wAppendLines.setSelection(input.isAppendLines());
@@ -1507,64 +1653,64 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wStartingCell.setText(input.getStartingCell());
     }
 
-    wAddDate.setSelection(input.isDateInFilename());
-    wAddTime.setSelection(input.isTimeInFilename());
+    wAddDate.setSelection(file.isDateInFilename());
+    wAddTime.setSelection(file.isTimeInFilename());
 
-    if (input.getDateTimeFormat() != null) {
-      wDateTimeFormat.setText(input.getDateTimeFormat());
+    if (file.getDateTimeFormat() != null) {
+      wDateTimeFormat.setText(file.getDateTimeFormat());
     }
-    wSpecifyFormat.setSelection(input.isSpecifyFormat());
+    wSpecifyFormat.setSelection(file.isSpecifyFormat());
 
-    wAddToResult.setSelection(input.isAddToResultFiles());
-    wAutoSize.setSelection(input.isAutoSizeColums());
+    wAddToResult.setSelection(input.isAddToResultFilenames());
+    wAutoSize.setSelection(file.isAutosizecolums());
     wIfFileExists.select(
-        ExcelWriterTransformMeta.IF_FILE_EXISTS_REUSE.equals(input.getIfFileExists()) ? 1 : 0);
+        ExcelWriterTransformMeta.IF_FILE_EXISTS_REUSE.equals(file.getIfFileExists()) ? 1 : 0);
     wIfSheetExists.select(
-        ExcelWriterTransformMeta.IF_SHEET_EXISTS_REUSE.equals(input.getIfSheetExists()) ? 1 : 0);
+        ExcelWriterTransformMeta.IF_SHEET_EXISTS_REUSE.equals(file.getIfSheetExists()) ? 1 : 0);
     wRowWritingMethod.select(
         ExcelWriterTransformMeta.ROW_WRITE_PUSH_DOWN.equals(input.getRowWritingMethod()) ? 1 : 0);
 
-    wAddTransformNr.setSelection(input.isTransformNrInFilename());
+    wAddTransformNr.setSelection(file.isTransformNrInFilename());
     wMakeActiveSheet.setSelection(input.isMakeSheetActive());
-    wTemplate.setSelection(input.isTemplateEnabled());
-    wTemplateSheet.setSelection(input.isTemplateSheetEnabled());
+    wTemplate.setSelection(template.isTemplateEnabled());
+    wTemplateSheet.setSelection(template.isTemplateSheetEnabled());
 
-    if (input.getTemplateFileName() != null) {
-      wTemplateFilename.setText(input.getTemplateFileName());
+    if (template.getTemplateFileName() != null) {
+      wTemplateFilename.setText(template.getTemplateFileName());
     }
 
-    if (input.getTemplateSheetName() != null) {
-      wTemplateSheetname.setText(input.getTemplateSheetName());
+    if (template.getTemplateSheetName() != null) {
+      wTemplateSheetname.setText(template.getTemplateSheetName());
     }
 
-    if (input.getSheetname() != null) {
-      wSheetname.setText(input.getSheetname());
+    if (file.getSheetname() != null) {
+      wSheetname.setText(file.getSheetname());
     } else {
-      wSheetname.setText("Sheet1");
+      wSheetname.setText(BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text"));
     }
-    wTemplateSheetHide.setSelection(input.isTemplateSheetHidden());
-    wProtectSheet.setSelection(input.isSheetProtected());
+    wTemplateSheetHide.setSelection(template.isTemplateSheetHidden());
+    wProtectSheet.setSelection(file.isProtectsheet());
 
     enablePassword();
     enableTemplate();
 
-    if (input.getPassword() != null) {
-      wPassword.setText(input.getPassword());
+    if (file.getPassword() != null) {
+      wPassword.setText(file.getPassword());
     }
-    if (input.getProtectedBy() != null) {
-      wProtectedBy.setText(input.getProtectedBy());
+    if (file.getProtectedBy() != null) {
+      wProtectedBy.setText(file.getProtectedBy());
     }
 
-    logDebug("getting fields info...");
+    logDebug("Getting fields info...");
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      ExcelWriterTransformField field = input.getOutputFields()[i];
+    for (int i = 0; i < input.getOutputFields().size(); i++) {
+      ExcelWriterOutputField field = input.getOutputFields().get(i);
 
       TableItem item = wFields.table.getItem(i);
       if (field.getName() != null) {
         item.setText(1, field.getName());
       }
-      item.setText(2, field.getTypeDesc());
+      item.setText(2, field.getType());
 
       if (field.getFormat() != null) {
         item.setText(3, field.getFormat());
@@ -1601,6 +1747,28 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wTransformName.setFocus();
   }
 
+  private void getFields() {
+    if (!gotPreviousFields) {
+      try {
+        String field = wFileNameField.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
+          wFileNameField.setItems(r.getFieldNames());
+        }
+        if (field != null) {
+          wFileNameField.setText(field);
+        }
+      } catch (HopException ke) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogTitle"),
+            BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogMessage"),
+            ke);
+      }
+      gotPreviousFields = true;
+    }
+  }
+
   private void cancel() {
     transformName = null;
 
@@ -1610,56 +1778,61 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   }
 
   private void getInfo(ExcelWriterTransformMeta tfoi) {
-    tfoi.setFileName(wFilename.getText());
-    tfoi.setStreamingData(wStreamData.getSelection());
-    tfoi.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+
+    ExcelWriterFileField file = tfoi.getFile();
+    ExcelWriterTemplateField template = tfoi.getTemplate();
+
+    file.setFileName(wFilename.getText());
+    file.setStreamingData(wStreamData.getSelection());
+    file.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    file.setFileNameInField(wFileNameInField.getSelection());
+    file.setFileNameField(wFileNameField.getText());
     tfoi.setAppendOmitHeader(wOmitHeader.getSelection());
-    tfoi.setExtension((String) wExtension.getData(wExtension.getText()));
-    tfoi.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
+    file.setExtension((String) wExtension.getData(wExtension.getText()));
+    file.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
     tfoi.setAppendOffset(Const.toInt(wSkipRows.getText(), 0));
     tfoi.setAppendEmpty(Const.toInt(wEmptyRows.getText(), 0));
     tfoi.setAppendLines(wAppendLines.getSelection());
     tfoi.setHeaderEnabled(wHeader.getSelection());
     tfoi.setFooterEnabled(wFooter.getSelection());
     tfoi.setStartingCell(wStartingCell.getText());
-    tfoi.setTransformNrInFilename(wAddTransformNr.getSelection());
-    tfoi.setDateInFilename(wAddDate.getSelection());
-    tfoi.setTimeInFilename(wAddTime.getSelection());
-    tfoi.setIfFileExists((String) wIfFileExists.getData(wIfFileExists.getText()));
-    tfoi.setIfSheetExists((String) wIfSheetExists.getData(wIfSheetExists.getText()));
+    file.setTransformNrInFilename(wAddTransformNr.getSelection());
+    file.setDateInFilename(wAddDate.getSelection());
+    file.setTimeInFilename(wAddTime.getSelection());
+    file.setIfFileExists((String) wIfFileExists.getData(wIfFileExists.getText()));
+    file.setIfSheetExists((String) wIfSheetExists.getData(wIfSheetExists.getText()));
     tfoi.setRowWritingMethod((String) wRowWritingMethod.getData(wRowWritingMethod.getText()));
     tfoi.setForceFormulaRecalculation(wForceFormulaRecalculation.getSelection());
     tfoi.setLeaveExistingStylesUnchanged(wLeaveExistingStylesUnchanged.getSelection());
 
-    tfoi.setDateTimeFormat(wDateTimeFormat.getText());
-    tfoi.setSpecifyFormat(wSpecifyFormat.getSelection());
-    tfoi.setAutoSizeColums(wAutoSize.getSelection());
+    file.setDateTimeFormat(wDateTimeFormat.getText());
+    file.setSpecifyFormat(wSpecifyFormat.getSelection());
+    file.setAutosizecolums(wAutoSize.getSelection());
 
-    tfoi.setAddToResultFiles(wAddToResult.getSelection());
+    tfoi.setAddToResultFilenames(wAddToResult.getSelection());
 
     tfoi.setMakeSheetActive(wMakeActiveSheet.getSelection());
-    tfoi.setProtectSheet(wProtectSheet.getSelection());
-    tfoi.setProtectedBy(wProtectedBy.getText());
-    tfoi.setPassword(wPassword.getText());
+    file.setProtectsheet(wProtectSheet.getSelection());
+    file.setProtectedBy(wProtectedBy.getText());
+    file.setPassword(wPassword.getText());
 
-    tfoi.setTemplateEnabled(wTemplate.getSelection());
-    tfoi.setTemplateSheetEnabled(wTemplateSheet.getSelection());
-    tfoi.setTemplateFileName(wTemplateFilename.getText());
-    tfoi.setTemplateSheetName(wTemplateSheetname.getText());
-    tfoi.setTemplateSheetHidden(wTemplateSheetHide.getSelection());
+    template.setTemplateEnabled(wTemplate.getSelection());
+    template.setTemplateSheetEnabled(wTemplateSheet.getSelection());
+    template.setTemplateFileName(wTemplateFilename.getText());
+    template.setTemplateSheetName(wTemplateSheetname.getText());
+    template.setTemplateSheetHidden(wTemplateSheetHide.getSelection());
 
     if (wSheetname.getText() != null) {
-      tfoi.setSheetname(wSheetname.getText());
+      file.setSheetname(wSheetname.getText());
     } else {
-      tfoi.setSheetname("Sheet 1");
+      file.setSheetname(BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text"));
     }
 
     int nrFields = wFields.nrNonEmpty();
-
-    tfoi.allocate(nrFields);
+    input.getOutputFields().clear();
 
     for (int i = 0; i < nrFields; i++) {
-      ExcelWriterTransformField field = new ExcelWriterTransformField();
+      ExcelWriterOutputField field = new ExcelWriterOutputField();
 
       TableItem item = wFields.getNonEmpty(i);
       field.setName(item.getText(1));
@@ -1674,7 +1847,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       field.setCommentAuthorField(item.getText(10));
 
       // CHECKSTYLE:Indentation:OFF
-      tfoi.getOutputFields()[i] = field;
+      tfoi.getOutputFields().add(field);
     }
   }
 

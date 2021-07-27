@@ -366,21 +366,11 @@ public abstract class ConfigurationDialog extends Dialog {
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    Button wbHelp = new Button(shell, SWT.NONE);
-    wbHelp.setImage(GuiResource.getInstance().getImageHelpWeb());
-    wbHelp.setText(BaseMessages.getString("System.Button.Help"));
-    wbHelp.setToolTipText(BaseMessages.getString("System.Tooltip.Help"));
+    Button wbHelp = HelpUtils.createHelpButton(shell, docUrl);   
     FormData fdbHelp = new FormData();
     fdbHelp.bottom = new FormAttachment(100, 0);
     fdbHelp.left = new FormAttachment(0, 0);
     wbHelp.setLayoutData(fdbHelp);
-    wbHelp.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent evt) {
-            HelpUtils.openHelpDialog(parent.getShell(), docTitle, docUrl, docHeader);
-          }
-        });
 
     Label separator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
     FormData fdSeparator = new FormData();

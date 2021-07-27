@@ -123,6 +123,14 @@ public class CheckResultDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wClose, wView, wEdit}, margin, null);
 
+    wNoOK = new Button(shell, SWT.CHECK);
+    wNoOK.setText(STRING_SHOW_SUCESSFUL);
+    FormData fd = new FormData();
+    fd.left = new FormAttachment(0, 0);
+    fd.bottom = new FormAttachment(wClose, -2 * margin);
+    wNoOK.setLayoutData(fd);
+    wNoOK.addListener(SWT.Selection, e -> noOK());
+
     wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "CheckResultDialog.Remarks.Label"));
     props.setLook(wlFields);
@@ -170,16 +178,8 @@ public class CheckResultDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wClose, -2 * margin);
+    fdFields.bottom = new FormAttachment(wNoOK, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    wNoOK = new Button(shell, SWT.CHECK);
-    wNoOK.setText(STRING_SHOW_SUCESSFUL);
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wFields, margin);
-    wNoOK.setLayoutData(fd);
-    wNoOK.addListener(SWT.Selection, e -> noOK());
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addListener(SWT.Close, e -> close());

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,9 +28,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-/**
- * @author Andrey Khayrutdinov
- */
 public class ExcelWriterTransform_FormulaRecalculationTest {
 
   private ExcelWriterTransform transform;
@@ -41,17 +37,30 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
 
   @Before
   public void setUp() throws Exception {
-    mockHelper = TransformMockUtil.getTransformMockHelper( ExcelWriterTransformMeta.class, ExcelWriterTransformData.class, "ExcelWriterTransform_FormulaRecalculationTest" );
+    mockHelper =
+        TransformMockUtil.getTransformMockHelper(
+            ExcelWriterTransformMeta.class,
+            ExcelWriterTransformData.class,
+            "ExcelWriterTransform_FormulaRecalculationTest");
 
     meta = mockHelper.iTransformMeta;
+
+    ExcelWriterFileField fieldMock = mock(ExcelWriterFileField.class);
+    doReturn(fieldMock).when(meta).getFile();
+
+    ExcelWriterTemplateField templateMock = mock(ExcelWriterTemplateField.class);
+    doReturn(templateMock).when(meta).getTemplate();
+
     data = new ExcelWriterTransformData();
   }
 
   private void setupTransform() throws Exception {
-    transform = new ExcelWriterTransform( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
-    transform = spy( transform );
+    transform =
+        new ExcelWriterTransform(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    transform = spy(transform);
     // ignoring to avoid useless errors in log
-    doNothing().when( transform ).prepareNextOutputFile();
+    doNothing().when(transform).prepareNextOutputFile(any(Object[].class));
     transform.init();
   }
 
@@ -62,47 +71,48 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
 
   @Test
   public void forcesToRecalculate_Sxssf_PropertyIsSet() throws Exception {
-    forcesToRecalculate_Sxssf( "Y", true );
+    forcesToRecalculate_Sxssf("Y", true);
   }
 
   @Test
   public void forcesToRecalculate_Sxssf_PropertyIsCleared() throws Exception {
-    forcesToRecalculate_Sxssf( "N", false );
+    forcesToRecalculate_Sxssf("N", false);
   }
 
   @Test
   public void forcesToRecalculate_Sxssf_PropertyIsNotSet() throws Exception {
-    forcesToRecalculate_Sxssf( null, false );
+    forcesToRecalculate_Sxssf(null, false);
   }
 
-  private void forcesToRecalculate_Sxssf( String property, boolean expectedFlag ) throws Exception {
-    data.wb = spy( new SXSSFWorkbook() );
+  private void forcesToRecalculate_Sxssf(String property, boolean expectedFlag) throws Exception {
+    data.wb = spy(new SXSSFWorkbook());
 
     setupTransform();
 
-    transform.setVariable( ExcelWriterTransform.STREAMER_FORCE_RECALC_PROP_NAME, property );
+    transform.setVariable(ExcelWriterTransform.STREAMER_FORCE_RECALC_PROP_NAME, property);
     transform.recalculateAllWorkbookFormulas();
-    if ( expectedFlag ) {
-      verify( data.wb ).setForceFormulaRecalculation( true );
+    if (expectedFlag) {
+      verify(data.wb).setForceFormulaRecalculation(true);
     } else {
-      verify( data.wb, never() ).setForceFormulaRecalculation( anyBoolean() );
+      verify(data.wb, never()).setForceFormulaRecalculation(anyBoolean());
     }
   }
 
   @Test
   public void forcesToRecalculate_Hssf() throws Exception {
     data.wb = new HSSFWorkbook();
-    data.wb.createSheet( "sheet1" );
-    data.wb.createSheet( "sheet2" );
+    data.wb.createSheet("sheet1");
+    data.wb.createSheet("sheet2");
 
     setupTransform();
     transform.recalculateAllWorkbookFormulas();
 
-    if ( !data.wb.getForceFormulaRecalculation() ) {
+    if (!data.wb.getForceFormulaRecalculation()) {
       int sheets = data.wb.getNumberOfSheets();
-      for ( int i = 0; i < sheets; i++ ) {
-        Sheet sheet = data.wb.getSheetAt( i );
-        assertTrue( "Sheet #" + i + ": " + sheet.getSheetName(), sheet.getForceFormulaRecalculation() );
+      for (int i = 0; i < sheets; i++) {
+        Sheet sheet = data.wb.getSheetAt(i);
+        assertTrue(
+            "Sheet #" + i + ": " + sheet.getSheetName(), sheet.getForceFormulaRecalculation());
       }
     }
   }

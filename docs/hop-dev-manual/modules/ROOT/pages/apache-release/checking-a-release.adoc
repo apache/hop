@@ -36,13 +36,13 @@ First check would be to see if the keys and hashes are in order
 ----
 # check the sha512
 
-sha512sum -c apache-hop-X.XX-incubating-rcX.tar.gz.sha512
+sha512sum -c apache-hop-X.XX-incubating-src.tar.gz.sha512
 
 # should echo the artifact name and OK
 
 # check the gpg signature
 
-gpg --verify apache-hop-X.XX-incubating-rcX.tar.gz.asc
+gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
 
 # if it prints out gpg: Can't check signature: No public key fetch the key from public keyserver
 # 1. Check if the keyid matches a known key in the KEYS file https://dist.apache.org/repos/dist/dev/incubator/hop/KEYS
@@ -52,7 +52,7 @@ gpg --keyserver <KEY SERVER>  --receive-keys <KEY ID>
 
 # verify the package again
 
-gpg --verify apache-hop-X.XX-incubating-rcX.tar.gz.asc
+gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
 
 # output should be:
 # gpg: Good signature from "Owner Name <Owner@apache.org>" [ultimate]
@@ -85,7 +85,7 @@ final step is to see if the content of the source repository matches the content
 ----
 # unpack the downloaded source code
 
-tar -xvf apache-hop-X.XX-incubating-rcX.tar.gz
+tar -xvf apache-hop-X.XX-incubating-src.tar.gz
 
 # do a diff to see if they match
 
@@ -110,7 +110,8 @@ Validate if all files contain the correct headers
 
 [source,bash]
 ----
-mvn apache-rat:rat -debug
+cd apache-hop-X.XX-incubating
+mvn apache-rat:check -debug
 ----
 
 Now build and test the released code

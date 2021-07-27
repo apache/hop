@@ -199,7 +199,7 @@ public class BeanInjectionInfo<Meta extends Object> {
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
           path.add(childLevelInfo);
-          Property p = new Property(injectionKey, injectionKeyDescription, injectionGroupKey, path);
+          Property p = new Property(injectionKey, injectionKeyDescription, injectionGroupKey, path, property.isExcludedFromInjection());
           group.properties.add(p);
           properties.put(injectionKey, p);
         } else {
@@ -229,7 +229,7 @@ public class BeanInjectionInfo<Meta extends Object> {
               if (isChildlessClass(childFieldType, childProperty)) {
                 Property p =
                     new Property(
-                        childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path);
+                        childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path, property.isExcludedFromInjection());
                 group.properties.add(p);
                 properties.put(childInjectionKey, p);
               } else {
@@ -248,7 +248,7 @@ public class BeanInjectionInfo<Meta extends Object> {
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
-          Property p = new Property(injectionKey, injectionKeyDescription, "", path);
+          Property p = new Property(injectionKey, injectionKeyDescription, "", path, property.isExcludedFromInjection());
           rootGroup.properties.add(p);
           properties.put(injectionKey, p);
         } else {
@@ -430,7 +430,7 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     Property prop =
         new Property(
-            propertyName, injectionKeyDescription, metaInj.group(), leaf.createCallStack());
+            propertyName, injectionKeyDescription, metaInj.group(), leaf.createCallStack(), false);
     properties.put(prop.key, prop);
     Group gr = groupsMap.get(metaInj.group());
     if (gr == null) {
@@ -487,12 +487,16 @@ public class BeanInjectionInfo<Meta extends Object> {
     private final String groupKey;
     protected final List<BeanLevelInfo> path;
     public final int pathArraysCount;
+    private final boolean isExcludedFromInjection;
 
-    public Property(String key, String description, String groupKey, List<BeanLevelInfo> path) {
+    public Property(String key, String description, String groupKey, List<BeanLevelInfo> path, boolean isExcludedFromInjection) {
+
       this.key = key;
       this.description = description;
       this.groupKey = groupKey;
       this.path = path;
+      this.isExcludedFromInjection = isExcludedFromInjection;
+
       int ac = 0;
       for (BeanLevelInfo level : path) {
         if (level.dim != BeanLevelInfo.DIMENSION.NONE) {
@@ -525,6 +529,10 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     public Class<?> getPropertyClass() {
       return path.get(path.size() - 1).leafClass;
+    }
+
+    public boolean isExcludedFromInjection() {
+      return isExcludedFromInjection;
     }
 
     public boolean hasMatch(String filterString) {

@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#
 
 #set working dir to current location
 cd "${0%/*}"
@@ -24,6 +23,12 @@ cd "${0%/*}"
 #unzip files for docker image
 unzip ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
 unzip ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/plugins/dist/target/
+
+#copy recent changes in libraries...
+cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 
 #build docker image
 docker build ../ -f Dockerfile.web -t hop-web

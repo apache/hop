@@ -57,6 +57,9 @@ limitations under the License.
         <test_name>
           <name>0005-metastructure UNIT</name>
         </test_name>
+        <test_name>
+          <name>0005-metastructure-options UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>256</xloc>

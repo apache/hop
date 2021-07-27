@@ -92,7 +92,7 @@
         <include>com.google.api.grpc:grpc-google-cloud-bigtable-v2</include>
         <include>com.google.api.grpc:grpc-google-cloud-pubsub-v1</include>
         <include>com.google.api.grpc:grpc-google-common-protos</include>
-        <include>com.google.api.grpc:proto-google-cloud-bigquerystorage-v1beta1</include>
+        <include>com.google.api.grpc:proto-google-cloud-bigquerystorage-v1beta2</include>
         <include>com.google.api.grpc:proto-google-cloud-bigtable-admin-v2</include>
         <include>com.google.api.grpc:proto-google-cloud-bigtable-v2</include>
         <include>com.google.api.grpc:proto-google-cloud-datastore-v1</include>
@@ -145,6 +145,7 @@
         <include>com.google.protobuf:protobuf-java</include>
         <include>com.google.protobuf:protobuf-java-util</include>
         <include>commons-cli:commons-cli</include>
+        <include>commons-codec:commons-codec</include>
         <include>commons-configuration:commons-configuration</include>
         <include>commons-digester:commons-digester</include>
         <include>commons-httpclient:commons-httpclient</include>
@@ -229,7 +230,7 @@
         <include>org.apache.beam:beam-runners-core-construction-java</include>
         <include>org.apache.beam:beam-runners-core-java</include>
         <include>org.apache.beam:beam-runners-direct-java</include>
-        <include>org.apache.beam:beam-runners-flink-1.9</include>
+        <include>org.apache.beam:beam-runners-flink-1.11</include>
         <include>org.apache.beam:beam-runners-google-cloud-dataflow-java</include>
         <include>org.apache.beam:beam-runners-java-fn-execution</include>
         <include>org.apache.beam:beam-runners-spark</include>
@@ -243,8 +244,8 @@
         <include>org.apache.beam:beam-sdks-java-io-hadoop-file-system</include>
         <include>org.apache.beam:beam-sdks-java-io-kafka</include>
         <include>org.apache.beam:beam-sdks-java-io-synthetic</include>
-        <include>org.apache.beam:beam-vendor-bytebuddy-1_10_8</include>
-        <include>org.apache.beam:beam-vendor-grpc-1_26_0</include>
+        <include>org.apache.beam:beam-vendor-bytebuddy-1_11_0</include>
+        <include>org.apache.beam:beam-vendor-grpc-1_36_0:jar</include>
         <include>org.apache.beam:beam-vendor-guava-20_0</include>
         <include>org.apache.beam:beam-vendor-guava-26_0-jre</include>
         <include>org.apache.beam:beam-vendor-sdks-java-extensions-protobuf</include>
@@ -268,7 +269,7 @@
         <include>org.apache.flink:flink-optimizer_2.11</include>
         <include>org.apache.flink:flink-queryable-state-client-java</include>
         <include>org.apache.flink:flink-runtime_2.11</include>
-        <include>org.apache.flink:flink-shaded-asm-6</include>
+        <include>org.apache.flink:flink-shaded-asm-7</include>
         <include>org.apache.flink:flink-shaded-guava</include>
         <include>org.apache.flink:flink-shaded-jackson</include>
         <include>org.apache.flink:flink-shaded-netty</include>

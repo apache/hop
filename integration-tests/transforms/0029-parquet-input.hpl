@@ -41,7 +41,7 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>${java.io.tmpdir}/customers.parquet.snappy</from>
+      <from>${java.io.tmpdir}/it/parquet/customers.parquet.snappy</from>
       <to>only filename</to>
       <enabled>Y</enabled>
     </hop>
@@ -57,7 +57,7 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>${java.io.tmpdir}/customers.parquet.snappy</name>
+    <name>${java.io.tmpdir}/it/parquet/customers.parquet.snappy</name>
     <type>GetFileNames</type>
     <description/>
     <distribute>Y</distribute>
@@ -81,7 +81,7 @@ limitations under the License.
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
     <limit>0</limit>
     <file>
-      <name>${java.io.tmpdir}/customers.parquet.snappy</name>
+      <name>${java.io.tmpdir}/it/parquet/customers.parquet.snappy</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>

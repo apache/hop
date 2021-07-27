@@ -4,6 +4,12 @@
   "dataSetsCsvFolder": "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome": true,
   "config": {
-    "variables": []
+    "variables": [
+      {
+        "name": "HOP_LICENSE_HEADER_FILE",
+        "value": "${PROJECT_HOME}/../asf-header.txt",
+        "description": "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+      }
+    ]
   }
 }

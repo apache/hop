@@ -43,6 +43,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
@@ -78,7 +79,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   private Composite wGeneralComp;
   private Text wName;
-  private ComboVar wConnectionType;
+  private CCombo wConnectionType;
   private Label wlManualUrl;
   private TextVar wManualUrl;
   private Label wlUsername;
@@ -249,7 +250,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlConnectionType.right = new FormAttachment(middle, 0);
     wlConnectionType.setLayoutData(fdlConnectionType);
     wConnectionType =
-        new ComboVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new CCombo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wConnectionType);
     wConnectionType.setEditable(true);
     wConnectionType.setItems(getConnectionTypes());

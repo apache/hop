@@ -149,7 +149,7 @@ public class DatabaseLookupUTest {
     lookup.setSchemaName("VirtualSchema");
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", ID_FIELD));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "returned value", "", "Binary"));
+    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "returned value", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     meta = spy(meta);
     doAnswer(
@@ -245,8 +245,8 @@ public class DatabaseLookupUTest {
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", "ID1"));
     lookup.getKeyFields().add(new KeyField("", "", "IS NULL", "ID2"));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val1", "", "Binary"));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val2", "", "Binary"));
+    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val1", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val2", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     meta = spy(meta);
     doAnswer(

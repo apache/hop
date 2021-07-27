@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,8 +59,9 @@ public class TransformMetaStructure
 
   public boolean processRow() throws HopException {
 
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    Object[] metastructureRow = null;
+    // Get row from input row set & set row busy!
+    //
+    Object[] r = getRow();
 
     // initialize
     if (first) {
@@ -79,48 +80,65 @@ public class TransformMetaStructure
     }
 
     if (r == null) {
-      metastructureRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
       IRowMeta row = getInputRowMeta().clone();
 
       for (int i = 0; i < row.size(); i++) {
+        int pos = 0;
 
         IValueMeta v = row.getValueMeta(i);
 
-        IValueMeta v_position = data.outputRowMeta.getValueMeta(0);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow, 0, v_position.convertDataCompatible(v_position, new Long(i + 1)));
+        if (meta.isIncludePositionField()) {
+          IValueMeta v_position = data.outputRowMeta.getValueMeta(pos);
+          outputRow =
+              RowDataUtil.addValueData(
+                  outputRow, pos++, v_position.convertDataCompatible(v_position, new Long(i + 1)));
+        }
 
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 1, v.getName());
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 2, v.getComments());
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 3, v.getTypeDesc());
+        if (meta.isIncludeFieldnameField()) {
+          outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getName());
+        }
 
-        IValueMeta v_length = data.outputRowMeta.getValueMeta(4);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow,
-                4,
-                v_length.convertDataCompatible(v_length, new Long(v.getLength())));
+        if (meta.isIncludeCommentsField()) {
+          outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getComments());
+        }
 
-        IValueMeta v_precision = data.outputRowMeta.getValueMeta(5);
-        metastructureRow =
-            RowDataUtil.addValueData(
-                metastructureRow,
-                5,
-                v_precision.convertDataCompatible(v_precision, new Long(v.getPrecision())));
+        if (meta.isIncludeTypeField()) {
+          outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getTypeDesc());
+        }
 
-        metastructureRow = RowDataUtil.addValueData(metastructureRow, 6, v.getOrigin());
+        if (meta.isIncludeLengthField()) {
+          IValueMeta v_length = data.outputRowMeta.getValueMeta(pos);
+          outputRow =
+              RowDataUtil.addValueData(
+                  outputRow,
+                  pos++,
+                  v_length.convertDataCompatible(v_length, new Long(v.getLength())));
+        }
+
+        if (meta.isIncludePrecisionField()) {
+          IValueMeta v_precision = data.outputRowMeta.getValueMeta(pos);
+          outputRow =
+              RowDataUtil.addValueData(
+                  outputRow,
+                  pos++,
+                  v_precision.convertDataCompatible(v_precision, new Long(v.getPrecision())));
+        }
+
+        if (meta.isIncludeOriginField()) {
+          outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getOrigin());
+        }
 
         if (meta.isOutputRowcount()) {
-          IValueMeta v_rowCount = data.outputRowMeta.getValueMeta(7);
-          metastructureRow =
+          IValueMeta v_rowCount = data.outputRowMeta.getValueMeta(pos);
+          outputRow =
               RowDataUtil.addValueData(
-                  metastructureRow,
-                  7,
+                  outputRow,
+                  pos,
                   v_rowCount.convertDataCompatible(v_rowCount, new Long(data.rowCount)));
         }
-        putRow(data.outputRowMeta, metastructureRow.clone());
+        putRow(data.outputRowMeta, outputRow.clone());
       }
 
       // We're done, call it a day

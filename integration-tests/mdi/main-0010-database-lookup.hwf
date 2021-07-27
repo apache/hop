@@ -53,7 +53,7 @@ limitations under the License.
       <description/>
       <type>SQL</type>
       <attributes/>
-      <sql>DROP TABLE dblu_uuid
+      <sql>DROP TABLE IF EXISTS dblu_uuid
 ;</sql>
       <useVariableSubstitution>F</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>

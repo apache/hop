@@ -1,0 +1,81 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "CLONE_FLAG_FIELD",
+          "data_set_field": "CLONE_FLAG_FIELD"
+        },
+        {
+          "transform_field": "CLONE_NUM_FIELD",
+          "data_set_field": "CLONE_NUM_FIELD"
+        },
+        {
+          "transform_field": "Field_A",
+          "data_set_field": "Field_A"
+        },
+        {
+          "transform_field": "Field_B",
+          "data_set_field": "Field_B"
+        },
+        {
+          "transform_field": "NR_CLONES",
+          "data_set_field": "NR_CLONES"
+        }
+      ],
+      "field_order": [
+        "Field_A",
+        "Field_B",
+        "NR_CLONES",
+        "CLONE_FLAG_FIELD",
+        "CLONE_NUM_FIELD"
+      ],
+      "transform_name": "Result constant",
+      "data_set_name": "golden-clone-row-constant"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "CLONE_FLAG_FIELD",
+          "data_set_field": "CLONE_FLAG_FIELD"
+        },
+        {
+          "transform_field": "CLONE_NUM_FIELD",
+          "data_set_field": "CLONE_NUM_FIELD"
+        },
+        {
+          "transform_field": "Field_A",
+          "data_set_field": "Field_A"
+        },
+        {
+          "transform_field": "Field_B",
+          "data_set_field": "Field_B"
+        },
+        {
+          "transform_field": "NR_CLONES",
+          "data_set_field": "NR_CLONES"
+        }
+      ],
+      "field_order": [
+        "Field_A",
+        "Field_B",
+        "NR_CLONES",
+        "CLONE_FLAG_FIELD",
+        "CLONE_NUM_FIELD"
+      ],
+      "transform_name": "Result dynamic",
+      "data_set_name": "golden-clone-row-dynamic"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0033-clone-row UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0033-clone-row.hpl",
+  "test_type": "UNIT_TEST"
+}

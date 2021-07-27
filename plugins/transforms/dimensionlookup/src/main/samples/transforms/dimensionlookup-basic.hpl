@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>dimensionlookup-basic</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/07/21 08:58:47.829</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/07/21 08:58:47.829</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Creates a basic slowly changing dimension 
+*) id as key
+*) name punch through (updates all previous versions)
+*) street, number, zip as inserts (create new versions) 
+*) city as update (updates latest version without creating new version)</note>
+      <xloc>119</xloc>
+      <yloc>56</yloc>
+      <width>396</width>
+      <heigth>95</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Test Data</from>
+      <to>Dimension lookup/update</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Dimension lookup/update</name>
+    <type>DimensionLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <schema/>
+    <table>dim_sample</table>
+    <connection>hop-samples</connection>
+    <commit>100</commit>
+    <update>Y</update>
+    <fields>
+      <key>
+        <name>id</name>
+        <lookup>id</lookup>
+      </key>
+      <date>
+        <name/>
+        <from>date_from</from>
+        <to>date_to</to>
+      </date>
+      <field>
+        <name>name</name>
+        <lookup>name</lookup>
+        <update>Punch through</update>
+      </field>
+      <field>
+        <name>street</name>
+        <lookup>street</lookup>
+        <update>Insert</update>
+      </field>
+      <field>
+        <name>number</name>
+        <lookup>number</lookup>
+        <update>Insert</update>
+      </field>
+      <field>
+        <name>zip</name>
+        <lookup>zip</lookup>
+        <update>Insert</update>
+      </field>
+      <field>
+        <name>city</name>
+        <lookup>city</lookup>
+        <update>Update</update>
+      </field>
+      <return>
+        <name>scd_key</name>
+        <rename/>
+        <creation_method>tablemax</creation_method>
+        <use_autoinc>N</use_autoinc>
+        <version>version</version>
+      </return>
+    </fields>
+    <sequence/>
+    <min_year>1900</min_year>
+    <max_year>2199</max_year>
+    <cache_size>5000</cache_size>
+    <preload_cache>N</preload_cache>
+    <use_start_date_alternative>N</use_start_date_alternative>
+    <start_date_alternative>none</start_date_alternative>
+    <start_date_field_name/>
+    <useBatch>N</useBatch>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Test Data</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>street</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>number</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>zip</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>city</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>customer 6</item>
+        <item>address 1</item>
+        <item>1</item>
+        <item>1234</item>
+        <item>Hop</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>customer 2</item>
+        <item>address 2</item>
+        <item>2</item>
+        <item>5678</item>
+        <item>Hop</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>customer 3</item>
+        <item>address 3</item>
+        <item>3</item>
+        <item>3456</item>
+        <item>Hop</item>
+      </line>
+      <line>
+        <item>1</item>
+        <item>corrected customer 1</item>
+        <item>new address 1</item>
+        <item>1</item>
+        <item>1234</item>
+        <item>Hop</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>customer 3</item>
+        <item>new address 3</item>
+        <item>3</item>
+        <item>4567</item>
+        <item>Hop</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

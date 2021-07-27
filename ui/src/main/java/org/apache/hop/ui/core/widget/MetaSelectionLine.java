@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.metadata.MetadataContextHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -61,10 +62,10 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * The goal of this composite is to add a line on a dialog which contains:
- * - A label (for example: Database connection)
- * - A Combo Variable selection (editable ComboBox, for example containing all connection values in the MetaStore)
- * - New and Edit buttons (The latter opens up a generic Metadata editor)
+ * The goal of this composite is to add a line on a dialog which contains: - A label (for example:
+ * Database connection) - A Combo Variable selection (editable ComboBox, for example containing all
+ * connection values in the MetaStore) - New and Edit buttons (The latter opens up a generic
+ * Metadata editor)
  *
  * @author Matt
  * @since 2019-12-17
@@ -82,21 +83,44 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private final ComboVar wCombo;
   private final ToolBar wToolBar;
 
-  public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
-    this(variables, metadataProvider, managedClass, parentComposite, flags, labelText, toolTipText, false);
+  public MetaSelectionLine(
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Class<T> managedClass,
+      Composite parentComposite,
+      int flags,
+      String labelText,
+      String toolTipText) {
+    this(
+        variables,
+        metadataProvider,
+        managedClass,
+        parentComposite,
+        flags,
+        labelText,
+        toolTipText,
+        false);
   }
 
-  public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText, boolean leftAlignedLabel ) {
-    super( parentComposite, SWT.NONE );
+  public MetaSelectionLine(
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Class<T> managedClass,
+      Composite parentComposite,
+      int flags,
+      String labelText,
+      String toolTipText,
+      boolean leftAlignedLabel) {
+    super(parentComposite, SWT.NONE);
     this.variables = variables;
-   // this.classLoader = managedClass.getClassLoader();
+    // this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
-    this.props = PropsUi.getInstance();  
+    this.props = PropsUi.getInstance();
 
-    this.manager = new MetadataManager<>( variables, metadataProvider, managedClass );
+    this.manager = new MetadataManager<>(variables, metadataProvider, managedClass);
 
-    props.setLook( this );
+    props.setLook(this);
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
@@ -108,7 +132,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     formLayout.marginRight = 0;
     formLayout.marginTop = 0;
     formLayout.marginBottom = 0;
-    this.setLayout( formLayout );
+    this.setLayout(formLayout);
 
     int labelFlags;
     if (leftAlignedLabel) {
@@ -116,63 +140,69 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     } else {
       labelFlags = SWT.RIGHT | SWT.SINGLE;
     }
-    wLabel = new Label( this, labelFlags );
-    props.setLook( wLabel );
+    wLabel = new Label(this, labelFlags);
+    props.setLook(wLabel);
     FormData fdLabel = new FormData();
-    fdLabel.left = new FormAttachment( 0, 0 );
+    fdLabel.left = new FormAttachment(0, 0);
     if (!leftAlignedLabel) {
-      fdLabel.right = new FormAttachment( middle, -margin );
+      fdLabel.right = new FormAttachment(middle, -margin);
     }
-    fdLabel.top = new FormAttachment( 0, margin );
-    wLabel.setLayoutData( fdLabel );
-    wLabel.setText( labelText );
-    wLabel.setToolTipText( toolTipText );
+    fdLabel.top = new FormAttachment(0, margin);
+    wLabel.setLayoutData(fdLabel);
+    wLabel.setText(labelText);
+    wLabel.setToolTipText(toolTipText);
     wLabel.requestLayout(); // Avoid GTK error in log
 
     // Toolbar for default actions
     //
-    HopMetadata metadata = HopMetadataUtil.getHopMetadataAnnotation( managedClass );
-    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), metadata.image(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-         
-    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL );    
+    HopMetadata metadata = HopMetadataUtil.getHopMetadataAnnotation(managedClass);
+    Image image =
+        SwtSvgImageUtil.getImage(
+            getDisplay(),
+            managedClass.getClassLoader(),
+            metadata.image(),
+            ConstUi.SMALL_ICON_SIZE,
+            ConstUi.SMALL_ICON_SIZE);
+
+    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
-    fdToolBar.right = new FormAttachment( 100, 0 );
-    fdToolBar.top = new FormAttachment( 0, 0 );
-    wToolBar.setLayoutData( fdToolBar );
-    props.setLook( wToolBar );
-    
+    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.top = new FormAttachment(0, 0);
+    wToolBar.setLayoutData(fdToolBar);
+    props.setLook(wToolBar);
+
     ToolItem item = new ToolItem(wToolBar, SWT.DROP_DOWN);
     item.setImage(image);
-    
+
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
-    if ( flags != SWT.NONE ) {
+    if (flags != SWT.NONE) {
       textFlags = flags;
     }
-    wCombo = new ComboVar( this.variables, this, textFlags, toolTipText );
+    wCombo = new ComboVar(this.variables, this, textFlags, toolTipText);
     FormData fdCombo = new FormData();
     if (leftAlignedLabel) {
-      fdCombo.left = new FormAttachment( wLabel, margin, SWT.RIGHT );
+      fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
     } else {
-      fdCombo.left = new FormAttachment( middle, 0 );
+      fdCombo.left = new FormAttachment(middle, 0);
     }
-    fdCombo.right = new FormAttachment( wToolBar, -margin );
-    fdCombo.top = new FormAttachment( wLabel, 0, SWT.CENTER );
-    wCombo.setLayoutData( fdCombo );
-    wCombo.setToolTipText( toolTipText );
+    fdCombo.right = new FormAttachment(wToolBar, -margin);
+    fdCombo.top = new FormAttachment(wLabel, 0, SWT.CENTER);
+    wCombo.setLayoutData(fdCombo);
+    wCombo.setToolTipText(toolTipText);
 
     // Menu for gui actions
     //
-    final Menu menu = new Menu (getShell(), SWT.POP_UP);
-    
-    MenuItem itemNew = new MenuItem (menu, SWT.PUSH);
-    itemNew.setText( BaseMessages.getString( PKG, "System.Button.New" ) );   
-    itemNew.addListener( SWT.Selection, e -> newMetadata() );    
-    final MenuItem itemEdit = new MenuItem (menu, SWT.PUSH);
-    itemEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
-    itemEdit.addListener( SWT.Selection, e -> editMetadata() );
-        
-    
-    MetadataContextHandler contextHandler = new MetadataContextHandler(HopGui.getInstance(), metadataProvider, managedClass);
+    final Menu menu = new Menu(getShell(), SWT.POP_UP);
+
+    MenuItem itemNew = new MenuItem(menu, SWT.PUSH);
+    itemNew.setText(BaseMessages.getString(PKG, "System.Button.New"));
+    itemNew.addListener(SWT.Selection, e -> newMetadata());
+    final MenuItem itemEdit = new MenuItem(menu, SWT.PUSH);
+    itemEdit.setText(BaseMessages.getString(PKG, "System.Button.Edit"));
+    itemEdit.addListener(SWT.Selection, e -> editMetadata());
+
+    MetadataContextHandler contextHandler =
+        new MetadataContextHandler(HopGui.getInstance(), metadataProvider, managedClass);
 
     // Filter custom action
     //
@@ -183,7 +213,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       }
     }
 
-    
     if (!actions.isEmpty()) {
       new MenuItem(menu, SWT.SEPARATOR);
       // Add custom action
@@ -191,61 +220,64 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
         if (action.getType() == GuiActionType.Custom) {
           MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
           menuItem.setText(action.getShortName());
-          menuItem.setToolTipText(action.getTooltip());
+          if (!EnvironmentUtils.getInstance().isWeb()) {
+            menuItem.setToolTipText(Const.NVL(action.getTooltip(), ""));
+          }
           menuItem.addListener(
               SWT.Selection,
               e -> {
                 IGuiActionLambda actionLambda = action.getActionLambda();
-                actionLambda.executeAction(false,false,wCombo.getText());
+                actionLambda.executeAction(false, false, wCombo.getText());
               });
         }
       }
     }
 
-    props.setLook( wCombo );
-   
-    item.addListener(SWT.Selection,(event) -> {
-        if (event.detail == SWT.ARROW) {
-           Rectangle rect = item.getBounds ();
-           Point pt = new Point (rect.x, rect.y + rect.height);
-           pt = wToolBar.toDisplay (pt);
-           menu.setLocation (pt.x, pt.y);
-           menu.setVisible (true);
-        }
-        else {
-     	   if ( Utils.isEmpty(wCombo.getText()) ) this.newMetadata();
-     	   else this.editMetadata();
-        }
-     });
-    
-    layout( true, true );
+    props.setLook(wCombo);
+
+    item.addListener(
+        SWT.Selection,
+        (event) -> {
+          if (event.detail == SWT.ARROW) {
+            Rectangle rect = item.getBounds();
+            Point pt = new Point(rect.x, rect.y + rect.height);
+            pt = wToolBar.toDisplay(pt);
+            menu.setLocation(pt.x, pt.y);
+            menu.setVisible(true);
+          } else {
+            if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
+            else this.editMetadata();
+          }
+        });
+
+    layout(true, true);
   }
 
-
   protected void manageMetadata() {
-   // manager.openMetaStoreExplorer();
+    // manager.openMetaStoreExplorer();
   }
 
   /**
-   * We look at the managed class name, add Dialog to it and then simply us that class to edit the dialog.
+   * We look at the managed class name, add Dialog to it and then simply us that class to edit the
+   * dialog.
    */
   protected boolean editMetadata() {
     String selected = wCombo.getText();
-    if ( StringUtils.isEmpty( selected ) ) {
+    if (StringUtils.isEmpty(selected)) {
       return false;
     }
 
-    return manager.editMetadata( selected );
+    return manager.editMetadata(selected);
   }
 
   private T newMetadata() {
     T element = manager.newMetadata();
-    if ( element!=null ) {
+    if (element != null) {
       try {
         fillItems();
-        getComboWidget().setText(Const.NVL(element.getName(),""));
-      } catch ( Exception e ) {
-        LogChannel.UI.logError( "Error updating list of element names from the metadata", e );
+        getComboWidget().setText(Const.NVL(element.getName(), ""));
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error updating list of element names from the metadata", e);
       }
     }
     return element;
@@ -258,93 +290,96 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
    */
   public void fillItems() throws HopException {
     List<String> elementNames = manager.getSerializer().listObjectNames();
-    Collections.sort( elementNames );
-    wCombo.setItems( elementNames.toArray( new String[ 0 ] ) );
+    Collections.sort(elementNames);
+    wCombo.setItems(elementNames.toArray(new String[0]));
   }
 
   /**
-   * Load the selected element and return it.
-   * In case of errors, log them to LogChannel.UI
+   * Load the selected element and return it. In case of errors, log them to LogChannel.UI
+   *
    * @return The selected element or null if it doesn't exist or there was an error
    */
   public T loadSelectedElement() {
     String selectedItem = wCombo.getText();
-    if (StringUtils.isEmpty( selectedItem )) {
+    if (StringUtils.isEmpty(selectedItem)) {
       return null;
     }
 
     try {
       return manager.loadElement(selectedItem);
-    } catch(Exception e) {
-      LogChannel.UI.logError( "Error loading element '"+selectedItem+"'", e );
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error loading element '" + selectedItem + "'", e);
       return null;
     }
   }
 
   /**
-   * Adds the connection line for the given parent and previous control, and returns a meta selection manager control
+   * Adds the connection line for the given parent and previous control, and returns a meta
+   * selection manager control
    *
-   * @param parent   the parent composite object
+   * @param parent the parent composite object
    * @param previous the previous control
    * @param
    * @return the combo box UI component
    */
-  public void addToConnectionLine( Composite parent, Control previous, T selected, ModifyListener lsMod ) {
+  public void addToConnectionLine(
+      Composite parent, Control previous, T selected, ModifyListener lsMod) {
 
     try {
       fillItems();
-    } catch ( Exception e ) {
-      LogChannel.UI.logError( "Error getting list of element names from the metadata", e );
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting list of element names from the metadata", e);
     }
-    if (lsMod!=null) {
-      addModifyListener( lsMod );
+    if (lsMod != null) {
+      addModifyListener(lsMod);
     }
 
-    // Set a default value if there is only 1 connection in the list and nothing else is previously selected...
+    // Set a default value if there is only 1 connection in the list and nothing else is previously
+    // selected...
     //
-    if ( selected == null ) {
-      if ( getItemCount() == 1 ) {
-        select( 0 );
+    if (selected == null) {
+      if (getItemCount() == 1) {
+        select(0);
       }
     } else {
       // Just set the value
       //
-      setText( Const.NVL( selected.getName(), "" ) );
+      setText(Const.NVL(selected.getName(), ""));
     }
 
     FormData fdConnection = new FormData();
-    fdConnection.left = new FormAttachment( 0, 0 );
-    fdConnection.right = new FormAttachment( 100, 0 );
-    if ( previous != null ) {
-      fdConnection.top = new FormAttachment( previous, props.getMargin() );
+    fdConnection.left = new FormAttachment(0, 0);
+    fdConnection.right = new FormAttachment(100, 0);
+    if (previous != null) {
+      fdConnection.top = new FormAttachment(previous, props.getMargin());
     } else {
-      fdConnection.top = new FormAttachment( 0, 0 );
+      fdConnection.top = new FormAttachment(0, 0);
     }
-    setLayoutData( fdConnection );
+    setLayoutData(fdConnection);
   }
 
-  public void addModifyListener( ModifyListener lsMod ) {
-    wCombo.addModifyListener( lsMod );
+  public void addModifyListener(ModifyListener lsMod) {
+    wCombo.addModifyListener(lsMod);
   }
 
-  public void addSelectionListener( SelectionListener lsDef ) {
-    wCombo.addSelectionListener( lsDef );
+  public void addSelectionListener(SelectionListener lsDef) {
+    wCombo.addSelectionListener(lsDef);
   }
 
-  public void setText( String name ) {
-    wCombo.setText( name );
+  public void setText(String name) {
+    wCombo.setText(name);
   }
 
   public String getText() {
     return wCombo.getText();
   }
 
-  public void setItems( String[] items ) {
-    wCombo.setItems( items );
+  public void setItems(String[] items) {
+    wCombo.setItems(items);
   }
 
-  public void add( String item ) {
-    wCombo.add( item );
+  public void add(String item) {
+    wCombo.add(item);
   }
 
   public String[] getItems() {
@@ -359,30 +394,30 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wCombo.removeAll();
   }
 
-  public void remove( int index ) {
-    wCombo.remove( index );
+  public void remove(int index) {
+    wCombo.remove(index);
   }
 
-  public void select( int index ) {
-    wCombo.select( index );
+  public void select(int index) {
+    wCombo.select(index);
   }
 
   public int getSelectionIndex() {
     return wCombo.getSelectionIndex();
   }
 
-  public void setEnabled( boolean flag ) {
-	wLabel.setEnabled( flag );
-    wCombo.setEnabled( flag );
-    wToolBar.setEnabled( flag );
+  public void setEnabled(boolean flag) {
+    wLabel.setEnabled(flag);
+    wCombo.setEnabled(flag);
+    wToolBar.setEnabled(flag);
   }
 
   public boolean setFocus() {
     return wCombo.setFocus();
   }
 
-  public void addTraverseListener( TraverseListener tl ) {
-    wCombo.addTraverseListener( tl );
+  public void addTraverseListener(TraverseListener tl) {
+    wCombo.addTraverseListener(tl);
   }
 
   public CCombo getComboWidget() {
@@ -410,5 +445,4 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   public IVariables getSpace() {
     return variables;
   }
-
 }

@@ -1,0 +1,58 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        },
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "Rowcount",
+          "data_set_field": "Rowcount"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Type",
+        "Length",
+        "Precision",
+        "Origin",
+        "Rowcount"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-metastructure-options"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-metastructure-options UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0005-metastructure-options.hpl",
+  "test_type": "UNIT_TEST"
+}

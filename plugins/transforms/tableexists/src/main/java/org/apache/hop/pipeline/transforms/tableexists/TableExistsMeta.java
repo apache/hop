@@ -22,34 +22,27 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
-
-/*
- * Created on 03-Juin-2008
- *
- */
 
 @Transform(
     id = "TableExists",
     image = "tableexists.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TableExists",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TableExists",
+    name = "i18n::TableExists.Name",
+    description = "i18n::TableExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/tableexists.html")
 public class TableExistsMeta extends BaseTransformMeta
@@ -57,15 +50,28 @@ public class TableExistsMeta extends BaseTransformMeta
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
   /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      storeWithName = true,
+      injectionKeyDescription = "TableExistsMeta.Injection.Connection")
   private DatabaseMeta database;
 
-  /** dynamuc tablename */
-  private String tablenamefield;
+  /** dynamic tablename */
+  @HopMetadataProperty(
+      key = "tablenamefield",
+      injectionKeyDescription = "TableExistsMeta.Injection.TableNameField")
+  private String tableNameField;
 
   /** function result: new value name */
-  private String resultfieldname;
+  @HopMetadataProperty(
+      key = "resultfieldname",
+      injectionKeyDescription = "TableExistsMeta.Injection.ResultFieldName")
+  private String resultFieldName;
 
-  private String schemaname;
+  @HopMetadataProperty(
+      key = "schemaname",
+      injectionKeyDescription = "TableExistsMeta.Injection.SchemaName")
+  private String schemaName;
 
   public TableExistsMeta() {
     super(); // allocate BaseTransformMeta
@@ -82,42 +88,31 @@ public class TableExistsMeta extends BaseTransformMeta
   }
 
   /** @return Returns the tablenamefield. */
-  public String getDynamicTablenameField() {
-    return tablenamefield;
+  public String getTableNameField() {
+    return tableNameField;
   }
 
   /** @param tablenamefield The tablenamefield to set. */
-  public void setDynamicTablenameField(String tablenamefield) {
-    this.tablenamefield = tablenamefield;
+  public void setTableNameField(String tablenamefield) {
+    this.tableNameField = tablenamefield;
   }
 
   /** @return Returns the resultName. */
   public String getResultFieldName() {
-    return resultfieldname;
+    return resultFieldName;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
-  public void setResultFieldName(String resultfieldname) {
-    this.resultfieldname = resultfieldname;
+  /** @param name The resultfieldname to set. */
+  public void setResultFieldName(String name) {
+    this.resultFieldName = name;
   }
 
-  public String getSchemaname() {
-    return schemaname;
+  public String getSchemaName() {
+    return schemaName;
   }
 
-  public void setSchemaname(String schemaname) {
-    this.schemaname = schemaname;
-  }
-
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public Object clone() {
-    TableExistsMeta retval = (TableExistsMeta) super.clone();
-
-    return retval;
+  public void setSchemaName(String name) {
+    this.schemaName = name;
   }
 
   @Override
@@ -130,12 +125,14 @@ public class TableExistsMeta extends BaseTransformMeta
     return new TableExists(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public void setDefault() {
     database = null;
-    schemaname = null;
-    resultfieldname = "result";
+    schemaName = null;
+    resultFieldName = "result";
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -145,40 +142,14 @@ public class TableExistsMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Output field (String)
-    if (!Utils.isEmpty(resultfieldname)) {
-      IValueMeta v = new ValueMetaBoolean(variables.resolve(resultfieldname));
+    if (!Utils.isEmpty(resultFieldName)) {
+      IValueMeta v = new ValueMetaBoolean(variables.resolve(resultFieldName));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(
-        "    " + XmlHandler.addTagValue("connection", database == null ? "" : database.getName()));
-    retval.append("    " + XmlHandler.addTagValue("tablenamefield", tablenamefield));
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    " + XmlHandler.addTagValue("schemaname", schemaname));
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      database = DatabaseMeta.loadDatabase(metadataProvider, con);
-      tablenamefield = XmlHandler.getTagValue(transformNode, "tablenamefield");
-      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      schemaname = XmlHandler.getTagValue(transformNode, "schemaname");
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "TableExistsMeta.Exception.UnableToReadTransformMeta"), e);
-    }
-  }
-
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -194,32 +165,32 @@ public class TableExistsMeta extends BaseTransformMeta
 
     if (database == null) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
-    if (Utils.isEmpty(resultfieldname)) {
+    if (Utils.isEmpty(resultFieldName)) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
-    if (Utils.isEmpty(tablenamefield)) {
+    if (Utils.isEmpty(tableNameField)) {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.TableFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.TableFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "TableExistsMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -227,7 +198,7 @@ public class TableExistsMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "TableExistsMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);
@@ -238,6 +209,7 @@ public class TableExistsMeta extends BaseTransformMeta
     return new TableExistsData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (database != null) {
       return new DatabaseMeta[] {database};
@@ -246,6 +218,7 @@ public class TableExistsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field1",
+          "data_set_field": "field1"
+        },
+        {
+          "transform_field": "field2",
+          "data_set_field": "field2"
+        },
+        {
+          "transform_field": "field3",
+          "data_set_field": "field3"
+        },
+        {
+          "transform_field": "field4",
+          "data_set_field": "field4"
+        },
+        {
+          "transform_field": "field5",
+          "data_set_field": "field5"
+        }
+      ],
+      "field_order": [
+        "field2"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-data-grid"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0030-data-grid UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0030-data-grid.hpl",
+  "test_type": "UNIT_TEST"
+}

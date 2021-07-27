@@ -58,7 +58,7 @@ public class SplitFieldToRowsTest {
     
     SplitFieldToRowsMeta meta = new SplitFieldToRowsMeta();
     meta.setDelimiter( null );
-    meta.setDelimiterRegex( false );
+    meta.setIsDelimiterRegex( false );
 
     transform.init();
     

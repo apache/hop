@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,107 +17,141 @@
 
 package org.apache.hop.projects.xp;
 
+import org.apache.commons.vfs2.FileFilterSelector;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.filter.NameFileFilter;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
-import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
 @ExtensionPoint(
-        id = "HopImportMigratedFiles",
-        description = "Imports variables into a Hop project",
-        extensionPointId = "HopImportMigratedFiles"
-)
+    id = "HopImportMigratedFiles",
+    description = "Imports variables into a Hop project",
+    extensionPointId = "HopImportMigratedFiles")
 public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
 
-    @Override
-    public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, Object[] migrationObject) throws HopException {
-        String projectName = (String)migrationObject[0];
-        HashMap<String, DOMSource> filesMap = (HashMap<String, DOMSource>)migrationObject[1];
-        String inputFolder = (String)migrationObject[2];
+  @Override
+  public void callExtensionPoint(
+      ILogChannel iLogChannel, IVariables variables, Object[] migrationObject) throws HopException {
+    String projectName = (String) migrationObject[0];
+    HashMap<String, DOMSource> filesMap = (HashMap<String, DOMSource>) migrationObject[1];
+    FileObject inputFolder = (FileObject) migrationObject[2];
+    boolean skipExitingFiles = (boolean) migrationObject[3];
 
-        HopGui hopGui = HopGui.getInstance();
-        ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
-        ProjectConfig projectConfig = config.findProjectConfig(projectName);
-        Project project = projectConfig.loadProject( hopGui.getVariables() );
-        projectConfig.getProjectHome();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    String projectHome = HopVfs.getFileObject(projectConfig.getProjectHome()).getName().getURI();
 
-        try {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-            /**
-             * TODO: check if no import path is provided (import into selected project).
-             */
-            Iterator<String> filesIterator = filesMap.keySet().iterator();
-            while(filesIterator.hasNext()) {
-                String filename = filesIterator.next();
-                DOMSource domSource = filesMap.get(filename);
-
-                // copy any non-Hop files as is
-                if(domSource == null){
-                    InputStream is = null;
-                    OutputStream os = null;
-                    try{
-                        File sourceFile = new File(filename);
-                        if(!sourceFile.isDirectory()){
-                            String outFilename = "";
-                            if(System.getProperty("os.name").contains("Windows")){
-                                outFilename = filename.replaceAll("\\\\", "/")
-                                        .replaceAll(inputFolder.replaceAll("\\\\", "/"), projectConfig.getProjectHome().replaceAll("\\\\", "/"));
-                            }else{
-                                outFilename = filename.replaceAll(inputFolder, projectConfig.getProjectHome());
-                            }
-                            File projectFile = new File(outFilename);
-                            String folderName = projectFile.getParent();
-                            Files.createDirectories(Paths.get(folderName));
-                            Files.copy(Paths.get(sourceFile.getAbsolutePath()), Paths.get(projectFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
-                        }
-                    }catch(IOException e) {
-                        iLogChannel.logError("Error copying file '" + filename + " to Hop.");
-                        e.printStackTrace();
-                    }
-                }else{
-                    String outFilename = "";
-                    if(filename.indexOf(System.getProperty("user.dir")) > -1){
-                        outFilename = filename.replaceAll(System.getProperty("user.dir"), "");
-                        outFilename = projectConfig.getProjectHome() + outFilename;
-                    }else{
-                        outFilename = filename;
-                    }
-                    File outFile = new File(outFilename);
-                    String folderName = outFile.getParent();
-                    Files.createDirectories(Paths.get(folderName));
-                    StreamResult streamResult = new StreamResult(new File(outFilename));
-                    try {
-                        transformer.transform(domSource, streamResult);
-                    } catch(TransformerException e) {
-                        iLogChannel.logError("Error transforming '" + filename + " to Hop.");
-                        e.printStackTrace();
-                    }
-                }
+    try {
+      ProgressMonitorDialog monitorDialog =
+          new ProgressMonitorDialog(HopGui.getInstance().getShell());
+      monitorDialog.run(
+          true,
+          monitor -> {
+            try {
+              monitor.beginTask("Importing Kettle files...", filesMap.size());
+              importFiles(filesMap, inputFolder, projectHome, skipExitingFiles, monitor);
+              monitor.done();
+            } catch (InterruptedException e) {
+              throw e;
+            } catch (Exception e) {
+              throw new InvocationTargetException(e, "Error importing files");
             }
-        }catch(TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+          });
+
+    } catch (Exception e) {
+      throw new HopException("Error migrating file to project '" + projectName + "'", e);
     }
+  }
+
+  private void importFiles(
+      HashMap<String, DOMSource> filesMap,
+      FileObject inputFolder,
+      String projectHome,
+      boolean skipExitingFiles,
+      IProgressMonitor monitor)
+      throws TransformerConfigurationException, HopException, FileSystemException,
+          InterruptedException {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer transformer = transformerFactory.newTransformer();
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+    int processed = 0;
+    Iterator<String> filesIterator = filesMap.keySet().iterator();
+    while (filesIterator.hasNext() && !monitor.isCanceled()) {
+
+      String filename = filesIterator.next();
+
+      FileObject sourceFile = HopVfs.getFileObject(filename);
+      if (sourceFile.isFolder()) {
+        monitor.worked(++processed);
+        continue;
+      }
+
+      String targetFilename = filename.replaceAll(inputFolder.getName().getURI(), projectHome);
+      monitor.subTask("Importing file to: " + targetFilename);
+
+      FileObject targetFile = HopVfs.getFileObject(targetFilename);
+      if (skipExitingFiles && targetFile.exists()) {
+        monitor.worked(++processed);
+        continue;
+      }
+
+      // Make sure the parent folder(s) exist...
+      //
+      if (!targetFile.getParent().exists()) {
+        targetFile.getParent().createFolder();
+      }
+
+      DOMSource domSource = filesMap.get(filename);
+      if (domSource == null) {
+        // copy any non-Hop files as is
+        //
+        try {
+          NameFileFilter filter =
+              new NameFileFilter(Collections.singletonList(sourceFile.getName().getBaseName()));
+          targetFile.getParent().copyFrom(sourceFile.getParent(), new FileFilterSelector(filter));
+          monitor.worked(++processed);
+        } catch (IOException e) {
+          throw new HopException("Error copying file '" + filename, e);
+        }
+      } else {
+        // Convert Kettle XML metadata to Hop
+        //
+        StreamResult streamResult = new StreamResult(HopVfs.getOutputStream(targetFilename, false));
+        try {
+          transformer.transform(domSource, streamResult);
+        } catch (TransformerException e) {
+          throw new HopException("Error importing file " + filename, e);
+        } finally {
+          monitor.worked(++processed);
+        }
+      }
+    }
+  }
 }

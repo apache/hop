@@ -60,6 +60,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BeamGenericTransformHandler extends BeamBaseTransformHandler
@@ -293,7 +294,13 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     String value =
         transformMeta.getAttribute(
             BeamConst.STRING_HOP_BEAM, BeamConst.STRING_TRANSFORM_FLAG_BATCH);
-    return value != null && "true".equalsIgnoreCase(value);
+
+    // If the copies string contains "BATCH" we'll batch the records...
+    //
+    String copiesString = transformMeta.getCopiesString();
+
+    return value != null && "true".equalsIgnoreCase(value)
+        || copiesString != null && copiesString.toUpperCase().contains("BATCH");
   }
 
   public static boolean needsSingleThreading(TransformMeta transformMeta) {
@@ -312,7 +319,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     String[] keyWords = new String[] {"BEAM_SINGLE", "SINGLE_BEAM", "BEAM_OUTPUT", "OUTPUT"};
 
     for (String keyWord : keyWords) {
-      if (copiesString.equalsIgnoreCase(keyWord)) {
+      if (copiesString.contains(keyWord)) {
         return true;
       }
     }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,15 +52,13 @@ import java.util.List;
  * @author Samatar
  * @since 22-07-2008
  */
-
 @Action(
-  id = "WAIT_FOR_SQL",
-  name = "i18n::ActionWaitForSQL.Name",
-  description = "i18n::ActionWaitForSQL.Description",
-  image = "WaitForSQL.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforsql.html"
-)
+    id = "WAIT_FOR_SQL",
+    name = "i18n::ActionWaitForSQL.Name",
+    description = "i18n::ActionWaitForSQL.Description",
+    image = "WaitForSQL.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforsql.html")
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 
@@ -86,18 +84,24 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
   private static final String selectCount = "SELECT count(*) FROM ";
 
-  public static final String[] successConditionsDesc = new String[] {
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountEqual.Label" ),
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountDifferent.Label" ),
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountSmallerThan.Label" ),
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountSmallerOrEqualThan.Label" ),
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountGreaterThan.Label" ),
-    BaseMessages.getString( PKG, "ActionWaitForSQL.SuccessWhenRowCountGreaterOrEqual.Label" )
-
-  };
-  public static final String[] successConditionsCode = new String[] {
-    "rows_count_equal", "rows_count_different", "rows_count_smaller", "rows_count_smaller_equal",
-    "rows_count_greater", "rows_count_greater_equal" };
+  public static final String[] successConditionsDesc =
+      new String[] {
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountEqual.Label"),
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountDifferent.Label"),
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountSmallerThan.Label"),
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountSmallerOrEqualThan.Label"),
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountGreaterThan.Label"),
+        BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessWhenRowCountGreaterOrEqual.Label")
+      };
+  public static final String[] successConditionsCode =
+      new String[] {
+        "rows_count_equal",
+        "rows_count_different",
+        "rows_count_smaller",
+        "rows_count_smaller_equal",
+        "rows_count_greater",
+        "rows_count_greater_equal"
+      };
 
   public static final int SUCCESS_CONDITION_ROWS_COUNT_EQUAL = 0;
   public static final int SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT = 1;
@@ -111,8 +115,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0"; // infinite timeout
   private static String DEFAULT_CHECK_CYCLE_TIME = "60"; // 1 minute
 
-  public ActionWaitForSql(String n ) {
-    super( n, "" );
+  public ActionWaitForSql(String n) {
+    super(n, "");
     isClearResultList = true;
     rowsCountValue = "0";
     successCondition = SUCCESS_CONDITION_ROWS_COUNT_GREATER;
@@ -129,7 +133,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionWaitForSql() {
-    this( "" );
+    this("");
   }
 
   @Override
@@ -142,113 +146,118 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return successCondition;
   }
 
-  public static int getSuccessConditionByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getSuccessConditionByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsDesc.length; i++ ) {
-      if ( successConditionsDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsDesc.length; i++) {
+      if (successConditionsDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getSuccessConditionByCode( tt );
+    return getSuccessConditionByCode(tt);
   }
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder retval = new StringBuilder(200);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "rows_count_value", rowsCountValue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", isCustomSql ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", isUseVars ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSql) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", isAddRowsResult ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_result_rows", isClearResultList ) );
+    retval.append(super.getXml());
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
+    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaName));
+    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("success_condition", getSuccessConditionCode(successCondition)));
+    retval.append("      ").append(XmlHandler.addTagValue("rows_count_value", rowsCountValue));
+    retval.append("      ").append(XmlHandler.addTagValue("is_custom_sql", isCustomSql));
+    retval.append("      ").append(XmlHandler.addTagValue("is_usevars", isUseVars));
+    retval.append("      ").append(XmlHandler.addTagValue("custom_sql", customSql));
+    retval.append("      ").append(XmlHandler.addTagValue("add_rows_result", isAddRowsResult));
+    retval.append("      ").append(XmlHandler.addTagValue("maximum_timeout", maximumTimeout));
+    retval.append("      ").append(XmlHandler.addTagValue("check_cycle_time", checkCycleTime));
+    retval.append("      ").append(XmlHandler.addTagValue("success_on_timeout", successOnTimeout));
+    retval.append("      ").append(XmlHandler.addTagValue("clear_result_rows", isClearResultList));
     return retval.toString();
   }
 
-  private static String getSuccessConditionCode( int i ) {
-    if ( i < 0 || i >= successConditionsCode.length ) {
-      return successConditionsCode[ 0 ];
+  private static String getSuccessConditionCode(int i) {
+    if (i < 0 || i >= successConditionsCode.length) {
+      return successConditionsCode[0];
     }
-    return successConditionsCode[ i ];
+    return successConditionsCode[i];
   }
 
-  private static int getSucessConditionByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getSucessConditionByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsCode.length; i++) {
+      if (successConditionsCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static String getSuccessConditionDesc( int i ) {
-    if ( i < 0 || i >= successConditionsDesc.length ) {
-      return successConditionsDesc[ 0 ];
+  public static String getSuccessConditionDesc(int i) {
+    if (i < 0 || i >= successConditionsDesc.length) {
+      return successConditionsDesc[0];
     }
-    return successConditionsDesc[ i ];
+    return successConditionsDesc[i];
   }
-
-
 
   @Override
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
-      schemaName = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
+      super.loadXml(entrynode);
+      String dbname = XmlHandler.getTagValue(entrynode, "connection");
+      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
+      schemaName = XmlHandler.getTagValue(entrynode, "schemaname");
+      tableName = XmlHandler.getTagValue(entrynode, "tablename");
       successCondition =
-        getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
-      rowsCountValue = Const.NVL( XmlHandler.getTagValue( entrynode, "rows_count_value" ), "0" );
-      isCustomSql = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
-      isUseVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSql = XmlHandler.getTagValue( entrynode, "custom_sql" );
-      isAddRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
-      maximumTimeout = XmlHandler.getTagValue( entrynode, "maximum_timeout" );
-      checkCycleTime = XmlHandler.getTagValue( entrynode, "check_cycle_time" );
-      successOnTimeout = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "success_on_timeout" ) );
-      isClearResultList = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_result_rows" ) );
+          getSucessConditionByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "success_condition"), ""));
+      rowsCountValue = Const.NVL(XmlHandler.getTagValue(entrynode, "rows_count_value"), "0");
+      isCustomSql = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "is_custom_sql"));
+      isUseVars = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "is_usevars"));
+      customSql = XmlHandler.getTagValue(entrynode, "custom_sql");
+      isAddRowsResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_rows_result"));
+      maximumTimeout = XmlHandler.getTagValue(entrynode, "maximum_timeout");
+      checkCycleTime = XmlHandler.getTagValue(entrynode, "check_cycle_time");
+      successOnTimeout =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "success_on_timeout"));
+      isClearResultList =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "clear_result_rows"));
 
-    } catch ( HopException e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "ActionWaitForSQL.UnableLoadXML" ), e );
+    } catch (HopException e) {
+      throw new HopXmlException(BaseMessages.getString(PKG, "ActionWaitForSQL.UnableLoadXML"), e);
     }
   }
 
-  private static int getSuccessConditionByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getSuccessConditionByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsCode.length; i++) {
+      if (successConditionsCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void setDatabase( DatabaseMeta database ) {
+  public void setDatabase(DatabaseMeta database) {
     this.connection = database;
   }
 
@@ -272,51 +281,52 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     // connect and disconnect
     Database dbchecked = null;
     try {
-      dbchecked = new Database( this, this, connection );
-      dbchecked.connect( null );
+      dbchecked = new Database(this, this, connection);
+      dbchecked.connect();
     } finally {
-      if ( dbchecked != null ) {
+      if (dbchecked != null) {
         dbchecked.disconnect();
       }
     }
   }
 
   @Override
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
-    result.setNrErrors( 1 );
+    result.setResult(false);
+    result.setNrErrors(1);
     String realCustomSql = null;
-    String realTablename = resolve( tableName );
-    String realSchemaname = resolve( schemaName );
+    String realTablename = resolve(tableName);
+    String realSchemaname = resolve(schemaName);
 
-    if ( connection == null ) {
-      logError( BaseMessages.getString( PKG, "ActionWaitForSQL.NoDbConnection" ) );
+    if (connection == null) {
+      logError(BaseMessages.getString(PKG, "ActionWaitForSQL.NoDbConnection"));
       return result;
     }
 
-    if ( isCustomSql ) {
+    if (isCustomSql) {
       // clear result list rows
-      if ( isClearResultList ) {
+      if (isClearResultList) {
         result.getRows().clear();
       }
 
       realCustomSql = customSql;
-      if ( isUseVars ) {
-        realCustomSql = resolve( realCustomSql );
+      if (isUseVars) {
+        realCustomSql = resolve(realCustomSql);
       }
-      if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql ) );
+      if (log.isDebug()) {
+        logDebug(
+            BaseMessages.getString(PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql));
       }
 
-      if ( Utils.isEmpty( realCustomSql ) ) {
-        logError( BaseMessages.getString( PKG, "ActionWaitForSQL.Error.NoCustomSQL" ) );
+      if (Utils.isEmpty(realCustomSql)) {
+        logError(BaseMessages.getString(PKG, "ActionWaitForSQL.Error.NoCustomSQL"));
         return result;
       }
 
     } else {
-      if ( Utils.isEmpty( realTablename ) ) {
-        logError( BaseMessages.getString( PKG, "ActionWaitForSQL.Error.NoTableName" ) );
+      if (Utils.isEmpty(realTablename)) {
+        logError(BaseMessages.getString(PKG, "ActionWaitForSQL.Error.NoTableName"));
         return result;
       }
     }
@@ -329,217 +339,239 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       // starttime (in seconds)
       long timeStart = System.currentTimeMillis() / 1000;
 
-      int nrRowsLimit = Const.toInt( resolve( rowsCountValue ), 0 );
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.nrRowsLimit", "" + nrRowsLimit ) );
+      int nrRowsLimit = Const.toInt(resolve(rowsCountValue), 0);
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionWaitForSQL.Log.nrRowsLimit", "" + nrRowsLimit));
       }
 
       long iMaximumTimeout =
-        Const.toInt( resolve( maximumTimeout ), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
+          Const.toInt(resolve(maximumTimeout), Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0));
       long iCycleTime =
-        Const.toInt( resolve( checkCycleTime ), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
+          Const.toInt(resolve(checkCycleTime), Const.toInt(DEFAULT_CHECK_CYCLE_TIME, 0));
 
       //
       // Sanity check on some values, and complain on insanity
       //
-      if ( iMaximumTimeout < 0 ) {
-        iMaximumTimeout = Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 );
-        logBasic( "Maximum timeout invalid, reset to " + iMaximumTimeout );
+      if (iMaximumTimeout < 0) {
+        iMaximumTimeout = Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0);
+        logBasic("Maximum timeout invalid, reset to " + iMaximumTimeout);
       }
 
-      if ( iCycleTime < 1 ) {
+      if (iCycleTime < 1) {
         // If lower than 1 set to the default
-        iCycleTime = Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 1 );
-        logBasic( "Check cycle time invalid, reset to " + iCycleTime );
+        iCycleTime = Const.toInt(DEFAULT_CHECK_CYCLE_TIME, 1);
+        logBasic("Check cycle time invalid, reset to " + iCycleTime);
       }
 
-      if ( iMaximumTimeout == 0 ) {
-        logBasic( "Waiting indefinitely for SQL data" );
+      if (iMaximumTimeout == 0) {
+        logBasic("Waiting indefinitely for SQL data");
       } else {
-        logBasic( "Waiting " + iMaximumTimeout + " seconds for SQL data" );
+        logBasic("Waiting " + iMaximumTimeout + " seconds for SQL data");
       }
 
       boolean continueLoop = true;
-      while ( continueLoop && !parentWorkflow.isStopped() ) {
-        if ( sqlDataOK( result, nrRowsLimit, realSchemaname, realTablename, realCustomSql ) ) {
+      while (continueLoop && !parentWorkflow.isStopped()) {
+        if (sqlDataOK(result, nrRowsLimit, realSchemaname, realTablename, realCustomSql)) {
           // SQL data exists, we're happy to exit
-          logBasic( "Detected SQL data within timeout" );
-          result.setResult( true );
+          logBasic("Detected SQL data within timeout");
+          result.setResult(true);
           continueLoop = false;
         } else {
           long now = System.currentTimeMillis() / 1000;
 
-          if ( ( iMaximumTimeout > 0 ) && ( now > ( timeStart + iMaximumTimeout ) ) ) {
+          if ((iMaximumTimeout > 0) && (now > (timeStart + iMaximumTimeout))) {
             continueLoop = false;
 
             // SQL data doesn't exist after timeout, either true or false
-            if ( isSuccessOnTimeout() ) {
-              logBasic( "Didn't detect SQL data before timeout, success" );
-              result.setResult( true );
+            if (isSuccessOnTimeout()) {
+              logBasic("Didn't detect SQL data before timeout, success");
+              result.setResult(true);
             } else {
-              logBasic( "Didn't detect SQL data before timeout, failure" );
-              result.setResult( false );
+              logBasic("Didn't detect SQL data before timeout, failure");
+              result.setResult(false);
             }
           }
           // sleep algorithm
           long sleepTime = 0;
 
-          if ( iMaximumTimeout == 0 ) {
+          if (iMaximumTimeout == 0) {
             sleepTime = iCycleTime;
           } else {
-            if ( ( now + iCycleTime ) < ( timeStart + iMaximumTimeout ) ) {
+            if ((now + iCycleTime) < (timeStart + iMaximumTimeout)) {
               sleepTime = iCycleTime;
             } else {
-              sleepTime = iCycleTime - ( ( now + iCycleTime ) - ( timeStart + iMaximumTimeout ) );
+              sleepTime = iCycleTime - ((now + iCycleTime) - (timeStart + iMaximumTimeout));
             }
           }
           try {
-            if ( sleepTime > 0 ) {
-              if ( log.isDetailed() ) {
-                logDetailed( "Sleeping " + sleepTime + " seconds before next check for SQL data" );
+            if (sleepTime > 0) {
+              if (log.isDetailed()) {
+                logDetailed("Sleeping " + sleepTime + " seconds before next check for SQL data");
               }
-              Thread.sleep( sleepTime * 1000 );
+              Thread.sleep(sleepTime * 1000);
             }
-          } catch ( InterruptedException e ) {
+          } catch (InterruptedException e) {
             // something strange happened
-            result.setResult( false );
+            result.setResult(false);
             continueLoop = false;
           }
         }
-
       }
-    } catch ( Exception e ) {
-      logBasic( "Exception while waiting for SQL data: " + e.getMessage() );
+    } catch (Exception e) {
+      logBasic("Exception while waiting for SQL data: " + e.getMessage());
     }
 
-    if ( result.getResult() ) {
+    if (result.getResult()) {
       // Remove error count set at the beginning of the method
       //
-      result.setNrErrors( 0 );
+      result.setNrErrors(0);
     }
 
     return result;
   }
 
-  protected boolean sqlDataOK(Result result, long nrRowsLimit, String realSchemaName, String realTableName,
-                              String customSql ) throws HopException {
+  protected boolean sqlDataOK(
+      Result result,
+      long nrRowsLimit,
+      String realSchemaName,
+      String realTableName,
+      String customSql)
+      throws HopException {
     String countStatement = null;
     long rowsCount = 0;
     boolean successOK = false;
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
-    Database db = new Database( this, this, connection );
+    Database db = new Database(this, this, connection);
     try {
       db.connect();
-      if ( isCustomSql ) {
+      if (isCustomSql) {
         countStatement = customSql;
       } else {
-        if ( !Utils.isEmpty( realSchemaName ) ) {
+        if (!Utils.isEmpty(realSchemaName)) {
           countStatement =
-            selectCount + db.getDatabaseMeta().getQuotedSchemaTableCombination( this, realSchemaName, realTableName );
+              selectCount
+                  + db.getDatabaseMeta()
+                      .getQuotedSchemaTableCombination(this, realSchemaName, realTableName);
         } else {
-          countStatement = selectCount + db.getDatabaseMeta().quoteField( realTableName );
+          countStatement = selectCount + db.getDatabaseMeta().quoteField(realTableName);
         }
       }
 
-      if ( countStatement != null ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.RunSQLStatement", countStatement ) );
+      if (countStatement != null) {
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "ActionWaitForSQL.Log.RunSQLStatement", countStatement));
         }
 
-        if ( isCustomSql ) {
-          ar = db.getRows( countStatement, 0 );
-          if ( ar != null ) {
+        if (isCustomSql) {
+          ar = db.getRows(countStatement, 0);
+          if (ar != null) {
             rowsCount = ar.size();
           } else {
-            if ( log.isDebug() ) {
-              logDebug( BaseMessages.getString(
-                PKG, "ActionWaitForSQL.Log.customSQLreturnedNothing", countStatement ) );
+            if (log.isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG, "ActionWaitForSQL.Log.customSQLreturnedNothing", countStatement));
             }
           }
 
         } else {
-          RowMetaAndData row = db.getOneRow( countStatement );
-          if ( row != null ) {
-            rowsCount = row.getInteger( 0 );
+          RowMetaAndData row = db.getOneRow(countStatement);
+          if (row != null) {
+            rowsCount = row.getInteger(0);
           }
         }
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.NrRowsReturned", "" + rowsCount ) );
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "ActionWaitForSQL.Log.NrRowsReturned", "" + rowsCount));
         }
 
-        switch ( successCondition ) {
+        switch (successCondition) {
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_EQUAL:
-            successOK = ( rowsCount == nrRowsLimit );
+            successOK = (rowsCount == nrRowsLimit);
             break;
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT:
-            successOK = ( rowsCount != nrRowsLimit );
+            successOK = (rowsCount != nrRowsLimit);
             break;
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_SMALLER:
-            successOK = ( rowsCount < nrRowsLimit );
+            successOK = (rowsCount < nrRowsLimit);
             break;
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_SMALLER_EQUAL:
-            successOK = ( rowsCount <= nrRowsLimit );
+            successOK = (rowsCount <= nrRowsLimit);
             break;
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_GREATER:
-            successOK = ( rowsCount > nrRowsLimit );
+            successOK = (rowsCount > nrRowsLimit);
             break;
           case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL:
-            successOK = ( rowsCount >= nrRowsLimit );
+            successOK = (rowsCount >= nrRowsLimit);
             break;
           default:
             break;
         }
       } // end if countStatement!=null
-    } catch ( HopDatabaseException dbe ) {
-      logError( BaseMessages.getString( PKG, "ActionWaitForSQL.Error.RunningEntry", dbe.getMessage() ) );
+    } catch (HopDatabaseException dbe) {
+      logError(
+          BaseMessages.getString(PKG, "ActionWaitForSQL.Error.RunningEntry", dbe.getMessage()));
     } finally {
-      if ( db != null ) {
-        if ( isAddRowsResult && isCustomSql && ar != null ) {
-          rowMeta = db.getQueryFields( countStatement, false );
+      if (db != null) {
+        if (isAddRowsResult && isCustomSql && ar != null) {
+          rowMeta = db.getQueryFields(countStatement, false);
         }
         db.disconnect();
       }
     }
 
-    if ( successOK ) {
+    if (successOK) {
       // ad rows to result
-      if ( isAddRowsResult && isCustomSql && ar != null ) {
+      if (isAddRowsResult && isCustomSql && ar != null) {
         List<RowMetaAndData> rows = new ArrayList<>();
-        for ( int i = 0; i < ar.size(); i++ ) {
-          rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );
+        for (int i = 0; i < ar.size(); i++) {
+          rows.add(new RowMetaAndData(rowMeta, ar.get(i)));
         }
-        if ( rows != null ) {
-          result.getRows().addAll( rows );
+        if (rows != null) {
+          result.getRows().addAll(rows);
         }
       }
     }
     return successOK;
-
   }
 
   @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] { connection, };
+    return new DatabaseMeta[] {
+      connection,
+    };
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( connection != null ) {
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );
-      reference.getEntries().add( new ResourceEntry( connection.getDatabaseName(), ResourceType.DATABASENAME ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (connection != null) {
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "WaitForSQL",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 
   /**
@@ -551,10 +583,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return isClearResultList;
   }
 
-  /**
-   * @param isClearResultList The isClearResultList to set
-   */
-  public void setClearResultList( boolean isClearResultList ) {
+  /** @param isClearResultList The isClearResultList to set */
+  public void setClearResultList(boolean isClearResultList) {
     this.isClearResultList = isClearResultList;
   }
 
@@ -567,10 +597,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return isAddRowsResult;
   }
 
-  /**
-   * @param isAddRowsResult The isAddRowsResult to set
-   */
-  public void setAddRowsResult( boolean isAddRowsResult ) {
+  /** @param isAddRowsResult The isAddRowsResult to set */
+  public void setAddRowsResult(boolean isAddRowsResult) {
     this.isAddRowsResult = isAddRowsResult;
   }
 
@@ -583,10 +611,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return isUseVars;
   }
 
-  /**
-   * @param isUseVars The isUseVars to set
-   */
-  public void setUseVars( boolean isUseVars ) {
+  /** @param isUseVars The isUseVars to set */
+  public void setUseVars(boolean isUseVars) {
     this.isUseVars = isUseVars;
   }
 
@@ -599,10 +625,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return isCustomSql;
   }
 
-  /**
-   * @param isCustomSql The isCustomSql to set
-   */
-  public void setCustomSql( boolean isCustomSql ) {
+  /** @param isCustomSql The isCustomSql to set */
+  public void setCustomSql(boolean isCustomSql) {
     this.isCustomSql = isCustomSql;
   }
 
@@ -615,10 +639,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return customSql;
   }
 
-  /**
-   * @param customSql The customSql to set
-   */
-  public void setCustomSql( String customSql ) {
+  /** @param customSql The customSql to set */
+  public void setCustomSql(String customSql) {
     this.customSql = customSql;
   }
 
@@ -631,10 +653,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return connection;
   }
 
-  /**
-   * @param connection The connection to set
-   */
-  public void setConnection( DatabaseMeta connection ) {
+  /** @param connection The connection to set */
+  public void setConnection(DatabaseMeta connection) {
     this.connection = connection;
   }
 
@@ -647,10 +667,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return tableName;
   }
 
-  /**
-   * @param tableName The tableName to set
-   */
-  public void setTableName( String tableName ) {
+  /** @param tableName The tableName to set */
+  public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
@@ -663,10 +681,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return schemaName;
   }
 
-  /**
-   * @param schemaName The schemaName to set
-   */
-  public void setSchemaName( String schemaName ) {
+  /** @param schemaName The schemaName to set */
+  public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 
@@ -679,10 +695,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return maximumTimeout;
   }
 
-  /**
-   * @param maximumTimeout The maximumTimeout to set
-   */
-  public void setMaximumTimeout( String maximumTimeout ) {
+  /** @param maximumTimeout The maximumTimeout to set */
+  public void setMaximumTimeout(String maximumTimeout) {
     this.maximumTimeout = maximumTimeout;
   }
 
@@ -695,10 +709,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return checkCycleTime;
   }
 
-  /**
-   * @param checkCycleTime The checkCycleTime to set
-   */
-  public void setCheckCycleTime( String checkCycleTime ) {
+  /** @param checkCycleTime The checkCycleTime to set */
+  public void setCheckCycleTime(String checkCycleTime) {
     this.checkCycleTime = checkCycleTime;
   }
 
@@ -711,10 +723,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return successOnTimeout;
   }
 
-  /**
-   * @param successOnTimeout The successOnTimeout to set
-   */
-  public void setSuccessOnTimeout( boolean successOnTimeout ) {
+  /** @param successOnTimeout The successOnTimeout to set */
+  public void setSuccessOnTimeout(boolean successOnTimeout) {
     this.successOnTimeout = successOnTimeout;
   }
 
@@ -754,17 +764,13 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     return rowsCountValue;
   }
 
-  /**
-   * @param rowsCountValue The rowsCountValue to set
-   */
-  public void setRowsCountValue( String rowsCountValue ) {
+  /** @param rowsCountValue The rowsCountValue to set */
+  public void setRowsCountValue(String rowsCountValue) {
     this.rowsCountValue = rowsCountValue;
   }
 
-  /**
-   * @param successCondition The successCondition to set
-   */
-  public void setSuccessCondition( int successCondition ) {
+  /** @param successCondition The successCondition to set */
+  public void setSuccessCondition(int successCondition) {
     this.successCondition = successCondition;
   }
 }

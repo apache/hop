@@ -80,11 +80,6 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> {
   }
 
   @Override
-  protected String extractI18nPackageName( HopMetadata annotation ) {
-    return null;
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopMetadata annotation ) {
   }
 

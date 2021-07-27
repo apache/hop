@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.testing;
 
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -24,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetCsvUtil;
@@ -48,7 +50,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
 import java.util.List;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
@@ -265,7 +266,8 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
                   rows);
           List<Object[]> newList = editRowsDialog.open();
           if (newList != null) {
-            File setFolder = new File(set.getActualDataSetFolder(manager.getVariables()));
+            FileObject setFolder =
+                HopVfs.getFileObject(set.getActualDataSetFolder(manager.getVariables()));
             boolean folderExists = setFolder.exists();
             if (!folderExists) {
               MessageBox box =
@@ -277,7 +279,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
                       + set.getActualDataSetFolder(manager.getVariables()));
               int answer = box.open();
               if ((answer & SWT.YES) != 0) {
-                setFolder.mkdirs();
+                setFolder.createFolder();
                 folderExists = true;
               } else if ((answer & SWT.CANCEL) != 0) {
                 break;

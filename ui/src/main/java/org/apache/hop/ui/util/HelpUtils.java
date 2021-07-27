@@ -17,17 +17,16 @@
 
 package org.apache.hop.ui.util;
 
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.ShowHelpDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
@@ -36,26 +35,15 @@ import org.eclipse.swt.widgets.Shell;
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class; // For Translator
 
-  public static Button createHelpButton( final Composite parent, final String title, final IPlugin plugin ) {
+  public static Button createHelpButton( final Composite parent, final IPlugin plugin ) {
     Button button = newButton( parent );
-    button.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        openHelpDialog( parent.getShell(), plugin );
-      }
-    } );
+    button.addListener(SWT.Selection, e -> openHelp( parent.getShell(), plugin ));    
     return button;
   }
-
-  public static Button createHelpButton( final Composite parent, final String title, final String url,
-                                         final String header ) {
+  
+  public static Button createHelpButton( final Composite parent, final String url ) {
     Button button = newButton( parent );
-    button.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        openHelpDialog( parent.getShell(), title, url, header );
-      }
-    } );
+    button.addListener(SWT.Selection, e -> Program.launch(url));   
     return button;
   }
 
@@ -71,20 +59,6 @@ public class HelpUtils {
     return button;
   }
 
-  public static String getHelpDialogTitle( IPlugin plugin ) {
-    if ( plugin == null ) {
-      return "";
-    }
-    String msg = "";
-    // TODO currently support only Transform and Action - extend if required.
-    if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
-      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.TransformPluginType.Title", plugin.getName() );
-    } else {
-      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.ActionPluginType.Title", plugin.getName() );
-    }
-    return msg;
-  }
-
   public static boolean isPluginDocumented( IPlugin plugin ) {
     if ( plugin == null ) {
       return false;
@@ -92,38 +66,27 @@ public class HelpUtils {
     return !StringUtil.isEmpty( plugin.getDocumentationUrl() );
   }
 
-  public static ShowHelpDialog openHelpDialog( Shell shell, IPlugin plugin ) {
+  public static void openHelp(Shell shell, IPlugin plugin) {
     if ( shell == null || plugin == null ) {
-      return null;
+      return;
     }
     if ( isPluginDocumented( plugin ) ) {
-      return openHelpDialog( shell, getHelpDialogTitle( plugin ), plugin.getDocumentationUrl(),
-        plugin.getName() );
+      Program.launch(plugin.getDocumentationUrl());
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       String msg = "";
-      // TODO currently support only Transform and Action - extend if required.
+      // TODO currently support only Transform, Action and Metadata - extend if required.
       if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
-        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Transform.HelpIsNotAvailable", plugin.getName());
+        msg = BaseMessages.getString( PKG, "System.Help.Transform.IsNotAvailable", plugin.getName());
+      } else if ( plugin.getPluginType().equals( ActionPluginType.class ) ) {
+        msg = BaseMessages.getString( PKG, "System.Help.Action.IsNotAvailable", plugin.getName());
       } else {
-        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Action.HelpIsNotAvailable", plugin.getName());
+        msg = BaseMessages.getString( PKG, "System.Help.Metadata.IsNotAvailable", plugin.getName());
       }
-      mb.setMessage(msg );
+      
+      mb.setMessage(msg);
       mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
       mb.open();
     }
-    return null;
-  }
-
-  public static ShowHelpDialog openHelpDialog( Shell shell, String dialogTitle, String url, String header ) {
-    ShowHelpDialog helpDlg = new ShowHelpDialog( shell, dialogTitle, url, header );
-    helpDlg.open();
-    return helpDlg;
-  }
-
-  public static ShowHelpDialog openHelpDialog( Shell shell, String dialogTitle, String url ) {
-    ShowHelpDialog helpDlg = new ShowHelpDialog( shell, dialogTitle, url );
-    helpDlg.open();
-    return helpDlg;
   }
 }

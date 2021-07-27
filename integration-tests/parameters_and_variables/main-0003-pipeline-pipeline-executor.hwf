@@ -35,8 +35,6 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
       <intervalSeconds>0</intervalSeconds>
@@ -46,7 +44,6 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>96</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -82,7 +79,6 @@ for (var i = 0 ; i&lt;expectedValues.length ; i++) {
 
 ok;</script>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>480</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -112,7 +108,6 @@ ok;</script>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>288</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -122,8 +117,6 @@ ok;</script>
     <hop>
       <from>START</from>
       <to>0003-pipeline-parent.hpl</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
@@ -131,8 +124,6 @@ ok;</script>
     <hop>
       <from>0003-pipeline-parent.hpl</from>
       <to>Check log</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

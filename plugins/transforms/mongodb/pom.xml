@@ -28,7 +28,7 @@
     <version>0.99</version>
   </parent>
 
-  <artifactId>hop-transforms-mongodb</artifactId>
+  <artifactId>hop-transform-mongodb</artifactId>
   <name>Hop Plugins Transforms MongoDB</name>
   <packaging>jar</packaging>
 

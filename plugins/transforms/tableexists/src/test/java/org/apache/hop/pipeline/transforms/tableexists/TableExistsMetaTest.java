@@ -38,8 +38,8 @@ public class TableExistsMetaTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "Database", "DynamicTablenameField", "ResultFieldName",
-      "Schemaname" );
+    List<String> attributes = Arrays.asList( "Database", "TableNameField", "ResultFieldName",
+      "SchemaName" );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( TableExistsMeta.class, attributes );
 

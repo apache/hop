@@ -31,6 +31,7 @@ import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +63,11 @@ public class XmlMetadataUtil {
     Collections.sort(fields, Comparator.comparing(Field::getName));
 
     for (Field field : fields) {
+      // Don't serialize fields flagged as transient or volatile
+      //
+      if (Modifier.isTransient(field.getModifiers()) || Modifier.isVolatile(field.getModifiers())) {
+        continue;
+      }
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
       if (property != null) {
         String groupKey = property.groupKey();
@@ -212,6 +218,12 @@ public class XmlMetadataUtil {
     //
     Set<Field> fields = ReflectionUtil.findAllFields(clazz);
     for (Field field : fields) {
+      // Don't serialize fields flagged as transient or volatile
+      //
+      if (Modifier.isTransient(field.getModifiers()) || Modifier.isVolatile(field.getModifiers())) {
+        continue;
+      }
+
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
       if (property != null) {
         String tag = property.key();

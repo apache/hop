@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,18 +32,20 @@ public class TransformInitThread implements Runnable {
   public boolean doIt;
 
   private TransformMetaDataCombi combi;
+  private Pipeline pipeline;
 
   private ILogChannel log;
 
-  public TransformInitThread( TransformMetaDataCombi combi, ILogChannel log ) {
+  public TransformInitThread(TransformMetaDataCombi combi, Pipeline pipeline, ILogChannel log) {
     this.combi = combi;
+    this.pipeline = pipeline;
     this.log = combi.transform.getLogChannel();
     this.ok = false;
     this.finished = false;
     this.doIt = true;
 
-    combi.transform.setMeta( combi.meta );
-    combi.transform.setData( combi.data );
+    combi.transform.setMeta(combi.meta);
+    combi.transform.setData(combi.data);
   }
 
   public String toString() {
@@ -54,7 +56,7 @@ public class TransformInitThread implements Runnable {
     // Set the internal variables also on the initialization thread!
     // ((BaseTransform)combi.transform).setInternalVariables();
 
-    if ( !doIt ) {
+    if (!doIt) {
       // An extension point plugin decided we should not initialize the transform.
       // Logging, error handling, finished flag... should all be handled in the extension point.
       //
@@ -62,20 +64,26 @@ public class TransformInitThread implements Runnable {
     }
 
     try {
-      combi.transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_INIT_START );
+      combi.transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_INIT_START);
 
-      if ( combi.transform.init() ) {
-        combi.data.setStatus( ComponentExecutionStatus.STATUS_IDLE );
+      if (combi.transform.init()) {
+        combi.data.setStatus(ComponentExecutionStatus.STATUS_IDLE);
         ok = true;
       } else {
-        combi.transform.setErrors( 1 );
-        log.logError( BaseMessages.getString( PKG, "Pipeline.Log.ErrorInitializingTransform", combi.transform.getTransformName() ) );
+        combi.transform.setErrors(1);
+        log.logError(
+            BaseMessages.getString(
+                PKG,
+                "Pipeline.Log.ErrorInitializingTransform",
+                combi.transform.getTransformName()));
       }
-    } catch ( Throwable e ) {
-      log.logError( BaseMessages.getString( PKG, "Pipeline.Log.ErrorInitializingTransform", combi.transform.getTransformName() ) );
-      log.logError( Const.getStackTracker( e ) );
+    } catch (Throwable e) {
+      log.logError(
+          BaseMessages.getString(
+              PKG, "Pipeline.Log.ErrorInitializingTransform", combi.transform.getTransformName()));
+      log.logError(Const.getStackTracker(e));
     } finally {
-      combi.transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_INIT_STOP );
+      combi.transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_INIT_STOP);
     }
 
     finished = true;
@@ -89,31 +97,37 @@ public class TransformInitThread implements Runnable {
     return ok;
   }
 
-  /**
-   * @return Returns the combi.
-   */
+  /** @return Returns the combi. */
   public TransformMetaDataCombi getCombi() {
     return combi;
   }
 
-  /**
-   * @param combi The combi to set.
-   */
-  public void setCombi( TransformMetaDataCombi combi ) {
+  /** @param combi The combi to set. */
+  public void setCombi(TransformMetaDataCombi combi) {
     this.combi = combi;
   }
 
   /**
-   * @return the doIt
+   * Gets pipeline
+   *
+   * @return value of pipeline
    */
+  public Pipeline getPipeline() {
+    return pipeline;
+  }
+
+  /** @param pipeline The pipeline to set */
+  public void setPipeline(Pipeline pipeline) {
+    this.pipeline = pipeline;
+  }
+
+  /** @return the doIt */
   public boolean isDoIt() {
     return doIt;
   }
 
-  /**
-   * @param doIt the doIt to set
-   */
-  public void setDoIt( boolean doIt ) {
+  /** @param doIt the doIt to set */
+  public void setDoIt(boolean doIt) {
     this.doIt = doIt;
   }
 }

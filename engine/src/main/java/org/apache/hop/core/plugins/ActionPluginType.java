@@ -86,11 +86,6 @@ public class ActionPluginType extends BasePluginType<Action> {
   }
 
   @Override
-  protected String extractI18nPackageName( Action annotation ) {
-    return annotation.i18nPackageName();
-  }
-
-  @Override
   protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Action annotation ) {
   }
 

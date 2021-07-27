@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.engine;
 
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -44,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IWorkflowEngine<T extends WorkflowMeta>
-    extends IVariables, ILoggingObject, INamedParameters {
+    extends IVariables, ILoggingObject, INamedParameters, IExtensionData {
 
   String getWorkflowName();
 
