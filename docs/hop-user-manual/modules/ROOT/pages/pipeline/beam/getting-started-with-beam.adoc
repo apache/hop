@@ -47,7 +47,7 @@ Here is the documentation for the relevant plugins:
 An Apache Hop pipeline is just metadata.
 The various beam pipeline engine plugins look at this metadata one transform at a time.
 It decides what to do with it based on a Hop transform handler which is provided.
-The handlers split are in general split into a different types...
+The transforms are in general split into a different types described below.
 
 === Beam specific transforms
 
