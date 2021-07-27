@@ -58,7 +58,7 @@ You can find these transforms in the `Big Data` category and their names all sta
 
 Here is an example of a simple pipeline which read files in a folder (on `gs://`), filters out data from California, removes and renames a few fields and writes the data back to another set of files:
 
-image::getting-started-input-process-output-sample.png[Beam input-process-output-sample]
+image::getting-started-input-process-output-sample.png[Beam input-process-output-sample,width=75%]
 
 === Universal transforms
 
@@ -104,7 +104,7 @@ Otherwise, you might read your XML or JSON document many times by the inherently
 This is handled by doing a Group By over a single value.
 You'll see the following in for example your Dataflow pipeline: `Create.Values` -> `WithKeys` -> `GroupByKey` -> `Values` -> `Flatten.Iterables` -> `ParDo` ... and all this is just done to make sure we only ever execute our transform once.
 
-image:beam-getting-started-input-transforms-on-dataflow.png[Non-Beam input transforms on Dataflow]
+image:beam-getting-started-input-transforms-on-dataflow.png[Non-Beam input transforms on Dataflow,width=30%]
 
 |Non-Beam Output transforms
 |The insistence of a Beam pipeline to run work in parallel can also trip you up on the output side.
@@ -132,7 +132,7 @@ If the end of a bundle is reached in a pipeline rows are always forced to the tr
 To get an idea of how many times a batching buffer is flushed to the underlying transform code (and as such to for example a remote database) we added a `Flushes` metric.
 You will notice this in your metrics view in the Hop GUI when executing.
 
-image:beam-getting-started-flushes-metric.png[Beam Flushes Metrics]
+image:beam-getting-started-flushes-metric.png[Beam Flushes Metrics,width=75%]
 
 |===
 
