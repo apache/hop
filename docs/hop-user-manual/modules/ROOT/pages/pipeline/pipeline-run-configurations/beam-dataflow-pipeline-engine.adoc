@@ -39,59 +39,84 @@ To use the Google Cloud Dataflow runtime configuration, you must complete the se
 
 * Select or create a Google Cloud Platform Console project.
 * Enable billing for your project.
-* Enable the required Google Cloud APIs: Cloud Dataflow, Compute Engine, Stackdriver Logging, Cloud Storage, Cloud Storage JSON, and Cloud Resource Manager. You may need to enable additional APIs (such as BigQuery, Cloud Pub/Sub, or Cloud Datastore) if you use them in your pipeline code.
+* Enable the required Google Cloud APIs: Cloud Dataflow, Compute Engine, Stackdriver Logging, Cloud Storage, Cloud Storage JSON, and Cloud Resource Manager.
+You may need to enable additional APIs (such as BigQuery, Cloud Pub/Sub, or Cloud Datastore) if you use them in your pipeline code.
 * Authenticate with Google Cloud Platform.
 * Install the Google Cloud SDK.
 * Create a Cloud Storage bucket.
 
-
 == Options
 
-[width="90%", options="header", cols="1, 3"]
+[width="90%",options="header",cols="1, 3"]
 |===
 |Option|Description
-|Project ID|	The project ID for your Google Cloud Project. This is required if you want to run your pipeline using the Dataflow managed service.
-|Application name|The name of the Dataflow job being executed as it appears in Dataflow's jobs list and job details. Also used when updating an existing pipeline.
-|Staging location|Cloud Storage path for staging local files. Must be a valid Cloud Storage URL, beginning with gs://.
-|Initial number of workers|The initial number of Google Compute Engine instances to use when executing your pipeline. This option determines how many workers the Dataflow service starts up when your job begins.
-|Maximum number of workers|The maximum number of Compute Engine instances to be made available to your pipeline during execution. Note that this can be higher than the initial number of workers (specified by numWorkers to allow your job to scale up, automatically or otherwise.
-|Auto-scaling algorithm a|The autoscaling mode for your Dataflow job. Possible values are THROUGHPUT_BASED to enable autoscaling, or NONE to disable. See https://cloud.google.com/dataflow/service/dataflow-service-desc#Autotuning[Autotuning features] to learn more about how autoscaling works in the Dataflow managed service.
+|Project ID|    The project ID for your Google Cloud Project.
+This is required if you want to run your pipeline using the Dataflow managed service.
+|Application name|The name of the Dataflow job being executed as it appears in Dataflow's jobs list and job details.
+Also used when updating an existing pipeline.
+|Staging location|Cloud Storage path for staging local files.
+Must be a valid Cloud Storage URL, beginning with gs://.
+|Initial number of workers|The initial number of Google Compute Engine instances to use when executing your pipeline.
+This option determines how many workers the Dataflow service starts up when your job begins.
+|Maximum number of workers|The maximum number of Compute Engine instances to be made available to your pipeline during execution.
+Note that this can be higher than the initial number of workers (specified by numWorkers to allow your job to scale up, automatically or otherwise.
+|Auto-scaling algorithm a|The autoscaling mode for your Dataflow job.
+Possible values are THROUGHPUT_BASED to enable autoscaling, or NONE to disable.
+See https://cloud.google.com/dataflow/service/dataflow-service-desc#Autotuning[Autotuning features] to learn more about how autoscaling works in the Dataflow managed service.
 |Worker machine type|
-The Compute Engine machine type that Dataflow uses when starting worker VMs. You can use any of the available Compute Engine machine type families as well as custom machine types.
+The Compute Engine machine type that Dataflow uses when starting worker VMs.
+You can use any of the available Compute Engine machine type families as well as custom machine types.
 
-For best results, use n1 machine types. Shared core machine types, such as f1 and g1 series workers, are not supported under the Dataflow Service Level Agreement.
+For best results, use n1 machine types.
+Shared core machine types, such as f1 and g1 series workers, are not supported under the Dataflow Service Level Agreement.
 
-Note that Dataflow bills by the number of vCPUs and GB of memory in workers. Billing is independent of the machine type family. Check the link:https://cloud.google.com/compute/docs/machine-types[list] of machine types for reference.
+Note that Dataflow bills by the number of vCPUs and GB of memory in workers.
+Billing is independent of the machine type family.
+Check the link:https://cloud.google.com/compute/docs/machine-types[list] of machine types for reference.
 |Worker disk type|The type of persistent disk to use, specified by a full URL of the disk type resource.
 
 For example, use compute.googleapis.com/projects//zones//diskTypes/pd-ssd to specify a SSD persistent disk.
 
 https://cloud.google.com/compute/docs/disks#pdspecs[more].
-|Disk size in GB|The disk size, in gigabytes, to use on each remote Compute Engine worker instance. If set, specify at least 30 GB to account for the worker boot image and local logs.
-|Region|Specifies a Compute Engine region for launching worker instances to run your pipeline. This option is used to run workers in a different location than the region used to deploy, manage, and monitor jobs. The zone for workerRegion is https://cloud.google.com/dataflow/docs/concepts/regional-endpoints#autozone[automatically assigned].
+|Disk size in GB|The disk size, in gigabytes, to use on each remote Compute Engine worker instance.
+If set, specify at least 30 GB to account for the worker boot image and local logs.
+|Region|Specifies a Compute Engine region for launching worker instances to run your pipeline.
+This option is used to run workers in a different location than the region used to deploy, manage, and monitor jobs.
+The zone for workerRegion is https://cloud.google.com/dataflow/docs/concepts/regional-endpoints#autozone[automatically assigned].
 
 Note: This option cannot be combined with workerZone or zone.
 
 (https://cloud.google.com/dataflow/docs/concepts/regional-endpoints[regions list]).
-|Zone|Specifies a Compute Engine zone for launching worker instances to run your pipeline. This option is used to run workers in a different location than the region used to deploy, manage, and monitor jobs.
+|Zone|Specifies a Compute Engine zone for launching worker instances to run your pipeline.
+This option is used to run workers in a different location than the region used to deploy, manage, and monitor jobs.
 
 Note: This option cannot be combined with workerRegion or zone.
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
-|Temp location|Cloud Storage path for temporary files. Must be a valid Cloud Storage URL, beginning with gs://.
+|Temp location|Cloud Storage path for temporary files.
+Must be a valid Cloud Storage URL, beginning with gs://.
 |Plugins to stage (, delimited)|Comma separated list of plugins.
 |Transform plugin classes|List of transform plugin classes.
 |XP plugin classes|List of extensions point plugins.
 |Streaming Hop transforms flush interval (ms)|The amount of time after which the internal buffer is sent completely over the network and emptied.
 |Hop streaming transforms buffer size|The internal buffer size to use.
-|Fat jar file location|Fat jar location. Generate a fat jar using `Tools -> Generate a Hop fat jar`. The generated fat jar file name will be copied to the clipboard.
+|Fat jar file location|Fat jar location.
+Generate a fat jar using `Tools -> Generate a Hop fat jar`.
+The generated fat jar file name will be copied to the clipboard.
 |===
-
 
 **Environment Settings**
 
 This environment variable need to be set locally.
 
-[source, bash]
+[source,bash]
 ----
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/google-key.json
 ----
+
+== Security considerations
+
+To allow encrypted (TLS) network connections to, for example, Kafka and Neo4j Aura certain older security algorithms are https://github.com/apache/incubator-hop/blob/master/plugins/engines/beam/src/main/java/org/apache/hop/beam/engines/dataflow/DataFlowJvmStart.java[disabled on Dataflow].
+This is done by setting security property `jdk.tls.disabledAlgorithms` to value: `Lv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL`.
+
+Please let us know if you have a need to make this configurable and we'll look for a way to not hardcode this.
+Just create a JIRA case to let us know.
