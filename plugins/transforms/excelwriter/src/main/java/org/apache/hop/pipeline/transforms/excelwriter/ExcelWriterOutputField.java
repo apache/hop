@@ -80,7 +80,7 @@ public class ExcelWriterOutputField implements Cloneable {
   public boolean equals(Object obj) {
     ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
-    return name.equals(field.getName());
+    return field != null && name.equals(field.getName());
   }
 
   @Override
