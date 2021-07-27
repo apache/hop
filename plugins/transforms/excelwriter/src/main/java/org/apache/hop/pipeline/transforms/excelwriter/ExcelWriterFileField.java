@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
@@ -35,12 +34,14 @@ public class ExcelWriterFileField {
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Extension.Field")
   private String extension;
 
-  @HopMetadataProperty(key="filename_in_field",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameInField.Field")
+  @HopMetadataProperty(
+      key = "filename_in_field",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameInField.Field")
   private boolean fileNameInField;
 
-  @HopMetadataProperty(key="filename_field",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameField.Field")
+  @HopMetadataProperty(
+      key = "filename_field",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameField.Field")
   private String fileNameField;
 
   /** The password to protect the sheet */

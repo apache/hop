@@ -146,6 +146,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private boolean gotPreviousFields = false;
 
+  private static final String LABEL_FORMATXLSX = "ExcelWriterDialog.FormatXLSX.Label";
+  private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
+
   public ExcelWriterTransformDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
@@ -277,8 +280,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wlExtension.setLayoutData(fdlExtension);
     wExtension = new CCombo(fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
 
-    String xlsLabel = BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label");
-    String xlsxLabel = BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label");
+    String xlsLabel = BaseMessages.getString(PKG, LABEL_FORMATXLS);
+    String xlsxLabel = BaseMessages.getString(PKG, LABEL_FORMATXLSX);
     wExtension.setItems(new String[] {xlsLabel, xlsxLabel});
     wExtension.setData(xlsLabel, "xls");
     wExtension.setData(xlsxLabel, "xlsx");
@@ -323,6 +326,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wFileNameInField.setLayoutData(fdFileNameInField);
     wFileNameInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activeFileNameField();
@@ -350,7 +354,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wFileNameField.setEnabled(false);
     wFileNameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focustLost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -634,7 +640,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     // START OF SHEET & TEMPLATE TAB
     // /
     CTabItem wSheetTemplateTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSheetTemplateTab.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.SheeTemplateTab.TabTitle"));
+    wSheetTemplateTab.setText(
+        BaseMessages.getString(PKG, "ExcelWriterDialog.SheeTemplateTab.TabTitle"));
 
     Composite wSheetTemplateComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSheetTemplateComp);
@@ -643,7 +650,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fileLayout.marginWidth = 3;
     fileLayout.marginHeight = 3;
     wSheetTemplateComp.setLayout(sheetTemplateLayout);
-
 
     Group sheetGroup = new Group(wSheetTemplateComp, SWT.SHADOW_NONE);
     props.setLook(sheetGroup);
@@ -941,7 +947,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdTemplateGroup.top = new FormAttachment(sheetGroup, margin);
     fdTemplateGroup.right = new FormAttachment(100, -margin);
     wTemplateGroup.setLayoutData(fdTemplateGroup);
-
 
     FormData fdSheetTemplateComp = new FormData();
     fdSheetTemplateComp.left = new FormAttachment(0, 0);
@@ -1298,7 +1303,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     final int FieldsRows = input.getOutputFields().size();
 
     // Prepare a list of possible formats, filtering reserved internal formats away
-    String[] formats = BuiltinFormats.getAll();
 
     List<String> allFormats = Arrays.asList(BuiltinFormats.getAll());
     List<String> nonReservedFormats = new ArrayList<>(allFormats.size());
@@ -1310,7 +1314,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     }
 
     Collections.sort(nonReservedFormats);
-    formats = nonReservedFormats.toArray(new String[0]);
+    String[] formats = nonReservedFormats.toArray(new String[0]);
 
     colinf =
         new ColumnInfo[] {
@@ -1486,8 +1490,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
                 variables,
                 new String[] {"*.xls", "*.xlsx", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label"),
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label"),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1500,8 +1504,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
                 variables,
                 new String[] {"*.xls", "*.xlsx", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLS.Label"),
-                  BaseMessages.getString(PKG, "ExcelWriterDialog.FormatXLSX.Label"),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1581,7 +1585,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wAddDate.setSelection(false);
       wAddTime.setSelection(false);
     }
-
 
     wDateTimeFormat.setEnabled(wSpecifyFormat.getSelection() && !wFileNameInField.getSelection());
     wlDateTimeFormat.setEnabled(wSpecifyFormat.getSelection() && !wFileNameInField.getSelection());
@@ -1757,10 +1760,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
         }
       } catch (HopException ke) {
         new ErrorDialog(
-                shell,
-                BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogTitle"),
-                BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogMessage"),
-                ke);
+            shell,
+            BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogTitle"),
+            BaseMessages.getString(PKG, "ExcelWriterDialog.FailedToGetFields.DialogMessage"),
+            ke);
       }
       gotPreviousFields = true;
     }

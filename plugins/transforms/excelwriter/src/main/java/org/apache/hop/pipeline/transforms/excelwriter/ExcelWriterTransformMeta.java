@@ -270,9 +270,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    ExcelWriterTransformMeta retval = (ExcelWriterTransformMeta) super.clone();
-
-    return retval;
+    return (ExcelWriterTransformMeta) super.clone();
   }
 
   public String getNewLine(String fformat) {
@@ -344,7 +342,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String  retval = variables.resolve(file.getFileName());
+    String retval = variables.resolve(file.getFileName());
     String realextension = variables.resolve(file.getExtension());
 
     Date now = new Date();
@@ -377,7 +375,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     }
 
     return retval;
-    }
+  }
 
   public String buildFilename(IRowMeta rowMeta, Object row[], IVariables variables) {
     int filenameFieldIdx = rowMeta.indexOfValue(variables.resolve(getFile().getFileNameField()));
@@ -399,9 +397,6 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    if (r == null) {
-      r = new RowMeta(); // give back values
-    }
 
     // No values are added to the row in this type of transform
   }
@@ -437,8 +432,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
         int idx = prev.indexOfValue(getFile().getFileNameField());
         if (idx < 0) {
           errorMessage =
-                  BaseMessages.getString(
-                          PKG, "ExcelWriterTransformMeta.CheckResult.FilenameFieldNotFound", errorMessage);
+              BaseMessages.getString(
+                  PKG, "ExcelWriterTransformMeta.CheckResult.FilenameFieldNotFound", errorMessage);
           cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
         }

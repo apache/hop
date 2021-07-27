@@ -362,8 +362,7 @@ public class ExcelWriterTransform
     if (xlsRow == null) {
       return null;
     }
-    Cell styleCell = xlsRow.getCell(cellRef.getCol());
-    return styleCell;
+    return xlsRow.getCell(cellRef.getCol());
   }
 
   // VisibleForTesting
