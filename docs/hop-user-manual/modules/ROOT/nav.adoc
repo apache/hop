@@ -38,6 +38,7 @@ under the License.
 ** xref:pipeline/hop-pipeline-editor.adoc[Pipeline Editor]
 ** xref:pipeline/create-pipeline.adoc[Create a Pipeline]
 ** xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline]
+** xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
 *** xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google DataFlow]
 *** xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct]
