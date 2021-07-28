@@ -17,6 +17,11 @@
 
 # https://cwiki.apache.org/confluence/display/INFRA/.asf.yaml+features+for+git+repositories
 ---
+notifications:
+  commits: commits@hop.apache.org
+  pullrequests: commits@hop.apache.org
+  jira_options: link label worklog
+
 github:
   description: "Hop Orchestration Platform"
   homepage: https://hop.apache.org/
@@ -38,10 +43,6 @@ github:
     squash: true
     merge: true
     rebase: false
-
-  notifications:
-    commits: commits@hop.apache.org
-    jira_options: link label worklog
 
 #remove ~ when enabling the protection
   protected_branches: ~
