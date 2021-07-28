@@ -28,6 +28,7 @@ In these examples a folder to check everything in was created in `/tmp` and the 
 [source,bash]
 ----
 mkdir /tmp/release_check
+cd /tmp/release_check
 ----
 
 First check would be to see if the keys and hashes are in order
@@ -37,12 +38,14 @@ First check would be to see if the keys and hashes are in order
 # check the sha512
 
 sha512sum -c apache-hop-X.XX-incubating-src.tar.gz.sha512
+sha512sum -c apache-hop-client-X.XX-incubating.zip.sha512
 
 # should echo the artifact name and OK
 
 # check the gpg signature
 
 gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
+gpg --verify apache-hop-client-X.XX-incubating.zip.asc
 
 # if it prints out gpg: Can't check signature: No public key fetch the key from public keyserver
 # 1. Check if the keyid matches a known key in the KEYS file https://dist.apache.org/repos/dist/dev/incubator/hop/KEYS
@@ -53,6 +56,7 @@ gpg --keyserver <KEY SERVER>  --receive-keys <KEY ID>
 # verify the package again
 
 gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
+gpg --verify apache-hop-client-X.XX-incubating.zip.asc
 
 # output should be:
 # gpg: Good signature from "Owner Name <Owner@apache.org>" [ultimate]
