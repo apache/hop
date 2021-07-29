@@ -350,6 +350,20 @@
         <include>oro:oro</include>
         <include>xmlenc:xmlenc</include>
 
+        <!-- AWS S3 Beam support -->
+        <include>org.apache.beam:beam-sdks-java-io-amazon-web-services:jar</include>
+        <include>com.amazonaws:aws-java-sdk-cloudwatch:jar</include>
+        <include>com.amazonaws:jmespath-java:jar</include>
+        <include>com.amazonaws:aws-java-sdk-core:jar</include>
+        <include>software.amazon.ion:ion-java:jar</include>
+        <include>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar</include>
+        <include>com.amazonaws:aws-java-sdk-dynamodb:jar</include>
+        <include>com.amazonaws:aws-java-sdk-s3:jar</include>
+        <include>com.amazonaws:aws-java-sdk-kms:jar</include>
+        <include>com.amazonaws:aws-java-sdk-sns:jar</include>
+        <include>com.amazonaws:aws-java-sdk-sqs:jar</include>
+        <include>com.amazonaws:aws-java-sdk-sts:jar</include>
+
       </includes>
     </dependencySet>
   </dependencySets>
