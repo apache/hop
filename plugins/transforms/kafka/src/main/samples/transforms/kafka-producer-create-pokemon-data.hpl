@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>generate-pokemon-data</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/07/29 10:47:12.861</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/07/29 10:47:12.861</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>This sample generates a new JSON message every second and sends it to a Kafka server.
+Please set the following variables in your environment configuration file(s):
+
+  KAFKA_SERVER
+  KAFKA_TOPIC
+  KAFKA_CLIENT_ID
+</note>
+      <xloc>112</xloc>
+      <yloc>192</yloc>
+      <width>458</width>
+      <heigth>120</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Fake pokemon data</from>
+      <to>json</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>int,id</from>
+      <to>userId</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>json</from>
+      <to>Kafka Producer</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>oo rows</from>
+      <to>int,id</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>userId</from>
+      <to>Fake pokemon data</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Fake pokemon data</name>
+    <type>Fake</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <locale>en</locale>
+    <fields>
+      <field>
+        <name>pokemonName</name>
+        <type>Pokemon</type>
+        <topic>name</topic>
+      </field>
+      <field>
+        <name>pokemonLocation</name>
+        <type>Pokemon</type>
+        <topic>location</topic>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Kafka Producer</name>
+    <type>KafkaProducerOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directBootstrapServers>${KAFKA_SERVER}</directBootstrapServers>
+    <topic>${KAFKA_TOPIC}</topic>
+    <clientId>${KAFKA_CLIENT_ID}</clientId>
+    <keyField>id</keyField>
+    <messageField>json</messageField>
+    <advancedConfig>
+      <option property="compression.type" value="none"/>
+      <option property="ssl.key.password" value=""/>
+      <option property="ssl.keystore.location" value=""/>
+      <option property="ssl.keystore.password" value=""/>
+      <option property="ssl.truststore.location" value=""/>
+      <option property="ssl.truststore.password" value=""/>
+    </advancedConfig>
+    <attributes/>
+    <GUI>
+      <xloc>784</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>int,id</name>
+    <type>RandomValue</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>int</name>
+        <type>random integer</type>
+      </field>
+      <field>
+        <name>id</name>
+        <type>random uuid</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>256</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>json</name>
+    <type>JsonOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <outputValue>json</outputValue>
+    <jsonBloc>data</jsonBloc>
+    <nrRowsInBloc>1</nrRowsInBloc>
+    <operation_type>outputvalue</operation_type>
+    <compatibility_mode>N</compatibility_mode>
+    <encoding>UTF-8</encoding>
+    <addtoresult>N</addtoresult>
+    <file>
+      <name/>
+      <extention>js</extention>
+      <append>N</append>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <DoNotOpenNewFileInit>N</DoNotOpenNewFileInit>
+    </file>
+    <fields>
+      <field>
+        <name>userId</name>
+        <element>userId</element>
+      </field>
+      <field>
+        <name>detectionDate</name>
+        <element>detectionDate</element>
+      </field>
+      <field>
+        <name>pokemonName</name>
+        <element>pokemonName</element>
+      </field>
+      <field>
+        <name>pokemonLocation</name>
+        <element>pokemonLocation</element>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>oo rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>1000</interval_in_ms>
+    <last_time_field>previous</last_time_field>
+    <never_ending>Y</never_ending>
+    <limit>10000</limit>
+    <row_time_field>detectionDate</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>userId</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>
+var userId = abs( int % 10000 )
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>userId</name>
+        <rename>userId</rename>
+        <type>Integer</type>
+        <length>7</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
