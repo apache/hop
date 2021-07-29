@@ -139,6 +139,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
 
     wbSortDir.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
             dd.setFilterPath(wSortDir.getText());
@@ -273,7 +274,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
       wSortDir.setText(input.getDirectory());
     }
     wCache.setText("" + input.getCacheSize());
-    if (input.getLookupTransformName() != null) {
+    if (input.getMainTransform() != null) {
       wMainTransform.setText(input.getLookupTransformName());
     }
 
@@ -302,6 +303,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
       input.setDirectory(wSortDir.getText());
       input.setCacheSize(Const.toInt(wCache.getText(), -1));
       input.setMainTransform(pipelineMeta.findTransform(wMainTransform.getText()));
+      input.setMainTransformName(wMainTransform.getText());
 
       dispose();
     }
