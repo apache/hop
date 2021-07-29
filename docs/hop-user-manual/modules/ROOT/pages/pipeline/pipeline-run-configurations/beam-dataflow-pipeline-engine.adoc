@@ -91,6 +91,17 @@ Note: This option cannot be combined with workerZone or zone.
 This option is used to run workers in a different location than the region used to deploy, manage, and monitor jobs.
 
 Note: This option cannot be combined with workerRegion or zone.
+
+|Network
+|This is the GCE network for launching workers.
+For more information, see the reference documentation https://cloud.google.com/compute/docs/networking.
+The default is up to the Dataflow service.
+
+|Subnetwork
+|This is the GCE subnetwork for launching workers.
+For more information, see the reference documentation https://cloud.google.com/compute/docs/networking.
+The default is up to the Dataflow service.
+
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
 |Temp location|Cloud Storage path for temporary files.
 Must be a valid Cloud Storage URL, beginning with gs://.
