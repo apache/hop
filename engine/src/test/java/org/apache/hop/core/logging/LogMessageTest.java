@@ -18,6 +18,8 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.config.HopConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,11 +121,11 @@ public class LogMessageTest {
   }
 
   private void turnOnLogMarkMapping() {
-    System.getProperties().put( Const.HOP_LOG_MARK_MAPPINGS, "Y" );
+    HopConfig.getInstance().setDescribedVariable(new DescribedVariable(Const.HOP_LOG_MARK_MAPPINGS, "Y", ""));
   }
 
   private void turnOffLogMarkMapping() {
-    System.getProperties().put( Const.HOP_LOG_MARK_MAPPINGS, "N" );
+    HopConfig.getInstance().setDescribedVariable(new DescribedVariable(Const.HOP_LOG_MARK_MAPPINGS, "N", ""));
   }
 
   private static ILoggingObject getTreeLoggingObject() {

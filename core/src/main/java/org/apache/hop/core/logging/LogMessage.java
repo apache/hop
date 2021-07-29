@@ -19,8 +19,10 @@ package org.apache.hop.core.logging;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.metadata.api.HopMetadata;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -71,7 +73,9 @@ public class LogMessage implements ILogMessage {
     // Derive the subject from the registry
     //
     ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
-    boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty( Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
+
+    // boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty( Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
+    boolean detailedLogTurnOn = "Y".equals( HopConfig.readStringVariable( Const.HOP_LOG_MARK_MAPPINGS, "N" ) ) ? true : false;
     if ( loggingObject != null ) {
       if ( !detailedLogTurnOn ) {
         subject = loggingObject.getObjectName();

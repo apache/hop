@@ -328,5 +328,13 @@
     <default-value></default-value>
   </hop-variable>
 
+  <hop-variable>
+    <description>Set this variable to Y to precede transform/action name in log lines with the complete path to the transform/action. Useful
+      o perfectly identify where a problem happened in our process.
+    </description>
+    <variable>HOP_LOG_MARK_MAPPINGS</variable>
+    <default-value>N</default-value>
+  </hop-variable>
+
 </hop-variables>
 
