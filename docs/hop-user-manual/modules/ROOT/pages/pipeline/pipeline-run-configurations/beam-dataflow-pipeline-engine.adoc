@@ -102,6 +102,12 @@ The default is up to the Dataflow service.
 For more information, see the reference documentation https://cloud.google.com/compute/docs/networking.
 The default is up to the Dataflow service.
 
+|Use public IPs?
+|Specifies whether worker pools should be started with public IP addresses.
+*WARNING*: This feature is experimental.
+You must be allowlisted to use it.
+
+
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
 |Temp location|Cloud Storage path for temporary files.
 Must be a valid Cloud Storage URL, beginning with gs://.

@@ -154,9 +154,21 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   @HopMetadataProperty
   private String gcpSubnetwork;
 
+  @GuiWidgetElement(
+      order = "20130-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "Use public IPs?",
+      toolTip =
+          "Specifies whether worker pools should be started with public IP addresses."
+              + "  WARNING: This feature is experimental. You must be allowlisted to use it.")
+  @HopMetadataProperty
+  private boolean gcpUsingPublicIps;
+
   public BeamDataFlowPipelineRunConfiguration() {
     super();
     this.gcpAppName = "Hop";
+    this.gcpUsingPublicIps = true;
   }
 
   // Clone
@@ -175,6 +187,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     this.gcpZone = config.gcpZone;
     this.gcpNetwork = config.gcpNetwork;
     this.gcpSubnetwork = config.gcpSubnetwork;
+    this.gcpUsingPublicIps = config.gcpUsingPublicIps;
   }
 
   public BeamDataFlowPipelineRunConfiguration clone() {
@@ -248,6 +261,10 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       String subnetwork = resolve(getGcpSubnetwork());
       options.setSubnetwork(subnetwork);
     }
+
+    // Experimental feature...
+    //
+    options.setUsePublicIps(isGcpUsingPublicIps());
 
     if (StringUtils.isNotEmpty(getFatJar())) {
       options.setFilesToStage(Arrays.asList(resolve(fatJar)));
@@ -441,5 +458,19 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   /** @param gcpSubnetwork The gcpSubnetwork to set */
   public void setGcpSubnetwork(String gcpSubnetwork) {
     this.gcpSubnetwork = gcpSubnetwork;
+  }
+
+  /**
+   * Gets gcpUsingPublicIps
+   *
+   * @return value of gcpUsingPublicIps
+   */
+  public boolean isGcpUsingPublicIps() {
+    return gcpUsingPublicIps;
+  }
+
+  /** @param gcpUsingPublicIps The gcpUsingPublicIps to set */
+  public void setGcpUsingPublicIps(boolean gcpUsingPublicIps) {
+    this.gcpUsingPublicIps = gcpUsingPublicIps;
   }
 }
