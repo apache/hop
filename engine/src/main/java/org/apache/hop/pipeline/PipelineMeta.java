@@ -863,7 +863,7 @@ public class PipelineMeta extends AbstractMeta
    * @param prevTransform The transform that is sending information
    * @return true if prevTransform if informative for thisTransform.
    */
-  public boolean isTransformMetarmative(TransformMeta thisTransform, TransformMeta prevTransform) {
+  public boolean isTransformInformative(TransformMeta thisTransform, TransformMeta prevTransform) {
     String[] infoTransforms =
         thisTransform.getTransform().getTransformIOMeta().getInfoTransformNames();
     if (infoTransforms == null) {
@@ -974,7 +974,7 @@ public class PipelineMeta extends AbstractMeta
           && hi.getToTransform().equals(transformMeta)) {
         // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
           count++;
         }
       }
@@ -1003,7 +1003,7 @@ public class PipelineMeta extends AbstractMeta
       if (hi.getToTransform() != null
           && hi.isEnabled()
           && hi.getToTransform().equals(transformMeta)) {
-        if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
           if (count == nr) {
             return hi.getFromTransform();
           }
@@ -1048,7 +1048,7 @@ public class PipelineMeta extends AbstractMeta
             && hi.getToTransform().equals(transformMeta)) {
           // Check if this previous transform isn't informative (StreamValueLookup)
           // We don't want fields from this stream to show up!
-          if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+          if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
             previousTransforms.add(hi.getFromTransform());
           }
         }
@@ -1105,7 +1105,7 @@ public class PipelineMeta extends AbstractMeta
           && hi.getToTransform().equals(transformMeta)) {
         // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if (isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (isTransformInformative(transformMeta, hi.getFromTransform())) {
           count++;
         }
       }
@@ -1141,7 +1141,7 @@ public class PipelineMeta extends AbstractMeta
 
       if (hi.isEnabled() && hi.getToTransform().equals(transformMeta)) {
         TransformMeta infoTransform = hi.getFromTransform();
-        if (isTransformMetarmative(transformMeta, infoTransform)) {
+        if (isTransformInformative(transformMeta, infoTransform)) {
           IRowMeta row = getPrevTransformFields(variables, infoTransform);
           return getThisTransformFields(variables, infoTransform, transformMeta, row);
         }
