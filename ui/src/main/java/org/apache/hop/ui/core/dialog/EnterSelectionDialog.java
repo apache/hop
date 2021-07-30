@@ -36,37 +36,24 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Allows the user to make a selection from a list of values.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Allows the user to make a selection from a list of values. */
 public class EnterSelectionDialog extends Dialog {
   private static final Class<?> PKG = EnterSelectionDialog.class; // For Translator
 
   private Label wlSelection;
   private List wSelection;
-  private FormData fdlSelection, fdSelection;
+  private FormData fdlSelection;
+  private FormData fdSelection;
   private TextVar wConstantValue;
   private Button wbUseConstant;
 
-  private Button wOk, wCancel;
-
+  private Button wOk;
   private Shell shell;
 
   public Shell getShell() {
@@ -76,8 +63,6 @@ public class EnterSelectionDialog extends Dialog {
   private String[] choices;
   private String selection;
   private int selectionNr;
-  private int shellHeight;
-  private int shellWidth;
   private String shellText;
   private String lineText;
   private PropsUi props;
@@ -85,14 +70,14 @@ public class EnterSelectionDialog extends Dialog {
   private IVariables variables;
   private String currentValue;
 
-  private boolean viewOnly, modal;
+  private boolean viewOnly;
+  private boolean modal;
   private int[] selectedNrs;
   private boolean multi;
   private int[] indices;
   private boolean fixed;
   private boolean quickSearch;
 
-  private ToolItem goSearch, wfilter, addConnection;
   private ToolItem wbRegex;
 
   private String filterString = null;
@@ -124,18 +109,6 @@ public class EnterSelectionDialog extends Dialog {
     multi = false;
     fixed = false;
     quickSearch = true;
-  }
-
-  public EnterSelectionDialog(
-      Shell parent,
-      String[] choices,
-      String shellText,
-      String message,
-      int shellWidth,
-      int shellHeight) {
-    this(parent, choices, shellText, message);
-    this.shellWidth = shellWidth;
-    this.shellHeight = shellHeight;
   }
 
   public EnterSelectionDialog(
@@ -198,7 +171,7 @@ public class EnterSelectionDialog extends Dialog {
       ToolBar treeTb = new ToolBar(shell, SWT.HORIZONTAL | SWT.FLAT);
       props.setLook(treeTb);
 
-      wfilter = new ToolItem(treeTb, SWT.SEPARATOR);
+      ToolItem wfilter = new ToolItem(treeTb, SWT.SEPARATOR);
       searchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
       props.setLook(searchText);
       searchText.setToolTipText(
@@ -210,12 +183,13 @@ public class EnterSelectionDialog extends Dialog {
       wbRegex.setImage(GuiResource.getInstance().getImageRegex());
       wbRegex.setToolTipText(BaseMessages.getString(PKG, "EnterSelectionDialog.useRegEx.Tooltip"));
 
-      goSearch = new ToolItem(treeTb, SWT.PUSH);
+      ToolItem goSearch = new ToolItem(treeTb, SWT.PUSH);
       goSearch.setImage(GuiResource.getInstance().getImageRefresh());
       goSearch.setToolTipText(BaseMessages.getString(PKG, "EnterSelectionDialog.refresh.Label"));
 
       goSearch.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
               updateFilter();
             }
@@ -236,6 +210,7 @@ public class EnterSelectionDialog extends Dialog {
 
       searchText.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
               updateFilter();
             }
@@ -271,7 +246,6 @@ public class EnterSelectionDialog extends Dialog {
     }
     if (selectedNrs != null) {
       wSelection.select(selectedNrs);
-      wSelection.showSelection();
     }
     if (fixed) {
       props.setLook(wSelection, Props.WIDGET_STYLE_FIXED);
@@ -304,7 +278,7 @@ public class EnterSelectionDialog extends Dialog {
     }
 
     if (!viewOnly) {
-      wCancel = new Button(shell, SWT.PUSH);
+      Button wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
       wCancel.addListener(SWT.Selection, e -> cancel());
       buttons.add(wCancel);
@@ -357,6 +331,7 @@ public class EnterSelectionDialog extends Dialog {
     // Add listeners
     wSelection.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             if (e.character == SWT.CR) {
               ok();
@@ -420,13 +395,15 @@ public class EnterSelectionDialog extends Dialog {
     fdSeparator.left = new FormAttachment(0, 10);
     separator.setLayoutData(fdSeparator);
 
-    Button btnHelp = HelpUtils.createHelpButton(shell, Const.getDocUrl(BaseMessages.getString(PKG, "EnterSelectionDialog.Help")));   
-    FormData fd_btnHelp = new FormData();
-    fd_btnHelp.top = new FormAttachment(separator, 12);
-    fd_btnHelp.left = new FormAttachment(0, 10);
-    fd_btnHelp.bottom = new FormAttachment(100, -10);
-    fd_btnHelp.width = (Const.isOSX() ? 85 : 75);
-    btnHelp.setLayoutData(fd_btnHelp);
+    Button btnHelp =
+        HelpUtils.createHelpButton(
+            shell, Const.getDocUrl(BaseMessages.getString(PKG, "EnterSelectionDialog.Help")));
+    FormData fdBtnHelp = new FormData();
+    fdBtnHelp.top = new FormAttachment(separator, 12);
+    fdBtnHelp.left = new FormAttachment(0, 10);
+    fdBtnHelp.bottom = new FormAttachment(100, -10);
+    fdBtnHelp.width = (Const.isOSX() ? 85 : 75);
+    btnHelp.setLayoutData(fdBtnHelp);
 
     fdSelection = new FormData();
     fdSelection.left = new FormAttachment(0, 10);
@@ -437,6 +414,7 @@ public class EnterSelectionDialog extends Dialog {
 
     wSelection.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             if (e.character == SWT.CR) {
               ok();
@@ -458,7 +436,9 @@ public class EnterSelectionDialog extends Dialog {
     shell.dispose();
   }
 
-  public void getData() {}
+  public void getData() {
+    // No data to receive
+  }
 
   private void cancel() {
     selection = null;
@@ -600,9 +580,6 @@ public class EnterSelectionDialog extends Dialog {
       }
     }
     wSelection.redraw();
-    /*
-     * selectedNrs = new int[] {}; if (selectedNrs!=null){ wSelection.select(selectedNrs); wSelection.showSelection(); }
-     */
   }
 
   /**

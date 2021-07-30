@@ -25,7 +25,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -34,40 +33,15 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 
-/**
- * Widget that allows you to edit a Condition in a graphical way.
- *
- * @author Matt
- * @since 29-07-2004
- */
+/** Widget that allows you to edit a Condition in a graphical way. */
 public class ConditionEditor extends Canvas implements MouseMoveListener {
   private static final Class<?> PKG = ConditionEditor.class; // For Translator
 
@@ -92,35 +66,51 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   private Shell shell;
   private Display display;
   private Condition activeCondition;
-  // private Props props;
-  private Color bg, white, black, red, green, blue, gray;
+  private Color bg;
+  private Color white;
+  private Color black;
+  private Color red;
+  private Color green;
+  private Color blue;
+  private Color gray;
   private Font fixed;
 
   private Image imageAdd;
 
-  private Rectangle size_not, size_widget, size_and_not;
-  private Rectangle size_up;
-  private Rectangle size_left, size_fn, size_rightval, size_rightex;
+  private Rectangle sizeNot;
+  private Rectangle sizeWidget;
+  private Rectangle sizeAndNot;
+  private Rectangle sizeUp;
+  private Rectangle sizeLeft;
+  private Rectangle sizeFn;
+  private Rectangle sizeRightval;
+  private Rectangle sizeRightex;
   private Rectangle[] sizeCond;
-  private Rectangle[] size_oper;
-  private Rectangle size_add;
+  private Rectangle[] sizeOper;
+  private Rectangle sizeAdd;
   private Rectangle maxdrawn;
 
   private int hoverCondition;
   private int hoverOperator;
-  private boolean hover_not, hover_up;
-  private boolean hover_left, hover_fn, hover_rightval, hover_rightex;
+  private boolean hoverNot;
+  private boolean hoverUp;
+  private boolean hoverLeft;
+  private boolean hoverFn;
+  private boolean hoverRightval;
+  private boolean hoverRightex;
 
-  private int previous_area;
-  private int previous_area_nr;
+  private int previousArea;
+  private int previousAreaNr;
 
   private ArrayList<Condition> parents;
   private IRowMeta fields;
 
   private int maxFieldLength;
 
-  private ScrollBar sbVertical, sbHorizontal;
-  private int offsetx, offsety;
+  private ScrollBar sbVertical;
+  private ScrollBar sbHorizontal;
+  private int offsetx;
+  private int offsety;
 
   private ArrayList<ModifyListener> modListeners;
 
@@ -145,23 +135,23 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     offsety = 0;
     maxdrawn = null;
 
-    size_not = null;
-    size_widget = null;
+    sizeNot = null;
+    sizeWidget = null;
     sizeCond = null;
 
-    previous_area = -1;
-    previous_area_nr = -1;
+    previousArea = -1;
+    previousAreaNr = -1;
 
     parents = new ArrayList<>(); // Remember parent in drill-down...
 
     hoverCondition = -1;
     hoverOperator = -1;
-    hover_not = false;
-    hover_up = false;
-    hover_left = false;
-    hover_fn = false;
-    hover_rightval = false;
-    hover_rightex = false;
+    hoverNot = false;
+    hoverUp = false;
+    hoverLeft = false;
+    hoverFn = false;
+    hoverRightval = false;
+    hoverRightex = false;
 
     /*
      * Determine the maximum field length...
@@ -198,7 +188,6 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           @Override
           public void mouseDown(MouseEvent e) {
             Point screen = new Point(e.x, e.y);
-            // Point real = Screen2Real(screen);
             int area = getAreaCode(screen);
 
             if (e.button == 1) { // Left click on widget...
@@ -357,7 +346,9 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           }
 
           @Override
-          public void mouseUp(MouseEvent e) {}
+          public void mouseUp(MouseEvent e) {
+            // Disable mouseUp event
+          }
         });
 
     //
@@ -394,7 +385,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         new ControlAdapter() {
           @Override
           public void controlResized(ControlEvent arg0) {
-            size_widget = widget.getBounds();
+            sizeWidget = widget.getBounds();
             setBars();
           }
         });
@@ -714,15 +705,15 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
   public void repaint(GC gc, int width, int height) {
     // Initialize some information
-    size_not = getNotSize(gc);
-    size_widget = getWidgetSize(gc);
-    size_and_not = getAndNotSize(gc);
-    size_up = getUpSize(gc);
-    size_add = getAddSize(gc);
-    size_left = null;
-    size_fn = null;
-    size_rightval = null;
-    size_rightex = null;
+    sizeNot = getNotSize(gc);
+    sizeWidget = getWidgetSize(gc);
+    sizeAndNot = getAndNotSize(gc);
+    sizeUp = getUpSize(gc);
+    sizeAdd = getAddSize(gc);
+    sizeLeft = null;
+    sizeFn = null;
+    sizeRightval = null;
+    sizeRightex = null;
 
     // Clear the background...
     gc.setBackground(white);
@@ -739,23 +730,22 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
       drawAtomic(gc, 0, 0, activeCondition);
 
-      // gc.drawText("ATOMIC", 10, size_widget.height-20);
     } else {
       drawNegated(gc, 0, 0, activeCondition);
 
       sizeCond = new Rectangle[activeCondition.nrConditions()];
-      size_oper = new Rectangle[activeCondition.nrConditions()];
+      sizeOper = new Rectangle[activeCondition.nrConditions()];
 
       int basex = 10;
-      int basey = size_not.y + 5;
+      int basey = sizeNot.y + 5;
 
       for (int i = 0; i < activeCondition.nrConditions(); i++) {
         Point to = drawCondition(gc, basex, basey, i, activeCondition.getCondition(i));
-        basey += size_and_not.height + to.y + 15;
+        basey += sizeAndNot.height + to.y + 15;
       }
     }
 
-    gc.drawImage(imageAdd, size_add.x, size_add.y);
+    gc.drawImage(imageAdd, sizeAdd.x, sizeAdd.y);
 
     /*
      * Draw the up-symbol if needed...
@@ -795,7 +785,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
   private Rectangle getUpSize(GC gc) {
     Point p = gc.textExtent(STRING_UP);
-    return new Rectangle(size_not.x + size_not.width + 40, size_not.y, p.x + 20, size_not.height);
+    return new Rectangle(sizeNot.x + sizeNot.width + 40, sizeNot.y, p.x + 20, sizeNot.height);
   }
 
   private Rectangle getAddSize(GC gc) {
@@ -808,35 +798,35 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   private void drawNegated(GC gc, int x, int y, Condition condition) {
     Color color = gc.getForeground();
 
-    if (hover_not) {
+    if (hoverNot) {
       gc.setBackground(gray);
     }
-    gc.fillRectangle(Real2Screen(size_not));
-    gc.drawRectangle(Real2Screen(size_not));
+    gc.fillRectangle(real2Screen(sizeNot));
+    gc.drawRectangle(real2Screen(sizeNot));
 
     if (condition.isNegated()) {
-      if (hover_not) {
+      if (hoverNot) {
         gc.setForeground(green);
       }
       gc.drawText(
-          STRING_NOT, size_not.x + 5 + offsetx, size_not.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
+          STRING_NOT, sizeNot.x + 5 + offsetx, sizeNot.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
       gc.drawText(
-          STRING_NOT, size_not.x + 6 + offsetx, size_not.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
-      if (hover_not) {
+          STRING_NOT, sizeNot.x + 6 + offsetx, sizeNot.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
+      if (hoverNot) {
         gc.setForeground(color);
       }
     } else {
-      if (hover_not) {
+      if (hoverNot) {
         gc.setForeground(red);
         gc.drawText(
-            STRING_NOT, size_not.x + 5 + offsetx, size_not.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
+            STRING_NOT, sizeNot.x + 5 + offsetx, sizeNot.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
         gc.drawText(
-            STRING_NOT, size_not.x + 6 + offsetx, size_not.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
+            STRING_NOT, sizeNot.x + 6 + offsetx, sizeNot.y + 2 + offsety, SWT.DRAW_TRANSPARENT);
         gc.setForeground(color);
       }
     }
 
-    if (hover_not) {
+    if (hoverNot) {
       gc.setBackground(bg);
     }
   }
@@ -845,95 +835,89 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
     // First the text sizes...
     String left = Const.rightPad(condition.getLeftValuename(), maxFieldLength);
-    Point ext_left = gc.textExtent(left);
+    Point extLeft = gc.textExtent(left);
     if (condition.getLeftValuename() == null) {
-      ext_left = gc.textExtent("<field>");
+      extLeft = gc.textExtent("<field>");
     }
 
-    String fn_max = Condition.functions[Condition.FUNC_NOT_NULL];
+    String fnMax = Condition.functions[Condition.FUNC_NOT_NULL];
     String fn = condition.getFunctionDesc();
-    Point ext_fn = gc.textExtent(fn_max);
+    Point extFn = gc.textExtent(fnMax);
 
     String rightval = Const.rightPad(condition.getRightValuename(), maxFieldLength);
-    Point ext_rval = gc.textExtent(rightval);
+    Point extRval = gc.textExtent(rightval);
     if (condition.getLeftValuename() == null) {
-      ext_rval = gc.textExtent("<field>");
+      extRval = gc.textExtent("<field>");
     }
 
     String rightex = condition.getRightExactString();
 
-    String rightex_max = rightex;
+    String rightexMax = rightex;
     if (rightex == null) {
-      rightex_max = Const.rightPad(" ", 10);
+      rightexMax = Const.rightPad(" ", 10);
     } else {
       if (rightex.length() < 10) {
-        rightex_max = Const.rightPad(rightex, 10);
+        rightexMax = Const.rightPad(rightex, 10);
       }
     }
 
-    Point ext_rex = gc.textExtent(rightex_max);
+    Point extRex = gc.textExtent(rightexMax);
 
-    size_left = new Rectangle(x + 5, y + size_not.height + 5, ext_left.x + 5, ext_left.y + 5);
+    sizeLeft = new Rectangle(x + 5, y + sizeNot.height + 5, extLeft.x + 5, extLeft.y + 5);
 
-    size_fn =
+    sizeFn =
         new Rectangle(
-            size_left.x + size_left.width + 15,
-            y + size_not.height + 5,
-            ext_fn.x + 5,
-            ext_fn.y + 5);
+            sizeLeft.x + sizeLeft.width + 15, y + sizeNot.height + 5, extFn.x + 5, extFn.y + 5);
 
-    size_rightval =
+    sizeRightval =
         new Rectangle(
-            size_fn.x + size_fn.width + 15,
-            y + size_not.height + 5,
-            ext_rval.x + 5,
-            ext_rval.y + 5);
+            sizeFn.x + sizeFn.width + 15, y + sizeNot.height + 5, extRval.x + 5, extRval.y + 5);
 
-    size_rightex =
+    sizeRightex =
         new Rectangle(
-            size_fn.x + size_fn.width + 15,
-            y + size_not.height + 5 + size_rightval.height + 5,
-            ext_rex.x + 5,
-            ext_rex.y + 5);
+            sizeFn.x + sizeFn.width + 15,
+            y + sizeNot.height + 5 + sizeRightval.height + 5,
+            extRex.x + 5,
+            extRex.y + 5);
 
-    if (hover_left) {
+    if (hoverLeft) {
       gc.setBackground(gray);
     }
-    gc.fillRectangle(Real2Screen(size_left));
-    gc.drawRectangle(Real2Screen(size_left));
+    gc.fillRectangle(real2Screen(sizeLeft));
+    gc.drawRectangle(real2Screen(sizeLeft));
     gc.setBackground(bg);
 
-    if (hover_fn) {
+    if (hoverFn) {
       gc.setBackground(gray);
     }
-    gc.fillRectangle(Real2Screen(size_fn));
-    gc.drawRectangle(Real2Screen(size_fn));
+    gc.fillRectangle(real2Screen(sizeFn));
+    gc.drawRectangle(real2Screen(sizeFn));
     gc.setBackground(bg);
 
-    if (hover_rightval) {
+    if (hoverRightval) {
       gc.setBackground(gray);
     }
-    gc.fillRectangle(Real2Screen(size_rightval));
-    gc.drawRectangle(Real2Screen(size_rightval));
+    gc.fillRectangle(real2Screen(sizeRightval));
+    gc.drawRectangle(real2Screen(sizeRightval));
     gc.setBackground(bg);
 
-    if (hover_rightex) {
+    if (hoverRightex) {
       gc.setBackground(gray);
     }
-    gc.fillRectangle(Real2Screen(size_rightex));
-    gc.drawRectangle(Real2Screen(size_rightex));
+    gc.fillRectangle(real2Screen(sizeRightex));
+    gc.drawRectangle(real2Screen(sizeRightex));
     gc.setBackground(bg);
 
     if (condition.getLeftValuename() != null) {
-      gc.drawText(left, size_left.x + 1 + offsetx, size_left.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+      gc.drawText(left, sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
     } else {
       gc.setForeground(gray);
       gc.drawText(
-          "<field>", size_left.x + 1 + offsetx, size_left.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+          "<field>", sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
       gc.setForeground(black);
     }
 
-    gc.drawText(fn, size_fn.x + 1 + offsetx, size_fn.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+    gc.drawText(fn, sizeFn.x + 1 + offsetx, sizeFn.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
 
     if (condition.getFunction() != Condition.FUNC_NOT_NULL
         && condition.getFunction() != Condition.FUNC_NULL) {
@@ -947,16 +931,16 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       if (condition.getRightValuename() != null) {
         gc.drawText(
             rightval,
-            size_rightval.x + 1 + offsetx,
-            size_rightval.y + 1 + offsety,
+            sizeRightval.x + 1 + offsetx,
+            sizeRightval.y + 1 + offsety,
             SWT.DRAW_TRANSPARENT);
       } else {
         String nothing = rightex == null ? "<field>" : "";
         gc.setForeground(gray);
         gc.drawText(
             nothing,
-            size_rightval.x + 1 + offsetx,
-            size_rightval.y + 1 + offsety,
+            sizeRightval.x + 1 + offsetx,
+            sizeRightval.y + 1 + offsety,
             SWT.DRAW_TRANSPARENT);
         if (condition.getRightValuename() == null) {
           gc.setForeground(black);
@@ -965,39 +949,45 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
       if (rightex != null) {
         gc.drawText(
-            re, size_rightex.x + 1 + offsetx, size_rightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+            re, sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
       } else {
         String nothing = condition.getRightValuename() == null ? "<value>" : "";
         gc.setForeground(gray);
         gc.drawText(
             nothing,
-            size_rightex.x + 1 + offsetx,
-            size_rightex.y + 1 + offsety,
+            sizeRightex.x + 1 + offsetx,
+            sizeRightex.y + 1 + offsety,
             SWT.DRAW_TRANSPARENT);
         gc.setForeground(black);
       }
 
       gc.drawText(
           stype,
-          size_rightex.x + 1 + size_rightex.width + 10 + offsetx,
-          size_rightex.y + 1 + offsety,
+          sizeRightex.x + 1 + sizeRightex.width + 10 + offsetx,
+          sizeRightex.y + 1 + offsety,
           SWT.DRAW_TRANSPARENT);
     } else {
       gc.drawText(
-          "-", size_rightval.x + 1 + offsetx, size_rightval.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+          "-", sizeRightval.x + 1 + offsetx, sizeRightval.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
       gc.drawText(
-          "-", size_rightex.x + 1 + offsetx, size_rightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+          "-", sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
     }
   }
 
   private Point drawCondition(GC gc, int x, int y, int nr, Condition condition) {
-    int opx, opy, opw, oph;
-    int cx, cy, cw, ch;
+    int opx;
+    int opy;
+    int opw;
+    int oph;
+    int cx;
+    int cy;
+    int cw;
+    int ch;
 
     opx = x;
     opy = y;
-    opw = size_and_not.width + 6;
-    oph = size_and_not.height + 2;
+    opw = sizeAndNot.width + 6;
+    oph = sizeAndNot.height + 2;
 
     /*
      * First draw the operator ...
@@ -1005,17 +995,17 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     if (nr > 0) {
       String operator = condition.getOperatorDesc();
       // Remember the size of the rectangle!
-      size_oper[nr] = new Rectangle(opx, opy, opw, oph);
+      sizeOper[nr] = new Rectangle(opx, opy, opw, oph);
       if (nr == hoverOperator) {
         gc.setBackground(gray);
-        gc.fillRectangle(Real2Screen(size_oper[nr]));
-        gc.drawRectangle(Real2Screen(size_oper[nr]));
+        gc.fillRectangle(real2Screen(sizeOper[nr]));
+        gc.drawRectangle(real2Screen(sizeOper[nr]));
         gc.setBackground(bg);
       }
       gc.drawText(
           operator,
-          size_oper[nr].x + 2 + offsetx,
-          size_oper[nr].y + 2 + offsety,
+          sizeOper[nr].x + 2 + offsetx,
+          sizeOper[nr].y + 2 + offsety,
           SWT.DRAW_TRANSPARENT);
     }
 
@@ -1035,8 +1025,8 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
     if (nr == hoverCondition) {
       gc.setBackground(gray);
-      gc.fillRectangle(Real2Screen(sizeCond[nr]));
-      gc.drawRectangle(Real2Screen(sizeCond[nr]));
+      gc.fillRectangle(real2Screen(sizeCond[nr]));
+      gc.drawRectangle(real2Screen(sizeCond[nr]));
       gc.setBackground(bg);
     }
     gc.drawText(
@@ -1052,52 +1042,51 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   public void drawUp(GC gc) {
-    if (hover_up) {
+    if (hoverUp) {
       gc.setBackground(gray);
-      gc.fillRectangle(size_up);
+      gc.fillRectangle(sizeUp);
     }
-    gc.drawRectangle(size_up);
-    gc.drawText(STRING_UP, size_up.x + 1 + offsetx, size_up.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+    gc.drawRectangle(sizeUp);
+    gc.drawText(STRING_UP, sizeUp.x + 1 + offsetx, sizeUp.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
   }
 
   public void drawMessage(GC gc) {
     gc.setForeground(blue);
     gc.drawText(
         getMessageString(),
-        size_up.x + size_up.width + offsetx + 40,
-        size_up.y + 1 + offsety,
+        sizeUp.x + sizeUp.width + offsetx + 40,
+        sizeUp.y + 1 + offsety,
         SWT.DRAW_TRANSPARENT);
-    // widget.setToolTipText(getMessageString());
   }
 
   private boolean isInNot(Point screen) {
-    if (size_not == null) {
+    if (sizeNot == null) {
       return false;
     }
-    return Real2Screen(size_not).contains(screen);
+    return real2Screen(sizeNot).contains(screen);
   }
 
   private boolean isInUp(Point screen) {
-    if (size_up == null || parents.isEmpty()) {
+    if (sizeUp == null || parents.isEmpty()) {
       return false; // not displayed!
     }
 
-    return Real2Screen(size_up).contains(screen);
+    return real2Screen(sizeUp).contains(screen);
   }
 
   private boolean isInAdd(Point screen) {
-    if (size_add == null || screen == null) {
+    if (sizeAdd == null || screen == null) {
       return false;
     }
-    return size_add.contains(screen);
+    return sizeAdd.contains(screen);
   }
 
   private boolean isInWidget(Point screen) {
-    if (size_widget == null) {
+    if (sizeWidget == null) {
       return false;
     }
 
-    return Real2Screen(size_widget).contains(screen);
+    return real2Screen(sizeWidget).contains(screen);
   }
 
   private int getNrSubcondition(Point screen) {
@@ -1106,7 +1095,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     }
 
     for (int i = 0; i < sizeCond.length; i++) {
-      if (sizeCond[i] != null && Screen2Real(sizeCond[i]).contains(screen)) {
+      if (sizeCond[i] != null && screen2Real(sizeCond[i]).contains(screen)) {
         return i;
       }
     }
@@ -1118,12 +1107,12 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   private int getNrOperator(Point screen) {
-    if (size_oper == null) {
+    if (sizeOper == null) {
       return -1;
     }
 
-    for (int i = 0; i < size_oper.length; i++) {
-      if (size_oper[i] != null && Screen2Real(size_oper[i]).contains(screen)) {
+    for (int i = 0; i < sizeOper.length; i++) {
+      if (sizeOper[i] != null && screen2Real(sizeOper[i]).contains(screen)) {
         return i;
       }
     }
@@ -1135,31 +1124,31 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   private boolean isInLeft(Point screen) {
-    if (size_left == null) {
+    if (sizeLeft == null) {
       return false;
     }
-    return Real2Screen(size_left).contains(screen);
+    return real2Screen(sizeLeft).contains(screen);
   }
 
   private boolean isInFunction(Point screen) {
-    if (size_fn == null) {
+    if (sizeFn == null) {
       return false;
     }
-    return Real2Screen(size_fn).contains(screen);
+    return real2Screen(sizeFn).contains(screen);
   }
 
   private boolean isInRightValue(Point screen) {
-    if (size_rightval == null) {
+    if (sizeRightval == null) {
       return false;
     }
-    return Real2Screen(size_rightval).contains(screen);
+    return real2Screen(sizeRightval).contains(screen);
   }
 
   private boolean isInRightExact(Point screen) {
-    if (size_rightex == null) {
+    if (sizeRightex == null) {
       return false;
     }
-    return Real2Screen(size_rightex).contains(screen);
+    return real2Screen(sizeRightex).contains(screen);
   }
 
   private int getAreaCode(Point screen) {
@@ -1252,25 +1241,25 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     return messageString;
   }
 
-  private Rectangle Real2Screen(Rectangle r) {
+  private Rectangle real2Screen(Rectangle r) {
     return new Rectangle(r.x + offsetx, r.y + offsety, r.width, r.height);
   }
 
-  private Rectangle Screen2Real(Rectangle r) {
+  private Rectangle screen2Real(Rectangle r) {
     return new Rectangle(r.x - offsetx, r.y - offsety, r.width, r.height);
   }
 
   /** Determine the maximum rectangle of used canvas variables... */
   private void getMaxSize() {
     // Top line...
-    maxdrawn = size_not.union(size_up);
+    maxdrawn = sizeNot.union(sizeUp);
 
     // Atomic
     if (activeCondition.isAtomic()) {
-      maxdrawn = maxdrawn.union(size_left);
-      maxdrawn = maxdrawn.union(size_fn);
-      maxdrawn = maxdrawn.union(size_rightval);
-      maxdrawn = maxdrawn.union(size_rightex);
+      maxdrawn = maxdrawn.union(sizeLeft);
+      maxdrawn = maxdrawn.union(sizeFn);
+      maxdrawn = maxdrawn.union(sizeRightval);
+      maxdrawn = maxdrawn.union(sizeRightex);
       maxdrawn.width += 100;
     } else {
       if (sizeCond != null) {
@@ -1280,10 +1269,10 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           }
         }
       }
-      if (size_oper != null) {
-        for (int i = 0; i < size_oper.length; i++) {
-          if (size_oper[i] != null) {
-            maxdrawn = maxdrawn.union(size_oper[i]);
+      if (sizeOper != null) {
+        for (int i = 0; i < sizeOper.length; i++) {
+          if (sizeOper[i] != null) {
+            maxdrawn = maxdrawn.union(sizeOper[i]);
           }
         }
       }
@@ -1294,13 +1283,13 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   private void setBars() {
-    if (size_widget == null || maxdrawn == null) {
+    if (sizeWidget == null || maxdrawn == null) {
       return;
     }
 
     // Horizontal scrollbar behavior
     //
-    if (size_widget.width > maxdrawn.width) {
+    if (sizeWidget.width > maxdrawn.width) {
       offsetx = 0;
       sbHorizontal.setSelection(0);
       sbHorizontal.setVisible(false);
@@ -1311,14 +1300,14 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       sbHorizontal.setMaximum(maxdrawn.width);
       sbHorizontal.setMinimum(0);
       if (!EnvironmentUtils.getInstance().isWeb()) {
-        sbHorizontal.setPageIncrement(size_widget.width);
+        sbHorizontal.setPageIncrement(sizeWidget.width);
         sbHorizontal.setIncrement(10);
       }
     }
 
     // Vertical scrollbar behavior
     //
-    if (size_widget.height > maxdrawn.height) {
+    if (sizeWidget.height > maxdrawn.height) {
       offsety = 0;
       sbVertical.setSelection(0);
       sbVertical.setVisible(false);
@@ -1329,7 +1318,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       sbVertical.setMaximum(maxdrawn.height);
       sbVertical.setMinimum(0);
       if (!EnvironmentUtils.getInstance().isWeb()) {
-        sbVertical.setPageIncrement(size_widget.height);
+        sbVertical.setPageIncrement(sizeWidget.height);
         sbVertical.setIncrement(10);
       }
     }
@@ -1357,16 +1346,16 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     int area = getAreaCode(screen);
 
     int nr = 0;
-    boolean need_redraw = false;
+    boolean needRedraw = false;
 
     hoverCondition = -1;
     hoverOperator = -1;
-    hover_not = false;
-    hover_up = false;
-    hover_left = false;
-    hover_fn = false;
-    hover_rightval = false;
-    hover_rightex = false;
+    hoverNot = false;
+    hoverUp = false;
+    hoverLeft = false;
+    hoverFn = false;
+    hoverRightval = false;
+    hoverRightex = false;
 
     if (area != AREA_ICON_ADD) {
       setToolTipText(null);
@@ -1376,11 +1365,11 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
     switch (area) {
       case AREA_NOT:
-        hover_not = true;
+        hoverNot = true;
         nr = 1;
         break;
       case AREA_UP:
-        hover_up = getLevel() > 0;
+        hoverUp = getLevel() > 0;
         nr = 1;
         break;
       case AREA_BACKGROUND:
@@ -1394,19 +1383,19 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         nr = hoverOperator;
         break;
       case AREA_LEFT:
-        hover_left = true;
+        hoverLeft = true;
         nr = 1;
         break;
       case AREA_FUNCTION:
-        hover_fn = true;
+        hoverFn = true;
         nr = 1;
         break;
       case AREA_RIGHT_VALUE:
-        hover_rightval = true;
+        hoverRightval = true;
         nr = 1;
         break;
       case AREA_RIGHT_EXACT:
-        hover_rightex = true;
+        hoverRightex = true;
         nr = 1;
         break;
       case AREA_CONDITION:
@@ -1417,17 +1406,17 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         break;
     }
 
-    if (area != previous_area || nr != previous_area_nr) {
-      need_redraw = true;
+    if (area != previousArea || nr != previousAreaNr) {
+      needRedraw = true;
     }
 
-    if (need_redraw) {
+    if (needRedraw) {
       offsetx = -sbHorizontal.getSelection();
       offsety = -sbVertical.getSelection();
       widget.redraw();
     }
 
-    previous_area = area;
-    previous_area_nr = nr;
+    previousArea = area;
+    previousAreaNr = nr;
   }
 }
