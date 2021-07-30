@@ -258,7 +258,7 @@ public class EnterSelectionDialog extends Dialog {
     }
     wlSelection.setLayoutData(fdlSelection);
 
-    int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL;
+    int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL ;
     if (multi) {
       options |= SWT.MULTI;
     } else {
@@ -271,7 +271,6 @@ public class EnterSelectionDialog extends Dialog {
     }
     if (selectedNrs != null) {
       wSelection.select(selectedNrs);
-      wSelection.showSelection();
     }
     if (fixed) {
       props.setLook(wSelection, Props.WIDGET_STYLE_FIXED);
