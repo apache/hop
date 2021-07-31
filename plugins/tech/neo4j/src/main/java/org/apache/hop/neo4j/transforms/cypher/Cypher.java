@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.cypher;
@@ -344,6 +343,9 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
             nrProcessed = data.session.writeTransaction(transactionWork);
             setLinesOutput(getLinesOutput() + data.cypherStatements.size());
           }
+          // If all went as expected we can stop retrying...
+          //
+          break;
         } catch (Exception e) {
           if (attempt + 1 >= data.attempts) {
             throw e;
@@ -386,6 +388,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
             data.session.writeTransaction(cypherTransactionWork);
           }
           // Stop the attempts now
+          //
           break;
         } catch (Exception e) {
           if (attempt + 1 >= data.attempts) {
