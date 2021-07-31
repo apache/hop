@@ -17,10 +17,17 @@
 
 package org.apache.hop.core.svg;
 
+import org.apache.commons.lang.SystemUtils;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class HopSvgGraphics2DTest {
+
+  @Before
+  public void notOnWindows() {
+    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
+  }
 
   private static final String BASIC_SVG_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg fill-opacity=\"1\" color-rendering=\"auto\" color-interpolation=\"auto\" text-rendering=\"auto\" "
     + "stroke=\"black\" stroke-linecap=\"square\" stroke-miterlimit=\"10\" shape-rendering=\"auto\" stroke-opacity=\"1\" fill=\"black\" stroke-dasharray=\"none\" font-weight=\"normal\" "
