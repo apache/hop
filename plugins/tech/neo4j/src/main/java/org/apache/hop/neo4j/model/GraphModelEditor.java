@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model;
@@ -25,8 +24,14 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.neo4j.actions.index.IndexUpdate;
+import org.apache.hop.neo4j.actions.index.Neo4jIndex;
+import org.apache.hop.neo4j.actions.index.ObjectType;
+import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.cw.CypherWorkbenchImporter;
+import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -40,6 +45,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -65,6 +71,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -437,7 +444,18 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdCypherWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
     wCypherWorkbenchImportGraph.setLayoutData(fdCypherWorkbenchImportGraph);
     wCypherWorkbenchImportGraph.addListener(SWT.Selection, (e) -> importGraphFromCypherWorkbench());
-    // lastControl = wCypherWorkbenchImportGraph;
+    lastControl = wCypherWorkbenchImportGraph;
+
+    Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
+    wCreateIndexAction.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.CreateIndexAction.Button"));
+    props.setLook(wCreateIndexAction);
+    FormData fdCreateIndexAction = new FormData();
+    fdCreateIndexAction.left = new FormAttachment(middle, 0);
+    fdCreateIndexAction.right = new FormAttachment(75, 0);
+    fdCreateIndexAction.top = new FormAttachment(lastControl, 50);
+    wCreateIndexAction.setLayoutData(fdCreateIndexAction);
+    wCreateIndexAction.addListener(SWT.Selection, (e) -> copyIndexActionToClipboard());
 
     FormData fdModelComp = new FormData();
     fdModelComp.left = new FormAttachment(0, 0);
@@ -1907,6 +1925,77 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
   private String getModelJson() throws HopException {
     return graphModel.getJSONString();
+  }
+
+  private void copyIndexActionToClipboard() {
+    try {
+
+      // Select the index name...
+      //
+      IHopMetadataSerializer<NeoConnection> connectionSerializer =
+          getMetadataManager().getMetadataProvider().getSerializer(NeoConnection.class);
+      java.util.List<String> connectionNames = connectionSerializer.listObjectNames();
+      EnterSelectionDialog enterSelectionDialog =
+          new EnterSelectionDialog(
+              getShell(),
+              connectionNames.toArray(new String[0]),
+              "Select connection",
+              "Select the Neo4j Connection to create indexes on in the action:");
+      String connectionName = enterSelectionDialog.open();
+      if (connectionName == null) {
+        return;
+      }
+      NeoConnection connection = connectionSerializer.load(connectionName);
+
+      Neo4jIndex neo4jIndex = new Neo4jIndex();
+      neo4jIndex.setConnection(connection);
+
+      // We need indexes on all the primary keys in the model nodes...
+      //
+      for (GraphNode node : graphModel.getNodes()) {
+        // Loop over all the labels
+        //
+        for (String label : node.getLabels()) {
+          String indexName = label.toUpperCase();
+          String properties = "";
+          for (GraphProperty property : node.getProperties()) {
+            // TODO: add constraints support later on for properties flagged as unique
+            //
+            if (property.isIndexed() || property.isPrimary()) {
+              if (properties.length() > 0) {
+                properties += ", ";
+              }
+              properties += property.getName();
+              indexName += "_" + property.getName().toUpperCase();
+            }
+          }
+          neo4jIndex
+              .getIndexUpdates()
+              .add(
+                  new IndexUpdate(
+                      UpdateType.CREATE, ObjectType.NODE, indexName, label, properties));
+        }
+      }
+
+      // Wrap this in an action
+      //
+      ActionMeta actionMeta = new ActionMeta(neo4jIndex);
+      actionMeta.setName("Create indexes for graph model " + graphModel.getName());
+      actionMeta.setLocation(50, 50);
+      String xml = actionMeta.getXml();
+
+      GuiResource.getInstance()
+          .toClipboard("<workflow-actions><actions>" + xml + "</actions></workflow-actions>");
+
+      MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      messageBox.setText("Copied to clipboard");
+      messageBox.setMessage(
+          "An Neo4j Index action was copied to the clipboard to create the required indexes for this model.  You can paste this action in a workflow.");
+      messageBox.open();
+
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "ERROR", "Error serializing to JSON", e);
+    }
   }
 
   public void setChanged() {

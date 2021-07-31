@@ -819,7 +819,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
           Value returnValue = fieldPair.value();
           Type valueType = returnValue.type();
 
-          String typeName = valueType.name().replaceAll("_", "");
+          String typeName = valueType.name().replaceAll("_", "").replace("LIST OF ANY?", "LIST");
           GraphPropertyDataType type = GraphPropertyDataType.parseCode(typeName);
           int kettleType = type.getHopType();
 

@@ -589,6 +589,10 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
     switch (sourceType) {
       case String:
         return recordValue.asString();
+      case List:
+        return JSONValue.toJSONString(recordValue.asList());
+      case Map:
+        return JSONValue.toJSONString(recordValue.asMap());
       default:
         return JSONValue.toJSONString(recordValue.asObject());
     }
